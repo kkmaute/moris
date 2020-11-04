@@ -259,9 +259,8 @@ namespace moris
             ex_close(mExoid);
 
             // write log information
-            std::string tMassage = "Copying " + mTempFileName + " to " + mPermFileName +".";
-
-            MORIS_LOG( tMassage.c_str() );
+            std::string tMessage = "Copying " + mTempFileName + " to " + mPermFileName + ".";
+            MORIS_LOG( tMessage.c_str() );
 
             // copy temporary file on permanent file
             std::ifstream src(mTempFileName.c_str(),  std::ios::binary);
@@ -451,14 +450,16 @@ namespace moris
             // Make file name parallel, if necessary
             if (par_size() > 1)
             {
-                // make sure they have the same number of leading zeros
-                std::string tParSizeBaseStr =  std::to_string(par_size());
-
+                // Get par size and rank as strings
+                std::string tParSizeStr =  std::to_string(par_size());
                 std::string tParRankBaseStr =  std::to_string(par_rank());
-                std::string tParRankStr = std::string( tParSizeBaseStr.length() - tParRankBaseStr.length(), '0').append( tParRankBaseStr );
 
-                mTempFileName += "." + tParSizeBaseStr + "." + tParRankStr;
-                mPermFileName += "." + tParSizeBaseStr + "." + tParRankStr;
+                // Make sure all par rank strings have the same number of leading zeros
+                std::string tParRankStr = std::string( tParSizeStr.length() - tParRankBaseStr.length(), '0').append( tParRankBaseStr );
+
+                // Append to temporary and permament file names
+                mTempFileName += "." + tParSizeStr + "." + tParRankStr;
+                mPermFileName += "." + tParSizeStr + "." + tParRankStr;
             }
 
             // Create the database

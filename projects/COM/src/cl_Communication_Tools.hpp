@@ -208,12 +208,14 @@ namespace moris
      *  ( cols: i-direction, rows: j-direction )
      *
      */
-    void
-    create_proc_cart(
+
+    void create_proc_cart(
+            const uint              & aDecompMethod,
             const uint              & aNumberOfDimensions,
             Matrix < DDUMat >       & aProcDims,
             Matrix < DDUMat >       & aProcCoords,
-            Matrix < IdMat >       & aProcNeighbors );
+            Matrix < IdMat >        & aProcNeighbors );
+
 
     //------------------------------------------------------------------------------
 

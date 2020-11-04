@@ -24,6 +24,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
+            // Processor Decomposition Method
+            uint tDecompMethod = 1;
+            tParameters->set_processor_decomp_method(tDecompMethod);
+
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
@@ -347,6 +351,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
+            // Processor Decomposition Method
+            uint tDecompMethod = 1;
+            tParameters->set_processor_decomp_method(tDecompMethod);
+
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
@@ -610,6 +618,10 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         // set number of elements
         tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
 
+        // Processor Decomposition Method
+        uint tDecompMethod = 1;
+        tParameters->set_processor_decomp_method(tDecompMethod);
+
         // set buffer size to zero
         tParameters->set_refinement_buffer( 1 );
         tParameters->set_staircase_buffer( 1 );
@@ -707,6 +719,10 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
     {
         // create settings object
         moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+        // Processor Decomposition Method
+        uint tDecompMethod = 1;
+        tParameters->set_processor_decomp_method(tDecompMethod);
 
         // set number of elements
         tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
@@ -817,6 +833,9 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
     {
         // create parameter object
         moris::hmr::Parameters tParameters;
+
+        tParameters.set_processor_decomp_method(1);
+
         tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
 //        tParameters.set_verbose( true );
         tParameters.set_severity_level( 0 );
@@ -867,6 +886,9 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Backgr
     {
         // create parameter object
         moris::hmr::Parameters tParameters;
+
+        tParameters.set_processor_decomp_method(1);
+
         tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
 //        tParameters.set_verbose( true );
         tParameters.set_severity_level( 0 );
@@ -949,6 +971,9 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
     {
         // create parameter object
         moris::hmr::Parameters tParameters;
+
+        tParameters.set_processor_decomp_method(1);
+
         tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
 //        tParameters.set_verbose( true );
         tParameters.set_severity_level( 0 );
@@ -1017,3 +1042,624 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
     }
 }
 
+TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],[hmr],[Background_Mesh],[Proc_Decomp_2]")
+{
+    SECTION( "Background mesh initialization test")
+    {
+        if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
+        {
+            // create settings object
+            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+            // Processor Decomposition Method
+            uint tDecompMethod = 2;
+            tParameters->set_processor_decomp_method(tDecompMethod);
+
+            // set number of elements
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {2}, {8} };
+            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+
+            // do not print debug information during test
+            tParameters->set_severity_level( 0 );
+
+            // set buffer size to zero
+            tParameters->set_refinement_buffer( 1 );
+            tParameters->set_staircase_buffer( 1 );
+
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
+
+            // deactivate truncation
+            tParameters->set_bspline_truncation( false );
+
+            // create factory
+            moris::hmr::Factory tFactory;
+
+            // create background mesh object
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+            // update element table
+            //tBackgroundMesh->collect_active_elements();
+
+            uint tActivePattern = tBackgroundMesh->get_activation_pattern();
+
+//            tBackgroundMesh->save_to_vtk( "BackgorundMesh_2Proc.vtk");
+
+            if ( moris::par_size() == 1 )
+            {
+                // element pointer for tests
+                moris::hmr::Background_Element_Base* tElement = nullptr;
+
+                // ------------------------------------------------------
+                // simple element test
+                // ------------------------------------------------------
+
+
+                //  tBackgroundMesh->print_level_zero();
+                tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 57 );
+
+                // must be 45
+                REQUIRE( tElement->get_hmr_id() == 57 );
+
+                // must be true
+                REQUIRE( tElement->is_active( tActivePattern ) );
+
+                // must be false
+                REQUIRE( ! tElement->is_refined( tActivePattern ) );
+
+                tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 58 );
+
+                // must be 46
+                REQUIRE( tElement->get_hmr_id() == 58 );
+
+                // must be false
+                REQUIRE( ! tElement->is_active( tActivePattern ) );
+
+                // must be true
+                REQUIRE(  tElement->is_refined( tActivePattern ) );
+
+                // must be true
+                REQUIRE(  tElement->is_padding() );
+
+                //  tBackgroundMesh->print_level_zero();
+                tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 14 );
+
+                // must be 26
+                REQUIRE( tElement->get_hmr_id() == 14 );
+
+                // must be true
+                REQUIRE( tElement->is_active( tActivePattern ) );
+
+                // must be false
+                REQUIRE( ! tElement->is_refined( tActivePattern ) );
+
+                tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 13 );
+
+                // must be 46
+                REQUIRE( tElement->get_hmr_id() == 13 );
+
+                // must be false
+                REQUIRE( ! tElement->is_active( tActivePattern ) );
+
+                // must be true
+                REQUIRE(  tElement->is_refined( tActivePattern ) );
+
+                // must be true
+                REQUIRE(  tElement->is_padding() );
+            }
+            else if ( moris::par_size() == 2 )
+            {
+                if ( moris::par_rank() == 1)
+                {
+                    // print zero layer for debugging
+                    // tBackgroundMesh->print_level_zero();
+
+                    // element pointer for tests
+                    moris::hmr::Background_Element_Base* tElement = nullptr;
+
+                    // ------------------------------------------------------
+                    // simple element test
+                    // ------------------------------------------------------
+
+
+                    // test element
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 14 );
+
+                    // must be 38
+                    REQUIRE( tElement->get_hmr_id() == 38 );
+
+                    // must be true
+                    REQUIRE( tElement->is_active( tActivePattern ) );
+
+                    // must be false
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
+
+                    // must be 1
+                    REQUIRE( tElement->get_owner() == 1);
+
+                    // ------------------------------------------------------
+
+                    // test element
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 13 );
+
+                    // must be 7
+                    REQUIRE( tElement->get_hmr_id() == 37 );
+
+                    // must be false
+                    REQUIRE( ! tElement->is_active( tActivePattern ) );
+
+                    // must be true
+                    REQUIRE( tElement->is_refined( tActivePattern ) );
+
+                    // must be UINT_MAX
+                    // (padding elements do not belong to anybody )
+                    REQUIRE( tElement->get_owner() == moris::hmr::gNoProcOwner );
+
+                    // ------------------------------------------------------
+
+                    // test element
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 8 );
+
+                    // must be 32
+                    REQUIRE( tElement->get_hmr_id() == 32 );
+
+                    // must be true
+                    REQUIRE( tElement->is_active( tActivePattern ) );
+
+                    // must be false
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
+
+                    // must be 0
+                    REQUIRE( tElement->get_owner() == 0 );
+
+                    // ------------------------------------------------------
+                    // test aura from proc 1 to proc 0
+                    // ------------------------------------------------------
+
+                    // get aura elements
+                    moris::Matrix< moris::DDLUMat > tAuraElements
+                    = tBackgroundMesh->get_subdomain_ids_of_coarsest_aura( 1 );
+
+                    REQUIRE( tAuraElements.length() == 4 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 0 ) );
+                    REQUIRE( tElement->get_hmr_id() == 26 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 1 ) );
+                    REQUIRE( tElement->get_hmr_id() == 27 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 2 ) );
+                    REQUIRE( tElement->get_hmr_id() == 32 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 3 ) );
+                    REQUIRE( tElement->get_hmr_id() == 33 );
+
+                    // ------------------------------------------------------
+                    // test aura from proc 0 to proc 1
+                    // ------------------------------------------------------
+
+                    // test inverse aura
+                    moris::Matrix< moris::DDLUMat > tInverseAuraElements
+                    = tBackgroundMesh->get_subdomain_ids_of_coarsest_inverse_aura( 1 );
+
+                    // must be 4
+                    REQUIRE( tInverseAuraElements.length() == 4 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 0 ) );
+                    REQUIRE( tElement->get_hmr_id() == 38 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 1 ) );
+                    REQUIRE( tElement->get_hmr_id() == 39 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 2 ) );
+                    REQUIRE( tElement->get_hmr_id() == 44 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 3 ) );
+                    REQUIRE( tElement->get_hmr_id() == 45 );
+                }
+            }
+            else if ( moris::par_size() == 4 )
+            {
+                if ( moris::par_rank() == 2)
+                {
+                    // print zero layer for debugging
+                    //tBackgroundMesh->print_level_zero();
+
+                    // element pointer for tests
+                    moris::hmr::Background_Element_Base* tElement = nullptr;
+
+                    // ------------------------------------------------------
+                    // simple element test
+                    // ------------------------------------------------------
+
+                    // test element
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 14 );
+
+                    REQUIRE( tElement->get_hmr_id() == 38 );
+
+                    REQUIRE( tElement->is_active( tActivePattern ) );
+
+                    REQUIRE( !tElement->is_refined( tActivePattern ) );
+
+                    REQUIRE( tElement->get_owner() == 2 );
+
+                    // ------------------------------------------------------
+
+                    // test element
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 8 );
+
+                    // must be 32
+                    REQUIRE( tElement->get_hmr_id() == 32 );
+
+                    // must be true
+                    REQUIRE( tElement->is_active( tActivePattern ) );
+
+                    // must be false
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
+
+                    // must be 1
+                    REQUIRE( tElement->get_owner() ==  1);
+
+                    // ------------------------------------------------------
+
+                    // test element
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 32 );
+
+                    REQUIRE( tElement->get_hmr_id() == 56 );
+
+                    // must be true
+                    REQUIRE( tElement->is_active( tActivePattern ) );
+
+                    // must be false
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
+
+                    // must be 3
+                    REQUIRE( tElement->get_owner() == 3 );
+
+                    // ------------------------------------------------------
+                    // test aura from proc 2 to proc 1
+                    // ------------------------------------------------------
+
+                    moris::Matrix< moris::DDLUMat > tAuraElements
+                    = tBackgroundMesh->get_subdomain_ids_of_coarsest_aura( 1 );
+
+
+                    // must be 4
+                    REQUIRE( tAuraElements.length() == 4);
+
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 0 ) );
+                    REQUIRE( tElement->get_hmr_id() == 26 );
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 1 ) );
+                    REQUIRE( tElement->get_hmr_id() == 27 );
+
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 2 ) );
+                    REQUIRE( tElement->get_hmr_id() == 32 );
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 3 ) );
+                    REQUIRE( tElement->get_hmr_id() == 33 );
+
+                    // ------------------------------------------------------
+                    // test aura from proc 1 to proc 2
+                    // ------------------------------------------------------
+
+                    moris::Matrix< moris::DDLUMat > tInverseAuraElements
+                                   = tBackgroundMesh->get_subdomain_ids_of_coarsest_inverse_aura( 1 );
+
+                    // must be
+                    REQUIRE( tInverseAuraElements.length() == 4 );
+
+                    // must be
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 0 ) );
+                    REQUIRE( tElement->get_hmr_id() == 38 );
+
+                    // must be
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 1 ) );
+                    REQUIRE( tElement->get_hmr_id() == 39 );
+
+                    // must be
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 2 ) );
+                    REQUIRE( tElement->get_hmr_id() == 44 );
+
+                    // must be
+                    tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 3 ) );
+                    REQUIRE( tElement->get_hmr_id() == 45 );
+                }
+            }
+
+            tParameters->set_severity_level( 2 );
+
+            // delete background mesh
+            delete tBackgroundMesh;
+
+            // delete settings object
+            delete tParameters;
+        }
+    }
+    SECTION( "Background mesh refinement test")
+    {
+        if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
+        {
+            // create settings object
+            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+            // Processor Decomposition Method
+            uint tDecompMethod = 2;
+            tParameters->set_processor_decomp_method(tDecompMethod);
+
+            // set number of elements
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {2}, {8} };
+            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+
+            // set buffer size to zero
+            tParameters->set_refinement_buffer( 0 );
+            tParameters->set_staircase_buffer( 0 );
+
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
+
+            // deactivate truncation
+            tParameters->set_bspline_truncation( false );
+
+            // create factory
+            moris::hmr::Factory tFactory;
+
+            // create background mesh object
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+            if ( moris::par_size() == 1 )
+            {
+                // create pointer to an element
+                moris::hmr::Background_Element_Base* tElement = nullptr;
+
+                // since no element has been refined yet, I know that element
+                // element 0 is the element with ID 14
+                tElement = tBackgroundMesh->get_element( 0 );
+
+                // refine it
+                tBackgroundMesh->refine_element( tElement, false );
+
+                // since the list of active elements has not been updated yet,
+                // In know that 3 is the element with ID 21
+                tElement = tBackgroundMesh->get_element( 3 );
+
+                // refine it
+                tBackgroundMesh->refine_element( tElement, false );
+
+                // update element table
+                tBackgroundMesh->collect_active_elements();
+
+//                tBackgroundMesh->save_to_vtk( "BackgorundMesh_refine.vtk");
+
+                // list of active elements on proc
+                moris::Matrix< moris::DDLUMat > tElementIDs;
+
+                tBackgroundMesh->get_active_elements_on_proc( tElementIDs );
+
+                REQUIRE( tElementIDs.length()  == 22 );
+
+
+                REQUIRE( tElementIDs(  0 ) == 124 );
+                REQUIRE( tElementIDs(  1 ) == 125 );
+                REQUIRE( tElementIDs(  2 ) == 136 );
+                REQUIRE( tElementIDs(  3 ) == 137 );
+                REQUIRE( tElementIDs(  4 ) ==  15 );
+                REQUIRE( tElementIDs(  5 ) ==  20 );
+                REQUIRE( tElementIDs(  6 ) == 150 );
+                REQUIRE( tElementIDs(  7 ) == 151 );
+                REQUIRE( tElementIDs(  8 ) == 162 );
+                REQUIRE( tElementIDs(  9 ) == 163 );
+                REQUIRE( tElementIDs( 10 ) ==  26 );
+                REQUIRE( tElementIDs( 11 ) ==  27 );
+                REQUIRE( tElementIDs( 12 ) ==  32 );
+                REQUIRE( tElementIDs( 13 ) ==  33 );
+                REQUIRE( tElementIDs( 14 ) ==  38 );
+                REQUIRE( tElementIDs( 15 ) ==  39 );
+                REQUIRE( tElementIDs( 16 ) ==  44 );
+                REQUIRE( tElementIDs( 17 ) ==  45 );
+                REQUIRE( tElementIDs( 18 ) ==  50 );
+                REQUIRE( tElementIDs( 19 ) ==  51 );
+                REQUIRE( tElementIDs( 20 ) ==  56 );
+                REQUIRE( tElementIDs( 21 ) ==  57 );
+            }
+            else if ( moris::par_size() == 2 )
+            {
+                // create pointer to an element
+                moris::hmr::Background_Element_Base * tElement = nullptr;
+
+                // update element table
+                tBackgroundMesh->collect_active_elements();
+
+                if( moris::par_rank() == 0 )
+                {
+                    // pick element 32
+                    tElement = tBackgroundMesh->get_element( 6 );
+
+                    // make sure we picked the correct element
+                    REQUIRE( tElement->get_hmr_id() == 32 );
+
+                    // flag element for refinement
+                    tElement->put_on_refinement_queue();
+                }
+                else
+                {
+                    // pick element 38
+                    tElement = tBackgroundMesh->get_element( 0 );
+
+                    // make sure we picked the correct element
+                    REQUIRE( tElement->get_hmr_id() == 38 );
+
+                    // flag element for refinement
+                    tElement->put_on_refinement_queue();
+                }
+
+                // refine all elements
+                tBackgroundMesh->perform_refinement( 0 );
+
+                if( moris::par_rank() == 0 )
+                {
+                    // pick element 196
+                    tElement =  tBackgroundMesh->get_element( 6 );
+
+                    // make sure we picked the correct element
+                    REQUIRE( tElement->get_hmr_id() == 196 );
+
+                    // flag element for refinement
+                    tElement->put_on_refinement_queue();
+                }
+
+                // refine all elements
+                tBackgroundMesh->perform_refinement( 0 );
+
+                // list of active elements on proc
+                moris::Matrix< moris::DDLUMat > tElementIDs;
+
+                // get list of active elements including aura
+                tBackgroundMesh->get_active_elements_on_proc_including_aura( tElementIDs );
+
+                // in this case, tElementIDs must be identical on both procs
+                REQUIRE( tElementIDs.length() == 21 );
+                //std::cout<<moris::par_rank()<<": "<<tElementIDs.length()<<std::endl;
+
+
+
+                if ( moris::par_rank() == 1 )
+                {
+                    REQUIRE( tElementIDs(  0 ) ==  26 );
+                    REQUIRE( tElementIDs(  1 ) ==  27 );
+                    REQUIRE( tElementIDs(  2 ) == 848 );
+                    REQUIRE( tElementIDs(  3 ) == 849 );
+                    REQUIRE( tElementIDs(  4 ) == 872 );
+                    REQUIRE( tElementIDs(  5 ) == 873 );
+                    REQUIRE( tElementIDs(  6 ) == 197 );
+                    REQUIRE( tElementIDs(  7 ) == 208 );
+                    REQUIRE( tElementIDs(  8 ) == 209 );
+                    REQUIRE( tElementIDs(  9 ) ==  33 );
+                    REQUIRE( tElementIDs( 10 ) == 220 );
+                    REQUIRE( tElementIDs( 11 ) == 221 );
+                    REQUIRE( tElementIDs( 12 ) == 232 );
+                    REQUIRE( tElementIDs( 13 ) == 233 );
+                    REQUIRE( tElementIDs( 14 ) ==  39 );
+                    REQUIRE( tElementIDs( 15 ) ==  44 );
+                    REQUIRE( tElementIDs( 16 ) ==  45 );
+                    REQUIRE( tElementIDs( 17 ) ==  50 );
+                    REQUIRE( tElementIDs( 18 ) ==  51 );
+                    REQUIRE( tElementIDs( 19 ) ==  56 );
+                    REQUIRE( tElementIDs( 20 ) ==  57 );
+                }
+
+
+            }
+            else if ( moris::par_size() == 4 )
+            {
+                // create pointer to an element
+                moris::hmr::Background_Element_Base * tElement = nullptr;
+
+                // update element table
+                tBackgroundMesh->collect_active_elements();
+
+                if( moris::par_rank() == 1 )
+                {
+                    // pick element 32
+                    tElement = tBackgroundMesh->get_element( 2 );
+
+                    // make sure we picked the correct element
+                    REQUIRE( tElement->get_hmr_id() == 32 );
+
+                    // flag element for refinement
+                    tElement->put_on_refinement_queue();
+                }
+                else if ( moris::par_rank()==2 )
+                {
+                    // pick element 38
+                    tElement = tBackgroundMesh->get_element( 0 );
+
+                    // make sure we picked the correct element
+                    REQUIRE( tElement->get_hmr_id() == 38 );
+
+                    // flag element for refinement
+                    tElement->put_on_refinement_queue();
+                }
+
+                // call refinement procedure
+                tBackgroundMesh->perform_refinement( 0 );
+
+                if( moris::par_rank() == 1 )
+                {
+                    // pick element 209
+                    tElement =  tBackgroundMesh->get_element( 5 );
+
+                    // make sure we picked the correct element
+                    REQUIRE( tElement->get_hmr_id() == 209 );
+
+                    // flag element for refinement
+                    tElement->put_on_refinement_queue();
+                }
+
+                // refine all elements
+                tBackgroundMesh->perform_refinement( 0 );
+
+                // list of active elements on proc
+                moris::Matrix< moris::DDLUMat > tElementIDs;
+
+                if ( moris::par_rank() == 0 )
+                {
+                    // get list of active elements including aura
+                    tBackgroundMesh->get_active_elements_on_proc_including_aura( tElementIDs );
+
+                    // in this case, tElementIDs are different for each proc
+                    REQUIRE( tElementIDs.length() == 14 );
+                }
+                else if ( moris::par_rank() == 1 or moris::par_rank() == 2 )
+                {
+                    // get list of active elements including aura
+                    tBackgroundMesh->get_active_elements_on_proc_including_aura( tElementIDs );
+
+                    // in this case, tElementIDs count is the same for procs 1 and 2
+                    REQUIRE( tElementIDs.length() == 21 );
+                    if (moris::par_rank()==2)
+                    {
+                        for (uint i = 0; i < 21; ++i)
+                        {
+                            REQUIRE( tElementIDs(  0 ) ==  26 );
+                            REQUIRE( tElementIDs(  1 ) ==  27 );
+                            REQUIRE( tElementIDs(  2 ) == 196 );
+                            REQUIRE( tElementIDs(  3 ) == 197 );
+                            REQUIRE( tElementIDs(  4 ) == 208 );
+                            REQUIRE( tElementIDs(  5 ) == 898 );
+                            REQUIRE( tElementIDs(  6 ) == 899 );
+                            REQUIRE( tElementIDs(  7 ) == 922 );
+                            REQUIRE( tElementIDs(  8 ) == 923 );
+                            REQUIRE( tElementIDs(  9 ) ==  33 );
+                            REQUIRE( tElementIDs( 10 ) == 220 );
+                            REQUIRE( tElementIDs( 11 ) == 221 );
+                            REQUIRE( tElementIDs( 12 ) == 232 );
+                            REQUIRE( tElementIDs( 13 ) == 233 );
+                            REQUIRE( tElementIDs( 14 ) ==  39 );
+                            REQUIRE( tElementIDs( 15 ) ==  44 );
+                            REQUIRE( tElementIDs( 16 ) ==  45 );
+                            REQUIRE( tElementIDs( 17 ) ==  50 );
+                            REQUIRE( tElementIDs( 18 ) ==  51 );
+                            REQUIRE( tElementIDs( 19 ) ==  56 );
+                            REQUIRE( tElementIDs( 20 ) ==  57 );
+                        }
+                    }
+                }
+                else if ( moris::par_rank() == 3 )
+                {
+                    // get list of active elements including aura
+                    tBackgroundMesh->get_active_elements_on_proc_including_aura( tElementIDs );
+
+                    // in this case, tElementIDs must be identical on both procs
+                    REQUIRE( tElementIDs.length() == 11 );
+                }
+
+            }
+
+            // delete background mesh
+            delete tBackgroundMesh;
+
+            // delete settings object
+            delete tParameters;
+        }
+    }
+}

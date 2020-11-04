@@ -95,6 +95,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "300,1");
+        tParameterlist( 0 )( 0 ).set( "processor_decomposition_method",   1 );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "0.168,0.0005");
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0,0.0") ;
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
