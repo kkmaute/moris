@@ -133,10 +133,12 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso =
+                tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
+        tCMDiffLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -353,6 +355,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
+        tCMDiffLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -587,6 +590,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
+        tCMDiffLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -846,6 +850,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
+        tCMDiffLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -1120,6 +1125,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
+        tCMDiffLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

@@ -164,7 +164,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 moris::Matrix< DDSMat >
-                get_vertices_inds_on_block(const bool aOnlyPrimary )
+                get_ig_vertices_inds_on_block(const bool aOnlyPrimary )
                 {
                     return mVerticesOnSet;
                 }

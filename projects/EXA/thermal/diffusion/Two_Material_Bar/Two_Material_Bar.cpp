@@ -29,6 +29,9 @@ extern uint gInterpolationOrder;
 // problem dimension: 2D or 3D
 extern uint gDim;
 
+// problem dimension: 2D or 3D
+extern uint gTestCaseIndex;
+
 //---------------------------------------------------------------
 
 #ifdef  __cplusplus
@@ -130,7 +133,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tOutputFileName = "Two_Material_Bar.exo";
+    std::string tOutputFileName = "Two_Material_Bar_" + std::to_string(gTestCaseIndex) + ".exo";
 
     /* ------------------------------------------------------------------------ */
     // Level set function for diamond shaped wedge

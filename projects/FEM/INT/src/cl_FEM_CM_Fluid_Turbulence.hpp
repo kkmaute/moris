@@ -30,6 +30,10 @@ namespace moris
                 MSI::Dof_Type mDofPressure  = MSI::Dof_Type::P;
                 MSI::Dof_Type mDofViscosity = MSI::Dof_Type::VISCOSITY;
 
+//                // default properties
+//                std::shared_ptr< Property > mPropViscosity = nullptr;
+//                std::shared_ptr< Property > mPropDensity   = nullptr;
+//
                 // property type for CM
                 enum class CM_Property_Type
                 {
@@ -37,9 +41,6 @@ namespace moris
                     VISCOSITY, // fluid viscosity
                     MAX_ENUM
                 };
-
-                // local string to property enum map
-                std::map< std::string, CM_Property_Type > mPropertyMap;
 
                 // Spalart Allmaras model constants
                 real mCv1 = 7.1;
@@ -82,23 +83,11 @@ namespace moris
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a string defining the property
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * get a property pointer
-                 * @param[ in ]  aPropertyType a string defining the property
-                 * @param[ out ] aProperty     a property pointer
-                 */
-                std::shared_ptr< Property > get_property( std::string aPropertyString );
+                void set_local_properties();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**

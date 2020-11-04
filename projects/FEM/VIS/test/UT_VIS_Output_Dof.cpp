@@ -214,6 +214,7 @@ namespace moris
                 tCMMasterElastLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
                 tCMMasterElastLinIso->set_property( tPropMasterNu, "PoissonRatio" );
                 tCMMasterElastLinIso->set_space_dim( 2 );
+                tCMMasterElastLinIso->set_local_properties();
 
                 std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso_bis =
                         tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -221,6 +222,7 @@ namespace moris
                 tCMMasterElastLinIso_bis->set_property( tPropMasterEMod, "YoungsModulus" );
                 tCMMasterElastLinIso_bis->set_property( tPropMasterNu, "PoissonRatio" );
                 tCMMasterElastLinIso_bis->set_space_dim( 2 );
+                tCMMasterElastLinIso_bis->set_local_properties();
 
                 // create stabilization parameters
                 fem::SP_Factory tSPFactory;

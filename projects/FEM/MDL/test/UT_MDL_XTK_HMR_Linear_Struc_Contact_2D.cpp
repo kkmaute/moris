@@ -360,6 +360,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tCMStrucLinIso1->set_property( tPropNua, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -368,6 +369,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tCMStrucLinIso2->set_property( tPropNub, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

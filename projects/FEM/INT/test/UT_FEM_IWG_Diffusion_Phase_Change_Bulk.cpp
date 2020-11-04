@@ -137,6 +137,7 @@ moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
     tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "PhaseStateFunction" );
     tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "PhaseChangeConst" );
     tCMMasterDiffLinIsoPC->set_space_dim( 3 );
+    tCMMasterDiffLinIsoPC->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

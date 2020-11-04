@@ -9,6 +9,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         void SP_Ghost_Virtual_Work::eval_SP()
         {
             // compute stabilization parameter value
@@ -16,6 +17,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Ghost_Virtual_Work::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -25,7 +27,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Ghost_Virtual_Work::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Ghost_Virtual_Work::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

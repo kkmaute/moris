@@ -50,7 +50,7 @@ namespace moris
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
             // test traction is transpose of the traction dof derivative
-            mThermalTestTraction( tTestDofIndex ) = trans( trans( aNormal ) * this->dFluxdDOF( aTestDofTypes, CM_Function_Type::THERMAL ) );
+            mThermalTestTraction( tTestDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aTestDofTypes, CM_Function_Type::THERMAL );
         }
 
         //--------------------------------------------------------------------------------------------------------------

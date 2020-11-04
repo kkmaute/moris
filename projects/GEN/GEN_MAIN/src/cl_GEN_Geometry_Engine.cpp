@@ -403,8 +403,12 @@ namespace moris
             // Assign as child node
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
+                // tGeomProx.set_geometric_proximity();
                 mGeometries(tGeometryIndex)->add_child_node(aNodeIndex, mQueuedIntersectionNode);
             }
+
+            // admit the queued intersection geometric proximity
+            this->admit_queued_intersection_geometric_proximity(aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -425,10 +429,12 @@ namespace moris
                 const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                 const Matrix<DDRMat>&       aGlobalNodeCoord )
         {
+            // resize proximities
+            mVertexGeometricProximity.resize(mVertexGeometricProximity.size() + aNewNodeIndices.size(), Geometric_Proximity(mGeometries.size()));
+
             // Loop over nodes
             for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++)
             {
-                // Create child node
                 Matrix<DDUMat> tParentNodeIndices(aParentTopo(tNode)->get_node_indices().length(), 1);
                 Cell<Matrix<DDRMat>> tParentNodeCoordinates(tParentNodeIndices.length());
                 for (uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++)
@@ -439,10 +445,21 @@ namespace moris
                 std::shared_ptr<Child_Node> tChildNode = std::make_shared<Child_Node>(
                         tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode));
 
+
+                mVertexGeometricProximity(aNewNodeIndices(tNode)).mAssociatedVertexIndex = aNewNodeIndices(tNode);
+
+                Matrix<DDRMat> tCoord = aGlobalNodeCoord.get_row(aNewNodeIndices(tNode));
+
                 // Assign to geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
+                    
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
+                    real tVertGeomVal = this->get_geometry_field_value(aNewNodeIndices(tNode), tCoord, tGeometryIndex);
+
+                    moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
+
+                    mVertexGeometricProximity(aNewNodeIndices(tNode)).set_geometric_proximity(tGeomProxIndex,tGeometryIndex);
                 }
             }
 
@@ -476,19 +493,15 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates)
         {
             // 0 for neg 1 for pos
-            real tNodePhaseValue = 0;
             Matrix< IndexMat > tPhaseOnOff(1, this->get_num_geometries());
 
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                tNodePhaseValue = this->get_geometry_field_value(aNodeIndex, aCoordinates, tGeometryIndex);
+               moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
 
-                // Negative
-                if (tNodePhaseValue < mIsocontourThreshold)
-                {
-                    tPhaseOnOff(0, tGeometryIndex) = 0;
-                }
-                else
+                tPhaseOnOff(0, tGeometryIndex) = 0;
+
+                if (tProxIndex == 2)
                 {
                     tPhaseOnOff(0, tGeometryIndex) = 1;
                 }
@@ -511,16 +524,15 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates,
                 uint                   aGeometryIndex)
         {
-            real tNodePhaseValue = this->get_geometry_field_value(
-                    aNodeIndex,
-                    aCoordinates,
-                    aGeometryIndex);
 
-            size_t tPhaseOnOff = 1;
+            moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity(aGeometryIndex);
 
-            if (tNodePhaseValue < mIsocontourThreshold)
+
+            size_t tPhaseOnOff = 0;
+
+            if (tProxIndex == 2)
             {
-                tPhaseOnOff = 0;
+                tPhaseOnOff = 1;
             }
 
             return tPhaseOnOff;
@@ -734,6 +746,9 @@ namespace moris
 
             // Set number of background nodes
             mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
+
+            // allocate proximity data
+            this->setup_initial_geometric_proximities(aMesh);
 
             // Build distributed ADVs
             if (mOwnedADVs == nullptr)
@@ -1278,6 +1293,151 @@ namespace moris
                     }
                 }
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Geometry_Engine::setup_initial_geometric_proximities(mtk::Interpolation_Mesh* aMesh)
+        {
+            mVertexGeometricProximity = Cell<Geometric_Proximity>(aMesh->get_num_nodes(),Geometric_Proximity(mGeometries.size()));
+
+            // iterate through vertices then geometries
+            for(moris::uint iV = 0; iV < aMesh->get_num_nodes(); iV++)
+            {
+                Matrix<DDRMat> tCoords = aMesh->get_node_coordinate(moris_index(iV));
+
+                 mVertexGeometricProximity(iV).mAssociatedVertexIndex = (moris_index) iV;
+
+                for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
+                {            
+                    real tVertGeomVal = this->get_geometry_field_value(moris_index(iV), tCoords, iGeometryIndex);
+
+                    moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
+
+                    mVertexGeometricProximity(iV).set_geometric_proximity(tGeomProxIndex,iGeometryIndex);
+
+                }
+            }
+
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index
+        Geometry_Engine::get_geometric_proximity_index(moris::real const & aGeometricVal)
+        {
+            moris_index tGeometricProxIndex = MORIS_INDEX_MAX;
+            if(aGeometricVal < mIsocontourThreshold)
+            {
+                tGeometricProxIndex = 0;
+            }
+            else if(aGeometricVal == mIsocontourThreshold)
+            {
+                tGeometricProxIndex = 1;
+            }
+            else if(aGeometricVal > mIsocontourThreshold)
+            {
+                tGeometricProxIndex = 2;
+            }
+            
+            return tGeometricProxIndex;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index
+        Geometry_Engine::get_queued_intersection_geometric_proximity_index(moris_index const & aGeomIndex)
+        {
+            // parent vertex
+            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->mParentNodeIndices(0);
+            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->mParentNodeIndices(1);
+
+            // parent vertex proximity wrt aGeomIndex
+            moris_index tParentProx0 = mVertexGeometricProximity(tParentVertexIndex0).get_geometric_proximity(aGeomIndex);
+            moris_index tParentProx1 = mVertexGeometricProximity(tParentVertexIndex1).get_geometric_proximity(aGeomIndex);
+
+            // 0 - G(x) < threshold
+            // 1 - G(x) == threshold
+            // 2 - G(x) > threshold
+            // verify we dont transition across interface
+            // MORIS_ERROR((tParentProx0 == 0 && tParentProx1 == 0) || 
+            //             (tParentProx0 == 0 && tParentProx1 == 1) || 
+            //             (tParentProx0 == 1 && tParentProx1 == 0) || 
+            //             (tParentProx0 == 1 && tParentProx1 == 1) || 
+            //             (tParentProx0 == 2 && tParentProx1 == 2) || 
+            //             (tParentProx0 == 2 && tParentProx1 == 1) || 
+            //             (tParentProx0 == 1 && tParentProx1 == 2),   "Invalid proximity data");
+            // 
+            // add them together
+            moris_index tSum = tParentProx0 + tParentProx1;
+
+            // proximity value
+            moris_index tProxIndex = MORIS_INDEX_MAX;
+            if(tSum == 0)
+            {
+                tProxIndex = 0;
+            }
+            else if(tSum == 1)
+            {
+                tProxIndex = 0;
+            }
+            else if(tSum == 2)
+            {
+                tProxIndex = 1;
+            }
+            else if(tSum == 3)
+            {
+                tProxIndex = 2;
+            }
+            else if(tSum == 4)
+            {
+                tProxIndex = 2;
+            }
+            else
+            {
+                MORIS_ASSERT(0,"Proximity determination failed.");
+            }
+
+             return tProxIndex;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        void
+        Geometry_Engine::admit_queued_intersection_geometric_proximity(uint aNodeIndex)
+        {
+
+            MORIS_ERROR(aNodeIndex == mVertexGeometricProximity.size(),"Index mismatch");
+            // initialize proximity data
+            mVertexGeometricProximity.push_back(Geometric_Proximity(mGeometries.size()));
+
+            // node index associated with this proximity
+            mVertexGeometricProximity(aNodeIndex).mAssociatedVertexIndex = aNodeIndex;
+
+            // geometry iteration through previous geometries
+            for (uint tGeometryIndex = 0; tGeometryIndex < this->get_active_geometry_index(); tGeometryIndex++)
+            {
+                moris_index tProxIndex = this->get_queued_intersection_geometric_proximity_index(tGeometryIndex);
+                mVertexGeometricProximity(aNodeIndex).set_geometric_proximity(tProxIndex,tGeometryIndex);
+            }
+
+            // place the current one on the interface
+            mVertexGeometricProximity(aNodeIndex).set_geometric_proximity(1,this->get_active_geometry_index());
+
+            if(this->get_active_geometry_index() != mGeometries.size() - 1)
+            {
+                // iterate through following geometries (here we just compute the vertex value to determine proximity)
+                for (uint tGeometryIndex = this->get_active_geometry_index() + 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    real tVertGeomVal = this->get_geometry_field_value(aNodeIndex, mQueuedIntersectionNode->get_global_coordinates(), tGeometryIndex);
+
+                    moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
+
+                    mVertexGeometricProximity(aNodeIndex).set_geometric_proximity(tGeomProxIndex,tGeometryIndex);
+                }
+            }
+
         }
 
         //--------------------------------------------------------------------------------------------------------------

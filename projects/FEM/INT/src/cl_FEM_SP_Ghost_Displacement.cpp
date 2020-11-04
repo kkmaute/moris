@@ -14,16 +14,18 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         SP_Ghost_Displacement::SP_Ghost_Displacement()
         {
             // set size for the property pointer cells
             mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+            mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Ghost_Displacement::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -33,22 +35,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Ghost_Displacement::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "SP_Ghost_Displacement::set_property - Unknown aPropertyString : " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() , tErrMsg.c_str() );
 
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
         void SP_Ghost_Displacement::eval_SP()
         {
             // compute stabilization parameter value
@@ -58,7 +45,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Ghost_Displacement::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Ghost_Displacement::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

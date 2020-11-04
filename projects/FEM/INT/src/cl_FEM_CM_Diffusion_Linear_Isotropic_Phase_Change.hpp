@@ -33,7 +33,11 @@ namespace moris
                 //------------------------------------------------------------------------------
             protected:
 
-                // nothing
+                // default local properties
+                std::shared_ptr< Property > mPropLatentHeat = nullptr;
+                std::shared_ptr< Property > mPropPCTemp     = nullptr;
+                std::shared_ptr< Property > mPropPSFunc     = nullptr;
+                std::shared_ptr< Property > mPropPCConst    = nullptr;
 
             private:
 
@@ -41,7 +45,7 @@ namespace moris
                 MSI::Dof_Type mTempDof = MSI::Dof_Type::TEMP;
 
                 // property type for CM
-                enum class Property_Type
+                enum class CM_Property_Type
                 {
                     CONDUCTIVITY,
                     HEAT_CAPACITY,
@@ -52,9 +56,6 @@ namespace moris
                     PHASE_CHANGE_CONST,
                     MAX_ENUM
                 };
-
-                // Local string to property enum map
-                std::map< std::string, CM_Diffusion_Linear_Isotropic_Phase_Change::Property_Type > mPropertyMap;
 
                 //------------------------------------------------------------------------------
             public:
@@ -94,21 +95,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a char
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr<fem::Property > aProperty,
-                        std::string                     aPropertyString );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get a property pointer
-                 * @param[ in ]  aPropertyType a string defining the property
-                 * @param[ out ] aProperty     a property pointer
-                 */
-                std::shared_ptr< Property > get_property( std::string aPropertyString );
+                void set_local_properties();
 
                 //------------------------------------------------------------------------------
                 /**

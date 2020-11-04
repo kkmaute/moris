@@ -291,10 +291,12 @@ void tConstValFunction_MDLCUT
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+            std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso =
+                    tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
             tCMDiffLinIso->set_space_dim( 3 );
+            tCMDiffLinIso->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;

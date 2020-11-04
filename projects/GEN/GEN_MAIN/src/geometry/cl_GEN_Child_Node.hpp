@@ -67,6 +67,8 @@ namespace moris
              * @return Field ADV IDs
              */
             virtual Matrix<DDSMat> join_determining_adv_ids(Field* aField);
+
+            friend class Geometry_Engine;
         };
     }
 }

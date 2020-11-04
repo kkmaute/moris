@@ -84,12 +84,14 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveStrucLinIso->set_dof_type_list( tDofTypes );
     tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
     tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
+    tCMSlaveStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

@@ -107,12 +107,14 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropMasterViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropMasterDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMSlaveTurbulence->set_property( tPropSlaveViscosity, "Viscosity" );
     tCMSlaveTurbulence->set_property( tPropSlaveDensity, "Density" );
+    tCMSlaveTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -527,12 +529,14 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropMasterViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropMasterDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMSlaveTurbulence->set_property( tPropSlaveViscosity, "Viscosity" );
     tCMSlaveTurbulence->set_property( tPropSlaveDensity, "Density" );
+    tCMSlaveTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -951,12 +955,14 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     tCMMasterFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterFluid->set_property( tPropMasterViscosity, "Viscosity" );
     tCMMasterFluid->set_property( tPropMasterDensity, "Density" );
+    tCMMasterFluid->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMSlaveFluid->set_property( tPropSlaveViscosity, "Viscosity" );
     tCMSlaveFluid->set_property( tPropSlaveDensity, "Density" );
+    tCMSlaveFluid->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1372,12 +1378,14 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     tCMMasterFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterFluid->set_property( tPropMasterViscosity, "Viscosity" );
     tCMMasterFluid->set_property( tPropMasterDensity, "Density" );
+    tCMMasterFluid->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMSlaveFluid->set_property( tPropSlaveViscosity, "Viscosity" );
     tCMSlaveFluid->set_property( tPropSlaveDensity, "Density" );
+    tCMSlaveFluid->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

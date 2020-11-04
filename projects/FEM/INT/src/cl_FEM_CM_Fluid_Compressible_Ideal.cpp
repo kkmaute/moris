@@ -26,10 +26,10 @@ namespace moris
             mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "IsochoricHeatCapacity" ] = CM_Property_Type::ISOCHORIC_HEAT_CAPACITY; // constant property
-            mPropertyMap[ "SpecificGasConstant" ]   = CM_Property_Type::SPECIFIC_GAS_CONSTANT;   // constant property
-            mPropertyMap[ "DynamicViscosity" ]      = CM_Property_Type::DYNAMIC_VISCOSITY;       // may be a fnct. of T
-            mPropertyMap[ "ThermalConductivity" ]   = CM_Property_Type::THERMAL_CONDUCTIVITY;    // may be a fnct. of T
+            mPropertyMap[ "IsochoricHeatCapacity" ] = static_cast< uint >( CM_Property_Type::ISOCHORIC_HEAT_CAPACITY ); // constant property
+            mPropertyMap[ "SpecificGasConstant" ]   = static_cast< uint >( CM_Property_Type::SPECIFIC_GAS_CONSTANT );   // constant property
+            mPropertyMap[ "DynamicViscosity" ]      = static_cast< uint >( CM_Property_Type::DYNAMIC_VISCOSITY );       // may be a fnct. of T
+            mPropertyMap[ "ThermalConductivity" ]   = static_cast< uint >( CM_Property_Type::THERMAL_CONDUCTIVITY );    // may be a fnct. of T
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -220,46 +220,23 @@ namespace moris
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::set_property(
-                std::shared_ptr< fem::Property > aProperty,
-                std::string                      aPropertyString )
+        void CM_Fluid_Compressible_Ideal::set_local_properties()
         {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Fluid_Compressible_Ideal::set_property - Unknown aPropertyString : ") +
-                        aPropertyString;
+            // get the isochoric heat capacity properties
+            mPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
+            // get the specific gas constant properties
+            mPropSpecificGasConstant = get_property( "SpecificGasConstant" );
 
-            // set the property in the property cell
-            mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            // get the dynamic viscosity properties
+            mPropDynamicViscosity = get_property( "DynamicViscosity" );
+
+            // get the thermal conductivity properties
+            mPropThermalConductivity = get_property( "ThermalConductivity" );
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        std::shared_ptr< Property > CM_Fluid_Compressible_Ideal::get_property(
-                std::string aPropertyString )
-        {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Fluid_Compressible_Ideal::get_property - Unknown aPropertyString : ") +
-                        aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // get the property in the property cell
-            return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::flux( enum CM_Function_Type aCMFunctionType )

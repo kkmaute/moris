@@ -289,6 +289,7 @@ namespace moris
             tCMDiffLinIsoA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIsoA->set_property( tPropKappaA, "Conductivity" );
             tCMDiffLinIsoA->set_space_dim( 2 );
+            tCMDiffLinIsoA->set_local_properties();
 
             // create stabilization parameters
             // --------------------------------------------------------------------------------------
@@ -602,6 +603,7 @@ namespace moris
             tCMDiffLinIsoA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIsoA->set_property( tPropKappaA, "Conductivity" );
             tCMDiffLinIsoA->set_space_dim( 2 );
+            tCMDiffLinIsoA->set_local_properties();
 
             // create stabilization parameters
             // --------------------------------------------------------------------------------------
@@ -940,11 +942,13 @@ namespace moris
             tCMDiffLinIsoA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIsoA->set_property( tPropKappaA, "Conductivity" );
             tCMDiffLinIsoA->set_space_dim( 2 );
+            tCMDiffLinIsoA->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIsoB = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIsoB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIsoB->set_property( tPropKappaB, "Conductivity" );
             tCMDiffLinIsoB->set_space_dim( 2 );
+            tCMDiffLinIsoB->set_local_properties();
 
             // create stabilization parameters
             //------------------------------------------------------------------------------
@@ -1296,11 +1300,13 @@ namespace moris
             tCMDiffLinIsoA->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIsoA->set_property( tPropKappaA, "Conductivity" );
             tCMDiffLinIsoA->set_space_dim( 2 );
+            tCMDiffLinIsoA->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIsoB = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIsoB->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIsoB->set_property( tPropKappaB, "Conductivity" );
             tCMDiffLinIsoB->set_space_dim( 2 );
+            tCMDiffLinIsoB->set_local_properties();
 
             // create stabilization parameters
             //------------------------------------------------------------------------------

@@ -96,6 +96,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
     tCMDiffusion->set_property( tPropDensity, "Density" );
     tCMDiffusion->set_property( tPropHeatCapacity, "HeatCapacity" );
+    tCMDiffusion->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

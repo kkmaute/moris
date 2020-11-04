@@ -173,8 +173,6 @@ namespace moris
             /**
              * return a label that describes the block
              */
-            //              virtual const moris::Matrix< DDUMat > &
-            //              get_list_of_block_cell_clusters() const = 0;
 
             bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
@@ -245,7 +243,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual moris::Matrix< DDSMat > get_vertices_inds_on_block( const bool aOnlyPrimary ) = 0;
+            virtual moris::Matrix< DDSMat > get_ig_vertices_inds_on_block( const bool aOnlyPrimary ) = 0;
 
             //------------------------------------------------------------------------------
 

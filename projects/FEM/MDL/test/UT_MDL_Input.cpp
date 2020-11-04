@@ -224,6 +224,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
+        tCMDiffLinIso->set_local_properties();
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;

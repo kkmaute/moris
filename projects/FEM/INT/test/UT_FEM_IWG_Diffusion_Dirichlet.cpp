@@ -93,6 +93,7 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( { tTempDofTypes } );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity");
+    tCMMasterDiffLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -366,6 +367,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_space_dim( 3 );
+    tCMMasterDiffLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

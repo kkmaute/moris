@@ -21,6 +21,9 @@ uint gInterpolationOrder;
 // problem dimension: 2D or 3D
 uint gDim;
 
+// test case index
+uint gTestCaseIndex;
+
 // flag to print reference values
 bool gPrintReferenceValues = false;
 
@@ -43,109 +46,143 @@ void check_results(
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
+    // define reference node IDs
+    Cell<uint> tReferenceNodeId  = {41,72,66,129};
+
     if (gPrintReferenceValues)
     {
-        //        std::cout << "Number of dimensions: " << tNumDims  << std::endl;
-        //        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        //        std::cout << "Number of elements  : " << tNumElems << std::endl;
-        //
-        //        // coordinates of reference point
-        //        moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point");
-        //
-        //        // time value for reference time step
-        //        std::cout << "Time value: " << std::scientific << std::setprecision(15) << aExoIO.get_time_value() << std::endl;
-        //
-        //        // solution of reference point at reference time step
-        //        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
-        //                aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
-        //
-        //        // value of IQI at reference time step
-        //        std::cout << "IQI value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
 
+        uint tNumDims  = tExoIO.get_number_of_dimensions();
+        uint tNumNodes = tExoIO.get_number_of_nodes();
+        uint tNumElems = tExoIO.get_number_of_elements();
+
+        std::cout << "Number of dimensions: " << tNumDims  << std::endl;
+        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
+        std::cout << "Number of elements  : " << tNumElems << std::endl;
+
+        // coordinates of reference point
+        moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId(aTestCaseIndex) ), "Coordinates of reference point");
+
+        // time value for reference time step
+        std::cout << "Time value: " << std::scientific << std::setprecision(15) << tExoIO.get_time_value() << std::endl;
+
+        // solution of reference point at reference time step
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
+                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 ) << std::endl;
+
+        // value of IQI at reference time step
+        std::cout << "IQI 0 value: " << std::scientific << std::setprecision(15) << tExoIO.get_global_variable(0, 0 ) << std::endl;
+        std::cout << "IQI 1 value: " << std::scientific << std::setprecision(15) << tExoIO.get_global_variable(1, 0 ) << std::endl;
         return;
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell<uint> tReferenceNumDims  = {3,3,3,3};
-    Cell<uint> tReferenceNumNodes = {0,0,0,0};
-    Cell<uint> tReferenceNumElems = {0,0,0,0};
-
-    Cell<uint> tReferenceNodeId  = {0,0,0,0};
+    Cell<uint> tReferenceNumDims  = { 2,   3,  2,   3};
+    Cell<uint> tReferenceNumNodes = {45, 235, 70, 390};
+    Cell<uint> tReferenceNumElems = {26, 332, 26, 332};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
 
-    MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
+    MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, percent  error %12.5e.",
             tReferenceNumDims(aTestCaseIndex),tNumDims,std::abs((tNumDims-tReferenceNumDims(aTestCaseIndex))/tReferenceNumDims(aTestCaseIndex)*100.0));
-    MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, percent error %12.5e.",
+    MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, percent  error %12.5e.",
             tReferenceNumNodes(aTestCaseIndex),tNumNodes,std::abs((tNumNodes-tReferenceNumNodes(aTestCaseIndex))/tReferenceNumNodes(aTestCaseIndex)*100.0));
-    MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, percent error %12.5e.",
-            tReferenceNumNodes(aTestCaseIndex),tNumElems,std::abs((tNumElems-(aTestCaseIndex))/(aTestCaseIndex)*100.0));
+    MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, percent  error %12.5e.",
+            tReferenceNumElems(aTestCaseIndex),tNumElems,std::abs((tNumElems-tReferenceNumElems(aTestCaseIndex))/tReferenceNumElems(aTestCaseIndex)*100.0));
 
     REQUIRE( tNumDims  ==  tReferenceNumDims(aTestCaseIndex)  );
     REQUIRE( tNumNodes ==  tReferenceNumNodes(aTestCaseIndex) );
-    REQUIRE( tNumElems ==  tReferenceNumNodes(aTestCaseIndex) );
+    REQUIRE( tNumElems ==  tReferenceNumElems(aTestCaseIndex) );
 
     // define reference coordinates for node aNodeId
     Cell<Matrix< DDRMat >> tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { {+7.600000000000002e-01},{+2.422727272727273e-01} } );
+    tReferenceCoordinate.push_back( { {+4.1},{+0.5} } );
+    tReferenceCoordinate.push_back( { {+4.1},{+0.5},{+0.5} } );
+    tReferenceCoordinate.push_back( { {+4.1},{+0.5} } );
+    tReferenceCoordinate.push_back( { {+4.1},{+0.5},{+0.5} } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId(aTestCaseIndex) );
 
     real tRelDiffNorm = moris::norm( tActualCoordinate - tReferenceCoordinate(aTestCaseIndex) )/ moris::norm(tReferenceCoordinate(aTestCaseIndex));
 
-    MORIS_LOG_INFO("Check nodal x-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
+    MORIS_LOG_INFO("Check nodal x-coordinates:  reference %12.5e, actual %12.5e, percent  error %12.5e.",
             tReferenceCoordinate(aTestCaseIndex)(0),tActualCoordinate(0),tRelDiffNorm*100.0);
-    MORIS_LOG_INFO("Check nodal y-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
+    MORIS_LOG_INFO("Check nodal y-coordinates:  reference %12.5e, actual %12.5e, percent  error %12.5e.",
             tReferenceCoordinate(aTestCaseIndex)(1),tActualCoordinate(1),tRelDiffNorm*100.0);
-    MORIS_LOG_INFO("Check nodal z-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceCoordinate(aTestCaseIndex)(2),tActualCoordinate(2),tRelDiffNorm*100.0);
+
+    if (tNumDims == 3)
+    {
+        MORIS_LOG_INFO("Check nodal z-coordinates:  reference %12.5e, actual %12.5e, percent  error %12.5e.",
+                tReferenceCoordinate(aTestCaseIndex)(2),tActualCoordinate(2),tRelDiffNorm*100.0);
+    }
 
     REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
     Cell<real> tReferenceTime;
     tReferenceTime.push_back( 1.000000000000000e+00 );
+    tReferenceTime.push_back( 1.000000000000000e+00 );
+    tReferenceTime.push_back( 1.000000000000000e+00 );
+    tReferenceTime.push_back( 1.000000000000000e+00 );
 
     real tActualTime = tExoIO.get_time_value( );
 
     real tRelTimeDifference = std::abs( ( tActualTime - tReferenceTime(aTestCaseIndex)) / tReferenceTime(aTestCaseIndex) );
 
-    MORIS_LOG_INFO("Check time:                 reference %12.5e, actual %12.5e, percent error %12.5e.",
+    MORIS_LOG_INFO("Check time:                 reference %12.5e, actual %12.5e, percent  error %12.5e.",
             tReferenceTime(aTestCaseIndex),tActualTime,tRelDiffNorm*100.0);
 
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
     Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 8.670906164633136e+04 );
+    tReferenceTemperature.push_back( 7.777094253075316e+01 );
+    tReferenceTemperature.push_back( 7.751949613091408e+01 );
+    tReferenceTemperature.push_back( 7.728500000000682e+01 );
+    tReferenceTemperature.push_back( 7.728500000002126e+01 );
 
     real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
 
     real tRelTempDifference = std::abs( ( tActualTemperature - tReferenceTemperature(aTestCaseIndex) ) / tReferenceTemperature(aTestCaseIndex) );
 
-    MORIS_LOG_INFO("Check nodal temperature:    reference %12.5e, actual %12.5e, percent error %12.5e.",
+    MORIS_LOG_INFO("Check nodal temperature:    reference %12.5e, actual %12.5e, percent  error %12.5e.",
             tReferenceTemperature(aTestCaseIndex),tActualTemperature,tRelTempDifference*100.0);
 
     //FIXME: difference between parallel and serial run requires loose tolerance
     REQUIRE(  tRelTempDifference < 1.0e-4);
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    Cell<real> tReferenceIQI;
-    tReferenceIQI.push_back( 8.324886510380027e+04 );
+    Cell<real> tReferenceIQI_0;
+    tReferenceIQI_0.push_back( 2.930158520549173e+02 );
+    tReferenceIQI_0.push_back( 2.933172582642225e+02 );
+    tReferenceIQI_0.push_back( 9.343642743171439e-22 );
+    tReferenceIQI_0.push_back( 5.853037192766934e-20 );
 
-    real tActualIQI = tExoIO.get_global_variable(0, 0 );
+    Cell<real> tReferenceIQI_1;
+    tReferenceIQI_1.push_back( 6.839126930779311e+02 );
+    tReferenceIQI_1.push_back( 6.839125465759469e+02 );
+    tReferenceIQI_1.push_back( 3.200451125788523e-23 );
+    tReferenceIQI_1.push_back( 2.853072315858007e-21 );
 
-    real tRelIQIDifference = std::abs( ( tActualIQI - tReferenceIQI(aTestCaseIndex) ) / tReferenceIQI(aTestCaseIndex) );
+    real tActualIQI_0 = tExoIO.get_global_variable(0, 0 );
+    real tActualIQI_1 = tExoIO.get_global_variable(1, 0 );
 
-    MORIS_LOG_INFO("Check temperature IQI:      reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceIQI(aTestCaseIndex),tActualIQI,tRelIQIDifference*100.0);
+    real tAbsIQIDifference_0 = std::abs( ( tActualIQI_0 - tReferenceIQI_0(aTestCaseIndex) ));
+    real tAbsIQIDifference_1 = std::abs( ( tActualIQI_1 - tReferenceIQI_1(aTestCaseIndex) ));
 
-    REQUIRE(  tRelIQIDifference < 1.0e-4);
+    MORIS_LOG_INFO("Check temperature IQI 0:    reference %12.5e, actual %12.5e, absolute error %12.5e.",
+            tReferenceIQI_0(aTestCaseIndex),tActualIQI_0,tAbsIQIDifference_0);
+    MORIS_LOG_INFO("Check temperature IQI 1:    reference %12.5e, actual %12.5e, absolute error %12.5e.",
+            tReferenceIQI_1(aTestCaseIndex),tActualIQI_1,tAbsIQIDifference_1);
+
+    REQUIRE(  tAbsIQIDifference_0 < 1.0e-6);
+    REQUIRE(  tAbsIQIDifference_1 < 1.0e-6);
 }
 
 //---------------------------------------------------------------
@@ -171,11 +208,14 @@ TEST_CASE("Two_Material_Bar_Linear",
     // set dimension: 2D
     gDim = 2;
 
+    // set test case index
+    gTestCaseIndex = 0;
+
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // perform check for Test Case 0
-    //            check_results("Two_Material_Bar.exo",0);
+    check_results("Two_Material_Bar_0.exo",gTestCaseIndex);
 
     MORIS_LOG_INFO("");
     MORIS_LOG_INFO("Executing Two_Material_Bar - 3D: Interpolation order 1 - %i Processors.",par_size());
@@ -184,11 +224,14 @@ TEST_CASE("Two_Material_Bar_Linear",
     // set dimension: 3D
     gDim = 3;
 
+    // set test case index
+    gTestCaseIndex = 1;
+
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // perform check for Test Case 1
-    //            check_results("Two_Material_Bar.exo",1);
+    check_results("Two_Material_Bar_1.exo",gTestCaseIndex);
 }
 
 //---------------------------------------------------------------
@@ -214,11 +257,14 @@ TEST_CASE("Two_Material_Bar_Quadratic",
     // set dimension: 2D
     gDim = 2;
 
+    // set test case index
+    gTestCaseIndex = 2;
+
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // perform check for Test Case 2
-    //            check_results("Two_Material_Bar.exo",2);
+    check_results("Two_Material_Bar_2.exo",gTestCaseIndex);
 
     MORIS_LOG_INFO("");
     MORIS_LOG_INFO("Executing Two_Material_Bar - 3D: Interpolation order 2 - %i Processors.",par_size());
@@ -227,9 +273,12 @@ TEST_CASE("Two_Material_Bar_Quadratic",
     // set dimension: 3D
     gDim = 3;
 
+    // set test case index
+    gTestCaseIndex = 3;
+
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // perform check for Test Case 3
-    //            check_results("Two_Material_Bar.exo",3);
+    check_results("Two_Material_Bar_3.exo",gTestCaseIndex);
 }

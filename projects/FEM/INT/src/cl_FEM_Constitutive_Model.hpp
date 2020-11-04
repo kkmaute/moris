@@ -77,6 +77,9 @@ namespace moris
                 // properties
                 moris::Cell< std::shared_ptr< Property > > mProperties;
 
+                // local string to property enum map
+                std::map< std::string, uint > mPropertyMap;
+
                 // spatial dimensions
                 uint mSpaceDim;
 
@@ -173,7 +176,6 @@ namespace moris
                 moris::Cell< bool > mdConstdDofEval;
                 moris::Cell< bool > mdConstdDvEval;
 
-
                 //------------------------------------------------------------------------------
             public :
 
@@ -188,6 +190,30 @@ namespace moris
                  * virtual destructor
                  */
                 virtual ~Constitutive_Model(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       property shared pointer to set
+                 * @param[ in ] aPropertyString string describing the property to set
+                 */
+                void set_property(
+                        std::shared_ptr< fem::Property > aProperty,
+                        std::string                      aPropertyString );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get property
+                 * @param[ in ]  aPropertyString string describing the property to get
+                 * @param[ out ] aProperty       property shared pointer
+                 */
+                std::shared_ptr< fem::Property > get_property( std::string aPropertyString );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set local properties
+                 */
+                virtual void set_local_properties(){}
 
                 //------------------------------------------------------------------------------
                 /**
@@ -378,19 +404,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set property
-                 * @param[ in ] aProperty a property pointer
-                 * @param[ in ] aPropertyString a string describing the property
-                 */
-                virtual void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString )
-                {
-                    MORIS_ERROR( false, "Constitutive_Model::set_property - Not implemented for base class." );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
                  * get properties
                  * @param[ out ] mProperties cell of property pointers
                  */
@@ -398,18 +411,6 @@ namespace moris
                 {
                     return mProperties;
                 };
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get property
-                 * @param[ in ]  aPropertyType string for required property
-                 * @param[ out ] mProperty     required property pointer
-                 */
-                virtual std::shared_ptr< Property > get_property( std::string aPropertyType )
-                {
-                    MORIS_ERROR( false, "Constitutive_Model::get_property - Not implemented for base class." );
-                    return nullptr;
-                }
 
                 //------------------------------------------------------------------------------
                 /**

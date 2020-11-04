@@ -76,6 +76,7 @@ TEST_CASE( "IWG_Elasticity_Bulk", "[moris],[fem],[IWG_Elasticity_Bulk]" )
     tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -353,6 +354,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Elasticity_Bulk_Mixed
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
