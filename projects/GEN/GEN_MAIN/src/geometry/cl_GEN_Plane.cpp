@@ -13,7 +13,7 @@ namespace moris
                      Matrix<DDRMat>  aConstantParameters,
                      std::string     aName,
                      Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aRefinementMeshIndex,
+                     Matrix<DDSMat>  aRefinementMeshIndices,
                      sint            aRefinementFunctionIndex,
                      sint            aBSplineMeshIndex,
                      real            aBSplineLowerBound,
@@ -24,7 +24,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -53,8 +53,8 @@ namespace moris
                      Matrix<DDUMat>    aADVIndices,
                      Matrix<DDRMat>    aConstantParameters,
                      std::string       aName,
-                     Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aRefinementMeshIndex,
+                     Matrix<DDSMat>    aNumRefinements,
+                     Matrix<DDSMat>    aRefinementMeshIndices,
                      sint              aRefinementFunctionIndex,
                      sint              aBSplineMeshIndex,
                      real              aBSplineLowerBound,
@@ -65,7 +65,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -89,23 +89,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(real        aXCenter,
-                     real        aYCenter,
-                     real        aZCenter,
-                     real        aXNormal,
-                     real        aYNormal,
-                     real        aZNormal,
-                     std::string aName,
-                     Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aRefinementMeshIndex,
-                     sint        aRefinementFunctionIndex,
-                     sint        aBSplineMeshIndex,
-                     real        aBSplineLowerBound,
-                     real        aBSplineUpperBound)
+        Plane::Plane(real           aXCenter,
+                     real           aYCenter,
+                     real           aZCenter,
+                     real           aXNormal,
+                     real           aYNormal,
+                     real           aZNormal,
+                     std::string    aName,
+                     Matrix<DDSMat> aNumRefinements,
+                     Matrix<DDSMat> aRefinementMeshIndices,
+                     sint           aRefinementFunctionIndex,
+                     sint           aBSplineMeshIndex,
+                     real           aBSplineLowerBound,
+                     real           aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}),
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -117,21 +117,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
     
-        Plane::Plane(real        aXCenter,
-                     real        aYCenter,
-                     real        aXNormal,
-                     real        aYNormal,
-                     std::string aName,
-                     Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aRefinementMeshIndex,
-                     sint        aRefinementFunctionIndex,
-                     sint        aBSplineMeshIndex,
-                     real        aBSplineLowerBound,
-                     real        aBSplineUpperBound)
+        Plane::Plane(real           aXCenter,
+                     real           aYCenter,
+                     real           aXNormal,
+                     real           aYNormal,
+                     std::string    aName,
+                     Matrix<DDSMat> aNumRefinements,
+                     Matrix<DDSMat> aRefinementMeshIndices,
+                     sint           aRefinementFunctionIndex,
+                     sint           aBSplineMeshIndex,
+                     real           aBSplineLowerBound,
+                     real           aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}),
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -143,7 +143,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Plane::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Plane::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return (this->*m_eval_field)(aCoordinates);
         }

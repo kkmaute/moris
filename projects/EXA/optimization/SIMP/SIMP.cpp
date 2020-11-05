@@ -254,7 +254,7 @@ namespace moris
         tParameterlist( 2 )( 0 ) = moris::prm::create_gen_property_parameter_list();
         tParameterlist( 2 )( 0 ).set("type", "discrete");
         tParameterlist( 2 )( 0 ).set("name", "density");
-        tParameterlist( 2 )( 0 ).set("property_variable_indices", "all");
+        tParameterlist( 2 )( 0 ).set("field_variable_indices", "all");
         tParameterlist( 2 )( 0 ).set("adv_indices", "all");
         tParameterlist( 2 )( 0 ).set("pdv_type", "DENSITY");
         tParameterlist( 2 )( 0 ).set("pdv_mesh_set_names", "HMR_dummy_n_p0,SideSet_4_n_p0,SideSet_2_n_p0");

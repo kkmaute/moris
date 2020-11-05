@@ -11,9 +11,9 @@ namespace moris
                                                  std::string aFieldName,
                                                  EntityRank  aEntityRank,
                                                  Matrix<DDSMat>  aNumRefinements,
-                                                 Matrix<DDSMat>  aNumPatterns,
+                                                 Matrix<DDSMat>  aRefinementMeshIndices,
                                                  sint        aRefinementFunctionIndex)
-                : Field(Matrix<DDRMat>(1, 1, 0.0), "", aNumRefinements, aNumPatterns, aRefinementFunctionIndex, -1, -1.0, 1.0),
+                : Field(Matrix<DDRMat>(1, 1, 0.0), "", aNumRefinements, aRefinementMeshIndices, aRefinementFunctionIndex, -1, -1.0, 1.0),
                   Field_Discrete(aMesh->get_num_nodes()),
                   mMesh(aMesh),
                   mFieldName(aFieldName),

@@ -13,7 +13,7 @@ namespace moris
                        Matrix<DDRMat>  aConstantParameters,
                        std::string     aName,
                        Matrix<DDSMat>  aNumRefinements,
-                       Matrix<DDSMat>  aRefinementMeshIndex,
+                       Matrix<DDSMat>  aRefinementMeshIndices,
                        sint            aRefinementFunctionIndex,
                        sint            aBSplineMeshIndex,
                        real            aBSplineLowerBound,
@@ -24,7 +24,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -42,7 +42,7 @@ namespace moris
                        Matrix<DDRMat>    aConstantParameters,
                        std::string       aName,
                        Matrix<DDSMat>    aNumRefinements,
-                       Matrix<DDSMat>    aRefinementMeshIndex,
+                       Matrix<DDSMat>    aRefinementMeshIndices,
                        sint              aRefinementFunctionIndex,
                        sint              aBSplineMeshIndex,
                        real              aBSplineLowerBound,
@@ -53,7 +53,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -65,21 +65,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(real        aXCenter,
-                       real        aYCenter,
-                       real        aZCenter,
-                       real        aRadius,
-                       std::string aName,
-                       Matrix<DDSMat>  aNumRefinements,
-                       Matrix<DDSMat>  aRefinementMeshIndex,
-                       sint        aRefinementFunctionIndex,
-                       sint        aBSplineMeshIndex,
-                       real        aBSplineLowerBound,
-                       real        aBSplineUpperBound)
+        Sphere::Sphere(real           aXCenter,
+                       real           aYCenter,
+                       real           aZCenter,
+                       real           aRadius,
+                       std::string    aName,
+                       Matrix<DDSMat> aNumRefinements,
+                       Matrix<DDSMat> aRefinementMeshIndices,
+                       sint           aRefinementFunctionIndex,
+                       sint           aBSplineMeshIndex,
+                       real           aBSplineLowerBound,
+                       real           aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}),
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -89,7 +89,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Sphere::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Sphere::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));

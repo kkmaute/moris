@@ -14,7 +14,7 @@ namespace moris
                 Matrix<DDRMat>  aConstantParameters,
                 std::string     aName,
                 Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndex,
+                Matrix<DDSMat>  aRefinementMeshIndices,
                 sint            aRefinementFunctionIndex,
                 sint            aBSplineMeshIndex,
                 real            aBSplineLowerBound,
@@ -25,7 +25,7 @@ namespace moris
                 aConstantParameters,
                 aName,
                 aNumRefinements,
-                aRefinementMeshIndex,
+                aRefinementMeshIndices,
                 aRefinementFunctionIndex,
                 aBSplineMeshIndex,
                 aBSplineLowerBound,
@@ -50,7 +50,7 @@ namespace moris
                 Matrix<DDRMat>    aConstantParameters,
                 std::string       aName,
                 Matrix<DDSMat>    aNumRefinements,
-                Matrix<DDSMat>    aRefinementMeshIndex,
+                Matrix<DDSMat>    aRefinementMeshIndices,
                 sint              aRefinementFunctionIndex,
                 sint              aBSplineMeshIndex,
                 real              aBSplineLowerBound,
@@ -61,7 +61,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -80,25 +80,25 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(
-                real        aXCenter,
-                real        aYCenter,
-                real        aXSemidiameter,
-                real        aYSemidiameter,
-                real        aExponent,
-                real        aScaling,
-                real        aRegularization,
-                real        aShift,
-                std::string aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndex,
-                sint        aRefinementFunctionIndex,
-                sint        aBSplineMeshIndex,
-                real        aBSplineLowerBound,
-                real        aBSplineUpperBound)
+                real           aXCenter,
+                real           aYCenter,
+                real           aXSemidiameter,
+                real           aYSemidiameter,
+                real           aExponent,
+                real           aScaling,
+                real           aRegularization,
+                real           aShift,
+                std::string    aName,
+                Matrix<DDSMat> aNumRefinements,
+                Matrix<DDSMat> aRefinementMeshIndices,
+                sint           aRefinementFunctionIndex,
+                sint           aBSplineMeshIndex,
+                real           aBSplineLowerBound,
+                real           aBSplineUpperBound)
         : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}),
                 aName,
                 aNumRefinements,
-                aRefinementMeshIndex,
+                aRefinementMeshIndices,
                 aRefinementFunctionIndex,
                 aBSplineMeshIndex,
                 aBSplineLowerBound,
@@ -113,7 +113,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Superellipse::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Superellipse::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter        = *(mFieldVariables(0));
