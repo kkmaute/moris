@@ -160,6 +160,8 @@ namespace moris
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
 
+            std::cout<<"tGeometryType: "<<tGeometryType<<std::endl;
+
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
@@ -291,6 +293,7 @@ namespace moris
                         tConstantParameters,
                         aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
+                        aGeometryParameterList.get< bool >("interpolate_child_nodes"),
                         tGeometryName,
                         tNumRefinements,
                         tRefinementMeshIndex,
@@ -378,6 +381,8 @@ namespace moris
         {
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
+
+            std::cout<<"tGeometryType: "<<tGeometryType<<std::endl;
 
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);
@@ -510,6 +515,7 @@ namespace moris
                         tConstantParameters,
                         aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
+                        aGeometryParameterList.get< bool >("interpolate_child_nodes"),
                         tGeometryName,
                         tNumRefinements,
                         tRefinementMeshIndex,

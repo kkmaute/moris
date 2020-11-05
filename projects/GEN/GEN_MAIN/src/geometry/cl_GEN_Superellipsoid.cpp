@@ -101,7 +101,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Superellipsoid::get_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Superellipsoid::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));

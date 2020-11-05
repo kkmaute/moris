@@ -88,7 +88,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Circle::get_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Circle::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));

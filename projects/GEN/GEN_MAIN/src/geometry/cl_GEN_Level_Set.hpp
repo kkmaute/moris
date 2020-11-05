@@ -15,7 +15,7 @@ namespace moris
         {
 
         private:
-            mtk::Interpolation_Mesh* mMesh;
+            //mtk::Interpolation_Mesh* mMesh;
             sol::Dist_Vector* mOwnedNodalValues = nullptr;
             sol::Dist_Vector* mSharedNodalValues = nullptr;
 

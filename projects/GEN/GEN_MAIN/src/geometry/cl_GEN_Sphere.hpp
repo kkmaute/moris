@@ -98,7 +98,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real get_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the

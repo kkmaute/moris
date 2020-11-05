@@ -41,6 +41,7 @@ namespace moris
                     Matrix<DDRMat>                 aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
+                    bool                           aInterpolateChildNodes = false,
                     std::string                    aName = "",
                     Matrix<DDSMat>  aNumRefinements = {{}},
                     Matrix<DDSMat>  aNumPatterns = {{}},
@@ -72,6 +73,7 @@ namespace moris
                     Matrix<DDRMat>                 aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
+                    bool                           aInterpolateChildNodes = false,
                     std::string                    aName = "",
                     Matrix<DDSMat>  aNumRefinements = {{}},
                     Matrix<DDSMat>  aNumPatterns = {{}},
@@ -109,7 +111,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real get_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
@@ -130,7 +132,8 @@ namespace moris
              */
             void set_user_defined_functions(
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction);
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    bool                           aInterpolateChildNodes);
 
             /**
              * Used internally to automatically error out if no sensitivities were provided

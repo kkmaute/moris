@@ -143,7 +143,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Plane::get_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Plane::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return (this->*m_eval_field)(aCoordinates);
         }
