@@ -30,7 +30,7 @@ namespace moris
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -45,7 +45,7 @@ namespace moris
                     Matrix<DDSMat>  aNumRefinements = {{}},
                     Matrix<DDSMat>  aNumPatterns = {{}},
                     sint                           aRefinementFunctionIndex = -1,
-                    sint                           aBSplineMeshIndex = -1,
+                    sint                           aBSplineMeshIndex = -2,
                     real                           aBSplineLowerBound = -1.0,
                     real                           aBSplineUpperBound = 1.0);
 
@@ -61,7 +61,7 @@ namespace moris
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -76,7 +76,7 @@ namespace moris
                     Matrix<DDSMat>  aNumRefinements = {{}},
                     Matrix<DDSMat>  aNumPatterns = {{}},
                     sint                           aRefinementFunctionIndex = -1,
-                    sint                           aBSplineMeshIndex = -1,
+                    sint                           aBSplineMeshIndex = -2,
                     real                           aBSplineLowerBound = -1.0,
                     real                           aBSplineUpperBound = 1.0);
 
@@ -88,7 +88,7 @@ namespace moris
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -99,7 +99,7 @@ namespace moris
                     Matrix<DDSMat>  aNumRefinements = {{}},
                     Matrix<DDSMat>  aNumPatterns = {{}},
                     sint                     aRefinementFunctionIndex = -1,
-                    sint                     aBSplineMeshIndex = -1,
+                    sint                     aBSplineMeshIndex = -2,
                     real                     aBSplineLowerBound = -1.0,
                     real                     aBSplineUpperBound = 1.0);
 

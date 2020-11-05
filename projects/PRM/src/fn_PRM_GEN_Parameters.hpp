@@ -26,8 +26,8 @@ namespace moris
                 tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
                 tParameterList.insert("number_of_refinements", "");     // Number of refinement steps using HMR
                 tParameterList.insert("refinement_mesh_index", "");     // Refinement pattern
-                tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
-                tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
+                tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = default)
+                tParameterList.insert("bspline_mesh_index", -2);        // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
                 tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
                 tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
 

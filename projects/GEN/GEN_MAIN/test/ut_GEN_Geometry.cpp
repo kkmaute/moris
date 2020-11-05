@@ -319,6 +319,46 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        TEST_CASE("User-defined Geometry", "[gen], [geometry], [user-defined geometry]")
+        {
+            // Create user-defined geometry
+            Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
+            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
+                    tADVs,
+                    Matrix<DDUMat>({{1, 0}}),
+                    Matrix<DDUMat>({{0, 1}}),
+                    Matrix<DDRMat>({{}}),
+                    &user_defined_geometry_field,
+                    &user_defined_geometry_sensitivity);
+
+            // Set coordinates for checking
+            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
+            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
+
+            // Check field values
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(-0.75));
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-1.5));
+
+            // Check sensitivity values
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{1.0, 3.0}});
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, 6.0}});
+
+            // Change ADVs and coordinates
+            tADVs = {{2.0, 0.5}};
+            tCoordinates1 = {{0.0, 1.0}};
+            tCoordinates2 = {{2.0, -1.0}};
+
+            // Check field values
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(8.0));
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-7.5));
+
+            // Check sensitivity values
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{0.0, 12.0}});
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, -12.0}});
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         TEST_CASE("Linear B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry], [B-spline geometry linear]")
         {
             // Create mesh
@@ -519,42 +559,73 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("User-defined Geometry", "[gen], [geometry], [user-defined geometry]")
+        TEST_CASE("Stored Geometry", "[gen], [geometry], [stored geometry]")
         {
-            // Create user-defined geometry
-            Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
-            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
-                    tADVs,
-                    Matrix<DDUMat>({{1, 0}}),
-                    Matrix<DDUMat>({{0, 1}}),
-                    Matrix<DDRMat>({{}}),
-                    &user_defined_geometry_field,
-                    &user_defined_geometry_sensitivity);
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
 
-            // Set coordinates for checking
-            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
-            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
+            // Level set circle parameter list
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("field_variable_indices", "0, 1, 2");
+            tCircleParameterList.set("adv_indices", "0, 1, 2");
+            tCircleParameterList.set("bspline_mesh_index", -1);
 
-            // Check field values
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(-0.75));
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-1.5));
+            // Set up geometry
+            Matrix<DDRMat> tADVs = {{0.0, 0.0, 0.5}};
+            std::shared_ptr<Geometry> tCircle = create_geometry(tCircleParameterList, tADVs);
 
-            // Check sensitivity values
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{1.0, 3.0}});
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, 6.0}});
+            // Create geometry engine
+            Phase_Table tPhaseTable(1);
+            Geometry_Engine_Test tGeometryEngine({tCircle}, tPhaseTable, tMesh);
 
-            // Change ADVs and coordinates
-            tADVs = {{2.0, 0.5}};
-            tCoordinates1 = {{0.0, 1.0}};
-            tCoordinates2 = {{2.0, -1.0}};
+            // Get geometry back
+            std::shared_ptr<Geometry> tStoredCircle = tGeometryEngine.get_geometry(0);
 
-            // Check field values
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(8.0));
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-7.5));
+            // Check field values at all nodes
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                // Get node coordinates
+                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
 
-            // Check sensitivity values
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{0.0, 12.0}});
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, -12.0}});
+                // Check field value
+                CHECK(tStoredCircle->get_field_value(tNodeIndex, {{}}) ==
+                        Approx(tCircle->get_field_value(tNodeIndex, tNodeCoordinates)));
+
+                // Check sensitivities
+                check_equal(
+                        tStoredCircle->get_field_sensitivities(tNodeIndex, {{}}),
+                        tCircle->get_field_sensitivities(tNodeIndex, tNodeCoordinates));
+                check_equal(
+                        tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
+                        tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
+            }
+
+            // Set new ADVs
+            tADVs = {{1.0, 1.0, 1.0}};
+            tGeometryEngine.set_advs(tADVs);
+
+            // Check field values at all nodes again
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                // Get node coordinates
+                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                // Check field value
+                CHECK(tStoredCircle->get_field_value(tNodeIndex, {{}}) ==
+                        Approx(tCircle->get_field_value(tNodeIndex, tNodeCoordinates)));
+
+                // Check sensitivities
+                check_equal(
+                        tStoredCircle->get_field_sensitivities(tNodeIndex, {{}}),
+                        tCircle->get_field_sensitivities(tNodeIndex, tNodeCoordinates));
+                check_equal(
+                        tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
+                        tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
+            }
+
+            // Check that error is thrown when trying to evaluate on a node that wasn't on the original mesh
+            CHECK_THROWS(tStoredCircle->get_field_value(tMesh->get_num_nodes(), {{}}));
         }
 
         //--------------------------------------------------------------------------------------------------------------
