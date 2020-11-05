@@ -324,37 +324,13 @@ namespace moris
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
             {
-                switch(mIntersectionMode)
-                {
-                    case Intersection_Mode::LEVEL_SET:
-                    {
-                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeCoordinates,
-                                aSecondNodeCoordinates,
-                                mGeometries(mActiveGeometryIndex),
-                                mIsocontourThreshold);
-
-                        break;
-                    }
-                    case Intersection_Mode::COLORING:
-                    {
-                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeCoordinates,
-                                aSecondNodeCoordinates,
-                                mGeometries(mActiveGeometryIndex),
-                                mIsocontourThreshold);
-
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
-                    }
-                }
+                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                        aFirstNodeIndex,
+                        aSecondNodeIndex,
+                        aFirstNodeCoordinates,
+                        aSecondNodeCoordinates,
+                        mGeometries(mActiveGeometryIndex),
+                        mIsocontourThreshold);
             }
 
             return tEdgeIsIntersected;
