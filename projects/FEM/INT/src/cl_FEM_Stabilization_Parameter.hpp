@@ -123,10 +123,10 @@ namespace moris
 
                 // flag for evaluation
                 bool mPPEval = true;
-                moris::Cell< bool > mdPPdMasterDofEval;
-                moris::Cell< bool > mdPPdSlaveDofEval;
-                moris::Cell< bool > mdPPdMasterDvEval;
-                moris::Cell< bool > mdPPdSlaveDvEval;
+                moris::Matrix< DDBMat > mdPPdMasterDofEval;
+                moris::Matrix< DDBMat > mdPPdSlaveDofEval;
+                moris::Matrix< DDBMat > mdPPdMasterDvEval;
+                moris::Matrix< DDBMat > mdPPdSlaveDvEval;
 
                 //------------------------------------------------------------------------------
             public :

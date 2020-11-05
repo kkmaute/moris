@@ -344,7 +344,8 @@ namespace moris
                                 aSecondNodeIndex,
                                 aFirstNodeCoordinates,
                                 aSecondNodeCoordinates,
-                                mGeometries(mActiveGeometryIndex));
+                                mGeometries(mActiveGeometryIndex),
+                                mIsocontourThreshold);
 
                         break;
                     }
@@ -577,16 +578,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Geometry_Engine::refinement_needed(
-                uint aFieldIndex,
-                uint aRefinementIndex)
-        {
-            MORIS_ASSERT( false, "Geometry_Engine::refinement_needed(), not implements");
-            return false;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         const Matrix< DDSMat > & Geometry_Engine::get_num_refinements(uint aFieldIndex )
         {
             return mGeometries(aFieldIndex)->get_num_refinements();
@@ -735,6 +726,16 @@ namespace moris
 
             // Create a map
              mPdvHostManager.create_dv_type_map();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::finalize_fields( mtk::Interpolation_Mesh* aMesh )
+        {
+            for( auto tGeometry : mGeometries )
+            {
+                tGeometry->set_mesh( aMesh );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

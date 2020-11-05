@@ -14,30 +14,13 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        void IQI_Property::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_Property::set_property - can only be master." );
-
-            // FIXME check that property type makes sense?
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
         IQI_Property::IQI_Property()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Property" ] = IQI_Property_Type::PROPERTY;
+            mPropertyMap[ "Property" ] = static_cast< uint >( IQI_Property_Type::PROPERTY );
         }
 
         //------------------------------------------------------------------------------

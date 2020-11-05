@@ -214,7 +214,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  * @param[ in ] aFieldType  an enum for computation/field type
                  */
-                void compute_quantity_of_interest( const uint aMeshIndex,
+                void compute_quantity_of_interest(
+                        const uint            aMeshIndex,
                         const std::string   & aQIName,
                         enum vis::Field_Type  aFieldType  )
                 {

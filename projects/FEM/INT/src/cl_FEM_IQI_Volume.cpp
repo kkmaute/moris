@@ -12,24 +12,6 @@ namespace moris
 {
     namespace fem
     {
-        //------------------------------------------------------------------------------
-
-        void IQI_Volume::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_Volume::set_property - can only be master." );
-
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "IQI_Volume::set_property - Unknown aPropertyString." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
 
         //------------------------------------------------------------------------------
 

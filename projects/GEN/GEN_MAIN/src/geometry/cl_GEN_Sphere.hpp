@@ -34,7 +34,7 @@ namespace moris
                    Matrix<DDRMat>  aConstantParameters,
                    std::string     aName = "",
                    Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
+                   Matrix<DDSMat>  aRefinementMeshIndex = {{}},
                    sint            aRefinementFunctionIndex = -1,
                    sint            aBSplineMeshIndex = -1,
                    real            aBSplineLowerBound = -1.0,
@@ -59,8 +59,8 @@ namespace moris
                    Matrix<DDUMat>    aADVIndices,
                    Matrix<DDRMat>    aConstantParameters,
                    std::string       aName = "",
-                   Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
+                   Matrix<DDSMat>    aNumRefinements = {{}},
+                   Matrix<DDSMat>    aRefinementMeshIndex = {{}},
                    sint              aRefinementFunctionIndex = -1,
                    sint              aBSplineMeshIndex = -1,
                    real              aBSplineLowerBound = -1.0,
@@ -86,7 +86,7 @@ namespace moris
                    real        aRadius,
                    std::string aName = "",
                    Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
+                   Matrix<DDSMat>  aRefinementMeshIndex = {{}},
                    sint        aRefinementFunctionIndex = -1,
                    sint        aBSplineMeshIndex = -1,
                    real        aBSplineLowerBound = -1.0,
@@ -98,7 +98,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real get_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the

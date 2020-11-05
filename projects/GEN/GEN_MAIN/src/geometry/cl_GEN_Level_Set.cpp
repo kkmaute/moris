@@ -20,8 +20,8 @@ namespace moris
                 Matrix<DDRMat>           aConstantParameters,
                 mtk::Interpolation_Mesh* aMesh,
                 std::string              aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aNumPatterns,
+                Matrix<DDSMat>           aNumRefinements,
+                Matrix<DDSMat>           aRefinementMeshIndex,
                 sint                     aRefinementFunctionIndex,
                 uint                     aBSplineMeshIndex,
                 real                     aBSplineLowerBound,
@@ -32,14 +32,15 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aNumPatterns,
+                        aRefinementMeshIndex,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  Field_Discrete(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
+                  Field_Discrete(aMesh->get_num_nodes())
         {
+            mMesh = aMesh;
+
             // Check that number of variables equals the number of B-spline coefficients
             MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
                     "There must be a field variable for each B-spline coefficient in a level set geometry.");
@@ -62,9 +63,9 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
-                  Field_Discrete(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
+                  Field_Discrete(aMesh->get_num_nodes())
         {
+            mMesh = aMesh;
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
 

@@ -1,6 +1,7 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -253,6 +254,12 @@ namespace moris
         real Field::get_bspline_upper_bound()
         {
             return mBSplineUpperBound;
+        }
+
+        void Field::set_mesh( mtk::Interpolation_Mesh* aMesh)
+        {
+            mMesh = aMesh;
+            mNumOriginalNodes = aMesh->get_num_nodes();
         }
 
         //--------------------------------------------------------------------------------------------------------------

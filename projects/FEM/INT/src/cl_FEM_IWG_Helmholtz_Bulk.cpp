@@ -8,20 +8,20 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Helmholtz_Bulk::IWG_Helmholtz_Bulk()
         {
             //FIXME set the Helmholtz filter parameter
             mFilterParam = 1.0;
 
-//            // set the residual dof type
-//            mResidualDofType = { MSI::Dof_Type::VX };
-//
-//            // set the active dof type
-//            mMasterDofTypes = {{ MSI::Dof_Type::VX }};
+            //            // set the residual dof type
+            //            mResidualDofType = { MSI::Dof_Type::VX };
+            //
+            //            // set the active dof type
+            //            mMasterDofTypes = {{ MSI::Dof_Type::VX }};
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Helmholtz_Bulk::compute_residual( real tWStar )
         {
             //FIXME set unfiltered velocity values at nodes
@@ -34,11 +34,11 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-                     += ( mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
-                           + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat ) ) * tWStar;
+                             += ( mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
+                                     + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat ) ) * tWStar;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Helmholtz_Bulk::compute_jacobian( real tWStar )
         {
             // set field interpolator
@@ -48,18 +48,19 @@ namespace moris
 
             // compute the jacobian
             mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                    { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                     += ( mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 )
-                                 + trans( vN->N() ) * vN->N() ) * tWStar;
+                            + trans( vN->N() ) * vN->N() ) * tWStar;
         }
 
-//------------------------------------------------------------------------------
-        void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
+        //------------------------------------------------------------------------------
+        void IWG_Helmholtz_Bulk::compute_jacobian_and_residual(
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, " IWG_Helmholtz_Bulk::compute_jacobian_and_residual - Not implemented.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

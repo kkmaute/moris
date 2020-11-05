@@ -29,17 +29,6 @@ namespace moris
                 virtual uint get_num_refinement_fields() = 0;
 
                 /**
-                 * Gets a flag to determine if refinement should continue
-                 *
-                 * @param aFieldIndex The index of a field
-                 * @param aRefinementIndex The current refinement step being performed
-                 * @return If refinement is needed for this field
-                 */
-                virtual bool refinement_needed(
-                        uint aFieldIndex,
-                        uint aRefinementIndex) = 0;
-
-                /**
                  * Returns fields so that HMR can perform refinement based on the data from this performer
                  *
                  * @param aFieldIndex Index of the field

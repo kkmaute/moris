@@ -23,125 +23,80 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IWG_Isotropic_Struc_Linear_Contact_Nitsche : public IWG
         {
 
-        public:
-            
-            // sign for symmetric/unsymmetric Nitsche
-            sint mBeta = 1;
+            public:
 
-            enum class IWG_Property_Type
-            {
-                MATERIAL,
-                MAX_ENUM
-            };
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
+                // sign for symmetric/unsymmetric Nitsche
+                sint mBeta = 1;
 
-            enum class IWG_Constitutive_Type
-            {
-                ELAST_LIN_ISO,
-                MAX_ENUM
-            };
+                enum class IWG_Property_Type
+                {
+                        MATERIAL,
+                        MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+                enum class IWG_Constitutive_Type
+                {
+                        ELAST_LIN_ISO,
+                        MAX_ENUM
+                };
 
-            enum class IWG_Stabilization_Type
-                        {
-                            PENALTY_CONTACT,
-                            MASTER_WEIGHT_INTERFACE,
-                            SLAVE_WEIGHT_INTERFACE,
-                            MAX_ENUM
-                        };
+                enum class IWG_Stabilization_Type
+                {
+                        PENALTY_CONTACT,
+                        MASTER_WEIGHT_INTERFACE,
+                        SLAVE_WEIGHT_INTERFACE,
+                        MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IWG_Isotropic_Struc_Linear_Contact_Nitsche(sint aBeta);
 
-            //real mStabParam = 1500;
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IWG_Isotropic_Struc_Linear_Contact_Nitsche(){};
 
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IWG_Isotropic_Struc_Linear_Contact_Nitsche(sint aBeta);
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual
+                 * @param[ in ] aResidual cell of residual vectors to fill
+                 */
+                void compute_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IWG_Isotropic_Struc_Linear_Contact_Nitsche(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the jacobian
+                 * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+                 */
+                void compute_jacobian( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual and the jacobian
+                 * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+                 * @param[ in ] aResidual  cell of residual vectors to fill
+                 */
+                void compute_jacobian_and_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the residual wrt design variables
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_dRdp( real aWStar );
 
-//------------------------------------------------------------------------------
-        /**
-        * set stabilization parameter
-            * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-            * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-            */
-        void set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString );
-
-
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
-             */
-            void compute_residual( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             */
-            void compute_jacobian( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
-             */
-            void compute_jacobian_and_residual( real aWStar );
-
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the residual wrt design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dRdp( real aWStar );
-
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

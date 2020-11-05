@@ -19,56 +19,14 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Load" ]    = IWG_Property_Type::LOAD;
-            mPropertyMap[ "Bedding" ] = IWG_Property_Type::BEDDING;
+            mPropertyMap[ "Load" ]    = static_cast< uint >( IWG_Property_Type::LOAD );
+            mPropertyMap[ "Bedding" ] = static_cast< uint >( IWG_Property_Type::BEDDING );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Bulk::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Isotropic_Struc_Linear_Bulk::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Isotropic_Struc_Linear_Bulk::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Bulk::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster  )
-        {
-            // check that aConstitutiveString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Isotropic_Struc_Linear_Bulk::set_constitutive_model - Unknown aConstitutiveString: " ) +
-                    aConstitutiveString;
-            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Isotropic_Struc_Linear_Bulk::set_constitutive_model - No slave allowed." );
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
         }
 
         //------------------------------------------------------------------------------

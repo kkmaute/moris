@@ -44,25 +44,11 @@ namespace moris
                         MAX_ENUM
                 };
 
-                // Local string to property enum map
-                std::map< std::string, IQI_Property_Type > mPropertyMap;
-
                 enum class IQI_Constitutive_Type
                 {
                         ELAST_LIN_ISO,
                         MAX_ENUM
                 };
-
-                // Local string to constitutive enum map
-                std::map< std::string, IQI_Constitutive_Type > mConstitutiveMap;
-
-                enum class IQI_Stabilization_Type
-                {
-                        MAX_ENUM
-                };
-
-                // Local string to constitutive enum map
-                std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
 
                 //------------------------------------------------------------------------------
 
@@ -72,9 +58,10 @@ namespace moris
                 /*
                  * default constructor
                  */
-                IQI_Max_Stress(){
+                IQI_Max_Stress()
+                {
                     MORIS_ERROR( false, " IQI_Max_Stress: Default constructor unavailable. Use enum to construct IQI. ");
-                };
+                }
 
                 //------------------------------------------------------------------------------
 
@@ -91,30 +78,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IQI_Max_Stress(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set property
-                 * @param[ in ] aProperty       a property pointer
-                 * @param[ in ] aPropertyString a string defining the property
-                 * @param[ in ] aIsMaster       an enum for master or slave
-                 */
-                void set_property(
-                        std::shared_ptr< Property > aProperty,
-                        std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
