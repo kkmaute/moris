@@ -25,59 +25,98 @@ namespace moris
             mdStraindx.resize( tOrder );
 
             // set flag for evaluation
-            mdFluxdxEval.assign( tOrder, true );
-            mdStraindxEval.assign( tOrder, true );
+            mdFluxdxEval.set_size( tOrder, 1, true );
+            mdStraindxEval.set_size( tOrder, 1, true );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Constitutive_Model::print_names()
+        {
+            std::cout<<"----------"<<std::endl;
+            std::cout<<"CM: "<<mName<<std::endl;
+
+            // properties
+            for( uint iProp = 0; iProp < mProperties.size(); iProp++ )
+            {
+                if( mProperties( iProp ) != nullptr )
+                {
+                    std::cout<<"Property: "<<mProperties( iProp )->get_name()<<std::endl;
+                }
+            }
+            std::cout<<"----------"<<std::endl;
         }
 
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::reset_eval_flags()
         {
-            // reset the value flag
-            mFluxEval         = true;
-            mDivFluxEval      = true;
-            mTractionEval     = true;
-            mTestTractionEval.assign( mDofTypes.size(), true );
-            mStressEval       = true;
-            mStrainEval       = true;
-            mDivStrainEval    = true;
-            mTestStrainEval   = true;
-            mConstEval        = true;
-            mEnergyEval         = true;
-            mEnergyDotEval         = true;
-            mGradEnergyEval        = true;
-            mGradEnergyDotEval     = true;
-            mGradDivFluxEval  = true;
+            // get number of direct dof dependencies
+            uint tNumDirectDofTypes = mDofTypes.size();
 
-            // reset the dof derivative flag
+            // get number of global dof dependencies
             uint tNumDofTypes = mGlobalDofTypes.size();
-            mdFluxdDofEval.assign( tNumDofTypes, true );
-            mEnergyDofEval.assign( tNumDofTypes, true );
-            mEnergyDotDofEval.assign( tNumDofTypes, true );
-            mGradEnergyDofEval.assign( tNumDofTypes, true );
-            mGradEnergyDotDofEval.assign( tNumDofTypes, true );
-            mGradDivFluxDofEval.assign( tNumDofTypes, true );
-            mddivfluxduEval.assign( tNumDofTypes, true );
-            mdTractiondDofEval.assign( tNumDofTypes, true );
-            for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
-            {
-                mdTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
-            }
-            mdStressdDofEval.assign( tNumDofTypes, true );
-            mdStraindDofEval.assign( tNumDofTypes, true );
-            mddivstrainduEval.assign( tNumDofTypes, true );
-            mdConstdDofEval.assign( tNumDofTypes, true );
 
-            // reset the dv derivative flag
-            uint tNumDvTypes = mGlobalDvTypes.size();
-            mdFluxdDvEval.assign( tNumDvTypes, true );
-            mdTractiondDvEval.assign( tNumDvTypes, true );
-            for( uint iDirectDv = 0; iDirectDv < mDvTypes.size(); iDirectDv++ )
-            {
-                mdTestTractiondDvEval( iDirectDv ).assign( tNumDvTypes, true );
-            }
-            mdStraindDvEval.assign( tNumDvTypes, true );
-            mdConstdDvEval.assign( tNumDvTypes, true );
+//            // get number of direct dv dependencies
+//            uint tNumDirectDvTypes = mDvTypes.size();
+//
+//            // get number of global dv dependencies
+//            uint tNumDvTypes = mGlobalDvTypes.size();
+
+            // reset the flux value and derivative flags
+            mFluxEval = true;
+            mdFluxdDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the divergence of the flux value and derivative flags
+            mDivFluxEval = true;
+            mddivfluxduEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the gradient of the divergence of the flux value and derivative flags
+            mGradDivFluxEval = true;
+            mGradDivFluxDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the traction value and derivative flags
+            mTractionEval      = true;
+            mdTractiondDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the test traction value and derivative flags
+            mTestTractionEval.set_size( tNumDirectDofTypes, 1, true );
+            mdTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumDofTypes, true );
+
+            // reset the stress value and derivative flags
+            mStressEval        = true;
+            mdStressdDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the strain value and derivative flags
+            mStrainEval        = true;
+            mdStraindDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the divergence of the strain value and derivative flags
+            mDivStrainEval     = true;
+            mddivstrainduEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the test strain value and derivative flags
+            mTestStrainEval    = true;
+
+            // reset the constitutive matrix value and derivative flags
+            mConstEval         = true;
+            mdConstdDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the energy value and derivative flags
+            mEnergyEval        = true;
+            mEnergyDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the rate of the energy value and derivative flags
+            mEnergyDotEval     = true;
+            mEnergyDotDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the gradient of the energy value and derivative flags
+            mGradEnergyEval    = true;
+            mGradEnergyDofEval.set_size( tNumDofTypes, 1, true );
+
+            // reset the rate of the gradient of the energy value and derivative flags
+            mGradEnergyDotEval = true;
+            mGradEnergyDotDofEval.set_size( tNumDofTypes, 1, true );
 
             // reset underlying properties
             for( std::shared_ptr< Property > tProp : mProperties )
@@ -112,7 +151,8 @@ namespace moris
         {
             // check that aPropertyString makes sense
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                    "Constitutive_Model::set_property - CM %s - Unknown aPropertyString : %s \n",
+                    mName.c_str(),
                     aPropertyString.c_str() );
 
             // set the property in the property cell
@@ -126,7 +166,8 @@ namespace moris
         {
             // check that aPropertyString makes sense
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                    "Constitutive_Model::get_property - CM %s - Unknown aPropertyString : %s \n",
+                    mName.c_str(),
                     aPropertyString.c_str() );
 
             // get the property in the property cell
@@ -226,24 +267,20 @@ namespace moris
             uint tNumDirectDofTypes = mDofTypes.size();
 
             // set flag for evaluation
-            mEnergyDofEval.resize( tNumGlobalDofTypes, true );
-            mEnergyDotDofEval.resize( tNumGlobalDofTypes, true );
-            mGradEnergyDotDofEval.resize( tNumGlobalDofTypes, true );
-            mGradEnergyDofEval.resize( tNumGlobalDofTypes, true );
-            mGradDivFluxDofEval.resize( tNumGlobalDofTypes, true );
-            mTestTractionEval.resize( tNumDirectDofTypes, true );
-            mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
-            mddivfluxduEval.resize( tNumGlobalDofTypes, true );
-            mdTractiondDofEval.resize( tNumGlobalDofTypes, true );
-            mdTestTractiondDofEval.resize( tNumDirectDofTypes );
-            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
-            {
-                mdTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
-            }
-            mdStressdDofEval.resize( tNumGlobalDofTypes, true );
-            mdStraindDofEval.resize( tNumGlobalDofTypes, true );
-            mddivstrainduEval.resize( tNumGlobalDofTypes, true );
-            mdConstdDofEval.resize( tNumGlobalDofTypes, true );
+            mEnergyDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mEnergyDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mGradEnergyDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mGradEnergyDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mGradDivFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mTestTractionEval.set_size( tNumDirectDofTypes, 1, true );
+            mdFluxdDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mddivfluxduEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdTractiondDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+            mdStressdDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdStraindDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mddivstrainduEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdConstdDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // set storage for evaluation
             mEnergyDof.resize( tNumGlobalDofTypes );
@@ -470,17 +507,14 @@ namespace moris
 
             // number of dof types
             uint tNumGlobalDvTypes = mGlobalDvTypes.size();
+            uint tNumDirectDvTypes = mDvTypes.size();
 
             // set flag for evaluation
-            mdFluxdDvEval.assign( tNumGlobalDvTypes, true );
-            mdTractiondDvEval.assign( tNumGlobalDvTypes, true );
-            mdTestTractiondDvEval.resize( mDvTypes.size() );
-            for( uint iDirectDv = 0; iDirectDv < mDvTypes.size(); iDirectDv++ )
-            {
-                mdTestTractiondDvEval( iDirectDv ).assign( tNumGlobalDvTypes, true );
-            }
-            mdStraindDvEval.assign( tNumGlobalDvTypes, true );
-            mdConstdDvEval.assign( tNumGlobalDvTypes, true );
+            mdFluxdDvEval.set_size( tNumGlobalDvTypes, 1, true );
+            mdTractiondDvEval.set_size( tNumGlobalDvTypes, true );
+            mdTestTractiondDvEval.set_size( tNumDirectDvTypes, tNumGlobalDvTypes, true );
+            mdStraindDvEval.set_size( tNumGlobalDvTypes, true );
+            mdConstdDvEval.set_size( tNumGlobalDvTypes, true );
 
             // set storage for evaluation
             mdFluxdDv.resize( tNumGlobalDvTypes );
@@ -2107,7 +2141,7 @@ namespace moris
                     "Constitutive_Model::graddivflux - Only DEFAULT CM function type known in base class." );
 
             // if the flux was not evaluated
-            if( mGradDivFluxEval)
+            if( mGradDivFluxEval )
             {
                 // evaluate the flux
                 this->eval_graddivflux();
@@ -2606,13 +2640,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) )
+            if( mdTestTractiondDofEval( tTestDofIndex, tDofIndex ) )
             {
                 // evaluate the derivative
                 this->eval_dTestTractiondDOF( aDofType, aNormal, aTestDofTypes );
 
                 // set bool for evaluation
-                mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) = false;
+                mdTestTractiondDofEval( tTestDofIndex, tDofIndex ) = false;
             }
 
             // return the derivative
@@ -2644,13 +2678,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) )
+            if( mdTestTractiondDofEval( tTestDofIndex, tDofIndex ) )
             {
                 // evaluate the derivative
                 this->eval_dTestTractiondDOF( aDofType, aNormal, aJump, aTestDofTypes );
 
                 // set bool for evaluation
-                mdTestTractiondDofEval( tTestDofIndex )( tDofIndex ) = false;
+                mdTestTractiondDofEval( tTestDofIndex, tDofIndex ) = false;
             }
 
             // return the derivative
@@ -2686,6 +2720,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dStressdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )

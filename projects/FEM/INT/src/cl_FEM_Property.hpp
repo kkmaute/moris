@@ -94,8 +94,8 @@ namespace moris
                 // flag for evaluation
                 bool mPropEval = true;
                 bool mdPropdxEval = true;
-                moris::Cell< bool > mPropDofDerEval;
-                moris::Cell< bool > mPropDvDerEval;
+                moris::Matrix< DDBMat > mPropDofDerEval;
+                moris::Matrix< DDBMat > mPropDvDerEval;
 
                 // flag for setting mValFunction, mSpaceDerFunction, mDofDerFunctions, mDvDerFunctions
                 bool mSetValFunction      = false;

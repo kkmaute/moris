@@ -23,28 +23,7 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "Fluid" ] = IQI_Constitutive_Type::FLUID;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Total_Pressure::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IQI_Total_Pressure::set_constitutive_model - Unknown aConstitutiveModel: " ) +
-                    aConstitutiveString;
-            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_Total_Pressure::set_constitutive_model - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+            mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IQI_Constitutive_Type::FLUID );
         }
 
         //------------------------------------------------------------------------------

@@ -64,19 +64,19 @@ namespace moris
 
             // reset the master dof derivative flags
             uint tNumMasterDofTypes = mMasterGlobalDofTypes.size();
-            mdPPdMasterDofEval.assign( tNumMasterDofTypes, true );
+            mdPPdMasterDofEval.set_size( tNumMasterDofTypes, 1, true );
 
             // reset the slave dof derivative flags
             uint tNumSlaveDofTypes = mSlaveGlobalDofTypes.size();
-            mdPPdSlaveDofEval.assign( tNumSlaveDofTypes, true );
+            mdPPdSlaveDofEval.set_size( tNumSlaveDofTypes, 1, true );
 
             // reset the master dv derivative flags
             uint tNumMasterDvTypes = mMasterGlobalDvTypes.size();
-            mdPPdMasterDvEval.assign( tNumMasterDvTypes, true );
+            mdPPdMasterDvEval.set_size( tNumMasterDvTypes, 1, true );
 
             // reset the slave dv derivative flags
             uint tNumSlaveDvTypes = mSlaveGlobalDvTypes.size();
-            mdPPdSlaveDvEval.assign( tNumSlaveDvTypes, true );
+            mdPPdSlaveDvEval.set_size( tNumSlaveDvTypes, 1, true );
 
             // reset underlying master constitutive models
             for( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
@@ -124,7 +124,8 @@ namespace moris
         {
             // check that aPropertyString makes sense
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "Stabilization_Parameter::set_property - Unknown aPropertyString : %s \n",
+                    "Stabilization_Parameter::set_property - SP %s - Unknown aPropertyString : %s \n",
+                    mName.c_str(),
                     aPropertyString.c_str() );
 
             // set the property in the property cell
@@ -140,7 +141,8 @@ namespace moris
             {
                 // check that aConstitutiveString makes sense
                 MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                        "Stabilization_Parameter::set_constitutive_model - Unknown aConstitutiveString : %s \n",
+                        "Stabilization_Parameter::set_constitutive_model - SP %s - Unknown aConstitutiveString : %s \n",
+                        mName.c_str(),
                         aConstitutiveString.c_str() );
 
                 // set the constitutive model in the CM cell
@@ -1037,8 +1039,8 @@ namespace moris
             uint tNumSlaveGlobalDofTypes  = mSlaveGlobalDofTypes.size();
 
             // set flag for evaluation
-            mdPPdMasterDofEval.assign( tNumMasterGlobalDofTypes, true );
-            mdPPdSlaveDofEval.assign( tNumSlaveGlobalDofTypes, true );
+            mdPPdMasterDofEval.set_size( tNumMasterGlobalDofTypes, 1, true );
+            mdPPdSlaveDofEval.set_size( tNumSlaveGlobalDofTypes, 1, true );
 
             // set storage for evaluation
             mdPPdMasterDof.resize( tNumMasterGlobalDofTypes );
@@ -1423,8 +1425,8 @@ namespace moris
             uint tNumSlaveGlobalDvTypes  = mSlaveGlobalDvTypes.size();
 
             // set flag for evaluation
-            mdPPdMasterDvEval.assign( tNumMasterGlobalDvTypes, true );
-            mdPPdSlaveDvEval.assign( tNumSlaveGlobalDvTypes, true );
+            mdPPdMasterDvEval.set_size( tNumMasterGlobalDvTypes, 1, true );
+            mdPPdSlaveDvEval.set_size( tNumSlaveGlobalDvTypes, 1, true );
 
             // set storage for evaluation
             mdPPdMasterDv.resize( tNumMasterGlobalDvTypes );
@@ -1618,9 +1620,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // get unperturbed SP value
+            Matrix< DDRMat > tUnperturbedSPValue = this->val();
+
             // set size for derivative
-            uint tNumRow = this->val().n_rows();
-            mdPPdMasterDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            adSPdDOF_FD.set_size( tUnperturbedSPValue.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1637,8 +1641,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed traction contribution to dtractiondu
+                        adSPdDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tUnperturbedSPValue /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1653,7 +1679,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // assemble derivatiev of SP wrt master dof type
-                        mdPPdMasterDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adSPdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->val() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1664,8 +1690,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adSPdDOF_FD = mdPPdMasterDof( tDofIndex );
+            // set value to storage
+            mdPPdMasterDof( tDofIndex ) = adSPdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1693,9 +1719,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // get unperturbed SP value
+            Matrix< DDRMat > tUnperturbedSPValue = this->val();
+
             // set size for derivative
-            uint tNumRow = this->val().n_rows();
-            mdPPdSlaveDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            adSPdDOF_FD.set_size( tUnperturbedSPValue.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1712,8 +1740,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed traction contribution to dtractiondu
+                        adSPdDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tUnperturbedSPValue /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1739,8 +1789,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adSPdDOF_FD = mdPPdSlaveDof( tDofIndex );
+            // set value to storage
+            mdPPdSlaveDof( tDofIndex ) = adSPdDOF_FD;
         }
 
         //------------------------------------------------------------------------------

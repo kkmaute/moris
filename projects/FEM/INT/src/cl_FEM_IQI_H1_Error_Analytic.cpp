@@ -24,28 +24,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "H1Check" ] = IQI_Property_Type::H1_CHECK;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_H1_Error_Analytic::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IQI_H1_Error_Analytic::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_H1_Error_Analytic::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            mPropertyMap[ "H1Check" ] = static_cast< uint >( IQI_Property_Type::H1_CHECK );
         }
 
         //------------------------------------------------------------------------------

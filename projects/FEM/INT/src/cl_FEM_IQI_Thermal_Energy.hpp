@@ -34,9 +34,6 @@ namespace moris
                         MAX_ENUM
                 };
 
-                // Local string to constitutive enum map
-                std::map< std::string, IQI_Constitutive_Type > mConstitutiveMap;
-
             public:
                 //------------------------------------------------------------------------------
                 /*
@@ -49,18 +46,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IQI_Thermal_Energy(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
 

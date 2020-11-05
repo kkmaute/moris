@@ -24,10 +24,10 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ]     = Property_Type::DENSITY;
-            mPropertyMap[ "Viscosity" ]   = Property_Type::VISCOSITY;
-            mPropertyMap[ "VelocityMax" ] = Property_Type::VELOCITY_MAX;
-            mPropertyMap[ "Diameter" ]    = Property_Type::DIAMETER;
+            mPropertyMap[ "Density" ]     = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "Viscosity" ]   = static_cast< uint >( Property_Type::VISCOSITY );
+            mPropertyMap[ "VelocityMax" ] = static_cast< uint >( Property_Type::VELOCITY_MAX );
+            mPropertyMap[ "Diameter" ]    = static_cast< uint >( Property_Type::DIAMETER );
 
             // set mBeta
             mBeta = aBeta;

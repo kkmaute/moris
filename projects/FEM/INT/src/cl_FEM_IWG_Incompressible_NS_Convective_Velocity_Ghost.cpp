@@ -22,23 +22,7 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "ConvectiveGhost" ] = IWG_Stabilization_Type::CONVECTIVE_GHOST;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Convective_Velocity_Ghost::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            // check that aStabilizationString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Incompressible_NS_Convective_Velocity_Ghost::set_stabilization_parameter - Unknown aStabilizationString: " ) +
-                    aStabilizationString;
-            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
-
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+            mStabilizationMap[ "ConvectiveGhost" ] = static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST );
         }
 
         //------------------------------------------------------------------------------

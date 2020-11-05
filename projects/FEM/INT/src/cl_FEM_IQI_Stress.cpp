@@ -14,52 +14,6 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        void IQI_Stress::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster)
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI::set_property - can only be master." );
-
-            // FIXME check that property type makes sense?
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Stress::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster )
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI::set_constitutive model - can only be master." );
-
-            // FIXME check that constitutive string makes sense?
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Stress::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            // FIXME check that stabilization string makes sense?
-
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-        }
-
-        //------------------------------------------------------------------------------
-
         IQI_Stress::IQI_Stress( enum Stress_Type aStressType )
         {
             // assign stress type to evaluate
@@ -69,7 +23,7 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IQI_Constitutive_Type::ELAST_LIN_ISO;
+            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
 
         //------------------------------------------------------------------------------
