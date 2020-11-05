@@ -11,10 +11,10 @@ namespace moris
         {
 
         protected:
-            uint mNumOriginalNodes;
+            //uint mNumOriginalNodes;
 
         private:
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+
 
         public:
 

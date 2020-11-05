@@ -7,12 +7,21 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Interpolation_Mesh;
+    }
     namespace ge
     {
         class Field
         {
         protected:
             Cell<real*> mFieldVariables;
+
+            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+
+            uint mNumOriginalNodes;
+            mtk::Interpolation_Mesh* mMesh = nullptr;
 
         private:
 
@@ -246,6 +255,8 @@ namespace moris
              * @return Upper bound
              */
             real get_bspline_upper_bound();
+
+            void set_mesh( mtk::Interpolation_Mesh* aMesh);
 
         private:
 

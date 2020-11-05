@@ -344,7 +344,8 @@ namespace moris
                                 aSecondNodeIndex,
                                 aFirstNodeCoordinates,
                                 aSecondNodeCoordinates,
-                                mGeometries(mActiveGeometryIndex));
+                                mGeometries(mActiveGeometryIndex),
+                                mIsocontourThreshold);
 
                         break;
                     }
