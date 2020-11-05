@@ -60,8 +60,8 @@ namespace moris
                   Matrix<DDUMat>    aADVIndices,
                   Matrix<DDRMat>    aConstantParameters,
                   std::string       aName = "",
-                  Matrix<DDSMat>  aNumRefinements = {{}},
-                  Matrix<DDSMat>  aNumPatterns = {{}},
+                  Matrix<DDSMat>    aNumRefinements = {{}},
+                  Matrix<DDSMat>    aNumPatterns = {{}},
                   sint              aRefinementFunctionIndex = -1,
                   sint              aBSplineMeshIndex = -2,
                   real              aBSplineLowerBound = -1.0,
@@ -83,19 +83,19 @@ namespace moris
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Plane(real        aXCenter,
-                  real        aYCenter,
-                  real        aZCenter,
-                  real        aXNormal,
-                  real        aYNormal,
-                  real        aZNormal,
-                  std::string aName = "",
-                  Matrix<DDSMat>  aNumRefinements = {{}},
-                  Matrix<DDSMat>  aNumPatterns = {{}},
-                  sint        aRefinementFunctionIndex = -1,
-                  sint        aBSplineMeshIndex = -2,
-                  real        aBSplineLowerBound = -1.0,
-                  real        aBSplineUpperBound = 1.0);
+            Plane(real           aXCenter,
+                  real           aYCenter,
+                  real           aZCenter,
+                  real           aXNormal,
+                  real           aYNormal,
+                  real           aZNormal,
+                  std::string    aName = "",
+                  Matrix<DDSMat> aNumRefinements = {{}},
+                  Matrix<DDSMat> aNumPatterns = {{}},
+                  sint           aRefinementFunctionIndex = -1,
+                  sint           aBSplineMeshIndex = -2,
+                  real           aBSplineLowerBound = -1.0,
+                  real           aBSplineUpperBound = 1.0);
 
             /**
              * Constructor with only constant parameters, 2D
@@ -109,17 +109,17 @@ namespace moris
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              */
-            Plane(real        aXCenter,
-                  real        aYCenter,
-                  real        aXNormal,
-                  real        aYNormal,
-                  std::string aName = "",
-                  Matrix<DDSMat>  aNumRefinements = {{}},
-                  Matrix<DDSMat>  aNumPatterns = {{}},
-                  sint        aRefinementFunctionIndex = -1,
-                  sint        aBSplineMeshIndex = -2,
-                  real        aBSplineLowerBound = -1.0,
-                  real        aBSplineUpperBound = 1.0);
+            Plane(real           aXCenter,
+                  real           aYCenter,
+                  real           aXNormal,
+                  real           aYNormal,
+                  std::string    aName = "",
+                  Matrix<DDSMat> aNumRefinements = {{}},
+                  Matrix<DDSMat> aNumPatterns = {{}},
+                  sint           aRefinementFunctionIndex = -1,
+                  sint           aBSplineMeshIndex = -2,
+                  real           aBSplineLowerBound = -1.0,
+                  real           aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

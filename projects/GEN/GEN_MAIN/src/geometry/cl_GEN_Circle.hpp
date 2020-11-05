@@ -57,8 +57,8 @@ namespace moris
                    Matrix<DDUMat>    aADVIndices,
                    Matrix<DDRMat>    aConstantParameters,
                    std::string       aName = "",
-                   Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
+                   Matrix<DDSMat>    aNumRefinements = {{}},
+                   Matrix<DDSMat>    aNumPatterns = {{}},
                    sint              aRefinementFunctionIndex = -1,
                    sint              aBSplineMeshIndex = -2,
                    real              aBSplineLowerBound = -1.0,
@@ -77,16 +77,16 @@ namespace moris
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Circle(real        aXCenter,
-                   real        aYCenter,
-                   real        aRadius,
-                   std::string aName = "",
-                   Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
-                   sint        aRefinementFunctionIndex = -1,
-                   sint        aBSplineMeshIndex = -2,
-                   real        aBSplineLowerBound = -1.0,
-                   real        aBSplineUpperBound = 1.0);
+            Circle(real           aXCenter,
+                   real           aYCenter,
+                   real           aRadius,
+                   std::string    aName = "",
+                   Matrix<DDSMat> aNumRefinements = {{}},
+                   Matrix<DDSMat> aNumPatterns = {{}},
+                   sint           aRefinementFunctionIndex = -1,
+                   sint           aBSplineMeshIndex = -2,
+                   real           aBSplineLowerBound = -1.0,
+                   real           aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

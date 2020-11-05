@@ -41,8 +41,8 @@ namespace moris
                        Matrix<DDUMat>    aADVIndices,
                        Matrix<DDRMat>    aConstantParameters,
                        std::string       aName,
-                       Matrix<DDSMat>  aNumRefinements,
-                       Matrix<DDSMat>  aNumPatterns,
+                       Matrix<DDSMat>    aNumRefinements,
+                       Matrix<DDSMat>    aNumPatterns,
                        sint              aRefinementFunctionIndex,
                        sint              aBSplineMeshIndex,
                        real              aBSplineLowerBound,
@@ -65,16 +65,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real        aXCenter,
-                       real        aYCenter,
-                       real        aRadius,
-                       std::string       aName,
-                       Matrix<DDSMat>  aNumRefinements,
-                       Matrix<DDSMat>  aNumPatterns,
-                       sint        aRefinementFunctionIndex,
-                       sint        aBSplineMeshIndex,
-                       real        aBSplineLowerBound,
-                       real        aBSplineUpperBound)
+        Circle::Circle(real           aXCenter,
+                       real           aYCenter,
+                       real           aRadius,
+                       std::string    aName,
+                       Matrix<DDSMat> aNumRefinements,
+                       Matrix<DDSMat> aNumPatterns,
+                       sint           aRefinementFunctionIndex,
+                       sint           aBSplineMeshIndex,
+                       real           aBSplineLowerBound,
+                       real           aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}),
                         aName,
                         aNumRefinements,
