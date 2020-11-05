@@ -33,6 +33,10 @@ namespace moris
                   mBSplineUpperBound(aBSplineUpperBound)
 
         {
+            // Check that refinement information is correct
+            MORIS_ERROR(aNumRefinements.length() == aNumPatterns.length(),
+                    "The entries given for number of refinements must line up with the number of refinement patterns.");
+
             // Resize field variables
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
@@ -72,6 +76,10 @@ namespace moris
                   mBSplineUpperBound(aBSplineUpperBound)
 
         {
+            // Check that refinement information is correct
+            MORIS_ERROR(aNumRefinements.length() == aNumPatterns.length(),
+                    "The entries given for number of refinements must line up with the number of refinement patterns.");
+
             // Resize field variables
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
@@ -107,6 +115,10 @@ namespace moris
                   mBSplineLowerBound(aBSplineLowerBound),
                   mBSplineUpperBound(aBSplineUpperBound)
         {
+            // Check that refinement information is correct
+            MORIS_ERROR(aNumRefinements.length() == aNumPatterns.length(),
+                    "The entries given for number of refinements must line up with the number of refinement patterns.");
+
             // Create shared distributed vector
             sol::Matrix_Vector_Factory tDistributedFactory;
             std::shared_ptr<sol::Dist_Map> tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);

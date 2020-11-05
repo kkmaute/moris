@@ -179,17 +179,10 @@ namespace moris
             std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
 
             // Get refinement info
-            moris::Matrix< DDSMat > tNumRefinements;
-            moris::Matrix< DDSMat > tRefinementMeshIndex;
-
-            string_to_mat( aGeometryParameterList.get< std::string >("number_of_refinements"), tNumRefinements );
-            string_to_mat( aGeometryParameterList.get< std::string >("refinement_mesh_index"), tRefinementMeshIndex );
-
-            // check sanity of input
-            MORIS_ERROR( tNumRefinements.numel() == tRefinementMeshIndex.numel(),
-                         "the number of refinement_pattern has to be equal the number of entries in number_of_refinements ");
-
-
+            Matrix<DDSMat> tNumRefinements =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("number_of_refinements"));
+            Matrix<DDSMat> tRefinementMeshIndex =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("refinement_mesh_index"));
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
 
             // Get level set info
@@ -398,17 +391,10 @@ namespace moris
             std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
 
             // Get refinement info
-            // Get refinement info
-            moris::Matrix< DDSMat > tNumRefinements;
-            moris::Matrix< DDSMat > tRefinementMeshIndex;
-
-            string_to_mat( aGeometryParameterList.get< std::string >("number_of_refinements"), tNumRefinements );
-            string_to_mat( aGeometryParameterList.get< std::string >("refinement_mesh_index"), tRefinementMeshIndex );
-
-            // check sanity of input
-            MORIS_ERROR( tNumRefinements.numel() == tRefinementMeshIndex.numel(),
-                         "the number of refinement_pattern has to be equal the number of entries in number_of_refinements ");
-
+            Matrix<DDSMat> tNumRefinements =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("number_of_refinements"));
+            Matrix<DDSMat> tRefinementMeshIndex =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("refinement_mesh_index"));
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
 
             // Get level set info
