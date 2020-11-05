@@ -21,54 +21,55 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IWG_Helmholtz_Interface : public IWG
         {
-            // Helmholtz filter length parameter
-            real mFilterParam ;
+                // Helmholtz filter length parameter
+                real mFilterParam ;
 
-//------------------------------------------------------------------------------
-        public:
-//------------------------------------------------------------------------------
-            /*
-             *  constructor
-             */
-//            IWG_Helmholtz_Interface( const real aFilterParam );
-            IWG_Helmholtz_Interface();
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 *  constructor
+                 */
+                //            IWG_Helmholtz_Interface( const real aFilterParam );
+                IWG_Helmholtz_Interface();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IWG_Helmholtz_Interface(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IWG_Helmholtz_Interface(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual
-             * @param[ in ] aResidual        residual vector to fill
-             */
-            void compute_residual( real tWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual
+                 * @param[ in ] aResidual        residual vector to fill
+                 */
+                void compute_residual( real tWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the jacobian
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             */
-            void compute_jacobian( real tWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the jacobian
+                 * @param[ in ] aJacobians           list of jacobian matrices to fill
+                 */
+                void compute_jacobian( real tWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aResidual            residual vector to fill
-             */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual and the jacobian
+                 * @param[ in ] aJacobians           list of jacobian matrices to fill
+                 * @param[ in ] aResidual            residual vector to fill
+                 */
+                void compute_jacobian_and_residual(
+                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                        moris::Cell< Matrix< DDRMat > >                & aResidual );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

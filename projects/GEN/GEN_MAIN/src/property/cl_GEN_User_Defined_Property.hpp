@@ -42,7 +42,7 @@ namespace moris
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
                     std::string                    aName = "",
                     Matrix<DDSMat>  aNumRefinements = {{}},
-                    Matrix<DDSMat>  aNumPatterns = {{}},
+                    Matrix<DDSMat>  aRefinementMeshIndices = {{}},
                     sint                           aRefinementFunctionIndex = -1,
                     sint                           aBSplineMeshIndex = -2,
                     real                           aBSplineLowerBound = -1.0,
@@ -73,7 +73,7 @@ namespace moris
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
                     std::string                    aName = "",
                     Matrix<DDSMat>  aNumRefinements = {{}},
-                    Matrix<DDSMat>  aNumPatterns = {{}},
+                    Matrix<DDSMat>  aRefinementMeshIndices = {{}},
                     sint                           aRefinementFunctionIndex = -1,
                     sint                           aBSplineMeshIndex = -2,
                     real                           aBSplineLowerBound = -1.0,
@@ -85,7 +85,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Property value
              */
-            real get_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value_geometry(uint aNodeIndex,const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the proeprty field with respect to all of the

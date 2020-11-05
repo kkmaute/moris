@@ -341,17 +341,6 @@ namespace moris
              */
             uint get_num_refinement_fields();
 
-            /**
-             * Gets a flag to determine if refinement should continue
-             *
-             * @param aFieldIndex The index of a field
-             * @param aRefinementIndex The current refinement step being performed
-             * @return If refinement is needed for this field
-             */
-            bool refinement_needed(
-                    uint aFieldIndex,
-                    uint aRefinementIndex);
-
             const Matrix< DDSMat > & get_num_refinements(uint aFieldIndex );
 
             const Matrix< DDSMat > & get_refinement_mesh_indices(uint aFieldIndex );
@@ -385,6 +374,8 @@ namespace moris
              * @param aMesh Mesh for computing level set data
              */
             void compute_level_set_data(mtk::Interpolation_Mesh* aMesh);
+
+            void finalize_fields( mtk::Interpolation_Mesh* aMesh );
 
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.

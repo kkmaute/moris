@@ -36,9 +36,6 @@ namespace moris
                     MAX_ENUM
                 };
 
-                // Local string to constitutive enum map
-                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
-
             public:
                 //------------------------------------------------------------------------------
                 /*
@@ -51,16 +48,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IWG_Ghost_Normal_Field(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set stabilization parameter
-                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-                 */
-                void set_stabilization_parameter(
-                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**

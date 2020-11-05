@@ -19,30 +19,9 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Pressure" ]      = IWG_Property_Type::PRESSURE;
-            mPropertyMap[ "TotalPressure" ] = IWG_Property_Type::TOTAL_PRESSURE;
-            mPropertyMap[ "Density" ]       = IWG_Property_Type::DENSITY;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Pressure_Neumann::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster)
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Incompressible_NS_Pressure_Neumann::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Incompressible_NS_Pressure_Neumann::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            mPropertyMap[ "Pressure" ]      = static_cast< uint >( IWG_Property_Type::PRESSURE );
+            mPropertyMap[ "TotalPressure" ] = static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE );
+            mPropertyMap[ "Density" ]       = static_cast< uint >( IWG_Property_Type::DENSITY );
         }
 
         //------------------------------------------------------------------------------

@@ -94,6 +94,7 @@ namespace moris
             ParameterList tParameterList = create_geometry_parameter_list();
 
             tParameterList.set("type", "user_defined");             // User-defined geometry
+            tParameterList.insert("interpolate_child_nodes", false);
             tParameterList.insert("field_function_name", "");       // Function name for evaluating the geometry field
             tParameterList.insert("sensitivity_function_name", ""); // Function name for evaluating the sensitivity of the field
 

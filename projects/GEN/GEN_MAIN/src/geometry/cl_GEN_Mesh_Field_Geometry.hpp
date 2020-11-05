@@ -32,7 +32,7 @@ namespace moris
                                 std::string aFieldName,
                                 EntityRank  aEntityRank = EntityRank::NODE,
                                 Matrix<DDSMat>  aNumRefinements = {{}},
-                                Matrix<DDSMat>  aNumPatterns = {{}},
+                                Matrix<DDSMat>  aRefinementMeshIndices = {{}},
                                 sint        aRefinementFunctionIndex = -1);
 
             /**

@@ -1,6 +1,7 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -15,7 +16,7 @@ namespace moris
                      Matrix<DDRMat>  aConstantParameters,
                      std::string     aName,
                      Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aNumPatterns,
+                     Matrix<DDSMat>  aRefinementMeshIndices,
                      sint            aRefinementFunctionIndex,
                      sint            aBSplineMeshIndex,
                      real            aBSplineLowerBound,
@@ -26,7 +27,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aNumPatterns),
+                  mRefinementMeshIndices(aRefinementMeshIndices),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -34,7 +35,7 @@ namespace moris
 
         {
             // Check that refinement information is correct
-            MORIS_ERROR(aNumRefinements.length() == aNumPatterns.length(),
+            MORIS_ERROR(aNumRefinements.length() == aRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
             // Resize field variables
@@ -58,7 +59,7 @@ namespace moris
                      Matrix<DDRMat>    aConstantParameters,
                      std::string       aName,
                      Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aNumPatterns,
+                     Matrix<DDSMat>  aRefinementMeshIndices,
                      sint              aRefinementFunctionIndex,
                      sint              aBSplineMeshIndex,
                      real              aBSplineLowerBound,
@@ -69,7 +70,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aNumPatterns),
+                  mRefinementMeshIndices(aRefinementMeshIndices),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -77,7 +78,7 @@ namespace moris
 
         {
             // Check that refinement information is correct
-            MORIS_ERROR(aNumRefinements.length() == aNumPatterns.length(),
+            MORIS_ERROR(aNumRefinements.length() == aRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
             // Resize field variables
@@ -99,7 +100,7 @@ namespace moris
         Field::Field(const Matrix<DDSMat>& aSharedADVIds,
                      std::string           aName,
                      Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aNumPatterns,
+                     Matrix<DDSMat>  aRefinementMeshIndices,
                      sint                  aRefinementFunctionIndex,
                      sint                  aBSplineMeshIndex,
                      real                  aBSplineLowerBound,
@@ -109,14 +110,14 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(true),
                   mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aNumPatterns),
+                  mRefinementMeshIndices(aRefinementMeshIndices),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
                   mBSplineUpperBound(aBSplineUpperBound)
         {
             // Check that refinement information is correct
-            MORIS_ERROR(aNumRefinements.length() == aNumPatterns.length(),
+            MORIS_ERROR(aNumRefinements.length() == aRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
             // Create shared distributed vector
@@ -137,7 +138,7 @@ namespace moris
         Field::Field(Matrix<DDRMat> aConstantParameters,
                      std::string    aName,
                      Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aNumPatterns,
+                     Matrix<DDSMat>  aRefinementMeshIndices,
                      sint           aRefinementFunctionIndex,
                      sint           aBSplineMeshIndex,
                      real           aBSplineLowerBound,
@@ -148,7 +149,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(false),
                   mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aNumPatterns),
+                  mRefinementMeshIndices(aRefinementMeshIndices),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -272,6 +273,12 @@ namespace moris
         real Field::get_bspline_upper_bound()
         {
             return mBSplineUpperBound;
+        }
+
+        void Field::set_mesh( mtk::Interpolation_Mesh* aMesh)
+        {
+            mMesh = aMesh;
+            mNumOriginalNodes = aMesh->get_num_nodes();
         }
 
         //--------------------------------------------------------------------------------------------------------------

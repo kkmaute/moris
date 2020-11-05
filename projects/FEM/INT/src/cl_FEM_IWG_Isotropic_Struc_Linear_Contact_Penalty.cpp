@@ -26,14 +26,14 @@ namespace moris
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
+            mConstitutiveMap[ "ElastLinIso" ] =  static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "PenaltyContact" ]      = IWG_Stabilization_Type::PENALTY_CONTACT;
-            mStabilizationMap[ "StabPenaltyContact" ]  = IWG_Stabilization_Type::STAB_PENALTY_CONTACT;
+            mStabilizationMap[ "PenaltyContact" ]      =  static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT );
+            mStabilizationMap[ "StabPenaltyContact" ]  =  static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT );
 
             //            mStabilizationMap[ "MasterWeightInterface" ] = IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE;
             //            mStabilizationMap[ "SlaveWeightInterface" ]  = IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE;

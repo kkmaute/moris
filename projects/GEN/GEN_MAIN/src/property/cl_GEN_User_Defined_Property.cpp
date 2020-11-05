@@ -17,7 +17,7 @@ namespace moris
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
                 std::string                    aName,
                 Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aNumPatterns,
+                Matrix<DDSMat>  aRefinementMeshIndices,
                 sint                           aRefinementFunctionIndex,
                 sint                           aBSplineMeshIndex,
                 real                           aBSplineLowerBound,
@@ -28,7 +28,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aNumPatterns,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -50,7 +50,7 @@ namespace moris
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
                 std::string                    aName,
                 Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aNumPatterns,
+                Matrix<DDSMat>  aRefinementMeshIndices,
                 sint                           aRefinementFunctionIndex,
                 sint                           aBSplineMeshIndex,
                 real                           aBSplineLowerBound,
@@ -61,7 +61,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aNumPatterns,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -73,7 +73,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real User_Defined_Property::get_field_value(const Matrix<DDRMat>& aCoordinates)
+        real User_Defined_Property::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_value_user_defined(aCoordinates, mFieldVariables);
         }

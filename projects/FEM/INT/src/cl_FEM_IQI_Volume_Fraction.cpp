@@ -15,20 +15,6 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        void IQI_Volume_Fraction::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            // FIXME check that stabilization string makes sense?
-            std::cout<<static_cast< uint >( mStabilizationMap[ aStabilizationString ] )<<" string"<<std::endl;
-            std::cout<<this->get_stabilization_parameters().size()<<" size"<<std::endl;
-
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-        }
-
-        //------------------------------------------------------------------------------
-
         IQI_Volume_Fraction::IQI_Volume_Fraction()
         {
             // set fem IQI type
@@ -41,7 +27,7 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mStabilizationMap[ "Reciprocal_total_vol" ] = IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME;
+            mStabilizationMap[ "Reciprocal_total_vol" ] = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
         }
 
         //------------------------------------------------------------------------------

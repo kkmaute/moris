@@ -8,8 +8,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field_Discrete::Field_Discrete(uint aNumOriginalNodes)
-        : mNumOriginalNodes(aNumOriginalNodes)
         {
+            mNumOriginalNodes=aNumOriginalNodes;
         }
 
         //--------------------------------------------------------------------------------------------------------------

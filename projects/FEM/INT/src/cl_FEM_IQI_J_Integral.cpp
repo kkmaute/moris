@@ -14,30 +14,13 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        void IQI_J_Integral::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster )
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI::set_constitutive model - can only be master." );
-
-            // FIXME check that constitutive string makes sense?
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-        }
-
-        //------------------------------------------------------------------------------
-
         IQI_J_Integral::IQI_J_Integral()
         {
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IQI_Constitutive_Type::ELAST_LIN_ISO;
+            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
 
         //------------------------------------------------------------------------------

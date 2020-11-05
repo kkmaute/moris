@@ -39,17 +39,11 @@ namespace moris
                     MAX_ENUM
                 };
 
-                // Local string to constitutive enum map
-                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
                 enum class IWG_Stabilization_Type
                 {
                     NITSCHE_INTERFACE,
                     MAX_ENUM
                 };
-
-                // Local string to constitutive enum map
-                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
                 //------------------------------------------------------------------------------
                 /*
@@ -62,28 +56,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IWG_Diffusion_Interface(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set stabilization parameter
-                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-                 */
-                void set_stabilization_parameter(
-                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**
