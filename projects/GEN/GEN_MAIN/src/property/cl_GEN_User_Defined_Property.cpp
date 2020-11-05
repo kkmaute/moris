@@ -73,7 +73,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real User_Defined_Property::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real User_Defined_Property::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_value_user_defined(aCoordinates, mFieldVariables);
         }
