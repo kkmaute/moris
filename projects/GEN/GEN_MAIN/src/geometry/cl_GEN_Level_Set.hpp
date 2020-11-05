@@ -41,7 +41,7 @@ namespace moris
                       mtk::Interpolation_Mesh* aMesh,
                       std::string              aName = "",
                       Matrix<DDSMat>  aNumRefinements = {{}},
-                      Matrix<DDSMat>  aNumPatterns = {{}},
+                      Matrix<DDSMat>  aRefinementMeshIndex = {{}},
                       sint                     aRefinementFunctionIndex = -1,
                       uint                     aBSplineMeshIndex = 0,
                       real                     aBSplineLowerBound = -1.0,
