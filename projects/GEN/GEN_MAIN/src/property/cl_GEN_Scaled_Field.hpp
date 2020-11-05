@@ -21,7 +21,8 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldDependencies Other created fields that this property depends on
              * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this property
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
@@ -50,7 +51,8 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldDependencies Other created fields that this property depends on
              * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this property
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
