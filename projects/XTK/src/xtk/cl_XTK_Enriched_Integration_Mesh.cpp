@@ -126,6 +126,30 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
+    uint
+    Enriched_Integration_Mesh::get_num_owned_cells() const
+    {
+        uint tNumEntities = this->get_num_entities(EntityRank::ELEMENT);
+
+        uint tNumOwnedEntities = 0;
+
+        moris::moris_id tParRank = moris::par_rank();
+        
+        // iterate and find out how many I own
+        for(moris::uint i = 0; i < tNumEntities; i++)
+        {
+            mtk::Cell const & tCell = this->get_mtk_cell( (moris_index)  i );
+            if(tCell.get_owner() == tParRank)
+            {
+                tNumOwnedEntities++;
+            }
+        }
+
+        return tNumOwnedEntities;
+    }
+
+    //------------------------------------------------------------------------------
+
     Matrix<IndexMat>
     Enriched_Integration_Mesh::get_entity_connected_to_entity_loc_inds(
             moris_index       aEntityIndex,
@@ -1062,9 +1086,24 @@ namespace xtk
     void
     Enriched_Integration_Mesh::print() const
     {
+        this->print_general();
         this->print_block_sets();
         this->print_side_sets();
         this->print_double_side_sets();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void 
+    Enriched_Integration_Mesh::print_general() const
+    {
+        moris::uint tNumCells    = this->get_num_owned_cells();
+
+        moris::uint tNumGlobalCells = sum_all(tNumCells);
+        if(par_rank() == 0)
+        {
+            std::cout<<"Num Cells: "<<std::setw(8)<<tNumGlobalCells<<std::endl;
+        }
     }
 
     //------------------------------------------------------------------------------

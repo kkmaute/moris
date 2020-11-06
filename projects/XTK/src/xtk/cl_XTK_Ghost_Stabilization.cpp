@@ -388,7 +388,6 @@ namespace xtk
 
             // send requests
             moris::uint tMPITag = 3001;
-            std::cout<<"GHOST REQUESTS"<<std::endl;
 
             // send the background vertex id
             mXTKModel->send_outward_requests(tMPITag, tProcRanks,tNotOwnedBGIPVertsIdsToProcs);

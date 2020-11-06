@@ -171,6 +171,13 @@ namespace xtk
         // Start the clock
         std::clock_t tStart = std::clock();
 
+        mVerbose = mParameterList.get<bool>("verbose");
+        
+        if(moris::par_rank() == 0 && mVerbose)
+        {
+            std::cout<<"XTK: Start"<<std::endl;
+        }
+
         if( !mInitializeCalled )
         {
             MORIS_ERROR( mMTKInputPerformer != nullptr ,"xtk::Model::perform(), mMTKInputPerformer not set!");
@@ -183,8 +190,6 @@ namespace xtk
 
         MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
         MORIS_ERROR(this->valid_parameters(),"Invalid parameters detected in XTK.");
-
-        mVerbose = mParameterList.get<bool>("verbose");
 
         if(mParameterList.get<bool>("decompose"))
         {
@@ -5200,7 +5205,6 @@ namespace xtk
 
         if(moris::par_rank() == 0 && mVerbose)
         {
-            std::cout<<"--------------------------------------------------------"<<std::endl;
             std::cout<<"XTK: Specified Decomposition Routines: ";
 
             for(moris::size_t i = 0 ; i<aMethods.size(); i++)
