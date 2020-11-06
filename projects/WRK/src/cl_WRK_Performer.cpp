@@ -13,15 +13,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Performer::refinement_needed(
-                uint aFieldIndex,
-                uint aRefinementIndex)
-        {
-            return false;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         real Performer::get_field_value(
                 uint aFieldIndex,
                 uint aNodeIndex,

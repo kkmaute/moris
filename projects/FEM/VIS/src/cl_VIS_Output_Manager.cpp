@@ -13,6 +13,7 @@
 
 // Logging package
 #include "cl_Logger.hpp"
+#include "cl_Stopwatch.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 extern moris::Logger       gLogger;
@@ -169,6 +170,39 @@ namespace moris
             mVisMesh.resize( mOutputData.size(), nullptr );
 
             mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void Output_Manager::setup_vis_mesh_for_output(
+                const uint                               aVisMeshIndex,
+                mtk::Mesh_Manager                      * aMesh,
+                const uint                               aMeshPairIndex,
+                std::shared_ptr< MSI::Equation_Model >   aEquationModel)
+        {
+            if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+            {
+                // start timer
+                tic tTimer;
+
+                this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
+
+                this->set_visualization_sets( aVisMeshIndex, aEquationModel );
+
+                this->write_mesh( aVisMeshIndex );
+
+                mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
+
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                moris::real tElapsedTimeMax = max_all( tElapsedTime );
+
+                if ( par_rank() == 0 )
+                {
+                    MORIS_LOG_INFO( "VIS: Created Vis Mesh took %5.3f seconds.",
+                            ( double ) tElapsedTimeMax / 1000);
+                }
+            }
         }
 
         //-----------------------------------------------------------------------------------------------------------

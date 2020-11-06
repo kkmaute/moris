@@ -7,12 +7,21 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Interpolation_Mesh;
+    }
     namespace ge
     {
         class Field
         {
         protected:
             Cell<real*> mFieldVariables;
+
+            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+
+            uint mNumOriginalNodes;
+            mtk::Interpolation_Mesh* mMesh = nullptr;
 
         private:
 
@@ -40,8 +49,9 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -51,7 +61,7 @@ namespace moris
                   Matrix<DDRMat>  aConstantParameters,
                   std::string     aName,
                   Matrix<DDSMat>  aNumRefinements,
-                  Matrix<DDSMat>  aNumPatterns,
+                  Matrix<DDSMat>  aRefinementMeshIndices,
                   sint            aRefinementFunctionIndex,
                   sint            aBSplineMeshIndex,
                   real            aBSplineLowerBound,
@@ -66,8 +76,9 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -77,7 +88,7 @@ namespace moris
                   Matrix<DDRMat>    aConstantParameters,
                   std::string       aName,
                   Matrix<DDSMat>  aNumRefinements,
-                  Matrix<DDSMat>  aNumPatterns,
+                  Matrix<DDSMat>  aRefinementMeshIndices,
                   sint              aRefinementFunctionIndex,
                   sint              aBSplineMeshIndex,
                   real              aBSplineLowerBound,
@@ -89,7 +100,7 @@ namespace moris
              * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aName Name of this field for identification
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -97,7 +108,7 @@ namespace moris
             Field(const Matrix<DDSMat>& aSharedADVIds,
                   std::string           aName,
                   Matrix<DDSMat>  aNumRefinements,
-                  Matrix<DDSMat>  aNumPatterns,
+                  Matrix<DDSMat>  aRefinementMeshIndices,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
                   real                  aBSplineLowerBound,
@@ -109,15 +120,16 @@ namespace moris
              * @param aConstantParameters The parameters that define this field
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(Matrix<DDRMat> aConstantParameters,
                   std::string    aName,
                   Matrix<DDSMat>  aNumRefinements,
-                  Matrix<DDSMat>  aNumPatterns,
+                  Matrix<DDSMat>  aRefinementMeshIndices,
                   sint           aRefinementFunctionIndex,
                   sint           aBSplineMeshIndex,
                   real           aBSplineLowerBound,
@@ -175,12 +187,19 @@ namespace moris
             virtual void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
 
             /**
-             * Resets all child nodes, called when a new XTK mesh is being created.
+             * Resets all nodal information, called when a new XTK mesh is being created.
              */
-            virtual void reset_child_nodes();
+            virtual void reset_nodal_information();
 
             /**
-             * Function for determining if this field is to be used for seeding a B-spline field.
+             * Gets if this field is to be turned into a stored geometry/property, in order to store field values.
+             *
+             * @return Logic for storing field values
+             */
+            bool store_field_values();
+
+            /**
+             * Gets if this field is to be used for seeding a B-spline field.
              *
              * @return Logic for B-spline creation
              */
@@ -246,6 +265,8 @@ namespace moris
              * @return Upper bound
              */
             real get_bspline_upper_bound();
+
+            void set_mesh( mtk::Interpolation_Mesh* aMesh);
 
         private:
 

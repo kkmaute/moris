@@ -160,6 +160,8 @@ namespace moris
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
 
+            std::cout<<"tGeometryType: "<<tGeometryType<<std::endl;
+
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
@@ -179,17 +181,10 @@ namespace moris
             std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
 
             // Get refinement info
-            moris::Matrix< DDSMat > tNumRefinements;
-            moris::Matrix< DDSMat > tRefinementMeshIndex;
-
-            string_to_mat( aGeometryParameterList.get< std::string >("number_of_refinements"), tNumRefinements );
-            string_to_mat( aGeometryParameterList.get< std::string >("refinement_mesh_index"), tRefinementMeshIndex );
-
-            // check sanity of input
-            MORIS_ERROR( tNumRefinements.numel() == tRefinementMeshIndex.numel(),
-                         "the number of refinement_pattern has to be equal the number of entries in number_of_refinements ");
-
-
+            Matrix<DDSMat> tNumRefinements =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("number_of_refinements"));
+            Matrix<DDSMat> tRefinementMeshIndex =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("refinement_mesh_index"));
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
 
             // Get level set info
@@ -379,6 +374,8 @@ namespace moris
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
 
+            std::cout<<"tGeometryType: "<<tGeometryType<<std::endl;
+
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
@@ -398,17 +395,10 @@ namespace moris
             std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
 
             // Get refinement info
-            // Get refinement info
-            moris::Matrix< DDSMat > tNumRefinements;
-            moris::Matrix< DDSMat > tRefinementMeshIndex;
-
-            string_to_mat( aGeometryParameterList.get< std::string >("number_of_refinements"), tNumRefinements );
-            string_to_mat( aGeometryParameterList.get< std::string >("refinement_mesh_index"), tRefinementMeshIndex );
-
-            // check sanity of input
-            MORIS_ERROR( tNumRefinements.numel() == tRefinementMeshIndex.numel(),
-                         "the number of refinement_pattern has to be equal the number of entries in number_of_refinements ");
-
+            Matrix<DDSMat> tNumRefinements =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("number_of_refinements"));
+            Matrix<DDSMat> tRefinementMeshIndex =
+                    string_to_mat<DDSMat>(aGeometryParameterList.get<std::string>("refinement_mesh_index"));
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
 
             // Get level set info
@@ -600,13 +590,13 @@ namespace moris
             bool tFillADVs = false;
 
             // Determine if variable or ADV indices need to be filled (specified by "all")
-            if (aGeometryParameterList.get<std::string>("geometry_variable_indices") == "all")
+            if (aGeometryParameterList.get<std::string>("field_variable_indices") == "all")
             {
                 tFillVariables = true;
             }
             else
             {
-                string_to_mat(aGeometryParameterList.get<std::string>("geometry_variable_indices"), aGeometryVariableIndices);
+                string_to_mat(aGeometryParameterList.get<std::string>("field_variable_indices"), aGeometryVariableIndices);
             }
             if (aGeometryParameterList.get<std::string>("adv_indices") == "all")
             {

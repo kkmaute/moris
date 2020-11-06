@@ -11,10 +11,10 @@ namespace moris
         {
 
         protected:
-            uint mNumOriginalNodes;
+            //uint mNumOriginalNodes;
 
         private:
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+
 
         public:
 
@@ -85,7 +85,7 @@ namespace moris
             /**
              * Resets all child nodes, called when a new XTK mesh is being created.
              */
-            void reset_child_nodes();
+            void reset_nodal_information();
 
         };
     }

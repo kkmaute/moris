@@ -8,8 +8,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field_Discrete::Field_Discrete(uint aNumOriginalNodes)
-        : mNumOriginalNodes(aNumOriginalNodes)
         {
+            mNumOriginalNodes=aNumOriginalNodes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete::reset_child_nodes()
+        void Field_Discrete::reset_nodal_information()
         {
             mChildNodes.resize(0);
         }

@@ -422,7 +422,7 @@ namespace moris
             // Create discrete property
             ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
             tParameterList.set("type", "discrete");
-            tParameterList.set("property_variable_indices", "all");
+            tParameterList.set("field_variable_indices", "all");
             tParameterList.set("adv_indices", "all");
             tParameterList.set("pdv_type", "DENSITY");
 

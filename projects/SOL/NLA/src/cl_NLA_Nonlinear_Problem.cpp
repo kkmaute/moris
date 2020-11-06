@@ -28,7 +28,7 @@ using namespace NLA;
 using namespace dla;
 
 Nonlinear_Problem::Nonlinear_Problem(
-        sol::SOL_Warehouse       * aNonlinDatabase,
+        sol::SOL_Warehouse       * aSolverWarehouse,
         Solver_Interface         * aSolverInterface,
         sol::Dist_Vector         * aFullVector,
         const moris::sint          aNonlinearSolverManagerIndex,
@@ -39,6 +39,8 @@ Nonlinear_Problem::Nonlinear_Problem(
   mMapType( aMapType ),
   mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
+    mSolverWarehouse = aSolverWarehouse;
+
     mSolverInterface = aSolverInterface;
 
     //    if( mMapType == sol::MapType::Petsc )
@@ -69,6 +71,7 @@ Nonlinear_Problem::Nonlinear_Problem(
 
         mLinearProblem = tSolFactory.create_linear_system(
                 aSolverInterface,
+                mSolverWarehouse,
                 mMap,
                 mMapFull,
                 mMapType );
