@@ -623,9 +623,6 @@ namespace moris
                         tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                         tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
             }
-
-            // Check that error is thrown when trying to evaluate on a node that wasn't on the original mesh
-            CHECK_THROWS(tStoredCircle->get_field_value(tMesh->get_num_nodes(), {{}}));
         }
 
         //--------------------------------------------------------------------------------------------------------------
