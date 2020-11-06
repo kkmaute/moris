@@ -52,32 +52,32 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Child_Node::join_field_sensitivities(Field* aField)
+        const Matrix<DDRMat>& Child_Node::join_field_sensitivities(Field* aField)
         {
             // Initialize using first parent
-            Matrix<DDRMat> tJoinedSensitivities = aField->get_field_sensitivities(
+            mJoinedSensitivities = aField->get_field_sensitivities(
                     mParentNodeIndices(0),
                     mParentNodeCoordinates(0));
-            tJoinedSensitivities = tJoinedSensitivities * mBasisValues(0);
+            mJoinedSensitivities = mJoinedSensitivities * mBasisValues(0);
 
             // Get sensitivity values from other parents
             for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
             {
                 // Get scaled sensitivities
-                Matrix<DDRMat> tParentSensitivities = mBasisValues(tParentNode) * aField->get_field_sensitivities(
+                const Matrix<DDRMat>& tParentSensitivities = mBasisValues(tParentNode) * aField->get_field_sensitivities(
                         mParentNodeIndices(tParentNode),
                         mParentNodeCoordinates(tParentNode));
                 
                 // Join sensitivities
-                uint tJoinedSensitivityLength = tJoinedSensitivities.n_cols();
-                tJoinedSensitivities.resize(1, tJoinedSensitivityLength + tParentSensitivities.n_cols());
+                uint tJoinedSensitivityLength = mJoinedSensitivities.n_cols();
+                mJoinedSensitivities.resize(1, tJoinedSensitivityLength + tParentSensitivities.n_cols());
                 for (uint tParentSensitivity = 0; tParentSensitivity < tParentSensitivities.n_cols(); tParentSensitivity++)
                 {
-                    tJoinedSensitivities(tJoinedSensitivityLength + tParentSensitivity) = tParentSensitivities(tParentSensitivity);
+                    mJoinedSensitivities(tJoinedSensitivityLength + tParentSensitivity) = tParentSensitivities(tParentSensitivity);
                 }
             }
 
-            return tJoinedSensitivities;
+            return mJoinedSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

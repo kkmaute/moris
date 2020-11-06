@@ -37,7 +37,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Multigeometry::get_field_sensitivities(
+        const Matrix<DDRMat>& Multigeometry::get_field_sensitivities(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {

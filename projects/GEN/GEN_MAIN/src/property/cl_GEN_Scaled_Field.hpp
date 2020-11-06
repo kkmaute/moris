@@ -89,7 +89,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Vector of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.

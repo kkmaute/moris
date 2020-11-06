@@ -33,7 +33,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Stored_Geometry::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& Stored_Geometry::get_field_sensitivities(uint aNodeIndex)
         {
             return mGeometry->get_field_sensitivities(aNodeIndex, mMesh->get_node_coordinate(aNodeIndex));
         }

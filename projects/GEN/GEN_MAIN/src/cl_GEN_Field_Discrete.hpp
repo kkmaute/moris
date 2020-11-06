@@ -9,12 +9,11 @@ namespace moris
     {
         class Field_Discrete : virtual public Field
         {
-
         protected:
-            //uint mNumOriginalNodes;
+            uint mNumOriginalNodes;
 
         private:
-
+            Cell<std::shared_ptr<Child_Node>> mChildNodes;
 
         public:
 
@@ -47,7 +46,7 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Matrix of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node index, returns a matrix of all sensitivities.
@@ -55,7 +54,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Matrix of sensitivities
              */
-            virtual Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex) = 0;
+            virtual const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex) = 0;
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.

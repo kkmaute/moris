@@ -142,7 +142,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Level_Set::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& Level_Set::get_field_sensitivities(uint aNodeIndex)
         {
             return mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index());
         }

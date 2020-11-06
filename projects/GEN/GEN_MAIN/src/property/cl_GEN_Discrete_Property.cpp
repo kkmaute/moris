@@ -32,6 +32,7 @@ namespace moris
                         aBSplineUpperBound),
                   Field_Discrete(aADVs.length())
         {
+            mSensitivities = {{1.0}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ namespace moris
                         aBSplineUpperBound),
                   Field_Discrete(aOwnedADVs->vec_local_length())
         {
+            mSensitivities = {{1.0}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -72,9 +74,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Discrete_Property::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& Discrete_Property::get_field_sensitivities(uint aNodeIndex)
         {
-            return {{1.0}};
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

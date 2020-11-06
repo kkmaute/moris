@@ -82,9 +82,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Scaled_Field::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Scaled_Field::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            return *mFieldVariables(0) * mFieldDependencies(0)->get_field_sensitivities(aNodeIndex, aCoordinates);
+            mSensitivities = *mFieldVariables(0) * mFieldDependencies(0)->get_field_sensitivities(aNodeIndex, aCoordinates);
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

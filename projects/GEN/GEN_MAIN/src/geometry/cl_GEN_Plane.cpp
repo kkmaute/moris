@@ -150,7 +150,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Plane::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Plane::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             return (this->*m_eval_sensitivity)(aCoordinates);
         }
@@ -187,7 +187,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -196,21 +196,20 @@ namespace moris
             real tYNormal = *(mFieldVariables(3));
 
             // Evaluate sensitivities
-            Matrix<DDRMat> tSensitivities(1, 4);
-            tSensitivities(0) = -tXNormal;
-            tSensitivities(1) = -tYNormal;
-            tSensitivities(2) = aCoordinates(0) - tXCenter;
-            tSensitivities(3) = aCoordinates(1) - tYCenter;
+            mSensitivities(0) = -tXNormal;
+            mSensitivities(1) = -tYNormal;
+            mSensitivities(2) = aCoordinates(0) - tXCenter;
+            mSensitivities(3) = aCoordinates(1) - tYCenter;
 
-            return tSensitivities;
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Plane::eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Plane::eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates)
         {
             MORIS_ERROR(false, "Sensitivities not implemented for 3d plane.");
-            return {{}};
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

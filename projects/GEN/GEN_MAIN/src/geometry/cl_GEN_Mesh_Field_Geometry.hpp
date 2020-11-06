@@ -53,7 +53,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Vector of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
+            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex);
 
         };
     }

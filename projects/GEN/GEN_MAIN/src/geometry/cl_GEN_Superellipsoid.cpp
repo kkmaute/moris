@@ -120,7 +120,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Superellipsoid::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Superellipsoid::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -138,22 +138,21 @@ namespace moris
             tConstant = tConstant ? pow(tConstant, -1.0 + (1.0 / tExponent)) : 0.0;
 
             // Calculate sensitivities
-            Matrix<DDRMat> tSensitivities(1, 7);
-            tSensitivities(0) = -tConstant * pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
+            mSensitivities(0) = -tConstant * pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
                     * pow(std::abs(tXCenter - aCoordinates(0)), tExponent - 2.0);
-            tSensitivities(1) = -tConstant * pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
+            mSensitivities(1) = -tConstant * pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
                     * pow(std::abs(tYCenter - aCoordinates(1)), tExponent - 2.0);
-            tSensitivities(2) = -tConstant * pow(1.0 / tZSemidiameter, tExponent) * (aCoordinates(2) - tZCenter)
+            mSensitivities(2) = -tConstant * pow(1.0 / tZSemidiameter, tExponent) * (aCoordinates(2) - tZCenter)
                     * pow(std::abs(tZCenter - aCoordinates(2)), tExponent - 2.0);
-            tSensitivities(3) = -tConstant * pow(1.0 / tXSemidiameter, tExponent + 1.0)
+            mSensitivities(3) = -tConstant * pow(1.0 / tXSemidiameter, tExponent + 1.0)
                     * pow(std::abs(tXCenter - aCoordinates(0)), tExponent);
-            tSensitivities(4) = -tConstant * pow(1.0 / tYSemidiameter, tExponent + 1.0)
+            mSensitivities(4) = -tConstant * pow(1.0 / tYSemidiameter, tExponent + 1.0)
                     * pow(std::abs(tYCenter - aCoordinates(1)), tExponent);
-            tSensitivities(5) = -tConstant * pow(1.0 / tZSemidiameter, tExponent + 1.0)
+            mSensitivities(5) = -tConstant * pow(1.0 / tZSemidiameter, tExponent + 1.0)
                     * pow(std::abs(tZCenter - aCoordinates(2)), tExponent);
 
             // TODO? this uses FD only because the analytical function is super complicated for the exponent derivative
-            tSensitivities(6) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
+            mSensitivities(6) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
                                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent + mEpsilon)
                                    + pow(std::abs(aCoordinates(2) - tZCenter) / tZSemidiameter, tExponent + mEpsilon), 1.0 / (tExponent + mEpsilon))
                                - pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent - mEpsilon)
@@ -161,7 +160,7 @@ namespace moris
                                    + pow(std::abs(aCoordinates(2) - tZCenter) / tZSemidiameter, tExponent - mEpsilon), 1.0 / (tExponent - mEpsilon)))
                                / (2.0 * mEpsilon);
 
-            return tSensitivities;
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

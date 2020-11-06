@@ -20,7 +20,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Field_Analytic::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Field_Analytic::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_sensitivities(aCoordinates);
         }

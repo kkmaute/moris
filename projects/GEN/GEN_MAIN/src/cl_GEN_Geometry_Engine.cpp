@@ -709,10 +709,10 @@ namespace moris
 
         void Geometry_Engine::finalize_fields( mtk::Interpolation_Mesh* aMesh )
         {
-            for( auto tGeometry : mGeometries )
-            {
-                tGeometry->set_mesh( aMesh );
-            }
+//            for( auto tGeometry : mGeometries )
+//            {
+//                tGeometry->set_mesh( aMesh );
+//            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

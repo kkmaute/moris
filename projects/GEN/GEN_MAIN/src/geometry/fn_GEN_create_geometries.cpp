@@ -160,8 +160,6 @@ namespace moris
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
 
-            std::cout<<"tGeometryType: "<<tGeometryType<<std::endl;
-
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
@@ -373,8 +371,6 @@ namespace moris
         {
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
-
-            std::cout<<"tGeometryType: "<<tGeometryType<<std::endl;
 
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);

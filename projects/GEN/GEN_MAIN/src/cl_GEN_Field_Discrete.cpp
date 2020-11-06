@@ -8,8 +8,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field_Discrete::Field_Discrete(uint aNumOriginalNodes)
+                : mNumOriginalNodes(aNumOriginalNodes)
         {
-            mNumOriginalNodes=aNumOriginalNodes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Field_Discrete::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Field_Discrete::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
