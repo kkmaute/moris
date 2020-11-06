@@ -37,6 +37,8 @@ namespace moris
 
             tSolverWarehouseList.insert( "SOL_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
 
+            tSolverWarehouseList.insert( "SOL_save_operator_to_matlab", std::string( "" ) );
+
             return tSolverWarehouseList;
         }
 
