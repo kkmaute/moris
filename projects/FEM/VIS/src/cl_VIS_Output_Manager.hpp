@@ -189,19 +189,7 @@ namespace moris
                         const uint                               aVisMeshIndex,
                         mtk::Mesh_Manager                      * aMesh,
                         const uint                               aMeshPairIndex,
-                        std::shared_ptr< MSI::Equation_Model >   aEquationModel)
-                {
-                    if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
-                    {
-                        this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
-
-                        this->set_visualization_sets( aVisMeshIndex, aEquationModel );
-
-                        this->write_mesh( aVisMeshIndex );
-
-                        mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
-                    }
-                }
+                        std::shared_ptr< MSI::Equation_Model >   aEquationModel);
 
                 //---------------------------------------------------------------------------------------------------------------------------
 
