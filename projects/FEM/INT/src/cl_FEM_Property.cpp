@@ -18,10 +18,10 @@ namespace moris
             mdPropdxEval = true;
 
             // reset the property derivatives wrt dof type
-            mPropDofDerEval.assign( mDofTypes.size(), true );
+            mPropDofDerEval.set_size( mDofTypes.size(), 1, true );
 
             // reset the property derivatives wrt dv type
-            mPropDvDerEval.assign( mDvTypes.size(), true );
+            mPropDvDerEval.set_size( mDvTypes.size(), 1, true );
         }
 
         //------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ namespace moris
             mDofDerFunctions.assign( tNumDofTypes, nullptr );
 
             // set mPropDofDerEval size
-            mPropDofDerEval.assign( tNumDofTypes, true );
+            mPropDofDerEval.set_size( tNumDofTypes, 1, true );
 
             // set mPropDofDer size
             mPropDofDer.resize( tNumDofTypes );
@@ -120,7 +120,7 @@ namespace moris
             mDvDerFunctions.resize( tNumDvTypes, nullptr );
 
             // set mPropDvDerEval size
-            mPropDvDerEval.assign( tNumDvTypes, true );
+            mPropDvDerEval.set_size( tNumDvTypes, 1, true );
 
             // set mPropdvDer size
             mPropDvDer.resize( tNumDvTypes );
@@ -262,9 +262,9 @@ namespace moris
 
         void Property::eval_Prop()
         {
-            // check that mValFunc was assigned
-            MORIS_ASSERT( mSetValFunction == true,
-                    "Property::eval_Prop - mValFunction not assigned. " );
+//            // check that mValFunc was assigned
+//            MORIS_ASSERT( mSetValFunction == true,
+//                    "Property::eval_Prop - mValFunction not assigned. " );
 
             // check that mFIManager was assigned
             MORIS_ASSERT( mFIManager != nullptr,

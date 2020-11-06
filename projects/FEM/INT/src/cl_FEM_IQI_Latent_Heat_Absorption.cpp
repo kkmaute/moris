@@ -26,32 +26,11 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Density" ]             = IQI_Property_Type::DENSITY;
-            mPropertyMap[ "LatentHeat" ]          = IQI_Property_Type::LATENT_HEAT;
-            mPropertyMap[ "PCTemp" ]              = IQI_Property_Type::PC_TEMP;
-            mPropertyMap[ "PhaseStateFunction" ]  = IQI_Property_Type::PHASE_STATE_FUNCTION;
-            mPropertyMap[ "PhaseChangeConst" ]    = IQI_Property_Type::PHASE_CHANGE_CONST;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Latent_Heat_Absorption::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster)
-        {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
-                                aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // set the property in the property cell
-            mMasterProp( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            mPropertyMap[ "Density" ]             = static_cast< uint >( IQI_Property_Type::DENSITY );
+            mPropertyMap[ "LatentHeat" ]          = static_cast< uint >( IQI_Property_Type::LATENT_HEAT );
+            mPropertyMap[ "PCTemp" ]              = static_cast< uint >( IQI_Property_Type::PC_TEMP );
+            mPropertyMap[ "PhaseStateFunction" ]  = static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION );
+            mPropertyMap[ "PhaseChangeConst" ]    = static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST );
         }
 
         //------------------------------------------------------------------------------

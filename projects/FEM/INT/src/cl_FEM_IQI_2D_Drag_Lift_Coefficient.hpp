@@ -37,9 +37,6 @@ namespace moris
                     MAX_ENUM
                 };
 
-                // local string to property enum map
-                std::map< std::string, Property_Type > mPropertyMap;
-
                 // sign for drag/lift
                 sint mBeta;
 

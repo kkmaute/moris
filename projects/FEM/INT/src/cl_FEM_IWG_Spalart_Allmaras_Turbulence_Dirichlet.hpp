@@ -43,18 +43,12 @@ namespace moris
                         MAX_ENUM
                 };
 
-                // local string to property enum map
-                std::map< std::string, IWG_Property_Type > mPropertyMap;
-
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
                         NITSCHE,
                         MAX_ENUM
                 };
-
-                // local string to constitutive enum map
-                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
             private:
 
@@ -87,28 +81,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IWG_Spalart_Allmaras_Turbulence_Dirichlet(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set property
-                 * @param[ in ] aProperty       a property pointer
-                 * @param[ in ] aPropertyString a string defining the property
-                 * @param[ in ] aIsMaster       an enum for master or slave
-                 */
-                void set_property(
-                        std::shared_ptr< Property > aProperty,
-                        std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set stabilization parameter
-                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-                 */
-                void set_stabilization_parameter(
-                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**

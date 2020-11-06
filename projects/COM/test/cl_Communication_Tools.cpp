@@ -10,12 +10,16 @@
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 
+//Sam included headers for the sleep timer
+#include <iostream>       // std::cout, std::endl
+
 namespace moris
 {
-TEST_CASE( "moris::send_mat_to_proc",
-                "[comm]" )
-{
-    /*SECTION( "moris::Mat send and receive test" )
+    TEST_CASE( "moris::send_mat_to_proc",
+            "[comm]" )
+        {
+
+        /*SECTION( "moris::Mat send and receive test" )
     {
         // a vector to be communicated
         Matrix<DDUMat> tVec;
@@ -98,5 +102,77 @@ TEST_CASE( "moris::send_mat_to_proc",
         }
 
     } */
-}
+        }
+
+
+     TEST_CASE( "moris::proc_cart",
+            "[comm],[proc_cart]" )
+    {
+
+        if (moris::par_size()==1 or moris::par_size()==2 or moris::par_size()==4)
+        {
+            uint tNumberOfDimensions=3;
+            Matrix < DDUMat >  tProcDims;
+            Matrix < DDUMat >  tProcDimsCompare;
+            Matrix < DDUMat >  tError;
+            Matrix < DDUMat >  tProcCoords;
+            Matrix < IdMat >   tProcNeighbors;
+
+            for (uint iDecompMethod=0; iDecompMethod<=2; ++iDecompMethod)
+            {
+                if (moris::par_size()==1)
+                {
+                    tProcDims={{1}, {1}, {1}};
+                    tProcDimsCompare=tProcDims;
+                }
+                else if (moris::par_size()==2)
+                {
+                    if (iDecompMethod==1)
+                    {
+                        tProcDimsCompare={{2}, {1}, {1}};
+                    }
+                    else if (iDecompMethod==2)
+                    {
+                        tProcDims={{1}, {2}, {1}};
+                        tProcDimsCompare=tProcDims;
+                    }
+                    else if (iDecompMethod==0)
+                    {
+                        tProcDims={{1}, {1}, {2}};
+                        tProcDimsCompare=tProcDims;
+                    }
+                }
+                else
+                {
+                    if (iDecompMethod==1)
+                    {
+                        tProcDimsCompare={{2}, {2}, {1}};
+                    }
+                    else if (iDecompMethod==2)
+                    {
+                        tProcDims={{1}, {2}, {2}};
+                        tProcDimsCompare=tProcDims;
+                    }
+                    else if (iDecompMethod==0)
+                    {
+                        tProcDims={{2}, {1}, {2}};
+                        tProcDimsCompare=tProcDims;
+                    }
+                }
+
+                create_proc_cart(
+                        iDecompMethod,
+                        tNumberOfDimensions,
+                        tProcDims,
+                        tProcCoords,
+                        tProcNeighbors );
+
+                tError = tProcDims - tProcDimsCompare;
+                REQUIRE( tError.max() == 0 && tError.min() == 0 );
+
+            }
+        }
+
+
+    }
 }

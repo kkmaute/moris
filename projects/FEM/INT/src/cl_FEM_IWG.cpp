@@ -383,6 +383,23 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster  )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "IWG::set_property - IWG %s - Unknown aPropertyString: %s ",
+                    mName.c_str(),
+                    aPropertyString.c_str() );
+
+            // set the property in the property pointer cell
+            this->get_properties( aIsMaster )( mPropertyMap[ aPropertyString ] ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< Property > > & IWG::get_properties(
                 mtk::Master_Slave aIsMaster )
         {
@@ -408,6 +425,23 @@ namespace moris
                     return mMasterProp;
                 }
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                 aConstitutiveString,
+                mtk::Master_Slave           aIsMaster  )
+        {
+            // check that aConstitutiveString makes sense
+            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                    "IWG::set_constitutive_model - IWG %s - Unknown aConstitutiveString: %s ",
+                    mName.c_str(),
+                    aConstitutiveString.c_str() );
+
+            // set the CM in the CM pointer cell
+            this->get_constitutive_models( aIsMaster )( mConstitutiveMap[ aConstitutiveString ] ) = aConstitutiveModel;
         }
 
         //------------------------------------------------------------------------------
@@ -438,6 +472,22 @@ namespace moris
                 }
             }
         }
+
+        //------------------------------------------------------------------------------
+
+          void IWG::set_stabilization_parameter(
+                  std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                  std::string                                aStabilizationString )
+          {
+              // check that aStabilizationString makes sense
+              MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
+                      "IWG::set_stabilization_parameter - IWG %s - Unknown aStabilizationString: %s ",
+                      mName.c_str(),
+                      aStabilizationString.c_str() );
+
+              // set the stabilization parameter in the stabilization parameter cell
+              this->get_stabilization_parameters()( mStabilizationMap[ aStabilizationString ] ) = aStabilizationParameter;
+          }
 
         //------------------------------------------------------------------------------
 

@@ -52,6 +52,9 @@ namespace NLA
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 
+        //! Pointer to solver database
+        sol::SOL_Warehouse * mSolverWarehouse = nullptr;
+
         //! Pointer to my nonlinear solver
         Nonlinear_Solver * mMyNonLinSolver = nullptr;
 

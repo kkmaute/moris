@@ -34,7 +34,7 @@ namespace moris
 
             tParameterLists(2)(0).set("type", "discrete");
             tParameterLists(2)(0).set("name", "density");
-            tParameterLists(2)(0).set("property_variable_indices", "all");
+            tParameterLists(2)(0).set("field_variable_indices", "all");
             tParameterLists(2)(0).set("adv_indices", "all");
             tParameterLists(2)(0).set("pdv_type", "DENSITY");
 
@@ -52,7 +52,7 @@ namespace moris
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
             tCircleParameterList.set("type", "circle");
             tCircleParameterList.set("name", "My Circle");
-            tCircleParameterList.set("geometry_variable_indices", "0, 1, 2");
+            tCircleParameterList.set("field_variable_indices", "0, 1, 2");
             tCircleParameterList.set("adv_indices", "0, 1, 2");
             Cell<std::shared_ptr<Geometry>> tGeometries = create_geometries({tCircleParameterList}, tADVs);
             std::shared_ptr<Geometry> tCircle = tGeometries(0);

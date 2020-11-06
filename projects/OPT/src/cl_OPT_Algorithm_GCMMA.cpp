@@ -93,6 +93,10 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 
 void OptAlgGCMMA::criteria_solve(Matrix<DDRMat> aADVs)
 {
+    // Log iteration of optimization
+    MORIS_LOG_ITERATION();
+
+    // Set ADVs and get criteria
     this->mProblem->set_advs(aADVs);
 }
 
@@ -165,9 +169,6 @@ void opt_alg_gcmma_func_wrap(
 {
     // Proc 0 needs to communicate that it is still running
     aOptAlgGCMMA->communicate_running_status();
-
-    // Log iteration of optimization
-    MORIS_LOG_ITERATION();
 
     // Update the ADV matrix
     Matrix<DDRMat> tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);

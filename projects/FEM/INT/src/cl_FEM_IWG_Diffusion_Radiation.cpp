@@ -20,30 +20,9 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Emissivity" ] = IWG_Property_Type::EMISSIVITY;
-            mPropertyMap[ "AmbientTemperature" ] = IWG_Property_Type::AMBIENT_TEMP;
-            mPropertyMap[ "AbsoluteZero" ] = IWG_Property_Type::ABSOLUTE_ZERO;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Diffusion_Radiation::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Diffusion_Radiation::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Diffusion_Radiation::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            mPropertyMap[ "Emissivity" ] = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
+            mPropertyMap[ "AmbientTemperature" ] = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
+            mPropertyMap[ "AbsoluteZero" ] = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
         }
 
         //------------------------------------------------------------------------------

@@ -21,51 +21,52 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IWG_Hamilton_Jacobi_Bulk : public IWG
         {
 
-//------------------------------------------------------------------------------
-        public:
-//------------------------------------------------------------------------------
-            /*
-             *  constructor
-             */
-            IWG_Hamilton_Jacobi_Bulk();
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 *  constructor
+                 */
+                IWG_Hamilton_Jacobi_Bulk();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IWG_Hamilton_Jacobi_Bulk(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IWG_Hamilton_Jacobi_Bulk(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual
-             * @param[ in ] aResidual cell of residual vectors to fill
-             */
-            void compute_residual( real tWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual
+                 * @param[ in ] aResidual cell of residual vectors to fill
+                 */
+                void compute_residual( real tWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             */
-            void compute_jacobian( real tWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the jacobian
+                 * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+                 */
+                void compute_jacobian( real tWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
-             * @param[ in ] aResidual  cell of residual vectors to fill
-             */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual and the jacobian
+                 * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+                 * @param[ in ] aResidual  cell of residual vectors to fill
+                 */
+                void compute_jacobian_and_residual(
+                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                        moris::Cell< Matrix< DDRMat > >                & aResidual );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

@@ -86,12 +86,21 @@ namespace moris
                 moris::Cell< std::shared_ptr< Property > > mMasterProp;
                 moris::Cell< std::shared_ptr< Property > > mSlaveProp;
 
+                // local string to int map for properties
+                std::map< std::string, uint > mPropertyMap;
+
                 // master and slave constitutive models
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mMasterCM;
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mSlaveCM;
 
+                // Local string to int map for constitutive models
+                std::map< std::string, uint > mConstitutiveMap;
+
                 // stabilization parameters
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
+
+                // local string to int map for stabilizations
+                std::map< std::string, uint > mStabilizationMap;
 
                 // interpolation order for IWG
                 uint mOrder = MORIS_UINT_MAX;
@@ -375,7 +384,7 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
                 {
                     return mResidualDofType;
-                };
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -463,13 +472,10 @@ namespace moris
                  * @param[ in ] aPropertyString a string describing the property
                  * @param[ in ] aIsMaster       enum master or slave
                  */
-                virtual void set_property(
+                void set_property(
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    MORIS_ASSERT( false, "IWG::set_property - This function does nothing.");
-                }
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -487,13 +493,10 @@ namespace moris
                  * @param[ in ] aConstitutiveString a string defining the constitutive model
                  * @param[ in ] aIsMaster           an enum for master or slave
                  */
-                virtual void set_constitutive_model(
+                void set_constitutive_model(
                         std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                         std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    MORIS_ERROR( false, "IWG::set_constitutive_model - This function does nothing." );
-                }
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -511,12 +514,9 @@ namespace moris
                  * @param[ in ] aStabilizationParameter a stabilization parameter pointer
                  * @param[ in ] aStabilizationString    a string defining the stabilization parameter
                  */
-                virtual void set_stabilization_parameter(
+                void set_stabilization_parameter(
                         std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString )
-                {
-                    MORIS_ERROR( false, "IWG::set_stabilization_parameter - This function does nothing." );
-                }
+                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**

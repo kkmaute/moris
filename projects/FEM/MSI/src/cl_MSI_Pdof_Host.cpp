@@ -127,6 +127,9 @@ namespace moris
                     Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofMeshIndex );
                     Matrix< IdMat >  tOwners      = mNodeObj->get_adof_owners ( tAdofMeshIndex );
 
+                    MORIS_ASSERT( tAdofMeshInd.numel() != 0,
+                            "Pdof_Host::create_adofs_based_on_Tmatrix(), T-matrix size is 0");
+
                     for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
                     {
                         // Set size of vector with adpf ptr

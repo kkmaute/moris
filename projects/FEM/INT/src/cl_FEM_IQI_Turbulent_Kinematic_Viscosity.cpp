@@ -24,8 +24,8 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ]          = Property_Type::DENSITY;
-            mPropertyMap[ "DynamicViscosity" ] = Property_Type::DYNAMIC_VISCOSITY;
+            mPropertyMap[ "Density" ]          = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "DynamicViscosity" ] = static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY );
         }
 
         //------------------------------------------------------------------------------
@@ -79,27 +79,6 @@ namespace moris
                 default:
                     MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown master slave type." );
             }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Turbulent_Kinematic_Viscosity::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IQI_Turbulent_Kinematic_Viscosity::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_Turbulent_Kinematic_Viscosity::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
         //------------------------------------------------------------------------------

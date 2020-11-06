@@ -25,28 +25,9 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "WeightCurrent" ]  = IWG_Property_Type::WEIGHT_CURRENT;
-            mPropertyMap[ "WeightPrevious" ] = IWG_Property_Type::WEIGHT_PREVIOUS;
-            mPropertyMap[ "InitialCondition" ] = IWG_Property_Type::INITIAL_CONDITION;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Time_Continuity_Dof::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "IWG_Time_Continuity_Dof::set_property - Unknown aPropertyString." );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Time_Continuity_Dof::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            mPropertyMap[ "WeightCurrent" ]  = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
+            mPropertyMap[ "WeightPrevious" ] = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
+            mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
         }
 
         //------------------------------------------------------------------------------

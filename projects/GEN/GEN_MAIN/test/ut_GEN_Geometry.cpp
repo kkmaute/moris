@@ -67,12 +67,12 @@ namespace moris
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
             tCircle1ParameterList.set("type", "circle");
-            tCircle1ParameterList.set("geometry_variable_indices", "all");
+            tCircle1ParameterList.set("field_variable_indices", "all");
             tCircle1ParameterList.set("adv_indices", "0, 1, 3");
 
             ParameterList tCircle2ParameterList = prm::create_geometry_parameter_list();
             tCircle2ParameterList.set("type", "circle");
-            tCircle2ParameterList.set("geometry_variable_indices", "all");
+            tCircle2ParameterList.set("field_variable_indices", "all");
             tCircle2ParameterList.set("adv_indices", "0, 2, 4");
 
             // ADV vector
@@ -163,7 +163,7 @@ namespace moris
             // Set up geometry
             ParameterList tSuperellipseParameterList = prm::create_geometry_parameter_list();
             tSuperellipseParameterList.set("type", "superellipse");
-            tSuperellipseParameterList.set("geometry_variable_indices", "all");
+            tSuperellipseParameterList.set("field_variable_indices", "all");
             tSuperellipseParameterList.set("adv_indices", "all");
 
             // Create circles
@@ -225,7 +225,7 @@ namespace moris
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
             tSphereParameterList.set("type", "sphere");
-            tSphereParameterList.set("geometry_variable_indices", "all");
+            tSphereParameterList.set("field_variable_indices", "all");
             tSphereParameterList.set("adv_indices", "all");
 
             // Create sphere
@@ -270,7 +270,7 @@ namespace moris
             // Set up geometry
             ParameterList tSuperellipsoidParameterList = prm::create_geometry_parameter_list();
             tSuperellipsoidParameterList.set("type", "superellipsoid");
-            tSuperellipsoidParameterList.set("geometry_variable_indices", "all");
+            tSuperellipsoidParameterList.set("field_variable_indices", "all");
             tSuperellipsoidParameterList.set("adv_indices", "all");
 
             // Create circles
@@ -315,6 +315,46 @@ namespace moris
                     0.0, -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0, -0.0257572}});
             check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates2),
                     {{0.0, 0.0, -1.0 / 3.0, 0.0, 0.0, -4.0 / 9.0, 0.0}});
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("User-defined Geometry", "[gen], [geometry], [user-defined geometry]")
+        {
+            // Create user-defined geometry
+            Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
+            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
+                    tADVs,
+                    Matrix<DDUMat>({{1, 0}}),
+                    Matrix<DDUMat>({{0, 1}}),
+                    Matrix<DDRMat>({{}}),
+                    &user_defined_geometry_field,
+                    &user_defined_geometry_sensitivity);
+
+            // Set coordinates for checking
+            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
+            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
+
+            // Check field values
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(-0.75));
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-1.5));
+
+            // Check sensitivity values
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{1.0, 3.0}});
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, 6.0}});
+
+            // Change ADVs and coordinates
+            tADVs = {{2.0, 0.5}};
+            tCoordinates1 = {{0.0, 1.0}};
+            tCoordinates2 = {{2.0, -1.0}};
+
+            // Check field values
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(8.0));
+            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-7.5));
+
+            // Check sensitivity values
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{0.0, 12.0}});
+            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, -12.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -519,42 +559,70 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("User-defined Geometry", "[gen], [geometry], [user-defined geometry]")
+        TEST_CASE("Stored Geometry", "[gen], [geometry], [stored geometry]")
         {
-            // Create user-defined geometry
-            Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
-            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
-                    tADVs,
-                    Matrix<DDUMat>({{1, 0}}),
-                    Matrix<DDUMat>({{0, 1}}),
-                    Matrix<DDRMat>({{}}),
-                    &user_defined_geometry_field,
-                    &user_defined_geometry_sensitivity);
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
 
-            // Set coordinates for checking
-            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
-            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
+            // Level set circle parameter list
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("field_variable_indices", "0, 1, 2");
+            tCircleParameterList.set("adv_indices", "0, 1, 2");
+            tCircleParameterList.set("bspline_mesh_index", -1);
 
-            // Check field values
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(-0.75));
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-1.5));
+            // Set up geometry
+            Matrix<DDRMat> tADVs = {{0.0, 0.0, 0.5}};
+            std::shared_ptr<Geometry> tCircle = create_geometry(tCircleParameterList, tADVs);
 
-            // Check sensitivity values
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{1.0, 3.0}});
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, 6.0}});
+            // Create geometry engine
+            Phase_Table tPhaseTable(1);
+            Geometry_Engine_Test tGeometryEngine({tCircle}, tPhaseTable, tMesh);
 
-            // Change ADVs and coordinates
-            tADVs = {{2.0, 0.5}};
-            tCoordinates1 = {{0.0, 1.0}};
-            tCoordinates2 = {{2.0, -1.0}};
+            // Get geometry back
+            std::shared_ptr<Geometry> tStoredCircle = tGeometryEngine.get_geometry(0);
 
-            // Check field values
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates1) == Approx(8.0));
-            CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-7.5));
+            // Check field values at all nodes
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                // Get node coordinates
+                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
 
-            // Check sensitivity values
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{0.0, 12.0}});
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, -12.0}});
+                // Check field value
+                CHECK(tStoredCircle->get_field_value(tNodeIndex, {{}}) ==
+                        Approx(tCircle->get_field_value(tNodeIndex, tNodeCoordinates)));
+
+                // Check sensitivities
+                check_equal(
+                        tStoredCircle->get_field_sensitivities(tNodeIndex, {{}}),
+                        tCircle->get_field_sensitivities(tNodeIndex, tNodeCoordinates));
+                check_equal(
+                        tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
+                        tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
+            }
+
+            // Set new ADVs
+            tADVs = {{1.0, 1.0, 1.0}};
+            tGeometryEngine.set_advs(tADVs);
+
+            // Check field values at all nodes again
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                // Get node coordinates
+                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                // Check field value
+                CHECK(tStoredCircle->get_field_value(tNodeIndex, {{}}) ==
+                        Approx(tCircle->get_field_value(tNodeIndex, tNodeCoordinates)));
+
+                // Check sensitivities
+                check_equal(
+                        tStoredCircle->get_field_sensitivities(tNodeIndex, {{}}),
+                        tCircle->get_field_sensitivities(tNodeIndex, tNodeCoordinates));
+                check_equal(
+                        tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
+                        tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -571,13 +639,13 @@ namespace moris
             Cell<ParameterList> tCircleParameterLists(2);
             tCircleParameterLists(0) = prm::create_geometry_parameter_list();
             tCircleParameterLists(0).set("type", "circle");
-            tCircleParameterLists(0).set("geometry_variable_indices", "all");
+            tCircleParameterLists(0).set("field_variable_indices", "all");
             tCircleParameterLists(0).set("adv_indices", tADVIndices1);
             tCircleParameterLists(0).set("name", "circles");
 
             tCircleParameterLists(1) = prm::create_geometry_parameter_list();
             tCircleParameterLists(1).set("type", "circle");
-            tCircleParameterLists(1).set("geometry_variable_indices", "all");
+            tCircleParameterLists(1).set("field_variable_indices", "all");
             tCircleParameterLists(1).set("adv_indices", tADVIndices2);
             tCircleParameterLists(1).set("name", "circles");
 

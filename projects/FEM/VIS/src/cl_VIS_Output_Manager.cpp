@@ -13,6 +13,7 @@
 
 // Logging package
 #include "cl_Logger.hpp"
+#include "cl_Stopwatch.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 extern moris::Logger       gLogger;
@@ -173,6 +174,39 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
+        void Output_Manager::setup_vis_mesh_for_output(
+                const uint                               aVisMeshIndex,
+                mtk::Mesh_Manager                      * aMesh,
+                const uint                               aMeshPairIndex,
+                std::shared_ptr< MSI::Equation_Model >   aEquationModel)
+        {
+            if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+            {
+                // start timer
+                tic tTimer;
+
+                this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
+
+                this->set_visualization_sets( aVisMeshIndex, aEquationModel );
+
+                this->write_mesh( aVisMeshIndex );
+
+                mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
+
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                moris::real tElapsedTimeMax = max_all( tElapsedTime );
+
+                if ( par_rank() == 0 )
+                {
+                    MORIS_LOG_INFO( "VIS: Created Vis Mesh took %5.3f seconds.",
+                            ( double ) tElapsedTimeMax / 1000);
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
         void Output_Manager::create_visualization_mesh(
                 const uint          aVisMeshIndex,
                 mtk::Mesh_Manager * aMesh,
@@ -274,9 +308,9 @@ namespace moris
                 mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
             }
 
-            std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
-
-            MORIS_LOG( tMassage.c_str() );
+            // Log mesh writing message
+            std::string tMessage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
+            MORIS_LOG( tMessage.c_str() );
 
             // write mesh to file
             mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );

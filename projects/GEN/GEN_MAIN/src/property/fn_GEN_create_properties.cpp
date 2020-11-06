@@ -357,13 +357,13 @@ namespace moris
             bool tFillADVs = false;
 
             // Determine if variable or ADV indices need to be filled (specified by "all")
-            if (aPropertyParameterList.get<std::string>("property_variable_indices") == "all")
+            if (aPropertyParameterList.get<std::string>("field_variable_indices") == "all")
             {
                 tFillVariables = true;
             }
             else
             {
-                string_to_mat(aPropertyParameterList.get<std::string>("property_variable_indices"), aPropertyVariableIndices);
+                string_to_mat(aPropertyParameterList.get<std::string>("field_variable_indices"), aPropertyVariableIndices);
             }
             if (aPropertyParameterList.get<std::string>("adv_indices") == "all")
             {

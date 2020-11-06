@@ -20,9 +20,10 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -32,9 +33,9 @@ namespace moris
                    Matrix<DDRMat>  aConstantParameters,
                    std::string     aName = "",
                    Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
+                   Matrix<DDSMat>  aRefinementMeshIndices = {{}},
                    sint            aRefinementFunctionIndex = -1,
-                   sint            aBSplineMeshIndex = -1,
+                   sint            aBSplineMeshIndex = -2,
                    real            aBSplineLowerBound = -1.0,
                    real            aBSplineUpperBound = 1.0);
 
@@ -47,8 +48,9 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -57,10 +59,10 @@ namespace moris
                    Matrix<DDUMat>    aADVIndices,
                    Matrix<DDRMat>    aConstantParameters,
                    std::string       aName = "",
-                   Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
+                   Matrix<DDSMat>    aNumRefinements = {{}},
+                   Matrix<DDSMat>    aRefinementMeshIndices = {{}},
                    sint              aRefinementFunctionIndex = -1,
-                   sint              aBSplineMeshIndex = -1,
+                   sint              aBSplineMeshIndex = -2,
                    real              aBSplineLowerBound = -1.0,
                    real              aBSplineUpperBound = 1.0);
 
@@ -71,22 +73,23 @@ namespace moris
              * @param aYCenter y-coordiante of the center of the circle
              * @param aRadius radius of the circle
              * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Circle(real        aXCenter,
-                   real        aYCenter,
-                   real        aRadius,
-                   std::string aName = "",
-                   Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aNumPatterns = {{}},
-                   sint        aRefinementFunctionIndex = -1,
-                   sint        aBSplineMeshIndex = -1,
-                   real        aBSplineLowerBound = -1.0,
-                   real        aBSplineUpperBound = 1.0);
+            Circle(real           aXCenter,
+                   real           aYCenter,
+                   real           aRadius,
+                   std::string    aName = "",
+                   Matrix<DDSMat> aNumRefinements = {{}},
+                   Matrix<DDSMat> aRefinementMeshIndices = {{}},
+                   sint           aRefinementFunctionIndex = -1,
+                   sint           aBSplineMeshIndex = -2,
+                   real           aBSplineLowerBound = -1.0,
+                   real           aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

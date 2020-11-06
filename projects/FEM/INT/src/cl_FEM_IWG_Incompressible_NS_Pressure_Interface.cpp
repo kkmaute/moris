@@ -23,46 +23,13 @@ namespace moris
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE;
+            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = IWG_Stabilization_Type::NITSCHE_INTERFACE;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Pressure_Interface::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster )
-        {
-            // check that aConstitutiveString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Incompressible_NS_Pressure_Interface::set_constitutive_model - Unknown aConstitutiveString: " ) +
-                    aConstitutiveString;
-            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Pressure_Interface::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            // check that aStabilizationString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Incompressible_NS_Pressure_Interface::set_stabilization_parameter - Unknown aStabilizationString: " ) +
-                    aStabilizationString;
-            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
-
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
         }
 
         //------------------------------------------------------------------------------
