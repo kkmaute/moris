@@ -408,7 +408,6 @@ namespace moris
                             std::cout<<"%-------------------------------------------------"<<std::endl;
                         }
                     }
-
                     break;
                 }
 
@@ -1020,21 +1019,19 @@ namespace moris
                 // get the phase index
                 uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
-                // get dof type list from phase
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterSlaveDofTypes =
+                // get dof type list from master phase
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
                         mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
-                // get dof type list from phase
-                moris::Cell< moris::Cell< PDV_Type > > tMasterSlavePdvTypes =
+                // get dof type list from master phase
+                moris::Cell< moris::Cell< PDV_Type > > tMasterPdvTypes =
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
-                // get dof type check list
-                Matrix< DDSMat > tMasterDofCheck =
-                        mPhaseInfo( tPhaseIndex ).get_dof_type_check_list();
+                // set master dof dependencies
+                mIWGs( iIWG )->set_dof_type_list( tMasterDofTypes, mtk::Master_Slave::MASTER );
 
-                // get pdv type check list
-                Matrix< DDSMat > tMasterPdvCheck =
-                        mPhaseInfo( tPhaseIndex ).get_pdv_type_check_list();
+                // set master dv dependencies
+                mIWGs( iIWG )->set_dv_type_list( tMasterPdvTypes, mtk::Master_Slave::MASTER );
 
                 if( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET )
                 {
@@ -1058,44 +1055,12 @@ namespace moris
                     moris::Cell< moris::Cell< PDV_Type > > tSlavePdvTypes =
                             mPhaseInfo( tSlavePhaseIndex ).get_dv_type_list();
 
-                    for ( uint iSlaveDof = 0; iSlaveDof < tSlaveDofTypes.size(); iSlaveDof++ )
-                    {
-                        // get the dof type index in enum list
-                        uint tDofIndex = static_cast< uint >( tSlaveDofTypes( iSlaveDof )( 0 ) );
-
-                        // if dof not yet in dof type list
-                        if( tMasterDofCheck( tDofIndex ) == -1 )
-                        {
-                            // add dof to dof type list
-                            tMasterSlaveDofTypes.push_back( tSlaveDofTypes( iSlaveDof ) );
-                        }
-                    }
-
-                    for ( uint iSlavePdv = 0; iSlavePdv < tSlavePdvTypes.size(); iSlavePdv++ )
-                    {
-                        // get the pdv type index in enum list
-                        uint tPdvIndex = static_cast< uint >( tSlavePdvTypes( iSlavePdv )( 0 ) );
-
-                        // if pdv not yet in dof type list
-                        if( tMasterPdvCheck( tPdvIndex ) == -1 )
-                        {
-                            // add pdv to pdv type list
-                            tMasterSlavePdvTypes.push_back( tSlavePdvTypes( iSlavePdv ) );
-                        }
-                    }
-
                     // set slave dof dependencies
-                    mIWGs( iIWG )->set_dof_type_list( tMasterSlaveDofTypes, mtk::Master_Slave::SLAVE );
+                    mIWGs( iIWG )->set_dof_type_list( tSlaveDofTypes, mtk::Master_Slave::SLAVE );
 
                     // set slave dv dependencies
-                    mIWGs( iIWG )->set_dv_type_list(  tMasterSlavePdvTypes, mtk::Master_Slave::SLAVE );
+                    mIWGs( iIWG )->set_dv_type_list( tSlavePdvTypes, mtk::Master_Slave::SLAVE );
                 }
-
-                // set master dof dependencies
-                mIWGs( iIWG )->set_dof_type_list( tMasterSlaveDofTypes, mtk::Master_Slave::MASTER );
-
-                // set master dv dependencies
-                mIWGs( iIWG )->set_dv_type_list( tMasterSlavePdvTypes, mtk::Master_Slave::MASTER );
             }
         }
 
@@ -1346,7 +1311,7 @@ namespace moris
             // get fem computation type parameter list
             ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
 
-            // get bool for analytical/finite differenec for SA
+            // get bool for analytical/finite difference for SA
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
