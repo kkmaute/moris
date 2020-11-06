@@ -12,6 +12,8 @@
 #include "cl_Tracer.hpp"
 #include "cl_Tracer_Enums.hpp"
 
+#include "cl_Stopwatch.hpp"
+
 #include "fn_norm.hpp"
 
 namespace moris
@@ -34,6 +36,9 @@ namespace moris
         {
             // Stage 1: HMR refinement -------------------------------------------------------------------
 
+            // start timer
+            tic tTimer;
+
             // uniform initial refinement
             mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
@@ -42,6 +47,16 @@ namespace moris
 
             // HMR finalize
             mPerformerManager->mHMRPerformer( 0 )->perform();
+
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            moris::real tElapsedTimeMax = max_all( tElapsedTime );
+
+            if ( par_rank() == 0 )
+            {
+                MORIS_LOG_INFO( "HMR: Total time for refinement and mesh creation is %5.3f seconds.",
+                        ( double ) tElapsedTimeMax / 1000);
+            }
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
 

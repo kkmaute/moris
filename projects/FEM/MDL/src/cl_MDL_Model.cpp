@@ -389,22 +389,10 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 5: create the output manager
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimerVisMesh;
 
             mOutputManager = new vis::Output_Manager( mVISParameterList( 0 ) );
 
             mOutputManagerOwned = true;
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimerVisMesh.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: created Vis Mesh in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-            }
         }
 
         //------------------------------------------------------------------------------
@@ -519,17 +507,32 @@ namespace moris
                     mMeshPairIndex,
                     mEquationModel );
 
+            // start timer
+            tic tTimer;
+
             // write requested fields
             mOutputManager->write_field(
                     aVisMeshIndex,
                     aTime,
                     mEquationModel );
 
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            moris::real tElapsedTimeMax = max_all( tElapsedTime );
+
+            if ( par_rank() == 0 )
+            {
+                MORIS_LOG_INFO( "VIS: Write Field to Vis Mesh took %5.3f seconds.",
+                        ( double ) tElapsedTimeMax / 1000);
+            }
+
             if( aCloseFile )
             {
                 // end writing and delete vis mesh
                 mOutputManager->end_writing( aVisMeshIndex );
             }
+
+
         }
 
     } /* namespace mdl */

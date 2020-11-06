@@ -84,7 +84,8 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
 
 //-------------------------------------------------------------------------------------------------------------
 
-Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
+Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface  * aSolverInterface,
+                                                             sol::SOL_Warehouse       * aSolverWarehouse,
                                                              std::shared_ptr<sol::Dist_Map>  aMap,
                                                              std::shared_ptr<sol::Dist_Map>  aFullMap,
                                                        const enum sol::MapType         aLinSysType,
@@ -95,10 +96,10 @@ Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Inter
     switch( aLinSysType )
     {
     case ( sol::MapType::Epetra ):
-        tLinSys = new Linear_System_Trilinos( aSolverInterface, aMap, aFullMap );
+        tLinSys = new Linear_System_Trilinos( aSolverInterface,aSolverWarehouse, aMap, aFullMap );
         break;
     case ( sol::MapType::Petsc):
-        tLinSys = new Linear_System_PETSc( aSolverInterface, aMap, aFullMap, aNotCreatedByNonLinSolver );
+        tLinSys = new Linear_System_PETSc( aSolverInterface,aSolverWarehouse, aMap, aFullMap, aNotCreatedByNonLinSolver );
         break;
     default:
         MORIS_ERROR( false, "Solver_Factory::create_linear_system: No solver type specified" );

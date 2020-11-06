@@ -9,6 +9,7 @@
 #include "cl_SOL_Dist_Matrix.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
@@ -99,6 +100,14 @@ namespace moris
             // assemble Jacobian
             mSolverInterface->assemble_jacobian( mMat);
 
+            if( mSolverWarehouse )
+            {
+                if( !mSolverWarehouse->get_output_to_matlab_string().empty() )
+                {
+                    mMat->save_matrix_to_matlab_file( mSolverWarehouse->get_output_to_matlab_string().c_str());
+                }
+            }
+
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -121,6 +130,14 @@ namespace moris
             if( !mSolverInterface->get_is_forward_analysis() )
             {
                 this->compute_residual_for_adjoint_solve();
+            }
+
+            if( mSolverWarehouse )
+            {
+                if( !mSolverWarehouse->get_output_to_matlab_string().empty() )
+                {
+                    mMat->save_matrix_to_matlab_file( mSolverWarehouse->get_output_to_matlab_string().c_str());
+                }
             }
 
             // stop timer
