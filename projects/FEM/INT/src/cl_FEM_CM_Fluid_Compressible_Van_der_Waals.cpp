@@ -81,26 +81,27 @@ namespace moris
         void CM_Fluid_Compressible_Van_der_Waals::reset_specific_eval_flags()
         {
             // get number of Dof Types
-            uint tNumDofTypes = mGlobalDofTypes.size();
+            uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+            uint tNumDirectDofTypes = mDofTypes.size();
 
             // reset Pressure
             mPressureEval = true;
-            mPressureDofEval.assign( tNumDofTypes, true );
+            mPressureDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset dof derivative of velocity
             mdNveldtEval = true;
 
             // reset Thermal Flux -------------------------------------
             mThermalFluxEval = true;
-            mThermalFluxDofEval.assign( tNumDofTypes, true );
+            mThermalFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset work Flux
             mWorkFluxEval = true;
-            mWorkFluxDofEval.assign( tNumDofTypes, true );
+            mWorkFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset energy Flux
             mEnergyFluxEval = true;
-            mEnergyFluxDofEval.assign( tNumDofTypes, true );
+            mEnergyFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset mechanical Flux
             //mStressEval = true;
@@ -108,19 +109,19 @@ namespace moris
 
             // reset Thermal Traction ----------------------------------
             mThermalTractionEval = true;
-            mThermalTractionDofEval.assign( tNumDofTypes, true );
+            mThermalTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset work Traction
             mWorkTractionEval = true;
-            mWorkTractionDofEval.assign( tNumDofTypes, true );
+            mWorkTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset energy Traction
             mEnergyTractionEval = true;
-            mEnergyTractionDofEval.assign( tNumDofTypes, true );
+            mEnergyTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset Mechanical Traction
             mMechanicalTractionEval = true;
-            mMechanicalTractionDofEval.assign( tNumDofTypes, true );
+            mMechanicalTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // reset velocity matrix for flattened tensors -------------
             mVelocityMatrixEval = true;
@@ -135,14 +136,11 @@ namespace moris
 
             // reset test tractions --------------------------------
 
-            mThermalTestTractionEval.assign( tNumDofTypes, true );
-            mMechanicalTestTractionEval.assign( tNumDofTypes, true );
+            mThermalTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdThermalTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
 
-            for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
-            {
-                mdThermalTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
-                mdMechanicalTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
-            }
+            mMechanicalTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdMechanicalTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -154,27 +152,24 @@ namespace moris
             uint tNumDirectDofTypes = mDofTypes.size();
 
             // initialize eval flags
-            mPressureDofEval.resize( tNumGlobalDofTypes, true );
-            mThermalFluxDofEval.resize( tNumGlobalDofTypes, true );
-            mWorkFluxDofEval.resize( tNumGlobalDofTypes, true );
-            mEnergyFluxDofEval.resize( tNumGlobalDofTypes, true );
+            mPressureDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mThermalFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mWorkFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mEnergyFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
             //mStressDofEval.resize( tNumGlobalDofTypes, true );
-            mThermalTractionDofEval.resize( tNumGlobalDofTypes, true );
-            mWorkTractionDofEval.resize( tNumGlobalDofTypes, true );
-            mEnergyTractionDofEval.resize( tNumGlobalDofTypes, true );
-            mMechanicalTractionDofEval.resize( tNumGlobalDofTypes, true );
+            mThermalTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mWorkTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mEnergyTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mMechanicalTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
-            mThermalTestTractionEval.resize( tNumGlobalDofTypes, true );
-            mMechanicalTestTractionEval.resize( tNumGlobalDofTypes, true );
-            mdThermalTestTractiondDofEval.resize( tNumDirectDofTypes );
-            mdMechanicalTestTractiondDofEval.resize( tNumDirectDofTypes );
-            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
-            {
-                mdThermalTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
-                mdMechanicalTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
-            }
+            mThermalTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
+            mMechanicalTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdThermalTestTractiondDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdMechanicalTestTractiondDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdThermalTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+            mdMechanicalTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
 
-            // initialize storage variable cell arrays
+            // initialize storage variables
             mPressureDof.resize( tNumGlobalDofTypes );
             mThermalFluxDof.resize( tNumGlobalDofTypes );
             mWorkFluxDof.resize( tNumGlobalDofTypes );
