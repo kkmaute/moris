@@ -14,10 +14,9 @@ namespace moris
                 Matrix<DDRMat>                 aConstantParameters,
                 MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                bool                           aInterpolateChildNodes,
                 std::string                    aName,
                 Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndex,
+                Matrix<DDSMat>                 aRefinementMeshIndices,
                 sint                           aRefinementFunctionIndex,
                 sint                           aBSplineMeshIndex,
                 real                           aBSplineLowerBound,
@@ -28,28 +27,27 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound)
         {
-            this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction,aInterpolateChildNodes );
+            this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         User_Defined_Geometry::User_Defined_Geometry(
-                sol::Dist_Vector* aOwnedADVs,
+                sol::Dist_Vector*              aOwnedADVs,
                 Matrix<DDUMat>                 aGeometryVariableIndices,
                 Matrix<DDUMat>                 aADVIndices,
                 Matrix<DDRMat>                 aConstantParameters,
                 MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                bool                           aInterpolateChildNodes,
                 std::string                    aName,
                 Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndex,
+                Matrix<DDSMat>                 aRefinementMeshIndices,
                 sint                           aRefinementFunctionIndex,
                 sint                           aBSplineMeshIndex,
                 real                           aBSplineLowerBound,
@@ -60,13 +58,13 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound)
         {
-            this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction, aInterpolateChildNodes);
+            this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -76,7 +74,7 @@ namespace moris
                 MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                 std::string              aName,
                 Matrix<DDSMat>           aNumRefinements,
-                Matrix<DDSMat>           aRefinementMeshIndex,
+                Matrix<DDSMat>           aRefinementMeshIndices,
                 sint                     aRefinementFunctionIndex,
                 sint                     aBSplineMeshIndex,
                 real                     aBSplineLowerBound,
@@ -84,18 +82,18 @@ namespace moris
                 : Field(aConstantParameters,
                         aName,
                         aNumRefinements,
-                        aRefinementMeshIndex,
+                        aRefinementMeshIndices,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound)
         {
-            this->set_user_defined_functions(aFieldEvaluationFunction, nullptr, false);
+            this->set_user_defined_functions(aFieldEvaluationFunction, nullptr);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real User_Defined_Geometry::get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real User_Defined_Geometry::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_value_user_defined(aCoordinates, mFieldVariables);
         }
@@ -113,8 +111,7 @@ namespace moris
 
         void User_Defined_Geometry::set_user_defined_functions(
                 MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                bool                           aInterpolateChildNodes)
+                MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
         {
             // Set field evaluation function
             get_field_value_user_defined = aFieldEvaluationFunction;
@@ -122,8 +119,6 @@ namespace moris
             // Check field evaluation function
             MORIS_ERROR(std::isfinite(this->get_field_value_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables)),
                     "There is an error in a user-defined geometry field (field evaluates to nan/infinity).");
-
-            mInterpolateChildNodes = aInterpolateChildNodes;
 
             // Set sensitivity evaluation function
             if (aSensitivityEvaluationFunction == nullptr)

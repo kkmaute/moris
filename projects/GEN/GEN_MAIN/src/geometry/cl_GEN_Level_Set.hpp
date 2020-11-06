@@ -15,7 +15,7 @@ namespace moris
         {
 
         private:
-            //mtk::Interpolation_Mesh* mMesh;
+            mtk::Interpolation_Mesh* mMesh;
             sol::Dist_Vector* mOwnedNodalValues = nullptr;
             sol::Dist_Vector* mSharedNodalValues = nullptr;
 
@@ -29,7 +29,8 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
              * @param aMesh The mesh pointer where the B-spline information can be obtained
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
@@ -40,8 +41,8 @@ namespace moris
                       Matrix<DDRMat>           aConstantParameters,
                       mtk::Interpolation_Mesh* aMesh,
                       std::string              aName = "",
-                      Matrix<DDSMat>  aNumRefinements = {{}},
-                      Matrix<DDSMat>  aRefinementMeshIndex = {{}},
+                      Matrix<DDSMat>           aNumRefinements = {{}},
+                      Matrix<DDSMat>           aRefinementMeshIndices = {{}},
                       sint                     aRefinementFunctionIndex = -1,
                       uint                     aBSplineMeshIndex = 0,
                       real                     aBSplineLowerBound = -1.0,

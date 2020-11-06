@@ -5,6 +5,7 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_Stored_Geometry.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
@@ -140,7 +141,7 @@ namespace moris
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 mGeometries(tGeometryIndex)->import_advs(mOwnedADVs);
-                mGeometries(tGeometryIndex)->reset_child_nodes();
+                mGeometries(tGeometryIndex)->reset_nodal_information();
             }
         }
 
@@ -323,37 +324,13 @@ namespace moris
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
             {
-                switch(mIntersectionMode)
-                {
-                    case Intersection_Mode::LEVEL_SET:
-                    {
-                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeCoordinates,
-                                aSecondNodeCoordinates,
-                                mGeometries(mActiveGeometryIndex),
-                                mIsocontourThreshold);
-
-                        break;
-                    }
-                    case Intersection_Mode::COLORING:
-                    {
-                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeCoordinates,
-                                aSecondNodeCoordinates,
-                                mGeometries(mActiveGeometryIndex),
-                                mIsocontourThreshold);
-
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
-                    }
-                }
+                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                        aFirstNodeIndex,
+                        aSecondNodeIndex,
+                        aFirstNodeCoordinates,
+                        aSecondNodeCoordinates,
+                        mGeometries(mActiveGeometryIndex),
+                        mIsocontourThreshold);
             }
 
             return tEdgeIsIntersected;
@@ -914,6 +891,15 @@ namespace moris
                                 tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),
                                 tPrimitiveADVIds.length(),
+                                aMesh,
+                                mGeometries(tGeometryIndex));
+                    }
+
+                    // Store field values if needed
+                    else if (mGeometries(tGeometryIndex)->store_field_values())
+                    {
+                        // Create stored geometry
+                        mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
                                 aMesh,
                                 mGeometries(tGeometryIndex));
                     }

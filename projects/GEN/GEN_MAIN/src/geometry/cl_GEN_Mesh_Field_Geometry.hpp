@@ -25,14 +25,15 @@ namespace moris
              *
              * @param aMesh Mesh with the level set fields
              * @param aFieldNames Names of the fields
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
             Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                 std::string aFieldName,
                                 EntityRank  aEntityRank = EntityRank::NODE,
                                 Matrix<DDSMat>  aNumRefinements = {{}},
-                                Matrix<DDSMat>  aNumPatterns = {{}},
+                                Matrix<DDSMat>  aRefinementMeshIndices = {{}},
                                 sint        aRefinementFunctionIndex = -1);
 
             /**

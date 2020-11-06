@@ -28,9 +28,10 @@ namespace moris
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
              * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -41,12 +42,11 @@ namespace moris
                     Matrix<DDRMat>                 aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
-                    bool                           aInterpolateChildNodes = false,
                     std::string                    aName = "",
-                    Matrix<DDSMat>  aNumRefinements = {{}},
-                    Matrix<DDSMat>  aNumPatterns = {{}},
+                    Matrix<DDSMat>                 aNumRefinements = {{}},
+                    Matrix<DDSMat>                 aRefinementMeshIndices = {{}},
                     sint                           aRefinementFunctionIndex = -1,
-                    sint                           aBSplineMeshIndex = -1,
+                    sint                           aBSplineMeshIndex = -2,
                     real                           aBSplineLowerBound = -1.0,
                     real                           aBSplineUpperBound = 1.0);
 
@@ -61,8 +61,9 @@ namespace moris
              * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
              * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -73,12 +74,11 @@ namespace moris
                     Matrix<DDRMat>                 aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
-                    bool                           aInterpolateChildNodes = false,
                     std::string                    aName = "",
                     Matrix<DDSMat>                 aNumRefinements = {{}},
-                    Matrix<DDSMat>                 aRefinementMeshIndex = {{}},
+                    Matrix<DDSMat>                 aRefinementMeshIndices = {{}},
                     sint                           aRefinementFunctionIndex = -1,
-                    sint                           aBSplineMeshIndex = -1,
+                    sint                           aBSplineMeshIndex = -2,
                     real                           aBSplineLowerBound = -1.0,
                     real                           aBSplineUpperBound = 1.0);
 
@@ -88,9 +88,10 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
@@ -99,9 +100,9 @@ namespace moris
                     MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                     std::string              aName = "",
                     Matrix<DDSMat>           aNumRefinements = {{}},
-                    Matrix<DDSMat>           aRefinementMeshIndex = {{}},
+                    Matrix<DDSMat>           aRefinementMeshIndices = {{}},
                     sint                     aRefinementFunctionIndex = -1,
-                    sint                     aBSplineMeshIndex = -1,
+                    sint                     aBSplineMeshIndex = -2,
                     real                     aBSplineLowerBound = -1.0,
                     real                     aBSplineUpperBound = 1.0);
 
@@ -111,7 +112,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real get_field_value_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
@@ -132,8 +133,7 @@ namespace moris
              */
             void set_user_defined_functions(
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                    bool                           aInterpolateChildNodes);
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction);
 
             /**
              * Used internally to automatically error out if no sensitivities were provided
