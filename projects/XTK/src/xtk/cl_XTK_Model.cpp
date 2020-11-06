@@ -168,6 +168,9 @@ namespace xtk
     void
     Model::perform()
     {
+        // Start the clock
+        std::clock_t tStart = std::clock();
+
         if( !mInitializeCalled )
         {
             MORIS_ERROR( mMTKInputPerformer != nullptr ,"xtk::Model::perform(), mMTKInputPerformer not set!");
@@ -269,6 +272,13 @@ namespace xtk
         {
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print("XTK Model");
+        }
+
+        if(moris::par_rank() == 0 && mVerbose)
+        {
+            std::clock_t tEndTime = std::clock();
+            this->add_timing_data(tEndTime,"Work Flow Overall Time","Overall");
+            std::cout<<"XTK: Total time elapsed " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
 
