@@ -114,9 +114,9 @@ namespace moris
                  * @param[ in ] aJC       a matrix to fill with dRCdDof
                  */
                 void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & aJM,
-                        Matrix< DDRMat >             & aJC );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aJM,
+                        Matrix< DDRMat >                   & aJC );
 
                 //------------------------------------------------------------------------------
                 /**

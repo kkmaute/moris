@@ -2429,6 +2429,7 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dEnergydDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
@@ -2460,6 +2461,7 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
+        
         const Matrix< DDRMat > & Constitutive_Model::dEnergyDotdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
@@ -2491,6 +2493,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
         const Matrix< DDRMat > & Constitutive_Model::dGradEnergydDOF( 
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
@@ -2522,6 +2525,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dGradEnergyDotdDOF( 
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
@@ -2553,6 +2557,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( 
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
@@ -2723,7 +2728,7 @@ namespace moris
 
         const Matrix< DDRMat > & Constitutive_Model::dStressdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
-                enum CM_Function_Type aCMFunctionType )
+                enum CM_Function_Type                aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
             MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,

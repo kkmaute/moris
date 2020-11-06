@@ -142,10 +142,10 @@ void check_results(
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
     Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 7.777094253075316e+01 );
-    tReferenceTemperature.push_back( 7.751949613091408e+01 );
-    tReferenceTemperature.push_back( 7.728500000000682e+01 );
-    tReferenceTemperature.push_back( 7.728500000002126e+01 );
+    tReferenceTemperature.push_back( 7.770018971224823e+01 );
+    tReferenceTemperature.push_back( 7.746795619153676e+01 );
+    tReferenceTemperature.push_back( 7.728500000000685e+01 );
+    tReferenceTemperature.push_back( 7.728500000002118e+01 );
 
     real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
 
@@ -159,16 +159,16 @@ void check_results(
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
     Cell<real> tReferenceIQI_0;
-    tReferenceIQI_0.push_back( 2.930158520549173e+02 );
-    tReferenceIQI_0.push_back( 2.933172582642225e+02 );
-    tReferenceIQI_0.push_back( 9.343642743171439e-22 );
-    tReferenceIQI_0.push_back( 5.853037192766934e-20 );
+    tReferenceIQI_0.push_back( 2.986300967813157e+02 );
+    tReferenceIQI_0.push_back( 2.974016221550459e+02 );
+    tReferenceIQI_0.push_back( 8.922568376614086e-22 );
+    tReferenceIQI_0.push_back( 5.762418056802439e-20 );
 
     Cell<real> tReferenceIQI_1;
-    tReferenceIQI_1.push_back( 6.839126930779311e+02 );
-    tReferenceIQI_1.push_back( 6.839125465759469e+02 );
-    tReferenceIQI_1.push_back( 3.200451125788523e-23 );
-    tReferenceIQI_1.push_back( 2.853072315858007e-21 );
+    tReferenceIQI_1.push_back( 6.839104583440902e+02 );
+    tReferenceIQI_1.push_back( 6.839108591117790e+02 );
+    tReferenceIQI_1.push_back( 2.911872014125403e-23 );
+    tReferenceIQI_1.push_back( 2.805634603810048e-21 );
 
     real tActualIQI_0 = tExoIO.get_global_variable(0, 0 );
     real tActualIQI_1 = tExoIO.get_global_variable(1, 0 );

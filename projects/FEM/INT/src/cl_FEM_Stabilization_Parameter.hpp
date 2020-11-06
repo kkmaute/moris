@@ -332,7 +332,7 @@ namespace moris
                  */
                 void set_dv_type_list(
                         moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                        mtk::Master_Slave                              aIsMaster = mtk::Master_Slave::MASTER );
+                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -343,8 +343,8 @@ namespace moris
                  */
                 virtual void set_dv_type_list(
                         moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                        moris::Cell< std::string >                   & aDvStrings,
-                        mtk::Master_Slave                              aIsMaster = mtk::Master_Slave::MASTER )
+                        moris::Cell< std::string >             & aDvStrings,
+                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
                 {
                     MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - not implemented for base class." );
                 }
@@ -396,7 +396,8 @@ namespace moris
                  * @param[ in ]  aIsMaster         enum master or slave
                  * @param[ out ] mGlobalDofTypeMap a global dof type map
                  */
-                const Matrix< DDSMat > & get_global_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                const Matrix< DDSMat > & get_global_dof_type_map(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -553,7 +554,8 @@ namespace moris
                  * evaluate the stabilization parameter derivative wrt slave dof
                  * @param[ in ] aDofTypes dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dSPdSlaveDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDOF - Not implemented for base class. " );
                 }
