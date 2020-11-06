@@ -65,6 +65,8 @@ namespace sol
 
         enum sol::MapType                                       mTPLType = sol::MapType::Epetra;
 
+        std::string                                             mOperatorToMatlab = std::string( "" );
+
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -160,6 +162,13 @@ namespace sol
         enum sol::MapType get_tpl_type()
         {
             return mTPLType;
+        }
+
+        //--------------------------------------------------------------------------------------------------------
+
+        std::string get_output_to_matlab_string()
+        {
+            return mOperatorToMatlab;
         }
 
 //--------------------------------------------------------------------------------------------------------

@@ -71,6 +71,8 @@ void SOL_Warehouse::initialize()
 {
     mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
 
+    mOperatorToMatlab =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_operator_to_matlab" );
+
     if( mTPLType == moris::sol::MapType::Petsc)
     {
         PetscInitializeNoArguments();

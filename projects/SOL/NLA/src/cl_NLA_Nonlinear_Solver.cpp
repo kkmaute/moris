@@ -313,7 +313,8 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
     {
         this->free_memory();
 
-        mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
+        mNonlinearProblem = new Nonlinear_Problem(
+                mSolverWarehouse,
                 mSolverInput,
                 aFullVector,
                 mNonlinearSolverManagerIndex,
@@ -324,7 +325,8 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
     {
         this->free_memory();
 
-        mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse,
+        mNonlinearProblem = new Nonlinear_Problem(
+                mSolverWarehouse,
                 mSolverInput,
                 aFullVector,
                 mNonlinearSolverManagerIndex,

@@ -81,10 +81,12 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
 //----------------------------------------------------------------------------------------
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
+                                                sol::SOL_Warehouse       * aSolverWarehouse,
                                                 std::shared_ptr<sol::Dist_Map>  aFreeMap,
                                                 std::shared_ptr<sol::Dist_Map>  aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         mTplType = sol::MapType::Epetra;
+        mSolverWarehouse = aSolverWarehouse;
         sol::Matrix_Vector_Factory    tMatFactory( mTplType );
 
         // Build matrix

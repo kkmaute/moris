@@ -69,12 +69,15 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
+                                                sol::SOL_Warehouse       * aSolverWarehouse,
                                                 std::shared_ptr<sol::Dist_Map>  aFreeMap,
                                                 std::shared_ptr<sol::Dist_Map>  aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
     mTplType = sol::MapType::Petsc;
+    mSolverWarehouse = aSolverWarehouse;
+
     if( mNotCreatedByNonLinearSolver )
     {
         // Initialize petsc solvers

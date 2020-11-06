@@ -19,6 +19,7 @@ namespace moris
         class Dist_Matrix;
         class Dist_Vector;
         class Dist_Map;
+        class SOL_Warehouse;
     }
 class Solver_Interface;
 namespace dla
@@ -36,6 +37,9 @@ namespace dla
         std::shared_ptr<sol::Dist_Map>  mMapFree       = nullptr;
 
         Solver_Interface * mSolverInterface = nullptr;
+
+        //! Pointer to solver database
+        sol::SOL_Warehouse * mSolverWarehouse = nullptr;
 
         moris::real mCondEstimate;
 
