@@ -76,7 +76,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 8.670906164633136e+04;
+    real tReferenceTemperature = 8.671607168734002e+04;
 
     real tActualTemperature = aExoIO.get_nodal_field_value( aNodeId, 2, 0 );
 
@@ -89,7 +89,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE(  tRelTempDifference < 1.0e-4);
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    real tReferenceIQI = 8.324886510380027e+04;
+    real tReferenceIQI = 8.326070772043242e+04;
 
     real tActualIQI = aExoIO.get_global_variable(0, 0 );
 
@@ -152,7 +152,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 8.661761557118129e+04;
+    real tReferenceTemperature = 8.673830875995508e+04;
 
     real tActualTemperature = aExoIO.get_nodal_field_value( aNodeId, 2, 0 );
 
@@ -165,7 +165,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE(  tRelTempDifference < 1.0e-4);
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    real tReferenceIQI = 8.311499816682847e+04;
+    real tReferenceIQI = 8.329556290215004e+04;
 
     real tActualIQI = aExoIO.get_global_variable(0, 0 );
 

@@ -469,7 +469,7 @@ namespace moris
                 case fem::Element_Type::DOUBLE_SIDESET :
                 {
                     tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
-                    //tSpaceDim = tSpaceDim - 1;
+                    tSpaceDim = tSpaceDim - 1;
                     break;
                 }
                 default:
