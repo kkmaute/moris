@@ -80,6 +80,19 @@ namespace moris
                     return gNoIndex;
                 }
 
+                
+                /**
+                 * returns the base vertex of an mtk vertex. For example,
+                 * with XTK enriched meshes this returns the vertex index in the background
+                 */
+                virtual 
+                mtk::Vertex const *
+                get_base_vertex() const
+                {
+                    return this;
+                }
+               
+
                 //------------------------------------------------------------------------------
 
                 // fixme: change this into moris_id

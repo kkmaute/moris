@@ -86,7 +86,8 @@ namespace moris
                  * @param[ in ] adNdx     matrix to fill with derivatives
                  * @param[ in ] aIsMaster enum for master or slave
                  */
-                void compute_dnNdxn( Matrix< DDRMat >  & adNdx,
+                void compute_dnNdxn(
+                        Matrix< DDRMat >  & adNdx,
                         mtk::Master_Slave   aIsMaster );
 
                 //------------------------------------------------------------------------------
