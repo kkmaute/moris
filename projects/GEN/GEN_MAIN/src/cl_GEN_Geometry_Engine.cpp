@@ -70,7 +70,7 @@ namespace moris
         {
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
-            moris::map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
+            map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
             mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
 
             // Set requested PDVs
@@ -151,8 +151,8 @@ namespace moris
         {
             // Create full ADVs
             sol::Matrix_Vector_Factory tDistributedFactory;
-            std::shared_ptr<sol::Dist_Map> tFullMap = tDistributedFactory.create_map(mFullADVIds);
-            moris::sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap);
+            sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
+            sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap);
 
             // Import ADVs
             tFullVector->import_local_to_global(*mOwnedADVs);
@@ -673,7 +673,7 @@ namespace moris
         void Geometry_Engine::initialize_pdv_type_list()
         {
             // Reserve of temporary pdv type list
-            moris::Cell< enum PDV_Type > tTemporaryPdvTypeList;
+            Cell< enum PDV_Type > tTemporaryPdvTypeList;
             tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
             Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(PDV_Type::UNDEFINED) + 1), 1, 0 );
 
@@ -842,8 +842,8 @@ namespace moris
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
                 // Create map for distributed vectors
-                std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
-                std::shared_ptr<sol::Dist_Map> tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
+                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+                sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
                 // Create vectors
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
@@ -1293,7 +1293,7 @@ namespace moris
             mVertexGeometricProximity = Cell<Geometric_Proximity>(aMesh->get_num_nodes(),Geometric_Proximity(mGeometries.size()));
 
             // iterate through vertices then geometries
-            for(moris::uint iV = 0; iV < aMesh->get_num_nodes(); iV++)
+            for(uint iV = 0; iV < aMesh->get_num_nodes(); iV++)
             {
                 Matrix<DDRMat> tCoords = aMesh->get_node_coordinate(moris_index(iV));
 
@@ -1315,7 +1315,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         moris_index
-        Geometry_Engine::get_geometric_proximity_index(moris::real const & aGeometricVal)
+        Geometry_Engine::get_geometric_proximity_index(real const & aGeometricVal)
         {
             moris_index tGeometricProxIndex = MORIS_INDEX_MAX;
             if(aGeometricVal < mIsocontourThreshold)

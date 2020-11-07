@@ -43,7 +43,7 @@ namespace moris
         protected:
 
             Epetra_Import* mImporter = nullptr;
-            std::shared_ptr<Dist_Map> mMap;
+            Dist_Map* mMap;
             moris::sint    mNumVectors = 1;
 
         public:
@@ -53,7 +53,7 @@ namespace moris
              *
              * @param aMapClass Distributed vector map
              */
-            Dist_Vector( std::shared_ptr<sol::Dist_Map> aMapClass );
+            Dist_Vector( sol::Dist_Map* aMapClass );
 
             /**
              * Destructor (deletes map if desired)
@@ -65,7 +65,7 @@ namespace moris
              *
              * @return Map
              */
-            std::shared_ptr<sol::Dist_Map>  get_map();
+            sol::Dist_Map*  get_map();
 
             /**
              * Gets a value in the distributed vector based on a given ID.

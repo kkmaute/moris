@@ -48,8 +48,8 @@ namespace dla
 
         Linear_System_Trilinos( Solver_Interface * aInput,
                                 sol::SOL_Warehouse       * aSolverWarehouse,
-                                std::shared_ptr<sol::Dist_Map>  aMap,
-                                std::shared_ptr<sol::Dist_Map>  aFullMap );
+                                sol::Dist_Map*  aMap,
+                                sol::Dist_Map*  aFullMap );
 
         Linear_System_Trilinos( const char* aString );
 

@@ -16,7 +16,7 @@ using namespace moris;
 
 Vector_PETSc::Vector_PETSc(
         moris::Solver_Interface * aInput,
-        std::shared_ptr<sol::Dist_Map>  aMap,
+        sol::Dist_Map*  aMap,
         const sint                aNumVectors )
 : moris::sol::Dist_Vector( aMap )
 {

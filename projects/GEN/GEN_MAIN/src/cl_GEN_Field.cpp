@@ -125,7 +125,7 @@ namespace moris
 
             // Create shared distributed vector
             sol::Matrix_Vector_Factory tDistributedFactory;
-            std::shared_ptr<sol::Dist_Map> tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);
+            sol::Dist_Map* tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);
             mSharedADVs = tDistributedFactory.create_vector(tSharedADVMap);
 
             // Set variables from ADVs

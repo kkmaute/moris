@@ -28,6 +28,12 @@ namespace moris
 {
     namespace MSI
     {
+
+        Equation_Model::~Equation_Model()
+        {
+            delete mdQIdpMap;
+        }
+
         //------------------------------------------------------------------------------
 
         moris::sint Equation_Model::get_num_rhs( )
