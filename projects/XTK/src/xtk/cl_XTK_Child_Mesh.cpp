@@ -3127,7 +3127,6 @@ namespace xtk
                 }
                 else if(mIntersectConnectivity(iE,0) == 1)
                 {
-                    std::cout<<"CONFORMAL Coincident"<<std::endl;
                     auto tIntersectConnRow =  mIntersectConnectivity.get_row(iE);
 
                     // edge 0
@@ -3136,8 +3135,6 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > tEdgeOrdinals = this->get_edge_ordinal_from_element_and_edge_indices(iE,{{tEdge0}});
 
                     moris::size_t tPermutationId = tEdgeOrdinals(0)+10;
-
-                    std::cout<<"tPermutationId= "<<tPermutationId<<std::endl;
 
                     // Get parent element information
                     moris::Matrix< moris::IndexMat > tElementsAncestry({{mParentElementIndex}}); // Not used

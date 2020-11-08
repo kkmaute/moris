@@ -1,22 +1,21 @@
 /*
- * cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
+ * cl_FEM_IWG_Heat_Method_Bulk.hpp
  *
- *  Created on: Mar 20, 2020
- *      Author: noel
+ *  Created on: Nov 04, 2020
+ *      Author: wunsch
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST_HPP_
-#define SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_HEAT_METHOD_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_HEAT_METHOD_BULK_HPP_
 
 #include <map>
-//MRS/COR/src
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
-//LINALG/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-//FEM/INT/src
-#include "cl_FEM_IWG.hpp"
+#include "typedefs.hpp"                     //MRS/COR/src
+#include "cl_Cell.hpp"                      //MRS/CON/src
+
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "linalg_typedefs.hpp"              //LINALG/src
+
+#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
 {
@@ -24,44 +23,70 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Incompressible_NS_Convective_Velocity_Ghost : public IWG
+        class IWG_Heat_Method_Bulk : public IWG
         {
+                //------------------------------------------------------------------------------
+
+            private:
+
+                // default dof types
+                MSI::Dof_Type mDofTheta  = MSI::Dof_Type::THETA;
+                MSI::Dof_Type mDofPhiD   = MSI::Dof_Type::PHID;
 
                 //------------------------------------------------------------------------------
             public:
 
-                // local stabilization enums
-                enum class IWG_Stabilization_Type
+                enum class IWG_Property_Type
                 {
-                    CONVECTIVE_GHOST,
                     MAX_ENUM
                 };
+
+                // Local string to property enum map
+                std::map< std::string, IWG_Property_Type > mPropertyMap;
+
+                enum class IWG_Constitutive_Type
+                {
+                        DIFFUSION,
+                        MAX_ENUM
+                };
+
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+
+                enum class IWG_Stabilization_Type
+                {
+                        GGLS_DIFFUSION,
+                        MAX_ENUM
+                };
+
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
                  */
-                IWG_Incompressible_NS_Convective_Velocity_Ghost();
+                IWG_Heat_Method_Bulk();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Incompressible_NS_Convective_Velocity_Ghost(){};
+                ~IWG_Heat_Method_Bulk(){};
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute the residual
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_residual( real aWStar );
+                void compute_residual( real tWStar );
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute the jacobian
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_jacobian( real aWStar );
+                void compute_jacobian( real tWStar );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -78,22 +103,9 @@ namespace moris
                 void compute_dRdp( real aWStar );
 
                 //------------------------------------------------------------------------------
-            private:
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the block matrix for dnNdxn
-                 * @param[ in ] adNdx     matrix to fill with derivatives
-                 * @param[ in ] aIsMaster enum for master or slave
-                 */
-                void compute_dnNdxn(
-                        Matrix< DDRMat >  & adNdx,
-                        mtk::Master_Slave   aIsMaster );
-
-                //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_HEAT_METHOD_BULK_HPP_ */

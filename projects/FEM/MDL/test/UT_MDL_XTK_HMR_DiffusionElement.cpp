@@ -997,18 +997,18 @@ namespace moris
             moris::Matrix< DDRMat > tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
-            CHECK( equal_to( tSolution( 0, 0 ),   4.999591898144750e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 1, 0 ),   5.000081952053893e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 2, 0 ),   4.999591898242735e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 3, 0 ),   5.000081951665154e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 4, 0 ),   1.712282372151835e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 5, 0 ),   1.707413784783041e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 6, 0 ),   1.712282372104691e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 7, 0 ),   1.707413784788996e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 8, 0 ),   5.000244197729757e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 382, 0 ), 5.149916277539451e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 461, 0 ), 1.712282371175732e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 505, 0 ), 2.947091256519127e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 0, 0 ),   4.999702007294005e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 1, 0 ),   5.000060374039293e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 2, 0 ),   4.999702006950493e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 3, 0 ),   5.000060374198882e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 4, 0 ),   1.712285753707913e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 5, 0 ),   1.707413784393956e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 6, 0 ),   1.712285753672601e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 7, 0 ),   1.707413784389796e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 8, 0 ),   5.000177244537252e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 382, 0 ), 5.149916424143507e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 461, 0 ), 1.712285752727456e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 505, 0 ), 2.947091742301102e+01, 1.0e+08 ) );
 
             delete tInterpMesh;
         }
@@ -1284,18 +1284,18 @@ namespace moris
             moris::Matrix< DDRMat > tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
-            CHECK( equal_to( tSolution( 0, 0 ),   4.999591898144747e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 1, 0 ),   5.000081952053898e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 2, 0 ),   4.999591898242737e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 3, 0 ),   5.000081951665152e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 4, 0 ),   1.712282372151834e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 5, 0 ),   1.707413784783040e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 6, 0 ),   1.712282372104690e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 7, 0 ),   1.707413784788995e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 8, 0 ),   5.000244197729757e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 382, 0 ), 5.149916277539449e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 461, 0 ), 1.712282371175730e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 505, 0 ), 2.947091256519125e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 0, 0 ),   4.999702007294010e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 1, 0 ),   5.000060374039292e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 2, 0 ),   4.999702006950497e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 3, 0 ),   5.000060374198884e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 4, 0 ),   1.712285753707912e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 5, 0 ),   1.707413784393955e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 6, 0 ),   1.712285753672600e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 7, 0 ),   1.707413784389795e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 8, 0 ),   5.000177244537259e+00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 382, 0 ), 5.149916424143507e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 461, 0 ), 1.712285752727455e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 505, 0 ), 2.947091742301103e+01, 1.0e+08 ) );
 
             delete tInterpMesh;
         }

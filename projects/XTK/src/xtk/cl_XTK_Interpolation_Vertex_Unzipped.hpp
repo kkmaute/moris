@@ -39,6 +39,7 @@ public:
     Matrix< DDRMat >                  get_coords() const;
     moris_id                          get_id() const;
     moris_index                       get_index() const;
+    mtk::Vertex const *               get_base_vertex(  ) const;
     moris_index                       get_owner() const;
     mtk::Vertex_Interpolation *       get_interpolation( const uint aOrder );
     const mtk::Vertex_Interpolation * get_interpolation( const uint aOrder ) const;
@@ -47,7 +48,6 @@ public:
 
     Vertex_Enrichment *       get_xtk_interpolation( const uint aOrder );
     Vertex_Enrichment const * get_xtk_interpolation( const uint aOrder ) const ;
-    mtk::Vertex const *       get_base_vertex(  ) const;
 
     //------------------------------------------------------------------------------
     void

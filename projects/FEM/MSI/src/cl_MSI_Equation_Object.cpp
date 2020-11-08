@@ -19,13 +19,15 @@ namespace moris
 {
     namespace MSI
     {
+        //------------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------------------------------
-
-        Equation_Object::Equation_Object(
-                const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs )
-        : mNodeObj( aNodeObjs )
+        Cell< Matrix< DDRMat > > & Equation_Object::get_pdof_values()
         {
+            // compute pdof values
+            this->compute_my_pdof_values();
+
+            // return
+            return mPdofValues;
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -102,38 +104,41 @@ namespace moris
 
         void Equation_Object::create_my_pdof_list()
         {
+            // init number of free pdof counter
             moris::uint tNumMyFreePdofs = 0;
 
-            // Loop over all pdof hosts and get their number of (free) pdofs
+            // loop over all pdof hosts and get their number of free pdofs
             for ( moris::uint Ik=0; Ik < mNumPdofSystems; Ik++ )
             {
-                // Get number of pdof hosts corresponding to this equation object
+                // get number of pdof hosts corresponding to this equation object
                 moris::uint tNumMyPdofHosts = mMyPdofHosts( Ik ).size();
-
                 for ( moris::uint Ii=0; Ii < tNumMyPdofHosts; Ii++ )
                 {
+                    // add number of free pdofs to counter
                     tNumMyFreePdofs = tNumMyFreePdofs + mMyPdofHosts( Ik )( Ii )->get_num_pdofs();
                 }
             }
 
-            // Set size of vector containing this equation objects free pdofs.
+            // set size of vector containing this equation objects free pdofs
             mFreePdofs.reserve( tNumMyFreePdofs );
 
-            // Loop over pdof systems. Is one except for double sided clusters
+            // loop over pdof systems. Is one except for double sided clusters
             for ( moris::uint Ia=0; Ia < mNumPdofSystems; Ia++ )
             {
                 moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
 
-                // Loop over all pdof types. Ask the first pdof host for the number of pdof types
-                for ( moris::uint Ij = 0; Ij < ( mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list() ).size(); Ij++ )
+                // loop over all pdof types. Ask the first pdof host for the number of pdof types
+                uint tNumPdofTypes = ( mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list() ).size();
+                for ( moris::uint Ij = 0; Ij < tNumPdofTypes; Ij++ )
                 {
-                    // Loop over all time levels for this dof type
-                    for ( moris::uint Ii = 0; Ii < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list()( Ij ).size(); Ii++ )
+                    // loop over all time levels for this dof type
+                    uint tNumTimeLevels = mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list()( Ij ).size();
+                    for ( moris::uint Ii = 0; Ii < tNumTimeLevels; Ii++ )
                     {
-                        // Loop over all pdof hosts and dof types. Appending the pdof pointers to the pdof list of this equation object
+                        // loop over all pdof hosts and dof types. Appending the pdof pointers to the pdof list of this equation object
                         for ( moris::uint Ik = 0; Ik < tNumMyPdofHosts; Ik++ )
                         {
-                            // Append all time levels of this pdof type
+                            // append all time levels of this pdof type
                             mFreePdofs.push_back( ( mMyPdofHosts( Ia )( Ik )->get_pdof_hosts_pdof_list() )( Ij )( Ii ) );
                         }
                     }
@@ -150,15 +155,15 @@ namespace moris
                 mFreePdofList( Ia ).resize( mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size() );
 
                 // Loop over all pdof hosts and get their number of (free) pdofs
-                for ( moris::uint Ik = 0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+                uint tNumPdofHosts = mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size();
+                for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
                 {
                     uint tNumPdofs = 0;
-
-                    for ( moris::uint Ii = 0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+                    uint tNumFreePdof = mMyPdofHosts( Ia ).size();
+                    for ( moris::uint Ii = 0; Ii < tNumFreePdof; Ii++ )
                     {
                         tNumPdofs = tNumPdofs + mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ).size();
                     }
-
                     mFreePdofList( Ia )( Ik ).reserve( tNumPdofs );
                 }
             }
@@ -168,10 +173,12 @@ namespace moris
                 moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
 
                 // Loop over all pdof hosts and get their number of (free) pdofs
-                for ( moris::uint Ij=0; Ij < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ij++ )
+                uint tNumPdofHosts = mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size();
+                for ( moris::uint Ij=0; Ij < tNumPdofHosts; Ij++ )
                 {
                     // Loop over all time levels for this dof type
-                    for ( moris::uint Ii = 0; Ii < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list()( Ij ).size(); Ii++ )
+                    uint tNumTimeLevels = mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list()( Ij ).size();
+                    for ( moris::uint Ii = 0; Ii < tNumTimeLevels; Ii++ )
                     {
                         for ( moris::uint Ik=0; Ik < tNumMyPdofHosts; Ik++ )
                         {
@@ -395,16 +402,16 @@ namespace moris
 
             moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
 
-            //get list of requested dof tpes
-            if( !mEquationSet->mIsResidual)
+            //get list of requested dof types
+            if( !mEquationSet->mIsResidual )
             {
-                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
-                         get_solver_interface()->get_requested_dof_types();
+                tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                        get_solver_interface()->get_requested_dof_types();
             }
             else
             {
-                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
-                         get_solver_interface()->get_secondary_dof_types()(0);
+                tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                        get_solver_interface()->get_secondary_dof_types()(0);
             }
 
             // initialize column and row counter
@@ -424,7 +431,6 @@ namespace moris
                     tNumRowCounter += tPADofMapList( Ii )( tDofTypeIndex ).n_rows();
                 }
             }
-
             aPADofMap.set_size( tNumRowCounter, tNumColCounter, 0.0 );
 
             // re-initialize column and row counter
@@ -440,14 +446,21 @@ namespace moris
                     moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->
                             get_dof_manager()->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
 
+                    // get number of rows and columns
                     uint tNumCols = tPADofMapList( Ii )( tDofTypeIndex ).n_cols();
                     uint tNumRows = tPADofMapList( Ii )( tDofTypeIndex ).n_rows();
 
-                    aPADofMap( { tNumRowCounter, tNumRowCounter + tNumRows -1 }, { tNumColCounter, tNumColCounter+ tNumCols - 1 } ) +=
-                            tPADofMapList( Ii )( tDofTypeIndex ).matrix_data();
+                    // tPADofMapList( Ii )( tDofTypeIndex ) is not empty
+                    if( tNumCols * tNumRows > 0 )
+                    {
+                        aPADofMap(
+                                { tNumRowCounter, tNumRowCounter + tNumRows - 1 },
+                                { tNumColCounter, tNumColCounter + tNumCols - 1 } ) +=
+                                        tPADofMapList( Ii )( tDofTypeIndex ).matrix_data();
 
-                    tNumColCounter += tNumCols;
-                    tNumRowCounter += tNumRows;
+                        tNumColCounter += tNumCols;
+                        tNumRowCounter += tNumRows;
+                    }
                 }
             }
         }

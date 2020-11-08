@@ -437,7 +437,6 @@ namespace moris
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
-
                 //------------------------------------------------------------------------------
                 /**
                  * set IWG active dv types

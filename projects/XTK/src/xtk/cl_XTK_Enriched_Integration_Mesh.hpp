@@ -285,6 +285,7 @@ public:
     // Printing
     //------------------------------------------------------------------------------
     void print() const;
+    void print_general() const;
     void print_cell_clusters(moris::uint aVerbosityLevel = 0) const;
     void print_block_sets(moris::uint aVerbosityLevel = 0) const;
     void print_side_sets(moris::uint aVerbosityLevel = 0) const;
@@ -395,6 +396,9 @@ protected:
     commit_block_set(moris_index const & aBlockSetIndex);
 
 private:
+    //------------------------------------------------------------------------------
+    uint
+    get_num_owned_cells() const;
     //------------------------------------------------------------------------------
 
     void

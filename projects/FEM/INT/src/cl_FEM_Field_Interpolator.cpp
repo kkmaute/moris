@@ -120,14 +120,15 @@ namespace moris
         void Field_Interpolator::reset_eval_flags()
         {
             // reset bool for evaluation
-            mNEval      = true;
-            mNBuildEval = true;
-            mdNdxEval   = true;
-            md2Ndx2Eval = true;
-            md3Ndx3Eval = true;
-            mdNdtEval   = true;
-            md2Ndt2Eval = true;
-            md2NdxtEval = true;
+            mNEval       = true;
+            mNBuildEval  = true;
+            mdNdxEval    = true;
+            md2Ndx2Eval  = true;
+            md3Ndx3Eval  = true;
+            mdNdtEval    = true;
+            md2Ndt2Eval  = true;
+            md2NdxtEval  = true;
+            mDivOperatorEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -691,10 +692,27 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat > Field_Interpolator::div_operator()
+        const moris::Matrix< DDRMat > & Field_Interpolator::div_operator()
+        {
+            // if div_operator needs to be evaluated
+            if( mDivOperatorEval )
+            {
+                // evaluate d1Ndt1
+                this->eval_div_operator();
+
+                // set bool for evaluation
+                mDivOperatorEval = false;
+            }
+            // return member data
+            return mDivOperator;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator::eval_div_operator()
         {
             // evaluate spatial divergence operator from dNdx
-            return  reshape( trans( this->dnNdxn( 1 ) ), 1, this->dnNdxn( 1 ).numel() );
+            mDivOperator = reshape( trans( this->dnNdxn( 1 ) ), 1, this->dnNdxn( 1 ).numel() );
         }
 
         //------------------------------------------------------------------------------

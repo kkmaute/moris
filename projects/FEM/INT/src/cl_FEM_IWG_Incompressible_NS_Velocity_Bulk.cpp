@@ -552,9 +552,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & aJM,
-                Matrix< DDRMat >             & aJC )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aJM,
+                Matrix< DDRMat >                   & aJC )
         {
             // get the res dof and the derivative dof FIs
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
