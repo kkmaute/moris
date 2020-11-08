@@ -215,7 +215,7 @@ namespace moris
             MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex,
                     "create_visualization_meshes(), Visualization mesh not set" );
 
-            mMTKMesh = aMesh;
+            mMTKMesh          = aMesh;
             mMTKMeshPairIndex = aMeshPairIndex;
 
             // create vis factory
@@ -227,9 +227,38 @@ namespace moris
             // resize list of writers to list of outputs. memory allocation stays intact
             mWriter.resize( mOutputData.size(), nullptr );
 
-            // create writer for this mesh
-            mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+            // create writer for this mesh if mesh is not empty
+            // skip if mesh is empty
+            int tVisMeshIsNotEmpty = 1;
+             if ( mVisMesh( aVisMeshIndex )->get_num_nodes() > 0 )
+             {
+                 mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
+             }
+             else
+             {
+                 tVisMeshIsNotEmpty = 0;
+                 mWriter( aVisMeshIndex ) = nullptr;
+             }
 
+             // communicate information whether meshes are empty
+             Cell<int> tVisMeshList(par_size(),0);
+             MPI_Allgather(&tVisMeshIsNotEmpty, 1, MPI_INT, tVisMeshList.memptr(), 1, MPI_INT, moris::get_comm() );
+
+             // count number to non-empty meshes and determine rank of this processor
+             mParSize=0;
+             mParRank=0;
+             for (int iproc=0;iproc<par_size();++iproc)
+             {
+                 if (tVisMeshList(iproc)>0)
+                 {
+                     mParSize++;
+
+                     if ( iproc<par_rank() )
+                     {
+                         mParRank++;
+                     }
+                 }
+             }
         }
 
         //-----------------------------------------------------------------------------------------------------------
@@ -282,6 +311,12 @@ namespace moris
 
         void Output_Manager::write_mesh( const uint aVisMeshIndex )
         {
+            // skip writing mesh if mesh is empty
+            if ( mWriter( aVisMeshIndex ) == nullptr )
+            {
+                return;
+            }
+
             // specify file path
             std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
 
@@ -313,7 +348,13 @@ namespace moris
             MORIS_LOG( tMessage.c_str() );
 
             // write mesh to file
-            mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
+            mWriter( aVisMeshIndex )->write_mesh(
+                    tMeshFilePath,
+                    tMeshFileName,
+                    tMeshTempPath,
+                    tMeshTempName,
+                    mParSize,
+                    mParRank);
 
             // add nodal elemental and global fields to mesh
             this->add_nodal_fields( aVisMeshIndex );
@@ -523,11 +564,39 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------------------------------------
+
         void Output_Manager::write_field(
                 const uint                             aVisMeshIndex,
                 const real                             aTime,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
+            // skip writing fields if mesh is empty
+            if ( mWriter( aVisMeshIndex ) == nullptr )
+            {
+                // number of fields in vis mesh
+                uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
+
+                // dummy global values
+                real tGlobalValue = 0.0;
+
+                // loop over all fields of this output object
+                for( uint Ik = 0; Ik < tNumFields; Ik++ )
+                {
+                    switch ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) )
+                    {
+                        case Field_Type::GLOBAL:
+                        {
+                            sum_all(tGlobalValue);
+                            break;
+                        }
+                        default:
+                        {}
+                    }
+                }
+
+                return;
+            }
+
             // increment field write counter
             mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
 
@@ -615,7 +684,6 @@ namespace moris
                     default:
                         MORIS_ERROR(false,"undefined FieldType option\n");
                 }
-
             }
 
             // write global variables
