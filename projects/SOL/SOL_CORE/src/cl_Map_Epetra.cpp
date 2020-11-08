@@ -95,3 +95,10 @@ moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) c
 
     return mEpetraMap->LID( ( int ) aGlobalId );
 }
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+void Map_Epetra::print()
+{
+    std::cout<<*mEpetraMap<<std::endl;
+}

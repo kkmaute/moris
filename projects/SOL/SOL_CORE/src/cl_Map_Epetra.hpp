@@ -19,44 +19,49 @@
 
 namespace moris
 {
-class Map_Epetra : public sol::Dist_Map
-{
-private:
-    Communicator_Epetra      mEpetraComm;
+    class Map_Epetra : public sol::Dist_Map
+    {
+        private:
+            Communicator_Epetra      mEpetraComm;
 
-    Epetra_Map * mEpetraMap = nullptr;
+            Epetra_Map * mEpetraMap = nullptr;
 
-    void translator( const moris::uint      & aNumMaxDofs,
-                     const moris::uint      & aNumMyDofs,
-                     const Matrix< DDSMat > & aMyLocaltoGlobalMap,
-                           Matrix< DDSMat > & aMyGlobalConstraintDofs,
-                     const Matrix< DDUMat > & aMyConstraintDofs );
+            void translator( const moris::uint      & aNumMaxDofs,
+                    const moris::uint      & aNumMyDofs,
+                    const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                    Matrix< DDSMat > & aMyGlobalConstraintDofs,
+                    const Matrix< DDUMat > & aMyConstraintDofs );
 
-protected:
+        protected:
 
-public:
+        public:
 
-//-------------------------------------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------------------------------------
 
-    Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
-                const Matrix< DDUMat > & aMyConstraintDofs );
+            Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
+                    const Matrix< DDUMat > & aMyConstraintDofs );
 
-//-------------------------------------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------------------------------------
 
-    Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds );
+            Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds );
 
-//-------------------------------------------------------------------------------------------------------------
-    /** Destructor */
-    ~Map_Epetra();
+            //-------------------------------------------------------------------------------------------------------------
+            /** Destructor */
+            ~Map_Epetra();
 
-//-------------------------------------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------------------------------------
 
-    Epetra_Map * get_epetra_map()      { return mEpetraMap; };
-    Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
+            Epetra_Map * get_epetra_map()      { return mEpetraMap; };
+            Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
 
-//-------------------------------------------------------------------------------------------------------------
-    moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
-};
+            //-------------------------------------------------------------------------------------------------------------
+            moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            void print();
+
+    };
 }
 
 #endif /* SRC_DISTLINALG_CL_MAP_EPETRA_HPP_ */

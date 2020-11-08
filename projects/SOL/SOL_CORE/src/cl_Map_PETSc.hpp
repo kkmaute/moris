@@ -60,6 +60,12 @@ public:
         return -1;
     };
 
+    // ---------------------------------------------------------------------------------------------------------------
+    void print()
+    {
+        MORIS_ERROR( false, "not implemented yet");
+    };
+
     AO get_petsc_map()       { return mPETScMap; }
     AO get_petsc_map() const { return mPETScMap; }
 };
