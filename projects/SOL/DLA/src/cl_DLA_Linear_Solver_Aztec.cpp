@@ -24,6 +24,7 @@
 #include "Ifpack_LocalFilter.h"
 
 #include "cl_DLA_Linear_Problem.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 // ML
 //#include "ml_include.h"
@@ -45,20 +46,26 @@ Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
     this->set_solver_parameters();
 }
 
-Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist ),
-                                                                                        mMlPrec ( NULL )
+//----------------------------------------------------------------------------------------
+
+Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist )
+: Linear_Solver_Algorithm( aParameterlist ),
+  mMlPrec ( NULL )
 {
-//    mParameterList = aParameterlist;
+    //    mParameterList = aParameterlist;
 }
 
 //----------------------------------------------------------------------------------------
-Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mMlPrec ( NULL )
+
+Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem )
+: mMlPrec ( NULL )
 {
     this->set_linear_problem( aLinearSystem );
     this->set_solver_parameters();
 }
 
 //----------------------------------------------------------------------------------------
+
 Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
     delete mMlPrec;
@@ -69,6 +76,7 @@ Linear_Solver_Aztec::~Linear_Solver_Aztec()
 }
 
 //----------------------------------------------------------------------------------------
+
 void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 {
     // Set matrix. solution vector and RHS
@@ -78,6 +86,7 @@ void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 }
 
 //----------------------------------------------------------------------------------------
+
 void Linear_Solver_Aztec::set_solver_parameters()
 {
     // ASSIGN DEFAULT PARAMETER VALUES
@@ -167,9 +176,9 @@ void Linear_Solver_Aztec::set_solver_parameters()
     // Set Damping or relaxation parameter used for RILU
     mParameterList.insert( "AZ_omega" ,  -1.0 );
 
-//==============================================================================================================
-//                             ML Preconditioner settings
-//==============================================================================================================
+    //==============================================================================================================
+    //                             ML Preconditioner settings
+    //==============================================================================================================
 
     // Set Damping or relaxation parameter used for RILU
     mParameterList.insert( "Use_ML_Prec" ,  false );
@@ -239,20 +248,29 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "null space: add default vectors" ,  -1.0 );
 }
 
+// -----------------------------------------------------------------------------------
+
 moris::sint Linear_Solver_Aztec::solve_linear_system( )
 {
     Tracer tTracer(EntityBase::LinearSolver, EntityType::Aztec, EntityAction::Solve);
 
+    // Construct solver with linear system
     mAztecSolver = new AztecOO ( mEpetraProblem );
 
+    // Check that problem has only one RHS
+    Epetra_MultiVector * tLHS =mAztecSolver->GetLHS ();
+
+    MORIS_ERROR( tLHS->NumVectors() == 1, "AZTEC interface cannot be used for multiple RHS.\n");
+
     moris::sint error = 0;
+
     // Set all Aztec options
     this->set_solver_internal_parameters();
 
     moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
-    // M L   Preconditioning
+    // ML Preconditioning
     if ( mMlPrec != NULL  )
     {
         clock_t startPrecTime = clock();
@@ -282,82 +300,121 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     return error;
 }
 
-moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLinearSystem,
-                                                      const moris::sint      aIter )
+//----------------------------------------------------------------------------------------
+
+moris::sint Linear_Solver_Aztec::solve_linear_system(
+        Linear_Problem *       aLinearSystem,
+        const moris::sint      aIter )
 {
-    // Set matrix. solution vector and RHS
-    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()                                       ->get_matrix()        );
-    mEpetraProblem.SetRHS     ( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())     ->get_epetra_vector() );
-    mEpetraProblem.SetLHS     ( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
+    // Set matrix in linear system
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
 
-    MORIS_ERROR( aLinearSystem->get_solver_RHS()->get_num_vectors() == 1, "Linear_Solver_Aztec::solve_linear_system(), num RHS != 1. Use BELOS_IMPL instead.");
+    // Get LHS and RHS vectors
+    sol::Dist_Vector* tRHS = aLinearSystem->get_solver_RHS() ;
+    sol::Dist_Vector* tLHS = aLinearSystem->get_free_solver_LHS() ;
 
-    mAztecSolver = new AztecOO ( mEpetraProblem );
+    // Determine the number of RHS and LHS
+    uint tNumRHS = tRHS->get_num_vectors();
+    uint tNumLHS = tLHS->get_num_vectors();
 
-//    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
+    MORIS_ERROR(tNumRHS == tNumLHS,"Number of LHS does not match number of RHS");
 
-    moris::sint error = 0;
-    // Set all Aztec options
-    this->set_solver_internal_parameters();
+    // Get underlying Eptra vectors of RHS and LHS
+    Epetra_MultiVector * tRHSepetra = static_cast<Vector_Epetra*>(tRHS)->get_epetra_vector();
+    Epetra_MultiVector * tLHSepetra = static_cast<Vector_Epetra*>(tLHS)->get_epetra_vector();
 
+    // get basic solver parameters
     moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
+    // ML preconditioner
     if ( mParameterList.get< bool >( "Use_ML_Prec" ) )
     {
         if ( mParameterList.get< bool >( "ML_reuse" ) == false )
         {
-            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
-        }
-        else if ( aIter == 1 && mParameterList.get< bool >( "ML_reuse" ) == true )
-        {
-            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
-        }
-    }
+            delete mMlPrec;
 
-    // M L   Preconditioning
-    if ( mMlPrec != NULL  )
-    {
+            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
+        }
+        else if ( mParameterList.get< bool >( "ML_reuse" ) == true && aIter == 1 )
+        {
+            delete mMlPrec;
+
+            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
+        }
+
         clock_t startPrecTime = clock();
 
         if ( aIter == 1 || mParameterList.get< bool >( "ML_reuse" ) == false )
         {
             mMlPrec->ComputePreconditioner();
+        }
+        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
+        std::cout<<"Time to build and assign ML preconditioner "<<mPreCondTime<<std::endl;
+    }
 
-            mAztecSolver->SetPrecOperator ( mMlPrec );
+    // initialize error flag
+    moris::sint error = 0;
+
+    // Loop over all RHS
+    for (uint ir=0;ir<tNumRHS;++ir)
+    {
+        // Get vectors of current RHSunderlying eptra vectors of RHS and LHS
+        Epetra_MultiVector * tCurrentRHSepetra = (*tRHSepetra)(ir);
+        Epetra_MultiVector * tCurrentLHSepetra = (*tLHSepetra)(ir);
+
+        // Build linear problem and create solver for first RHS; otherwise just reset LHS and RHS
+        if (ir==0)
+        {
+            // Set matrix. solution vector and RHS
+            mEpetraProblem.SetRHS( tCurrentRHSepetra );
+            mEpetraProblem.SetLHS( tCurrentLHSepetra );
+
+            mAztecSolver = new AztecOO ( mEpetraProblem );
+
+            // Set all Aztec options based on default and user input
+            this->set_solver_internal_parameters();
+
+            // Overwrite options for multiple RHS
+            mAztecSolver->SetAztecOption ( AZ_pre_calc, AZ_calc );
+            if (tNumRHS > 1)
+            {
+                mAztecSolver->SetAztecOption ( AZ_keep_info, 1 );
+            }
+
+            // ML Preconditioning
+            if ( mMlPrec != NULL  )
+            {
+                mAztecSolver->SetPrecOperator ( mMlPrec );
+            }
         }
         else
         {
-            mAztecSolver->SetPrecOperator ( mMlPrec );
+            mAztecSolver->SetRHS(tCurrentRHSepetra);
+            mAztecSolver->SetLHS(tCurrentLHSepetra);
+
+            // Overwrite options for multiple RHS
+            mAztecSolver->SetAztecOption ( AZ_pre_calc, AZ_reuse );
         }
 
-        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
-        std::cout<<"Time to build and assign ML precon "<<mPreCondTime<<std::endl;
+        // Solve the linear system
+        error += mAztecSolver->Iterate( tMaxIt, tRelRes );
+
+        // Get linear solution info
+        mSolNumIters       = mAztecSolver->NumIters();
+        mSolTrueResidual   = mAztecSolver->TrueResidual();
+        mSolScaledResidual = mAztecSolver->ScaledResidual();
+        mSolTime           = mAztecSolver->SolveTime();
     }
 
-    if ( mParameterList.get< moris::sint >( "AZ_keep_info" ) == 1 && aIter == 1)
-    {
-        mAztecSolver->SetAztecOption ( AZ_pre_calc, AZ_calc );
-        error = mAztecSolver->Iterate( tMaxIt, tRelRes );
-    }
-    else
-    {
-        error = mAztecSolver->Iterate( tMaxIt, tRelRes );
-    }
-
-    // Solve the linear system
-   // error = mAztecSolver.Iterate( tMaxIt, tRelRes );
-
-    // Get linear solution info
-    mSolNumIters       = mAztecSolver->NumIters();
-    mSolTrueResidual   = mAztecSolver->TrueResidual();
-    mSolScaledResidual = mAztecSolver->ScaledResidual();
-    mSolTime           = mAztecSolver->SolveTime();
-
+    // Delete solver
     delete mAztecSolver;
     mAztecSolver = nullptr;
+
     return error;
 }
+
+//----------------------------------------------------------------------------------------
 
 void Linear_Solver_Aztec::set_solver_internal_parameters()
 {
@@ -499,9 +556,9 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
         mAztecSolver->SetAztecParam ( AZ_ilut_fill, mParameterList.get< moris::real >( "AZ_ilut_fill" ) );
     }
 
-//==============================================================================================================
-//                             ML Preconditioner settings
-//==============================================================================================================
+    //==============================================================================================================
+    //                             ML Preconditioner settings
+    //==============================================================================================================
 
     //ML_Epetra::SetDefaults ( mLinearSolverData->mMl->Defaults,mlParams );
 
