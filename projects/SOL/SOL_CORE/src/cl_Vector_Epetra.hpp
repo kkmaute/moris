@@ -53,21 +53,21 @@ namespace moris
         Epetra_MultiVector * get_epetra_vector() const { return mEpetraVector; }
 
         void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
-                                    const moris::Matrix< DDRMat > & aValues,
-                                    const uint                    & aVectorIndex = 0);
+                const moris::Matrix< DDRMat > & aValues,
+                const uint                    & aVectorIndex = 0);
 
         void sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
-                                     const moris::Matrix< DDRMat > & aValues,
-                                     const uint                    & aVectorIndex = 0 );
+                const moris::Matrix< DDRMat > & aValues,
+                const uint                    & aVectorIndex = 0 );
 
         void vector_global_assembly();
 
         void vec_plus_vec( const moris::real & aScaleA,
-                                 sol::Dist_Vector & aVecA,
-                           const moris::real & aScaleThis );
+                sol::Dist_Vector & aVecA,
+                const moris::real & aScaleThis );
 
         void scale_vector( const moris::real & aValue,
-                           const moris::uint & aVecIndex = 0 );
+                const moris::uint & aVecIndex = 0 );
 
         void import_local_to_global( sol::Dist_Vector & aSourceVec );
 
@@ -81,10 +81,11 @@ namespace moris
 
         void extract_copy( moris::Matrix< DDRMat > & LHSValues );
 
-        void extract_my_values( const moris::uint                            & aNumIndices,
-                                const moris::Matrix< DDSMat >                & aGlobalRows,
-                                const moris::uint                            & aRowOffsets,
-                                      moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
+        void extract_my_values(
+                const moris::uint                      & aNumIndices,
+                const moris::Matrix< DDSMat >          & aGlobalRows,
+                const moris::uint                      & aRowOffsets,
+                moris::Cell< moris::Matrix< DDRMat > > & LHSValues );
 
         void print() const;
 
@@ -99,7 +100,7 @@ namespace moris
             return mValuesPtr;
         };
 
-    //----------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------
 
         void check_vector();
     };

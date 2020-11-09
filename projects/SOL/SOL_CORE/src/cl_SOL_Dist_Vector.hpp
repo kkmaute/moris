@@ -41,7 +41,6 @@ namespace moris
         class Dist_Vector
         {
         protected:
-
             Epetra_Import* mImporter = nullptr;
             Dist_Map* mMap;
             bool mManageMap;
@@ -56,10 +55,10 @@ namespace moris
              */
             Dist_Vector( sol::Dist_Map* aMapClass, bool aManageMap );
 
-            /**
-             * Destructor (deletes map if desired)
-             */
-            virtual ~Dist_Vector();
+                /**
+                 * Destructor (deletes map if desired)
+                 */
+                virtual ~Dist_Vector();
 
             /**
              * Get distributed vector map
@@ -216,7 +215,6 @@ namespace moris
              * @return real pointer
              */
             virtual moris::real* get_values_pointer() = 0;
-
         };
     }
 }

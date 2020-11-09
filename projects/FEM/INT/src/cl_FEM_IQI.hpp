@@ -316,8 +316,7 @@ namespace moris
              * return a dof type for the quantity (IQI dof, max dof)
              * @param[ out ] mQuantityDofType a cell of residual dof types
              */
-            const
-            moris::Cell< MSI::Dof_Type > & get_quantity_dof_type() const
+            const moris::Cell< MSI::Dof_Type > & get_quantity_dof_type() const
             {
                 return mQuantityDofType;
             }

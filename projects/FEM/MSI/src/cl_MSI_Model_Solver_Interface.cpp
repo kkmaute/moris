@@ -121,10 +121,14 @@ namespace moris
             else if ( tDofType == Dof_Type::NLSX )        { return mMSIParameterList.get< moris::sint >( "NLSX" ); }
             else if ( tDofType == Dof_Type::NLSY )        { return mMSIParameterList.get< moris::sint >( "NLSY" ); }
             else if ( tDofType == Dof_Type::NLSZ )        { return mMSIParameterList.get< moris::sint >( "NLSZ" ); }
+            else if ( tDofType == Dof_Type::THETA )       { return mMSIParameterList.get< moris::sint >( "THETA" ); }
+            else if ( tDofType == Dof_Type::PHID )        { return mMSIParameterList.get< moris::sint >( "PHID" ); }
+            else if ( tDofType == Dof_Type::PHISD )       { return mMSIParameterList.get< moris::sint >( "PHISD" ); }
             else if ( tDofType == Dof_Type::VX )          { return mMSIParameterList.get< moris::sint >( "VX" ); }
             else if ( tDofType == Dof_Type::VY )          { return mMSIParameterList.get< moris::sint >( "VY" ); }
             else if ( tDofType == Dof_Type::VZ )          { return mMSIParameterList.get< moris::sint >( "VZ" ); }
             else if ( tDofType == Dof_Type::P )           { return mMSIParameterList.get< moris::sint >( "P" ); }
+            else if ( tDofType == Dof_Type::RHO )         { return mMSIParameterList.get< moris::sint >( "RHO" ); }
             else if ( tDofType == Dof_Type::VISCOSITY )   { return mMSIParameterList.get< moris::sint >( "VISCOSITY" ); }
 
             else

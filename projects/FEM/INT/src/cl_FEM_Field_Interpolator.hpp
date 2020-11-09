@@ -81,6 +81,7 @@ namespace moris
                 bool mdNdtEval   = true;
                 bool md2Ndt2Eval = true;
                 bool md2NdxtEval = true;
+                bool mDivOperatorEval = true;
 
                 // storage
                 Matrix< DDRMat > mNBuild;
@@ -91,6 +92,7 @@ namespace moris
                 Matrix< DDRMat > mdNdt;
                 Matrix< DDRMat > md2Ndt2;
                 Matrix< DDRMat > md2Ndxt;
+                Matrix< DDRMat > mDivOperator;
 
                 //------------------------------------------------------------------------------
             public:
@@ -386,11 +388,18 @@ namespace moris
                  */
                 moris::real div();
 
+                //------------------------------------------------------------------------------
                 /**
-                 * evaluates the spatial divergence operator at given space and time evaluation point
+                 * return the spatial divergence operator at given space and time evaluation point
                  * @param[ out ] divergence operator
                  */
-                Matrix< DDRMat > div_operator();
+                const Matrix< DDRMat > & div_operator();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the spatial divergence operator at given space and time evaluation point
+                 */
+                void eval_div_operator();
 
                 //------------------------------------------------------------------------------
                 /**

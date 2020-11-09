@@ -20,8 +20,12 @@
 #include "BelosEpetraAdapter.hpp"
 
 #include "Ifpack.h"
-#include "Ifpack_AdditiveSchwarz.h"
+#include "Ifpack_Preconditioner.h"
+#include "Ifpack_ILUT.h"
+#include "Ifpack_ILU.h"
+#include "Ifpack_LocalFilter.h"
 
+#include "Ifpack_AdditiveSchwarz.h"
 
 using namespace moris;
 using namespace dla;
@@ -45,7 +49,7 @@ Linear_Solver_Belos::Linear_Solver_Belos()
 
 Linear_Solver_Belos::~Linear_Solver_Belos()
 {
-//    delete mAmesosSolver;
+    //    delete mAmesosSolver;
 }
 
 void Linear_Solver_Belos::set_solver_parameters()
@@ -55,9 +59,9 @@ void Linear_Solver_Belos::set_solver_parameters()
 
     // Determine which solver is used by string
     // options are: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
-	//              Pseudoblock TFQMR, Seed GMRES, Seed CG
+    //              Pseudoblock TFQMR, Seed GMRES, Seed CG
     mParameterList.insert( "Solver Type" ,  "GMRES" );
-		
+
     mParameterList.insert( "Verbosity" ,  INT_MAX );
 
     // Allowable Aztec solver iterations
@@ -72,10 +76,11 @@ void Linear_Solver_Belos::set_solver_parameters()
 }
 
 
-moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLinearSystem,
-                                                      const moris::sint      aIter )
+moris::sint Linear_Solver_Belos::solve_linear_system(
+        Linear_Problem *  aLinearSystem,
+        const moris::sint aIter )
 {
-	this->set_solver_internal_parameters();
+    this->set_solver_internal_parameters();
     mLinearSystem = aLinearSystem;
 
     using Teuchos::RCP;
@@ -85,57 +90,76 @@ moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLi
     using Belos::SolverFactory;
 
     // FIXME move preconditioners in own class
-     // =============================================================== //
-      // B E G I N N I N G   O F   I F P A C K   C O N S T R U C T I O N //
-      // =============================================================== //
+    // =============================================================== //
+    // B E G I N N I N G   O F   I F P A C K   C O N S T R U C T I O N //
+    // =============================================================== //
 
-      ParameterList List;
+    ParameterList List;
 
-      // Allocate an IFPACK factory.  The object contains no data, only
-      // the Create() method for creating preconditioners.
-      Ifpack Factory;
+    // Allocate an IFPACK factory.  The object contains no data, only
+    // the Create() method for creating preconditioners.
+    Ifpack Factory;
 
-      // Create the preconditioner.  For the list of PrecType values that
-      // Create() accepts, please check the IFPACK documentation.
-      std::string PrecType = "ILU"; // incomplete LU
-      int OverlapLevel = 1;
+    // Get pointer to operator
+    Epetra_RowMatrix* tOperator = aLinearSystem->get_matrix()->get_matrix();
 
-//      rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() )
+    // Create the preconditioner.  For the list of PrecType values that
+    // Create() accepts, please check the IFPACK documentation.
+    std::string PrecType = "ILU"; // incomplete LU - ILUT not working
+    int OverlapLevel = 1;
 
-      RCP< Ifpack_Preconditioner > Prec =  rcp (Factory.Create (PrecType, &*aLinearSystem->get_matrix()->get_matrix(), OverlapLevel));
-//      RCP< Ifpack_Preconditioner > Prec =  rcp (Factory.Create (PrecType, &*A, OverlapLevel));
+    RCP< Ifpack_Preconditioner > Prec = rcp (Factory.Create (PrecType, tOperator, OverlapLevel));
 
-      // Specify parameters for ILU.  ILU is local to each MPI process.
-      List.set("fact: drop tolerance", 1e-9);
-      List.set("fact: level-of-fill", 1);
+    // Specify parameters for ILU.  ILU is local to each MPI process.
+    if ( PrecType == "ILU" )
+    {
+        List.set (" fact: drop tolerance"    , 1e-9 );
+        List.set (" fact: level-of-fill"     , 1    );
+        List.set ( "fact: absolute threshold", 0.0  );
+        List.set ( "fact: relative threshold", 1.0  );
+        List.set ( "fact: relax value"       , 0.0  );
+    }
 
-      List.set("schwarz: combine mode", "Add");
-      // Set the parameters.
-      IFPACK_CHK_ERR(Prec->SetParameters(List));
+    if ( PrecType == "ILUT" )
+    {
+        List.set ( "fact: drop tolerance"    , 1.e-9 );
+        List.set ( "fact: ilut level-of-fill", 12.0  );
+        List.set ( "fact: absolute threshold", 0.0   );
+        List.set ( "fact: relative threshold", 1.0   );
+        List.set ( "fact: relax value"       , 0.0   );
+    }
 
-      // Initialize the preconditioner.
-      IFPACK_CHK_ERR(Prec->Initialize());
+    List.set ( "schwarz: combine mode"     , "Zero");
+    List.set ( "schwarz: compute condest"  , false );
+    List.set ( "schwarz: filter singletons", false );
+    List.set ( "schwarz: reordering type"  , "rcm" );
 
-      // Build the preconditioner, by looking at the values of the matrix.
-      IFPACK_CHK_ERR(Prec->Compute());
+    // Set the parameters.
+    IFPACK_CHK_ERR(Prec->SetParameters(List));
 
-      // Create the Belos preconditioned operator from the Ifpack preconditioner.
-      // NOTE:  This is necessary because Belos expects an operator to apply the
-      //        preconditioner with Apply() NOT ApplyInverse().
-      RCP<Belos::EpetraPrecOp> belosPrec = rcp ( new Belos::EpetraPrecOp ( Prec ) );
+    // Initialize the preconditioner.
+    IFPACK_CHK_ERR(Prec->Initialize());
 
-      // =================================================== //
-      // E N D   O F   I F P A C K   C O N S T R U C T I O N //
-      // =================================================== //
+    // Build the preconditioner, by looking at the values of the matrix.
+    IFPACK_CHK_ERR(Prec->Compute());
 
-//      aLinearSystem->get_free_solver_LHS()->print();
-//      aLinearSystem->get_solver_RHS()->print();
+    // Create the Belos preconditioned operator from the Ifpack preconditioner.
+    // NOTE:  This is necessary because Belos expects an operator to apply the
+    //        preconditioner with Apply() NOT ApplyInverse().
+    RCP<Belos::EpetraPrecOp> belosPrec = rcp ( new Belos::EpetraPrecOp ( Prec ) );
+
+    // =================================================== //
+    // E N D   O F   I F P A C K   C O N S T R U C T I O N //
+    // =================================================== //
+
+    //      aLinearSystem->get_free_solver_LHS()->print();
+    //      aLinearSystem->get_solver_RHS()->print();
 
     RCP<Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> > problem =
-          rcp (new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator>(
-                  rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() ), false ),
-                  rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector(), false ),
-                  rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector(), false ) ) );
+            rcp (new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator>(
+                    rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() ), false ),
+                    rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector(), false ),
+                    rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector(), false ) ) );
 
     problem->setLeftPrec( belosPrec );
 
@@ -145,36 +169,35 @@ moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLi
         std::cout << std::endl << "ERROR:  Belos::LinearProblem failed to set up correctly!" << std::endl;
     }
 
-
-//    RCP< Belos::SolverManager<double,MV,OP> > newSolver = rcp( new Belos::GCRODRSolMgr<double,MV,OP>(rcp(&problem,false), rcp(&belosList,false)));
-//    //
-//    // **********Print out information about problem*******************
-//    //
-////    if (proc_verbose) {
-////      std::cout << std::endl << std::endl;
-////      std::cout << "Dimension of matrix: " << NumGlobalElements << std::endl;
-////      std::cout << "Number of right-hand sides: " << numrhs << std::endl;
-////      std::cout << "Max number of restarts allowed: " << maxrestarts << std::endl;
-////      std::cout << "Max number of iterations per restart cycle: " << maxiters << std::endl;
-////      std::cout << "Relative residual tolerance: " << tol << std::endl;
-////      std::cout << std::endl;
-////    }
+    //    RCP< Belos::SolverManager<double,MV,OP> > newSolver = rcp( new Belos::GCRODRSolMgr<double,MV,OP>(rcp(&problem,false), rcp(&belosList,false)));
+    //    //
+    //    // **********Print out information about problem*******************
+    //    //
+    ////    if (proc_verbose) {
+    ////      std::cout << std::endl << std::endl;
+    ////      std::cout << "Dimension of matrix: " << NumGlobalElements << std::endl;
+    ////      std::cout << "Number of right-hand sides: " << numrhs << std::endl;
+    ////      std::cout << "Max number of restarts allowed: " << maxrestarts << std::endl;
+    ////      std::cout << "Max number of iterations per restart cycle: " << maxiters << std::endl;
+    ////      std::cout << "Relative residual tolerance: " << tol << std::endl;
+    ////      std::cout << std::endl;
+    ////    }
 
 
     SolverFactory<double, Epetra_MultiVector,Epetra_Operator> factory;
     // Create the GMRES solver.
-	std::string tSolverType = mParameterList.get< std::string >( "Solver Type" );
+    std::string tSolverType = mParameterList.get< std::string >( "Solver Type" );
     RCP<Belos::SolverManager<double, Epetra_MultiVector,Epetra_Operator> > solver =  factory.create ( tSolverType, mMyPl );
 
     // Tell the solver what problem you want to solve.
     solver->setProblem (problem);
 
-//	Belos::ReturnType result = solver->solve();
-	solver->solve();
-	// Ask the solver how many iterations the last solve() took.
-//	const int numIters = solver->getNumIters();
-//
-//	std::cout<<"iter : "<<numIters<<std::endl;
+    //	Belos::ReturnType result = solver->solve();
+    solver->solve();
+    // Ask the solver how many iterations the last solve() took.
+    //	const int numIters = solver->getNumIters();
+    //
+    //	std::cout<<"iter : "<<numIters<<std::endl;
 
     return 0;
 }
@@ -202,6 +225,4 @@ void Linear_Solver_Belos::set_solver_internal_parameters()
     {
         mMyPl->set ( "Convergence Tolerance", mParameterList.get< moris::real >( "Convergence Tolerance" ) );
     }
-
-
 }

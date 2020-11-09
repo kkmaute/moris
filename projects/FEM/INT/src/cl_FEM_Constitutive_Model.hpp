@@ -83,43 +83,64 @@ namespace moris
                 // spatial dimensions
                 uint mSpaceDim;
 
-                // storage for evaluation
+                // storage for flux evaluation
                 Matrix< DDRMat > mFlux;
-                Matrix< DDRMat > mDivFlux;
-                Matrix< DDRMat > mEnergy;
-                Matrix< DDRMat > mGradEnergy;
-                Matrix< DDRMat > mEnergyDot;
-                Matrix< DDRMat > mGradEnergyDot;
-                Matrix< DDRMat > mGradDivFlux;
-                moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
-                moris::Cell< Matrix< DDRMat > > mGradEnergyDotDof;
-                moris::Cell< Matrix< DDRMat > > mGradEnergyDof;
-                moris::Cell< Matrix< DDRMat > > mEnergyDotDof;
-                moris::Cell< Matrix< DDRMat > > mEnergyDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDv;
                 moris::Cell< Matrix< DDRMat > > mdFluxdx;
+
+                // storage for divergence of flux evaluation
+                Matrix< DDRMat > mDivFlux;
                 moris::Cell< Matrix< DDRMat > > mddivfluxdu;
 
+                // storage for energy evaluation
+                Matrix< DDRMat > mEnergy;
+                moris::Cell< Matrix< DDRMat > > mEnergyDof;
+
+                // storage for gradient of energy evaluation
+                Matrix< DDRMat > mGradEnergy;
+                moris::Cell< Matrix< DDRMat > > mGradEnergyDof;
+
+                // storage for energy rate evaluation
+                Matrix< DDRMat > mEnergyDot;
+                moris::Cell< Matrix< DDRMat > > mEnergyDotDof;
+
+                // storage for gradient of energy rate evaluation
+                Matrix< DDRMat > mGradEnergyDot;
+                moris::Cell< Matrix< DDRMat > > mGradEnergyDotDof;
+
+                // storage for gradient of div flux rate evaluation
+                Matrix< DDRMat > mGradDivFlux;
+                moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
+
+                // storage for traction evaluation
                 Matrix< DDRMat > mTraction;
                 moris::Cell< Matrix< DDRMat > > mdTractiondDof;
                 moris::Cell< Matrix< DDRMat > > mdTractiondDv;
 
+                // storage for test traction evaluation
                 moris::Cell< Matrix< DDRMat > > mTestTraction;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDof;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDv;
 
+                // storage for stress evaluation
                 Matrix< DDRMat > mStress;
-                Matrix< DDRMat > mStrain;
-                Matrix< DDRMat > mDivStrain;
                 moris::Cell< Matrix< DDRMat > > mdStressdDof;
+
+                // storage for strain evaluation
+                Matrix< DDRMat > mStrain;
                 moris::Cell< Matrix< DDRMat > > mdStraindDof;
                 moris::Cell< Matrix< DDRMat > > mdStraindDv;
                 moris::Cell< Matrix< DDRMat > > mdStraindx;
+
+                // storage for divergence of strain evaluation
+                Matrix< DDRMat > mDivStrain;
                 moris::Cell< Matrix< DDRMat > > mddivstraindu;
 
+                // storage for test strain evaluation
                 Matrix< DDRMat > mTestStrain;
 
+                // storage for constitutive matrix evaluation
                 Matrix< DDRMat > mConst;
                 moris::Cell< Matrix< DDRMat > > mdConstdDof;
                 moris::Cell< Matrix< DDRMat > > mdConstdDv;
@@ -619,7 +640,8 @@ namespace moris
                  * get the constitutive model stress
                  * @param[ out ] mStress constitutive model stress
                  */
-                virtual const Matrix< DDRMat > & stress( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & stress(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -634,7 +656,8 @@ namespace moris
                  * get the constitutive model strain
                  * @param[ out ] mStrain constitutive model strain
                  */
-                virtual const Matrix< DDRMat > & strain( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & strain(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -649,7 +672,8 @@ namespace moris
                  * get the divergence of the strain
                  * @param[ out ] mDivFlux divergence of the strain
                  */
-                virtual const Matrix< DDRMat > & divstrain( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & divstrain(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -682,7 +706,8 @@ namespace moris
                  * get the constitutive model test strain
                  * @param[ out ] mTestStrain constitutive model test strain
                  */
-                virtual const Matrix< DDRMat > & testStrain( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & testStrain(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -697,7 +722,8 @@ namespace moris
                  * get the constitutive model constitutive matrix
                  * @param[ out ] mConst constitutive matrix
                  */
-                virtual const Matrix< DDRMat > & constitutive( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & constitutive(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -764,7 +790,8 @@ namespace moris
                  * get the constitutive model change rate of enthalpy
                  * @param[ out ] mEnergyDot change rate of enthalpy
                  */
-                virtual const Matrix< DDRMat > & EnergyDot( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & EnergyDot(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -779,7 +806,8 @@ namespace moris
                  * get the constitutive model spatial gradient of enthalpy
                  * @param[ out ] mGradEnergy gradient of enthalpy
                  */
-                virtual const Matrix< DDRMat > & gradEnergy( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & gradEnergy(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -794,7 +822,8 @@ namespace moris
                  * get the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
                  * @param[ out ] mGradEnergyDot gradient of change rate of enthalpy
                  */
-                virtual const Matrix< DDRMat > & gradEnergyDot( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                virtual const Matrix< DDRMat > & gradEnergyDot(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1322,7 +1351,7 @@ namespace moris
                 /*
                  * evaluates and returns the value of E' which is used in the evaluation of stress intensity factors
                  */
-                virtual moris::real get_e_prime(  )
+                virtual moris::real get_e_prime()
                 {
                     MORIS_ERROR( false, " Constitutive_Model::get_e_prime - This function does nothing. " );
                     return 0;

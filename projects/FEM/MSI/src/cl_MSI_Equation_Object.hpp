@@ -34,7 +34,6 @@ namespace moris
     namespace fem
     {
         class Cluster;
-
     }
     namespace vis
     {
@@ -93,46 +92,71 @@ namespace moris
             friend class fem::Element;
             friend class fem::Cluster;
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         public:
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * trivial constructor
+             */
             Equation_Object(){};
 
-            Equation_Object( Equation_Set * aElementBlock ) : mEquationSet( aElementBlock )
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             * @param[ in ] aElementBlock equation set pointer
+             */
+            Equation_Object( Equation_Set * aEquationSet )
+            : mEquationSet( aEquationSet )
             {};
 
-            //-------------------------------------------------------------------------------------------------
-            Equation_Object( const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs );
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             * @param[ in ] aNodeObjs master/slave list of fem nodes
+             */
+            Equation_Object( const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs )
+            : mNodeObj( aNodeObjs )
+            {}
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * trivial destructor
+             */
             virtual ~Equation_Object(){};
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * set time for equation object
+             * @param[ in ] aTime matrix with time values to set
+             */
             void set_time( Matrix< DDRMat > & aTime );
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * get time for equation object (from Equation model)
+             * @param[ in ] mTime matrix with time values
+             */
             Matrix< DDRMat > & get_time();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * get previous time for equation object (from Equation model)
+             * @param[ in ] mPreviousTime matrix with previous time values
+             */
             Matrix< DDRMat > & get_previous_time();
 
-            //-------------------------------------------------------------------------------------------------
-            Cell< Matrix< DDRMat > > & get_pdof_values( )
-            {
-                this->compute_my_pdof_values();
-
-                return mPdofValues;
-            };
-
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
-             * @brief Returns the number of nodes, elements and ghosts related to this equation object. This function is only for unit test purposes.
-             *
+             * get pdof values on equation object
+             * @param[ in ] mPdofValues list of matrices with pdof values
+             *                          (one matrix for each dof type)
+             */
+            Cell< Matrix< DDRMat > > & get_pdof_values();
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief return the number of nodes, elements and ghosts related to this equation object.
+             * This function is only for unit test purposes.
              */
             // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
             moris::uint get_num_pdof_hosts()
@@ -145,152 +169,165 @@ namespace moris
                 return tNumPdofHosts;
             }
 
-            //------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
              * @brief Returns the maximal pdof host (node) index of this equation object
-             *
              */
             moris::uint get_max_pdof_hosts_ind();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list.
-             *  This function is tested by the test [Eqn_Obj_create_pdof_host]
-             *
+             * create the pdof hosts for this equation object, if not created earlier
+             * put the pdof hosts into the local pdof host list
+             * This function is tested by the test [Eqn_Obj_create_pdof_host]
              * @param[in] aNumUsedDofTypes   Number of globally used dof types
-             * @param[in] aPdofTypeMap       Map which maps the dof type enum values to a consecutive list of dof type indices.
-             * @param[in] aPdofHostList      List of pdof hosts.
+             * @param[in] aPdofTypeMap       Map which maps the dof type enum values to
+             *                               a consecutive list of dof type indices
+             * @param[in] aPdofHostList      List of pdof hosts
              *
              */
             void create_my_pdof_hosts(
-                    const moris::uint                  aNumUsedDofTypes,
-                    const Matrix< DDSMat >           & aPdofTypeMap,
-                    const Matrix< DDUMat >           & aTimePerDofType,
+                    const moris::uint            aNumUsedDofTypes,
+                    const Matrix< DDSMat >     & aPdofTypeMap,
+                    const Matrix< DDUMat >     & aTimePerDofType,
                     moris::Cell< Pdof_Host * > & aPdofHostList );
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief This function creates a list of pdof pointers related to this equation object. This function is tested by the test [Eqn_Obj_create_my_pdof_list]
+             * @brief create a list of pdof pointers related to this equation object
+             * This function is tested by the test [Eqn_Obj_create_my_pdof_list]
              * [Dof_Mgn_create_unique_dof_type_map_matrix]
-             *
              */
             void create_my_pdof_list();
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
-             * @brief This function creates a unique list of adofs Ids corresponding to this equation object. This function is tested by the test [Eqn_Obj_create_my_list_of_adof_ids]
-             *
+             * @brief create a unique list of adofs Ids corresponding to this equation object
+             * This function is tested by the test [Eqn_Obj_create_my_list_of_adof_ids]
              */
             void create_my_list_of_adof_ids();
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
-             * @brief This function creates a map relating the adof ids to the positions for this equation object . This function is tested by the test [Eqn_Obj_create_adof_map]
-             *
+             * @brief create a map relating the adof ids to the positions for this equation object
+             *  This function is tested by the test [Eqn_Obj_create_adof_map]
              */
             void set_unique_adof_map();
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
-             * @brief This function creates a PADofMap witch can be used to for a calculation from pdofs to adofs . This function is tested by the test [Eqn_Obj_PADofMap]
-             *
+             * @brief create a PADofMap witch can be used to for a calculation from pdofs to adofs
+             * This function is tested by the test [Eqn_Obj_PADofMap]
              */
             void build_PADofMap( Matrix< DDRMat > & aPADofMap );
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > > & aPADofMap );
 
             void build_PADofMap_1( Matrix< DDRMat > & aPADofMap );
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief Compute function for the pdof values of this particular equation object
-             *
+             * @brief compute function for the pdof values of this particular equation object
              */
-            void compute_my_pdof_values( );
+            void compute_my_pdof_values();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief Compute function for the previous pdof values of this particular equation object
-             *
+             * @brief compute function for the previous pdof values of this particular equation object
              */
-            void compute_previous_pdof_values( );
+            void compute_previous_pdof_values();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief Compute function for the labda values
-             *
+             * @brief compute function for the adjoint values
              */
-            void compute_my_adjoint_values( );
+            void compute_my_adjoint_values();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief Compute function for the previous adjoint values
-             *
+             * @brief compute function for the previous adjoint values
              */
-            void compute_my_previous_adjoint_values( );
+            void compute_my_previous_adjoint_values();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * @brief Get function for the pdof values of this particular equation object.
+             * get the pdof values of this particular equation object.
              * get_my_pdof_values() has to be called first to initialize.
-             * @param[ in ] aPdofValues             All pdof values of this equation object
-             * @param[ in ] aRequestedDofTypes      List of requested dof types
-             * @param[ in ] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             * @param[ in ] aPdofValues           All pdof values of this equation object
+             * @param[ in ] aRequestedDofTypes    List of requested dof types
+             * @param[ in ] aRequestedPdofValues  Reference to the matrix of requested pdof values
              * @param[ in ] aIsMaster             enum for master or slave
              */
             void get_my_pdof_values(
-                    const moris::Cell< Matrix< DDRMat > >  & aPdofValues,
-                    const moris::Cell< enum Dof_Type >     & aRequestedDofTypes,
-                    Cell< Cell< Matrix< DDRMat > > >       & aRequestedPdofValues,
-                    const mtk::Master_Slave                  aIsMaster = mtk::Master_Slave::MASTER );
+                    const moris::Cell< Matrix< DDRMat > > & aPdofValues,
+                    const moris::Cell< enum Dof_Type >    & aRequestedDofTypes,
+                    Cell< Cell< Matrix< DDRMat > > >      & aRequestedPdofValues,
+                    const mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * reshape the pdof values of this equation object
+             * @param[ in ] aPdofValues           list of matrices with pdof values
+             *                                    (one matrix per dof type)
+             * @param[ in ] aReshapedPdofValues   matrix with pdof values
+             *                                    (one column per dof type)
+             */
             void reshape_pdof_values(
                     const Cell< Matrix< DDRMat > > & aPdofValues,
-                    Matrix< DDRMat >         & aReshapedPdofValues );
+                    Matrix< DDRMat >               & aReshapedPdofValues );
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * FIXME doc????
+             */
             void set_vector_entry_number_of_pdof();
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * get jacobian for equation object
+             * @param[ in ] aEqnObjMatrix matrix to fill with jacobian on equation object
+             */
             void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix );
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * get residual on equation object
+             * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
+             */
             void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
+            //------------------------------------------------------------------------------
+            /**
+             * get additional residual for staggered case on equation object
+             * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
+             */
             void get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
+            //------------------------------------------------------------------------------
+            /**
+             * get off-diagonal residual on equation object
+             * @param[ in ] aEqnObjRHS list of matrices to fill with off-diagonal RHS on equation object
+             */
             void get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
-
+            /**
+             * get jacobian and residual on equation object
+             * @param[ in ] aEqnObjMatrix matrix to fill with jacobian on equation object
+             * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
+             */
             void get_egn_obj_jacobian_and_residual(
                     Matrix< DDRMat >         & aEqnObjMatrix,
                     Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
-
+            /**
+             * add staggered contribution to residual
+             * @param[ in ] aElementResidual ???
+             */
             void add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > > & aElementResidual );
-
-            //-------------------------------------------------------------------------------------------------
-            //            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
-            //            {
-            //                aEqnObjAdofId = mUniqueAdofList;
-            //            };
 
             //-------------------------------------------------------------------------------------------------
             void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId );
@@ -310,89 +347,99 @@ namespace moris
             }
 
             //-------------------------------------------------------------------------------------------------
-
+            /**
+             * compute jacobian on equation object
+             */
             virtual void compute_jacobian()
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_jacobian - not implemented in msi." );
             }
 
             //-------------------------------------------------------------------------------------------------
-
+            /**
+             * compute residual on equation object
+             */
             virtual void compute_residual()
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_residual - not implemented in msi." );
             }
 
             //-------------------------------------------------------------------------------------------------
-
+            /**
+             * compute jacobian and residual on equation object
+             */
             virtual void compute_jacobian_and_residual()
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_jacobian_and_residual - not implemented in msi." );
             }
 
             //------------------------------------------------------------------------------
             /**
-             * compute dRdp
+             * compute dRdp on equation object
              */
             virtual void compute_dRdp()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dRdp - not implemented in msi." );
-            };
+            }
 
             //------------------------------------------------------------------------------
             /**
-             * compute dQIdp with finite difference
+             * compute dQIdp explicit on equation object
              */
             virtual void compute_dQIdp_explicit()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit - not implemented in msi." );
-            };
+            }
 
             //------------------------------------------------------------------------------
             /**
-             * compute dQIdp
+             * compute dQIdp implicit on equation object
              */
             virtual void compute_dQIdp_implicit()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
-            };
+            }
 
             //------------------------------------------------------------------------------
             /**
-             * compute dQIdu
+             * compute dQIdu on equation object
              */
             virtual void compute_dQIdu()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdu - not implemented in msi." );
-            };
+            }
 
             //------------------------------------------------------------------------------
             /**
-             * compute QI
+             * compute QI on equation object
              */
             virtual void compute_QI()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_QI - not implemented in msi." );
             };
 
-            //-------------------------------------------------------------------------------------------------
-
-            virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
+            //------------------------------------------------------------------------------
+            /**
+             * compute integration error
+             */
+            virtual moris::real compute_integration_error(
+                    moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_integration_error - not implemented in msi." );
                 return 0.0;
             }
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * compute element average of scalar field
+             */
             virtual moris::real compute_element_average_of_scalar_field()
             {
-                MORIS_ERROR( false, "this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::compute_element_average_of_scalar_field - not implemented in msi." );
                 return 0.0;
             }
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
              * return Neumann boundary conditions, writable version
              */
@@ -401,7 +448,7 @@ namespace moris
                 return mNodalWeakBCs;
             }
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * return Neumann boundary conditions, const version
              */
@@ -410,58 +457,55 @@ namespace moris
                 return mNodalWeakBCs;
             }
 
-            ////-------------------------------------------------------------------------------------------------
-            //            /**
-            //             * set the list of side ordinals
-            //             */
-            //            void set_list_of_side_ordinals( const Matrix< IndexMat > & aListOfSideOrdinals )
-            //            {
-            //                mListOfSideOrdinals = aListOfSideOrdinals;
-            //            }
-            //
-            ////-------------------------------------------------------------------------------------------------
-            //            /**
-            //             * set the list of time ordinals
-            //             */
-            //            void set_list_of_time_ordinals( const Matrix< IndexMat > & aListOfTimeOrdinals )
-            //            {
-            //                mListOfTimeOrdinals = aListOfTimeOrdinals;
-            //            }
-
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
             /**
-             * how many nodes are connected to this element
+             * return how many nodes are connected to this element
              */
             uint get_num_nodes() const
             {
                 return mNodeObj( 0 ).size();
             }
 
-            //-------------------------------------------------------------------------------------------------
-
-            virtual moris::real get_element_nodal_pdof_value( moris_index   aVertexIndex,
-                                                              moris::Cell< MSI::Dof_Type > aDofType )
+            //------------------------------------------------------------------------------
+            /**
+             * get nodal pdof value
+             * @param[ in ] aVertexIndex index for nodal value to get
+             * @param[ in ] aDofType     list of dof type to get
+             */
+            virtual moris::real get_element_nodal_pdof_value(
+                    moris_index                  aVertexIndex,
+                    moris::Cell< MSI::Dof_Type > aDofType )
             {
-                MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing");
+                MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing" );
                 return 0.0;
             }
 
-            //-------------------------------------------------------------------------------------------------
-
+            //------------------------------------------------------------------------------
+            /**
+             * set visualization cluster
+             * @param[ in ] aVisMeshCluster mesh cluster pointer to set
+             */
             virtual void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
             {
-                MORIS_ASSERT( false, "set_visualization_cluster(), not implemented for base class." );
+                MORIS_ASSERT( false, "Equation_Object::set_visualization_cluster() - not implemented for base class." );
             }
 
-            //-------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+            /**
+             * compute quantity of interest
+             * @param[ in ] aMeshIndex mesh index to specify on which visualization mesh to compute QI
+             * @param[ in ] aQIName    name of QI to compute
+             * @param[ in ]aFieldType  enum for computation type (GLOBAL,NODAL,ELEMENTAL,...)
+             */
             virtual void compute_quantity_of_interest( 
-				        const uint             aMeshIndex,
-                        const std::string    & aQIName,
-                        enum vis::Field_Type   aFieldType)
+                    const uint             aMeshIndex,
+                    const std::string    & aQIName,
+                    enum vis::Field_Type   aFieldType )
             {
-                MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class." );
+                MORIS_ASSERT( false, "Equation_Object::compute_quantity_of_interest() - not implemented for base class." );
             }
+
+            //------------------------------------------------------------------------------
         };
     }
 }

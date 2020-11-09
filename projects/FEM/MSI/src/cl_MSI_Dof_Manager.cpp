@@ -583,7 +583,7 @@ namespace moris
                 {
                     MORIS_ASSERT( aListSharedAdofIds( Ij ).max() != MORIS_UINT_MAX,
                             "Dof_Manager::communicate_shared_adof_ids(), communicated Ids not set correctly");
-                    
+
                     MORIS_ASSERT( aListSharedAdofPos( Ij ).max() != MORIS_UINT_MAX,
                             "Dof_Manager::communicate_shared_adof_ids(), positions for communicated Ids not set correctly");
                 }
@@ -914,18 +914,22 @@ namespace moris
         {
             Matrix< DDSMat > tLocalAdofIds ( mNumOwnedAdofs, 1, -1 );
 
-            uint tCounter = 0;
-
-            for ( moris::uint Ij = 0; Ij < mAdofListOwned.size(); Ij++ )
+            // check for empty matrix
+            if ( mNumOwnedAdofs > 0 )
             {
-                for ( moris::uint Ik = 0; Ik < mAdofListOwned( Ij ).size(); Ik++ )
-                {
-                    tLocalAdofIds( tCounter++ ) = mAdofListOwned( Ij )( Ik )->get_adof_id();
-                }
-            }
+                uint tCounter = 0;
 
-            MORIS_ASSERT( tLocalAdofIds.min() != -1,
-                    "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
+                for ( moris::uint Ij = 0; Ij < mAdofListOwned.size(); Ij++ )
+                {
+                    for ( moris::uint Ik = 0; Ik < mAdofListOwned( Ij ).size(); Ik++ )
+                    {
+                        tLocalAdofIds( tCounter++ ) = mAdofListOwned( Ij )( Ik )->get_adof_id();
+                    }
+                }
+
+                MORIS_ASSERT( tLocalAdofIds.min() != -1,
+                        "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
+            }
 
             return tLocalAdofIds;
         }
@@ -1112,13 +1116,16 @@ namespace moris
         {
             Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1, -1 );
 
-            for ( moris::uint Ij = 0; Ij < mAdofList.size(); Ij++ )
+            // check for empty matrix
+            if ( mAdofList.size() > 0 )
             {
-                tLocalAdofIds( Ij, 0 ) = mAdofList( Ij )->get_adof_id();
+                for ( moris::uint Ij = 0; Ij < mAdofList.size(); Ij++ )
+                {
+                    tLocalAdofIds( Ij, 0 ) = mAdofList( Ij )->get_adof_id();
+                }
+
+                MORIS_ASSERT( tLocalAdofIds.min() != -1, "Dof_Manager::get_local_overlapping_adof_ids(): Overlapping Adof Id list not initialized correctly ");
             }
-
-            MORIS_ASSERT( tLocalAdofIds.min() != -1, "Dof_Manager::get_local_overlapping_adof_ids(): Overlapping Adof Id list not initialized correctly ");
-
             return tLocalAdofIds;
         }
 

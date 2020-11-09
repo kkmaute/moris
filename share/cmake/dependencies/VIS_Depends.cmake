@@ -22,6 +22,7 @@ include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 
 # needed includes for test
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
