@@ -45,11 +45,13 @@ namespace moris
             Dist_Vector *create_vector(
                     moris::Solver_Interface *aInput,
                     Dist_Map* aMap,
-                    const sint aNumVectors = 1);
+                    const sint aNumVectors = 1,
+                    bool aManageMap = false);
     
             Dist_Vector *create_vector(
                     Dist_Map* aMap,
-                    const sint aNumVectors = 1);
+                    const sint aNumVectors = 1,
+                    bool aManageMap = false);
 
             /**
              * Creates a distributed vector/matrix map

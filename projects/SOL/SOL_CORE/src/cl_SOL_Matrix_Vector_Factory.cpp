@@ -90,18 +90,19 @@ namespace moris
         Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
                 Solver_Interface * aInput,
                 Dist_Map* aMap,
-                const sint                      aNumVectors )
+                const sint aNumVectors,
+                bool aManageMap )
         {
             Dist_Vector * tDistVector = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors );
+                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aManageMap );
                     break;
                 case (MapType::Petsc):
                     MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
-                    tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
+                    tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors, aManageMap );
                     break;
                 default:
                     MORIS_ERROR( false, "No vector type specified." );
@@ -112,14 +113,15 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
         Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
                 Dist_Map* aMap,
-                const sint aNumVectors )
+                const sint aNumVectors,
+                bool aManageMap)
         {
             Dist_Vector * tDistVector = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors );
+                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aManageMap );
                     break;
                     //    case (MapType::Petsc):
                     //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");

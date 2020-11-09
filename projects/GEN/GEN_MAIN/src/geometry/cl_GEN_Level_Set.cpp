@@ -112,8 +112,8 @@ namespace moris
             sol::Matrix_Vector_Factory tDistributedFactory;
             sol::Dist_Map* tOwnedNodeMap = tDistributedFactory.create_map(tOwnedNodeIDs);
             sol::Dist_Map* tSharedNodeMap = tDistributedFactory.create_map(tSharedNodeIDs);
-            mOwnedNodalValues = tDistributedFactory.create_vector(tOwnedNodeMap);
-            mSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap);
+            mOwnedNodalValues = tDistributedFactory.create_vector(tOwnedNodeMap, 1, true);
+            mSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap, 1, true);
 
             // Import ADVs and assign nodal values
             this->import_advs(aOwnedADVs);

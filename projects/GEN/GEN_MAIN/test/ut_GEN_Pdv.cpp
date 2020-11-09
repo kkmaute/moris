@@ -50,7 +50,7 @@ namespace moris
 
         // IQI sensitivity vector
         sol::Dist_Map* tPDVMap = tDistributedFactory.create_map(tOwnedPDVIds);
-        sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector(tPDVMap, 2);
+        sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector(tPDVMap, 2, true);
 
         // Fill values
         if (par_rank() == 0)

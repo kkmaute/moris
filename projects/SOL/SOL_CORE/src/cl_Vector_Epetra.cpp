@@ -14,7 +14,8 @@ using namespace moris;
 
 Vector_Epetra::Vector_Epetra(
         sol::Dist_Map*  aMapClass,
-        const sint        aNumVectors ) : sol::Dist_Vector( aMapClass )
+        const sint      aNumVectors,
+        bool            aManageMap) : sol::Dist_Vector( aMapClass, aManageMap )
 {
     mNumVectors = aNumVectors;
 

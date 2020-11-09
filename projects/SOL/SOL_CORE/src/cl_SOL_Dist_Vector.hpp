@@ -44,6 +44,7 @@ namespace moris
 
             Epetra_Import* mImporter = nullptr;
             Dist_Map* mMap;
+            bool mManageMap;
             moris::sint    mNumVectors = 1;
 
         public:
@@ -53,7 +54,7 @@ namespace moris
              *
              * @param aMapClass Distributed vector map
              */
-            Dist_Vector( sol::Dist_Map* aMapClass );
+            Dist_Vector( sol::Dist_Map* aMapClass, bool aManageMap );
 
             /**
              * Destructor (deletes map if desired)

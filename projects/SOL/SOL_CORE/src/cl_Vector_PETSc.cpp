@@ -16,9 +16,10 @@ using namespace moris;
 
 Vector_PETSc::Vector_PETSc(
         moris::Solver_Interface * aInput,
-        sol::Dist_Map*  aMap,
-        const sint                aNumVectors )
-: moris::sol::Dist_Vector( aMap )
+        sol::Dist_Map*            aMap,
+        const sint                aNumVectors,
+        bool                      aManageMap)
+: moris::sol::Dist_Vector( aMap, aManageMap )
 {
     //PetscScalar    tZero = 0;
     //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();

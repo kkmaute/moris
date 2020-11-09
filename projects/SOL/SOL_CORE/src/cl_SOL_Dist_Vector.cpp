@@ -8,7 +8,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Dist_Vector::Dist_Vector( Dist_Map* aMapClass ): mMap( aMapClass )
+        Dist_Vector::Dist_Vector( Dist_Map* aMapClass, bool aManageMap )
+                : mMap( aMapClass ),
+                  mManageMap(aManageMap)
         {
         }
 
@@ -16,6 +18,10 @@ namespace moris
 
         Dist_Vector::~Dist_Vector()
         {
+            if (mManageMap)
+            {
+                delete mMap;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

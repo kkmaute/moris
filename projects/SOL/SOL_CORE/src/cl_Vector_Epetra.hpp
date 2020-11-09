@@ -35,7 +35,8 @@ namespace moris
     public:
 
         Vector_Epetra(       sol::Dist_Map*  aMapClass,
-                       const sint              aNumVectors );
+                       const sint            aNumVectors,
+                             bool            aManageMap = false);
 
         /** Destructor */
         ~Vector_Epetra();

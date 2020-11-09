@@ -509,8 +509,8 @@ namespace moris
 
             // Create vectors
             sint tNumIQIs = tdIQIdPDV->get_num_vectors();
-            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs);
-            sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs);
+            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs, true);
+            sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs, true);
 
             // Initialize to zero
             tdIQIdADV->vec_put_scalar(0.0);
