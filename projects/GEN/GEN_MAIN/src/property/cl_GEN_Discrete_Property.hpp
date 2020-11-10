@@ -2,13 +2,13 @@
 #define MORIS_CL_GEN_DISCRETE_PROPERTY_HPP
 
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_Field_Discrete.hpp"
+#include "cl_GEN_Field_Discrete_Integration.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Discrete_Property : public Property, public Field_Discrete
+        class Discrete_Property : public Property, public Field_Discrete_Integration
         {
         public:
 

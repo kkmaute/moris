@@ -307,6 +307,7 @@ namespace moris
                         tADVIndices,
                         tConstantParameters,
                         aFieldDependencies,
+                        nullptr,
                         tPropertyName);
             }
             else if (tPropertyType == "discrete")

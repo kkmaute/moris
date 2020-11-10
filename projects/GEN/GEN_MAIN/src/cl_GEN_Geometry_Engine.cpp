@@ -707,16 +707,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::finalize_fields( mtk::Interpolation_Mesh* aMesh )
-        {
-//            for( auto tGeometry : mGeometries )
-//            {
-//                tGeometry->set_mesh( aMesh );
-//            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Register spatial dimension

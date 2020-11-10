@@ -59,10 +59,6 @@ namespace moris
             }
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-
-            mPerformerManager->mGENPerformer( 0 )->finalize_fields(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
-
             mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
@@ -83,9 +79,6 @@ namespace moris
 
             // Stage 2: XTK -----------------------------------------------------------------------------
             mPerformerManager->create_xtk();
-
-            mPerformerManager->mGENPerformer( 0 )->finalize_fields(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(

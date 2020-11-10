@@ -30,7 +30,7 @@ namespace moris
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  Field_Discrete(aADVs.length())
+                  Field_Discrete_Integration(aADVs.length())
         {
             mSensitivities = {{1.0}};
         }
@@ -60,7 +60,7 @@ namespace moris
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  Field_Discrete(aOwnedADVs->vec_local_length())
+                  Field_Discrete_Integration(aOwnedADVs->vec_local_length())
         {
             mSensitivities = {{1.0}};
         }

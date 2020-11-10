@@ -2,7 +2,7 @@
 #define MORIS_CL_GEN_LEVEL_SET_HPP
 
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Field_Discrete.hpp"
+#include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
@@ -11,7 +11,7 @@ namespace moris
     namespace ge
     {
 
-        class Level_Set : public Geometry, public Field_Discrete
+        class Level_Set : public Geometry, public Field_Discrete_Integration
         {
 
         private:

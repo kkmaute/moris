@@ -37,7 +37,7 @@ namespace moris
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  Field_Discrete(aMesh->get_num_nodes()),
+                  Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mMesh(aMesh)
         {
             // Check that number of variables equals the number of B-spline coefficients
@@ -62,7 +62,7 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
-                  Field_Discrete(aMesh->get_num_nodes()),
+                  Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mMesh(aMesh)
         {
             // Map to B-splines
