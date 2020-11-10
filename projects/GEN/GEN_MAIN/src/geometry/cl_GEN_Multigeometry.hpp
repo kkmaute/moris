@@ -42,7 +42,7 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Matrix of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(
+            const Matrix<DDRMat>& get_field_sensitivities(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 

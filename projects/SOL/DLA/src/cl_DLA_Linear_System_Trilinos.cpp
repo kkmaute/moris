@@ -82,8 +82,8 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 //----------------------------------------------------------------------------------------
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
                                                 sol::SOL_Warehouse       * aSolverWarehouse,
-                                                std::shared_ptr<sol::Dist_Map>  aFreeMap,
-                                                std::shared_ptr<sol::Dist_Map>  aFullMap ) : moris::dla::Linear_Problem( aInput )
+                                                sol::Dist_Map*  aFreeMap,
+                                                sol::Dist_Map*  aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         mTplType = sol::MapType::Epetra;
         mSolverWarehouse = aSolverWarehouse;
@@ -118,6 +118,9 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
 
     delete mFullVectorLHS;
     mFullVectorLHS=nullptr;
+
+    delete mMap;
+    delete mMapFree;
 }
 
 //------------------------------------------------------------------------------------------

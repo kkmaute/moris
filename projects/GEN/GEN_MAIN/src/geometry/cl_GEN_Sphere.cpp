@@ -105,7 +105,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Sphere::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Sphere::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -113,17 +113,16 @@ namespace moris
             real tZCenter = *(mFieldVariables(2));
 
             // Calculate sensitivities
-            Matrix<DDRMat> tSensitivities(1, 4);
             real tConstant = sqrt(pow(aCoordinates(0) - tXCenter, 2)
                     + pow(aCoordinates(1) - tYCenter, 2)
                     + pow(aCoordinates(2) - tZCenter, 2));
             tConstant = tConstant ? 1 / tConstant : 0.0;
-            tSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
-            tSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
-            tSensitivities(2) = tConstant * (tZCenter - aCoordinates(2));
-            tSensitivities(3) = -1;
+            mSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
+            mSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
+            mSensitivities(2) = tConstant * (tZCenter - aCoordinates(2));
+            mSensitivities(3) = -1;
 
-            return tSensitivities;
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

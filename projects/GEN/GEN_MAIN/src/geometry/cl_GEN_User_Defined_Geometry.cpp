@@ -100,11 +100,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> User_Defined_Geometry::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& User_Defined_Geometry::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            Matrix<DDRMat> tSensitivities(0, 0);
-            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, tSensitivities);
-            return tSensitivities;
+            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, mSensitivities);
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -123,29 +122,30 @@ namespace moris
             // Set sensitivity evaluation function
             if (aSensitivityEvaluationFunction == nullptr)
             {
+                // Sensitivity function was not provided
                 get_field_sensitivities_user_defined = &(User_Defined_Geometry::no_sensitivities);
             }
             else
             {
+                // Sensitivity function was provided
                 get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
 
                 // Check sensitivity function
-                Matrix<DDRMat> tSensitivities(0, 0);
-                this->get_field_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, tSensitivities);
+                this->get_field_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, mSensitivities);
 
                 // Check for row vector
-                MORIS_ERROR(tSensitivities.n_rows() == 1,
+                MORIS_ERROR(mSensitivities.n_rows() == 1,
                         "A user-defined geometry must provide a row vector for sensitivities.");
 
                 // Check for size
-                MORIS_ERROR(tSensitivities.n_cols() == mFieldVariables.size(),
+                MORIS_ERROR(mSensitivities.n_cols() == mFieldVariables.size(),
                         "A user-defined geometry must have a sensitivity vector with a length equal to the total "
                         "number of geometry variables (ADVs + constant parameters).");
 
                 // Check for values not nan/infinity
-                for (uint tSensitivityIndex = 0; tSensitivityIndex < tSensitivities.n_cols(); tSensitivityIndex++)
+                for (uint tSensitivityIndex = 0; tSensitivityIndex < mSensitivities.n_cols(); tSensitivityIndex++)
                 {
-                    MORIS_ERROR(std::isfinite(tSensitivities(tSensitivityIndex)),
+                    MORIS_ERROR(std::isfinite(mSensitivities(tSensitivityIndex)),
                             "There is an error in a user-defined geometry sensitivity (evaluates to nan/infinity).");
                 }
             }

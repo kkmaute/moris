@@ -80,11 +80,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> User_Defined_Property::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& User_Defined_Property::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            Matrix<DDRMat> tSensitivities;
-            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, tSensitivities);
-            return tSensitivities;
+            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, mSensitivities);
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

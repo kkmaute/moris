@@ -101,11 +101,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Circle::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Circle::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            // Initialize
-            Matrix<DDRMat> tSensitivities(1, 3);
-
             // Get variables
             real tXCenter = *(mFieldVariables(0));
             real tYCenter = *(mFieldVariables(1));
@@ -113,11 +110,11 @@ namespace moris
             // Calculate sensitivities
             real tConstant = sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2));
             tConstant = tConstant ? 1 / tConstant : 0.0;
-            tSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
-            tSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
-            tSensitivities(2) = -1.0;
+            mSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
+            mSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
+            mSensitivities(2) = -1.0;
 
-            return tSensitivities;
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

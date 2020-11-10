@@ -8,7 +8,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Dist_Vector::Dist_Vector( std::shared_ptr<Dist_Map> aMapClass ): mMap( aMapClass )
+        Dist_Vector::Dist_Vector( Dist_Map* aMapClass, bool aManageMap )
+                : mMap( aMapClass ),
+                  mManageMap(aManageMap)
         {
         }
 
@@ -16,11 +18,15 @@ namespace moris
 
         Dist_Vector::~Dist_Vector()
         {
+            if (mManageMap)
+            {
+                delete mMap;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<sol::Dist_Map> Dist_Vector::Dist_Vector::get_map()
+        sol::Dist_Map* Dist_Vector::Dist_Vector::get_map()
         {
             return mMap;
         }

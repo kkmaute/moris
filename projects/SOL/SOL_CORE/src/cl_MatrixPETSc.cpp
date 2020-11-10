@@ -24,7 +24,7 @@ using namespace moris;
 
 Matrix_PETSc::Matrix_PETSc(       
         moris::Solver_Interface    * aInput,
-        std::shared_ptr<sol::Dist_Map>  aMap )
+        sol::Dist_Map*  aMap )
 : sol::Dist_Matrix( aMap )
 {
     moris::uint aNumMyDofs = aInput->get_my_local_global_map().numel();

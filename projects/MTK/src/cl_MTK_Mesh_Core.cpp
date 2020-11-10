@@ -396,6 +396,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        uint Mesh::get_base_node_index(uint aNodeIndex)
+        {
+            return this->get_mtk_vertex(aNodeIndex).get_base_vertex()->get_index();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Cell  &
         Mesh::get_writable_mtk_cell( moris_index aElementIndex )
         {

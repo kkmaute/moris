@@ -2,14 +2,14 @@
 #define MORIS_CL_GEN_STORED_GEOMETRY_HPP
 
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Field_Discrete.hpp"
+#include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Stored_Geometry : public Geometry, public Field_Discrete
+        class Stored_Geometry : public Geometry, public Field_Discrete_Integration
         {
 
         private:
@@ -41,7 +41,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Matrix of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
+            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex);
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.

@@ -7,24 +7,16 @@
 
 namespace moris
 {
-    namespace mtk
-    {
-        class Interpolation_Mesh;
-    }
     namespace ge
     {
         class Field
         {
+
         protected:
-            Cell<real*> mFieldVariables;
-
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
-
-            uint mNumOriginalNodes;
-            mtk::Interpolation_Mesh* mMesh = nullptr;
+            Cell<real*>    mFieldVariables;
+            Matrix<DDRMat> mSensitivities;
 
         private:
-
             sol::Dist_Vector* mSharedADVs = nullptr;
             Matrix<DDRMat>    mConstantParameters;
             Matrix<DDSMat>    mDeterminingADVIds;
@@ -36,7 +28,6 @@ namespace moris
             sint              mBSplineMeshIndex;
             real              mBSplineLowerBound;
             real              mBSplineUpperBound;
-
 
         protected:
 
@@ -87,8 +78,8 @@ namespace moris
                   Matrix<DDUMat>    aADVIndices,
                   Matrix<DDRMat>    aConstantParameters,
                   std::string       aName,
-                  Matrix<DDSMat>  aNumRefinements,
-                  Matrix<DDSMat>  aRefinementMeshIndices,
+                  Matrix<DDSMat>    aNumRefinements,
+                  Matrix<DDSMat>    aRefinementMeshIndices,
                   sint              aRefinementFunctionIndex,
                   sint              aBSplineMeshIndex,
                   real              aBSplineLowerBound,
@@ -107,8 +98,8 @@ namespace moris
 
             Field(const Matrix<DDSMat>& aSharedADVIds,
                   std::string           aName,
-                  Matrix<DDSMat>  aNumRefinements,
-                  Matrix<DDSMat>  aRefinementMeshIndices,
+                  Matrix<DDSMat>        aNumRefinements,
+                  Matrix<DDSMat>        aRefinementMeshIndices,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
                   real                  aBSplineLowerBound,
@@ -167,7 +158,7 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Matrix of sensitivities
              */
-            virtual Matrix<DDRMat> get_field_sensitivities(
+            virtual const Matrix<DDRMat>& get_field_sensitivities(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
@@ -265,8 +256,6 @@ namespace moris
              * @return Upper bound
              */
             real get_bspline_upper_bound();
-
-            void set_mesh( mtk::Interpolation_Mesh* aMesh);
 
         private:
 

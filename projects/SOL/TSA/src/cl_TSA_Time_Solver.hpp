@@ -57,7 +57,7 @@ namespace tsa
 
         moris::Cell< moris::Matrix< DDRMat > > mTimeFrames;
 
-        std::shared_ptr<sol::Dist_Map>  mFullMap = nullptr;
+        sol::Dist_Map*  mFullMap = nullptr;
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;

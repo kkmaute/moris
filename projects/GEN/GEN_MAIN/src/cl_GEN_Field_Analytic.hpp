@@ -23,7 +23,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Field value
              */
-            real get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(
+                    uint aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, returns the field value
@@ -40,7 +42,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Matrix of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& get_field_sensitivities(
+                    uint aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, returns a matrix of all sensitivities
@@ -48,7 +52,7 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Matrix of sensitivities
              */
-            virtual Matrix<DDRMat> get_field_sensitivities(const Matrix<DDRMat>& aCoordinates) = 0;
+            virtual const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates) = 0;
 
         };
     }

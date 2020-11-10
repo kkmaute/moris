@@ -26,62 +26,60 @@ namespace moris
     {
         class Linear_Problem
         {
-            private:
+        private:
 
-            protected:
+        protected:
+            sol::Dist_Matrix   * mMat           = nullptr;
+            sol::Dist_Vector   * mVectorRHS     = nullptr;
+            sol::Dist_Vector   * mFreeVectorLHS = nullptr;
+            sol::Dist_Vector   * mFullVectorLHS = nullptr;
+            sol::Dist_Map*  mMap           = nullptr;
+            sol::Dist_Map*  mMapFree       = nullptr;
 
-                sol::Dist_Matrix   * mMat           = nullptr;
-                sol::Dist_Vector   * mVectorRHS     = nullptr;
-                sol::Dist_Vector   * mFreeVectorLHS = nullptr;
-                sol::Dist_Vector   * mFullVectorLHS = nullptr;
+            Solver_Interface * mSolverInterface = nullptr;
 
-                std::shared_ptr<sol::Dist_Map>  mMap           = nullptr;
-                std::shared_ptr<sol::Dist_Map>  mMapFree       = nullptr;
+            //! Pointer to solver database
+            sol::SOL_Warehouse * mSolverWarehouse = nullptr;
 
-                Solver_Interface * mSolverInterface = nullptr;
+            moris::real mCondEstimate;
 
-                //! Pointer to solver database
-                sol::SOL_Warehouse * mSolverWarehouse = nullptr;
+            enum sol::MapType mTplType = sol::MapType::Epetra;
 
-                moris::real mCondEstimate;
+        public:
+            Linear_Problem( Solver_Interface * aInput )
+            : mMat(NULL),
+              mVectorRHS(NULL),
+              mFreeVectorLHS(nullptr),
+              mMap(NULL),
+              mSolverInterface( aInput )
+            {};
 
-                enum sol::MapType mTplType = sol::MapType::Epetra;
+            virtual ~Linear_Problem(){};
 
-            public:
-                Linear_Problem( Solver_Interface * aInput )
-                : mMat(NULL),
-                  mVectorRHS(NULL),
-                  mFreeVectorLHS(nullptr),
-                  mMap(NULL),
-                  mSolverInterface( aInput )
-                {};
+            void assemble_residual_and_jacobian(  );
+            void assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector );
+            void assemble_residual();
+            void assemble_jacobian();
 
-                virtual ~Linear_Problem(){};
+            void assemble_staggered_residual_contribution();
 
-                void assemble_residual_and_jacobian(  );
-                void assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector );
-                void assemble_residual();
-                void assemble_jacobian();
+            void compute_residual_for_adjoint_solve();
 
-                void assemble_staggered_residual_contribution();
+            virtual moris::sint solve_linear_system() = 0;
 
-                void compute_residual_for_adjoint_solve();
+            sol::Dist_Vector * get_free_solver_LHS() { return mFreeVectorLHS; };
 
-                virtual moris::sint solve_linear_system() = 0;
+            void set_free_solver_LHS( sol::Dist_Vector * aFullSolVector);
 
-                sol::Dist_Vector * get_free_solver_LHS() { return mFreeVectorLHS; };
+            sol::Dist_Vector * get_full_solver_LHS();
 
-                void set_free_solver_LHS( sol::Dist_Vector * aFullSolVector);
+            sol::Dist_Vector * get_solver_RHS() { return mVectorRHS; };
 
-                sol::Dist_Vector * get_full_solver_LHS();
+            sol::Dist_Matrix * get_matrix() { return mMat; };
 
-                sol::Dist_Vector * get_solver_RHS() { return mVectorRHS; };
+            Solver_Interface * get_solver_input() const { return mSolverInterface; };
 
-                sol::Dist_Matrix * get_matrix() { return mMat; };
-
-                Solver_Interface * get_solver_input() const { return mSolverInterface; };
-
-                virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
+            virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
         };
     }
 }

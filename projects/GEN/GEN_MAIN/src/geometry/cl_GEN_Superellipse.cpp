@@ -144,7 +144,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Superellipse::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Superellipse::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter        = *(mFieldVariables(0));
@@ -157,29 +157,27 @@ namespace moris
 
             // Constant in all calculations
             real tConstant0 = pow(
-                    pow((aCoordinates(0) - tXCenter)/tXSemidiameter,tExponent) +
-                    pow((aCoordinates(1) - tYCenter)/tYSemidiameter,tExponent) +
-                    pow( tRegularization                           ,tExponent),(1.0/tExponent - 1.0));
+                    pow((aCoordinates(0) - tXCenter)/tXSemidiameter, tExponent) +
+                    pow((aCoordinates(1) - tYCenter)/tYSemidiameter, tExponent) +
+                    pow( tRegularization                           , tExponent), (1.0 / tExponent - 1.0));
 
             real tConstant1 = pow((aCoordinates(0) - tXCenter)/tXSemidiameter,tExponent - 1.0);
             real tConstant2 = pow((aCoordinates(1) - tYCenter)/tYSemidiameter,tExponent - 1.0);
 
             // Calculate sensitivities
-            Matrix<DDRMat> tSensitivities(1, 8);
+            mSensitivities(0) = -tScaling*tConstant1*tConstant0/tXSemidiameter;
+            mSensitivities(1) = -tScaling*tConstant2*tConstant0/tYSemidiameter;
 
-            tSensitivities(0) = -tScaling*tConstant1*tConstant0/tXSemidiameter;
-            tSensitivities(1) = -tScaling*tConstant2*tConstant0/tYSemidiameter;
-
-            tSensitivities(2) = -tScaling*(aCoordinates(0) - tXCenter)*tConstant1*tConstant0/pow(tXSemidiameter,2.0);
-            tSensitivities(3) = -tScaling*(aCoordinates(1) - tYCenter)*tConstant2*tConstant0/pow(tYSemidiameter,2.0);
+            mSensitivities(2) = -tScaling*(aCoordinates(0) - tXCenter)*tConstant1*tConstant0/pow(tXSemidiameter,2.0);
+            mSensitivities(3) = -tScaling*(aCoordinates(1) - tYCenter)*tConstant2*tConstant0/pow(tYSemidiameter,2.0);
 
             // the reminder sensitivities are typically not used and therefore not calculated
-            tSensitivities(4) = MORIS_REAL_MAX;
-            tSensitivities(5) = MORIS_REAL_MAX;
-            tSensitivities(6) = MORIS_REAL_MAX;
-            tSensitivities(7) = MORIS_REAL_MAX;
+            mSensitivities(4) = MORIS_REAL_MAX;
+            mSensitivities(5) = MORIS_REAL_MAX;
+            mSensitivities(6) = MORIS_REAL_MAX;
+            mSensitivities(7) = MORIS_REAL_MAX;
 
-            return tSensitivities;
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

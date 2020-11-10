@@ -81,8 +81,8 @@ namespace moris
             // Distributed ADVs
             sol::Matrix_Vector_Factory tDistributedFactory;
             Matrix<DDSMat> tADVIds = {{0}, {1}, {2}, {3}, {4}};
-            std::shared_ptr<sol::Dist_Map> tADVMap = tDistributedFactory.create_map(tADVIds);
-            sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector(tADVMap);
+            sol::Dist_Map* tADVMap = tDistributedFactory.create_map(tADVIds);
+            sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector(tADVMap, 1, true);
 
             // Define circles
             std::shared_ptr<Geometry> tCircle1;
