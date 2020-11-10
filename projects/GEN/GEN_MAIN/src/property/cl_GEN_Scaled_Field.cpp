@@ -14,8 +14,8 @@ namespace moris
                 Matrix<DDRMat>               aConstantParameters,
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
                 std::string                  aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndices,
+                Matrix<DDSMat>               aNumRefinements,
+                Matrix<DDSMat>               aRefinementMeshIndices,
                 sint                         aRefinementFunctionIndex,
                 sint                         aBSplineMeshIndex,
                 real                         aBSplineLowerBound,
@@ -47,9 +47,10 @@ namespace moris
                 Matrix<DDUMat>               aADVIndices,
                 Matrix<DDRMat>               aConstantParameters,
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
+                mtk::Mesh*                   aMesh,
                 std::string                  aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndices,
+                Matrix<DDSMat>               aNumRefinements,
+                Matrix<DDSMat>               aRefinementMeshIndices,
                 sint                         aRefinementFunctionIndex,
                 sint                         aBSplineMeshIndex,
                 real                         aBSplineLowerBound,
@@ -65,7 +66,8 @@ namespace moris
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  Property(aFieldDependencies)
+                  Property(aFieldDependencies),
+                  mMesh(aMesh)
         {
             MORIS_ERROR(mFieldDependencies.size() == 1, "A scaled field property must depend on one field.");
             MORIS_ERROR(mFieldVariables.size() == 1, "A scaled field property must have one scaling factor.");
@@ -75,24 +77,46 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Scaled_Field::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Scaled_Field::get_field_value(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
-            return *mFieldVariables(0) * mFieldDependencies(0)->get_field_value(aNodeIndex, aCoordinates);
+            uint tBaseNodeIndex = this->get_base_node_index(aNodeIndex);
+            return *mFieldVariables(0) * mFieldDependencies(0)->get_field_value(tBaseNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Scaled_Field::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Scaled_Field::get_field_sensitivities(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
-            mSensitivities = *mFieldVariables(0) * mFieldDependencies(0)->get_field_sensitivities(aNodeIndex, aCoordinates);
+            uint tBaseNodeIndex = this->get_base_node_index(aNodeIndex);
+            mSensitivities = *mFieldVariables(0) *
+                    mFieldDependencies(0)->get_field_sensitivities(tBaseNodeIndex, aCoordinates);
             return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Scaled_Field::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        Matrix<DDSMat> Scaled_Field::get_determining_adv_ids(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
-            return mFieldDependencies(0)->get_determining_adv_ids(aNodeIndex, aCoordinates);
+            uint tBaseNodeIndex = this->get_base_node_index(aNodeIndex);
+            return mFieldDependencies(0)->get_determining_adv_ids(tBaseNodeIndex, aCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        uint Scaled_Field::get_base_node_index(uint aNodeIndex)
+        {
+            uint tBaseNodeIndex = aNodeIndex;
+            if (mMesh)
+            {
+                tBaseNodeIndex = mMesh->get_base_node_index(aNodeIndex);
+            }
+            return tBaseNodeIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------

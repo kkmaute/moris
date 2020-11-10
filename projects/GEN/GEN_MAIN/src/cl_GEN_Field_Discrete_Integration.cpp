@@ -1,4 +1,4 @@
-#include "cl_GEN_Field_Discrete.hpp"
+#include "cl_GEN_Field_Discrete_Integration.hpp"
 
 namespace moris
 {
@@ -7,14 +7,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field_Discrete::Field_Discrete(uint aNumOriginalNodes)
+        Field_Discrete_Integration::Field_Discrete_Integration(uint aNumOriginalNodes)
                 : mNumOriginalNodes(aNumOriginalNodes)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Discrete::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Field_Discrete_Integration::get_field_value(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
@@ -31,7 +33,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Field_Discrete::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Field_Discrete_Integration::get_field_sensitivities(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
@@ -48,7 +52,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Field_Discrete::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        Matrix<DDSMat> Field_Discrete_Integration::get_determining_adv_ids(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
@@ -65,14 +71,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Field_Discrete::get_determining_adv_ids(uint aNodeIndex)
+        Matrix<DDSMat> Field_Discrete_Integration::get_determining_adv_ids(uint aNodeIndex)
         {
             return Field::get_determining_adv_ids(aNodeIndex, {{}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
+        void Field_Discrete_Integration::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
         {
             MORIS_ASSERT(aNodeIndex == mNumOriginalNodes + mChildNodes.size(),
                     "Child nodes must be added to a level set field in order by node index.");
@@ -81,7 +87,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete::reset_nodal_information()
+        void Field_Discrete_Integration::reset_nodal_information()
         {
             mChildNodes.resize(0);
         }

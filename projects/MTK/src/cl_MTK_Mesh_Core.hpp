@@ -608,6 +608,14 @@ namespace moris
             mtk::Vertex const &
             get_mtk_vertex( moris_index aVertexIndex ) const;
 
+            /**
+             * Gets the index of a node's base node. Can be different than the node index itself if the node was created
+             * based on a different node.
+             *
+             * @param aNodeIndex Node index
+             */
+            uint get_base_node_index(uint aNodeIndex);
+
             //##############################################
             // For FEM
             //##############################################

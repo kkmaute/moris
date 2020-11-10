@@ -591,8 +591,12 @@ namespace moris
 
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
-            // Get integration mesh
+            // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
+            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
+
+            // Build properties from parameter lists using distributed vector
+            mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, tInterpolationMesh, mLibrary);
 
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
@@ -629,9 +633,9 @@ namespace moris
                 }
             }
 
-            Matrix< IdMat > tCommTable = aMeshManager->get_interpolation_mesh(0)->get_communication_table();
+            Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
-                    aMeshManager->get_interpolation_mesh(0)->get_vertex_glb_id_to_loc_vertex_ind_map();
+                    tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
             std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
                     tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
 
@@ -640,7 +644,7 @@ namespace moris
 
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
-                    aMeshManager->get_interpolation_mesh(0),
+                    tInterpolationMesh,
                     tIntegrationMesh,
                     tPdvTypes);
 
@@ -703,16 +707,6 @@ namespace moris
 
             // Create a map
              mPdvHostManager.create_dv_type_map();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::finalize_fields( mtk::Interpolation_Mesh* aMesh )
-        {
-//            for( auto tGeometry : mGeometries )
-//            {
-//                tGeometry->set_mesh( aMesh );
-//            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -904,9 +898,6 @@ namespace moris
                                 mGeometries(tGeometryIndex));
                     }
                 }
-
-                // Build properties from parameter lists using distributed vector
-                mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
 
                 //----------------------------------------//
                 // Communicate all ADV IDs to processor 0 //

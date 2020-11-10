@@ -14,7 +14,7 @@ namespace moris
                                                  Matrix<DDSMat>  aRefinementMeshIndices,
                                                  sint        aRefinementFunctionIndex)
                 : Field(Matrix<DDRMat>(1, 1, 0.0), "", aNumRefinements, aRefinementMeshIndices, aRefinementFunctionIndex, -1, -1.0, 1.0),
-                  Field_Discrete(aMesh->get_num_nodes()),
+                  Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mMesh(aMesh),
                   mFieldName(aFieldName),
                   mEntityRank(aEntityRank)
