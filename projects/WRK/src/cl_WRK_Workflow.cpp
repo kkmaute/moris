@@ -115,6 +115,12 @@ namespace moris
 
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
+            // Communicate IQIs
+            for( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
+            {
+                tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
+            }
+
             moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 
             for( uint Ik = 0; Ik < tVal.size(); Ik ++ )

@@ -114,12 +114,6 @@ namespace moris
                 }
             }
 
-            // Communicate IQIs
-            for( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
-            {
-                mGlobalIQIVal(tIQIIndex)(0) = sum_all(mGlobalIQIVal(tIQIIndex)(0));
-            }
-
             // Normalization
             if (gLogger.mIteration == 0)
             {
