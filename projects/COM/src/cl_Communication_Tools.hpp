@@ -152,11 +152,14 @@ namespace moris
      * @brief creates a proc cart similar to MPI_CART, depending
      *        on the number of dimensions specified.
      *
-     * @param[in]  aNumberOfDimensions   must be 1, 2 or 3
-     * @param[out] aProcDims             dimensions of generated cart
-     * @param[out] aProcCoords           coordinate of current proc
-     * @param[out] aProcNeighbors        neighbors of current proc,
-     *                                   contains UINT_MAX if no neighbor exists
+     * @param[in]  aDecompMethod         Decomposition method used. 0=User Defined.
+     *                   1=Min Proc Interface (MPI Cart). 2=Min Mesh Interface.
+     * @param[in]  aNumberOfDimensions   Must be 1, 2 or 3.
+     * @param[in,out] aProcDims          Dimensions of generated cart. Input used
+     *                   for aDecompMethod = 0 or 2. Output used for aDecompMethod = 1.
+     * @param[out] aProcCoords           Coordinates of current processor.
+     * @param[out] aProcNeighbors        Neighbors of current proc.
+     *                                   Contains UINT_MAX if no neighbor exists.
      *
      *  neighbor pattern as returned to aProcNeighbors:
      *
