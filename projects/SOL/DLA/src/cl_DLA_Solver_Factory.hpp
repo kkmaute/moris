@@ -45,8 +45,8 @@ namespace moris
 
         Linear_Problem * create_linear_system(       moris::Solver_Interface  * aSolverInterface,
                                                      sol::SOL_Warehouse       * aSolverWarehouse,
-                                                     std::shared_ptr<sol::Dist_Map>  aMap,
-                                                     std::shared_ptr<sol::Dist_Map>  aFullMap,
+                                                     sol::Dist_Map*  aMap,
+                                                     sol::Dist_Map*  aFullMap,
                                                const enum sol::MapType         aLinSysType = sol::MapType::Epetra,
                                                const bool                      aNotCreatedByNonLinSolver = false);
     };

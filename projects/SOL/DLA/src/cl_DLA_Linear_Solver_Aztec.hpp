@@ -21,40 +21,40 @@
 
 namespace moris
 {
-namespace dla
-{
-    class Linear_Problem;
-    class Linear_Solver_Aztec : public Linear_Solver_Algorithm
+    namespace dla
     {
-    private:
-        AztecOO *                             mAztecSolver = nullptr;
+        class Linear_Problem;
+        class Linear_Solver_Aztec : public Linear_Solver_Algorithm
+        {
+            private:
+                AztecOO *                             mAztecSolver = nullptr;
 
-        Teuchos::ParameterList                mlParams;
-        ML_Epetra::MultiLevelPreconditioner * mMlPrec;
+                Teuchos::ParameterList                mlParams;
+                ML_Epetra::MultiLevelPreconditioner * mMlPrec;
 
-        Epetra_LinearProblem      mEpetraProblem;
+                Epetra_LinearProblem                  mEpetraProblem;
 
-    protected:
-    public:
-        Linear_Solver_Aztec();
+            protected:
+            public:
+                Linear_Solver_Aztec();
 
-        Linear_Solver_Aztec( const moris::ParameterList aParameterlist );
+                Linear_Solver_Aztec( const moris::ParameterList aParameterlist );
 
-        Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
+                Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
 
-        ~Linear_Solver_Aztec();
+                ~Linear_Solver_Aztec();
 
-        void set_linear_problem( Linear_Problem * aLinearSystem );
+                void set_linear_problem( Linear_Problem * aLinearSystem );
 
-        void set_solver_parameters();
+                void set_solver_parameters();
 
-        moris::sint solve_linear_system( );
+                moris::sint solve_linear_system( );
 
-        moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter );
+                moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter );
 
-        void set_solver_internal_parameters();
-    };
-}
+                void set_solver_internal_parameters();
+        };
+    }
 }
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_AZTEC_HPP_ */

@@ -32,6 +32,8 @@ namespace moris
     namespace mtk
     {
         class Mesh_Manager;
+        class Interpolation_Mesh;
+        class Integration_Mesh;
     }
 
     namespace fem
@@ -69,6 +71,9 @@ namespace moris
 
                 // list of IP node pointers
                 moris::Cell< fem::Node_Base* > mIPNodes;
+
+                // list of IG node pointers
+                moris::Cell< fem::Node_Base* > mIGNodes;
 
                 // list of QI values
                 moris::Cell< moris::real > mQi;
@@ -110,6 +115,19 @@ namespace moris
                         const moris_index                 & aMeshPairIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo );
 
+                /**
+                 * constructor
+                 * @param[ in ] aMesh          mesh for this problem
+                 * @param[ in ] aMeshPairIndex mesh pair index
+                 * @param[ in ] aSetInfo       cell of set user info
+                 * @param[ in ] aDesignVariableInterface a design variable interface pointer
+                 */
+                FEM_Model(
+                        mtk::Mesh_Manager                 * aMeshManager,
+                        const moris_index                 & aMeshPairIndex,
+                        moris::Cell< fem::Set_User_Info > & aSetInfo,
+                        MSI::Design_Variable_Interface    * aDesignVariableInterface );
+
                 //------------------------------------------------------------------------------
                 /**
                  * constructor with fem input
@@ -123,6 +141,22 @@ namespace moris
                         const moris_index                           & aMeshPairIndex,
                         moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                         std::shared_ptr< Library_IO >                 aLibrary );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * constructor with fem input
+                 * @param[ in ] aMesh          mesh for this problem
+                 * @param[ in ] aMeshPairIndex mesh pair index
+                 * @param[ in ] aParameterList a list of list of parameter lists
+                 * @param[ in ] aLibrary       a file path for property functions
+                 * @param[ in ] aDesignVariableInterface a design variable interface pointer
+                 */
+                FEM_Model(
+                        mtk::Mesh_Manager                           * aMeshManager,
+                        const moris_index                           & aMeshPairIndex,
+                        moris::Cell< moris::Cell< ParameterList > >   aParameterList,
+                        std::shared_ptr< Library_IO >                 aLibrary,
+                        MSI::Design_Variable_Interface              * aDesignVariableInterface );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -142,6 +176,115 @@ namespace moris
                  * @param[ in ] aLibrary       a file path for property functions
                  */
                 void initialize( std::shared_ptr< Library_IO > aLibrary );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create interpolation nodes
+                 * @param[ in ] aIPMesh interpolation mesh pointer
+                 */
+                void create_interpolation_nodes( mtk::Interpolation_Mesh * aIPMesh );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create integration nodes
+                 * @param[ in ] aIGMesh integration mesh pointer
+                 */
+                void create_integration_nodes( mtk::Integration_Mesh * aIGMesh );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get integration xyz active flags
+                 * @param[ in ] aNodeIndices list of node indices
+                 * @param[ in ] aPdvTypes    list of pdv types
+                 * @param[ in ] aIsActiveDv  matrix to fill with 0/1 when pdv is active
+                 *                           ( tNumNodeIndices x tNumPdvTypes )
+                 */
+                void get_integration_xyz_active_flags(
+                        const Matrix< IndexMat >      & aNodeIndices,
+                        const moris::Cell< PDV_Type > & aPdvTypes,
+                        Matrix< DDSMat >              & aIsActiveDv );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get integration xyz pdv ids
+                 * @param[ in ] aNodeIndices list of node indices
+                 * @param[ in ] aPdvTypes    list of pdv types
+                 * @param[ in ] aXYZPdvIds   matrix to fill with ids for pdv
+                 *                           ( tNumNodeIndices x tNumPdvTypes )
+                 */
+                void get_integration_xyz_pdv_ids(
+                        const Matrix< IndexMat >      & aNodeIndices,
+                        const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                        Matrix< DDSMat >              & aXYZPdvIds );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get integration xyz pdv ids
+                 * @param[ in ] aNodeIndices list of node indices
+                 * @param[ in ] aPdvTypes    list of pdv types
+                 * @param[ in ] aIsActiveDv  matrix to fill with 0/1 when pdv is active
+                 *                           ( tNumNodeIndices x tNumPdvTypes )
+                 * @param[ in ] aXYZPdvIds   matrix to fill with ids for pdv
+                 *                           ( tNumNodeIndices x tNumPdvTypes )
+                 */
+                void get_integration_xyz_pdv_active_flags_and_ids(
+                        const Matrix< IndexMat >      & aNodeIndices,
+                        const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                        Matrix< DDSMat >              & aIsActiveDv,
+                        Matrix< DDSMat >              & aXYZPdvIds );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get integration xyz pdv local cluster assembly indices
+                 * @param[ in ] aNodeIndices           list of node indices
+                 * @param[ in ] aPdvTypes              list of pdv types
+                 * @param[ in ] aXYZPdvAssemblyIndices matrix to fill with assembly indices for pdv
+                 *                           ( tNumNodeIndices x tNumPdvTypes )
+                 */
+                void get_integration_xyz_pdv_assembly_indices(
+                        const Matrix< IndexMat >      & aNodeIndices,
+                        const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                        Matrix< DDSMat >              & aXYZPdvAssemblyIndices );
+
+                /**
+                 * reset integration xyz pdv local cluster assembly indices
+                 * @param[ in ] aNodeIndices list of node indices to reset
+                 */
+                void reset_integration_xyz_pdv_assembly_indices(
+                        const Matrix< IndexMat > & aNodeIndices );
+
+                /**
+                 * set integration xyz pdv local cluster assembly index
+                 * @param[ in ] aNodeIndex           node index
+                 * @param[ in ] aPdvType             enum for pdv type
+                 * @param[ in ] aXYZPdvAssemblyIndex assembly index for pdv type to set
+                 */
+                void set_integration_xyz_pdv_assembly_index(
+                        moris_index   aNodeIndex,
+                        enum PDV_Type aPdvType,
+                        moris_index   aXYZPdvAssemblyIndex );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create fem sets
+                 * @param[ in ] aIPMesh interpolation mesh pointer
+                 * @param[ in ] aIGMesh integration mesh pointer
+                 */
+                void create_fem_sets(
+                               mtk::Interpolation_Mesh * aIPMesh,
+                               mtk::Integration_Mesh   * aIGMesh );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create fem sets
+                 * @param[ in ] aIPMesh  interpolation mesh pointer
+                 * @param[ in ] aIGMesh  integration mesh pointer
+                 * @param[ in ] aSetInfo cell of set user info
+                 */
+                void create_fem_sets(
+                        mtk::Interpolation_Mesh           * aIPMesh,
+                        mtk::Integration_Mesh             * aIGMesh,
+                        moris::Cell< fem::Set_User_Info > & aSetInfo );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -28,6 +28,12 @@ namespace moris
 {
     namespace MSI
     {
+
+        Equation_Model::~Equation_Model()
+        {
+            delete mdQIdpMap;
+        }
+
         //------------------------------------------------------------------------------
 
         moris::sint Equation_Model::get_num_rhs( )
@@ -106,12 +112,6 @@ namespace moris
                     // free memory on treated equation set
                     mFemSets( tSetIndex )->free_matrix_memory();
                 }
-            }
-
-            // Communicate IQIs
-            for( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
-            {
-                mGlobalIQIVal(tIQIIndex)(0) = sum_all(mGlobalIQIVal(tIQIIndex)(0));
             }
 
             // Normalization

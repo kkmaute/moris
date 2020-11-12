@@ -100,7 +100,9 @@ namespace moris
                         std::string         aFilePath,
                         const std::string & aFileName,
                         std::string         aTempPath,
-                        const std::string & aTempName);
+                        const std::string & aTempName,
+                        const uint          aParSize=0,
+                        const uint          aParRank=0);
 
                 /**
                  * Save temporary to permanent Exodus file.
@@ -121,7 +123,9 @@ namespace moris
                         const std::string & aFileName,
                         std::string         aTempPath,
                         const std::string & aTempName,
-                        Matrix<DDRMat>      aCoordinates);
+                        Matrix<DDRMat>      aCoordinates,
+                        const uint          aParSize=0,
+                        const uint          aParRank=0);
 
                 /**
                  * Sets the number of variables to be written for point data (no mesh)
@@ -214,7 +218,9 @@ namespace moris
                         std::string         aFilePath,
                         const std::string & aFileName,
                         std::string         aTempPath,
-                        const std::string & aTempName);
+                        const std::string & aTempName,
+                        const uint          aParSize=0,
+                        const uint          aParRank=0);
 
                 /**
                  * Creates an Exodus database and initializes it at the given file path and string using an MTK mesh
@@ -228,7 +234,9 @@ namespace moris
                         std::string         aFilePath,
                         const std::string & aFileName,
                         std::string         aTempPath,
-                        const std::string & aTempName);
+                        const std::string & aTempName,
+                        const uint          aParSize=0,
+                        const uint          aParRank=0);
 
                 /**
                  * Writes the coordinates of the nodes in the MTK mesh to Exodus.

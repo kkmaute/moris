@@ -11,7 +11,7 @@ namespace moris
 {
     namespace fem
     {
-        //------------------------------------------------------------------------------
+        //----------------------------------------------------------------------
 
         Element_Bulk::Element_Bulk(
                 mtk::Cell const    * aCell,
@@ -21,14 +21,14 @@ namespace moris
         : Element( aCell, aSet, aCluster, aCellIndexInCluster )
         {}
 
-        //------------------------------------------------------------------------------
+        //----------------------------------------------------------------------
 
         Element_Bulk::~Element_Bulk(){}
 
         //----------------------------------------------------------------------
 
         void Element_Bulk::init_ig_geometry_interpolator(
-                moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
+                Matrix< DDSMat > & aGeoLocalAssembly )
         {
             // get geometry interpolator for IG element
             Geometry_Interpolator * tIGGI =
@@ -46,49 +46,21 @@ namespace moris
             // FIXME not true if time is not linear
             Matrix< DDRMat > tIGParamTimeCoords = { { -1.0 }, { 1.0 } };
 
-            // get the requested geo pdv types
-            moris::Cell < enum PDV_Type > tGeoPdvType;
-            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
-
-            // Determine if there are IG PDVs
-            if ( tGeoPdvType.size() )
+            // get the local cluster assembly indices
+            if( mSet->get_geo_pdv_assembly_flag() )
             {
-                // get space dimension
-                uint tSpaceDim = tIGPhysSpaceCoords.n_cols();
-
                 // get the vertices indices for IG element
                 Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
-                // get the pdv values from the MSI/GEN interface
-                moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
-                mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
+                // get the requested geo pdv types
+                moris::Cell < enum PDV_Type > tGeoPdvType;
+                mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+                // get local assembly indices
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
                         tVertexIndices,
                         tGeoPdvType,
-                        tPdvValueList,
-                        aIsActiveDv );
-
-                // reshape the XYZ values into a cell of vectors
-                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
-                {
-                    for ( uint iNode = 0; iNode < tIGPhysSpaceCoords.n_rows(); iNode++)
-                    {
-                        if ( ! aIsActiveDv(iSpaceDim)(iNode) )
-                        {
-                            tPdvValueList( iSpaceDim )( iNode ) = tIGPhysSpaceCoords( iNode,iSpaceDim );
-                        }
-                        else
-                        {
-                            MORIS_ASSERT( equal_to(tPdvValueList( iSpaceDim )( iNode ),tIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
-                                    "GE coordinate and MTK coordinate differ\n");
-                        }
-                    }
-                }
-
-                // reshape the cell of vectors tPdvValueList into a matrix tIGPhysSpaceCoords
-                tIGPhysSpaceCoords.set_size( 0, 0 );
-                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
-                        tPdvValueList,
-                        tIGPhysSpaceCoords );
+                        aGeoLocalAssembly );
             }
 
             // set physical space and time coefficients for IG element GI
@@ -134,8 +106,7 @@ namespace moris
         void Element_Bulk::compute_residual()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -178,8 +149,7 @@ namespace moris
         void Element_Bulk::compute_jacobian()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -220,8 +190,7 @@ namespace moris
         void Element_Bulk::compute_jacobian_and_residual()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -284,8 +253,8 @@ namespace moris
         void Element_Bulk::compute_dRdp()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -335,8 +304,8 @@ namespace moris
             Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -373,13 +342,12 @@ namespace moris
                             tFDScheme );
 
                     // compute dRdpGeo at evaluation point
-                    if( tIsActiveDv.size() != 0 )
+                    if( mSet->get_geo_pdv_assembly_flag() )
                     {
                         mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
                                 tWStar,
                                 tFDPerturbation,
-                                tIsActiveDv,
-                                tVertexIndices,
+                                tGeoLocalAssembly,
                                 tFDScheme );
                     }
                 }
@@ -391,8 +359,7 @@ namespace moris
         void Element_Bulk::compute_QI()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -428,8 +395,8 @@ namespace moris
         void Element_Bulk::compute_dQIdp_explicit()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
             // get number of IWGs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -475,8 +442,8 @@ namespace moris
             Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
             // get number of IWGs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -508,13 +475,12 @@ namespace moris
                             tFDScheme );
 
                     // compute dQIdpGeo at evaluation point
-                    if( tIsActiveDv.size() != 0 )
+                    if( mSet->get_geo_pdv_assembly_flag() )
                     {
                         mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
                                 tWStar,
                                 tFDPerturbation,
-                                tIsActiveDv,
-                                tVertexIndices,
+                                tGeoLocalAssembly,
                                 tFDScheme );
                     }
                 }
@@ -526,8 +492,7 @@ namespace moris
         void Element_Bulk::compute_dQIdu()
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -706,8 +671,7 @@ namespace moris
         real Element_Bulk::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();

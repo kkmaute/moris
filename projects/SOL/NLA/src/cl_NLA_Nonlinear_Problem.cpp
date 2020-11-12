@@ -153,9 +153,8 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc)
         {
-            // These calls are needed in order to delete the underlying Petsc maps before PetscFinalize
-            mMap.reset();
-            mMapFull.reset();
+            delete mMap;
+            delete mMapFull;
 
             PetscFinalize();
         }

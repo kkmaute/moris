@@ -37,7 +37,7 @@ class Preconditioner_PETSc
         Linear_Solver_PETSc * mLinearSolverAlgoritm;
 
         sol::Dist_Matrix   * mPreconMat = nullptr;
-        std::shared_ptr<sol::Dist_Map> mMapFree = nullptr;
+        sol::Dist_Map* mMapFree = nullptr;
 
     protected:
 

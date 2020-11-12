@@ -13,14 +13,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Analytic::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Field_Analytic::get_field_value(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_value(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Field_Analytic::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Field_Analytic::get_field_sensitivities(
+                uint aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_sensitivities(aCoordinates);
         }

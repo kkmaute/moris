@@ -80,6 +80,7 @@ namespace moris
             moris::Matrix< DDSMat > mPdvMatAssemblyVector;
             std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat > mPdvGeoAssemblyVector;
+            bool mPdvGeoAssemblyFlag = false;
 
             // Map from requested IQI Name to index.
             // I do not know if this is slow because the map is called per gauss point.
@@ -400,6 +401,15 @@ namespace moris
             std::map< std::pair< moris_index, PDV_Type >, uint > & get_geo_pdv_assembly_map()
             {
                 return mPdvGeoAssemblyMap;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get dRdpGeo pdv assembly flag
+             */
+            bool get_geo_pdv_assembly_flag()
+            {
+                return mPdvGeoAssemblyFlag;
             }
 
             //------------------------------------------------------------------------------

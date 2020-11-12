@@ -74,6 +74,9 @@ namespace moris
 
         void Writer_Exodus::close_file(bool aRename)
         {
+            // check that mesh is open
+            MORIS_ERROR(mExoid > 0, "Exodus cannot be saved as it is not open\n.");
+
             ex_close(mExoid);
             mExoid = -1;
 
@@ -89,11 +92,19 @@ namespace moris
                 std::string         aFilePath,
                 const std::string & aFileName,
                 std::string         aTempPath,
-                const std::string & aTempName)
+                const std::string & aTempName,
+                const uint          aParSize,
+                const uint          aParRank)
         {
             MORIS_ERROR(mMesh != nullptr, "No mesh has been given to the Exodus Writer!");
 
-            this->create_init_mesh_file(aFilePath, aFileName, aTempPath, aTempName);
+            this->create_init_mesh_file(
+                    aFilePath,
+                    aFileName,
+                    aTempPath,
+                    aTempName,
+                    aParSize,
+                    aParRank);
 
             this->write_nodes();
             this->write_node_sets();
@@ -108,10 +119,18 @@ namespace moris
                 const std::string & aFileName,
                 std::string         aTempPath,
                 const std::string & aTempName,
-                Matrix<DDRMat>      aCoordinates)
+                Matrix<DDRMat>      aCoordinates,
+                const uint          aParSize,
+                const uint          aParRank)
         {
             // Create the actual file
-            this->create_file(aFilePath, aFileName, aTempPath, aTempName);
+            this->create_file(
+                    aFilePath,
+                    aFileName,
+                    aTempPath,
+                    aTempName,
+                    aParSize,
+                    aParRank);
 
             // Initialize database
             int tNumDimensions = aCoordinates.n_cols();
@@ -255,6 +274,9 @@ namespace moris
 
         void Writer_Exodus::save_mesh()
         {
+            // check that mesh is open
+            MORIS_ERROR(mExoid > 0, "Exodus cannot be saved as it is not open\n.");
+
             // close mesh
             ex_close(mExoid);
 
@@ -288,10 +310,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_point_field(       
-                std::string                          aFieldName,
+        void Writer_Exodus::write_point_field(
+                std::string            aFieldName,
                 const Matrix<DDRMat> & aFieldValues)
         {
+            // skip if no nodal values exist
+            if ( aFieldValues.numel() == 0 )
+            {
+                return;
+            }
+
             // Field name to index
             int tFieldIndex = mNodalFieldNamesMap[aFieldName];
 
@@ -307,10 +335,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_nodal_field(       
-                std::string                          aFieldName,
+        void Writer_Exodus::write_nodal_field(
+                std::string            aFieldName,
                 const Matrix<DDRMat> & aFieldValues)
         {
+            // skip if no nodal values exist
+            if ( aFieldValues.numel() == 0 )
+            {
+                return;
+            }
+
             // Field name to index
             int tFieldIndex = mNodalFieldNamesMap[aFieldName];
 
@@ -339,6 +373,12 @@ namespace moris
                 std::string            aFieldName,
                 const Matrix<DDRMat> & aFieldValues)
         {
+            // skip if no elemental values exist
+            if ( aFieldValues.numel() == 0 )
+            {
+                return;
+            }
+
             MORIS_ERROR(mBlockNamesMap.key_exists(aBlockName), aBlockName.append(
                     " is not a block name on this mesh!").c_str());
 
@@ -429,7 +469,9 @@ namespace moris
                 std::string         aFilePath,
                 const std::string & aFileName,
                 std::string         aTempPath,
-                const std::string & aTempName)
+                const std::string & aTempName,
+                const uint          aParSize,
+                const uint          aParRank)
         {
             MORIS_ERROR(mExoid == -1, "Exodus file is currently open, call close_file() before creating a new one.");
 
@@ -447,12 +489,17 @@ namespace moris
             mTempFileName = aTempPath + aTempName;
             mPermFileName = aFilePath + aFileName;
 
+            // determine number of processors and rank of this processor
+            uint tParSize = aParSize > 0 ? aParSize : par_size();
+            uint tParRank = aParSize > 0 ? aParRank : par_rank();
+
             // Make file name parallel, if necessary
-            if (par_size() > 1)
+            if (tParSize > 1)
             {
+
                 // Get par size and rank as strings
-                std::string tParSizeStr =  std::to_string(par_size());
-                std::string tParRankBaseStr =  std::to_string(par_rank());
+                std::string tParSizeStr     =  std::to_string(tParSize);
+                std::string tParRankBaseStr =  std::to_string(tParRank);
 
                 // Make sure all par rank strings have the same number of leading zeros
                 std::string tParRankStr = std::string( tParSizeStr.length() - tParRankBaseStr.length(), '0').append( tParRankBaseStr );
@@ -477,10 +524,18 @@ namespace moris
                 std::string         aFilePath,
                 const std::string & aFileName,
                 std::string         aTempPath,
-                const std::string & aTempName)
+                const std::string & aTempName,
+                const uint          aParSize,
+                const uint          aParRank)
         {
             // Create the actual file
-            this->create_file(aFilePath, aFileName, aTempPath, aTempName);
+            this->create_file(
+                    aFilePath,
+                    aFileName,
+                    aTempPath,
+                    aTempName,
+                    aParSize,
+                    aParRank);
 
             // Number of dimensions
             int tNumDimensions = mMesh->get_spatial_dim();
@@ -610,7 +665,7 @@ namespace moris
             }
 
             // Check for correct non-empty node set count
-             MORIS_ERROR(tNumNodeSets == mNumNodeSets, "Incorrect number of non-empty node sets written to file." );
+            MORIS_ERROR(tNumNodeSets == mNumNodeSets, "Incorrect number of non-empty node sets written to file." );
 
         }
 
@@ -702,7 +757,7 @@ namespace moris
             ex_put_id_map(mExoid, EX_ELEM_MAP, tElementIdMap.data());
 
             // Check for correct non-empty side set count
-             MORIS_ERROR(tNumElementBlocks == mNumElementBlocks, "Incorrect number of non-empty element blocks written to file." );
+            MORIS_ERROR(tNumElementBlocks == mNumElementBlocks, "Incorrect number of non-empty element blocks written to file." );
         }
 
         //--------------------------------------------------------------------------------------------------------------

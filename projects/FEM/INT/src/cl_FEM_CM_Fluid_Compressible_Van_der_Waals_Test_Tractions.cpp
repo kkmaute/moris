@@ -204,13 +204,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mdThermalTestTractiondDofEval( tTestDofIndex )( tDofIndex ) )
+            if( mdThermalTestTractiondDofEval( tTestDofIndex, tDofIndex ) )
             {
                 // evaluate the derivative
                 this->eval_thermal_dTestTractiondDOF( aDofType, aNormal, aJump, aTestDofTypes );
 
                 // set bool for evaluation
-                mdThermalTestTractiondDofEval( tTestDofIndex )( tDofIndex ) = false;
+                mdThermalTestTractiondDofEval( tTestDofIndex, tDofIndex ) = false;
             }
 
             // return the derivative
@@ -248,13 +248,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mdMechanicalTestTractiondDofEval( tTestDofIndex )( tDofIndex ) )
+            if( mdMechanicalTestTractiondDofEval( tTestDofIndex, tDofIndex ) )
             {
                 // evaluate the derivative
                 this->eval_mechanical_dTestTractiondDOF( aDofType, aNormal, aJump, aTestDofTypes );
 
                 // set bool for evaluation
-                mdMechanicalTestTractiondDofEval( tTestDofIndex )( tDofIndex ) = false;
+                mdMechanicalTestTractiondDofEval( tTestDofIndex, tDofIndex ) = false;
             }
 
             // return the derivative

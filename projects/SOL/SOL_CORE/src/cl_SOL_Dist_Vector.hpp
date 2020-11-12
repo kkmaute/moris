@@ -41,9 +41,9 @@ namespace moris
         class Dist_Vector
         {
         protected:
-
             Epetra_Import* mImporter = nullptr;
-            std::shared_ptr<Dist_Map> mMap;
+            Dist_Map* mMap;
+            bool mManageMap;
             moris::sint    mNumVectors = 1;
 
         public:
@@ -53,19 +53,19 @@ namespace moris
              *
              * @param aMapClass Distributed vector map
              */
-            Dist_Vector( std::shared_ptr<sol::Dist_Map> aMapClass );
+            Dist_Vector( sol::Dist_Map* aMapClass, bool aManageMap );
 
-            /**
-             * Destructor (deletes map if desired)
-             */
-            virtual ~Dist_Vector();
+                /**
+                 * Destructor (deletes map if desired)
+                 */
+                virtual ~Dist_Vector();
 
             /**
              * Get distributed vector map
              *
              * @return Map
              */
-            std::shared_ptr<sol::Dist_Map>  get_map();
+            sol::Dist_Map*  get_map();
 
             /**
              * Gets a value in the distributed vector based on a given ID.
@@ -215,7 +215,6 @@ namespace moris
              * @return real pointer
              */
             virtual moris::real* get_values_pointer() = 0;
-
         };
     }
 }

@@ -11,7 +11,8 @@ set(HEADERS
 	cl_GEN_Phase_Table.hpp
 	cl_GEN_Field.hpp
 	cl_GEN_Field_Analytic.hpp
-	cl_GEN_Field_Discrete.hpp
+	cl_GEN_Field_Discrete_Integration.hpp
+	cl_GEN_Field_Discrete_Interpolation.hpp
 	fn_GEN_Matrix_Base_Utilities.hpp
 	fn_GEN_bubble_sort.hpp
 	fn_GEN_approximate.hpp
@@ -107,7 +108,8 @@ set(LIB_SOURCES
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Field.cpp
 	cl_GEN_Field_Analytic.cpp
-	cl_GEN_Field_Discrete.cpp
+	cl_GEN_Field_Discrete_Integration.cpp
+	cl_GEN_Field_Discrete_Interpolation.cpp
     cl_GEN_Geometric_Proximity.cpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.cpp

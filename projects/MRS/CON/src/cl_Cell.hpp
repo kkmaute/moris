@@ -209,6 +209,26 @@ namespace moris
             //------------------------------------------------------------------
 
             /**
+             * Direct access to the memory of the underlying array.
+             *
+             * @return Pointer to memory of the underlying array.
+             */
+
+            T*
+            memptr() const
+            {
+                return mCell.data();
+            }
+
+            T*
+            memptr()
+            {
+                return mCell.data();
+            }
+
+            //------------------------------------------------------------------
+
+            /**
              * Checks whether the Cell container is empty.
              *
              * @return bool value indicating whether the Cell container is empty.

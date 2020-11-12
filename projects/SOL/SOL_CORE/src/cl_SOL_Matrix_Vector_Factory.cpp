@@ -25,7 +25,7 @@ namespace moris
 
         Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
                 Solver_Interface * aInput,
-                std::shared_ptr<Dist_Map> aMap )
+                Dist_Map* aMap )
         {
             Dist_Matrix * tSparseMatrix = nullptr;
 
@@ -45,8 +45,8 @@ namespace moris
         }
 
         Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
-                std::shared_ptr<Dist_Map> aRowMap,
-                std::shared_ptr<Dist_Map> aColMap )
+                Dist_Map* aRowMap,
+                Dist_Map* aColMap )
         {
             Dist_Matrix * tSparseMatrix = nullptr;
 
@@ -89,19 +89,20 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
         Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
                 Solver_Interface * aInput,
-                std::shared_ptr<Dist_Map> aMap,
-                const sint                      aNumVectors )
+                Dist_Map* aMap,
+                const sint aNumVectors,
+                bool aManageMap )
         {
             Dist_Vector * tDistVector = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors );
+                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aManageMap );
                     break;
                 case (MapType::Petsc):
                     MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
-                    tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
+                    tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors, aManageMap );
                     break;
                 default:
                     MORIS_ERROR( false, "No vector type specified." );
@@ -111,15 +112,16 @@ namespace moris
         }
         //-------------------------------------------------------------------------------------------------
         Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
-                std::shared_ptr<Dist_Map> aMap,
-                const sint aNumVectors )
+                Dist_Map* aMap,
+                const sint aNumVectors,
+                bool aManageMap)
         {
             Dist_Vector * tDistVector = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors );
+                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aManageMap );
                     break;
                     //    case (MapType::Petsc):
                     //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
@@ -133,19 +135,19 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
-        std::shared_ptr<Dist_Map> sol::Matrix_Vector_Factory::create_map(
+        Dist_Map* sol::Matrix_Vector_Factory::create_map(
                 const Matrix< DDSMat > & aMyGlobalIds,
                 const Matrix< DDUMat > & aMyConstraintIds )
         {
-            std::shared_ptr<Dist_Map> tMap = nullptr;
+            Dist_Map* tMap = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tMap = std::make_shared<Map_Epetra>( aMyGlobalIds, aMyConstraintIds );
+                    tMap = new Map_Epetra( aMyGlobalIds, aMyConstraintIds );
                     break;
                 case (MapType::Petsc):
-                    tMap = std::make_shared<Map_PETSc>( aMyGlobalIds, aMyConstraintIds );
+                    tMap = new Map_PETSc( aMyGlobalIds, aMyConstraintIds );
                     break;
                 default:
                     MORIS_ERROR( false, "Matrix_Vector_Factory::create_map(), map type not specified" );
@@ -155,17 +157,17 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
-        std::shared_ptr<Dist_Map> sol::Matrix_Vector_Factory::create_map( const Matrix< DDSMat > & aMyGlobalIds )
+        Dist_Map* sol::Matrix_Vector_Factory::create_map( const Matrix< DDSMat > & aMyGlobalIds )
         {
-            std::shared_ptr<Dist_Map> tMap = nullptr;
+            Dist_Map* tMap = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tMap = std::make_shared<Map_Epetra>( aMyGlobalIds );
+                    tMap = new Map_Epetra( aMyGlobalIds );
                     break;
                 case (MapType::Petsc):
-                    tMap = std::make_shared<Map_PETSc>( aMyGlobalIds );
+                    tMap = new Map_PETSc( aMyGlobalIds );
                     break;
                 default:
                     MORIS_ERROR( false, "No map type specified" );

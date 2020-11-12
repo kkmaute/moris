@@ -36,7 +36,7 @@ namespace moris
                 Matrix_Vector_Factory      tMatFactory;
 
                 // Build map
-                std::shared_ptr<moris::sol::Dist_Map> tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                Dist_Map* tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                         tSolverInput->get_constrained_Ids());
 
                 // Create pointer to sparse matrix
@@ -86,7 +86,7 @@ namespace moris
                     CHECK( equal_to( tValues( 8, 0 ), -3) );
                 }
                 delete ( tSolverInput );
-                //delete ( tLocalMap );
+                delete ( tLocalMap );
                 delete ( tMat );
             }
         }
@@ -106,7 +106,7 @@ namespace moris
                 Matrix_Vector_Factory      tMatFactory;
 
                 // Build map
-                std::shared_ptr<moris::sol::Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                Dist_Map* tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                         tSolverInput->get_constrained_Ids() );
 
                 // build distributed vector
@@ -164,7 +164,7 @@ namespace moris
                     CHECK(equal_to(tValues(8,0), -6.75));
                 }
                 delete ( tSolverInput );
-                //delete ( tMap );
+                delete ( tMap );
                 delete ( tVectorScale );
                 delete ( tMat );
             }
@@ -185,7 +185,7 @@ namespace moris
                 Matrix_Vector_Factory      tMatFactory;
 
                 // Build map
-                std::shared_ptr<moris::sol::Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+                Dist_Map* tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                         tSolverInput->get_constrained_Ids() );
 
                 // build distributed vector
@@ -273,7 +273,7 @@ namespace moris
                     CHECK(equal_to(tValues(8,0), -3));
                 }
                 delete ( tSolverInput );
-                //delete ( tMap );
+                delete ( tMap );
                 delete ( tVectorDiagonal );
                 delete ( tMat );
             }
@@ -322,7 +322,7 @@ namespace moris
                 CHECK( equal_to( tValues( 2, 1 ), 14) );
                 CHECK( equal_to( tValues( 2, 2 ), 15) );
 
-                //delete ( tMat );
+                delete ( tMat );
 
                 PetscFinalize();
             }
@@ -353,8 +353,8 @@ namespace moris
                 }
 
                 // Build map
-                std::shared_ptr<sol::Dist_Map>  tRowMap = tMatFactory.create_map( tRowMapVal );
-                std::shared_ptr<sol::Dist_Map>  tColMap = tMatFactory.create_map( tColMapVal );
+                sol::Dist_Map*  tRowMap = tMatFactory.create_map( tRowMapVal );
+                sol::Dist_Map*  tColMap = tMatFactory.create_map( tColMapVal );
 
                 // build distributed vector
                 sol::Dist_Vector * tVector1 = tMatFactory.create_vector( tColMap );
@@ -408,6 +408,8 @@ namespace moris
                 delete ( tVector1 );
                 delete ( tVector2 );
                 delete ( tMat );
+                delete tRowMap;
+                delete tColMap;
             }
         }
 
@@ -436,8 +438,8 @@ namespace moris
                 }
 
                 // Build map
-                std::shared_ptr<sol::Dist_Map>  tRowMap = tMatFactory.create_map( tRowMapVal );
-                std::shared_ptr<sol::Dist_Map>  tColMap = tMatFactory.create_map( tColMapVal );
+                sol::Dist_Map*  tRowMap = tMatFactory.create_map( tRowMapVal );
+                sol::Dist_Map*  tColMap = tMatFactory.create_map( tColMapVal );
 
                 // build distributed vector
                 sol::Dist_Vector * tVector1 = tMatFactory.create_vector( tColMap );
@@ -499,6 +501,8 @@ namespace moris
                 delete ( tVector1 );
                 delete ( tVector2 );
                 delete ( tMat );
+                delete tRowMap;
+                delete tColMap;
             }
         }
     }

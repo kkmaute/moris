@@ -16,7 +16,7 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
-                  Field_Discrete(aMesh->get_num_nodes()),
+                  Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mGeometry(aGeometry),
                   mMesh(aMesh),
                   mFieldValues(aMesh->get_num_nodes(), 1)
@@ -33,7 +33,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Stored_Geometry::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& Stored_Geometry::get_field_sensitivities(uint aNodeIndex)
         {
             return mGeometry->get_field_sensitivities(aNodeIndex, mMesh->get_node_coordinate(aNodeIndex));
         }
@@ -50,7 +50,7 @@ namespace moris
         void Stored_Geometry::reset_nodal_information()
         {
             // Reset child nodes
-            Field_Discrete::reset_nodal_information();
+            Field_Discrete_Integration::reset_nodal_information();
 
             // Re-evaluate field values
             this->evaluate_nodal_values();

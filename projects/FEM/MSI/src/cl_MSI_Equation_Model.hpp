@@ -13,6 +13,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -52,7 +53,7 @@ namespace moris
             sol::Dist_Vector * mAdjointSolutionVector  = nullptr;
             sol::Dist_Vector * mPreviousAdjointSolutionVector = nullptr;
 
-            std::shared_ptr<sol::Dist_Map>  mdQIdpMap = nullptr;
+            sol::Dist_Map*  mdQIdpMap = nullptr;
 
             moris::Cell< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
@@ -87,7 +88,7 @@ namespace moris
             /**
              * destructor
              */
-            virtual ~Equation_Model(){};
+            virtual ~Equation_Model();
 
             //------------------------------------------------------------------------------
             /**
@@ -413,6 +414,106 @@ namespace moris
              * Scale the IQIs according to user input. Default does nothing, scaling is done in child class.
              */
             virtual void normalize_IQIs();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get integration xyz active flags
+             * @param[ in ] aNodeIndices list of node indices
+             * @param[ in ] aPdvTypes    list of pdv types
+             * @param[ in ] aIsActiveDv  matrix to fill with 0/1 when pdv is active
+             *                           ( tNumNodeIndices x tNumPdvTypes )
+             */
+            virtual void get_integration_xyz_active_flags(
+                    const Matrix< IndexMat >      & aNodeIndices,
+                    const moris::Cell< PDV_Type > & aPdvTypes,
+                    Matrix< DDSMat >              & aIsActiveDv )
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::get_integration_xyz_active_flags - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get integration xyz pdv ids
+             * @param[ in ] aNodeIndices list of node indices
+             * @param[ in ] aPdvTypes    list of pdv types
+             * @param[ in ] aXYZPdvIds  matrix to fill with pdv ids
+             *                           ( tNumNodeIndices x tNumPdvTypes )
+             */
+            virtual void get_integration_xyz_pdv_ids(
+                    const Matrix< IndexMat >      & aNodeIndices,
+                    const moris::Cell< PDV_Type > & aPdvTypes,
+                    Matrix< DDSMat >              & aXYZPdvIds )
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::get_integration_xyz_pdv_ids - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get integration xyz pdv ids
+             * @param[ in ] aNodeIndices list of node indices
+             * @param[ in ] aPdvTypes    list of pdv types
+             * @param[ in ] aIsActiveDv  matrix to fill with 0/1 when pdv is active
+             *                           ( tNumNodeIndices x tNumPdvTypes )
+             * @param[ in ] aXYZPdvIds   matrix to fill with pdv ids
+             *                           ( tNumNodeIndices x tNumPdvTypes )
+             */
+            virtual void get_integration_xyz_pdv_active_flags_and_ids(
+                    const Matrix< IndexMat >      & aNodeIndices,
+                    const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                    Matrix< DDSMat >              & aIsActiveDv,
+                    Matrix< DDSMat >              & aXYZPdvIds )
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::get_integration_xyz_pdv_active_flags_and_ids - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * reset integration xyz pdv local cluster assembly indices
+             * @param[ in ] aNodeIndices list of node indices to reset
+             */
+            virtual void reset_integration_xyz_pdv_assembly_indices(
+                    const Matrix< IndexMat > & aNodeIndices )
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::reset_integration_xyz_pdv_assembly_indices - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set integration xyz pdv local cluster assembly indices
+             * @param[ in ] aNodeIndices           list of node indices
+             * @param[ in ] aPdvTypes              list of pdv types
+             * @param[ in ] aXYZPdvAssemblyIndices matrix to fill with assembly indices for pdv
+             *                           ( tNumNodeIndices x tNumPdvTypes )
+             */
+            virtual void set_integration_xyz_pdv_assembly_index(
+                    moris_index aNodeIndex,
+                    enum PDV_Type aPdvType,
+                    moris_index aXYZPdvAssemblyIndex )
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::set_integration_xyz_pdv_assembly_index - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get integration xyz pdv local cluster assembly indices
+             * @param[ in ] aNodeIndices           list of node indices
+             * @param[ in ] aPdvTypes              list of pdv types
+             * @param[ in ] aXYZPdvAssemblyIndices matrix to fill with assembly indices for pdv
+             *                           ( tNumNodeIndices x tNumPdvTypes )
+             */
+            virtual void get_integration_xyz_pdv_assembly_indices(
+                    const Matrix< IndexMat >      & aNodeIndices,
+                    const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                    Matrix< DDSMat >              & aXYZPdvAssemblyIndices )
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::get_integration_xyz_pdv_assembly_indices - not implemented for base class." );
+            }
 
             //------------------------------------------------------------------------------
         };

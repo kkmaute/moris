@@ -46,67 +46,67 @@ namespace moris
                 Matrix< DDRMat > mPressure;
                 bool mPressureEval = true;
                 moris::Cell< Matrix< DDRMat > > mPressureDof;
-                moris::Cell< bool > mPressureDofEval;
+                moris::Matrix< DDBMat > mPressureDofEval;
 
                 // Thermal Flux ----------------------------------------
                 Matrix< DDRMat > mThermalFlux;
                 bool mThermalFluxEval = true;
                 moris::Cell< Matrix< DDRMat > > mThermalFluxDof;
-                moris::Cell< bool > mThermalFluxDofEval;
+                moris::Matrix< DDBMat > mThermalFluxDofEval;
 
                 // Work Flux
                 Matrix< DDRMat > mWorkFlux;
                 bool mWorkFluxEval = true;
                 moris::Cell< Matrix< DDRMat > > mWorkFluxDof;
-                moris::Cell< bool > mWorkFluxDofEval;
+                moris::Matrix< DDBMat > mWorkFluxDofEval;
 
                 // Energy Flux
                 Matrix< DDRMat > mEnergyFlux;
                 bool mEnergyFluxEval = true;
                 moris::Cell< Matrix< DDRMat > > mEnergyFluxDof;
-                moris::Cell< bool > mEnergyFluxDofEval;
+                moris::Matrix< DDBMat > mEnergyFluxDofEval;
 
 //                // Mechanical Flux
 //                Matrix< DDRMat > mStress;
 //                bool mStressEval = true;
 //                moris::Cell< Matrix< DDRMat > > mStressDof;
-//                moris::Cell< bool > mStressDofEval;
+//                moris::Matrix< DDBMat > mStressDofEval;
 
                 // Thermal Traction ------------------------------------
                 Matrix< DDRMat > mThermalTraction;
                 bool mThermalTractionEval = true;
                 moris::Cell< Matrix< DDRMat > > mThermalTractionDof;
-                moris::Cell< bool > mThermalTractionDofEval;
+                moris::Matrix< DDBMat > mThermalTractionDofEval;
 
                 // Work Traction
                 Matrix< DDRMat > mWorkTraction;
                 bool mWorkTractionEval = true;
                 moris::Cell< Matrix< DDRMat > > mWorkTractionDof;
-                moris::Cell< bool > mWorkTractionDofEval;
+                moris::Matrix< DDBMat > mWorkTractionDofEval;
 
                 // Energy Traction
                 Matrix< DDRMat > mEnergyTraction;
                 bool mEnergyTractionEval = true;
                 moris::Cell< Matrix< DDRMat > > mEnergyTractionDof;
-                moris::Cell< bool > mEnergyTractionDofEval;
+                moris::Matrix< DDBMat > mEnergyTractionDofEval;
 
                 // Mechanical Traction
                 Matrix< DDRMat > mMechanicalTraction;
                 bool mMechanicalTractionEval = true;
                 moris::Cell< Matrix< DDRMat > > mMechanicalTractionDof;
-                moris::Cell< bool > mMechanicalTractionDofEval;
+                moris::Matrix< DDBMat > mMechanicalTractionDofEval;
 
                 // Thermal Test Traction ------------------------------
                 moris::Cell< Matrix< DDRMat > > mThermalTestTraction;
-                moris::Cell< bool > mThermalTestTractionEval;
+                moris::Matrix< DDBMat > mThermalTestTractionEval;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdThermalTestTractiondDof;
-                moris::Cell< moris::Cell< bool > > mdThermalTestTractiondDofEval;
+                moris::Matrix< DDBMat > mdThermalTestTractiondDofEval;
 
                 // Mechanical Test Traction
                 moris::Cell< Matrix< DDRMat > > mMechanicalTestTraction;
-                moris::Cell< bool > mMechanicalTestTractionEval;
+                moris::Matrix< DDBMat > mMechanicalTestTractionEval;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdMechanicalTestTractiondDof;
-                moris::Cell< moris::Cell< bool > > mdMechanicalTestTractiondDofEval;
+                moris::Matrix< DDBMat > mdMechanicalTestTractiondDofEval;
 
                 // DoF derivative of du/dt ----------------------------
                 Matrix< DDRMat > mdNveldt;

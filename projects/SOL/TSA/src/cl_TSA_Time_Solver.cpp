@@ -96,6 +96,7 @@ void Time_Solver::delete_pointers()
         }
 
         mFullVector.clear();
+        delete mFullMap;
 
         for( auto tFullSolVec : mFullVectorSensitivity)
         {
@@ -402,7 +403,7 @@ void Time_Solver::initialize_sol_vec()
         // create map object
         sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-        std::shared_ptr<sol::Dist_Map>  tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+        sol::Dist_Map*  tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
 
         uint tNumRHMS = mSolverInterface->get_num_rhs();
 
@@ -454,6 +455,7 @@ void Time_Solver::initialize_sol_vec()
         mFullVector( 1 )->import_local_to_global( *tFreeVector );
 
         delete( tFreeVector );
+        delete tFeeMap;
     }
 }
 
