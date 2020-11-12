@@ -91,7 +91,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
-                            { tDepStartIndex, tDepStopIndex } ) += aWStar * (
+                            { tDepStartIndex, tDepStopIndex } ) -= aWStar * (
                                     trans( tFIPhiD->N() ) * trans( mNormal ) * tdHeatFluxdDOF );
                 }
             }

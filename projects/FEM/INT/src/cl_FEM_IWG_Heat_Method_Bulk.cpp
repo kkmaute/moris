@@ -102,12 +102,14 @@ namespace moris
                     Matrix< DDRMat > tNormGradTheta = tGradTheta / tNorm;
                     Matrix< DDRMat > tNormBTheta = tBTheta / tNorm;
 
+                    // compute dof derivative of flux term
+                    Matrix< DDRMat > tdHeatFluxdDOF = tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta;
+
                     // add contibution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIPhiD->dnNdxn( 1 ) ) * tNormBTheta +
-                                    trans( tFIPhiD->dnNdxn( 1 ) ) * tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
+                                    trans( tFIPhiD->dnNdxn( 1 ) ) * tdHeatFluxdDOF );
                 }
             }
 
