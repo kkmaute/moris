@@ -199,7 +199,8 @@ namespace moris
             mEquationModel = std::make_shared< fem::FEM_Model >(
                     mMeshManager,
                     mMeshPairIndex,
-                    aSetInfo );
+                    aSetInfo,
+                    aDesignVariableInterface );
 
             if( par_rank() == 0)
             {
@@ -286,6 +287,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Model::initialize()
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -306,7 +308,12 @@ namespace moris
                     mMeshManager,
                     mMeshPairIndex,
                     mFEMParameterList,
-                    mLibrary );
+                    mLibrary,
+                    mDesignVariableInterface );
+
+            //mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+
+            mDesignVariableInterface->set_equation_model( mEquationModel );
 
             if( par_rank() == 0)
             {
@@ -440,9 +447,9 @@ namespace moris
         {
             mDesignVariableInterface = aDesignVariableInterface;
 
-            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-
-            mDesignVariableInterface->set_equation_model( mEquationModel );
+//            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+//
+//            mDesignVariableInterface->set_equation_model( mEquationModel );
         }
 
         //------------------------------------------------------------------------------
