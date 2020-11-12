@@ -70,8 +70,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
                                                 sol::SOL_Warehouse       * aSolverWarehouse,
-                                                std::shared_ptr<sol::Dist_Map>  aFreeMap,
-                                                std::shared_ptr<sol::Dist_Map>  aFullMap,
+                                                sol::Dist_Map*  aFreeMap,
+                                                sol::Dist_Map*  aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
@@ -122,8 +122,8 @@ Linear_System_PETSc::~Linear_System_PETSc()
     if ( mNotCreatedByNonLinearSolver == true )
     {
         // These calls are needed in order to delete the underlying Petsc maps before PetscFinalize
-        mMap.reset();
-        mMapFree.reset();
+        delete mMap;
+        delete mMapFree;
 
         PetscFinalize();
     }

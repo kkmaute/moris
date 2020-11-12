@@ -12,7 +12,7 @@ namespace moris
         {
         private:
             real (Plane::*m_eval_field)(const Matrix<DDRMat>&) = nullptr;
-            Matrix<DDRMat> (Plane::*m_eval_sensitivity)(const Matrix<DDRMat>&) = nullptr;
+            const Matrix<DDRMat>& (Plane::*m_eval_sensitivity)(const Matrix<DDRMat>&) = nullptr;
 
         public:
             /**
@@ -140,7 +140,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Vector of sensitivities
              */
-            Matrix<DDRMat> get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
 
         private:
 
@@ -157,12 +157,12 @@ namespace moris
             /**
              * 2D evaluation for get_field_sensitivities
              */
-            Matrix<DDRMat> eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates);
 
             /**
              * 3D evaluation for get_field_sensitivities
              */
-            Matrix<DDRMat> eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates);
         };
     }
 }

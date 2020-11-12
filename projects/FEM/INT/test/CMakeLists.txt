@@ -36,6 +36,7 @@ set(TEST_SOURCES
     UT_FEM_CM_Compressible_Fluid_Ideal.cpp
     UT_FEM_CM_Compressible_Fluid_VdW.cpp
     UT_FEM_SP_Fluid.cpp
+    UT_FEM_IWG_Heat_Method.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp

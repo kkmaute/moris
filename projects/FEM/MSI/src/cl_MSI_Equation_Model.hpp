@@ -53,7 +53,7 @@ namespace moris
             sol::Dist_Vector * mAdjointSolutionVector  = nullptr;
             sol::Dist_Vector * mPreviousAdjointSolutionVector = nullptr;
 
-            std::shared_ptr<sol::Dist_Map>  mdQIdpMap = nullptr;
+            sol::Dist_Map*  mdQIdpMap = nullptr;
 
             moris::Cell< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
@@ -88,7 +88,7 @@ namespace moris
             /**
              * destructor
              */
-            virtual ~Equation_Model(){};
+            virtual ~Equation_Model();
 
             //------------------------------------------------------------------------------
             /**

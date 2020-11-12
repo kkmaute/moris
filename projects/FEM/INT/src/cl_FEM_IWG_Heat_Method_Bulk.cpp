@@ -82,7 +82,7 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                // if dof type is density, add diagonal term (density - density DoF types)
+                // Dof Deriv wrt. to PhiD
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
                     // add contibution
@@ -92,7 +92,7 @@ namespace moris
                                     trans( tFIPhiD->dnNdxn( 1 ) ) * tFIPhiD->dnNdxn( 1 ) );
                 }
 
-                // if dof type is density, add diagonal term (density - density DoF types)
+                // Dof Deriv wrt. to Theta
                 if( tDofType( 0 ) == mDofTheta )
                 {
                     // compute normalized gradient of Theta
@@ -102,12 +102,14 @@ namespace moris
                     Matrix< DDRMat > tNormGradTheta = tGradTheta / tNorm;
                     Matrix< DDRMat > tNormBTheta = tBTheta / tNorm;
 
+                    // compute dof derivative of flux term
+                    Matrix< DDRMat > tdHeatFluxdDOF = tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta;
+
                     // add contibution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIPhiD->dnNdxn( 1 ) ) * tNormBTheta -
-                                    trans( tFIPhiD->dnNdxn( 1 ) ) *  tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
+                                    trans( tFIPhiD->dnNdxn( 1 ) ) * tdHeatFluxdDOF );
                 }
             }
 

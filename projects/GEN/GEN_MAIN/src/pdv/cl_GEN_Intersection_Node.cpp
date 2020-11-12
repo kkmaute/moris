@@ -112,7 +112,7 @@ namespace moris
             real tPhi2 = mInterfaceGeometry->get_field_value(mParentNodeIndices(1), mParentNodeCoordinates(1));
 
             // Get geometry field sensitivity with respect to ADVs
-            Matrix<DDRMat> tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
+            const Matrix<DDRMat>& tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
                     mParentNodeIndices(0),
                     mParentNodeCoordinates(0));
 
@@ -133,7 +133,7 @@ namespace moris
             real tPhi2 = mInterfaceGeometry->get_field_value(mParentNodeIndices(1), mParentNodeCoordinates(1));
 
             // Get geometry field sensitivity with respect to ADVs
-            Matrix<DDRMat> tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
+            const Matrix<DDRMat>& tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
                     mParentNodeIndices(1),
                     mParentNodeCoordinates(1));
 

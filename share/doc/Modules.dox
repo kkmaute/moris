@@ -127,6 +127,9 @@ The core functionalities of HMR are
     @addtogroup  HMR_MTK_Interface
     @ingroup HMR_Module
     
+    @addtogroup HMR_Processor_Decomposition
+    @ingroup HMR_Module
+    
     @addtogroup  HMR_Refinement_Manager
     @ingroup HMR_Module
     

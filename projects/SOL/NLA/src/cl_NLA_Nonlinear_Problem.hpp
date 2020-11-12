@@ -47,8 +47,8 @@ namespace NLA
         sol::Dist_Vector * mFullVector = nullptr;
         sol::Dist_Vector * mDummyFullVector = nullptr;      // FIXME Delete
 
-        std::shared_ptr<sol::Dist_Map>  mMap = nullptr;
-        std::shared_ptr<sol::Dist_Map>  mMapFull = nullptr;               //FIXME replace with marketplace
+        sol::Dist_Map*  mMap = nullptr;
+        sol::Dist_Map*  mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 

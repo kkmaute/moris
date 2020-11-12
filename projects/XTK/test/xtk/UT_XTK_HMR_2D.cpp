@@ -145,7 +145,6 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
             size_t tModelDimension = 2;
             moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
             moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
-            tGeometryEngine.finalize_fields(tInterpMesh );
             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
             tXTKModel.mVerbose  =  false;
 
@@ -249,7 +248,6 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (tGeometry.size());
          moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh);
-         tGeometryEngine.finalize_fields(tInterpMesh );
          Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 

@@ -70,7 +70,7 @@ namespace moris
         {
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
-            moris::map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
+            map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
             mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
 
             // Set requested PDVs
@@ -151,8 +151,8 @@ namespace moris
         {
             // Create full ADVs
             sol::Matrix_Vector_Factory tDistributedFactory;
-            std::shared_ptr<sol::Dist_Map> tFullMap = tDistributedFactory.create_map(mFullADVIds);
-            moris::sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap);
+            sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
+            sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap, 1, true);
 
             // Import ADVs
             tFullVector->import_local_to_global(*mOwnedADVs);
@@ -591,8 +591,12 @@ namespace moris
 
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
-            // Get integration mesh
+            // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
+            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
+
+            // Build properties from parameter lists using distributed vector
+            mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, tInterpolationMesh, mLibrary);
 
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
@@ -629,9 +633,9 @@ namespace moris
                 }
             }
 
-            Matrix< IdMat > tCommTable = aMeshManager->get_interpolation_mesh(0)->get_communication_table();
+            Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
-                    aMeshManager->get_interpolation_mesh(0)->get_vertex_glb_id_to_loc_vertex_ind_map();
+                    tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
             std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
                     tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
 
@@ -640,7 +644,7 @@ namespace moris
 
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
-                    aMeshManager->get_interpolation_mesh(0),
+                    tInterpolationMesh,
                     tIntegrationMesh,
                     tPdvTypes);
 
@@ -673,7 +677,7 @@ namespace moris
         void Geometry_Engine::initialize_pdv_type_list()
         {
             // Reserve of temporary pdv type list
-            moris::Cell< enum PDV_Type > tTemporaryPdvTypeList;
+            Cell< enum PDV_Type > tTemporaryPdvTypeList;
             tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
             Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(PDV_Type::UNDEFINED) + 1), 1, 0 );
 
@@ -703,16 +707,6 @@ namespace moris
 
             // Create a map
              mPdvHostManager.create_dv_type_map();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::finalize_fields( mtk::Interpolation_Mesh* aMesh )
-        {
-            for( auto tGeometry : mGeometries )
-            {
-                tGeometry->set_mesh( aMesh );
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -842,12 +836,12 @@ namespace moris
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
                 // Create map for distributed vectors
-                std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
-                std::shared_ptr<sol::Dist_Map> tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
+                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+                sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
                 // Create vectors
-                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
-                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap);
+                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, true);
+                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, true);
 
                 // Assign primitive ADVs
                 if (par_rank() == 0)
@@ -904,9 +898,6 @@ namespace moris
                                 mGeometries(tGeometryIndex));
                     }
                 }
-
-                // Build properties from parameter lists using distributed vector
-                mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
 
                 //----------------------------------------//
                 // Communicate all ADV IDs to processor 0 //
@@ -1149,30 +1140,33 @@ namespace moris
             // Loop through sets
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
-                uint tCurrentNode = 0;
-                mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
-
-                // Clusters per set
-                for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
+                if (aPdvTypes(tMeshSetIndex).size() > 0)
                 {
-                    const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
+                    uint tCurrentNode = 0;
+                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
 
-                    // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
-                    Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
-                    Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_vertex_ids();
-                    Matrix<IndexMat> tNodeOwnersInCluster = tCluster->get_interpolation_cell().get_vertex_owners();
-
-                    // FIXME don't undersand this resize. it's really slow
-                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
-                    tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
-                    tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
-
-                    // FIXME we have nodes up to 8 tims in this list in 3d
-                    for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                    // Clusters per set
+                    for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
                     {
-                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
-                        tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
-                        tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
+                        const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
+
+                        // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
+                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
+                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_vertex_ids();
+                        Matrix<IndexMat> tNodeOwnersInCluster = tCluster->get_interpolation_cell().get_vertex_owners();
+
+                        // FIXME don't undersand this resize. it's really slow
+                        tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+                        tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
+                        tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
+
+                        // FIXME we have nodes up to 8 tims in this list in 3d
+                        for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                        {
+                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
+                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
+                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
+                        }
                     }
                 }
             }
@@ -1290,7 +1284,7 @@ namespace moris
             mVertexGeometricProximity = Cell<Geometric_Proximity>(aMesh->get_num_nodes(),Geometric_Proximity(mGeometries.size()));
 
             // iterate through vertices then geometries
-            for(moris::uint iV = 0; iV < aMesh->get_num_nodes(); iV++)
+            for(uint iV = 0; iV < aMesh->get_num_nodes(); iV++)
             {
                 Matrix<DDRMat> tCoords = aMesh->get_node_coordinate(moris_index(iV));
 
@@ -1312,7 +1306,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         moris_index
-        Geometry_Engine::get_geometric_proximity_index(moris::real const & aGeometricVal)
+        Geometry_Engine::get_geometric_proximity_index(real const & aGeometricVal)
         {
             moris_index tGeometricProxIndex = MORIS_INDEX_MAX;
             if(aGeometricVal < mIsocontourThreshold)

@@ -504,13 +504,13 @@ namespace moris
             sol::Matrix_Vector_Factory tDistributedFactory;
 
             // Create maps
-            std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
-            std::shared_ptr<sol::Dist_Map> tFullADVMap = tDistributedFactory.create_map(aFullADVIds);
+            sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+            sol::Dist_Map* tFullADVMap = tDistributedFactory.create_map(aFullADVIds);
 
             // Create vectors
             sint tNumIQIs = tdIQIdPDV->get_num_vectors();
-            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs);
-            sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs);
+            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs, true);
+            sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs, true);
 
             // Initialize to zero
             tdIQIdADV->vec_put_scalar(0.0);
@@ -614,8 +614,8 @@ namespace moris
             sol::Matrix_Vector_Factory tDistributedFactory;
 
             // Create row and column maps
-            std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
-            std::shared_ptr<sol::Dist_Map> tOwnedPDVMap = tDistributedFactory.create_map(mOwnedPdvLocalToGlobalMap);
+            sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+            sol::Dist_Map* tOwnedPDVMap = tDistributedFactory.create_map(mOwnedPdvLocalToGlobalMap);
 
             // Create vector
             sol::Dist_Matrix* tdPDVdADV = tDistributedFactory.create_matrix(tOwnedPDVMap, tOwnedADVMap);

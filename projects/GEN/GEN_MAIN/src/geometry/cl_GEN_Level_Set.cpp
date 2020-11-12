@@ -37,7 +37,7 @@ namespace moris
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  Field_Discrete(aMesh->get_num_nodes()),
+                  Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mMesh(aMesh)
         {
             // Check that number of variables equals the number of B-spline coefficients
@@ -62,7 +62,7 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
-                  Field_Discrete(aMesh->get_num_nodes()),
+                  Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mMesh(aMesh)
         {
             // Map to B-splines
@@ -110,10 +110,10 @@ namespace moris
 
             // Create owned and shared distributed vectors
             sol::Matrix_Vector_Factory tDistributedFactory;
-            std::shared_ptr<sol::Dist_Map> tOwnedNodeMap = tDistributedFactory.create_map(tOwnedNodeIDs);
-            std::shared_ptr<sol::Dist_Map> tSharedNodeMap = tDistributedFactory.create_map(tSharedNodeIDs);
-            mOwnedNodalValues = tDistributedFactory.create_vector(tOwnedNodeMap);
-            mSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap);
+            sol::Dist_Map* tOwnedNodeMap = tDistributedFactory.create_map(tOwnedNodeIDs);
+            sol::Dist_Map* tSharedNodeMap = tDistributedFactory.create_map(tSharedNodeIDs);
+            mOwnedNodalValues = tDistributedFactory.create_vector(tOwnedNodeMap, 1, true);
+            mSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap, 1, true);
 
             // Import ADVs and assign nodal values
             this->import_advs(aOwnedADVs);
@@ -142,7 +142,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Level_Set::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& Level_Set::get_field_sensitivities(uint aNodeIndex)
         {
             return mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index());
         }

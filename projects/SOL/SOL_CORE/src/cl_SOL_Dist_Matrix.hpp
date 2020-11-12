@@ -40,7 +40,7 @@ namespace moris
 
         protected:
             Epetra_FECrsMatrix   * mEpetraMat;
-            std::shared_ptr<Dist_Map> mMap;
+            Dist_Map* mMap;
             Mat                    mPETScMat;
 
         public:
@@ -49,7 +49,7 @@ namespace moris
                              mPETScMat( NULL )
             {};
 
-            Dist_Matrix( std::shared_ptr<Dist_Map> aMap ) : mEpetraMat( NULL ),
+            Dist_Matrix( Dist_Map* aMap ) : mEpetraMat( NULL ),
                     mMap( aMap ),
                     mPETScMat( NULL )
             {};

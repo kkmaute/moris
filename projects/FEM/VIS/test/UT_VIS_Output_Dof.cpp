@@ -166,8 +166,6 @@ namespace moris
                 moris::ge::Phase_Table tPhaseTable (1);
                 moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
-                tGeometryEngine.finalize_fields(tInterpMesh );
-
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 

@@ -149,6 +149,76 @@ A Background %Element is defined by
 - a flag telling if the element is marked for refinement
 - an array of pointers containing the neighbors of the element. The neighbor array always refers to the currently selected activation pattern.
 
+# Processor Decomposition Methods
+
+This section will discuss the various processor decomposition schemes for
+parallel computing. In general, MORIS has three distinct methods that can be
+manipulated using \p mProcDecompMethod in hmr::Parameters:
+
+1. User defined processor grid
+2. Minimum processor interface
+3. Minimum mesh interface
+
+## Method: User Defined Processor Grid
+
+- \p mProcDecompMethod = 0
+
+This decomposition method allows the user to manually define the processor grid
+used. The number of processors stipulated here must match the number of
+processors that the code is run with. The processor grid is stipulated using
+\p mProcessorDimensions in hmr::Parameters.
+
+## Method: Minimum Processor Interface
+
+- \p mProcDecompMethod = 1
+
+This decomposition method creates a grid of processors to be as square as
+possible. This method is independent of the underlying mesh dimensions and will
+produce the same processor grid for the same number of processors using the
+same number of dimensions. For example, if moris::par_size() = 4, then this
+method will always produce a processor grid that is \f$ (N_x,N_y)=(2,2) \f$ for
+all 2-D meshes. See Figure 1.
+
+@image html Proc_Decomp_Method_1.png "Figure 1: Minimum Processor <!--
+--> Interface Decomposition method with four processors and 8 by 2 mesh." <!--
+--> width=700px
+
+This decomposition method is handled by the external function \p MPI_Dims_create
+within cl_Communication_Tools.hpp.
+
+## Method: Minimum Mesh Interface
+
+- \p mProcDecompMethod = 2
+
+This decomposition method creates a grid of processors that minimizes the mesh
+interface between adjacent processors. This method will create a grid of
+processors that most represents the grid dimensions. Specifically, this method
+determines an ideal processor grid layout (\f$ N_x,N_y,N_z \f$) that minimizes
+the the interface count (\f$ I \f$) for specified mesh dimensions
+(\f$ n_x,n_y,n_z \f$) and number of processors (\f$N\f$ or moris::par_size()).
+
+<b> In 2-D: </b>
+
+\f$ \min(I)=\min[n_y (N_x - 1) + n_x (N_y - 1)] \f$
+
+Subject to: \f$ N_x N_y = N \f$
+
+<b> In 3-D: </b>
+
+\f$ \min(I)=\min[n_x n_y (N_z-1) + n_x n_z (N_y-1) + n_y n_z (N_x-1)] \f$
+
+Subject to: \f$ N_x N_y N_z= N \f$
+
+<b>2-D Example with 4 Processors: </b>
+
+This decomposition method can be illustrated with the same
+\f$(n_x,n_y)=(8,2)\f$ mesh in Figure 1. Figure 2 shows how this decomposition
+method will reduce the number of mesh-to-mesh interfaces across processor
+domains by using a processor grid of \f$(N_x,N_y)=(4,2)\f$
+
+@image html Proc_Decomp_Method_2.png "Figure 2: Minimum Mesh Interface <!--
+--> Decomposition method with four processors and 8 by 2 mesh." width=700px
+
 */
 #---------------------------------------------------------------------------
 }

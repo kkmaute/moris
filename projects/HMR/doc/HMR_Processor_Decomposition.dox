@@ -1,0 +1,12 @@
+namespace moris {
+namespace hmr {
+
+#---------------------------------------------------------------------------
+/** @defgroup HMR_Processor_Decomposition Processor Decomposition
+Details of processor decomposition methods can be found in
+\ref HMR_Background_Mesh .
+
+*/
+#---------------------------------------------------------------------------
+}
+}

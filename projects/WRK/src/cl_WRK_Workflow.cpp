@@ -59,10 +59,6 @@ namespace moris
             }
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-
-            mPerformerManager->mGENPerformer( 0 )->finalize_fields(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
-
             mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
@@ -83,9 +79,6 @@ namespace moris
 
             // Stage 2: XTK -----------------------------------------------------------------------------
             mPerformerManager->create_xtk();
-
-            mPerformerManager->mGENPerformer( 0 )->finalize_fields(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
@@ -114,6 +107,12 @@ namespace moris
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+
+            // Communicate IQIs
+            for( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
+            {
+                tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
+            }
 
             moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 

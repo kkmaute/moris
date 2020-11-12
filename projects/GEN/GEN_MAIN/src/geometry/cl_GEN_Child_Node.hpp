@@ -21,9 +21,10 @@ namespace moris
 
         private:
             Matrix<DDRMat>       mLocalCoordinates;
+            Matrix<DDRMat>       mJoinedSensitivities;
 
         public:
-            Child_Node(){};
+
             /**
              * Constructor
              *
@@ -58,7 +59,7 @@ namespace moris
              * @param aField Field pointer, referenced during call from field class
              * @return Field sensitivities
              */
-            virtual Matrix<DDRMat> join_field_sensitivities(Field* aField);
+            virtual const Matrix<DDRMat>& join_field_sensitivities(Field* aField);
 
             /**
              * Joins the depending ADV IDs on the child node based on its parents.

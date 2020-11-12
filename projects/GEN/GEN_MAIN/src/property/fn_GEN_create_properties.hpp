@@ -8,6 +8,11 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Mesh;
+    }
+
     namespace ge
     {
         /**
@@ -40,6 +45,7 @@ namespace moris
                 Cell<ParameterList>             aPropertyParameterLists,
                 sol::Dist_Vector*               aOwnedADVs,
                 Cell<std::shared_ptr<Geometry>> aGeometries = {},
+                mtk::Mesh*                      aMesh = nullptr,
                 std::shared_ptr<Library_IO>     aLibrary = nullptr);
 
         /**
@@ -68,6 +74,7 @@ namespace moris
                 ParameterList                aPropertyParameterList,
                 sol::Dist_Vector*            aOwnedADVs,
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
+                mtk::Mesh*                   aMesh = nullptr,
                 std::shared_ptr<Library_IO>  aLibrary = nullptr);
 
         /**

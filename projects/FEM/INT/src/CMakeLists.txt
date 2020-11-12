@@ -30,7 +30,6 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     
     cl_FEM_IWG_Diffusion_Bulk.hpp
-    cl_FEM_IWG_Heat_Method_Bulk.hpp
     cl_FEM_IWG_Advection_Bulk.hpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Diffusion_Neumann.hpp
@@ -38,6 +37,9 @@ set(HEADERS
     cl_FEM_IWG_Diffusion_Radiation.hpp
     cl_FEM_IWG_Diffusion_Interface.hpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
+    
+    cl_FEM_IWG_Heat_Method_Bulk.hpp
+    cl_FEM_IWG_Heat_Method_Boundary.hpp    
     
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
@@ -232,7 +234,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     
     cl_FEM_IWG_Diffusion_Bulk.cpp
-    cl_FEM_IWG_Heat_Method_Bulk.cpp
     cl_FEM_IWG_Advection_Bulk.cpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Diffusion_Neumann.cpp
@@ -240,6 +241,9 @@ set(LIB_SOURCES
     cl_FEM_IWG_Diffusion_Radiation.cpp
     cl_FEM_IWG_Diffusion_Interface.cpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
+    
+    cl_FEM_IWG_Heat_Method_Bulk.cpp
+    cl_FEM_IWG_Heat_Method_Boundary.cpp        
     
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp

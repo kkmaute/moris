@@ -32,11 +32,11 @@ namespace moris
     
             Dist_Matrix *create_matrix(
                     Solver_Interface *aInput,
-                    std::shared_ptr<Dist_Map> aMap);
+                    Dist_Map* aMap);
     
             Dist_Matrix *create_matrix(
-                    std::shared_ptr<Dist_Map> aRowMap,
-                    std::shared_ptr<Dist_Map> aColMap);
+                    Dist_Map* aRowMap,
+                    Dist_Map* aColMap);
     
             Dist_Matrix *create_matrix(
                     const moris::uint aRows,
@@ -44,12 +44,14 @@ namespace moris
     
             Dist_Vector *create_vector(
                     moris::Solver_Interface *aInput,
-                    std::shared_ptr<Dist_Map> aMap,
-                    const sint aNumVectors = 1);
+                    Dist_Map* aMap,
+                    const sint aNumVectors = 1,
+                    bool aManageMap = false);
     
             Dist_Vector *create_vector(
-                    std::shared_ptr<Dist_Map> aMap,
-                    const sint aNumVectors = 1);
+                    Dist_Map* aMap,
+                    const sint aNumVectors = 1,
+                    bool aManageMap = false);
 
             /**
              * Creates a distributed vector/matrix map
@@ -58,7 +60,7 @@ namespace moris
              * @param aMyConstraintIds Constraint IDs
              * @return Distributed map
              */
-            std::shared_ptr<Dist_Map> create_map(
+            Dist_Map* create_map(
                     const moris::Matrix<DDSMat> &aMyGlobalIds,
                     const moris::Matrix<DDUMat> &aMyConstraintIds);
 
@@ -68,7 +70,7 @@ namespace moris
              * @param aMyGlobalIds Owned global IDs
              * @return Distributed map
              */
-            std::shared_ptr<Dist_Map> create_map(const moris::Matrix<DDSMat> &aMyGlobalIds);
+            Dist_Map* create_map(const moris::Matrix<DDSMat> &aMyGlobalIds);
         };
     }
 }

@@ -1,10 +1,11 @@
 #include "fn_GEN_create_properties.hpp"
-#include "fn_GEN_create_properties.hpp"
-#include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Discrete_Property.hpp"
 #include "cl_GEN_User_Defined_Property.hpp"
+
+#include "cl_MTK_Mesh_Core.hpp"
+#include "fn_Parsing_Tools.hpp"
 
 namespace moris
 {
@@ -116,6 +117,7 @@ namespace moris
                 Cell<ParameterList>             aPropertyParameterLists,
                 sol::Dist_Vector*               aOwnedADVs,
                 Cell<std::shared_ptr<Geometry>> aGeometries,
+                mtk::Mesh*                      aMesh,
                 std::shared_ptr<Library_IO>     aLibrary)
         {
             // Initialize
@@ -197,6 +199,7 @@ namespace moris
                                     aPropertyParameterLists(tBuildPropertyIndex),
                                     aOwnedADVs,
                                     tNeededFields(tBuildPropertyIndex),
+                                    aMesh,
                                     aLibrary);
                             tNumPropertiesLeft--;
                         }
@@ -283,6 +286,7 @@ namespace moris
                 ParameterList                aPropertyParameterList,
                 sol::Dist_Vector*            aOwnedADVs,
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
+                mtk::Mesh*                   aMesh,
                 std::shared_ptr<Library_IO>  aLibrary)
         {
             // Property type/name
@@ -307,6 +311,7 @@ namespace moris
                         tADVIndices,
                         tConstantParameters,
                         aFieldDependencies,
+                        aMesh,
                         tPropertyName);
             }
             else if (tPropertyType == "discrete")
