@@ -8,6 +8,7 @@
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Model.hpp"
 
 #include "fn_max.hpp"
 #include "fn_min.hpp"
@@ -109,6 +110,53 @@ namespace moris
                 if( tSP != nullptr )
                 {
                     tSP->reset_eval_flags();
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::set_phase_name(
+                std::string aPhaseName,
+                mtk::Master_Slave aIsMaster )
+        {
+            switch( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    mMasterPhaseName = aPhaseName;
+                    break;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    mSlavePhaseName = aPhaseName;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_phase_name - aIsMaster can only be master or slave.");
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        std::string IWG::get_phase_name( mtk::Master_Slave aIsMaster )
+        {
+            switch( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    return mMasterPhaseName;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    return mSlavePhaseName;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::get_phase_name - aIsMaster can only be master or slave.");
+                    return mMasterPhaseName;
                 }
             }
         }
@@ -1871,25 +1919,47 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG::compute_dRdp_FD_geometry(
-                moris::real                       aWStar,
-                moris::real                       aPerturbation,
-                moris::Cell< Matrix< DDSMat > > & aIsActive,
-                Matrix< IndexMat >              & aVertexIndices,
-                fem::FDScheme_Type                aFDSchemeType )
+                moris::real          aWStar,
+                moris::real          aPerturbation,
+                Matrix< DDSMat >   & aGeoLocalAssembly,
+                fem::FDScheme_Type   aFDSchemeType )
         {
-            // get requested geometry pdv types
-            moris::Cell< PDV_Type > tRequestedGeoPdvType;
-            mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
-
-            // get the GI for the IG element considered
-            Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
-            Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
-            Geometry_Interpolator * tIGGIPrevious = nullptr;
-            if( mSet->get_element_type() == fem::Element_Type::TIME_SIDESET )
+            switch( mSet->get_element_type() )
             {
-                tIGGIPrevious =
-                        mSet->get_field_interpolator_manager_previous_time()->get_IG_geometry_interpolator();
+                case fem::Element_Type::BULK :
+                    this->compute_dRdp_FD_geometry_bulk(
+                            aWStar, aPerturbation,
+                            aGeoLocalAssembly, aFDSchemeType );
+                    break;
+                case fem::Element_Type::SIDESET :
+                    this->compute_dRdp_FD_geometry_sideset(
+                            aWStar, aPerturbation,
+                            aGeoLocalAssembly, aFDSchemeType );
+                    break;
+                case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY:
+                    this->compute_dRdp_FD_geometry_time_sideset(
+                            aWStar, aPerturbation,
+                            aGeoLocalAssembly, aFDSchemeType );
+                    break;
+                default :
+                    MORIS_ERROR( false, "IWG::compute_dRdp_FD_geometry - unknown element type.");
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::compute_dRdp_FD_geometry_bulk(
+                moris::real          aWStar,
+                moris::real          aPerturbation,
+                Matrix< DDSMat >   & aGeoLocalAssembly,
+                fem::FDScheme_Type   aFDSchemeType )
+        {
+            // get the GI for the IG element considered
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tIPGI =
+                    mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
             // get the residual dof type index in the set
             uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1899,10 +1969,9 @@ namespace moris
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
-            Matrix< DDRMat > tResidual =
-                    mSet->get_residual()( 0 )(
-                            { tResDofAssemblyStart, tResDofAssemblyStop },
-                            { 0, 0 } );
+            Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )(
+                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                    { 0, 0 } );
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tIGGI->get_number_of_space_bases();
@@ -1915,13 +1984,6 @@ namespace moris
             tIGGI->get_space_time( tEvaluationPoint );
             real tGPWeight = aWStar / tIGGI->det_J();
 
-            // for sideset
-            Matrix< DDRMat > tNormal;
-            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
-            {
-                tIGGI->get_normal( tNormal );
-            }
-
             // IP element max/min
             Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
             Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
@@ -1933,12 +1995,16 @@ namespace moris
             moris::Cell< moris::Cell< real > > tFDScheme;
 
             // loop over the spatial directions
-            for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
             {
                 // loop over the IG nodes
-                for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+                    // get the geometry pdv assembly index
+                    sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+
+                    // if pdv is active
+                    if( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
                         tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
@@ -1961,11 +2027,6 @@ namespace moris
                         }
                         fd_scheme( tUsedFDScheme, tFDScheme );
                         uint tNumPoints = tFDScheme( 0 ).size();
-
-                        // get the geometry pdv assembly index
-                        std::pair< moris_index, PDV_Type > tKeyPair =
-                                std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
-                        uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
                         // set starting point for FD
                         uint tStartPoint = 0;
@@ -2009,25 +2070,6 @@ namespace moris
                             mSet->get_field_interpolator_manager()->
                                     set_space_time_from_local_IG_point( tEvaluationPoint );
 
-                            // for time sideset
-                            if( mSet->get_element_type() == fem::Element_Type::TIME_SIDESET )
-                            {
-                                tIGGIPrevious->set_space_coeff( tCoeffPert );
-                                tIGGIPrevious->set_space_param_coeff( tParamCoeffPert );
-
-                                // set evaluation point for interpolators (FIs and GIs)
-                                mSet->get_field_interpolator_manager_previous_time()->
-                                        set_space_time_from_local_IG_point( tEvaluationPoint );
-                            }
-
-                            // reset the normal
-                            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
-                            {
-                                Matrix< DDRMat > tNormalPert;
-                                tIGGI->get_normal( tNormalPert );
-                                this->set_normal( tNormalPert );
-                            }
-
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
 
@@ -2052,17 +2094,360 @@ namespace moris
             tIGGI->set_space_param_coeff( tParamCoeff );
             mSet->get_field_interpolator_manager()->
                     set_space_time_from_local_IG_point( tEvaluationPoint );
-            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::compute_dRdp_FD_geometry_sideset(
+                moris::real          aWStar,
+                moris::real          aPerturbation,
+                Matrix< DDSMat >   & aGeoLocalAssembly,
+                fem::FDScheme_Type   aFDSchemeType )
+        {
+            // get the GI for the IG element considered
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tIPGI =
+                    mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+
+            // get the residual dof type index in the set
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )(
+                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                    { 0, 0 } );
+
+            // store unperturbed xyz
+            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+
+            // store unperturbed local coordinates
+            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
+
+            // store unperturbed evaluation point
+            Matrix< DDRMat > tEvaluationPoint;
+            tIGGI->get_space_time( tEvaluationPoint );
+
+            // store unperturbed evaluation point weight
+            real tGPWeight = aWStar / tIGGI->det_J();
+
+            // store unperturbed normal
+            Matrix< DDRMat > tNormal;
+            tIGGI->get_normal( tNormal );
+
+            // IP element max/min
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
+
+            // init perturbation
+            real tDeltaH = 0.0;
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+
+            // get number of master GI bases and space dimensions
+            uint tDerNumBases      = tIGGI->get_number_of_space_bases();
+            uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
+
+            // loop over the spatial directions
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
             {
-                this->set_normal( tNormal );
+                // loop over the IG nodes
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // get the geometry pdv assembly index
+                    sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+
+                    // if pdv is active
+                    if( tPdvAssemblyIndex != -1 )
+                    {
+                        // compute the perturbation value
+                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( std::abs( tDeltaH ) < 1e-12 )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
+                        // check point location
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
+                        {
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+                        }
+                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
+                        {
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                        }
+                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        uint tNumPoints = tFDScheme( 0 ).size();
+
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward add unperturbed contribution
+                        if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        {
+                            // add unperturbed residual contribution to dRdp
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( 0 ) * tResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
+                        }
+
+                        // loop over point of FD scheme
+                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        {
+                            // reset the perturbed coefficients
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                            // perturb the coefficient
+                            tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                            // setting the perturbed coefficients
+                            tIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                            tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset the normal
+                            Matrix< DDRMat > tNormalPert;
+                            tIGGI->get_normal( tNormalPert );
+                            this->set_normal( tNormalPert );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset and evaluate the residual
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_residual( tWStarPert );
+
+                            // evaluate dRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( iPoint ) *
+                                            mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                    }
+                }
             }
-            if( mSet->get_element_type() == fem::Element_Type::TIME_SIDESET )
+
+            // reset xyz values
+            tIGGI->set_space_coeff( tCoeff );
+
+            // reset local coordinates values
+            tIGGI->set_space_param_coeff( tParamCoeff );
+
+            // reset evaluation point
+            mSet->get_field_interpolator_manager()->
+                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+            // reset normal
+            this->set_normal( tNormal );
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::compute_dRdp_FD_geometry_time_sideset(
+                moris::real          aWStar,
+                moris::real          aPerturbation,
+                Matrix< DDSMat >   & aGeoLocalAssembly,
+                fem::FDScheme_Type   aFDSchemeType )
+        {
+            // get the GI for the IG element considered
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator * tIPGI =
+                    mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+            Geometry_Interpolator * tIGGIPrevious =
+                    mSet->get_field_interpolator_manager_previous_time()->get_IG_geometry_interpolator();
+
+            // get the residual dof type index in the set
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )(
+                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                    { 0, 0 } );
+
+            // store unperturbed xyz
+            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+
+            // store unperturbed local coordinates
+            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
+
+            // store unperturbed evaluation point
+            Matrix< DDRMat > tEvaluationPoint;
+            tIGGI->get_space_time( tEvaluationPoint );
+
+            // store unperturbed evaluation point weight
+            real tGPWeight = aWStar / tIGGI->det_J();
+
+            // IP element max/min
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
+
+            // init perturbation
+            real tDeltaH = 0.0;
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+
+            // get number of master GI bases and space dimensions
+            uint tDerNumBases      = tIGGI->get_number_of_space_bases();
+            uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
+
+            // loop over the spatial directions
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
             {
-                tIGGIPrevious->set_space_coeff( tCoeff );
-                tIGGIPrevious->set_space_param_coeff( tParamCoeff );
-                mSet->get_field_interpolator_manager_previous_time()->
-                        set_space_time_from_local_IG_point( tEvaluationPoint );
+                // loop over the IG nodes
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // get the geometry pdv assembly index
+                    sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+
+                    // if pdv is active
+                    if( tPdvAssemblyIndex != -1 )
+                    {
+                        // compute the perturbation value
+                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( std::abs( tDeltaH ) < 1e-12 )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
+                        // check point location
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
+                        {
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+                        }
+                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
+                        {
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                        }
+                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        uint tNumPoints = tFDScheme( 0 ).size();
+
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward add unperturbed contribution
+                        if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        {
+                            // add unperturbed residual contribution to dRdp
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( 0 ) * tResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
+                        }
+
+                        // loop over point of FD scheme
+                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        {
+                            // reset the perturbed coefficients
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                            // perturb the coefficient
+                            tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                            // setting the perturbed coefficients
+                            tIGGI->set_space_coeff( tCoeffPert );
+                            tIGGIPrevious->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                            tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            tIGGI->set_space_param_coeff( tParamCoeffPert );
+                            tIGGIPrevious->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
+                            mSet->get_field_interpolator_manager_previous_time()->
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset and evaluate the residual plus
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_residual( tWStarPert );
+
+                            // evaluate dRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( iPoint ) *
+                                            mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                    }
+                }
             }
+
+            // reset xyz values
+            tIGGI->set_space_coeff( tCoeff );
+            tIGGIPrevious->set_space_coeff( tCoeff );
+
+            // reset local coordinates values
+            tIGGI->set_space_param_coeff( tParamCoeff );
+            tIGGIPrevious->set_space_param_coeff( tParamCoeff );
+
+            // reset evaluation point
+            mSet->get_field_interpolator_manager()->
+                    set_space_time_from_local_IG_point( tEvaluationPoint );
+            mSet->get_field_interpolator_manager_previous_time()->
+                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+            // reset the coefficients values
+            tIGGI->set_space_coeff( tCoeff );
+            tIGGIPrevious->set_space_coeff( tCoeff );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -2072,17 +2457,23 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG::compute_dRdp_FD_geometry_double(
-                moris::real                       aWStar,
-                moris::real                       aPerturbation,
-                moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
-                Matrix< IndexMat >              & aMasterVertexIndices,
-                moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
-                Matrix< IndexMat >              & aSlaveVertexIndices,
-                fem::FDScheme_Type                aFDSchemeType )
+                moris::real          aWStar,
+                moris::real          aPerturbation,
+                Matrix< IndexMat > & aMasterVertexIndices,
+                Matrix< IndexMat > & aSlaveVertexIndices,
+                Matrix< DDSMat >   & aGeoLocalAssembly,
+                fem::FDScheme_Type   aFDSchemeType )
         {
             // get requested geometry pdv types
             moris::Cell< PDV_Type > tRequestedGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
+
+            // get the pdv active flags from the FEM IG nodes
+            Matrix< DDSMat > tAssembly;
+            mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
+                    aMasterVertexIndices,
+                    tRequestedGeoPdvType,
+                    tAssembly );
 
             // get the master GI for the IG and IP element considered
             Geometry_Interpolator * tMasterIGGI =
@@ -2147,158 +2538,153 @@ namespace moris
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
-            if( aMasterIsActive.size() != 0 )
+            // loop over the IG nodes
+            for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // loop over the IG nodes
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                // find the node on the slave side
+                sint tSlaveNodeLocalIndex = -1;
+                for ( uint iNode = 0; iNode < tDerNumBases; iNode++ )
                 {
-                    // find the node on the slave side
-                    sint tSlaveNodeLocalIndex = -1;
-                    for ( uint iNode = 0; iNode < tDerNumBases; iNode++ )
+                    if( aMasterVertexIndices( iCoeffRow ) == aSlaveVertexIndices( iNode ) )
                     {
-                        if( aMasterVertexIndices( iCoeffRow ) == aSlaveVertexIndices( iNode ) )
-                        {
-                            tSlaveNodeLocalIndex = iNode;
-                            break;
-                        }
+                        tSlaveNodeLocalIndex = iNode;
+                        break;
                     }
-                    MORIS_ERROR( tSlaveNodeLocalIndex != -1, "IWG::compute_dRdp_FD_geometry_double - slave index not found.");
+                }
+                MORIS_ERROR( tSlaveNodeLocalIndex != -1, "IWG::compute_dRdp_FD_geometry_double - slave index not found.");
 
-                    // loop over the spatial directions
-                    for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+                // loop over the spatial directions
+                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+                {
+                    // get the geometry pdv assembly index
+                    sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+
+                    if ( tPdvAssemblyIndex != -1 )
                     {
-                        if ( aMasterIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+                        // compute the perturbation value
+                        tDeltaH = aPerturbation * tMasterCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
-                            // compute the perturbation value
-                            tDeltaH = aPerturbation * tMasterCoeff( iCoeffRow, iCoeffCol );
+                            tDeltaH = aPerturbation;
+                        }
 
-                            // check that perturbation is not zero
-                            if( std::abs( tDeltaH ) < 1e-12 )
-                            {
-                                tDeltaH = aPerturbation;
-                            }
+                        // check point location
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
+                        {
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+                        }
+                        else if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
+                        {
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                        }
+                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        uint tNumPoints = tFDScheme( 0 ).size();
 
-                            // check point location
-                            fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                            if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
-                            {
-                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-                            }
-                            else if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
-                            {
-                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-                            }
-                            fd_scheme( tUsedFDScheme, tFDScheme );
-                            uint tNumPoints = tFDScheme( 0 ).size();
+                        // set starting point for FD
+                        uint tStartPoint = 0;
 
-                            // get the geometry pdv assembly index
-                            std::pair< moris_index, PDV_Type > tKeyPair =
-                                    std::make_pair( aMasterVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
-                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+                        // if backward or forward add unperturbed contribution
+                        if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        {
+                            // add unperturbed master residual contribution to dRdp
+                            mSet->get_drdpgeo()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( 0 ) * tMasterResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
-                            // set starting point for FD
-                            uint tStartPoint = 0;
+                            // add unperturbed slave residual contribution to dRdp
+                            mSet->get_drdpgeo()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
-                            // if backward or forward add unperturbed contribution
-                            if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                                    ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
-                            {
-                                // add unperturbed master residual contribution to dRdp
-                                mSet->get_drdpgeo()(
-                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                                tFDScheme( 1 )( 0 ) * tMasterResidual /
-                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            // skip first point in FD
+                            tStartPoint = 1;
+                        }
 
-                                // add unperturbed slave residual contribution to dRdp
-                                mSet->get_drdpgeo()(
-                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                                tFDScheme( 1 )( 0 ) * tSlaveResidual /
-                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        // loop over point of FD scheme
+                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        {
+                            // reset the perturbed coefficients
+                            Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
+                            Matrix< DDRMat > tSlaveCoeffPert  = tSlaveCoeff;
 
-                                // skip first point in FD
-                                tStartPoint = 1;
-                            }
+                            // perturb the coefficient
+                            tMasterCoeffPert( iCoeffRow, iCoeffCol ) +=
+                                    tFDScheme( 0 )( iPoint ) * tDeltaH;
+                            tSlaveCoeffPert( tSlaveNodeLocalIndex, iCoeffCol ) +=
+                                    tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                            // loop over point of FD scheme
-                            for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
-                            {
-                                // reset the perturbed coefficients
-                                Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
-                                Matrix< DDRMat > tSlaveCoeffPert  = tSlaveCoeff;
+                            // setting the perturbed coefficients
+                            tMasterIGGI->set_space_coeff( tMasterCoeffPert );
+                            tSlaveIGGI->set_space_coeff( tSlaveCoeffPert );
 
-                                // perturb the coefficient
-                                tMasterCoeffPert( iCoeffRow, iCoeffCol ) +=
-                                        tFDScheme( 0 )( iPoint ) * tDeltaH;
-                                tSlaveCoeffPert( tSlaveNodeLocalIndex, iCoeffCol ) +=
-                                        tFDScheme( 0 )( iPoint ) * tDeltaH;
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tMasterCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tMasterParamCoeff.get_row( iCoeffRow );
+                            tMasterIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            Matrix< DDRMat > tMasterParamCoeffPert = tMasterParamCoeff;
+                            tMasterParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                            Matrix< DDRMat > tSlaveParamCoeffPert = tSlaveParamCoeff;
+                            tSlaveParamCoeffPert.get_row( tSlaveNodeLocalIndex ) = tXiCoords.matrix_data();
 
-                                // setting the perturbed coefficients
-                                tMasterIGGI->set_space_coeff( tMasterCoeffPert );
-                                tSlaveIGGI->set_space_coeff( tSlaveCoeffPert );
+                            tMasterIGGI->set_space_param_coeff( tMasterParamCoeffPert );
+                            tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeffPert );
 
-                                // update local coordinates
-                                Matrix< DDRMat > tXCoords  = tMasterCoeffPert.get_row( iCoeffRow );
-                                Matrix< DDRMat > tXiCoords = tMasterParamCoeff.get_row( iCoeffRow );
-                                tMasterIPGI->update_local_coordinates( tXCoords, tXiCoords );
-                                Matrix< DDRMat > tMasterParamCoeffPert = tMasterParamCoeff;
-                                tMasterParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-                                Matrix< DDRMat > tSlaveParamCoeffPert = tSlaveParamCoeff;
-                                tSlaveParamCoeffPert.get_row( tSlaveNodeLocalIndex ) = tXiCoords.matrix_data();
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                                    set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+                            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                                    set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
 
-                                tMasterIGGI->set_space_param_coeff( tMasterParamCoeffPert );
-                                tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeffPert );
+                            // reset the normal
+                            Matrix< DDRMat > tNormalPert;
+                            tMasterIGGI->get_normal( tNormalPert );
+                            this->set_normal( tNormalPert );
 
-                                // set evaluation point for interpolators (FIs and GIs)
-                                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
-                                        set_space_time_from_local_IG_point( tMasterEvaluationPoint );
-                                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
-                                        set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
 
-                                // reset the normal
-                                Matrix< DDRMat > tNormalPert;
-                                tMasterIGGI->get_normal( tNormalPert );
-                                this->set_normal( tNormalPert );
+                            // reset and evaluate the residual plus
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            real tWStarPert = tGPWeight * tMasterIGGI->det_J();
+                            this->compute_residual( tWStarPert );
 
-                                // reset properties, CM and SP for IWG
-                                this->reset_eval_flags();
+                            // evaluate dMasterRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( iPoint ) *
+                                            mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
-                                // reset and evaluate the residual plus
-                                mSet->get_residual()( 0 ).fill( 0.0 );
-                                real tWStarPert = tGPWeight * tMasterIGGI->det_J();
-                                this->compute_residual( tWStarPert );
-
-                                // evaluate dMasterRdpGeo
-                                mSet->get_drdpgeo()(
-                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                                tFDScheme( 1 )( iPoint ) *
-                                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /
-                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                                // evaluate dSlaveRdpGeo
-                                mSet->get_drdpgeo()(
-                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
-                                                tFDScheme( 1 )( iPoint ) *
-                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
-                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            }
+                            // evaluate dSlaveRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
+                                            tFDScheme( 1 )( iPoint ) *
+                                            mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
                 }
-                // reset the coefficients values
-                tMasterIGGI->set_space_coeff( tMasterCoeff );
-                tMasterIGGI->set_space_param_coeff( tMasterParamCoeff );
-                tSlaveIGGI->set_space_coeff( tSlaveCoeff );
-                tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeff );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
-                        set_space_time_from_local_IG_point( tMasterEvaluationPoint );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
-                        set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
-                this->set_normal( tMasterNormal );
             }
+            // reset the coefficients values
+            tMasterIGGI->set_space_coeff( tMasterCoeff );
+            tMasterIGGI->set_space_param_coeff( tMasterParamCoeff );
+            tSlaveIGGI->set_space_coeff( tSlaveCoeff );
+            tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeff );
+            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                    set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                    set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+            this->set_normal( tMasterNormal );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
