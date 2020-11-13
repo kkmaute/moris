@@ -32,11 +32,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 3.0E-6;
+    real tEpsilonCubic = 5.0E-6;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 5.0E-4;
+    real tPerturbationCubic = 7.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
+	        mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
