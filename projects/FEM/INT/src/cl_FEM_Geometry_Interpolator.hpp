@@ -23,6 +23,7 @@
 #include "op_minus.hpp"
 #include "fn_trans.hpp"
 #include "fn_det.hpp"
+#include "fn_inv.hpp"
 
 namespace moris
 {
@@ -88,6 +89,11 @@ namespace moris
                 bool md2NdTau2Eval = true;
                 bool md3NdTau3Eval = true;
 
+                bool mSpaceJacEval    = true;
+                bool mInvSpaceJacEval = true;
+                bool mTimeJacEval     = true;
+                bool mInvTimeJacEval  = true;
+
                 // storage
                 Matrix< DDRMat > mNXi;
                 Matrix< DDRMat > mdNdXi;
@@ -98,6 +104,11 @@ namespace moris
                 Matrix< DDRMat > mdNdTau;
                 Matrix< DDRMat > md2NdTau2;
                 Matrix< DDRMat > md3NdTau3;
+
+                Matrix< DDRMat > mSpaceJac;
+                Matrix< DDRMat > mInvSpaceJac;
+                Matrix< DDRMat > mTimeJac;
+                Matrix< DDRMat > mInvTimeJac;
 
                 // pointer to function for space detJ
                 real ( Geometry_Interpolator:: * mSpaceDetJFunc )(
@@ -115,8 +126,8 @@ namespace moris
                 // pointer to function for space second derivative
                 void ( * mSecondDerivativeMatricesSpace )(
                         const Matrix< DDRMat > & aJt,
-                        Matrix< DDRMat > & aKt,
-                        Matrix< DDRMat > & aLt,
+                        Matrix< DDRMat >       & aKt,
+                        Matrix< DDRMat >       & aLt,
                         const Matrix< DDRMat > & ad2NdXi2,
                         const Matrix< DDRMat > & aXHat );
 
@@ -124,17 +135,17 @@ namespace moris
                 void ( * mThirdDerivativeMatricesSpace )(
                         const Matrix< DDRMat > & aJt,
                         const Matrix< DDRMat > & aJ2bt,
-                        Matrix< DDRMat > & aJ3at,
-                        Matrix< DDRMat > & aJ3bt,
-                        Matrix< DDRMat > & aJ3ct,
+                        Matrix< DDRMat >       & aJ3at,
+                        Matrix< DDRMat >       & aJ3bt,
+                        Matrix< DDRMat >       & aJ3ct,
                         const Matrix< DDRMat > & ad3NdXi3,
                         const Matrix< DDRMat > & aXHat );
 
                 // pointer to function for time second derivative
                 void ( * mSecondDerivativeMatricesTime )(
                         const Matrix< DDRMat > & aJt,
-                        Matrix< DDRMat > & aKt,
-                        Matrix< DDRMat > & aLt,
+                        Matrix< DDRMat >       & aKt,
+                        Matrix< DDRMat >       & aLt,
                         const Matrix< DDRMat > & ad2NdTau2,
                         const Matrix< DDRMat > & aTHat );
 
@@ -165,9 +176,17 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * reset evaluation flags
+                 * reset evaluation flags when xiLocal, tauLocal coordinates of
+                 * evaluation point are changed
                  */
                 void reset_eval_flags();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * reset evaluation flags when global x,t coordinates or
+                 * local xi, tau coordinates are changed
+                 */
+                void reset_eval_flags_coordinates();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -281,7 +300,8 @@ namespace moris
                 const Matrix< DDRMat > & get_space_coeff() const
                 {
                     // check that mXHat is set
-                    MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::get_space_coeff - mXHat is not set." );
+                    MORIS_ASSERT( mXHat.numel() > 0,
+                            "Geometry_Interpolator::get_space_coeff - mXHat is not set." );
 
                     return mXHat;
                 }
@@ -293,7 +313,8 @@ namespace moris
                 const Matrix< DDRMat > & get_time_coeff() const
                 {
                     // check that mTHat is set
-                    MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_coeff - mTHat is not set." );
+                    MORIS_ASSERT( mTHat.numel() > 0,
+                            "Geometry_Interpolator::get_time_coeff - mTHat is not set." );
 
                     return mTHat;
                 }
@@ -338,7 +359,8 @@ namespace moris
                 const Matrix< DDRMat > & get_space_param_coeff() const
                 {
                     // check that mXiHat is set
-                    MORIS_ASSERT( mXiHat.numel()>0, "Geometry_Interpolator::get_space_param_coeff - mXiHat is not set." );
+                    MORIS_ASSERT( mXiHat.numel() > 0,
+                            "Geometry_Interpolator::get_space_param_coeff - mXiHat is not set." );
 
                     return mXiHat;
                 }
@@ -350,7 +372,8 @@ namespace moris
                 const Matrix< DDRMat > & get_time_param_coeff() const
                 {
                     // check that mTauHat is set
-                    MORIS_ASSERT( mTauHat.numel()>0, "Geometry_Interpolator::get_time_param_coeff - mTauHat is not set." );
+                    MORIS_ASSERT( mTauHat.numel() > 0,
+                            "Geometry_Interpolator::get_time_param_coeff - mTauHat is not set." );
 
                     return mTauHat;
                 }
@@ -468,10 +491,27 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluates the geometry Jacobian in space
-                 * @param[ in ] aJt     transposed of geometry Jacobian in space
+                 * get the geometry Jacobian in space
+                 * @param[ out ] mSpaceJac transposed of geometry Jacobian in space
                  */
-                void space_jacobian( Matrix< DDRMat > & aJt );
+                const Matrix< DDRMat > & space_jacobian();
+
+                /**
+                 * evaluates the geometry Jacobian in space
+                 */
+                void eval_space_jacobian();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the inverse of the geometry Jacobian in space
+                 * @param[ out ] mInvSpaceJac inverse of the transposed of geometry Jacobian in space
+                 */
+                const Matrix< DDRMat > & inverse_space_jacobian();
+
+                /**
+                 * evaluates the inverse of the geometry Jacobian in space
+                 */
+                void eval_inverse_space_jacobian();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -489,10 +529,27 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluates the geometry Jacobian in time
-                 * @param[ in ] aJt     transposed of geometry Jacobian in time
+                 * get the geometry Jacobian in time
+                 * @param[ out ] mTimeJac transposed of geometry Jacobian in time
                  */
-                void time_jacobian( Matrix< DDRMat > & aJt );
+                const Matrix< DDRMat > & time_jacobian();
+
+                /**
+                 * evaluates the geometry Jacobian in time
+                 */
+                void eval_time_jacobian();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the inverse of the geometry Jacobian in time
+                 * @param[ out ] mInvTimeJac inverse of the transposed of geometry Jacobian in time
+                 */
+                const Matrix< DDRMat > & inverse_time_jacobian();
+
+                /**
+                 * evaluates the inverse of the geometry Jacobian in time
+                 */
+                void eval_inverse_time_jacobian();
 
                 //------------------------------------------------------------------------------
                 /**

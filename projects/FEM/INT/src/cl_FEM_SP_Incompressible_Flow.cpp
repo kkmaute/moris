@@ -260,9 +260,7 @@ namespace moris
         void SP_Incompressible_Flow::eval_G( Matrix< DDRMat > & aG )
         {
             // get the space jacobian from IP geometry interpolator
-            Matrix< DDRMat > tSpaceJacobian;
-            mMasterFIManager->get_IP_geometry_interpolator()->space_jacobian( tSpaceJacobian );
-            tSpaceJacobian = inv( tSpaceJacobian );
+            Matrix< DDRMat > tSpaceJacobian = mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
 
             // FIXME should not be here
             mSpaceDim = mMasterFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
