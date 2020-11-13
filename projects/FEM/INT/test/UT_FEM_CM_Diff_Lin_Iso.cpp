@@ -5,6 +5,7 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp" //FEM/INT/src
+#include "fn_FEM_Check.hpp"
 
 #define protected public
 #define private   public
@@ -14,8 +15,8 @@
 #undef protected
 #undef private
 
-void tValFunctionCM_Diff_Lin_Iso
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+void tValFunctionCM_Diff_Lin_Iso(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
@@ -23,16 +24,16 @@ void tValFunctionCM_Diff_Lin_Iso
                  + aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-void tConstValFunctionCM_Diff_Lin_Iso
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+void tConstValFunctionCM_Diff_Lin_Iso(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
-void tDerFunctionCM_Diff_Lin_Iso
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+void tDerFunctionCM_Diff_Lin_Iso(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
@@ -130,7 +131,6 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     // set field interpolator manager
     tCMMasterDiffLinIso->set_field_interpolator_manager( &tFIManager );
 
-
     // check flux-------------------------------------------------------------------
     //------------------------------------------------------------------------------
     // evaluate the constitutive model flux
@@ -147,24 +147,14 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     tCMMasterDiffLinIso->eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckdStress = true;
-    for ( uint iStress = 0; iStress < tdFluxdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdFluxdDOF.n_cols(); jStress++ )
-        {
-            tCheckdStress = tCheckdStress &&
-                    ( std::abs( ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) ) /
-                            tdFluxdDOF( iStress, jStress )) < tEpsilonRel  );
-        }
-    }
+    bool tCheckdStress = fem::check( tdFluxdDOF, tdFluxdDOF_FD, tEpsilonRel );
 
-    //REQUIRE( tCheckdStress );
-    tChecks(0) = tCheckdStress;
+    // set bool in check list
+    tChecks( 0 ) = tCheckdStress;
 
-    // debug
-    //moris::print(tdFluxdDOF, "tdFluxdDOF");
-    //moris::print(tdFluxdDOF_FD, "tdFluxdDOF_FD");
-
+//    // debug
+//    moris::print(tdFluxdDOF, "tdFluxdDOF");
+//    moris::print(tdFluxdDOF_FD, "tdFluxdDOF_FD");
 
     // check strain-----------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -181,23 +171,14 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     tCMMasterDiffLinIso->eval_dStraindDOF_FD( { MSI::Dof_Type::TEMP }, tdStraindDOF_FD, 1E-6 );
 
     //check strain derivative
-    bool tCheckdStrain = true;
-    for ( uint iStress = 0; iStress < tdStraindDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdStraindDOF.n_cols(); jStress++ )
-        {
-            tCheckdStrain = tCheckdStrain &&
-                    ( ( std::abs( ( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) ) /
-                            tdStraindDOF( iStress, jStress ) ) ) < tEpsilonRel );
-        }
-    }
-    //REQUIRE( tCheckdStrain );
-    tChecks(1) = tCheckdStrain;
+    bool tCheckdStrain = fem::check( tdStraindDOF, tdStraindDOF_FD, tEpsilonRel );
 
-    // debug
-    //moris::print(tdStraindDOF, "tdStraindDOF");
-    //moris::print(tdStraindDOF_FD, "tdStraindDOF_FD");
+    //set bool in check list
+    tChecks( 1 ) = tCheckdStrain;
 
+//    // debug
+//    moris::print(tdStraindDOF, "tdStraindDOF");
+//    moris::print(tdStraindDOF_FD, "tdStraindDOF_FD");
 
     // check constitutive matrix----------------------------------------------------
     //------------------------------------------------------------------------------
@@ -250,22 +231,14 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     tCMMasterDiffLinIso->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckEnergyDot = true;
-    for ( uint iStress = 0; iStress < tdEnergyDotdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdEnergyDotdDOF.n_cols(); jStress++ )
-        {
-            tCheckEnergyDot = tCheckEnergyDot &&
-                    ( std::abs( ( tdEnergyDotdDOF( iStress, jStress ) - tdEnergyDotdDOF_FD( iStress, jStress ) ) /
-                            tdEnergyDotdDOF( iStress, jStress ) ) < tEpsilonRel );
-        }
-    }
-    //REQUIRE( tCheckEnergyDot );
-    tChecks(2) = tCheckEnergyDot;
+    bool tCheckEnergyDot = fem::check( tdEnergyDotdDOF, tdEnergyDotdDOF_FD, tEpsilonRel );
 
-    // debug
-    //moris::print(tdEnergyDotdDOF, "tdEnergyDotdDOF");
-    //moris::print(tdEnergyDotdDOF_FD, "tdEnergyDotdDOF_FD");
+    // set bool in check list
+    tChecks( 2 ) = tCheckEnergyDot;
+
+//    // debug
+//    moris::print(tdEnergyDotdDOF, "tdEnergyDotdDOF");
+//    moris::print(tdEnergyDotdDOF_FD, "tdEnergyDotdDOF_FD");
 
     // check gradEnergy -----------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -279,23 +252,14 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     tCMMasterDiffLinIso->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckGradH = true;
-    for ( uint iStress = 0; iStress < tdGradEnergydDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdGradEnergydDOF.n_cols(); jStress++ )
-        {
-            tCheckGradH = tCheckGradH &&
-                    ( std::abs( tdGradEnergydDOF( iStress, jStress ) - tdGradEnergydDOF_FD( iStress, jStress ) ) <
-                            tEpsilonRel * std::abs( tdGradEnergydDOF( iStress, jStress )) );
-        }
-    }
-    //REQUIRE( tCheckGradH );
-    tChecks(3) = tCheckGradH;
+    bool tCheckGradH = fem::check( tdGradEnergydDOF, tdGradEnergydDOF_FD, tEpsilonRel );
 
-    // debug
-    //moris::print(tdGradEnergydDOF, "tdGradEnergydDOF");
-    //moris::print(tdGradEnergydDOF_FD, "tdGradEnergydDOF_FD");
+    // set bool to check list
+    tChecks( 3 ) = tCheckGradH;
 
+//    // debug
+//    moris::print(tdGradEnergydDOF, "tdGradEnergydDOF");
+//    moris::print(tdGradEnergydDOF_FD, "tdGradEnergydDOF_FD");
 
     // check gradEnergyDot --------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -309,23 +273,14 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     tCMMasterDiffLinIso->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckGradEnergyDot = true;
-    for ( uint iStress = 0; iStress < tdGradEnergyDotdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdGradEnergyDotdDOF.n_cols(); jStress++ )
-        {
-            tCheckGradEnergyDot = tCheckGradEnergyDot &&
-                    ( std::abs( ( tdGradEnergyDotdDOF( iStress, jStress ) - tdGradEnergyDotdDOF_FD( iStress, jStress ) ) /
-                            tdGradEnergyDotdDOF( iStress, jStress ) ) < tEpsilonRel );
-        }
-    }
-    //REQUIRE( tCheckGradEnergyDot );
-    tChecks(4) = tCheckGradEnergyDot;
+    bool tCheckGradEnergyDot = fem::check( tdGradEnergyDotdDOF, tdGradEnergyDotdDOF_FD, tEpsilonRel );
 
-    // debug
-    //moris::print(tdGradEnergyDotdDOF, "tdGradEnergyDotdDOF");
-    //moris::print(tdGradEnergyDotdDOF_FD, "tdGradEnergyDotdDOF_FD");
+    // set bool in check list
+    tChecks( 4 ) = tCheckGradEnergyDot;
 
+//    // debug
+//    moris::print(tdGradEnergyDotdDOF, "tdGradEnergyDotdDOF");
+//    moris::print(tdGradEnergyDotdDOF_FD, "tdGradEnergyDotdDOF_FD");
 
     // check graddivflux -----------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -339,22 +294,14 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     tCMMasterDiffLinIso->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, 1E-6 );
 
     //check strain derivative
-    bool tCheckGradDivFlux = true;
-    for ( uint iStress = 0; iStress < tdGradDivFluxdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdGradDivFluxdDOF.n_cols(); jStress++ )
-        {
-            tCheckGradDivFlux = tCheckGradDivFlux &&
-                    ( std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) /
-                            tdGradDivFluxdDOF( iStress, jStress ) ) < tEpsilonRel || tdGradDivFluxdDOF( iStress, jStress ) < 1.0e-13 );
-        }
-    }
-    //REQUIRE( tCheckGradDivFlux );
+    bool tCheckGradDivFlux = fem::check( tdGradDivFluxdDOF, tdGradDivFluxdDOF_FD, tEpsilonRel );
+
+    // set bool to check list
     tChecks(5) = tCheckGradDivFlux;
 
-    // debug
-    //moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
-    //moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
+//    // debug
+//    moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
+//    moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
     // clean up
     //------------------------------------------------------------------------------
@@ -363,9 +310,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     // return cell of checks
     return tChecks;
 
-                }/* TEST Function */
-
-
+}/* TEST Function */
 
 // ------------------------------------------------------------------------------------- //
 // ------------------------------------------------------------------------------------- //

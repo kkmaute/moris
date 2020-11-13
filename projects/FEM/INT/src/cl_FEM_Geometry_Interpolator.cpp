@@ -77,6 +77,21 @@ namespace moris
             mdNdTauEval   = true;
             md2NdTau2Eval = true;
             md3NdTau3Eval = true;
+
+            mSpaceJacEval    = true;
+            mInvSpaceJacEval = true;
+            mTimeJacEval     = true;
+            mInvTimeJacEval  = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::reset_eval_flags_coordinates()
+        {
+            mSpaceJacEval    = true;
+            mInvSpaceJacEval = true;
+            mTimeJacEval     = true;
+            mInvTimeJacEval  = true;
         }
 
         //------------------------------------------------------------------------------
@@ -99,6 +114,9 @@ namespace moris
 
             // set the time coefficients
             mTHat = aTHat;
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -112,6 +130,9 @@ namespace moris
 
             // set the space coefficients
             mXHat = aXHat;
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -125,6 +146,9 @@ namespace moris
 
             // set the time coefficients
             mTHat = aTHat;
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -138,6 +162,9 @@ namespace moris
 
             mTimeInterpolation->get_param_coords( mTauHat );
             mTauHat = trans( mTauHat );
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -159,6 +186,9 @@ namespace moris
 
             // set the time coefficients
             mTauHat = aTauHat;
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -172,6 +202,9 @@ namespace moris
 
             // set the space coefficients
             mXiHat = aXiHat;
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -185,6 +218,9 @@ namespace moris
 
             // set the time coefficients
             mTauHat = aTauHat;
+
+            // reset evaluation flags
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -209,6 +245,7 @@ namespace moris
 
             // reset bool for evaluation
             this->reset_eval_flags();
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -232,6 +269,7 @@ namespace moris
 
             // reset bool for evaluation
             this->reset_eval_flags();
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -255,6 +293,7 @@ namespace moris
 
             // reset bool for evaluation
             this->reset_eval_flags();
+            this->reset_eval_flags_coordinates();
         }
 
         //------------------------------------------------------------------------------
@@ -480,14 +519,54 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::space_jacobian( Matrix< DDRMat > & aJt )
+        const Matrix< DDRMat > & Geometry_Interpolator::space_jacobian()
+        {
+            // if space jacobian needs to be evaluated
+            if( mSpaceJacEval )
+            {
+                // evaluate the space jacobian
+                this->eval_space_jacobian();
+
+                // set bool for evaluation
+                mSpaceJacEval = false;
+            }
+
+            // return member value
+            return mSpaceJac;
+        }
+
+        void Geometry_Interpolator::eval_space_jacobian()
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel()>0,
+            MORIS_ASSERT( mXHat.numel() > 0,
                     "Geometry_Interpolator::space_jacobian - mXHat is not set." );
 
             // compute the Jacobian
-            aJt = this->dNdXi() * mXHat;
+            mSpaceJac = this->dNdXi() * mXHat;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & Geometry_Interpolator::inverse_space_jacobian()
+        {
+            // if inverse of the space jacobian needs to be evaluated
+            if( mInvSpaceJacEval )
+            {
+                // evaluate the inverse of the space jacobian
+                this->eval_inverse_space_jacobian();
+
+                // set bool for evaluation
+                mInvSpaceJacEval = false;
+            }
+
+            // return member value
+            return mInvSpaceJac;
+        }
+
+        void Geometry_Interpolator::eval_inverse_space_jacobian()
+        {
+            // compute the Jacobian
+            mInvSpaceJac = inv( this->space_jacobian() );
         }
 
         //------------------------------------------------------------------------------
@@ -516,14 +595,54 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::time_jacobian( Matrix< DDRMat > & aJt )
+        const Matrix< DDRMat > & Geometry_Interpolator::time_jacobian()
+        {
+            // if space jacobian needs to be evaluated
+            if( mTimeJacEval )
+            {
+                // evaluate the space jacobian
+                this->eval_time_jacobian();
+
+                // set bool for evaluation
+                mTimeJacEval = false;
+            }
+
+            // return member value
+            return mTimeJac;
+        }
+
+        void Geometry_Interpolator::eval_time_jacobian()
         {
             // check that mTHat is set
             MORIS_ASSERT( mTHat.numel()>0,
                     "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             // compute the Jacobian
-            aJt = this->dNdTau() * mTHat;
+            mTimeJac = this->dNdTau() * mTHat;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & Geometry_Interpolator::inverse_time_jacobian()
+        {
+            // if inverse of the time jacobian needs to be evaluated
+            if( mInvTimeJacEval )
+            {
+                // evaluate the inverse of the time jacobian
+                this->eval_inverse_time_jacobian();
+
+                // set bool for evaluation
+                mInvTimeJacEval = false;
+            }
+
+            // return member value
+            return mInvTimeJac;
+        }
+
+        void Geometry_Interpolator::eval_inverse_time_jacobian()
+        {
+            // compute the Jacobian
+            mInvTimeJac = inv( this->time_jacobian() );
         }
 
         //------------------------------------------------------------------------------
@@ -531,12 +650,10 @@ namespace moris
         real Geometry_Interpolator::det_J()
         {
             // get the space jacobian
-            Matrix< DDRMat > tSpaceJt;
-            this->space_jacobian( tSpaceJt );
+            Matrix< DDRMat > tSpaceJt = this->space_jacobian();
 
             // get the time Jacobian
-            Matrix< DDRMat > tTimeJt;
-            this->time_jacobian( tTimeJt );
+            Matrix< DDRMat > tTimeJt = this->time_jacobian();
 
             // compute detJ for space
             real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
@@ -551,8 +668,7 @@ namespace moris
         real Geometry_Interpolator::space_det_J()
         {
             // get the space jacobian
-            Matrix< DDRMat > tSpaceJt;
-            this->space_jacobian( tSpaceJt );
+            Matrix< DDRMat > tSpaceJt = this->space_jacobian();
 
             // compute detJ for space
             real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
@@ -564,8 +680,7 @@ namespace moris
         real Geometry_Interpolator::time_det_J()
         {
             // get the time Jacobian
-            Matrix< DDRMat > tTimeJt;
-            this->time_jacobian( tTimeJt );
+            Matrix< DDRMat > tTimeJt = this->time_jacobian();
 
             // compute detJ for time
             real detJTime  = ( this->*mTimeDetJFunc )( tTimeJt );
@@ -820,7 +935,7 @@ namespace moris
                     "Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives - mXHat is not set." );
 
             // evaluate transposed of geometry Jacobian
-            this->space_jacobian( aJt );
+            aJt = this->space_jacobian();
 
             // call calculator for second derivatives
             this->mSecondDerivativeMatricesSpace(
@@ -848,7 +963,7 @@ namespace moris
                     "Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives - mXHat is not set." );
 
             // evaluate geometry Jacobians
-            this->space_jacobian( aJt );
+            aJt = this->space_jacobian();
             this->second_space_jacobian( aJ2bt );
 
             // call calculator for second derivatives
@@ -876,7 +991,7 @@ namespace moris
                     "Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives - mTHat is not set." );
 
             // evaluate transposed of geometry Jacobian
-            this->time_jacobian( aJt );
+            aJt = this->time_jacobian();
 
             // call calculator for second derivatives
             this->mSecondDerivativeMatricesTime(

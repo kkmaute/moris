@@ -90,8 +90,7 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         Matrix< DDRMat > tJ3a;
         Matrix< DDRMat > tJ3b;
         Matrix< DDRMat > tJ3c;
-        Matrix< DDRMat > tJ;
-        tGeomInterpolator.space_jacobian( tJ );
+        Matrix< DDRMat > tJ = tGeomInterpolator.space_jacobian();
         Matrix< DDRMat > tJ2b;
         tGeomInterpolator.second_space_jacobian( tJ2b );
 
@@ -266,8 +265,7 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         Matrix< DDRMat > tJ3a;
         Matrix< DDRMat > tJ3b;
         Matrix< DDRMat > tJ3c;
-        Matrix< DDRMat > tJ;
-        tGeomInterpolator.space_jacobian( tJ );
+        Matrix< DDRMat > tJ = tGeomInterpolator.space_jacobian();
         Matrix< DDRMat > tJ2b;
         tGeomInterpolator.second_space_jacobian( tJ2b );
 

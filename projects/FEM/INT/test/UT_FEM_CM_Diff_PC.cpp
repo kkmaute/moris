@@ -5,6 +5,7 @@
 #include "cl_FEM_Geometry_Interpolator.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_CM_Factory.hpp"
+#include "fn_FEM_Check.hpp"
 
 #define protected public
 #define private   public
@@ -59,7 +60,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
         Matrix< DDRMat > aUHat0,
         Matrix< DDRMat > aParametricPoint,
         uint aSpatialDim = 2 )
-                                        {
+                                                {
     // initialize cell of checks
     moris::Cell<bool> tChecks( 4, false );
 
@@ -186,22 +187,14 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     tCMMasterDiffLinIsoPC->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckEnergyDot = true;
-    for ( uint iStress = 0; iStress < tdEnergyDotdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdEnergyDotdDOF.n_cols(); jStress++ )
-        {
-            tCheckEnergyDot = tCheckEnergyDot &&
-                    ( std::abs( ( tdEnergyDotdDOF( iStress, jStress ) - tdEnergyDotdDOF_FD( iStress, jStress ) ) /
-                            tdEnergyDotdDOF( iStress, jStress ) ) < tEpsilonRel );
-        }
-    }
-    //REQUIRE( tCheckEnergyDot );
+    bool tCheckEnergyDot = fem::check( tdEnergyDotdDOF, tdEnergyDotdDOF_FD, tEpsilonRel );
+
+    // set bool in check list
     tChecks(0) = tCheckEnergyDot;
 
-    // debug
-    //moris::print(tdEnergyDotdDOF, "tdEnergyDotdDOF");
-    //moris::print(tdEnergyDotdDOF_FD, "tdEnergyDotdDOF_FD");
+    //    // debug
+    //    moris::print(tdEnergyDotdDOF, "tdEnergyDotdDOF");
+    //    moris::print(tdEnergyDotdDOF_FD, "tdEnergyDotdDOF_FD");
 
     // check gradEnergy -----------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -215,17 +208,9 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     tCMMasterDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckGradH = true;
-    for ( uint iStress = 0; iStress < tdGradEnergydDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdGradEnergydDOF.n_cols(); jStress++ )
-        {
-            tCheckGradH = tCheckGradH &&
-                    ( std::abs( tdGradEnergydDOF( iStress, jStress ) - tdGradEnergydDOF_FD( iStress, jStress ) ) <
-                            tEpsilonRel * std::abs(tdGradEnergydDOF( iStress, jStress )) );
-        }
-    }
-    //REQUIRE( tCheckGradH );
+    bool tCheckGradH = fem::check( tdGradEnergydDOF, tdGradEnergydDOF_FD, tEpsilonRel );
+
+    // set bool in check list
     tChecks(1) = tCheckGradH;
 
     // debug
@@ -245,17 +230,9 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     tCMMasterDiffLinIsoPC->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckGradEnergyDot = true;
-    for ( uint iStress = 0; iStress < tdGradEnergyDotdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdGradEnergyDotdDOF.n_cols(); jStress++ )
-        {
-            tCheckGradEnergyDot = tCheckGradEnergyDot &&
-                    ( std::abs( tdGradEnergyDotdDOF( iStress, jStress ) - tdGradEnergyDotdDOF_FD( iStress, jStress ) ) <
-                            tEpsilonRel * std::abs(tdGradEnergyDotdDOF( iStress, jStress )) );
-        }
-    }
-    //REQUIRE( tCheckGradEnergyDot );
+    bool tCheckGradEnergyDot = fem::check( tdGradEnergyDotdDOF, tdGradEnergyDotdDOF_FD, tEpsilonRel );
+
+    // set bool in check list
     tChecks(2) = tCheckGradEnergyDot;
 
     // debug
@@ -275,18 +252,9 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     tCMMasterDiffLinIsoPC->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, 1E-6 );
 
     //check strain derivative
-    bool tCheckGradDivFlux = true;
-    for ( uint iStress = 0; iStress < tdGradDivFluxdDOF.n_rows(); iStress++ )
-    {
-        for( uint jStress = 0; jStress < tdGradDivFluxdDOF.n_cols(); jStress++ )
-        {
-            tCheckGradDivFlux = tCheckGradDivFlux &&
-                    ( std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) /
-                            tdGradDivFluxdDOF( iStress, jStress ) ) < tEpsilonRel
-                            || tdGradDivFluxdDOF( iStress, jStress ) < 1.0e-13 );
-        }
-    }
-    //REQUIRE( tCheckGradDivFlux );
+    bool tCheckGradDivFlux = fem::check( tdGradDivFluxdDOF, tdGradDivFluxdDOF_FD, tEpsilonRel );
+
+    // set bool in check list
     tChecks(3) = tCheckGradDivFlux;
 
     // debug
@@ -302,7 +270,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     // return cell of checks
     return tChecks;
 
-}/* TEST Function */
+                                                }/* TEST Function */
 
 
 // ------------------------------------------------------------------------------------- //
