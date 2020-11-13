@@ -24,19 +24,23 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Compressible_UT.cpp"
 
+#include "fn_trans.hpp"
+#include "fn_norm.hpp"
+#include "fn_eye.hpp"
+
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
-        "[IWG_Compressible_NS_Temperature_Bulk_Ideal]" )
+TEST_CASE( "IWG_Heat_Method_Boundary",
+        "[IWG_Heat_Method_Boundary]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 5.0E-6;
+    real tEpsilonCubic = 3.0E-6;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 7.0E-4;
+    real tPerturbationCubic = 5.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -46,7 +50,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
-	        mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
@@ -58,67 +62,22 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    moris::Cell< MSI::Dof_Type > tPhiDDof  = { MSI::Dof_Type::PHID };
+    moris::Cell< MSI::Dof_Type > tThetaDof = { MSI::Dof_Type::THETA };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tPhiDDof, tThetaDof };
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the properties
-
-    // dynamic viscosity
-    std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 11.9 }} } );
-    tPropViscosity->set_val_function( tConstValFunc );
-
-    // isochoric heat capacity
-    std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
-    tPropHeatCapacity->set_parameters( { {{ 5.7 }} } );
-    tPropHeatCapacity->set_val_function( tConstValFunc );
-
-    // specific gas constant
-    std::shared_ptr< fem::Property > tPropGasConstant = std::make_shared< fem::Property >();
-    tPropGasConstant->set_parameters( { {{ 2.8 }} } );
-    tPropGasConstant->set_val_function( tConstValFunc );
-
-    // thermal conductivity
-    std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 3.7 }} } );
-    tPropConductivity->set_val_function( tConstValFunc );
-
-    // body force
-    std::shared_ptr< fem::Property > tPropBodyForce3D = std::make_shared< fem::Property >();
-    tPropBodyForce3D->set_val_function( tValFunc_BodyForce_3D );
-    std::shared_ptr< fem::Property > tPropBodyForce2D = std::make_shared< fem::Property >();
-    tPropBodyForce2D->set_val_function( tValFunc_BodyForce_2D );
-
-    // body heat load
-    std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
-    tPropHeatLoad->set_parameters( { {{ -2.3 }} } );
-    tPropHeatLoad->set_val_function( tConstValFunc );
-
-    // define constitutive model and assign properties
-    fem::CM_Factory tCMFactory;
-
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
-    tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tCMMasterFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
-    tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
+    // create IWG
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK );
+            tIWGFactory.create_IWG( fem::IWG_Type::HEAT_METHOD_BOUNDARY );
 
-    tIWG->set_residual_dof_type( tTempDof );
+    tIWG->set_residual_dof_type( tPhiDDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -131,15 +90,13 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::PHID ) )   = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::THETA ) )    = 1;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::PHID ) )   = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::THETA ) )    = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -149,11 +106,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
         //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
         //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
-        // use correct body force for number of spatial dimensions
-        if ( iSpaceDim == 2 )
-            tIWG->set_property( tPropBodyForce2D, "BodyForce" );
-        else if ( iSpaceDim == 3 )
-            tIWG->set_property( tPropBodyForce3D, "BodyForce" );
+        // create normal for IWG
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -163,8 +117,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
-                // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                // set normal
+                tNormal( 1 ) = -2.6;
+
                 break;
             }
             case 3 :
@@ -172,8 +127,10 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
-                // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                // set normal
+                tNormal( 1 ) = -2.6;
+                tNormal( 2 ) =  9.4;
+
                 break;
             }
             default:
@@ -183,8 +140,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             }
         }
 
-        // set space dimension to CM
-        tCMMasterFluid->set_space_dim( iSpaceDim );
+        // assign normal to IWG
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -255,10 +213,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofRho  = tNumCoeff;
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofTemp = tNumCoeff;
-            int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
+            int tNumDofPhiD  = tNumCoeff;
+            int tNumDofTheta = tNumCoeff;
+            int tTotalNumDof = tNumDofPhiD + tNumDofTheta;
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule (
@@ -269,43 +226,34 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                     mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatRho;
-            fill_RhoHat( tMasterDOFHatRho, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTemp;
-            fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatPhiD;
+            fill_RhoHat( tMasterDOFHatPhiD, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatTheta;
+            fill_TempHat( tMasterDOFHatTheta, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
-            // create the field interpolator density
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
+            // create the field interpolator phiD
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPhiDDof );
+            tMasterFIs( 0 )->set_coeff( tMasterDOFHatPhiD );
 
-            // create the field interpolator velocity
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
-
-            // create the field interpolator pressure
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+            // create the field interpolator Theta
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tThetaDof );
+            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTheta );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofRho - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofRho, tNumDofRho + tNumDofVel - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofPhiD - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofPhiD, tTotalNumDof - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofRho - 1 },
-                    { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
-                    { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+                    { 0, tNumDofPhiD - 1 },
+                    { tNumDofPhiD, tTotalNumDof - 1 } };
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
-            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
@@ -339,12 +287,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
 
-            // set the interpolator manager to the set
-            tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
-
-            // set IWG field interpolator manager
-            tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
-
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
@@ -353,9 +295,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                 //std::cout << "-------------------------------------------------------------------\n" << std::flush;
                 //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
-                // reset CM evaluation flags
-                tCMMasterFluid->reset_eval_flags();
-
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
@@ -363,7 +302,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
@@ -410,8 +348,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
 //------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
-        "[IWG_Compressible_NS_Temperature_Bulk_Vdw]" )
+TEST_CASE( "IWG_Heat_Method_Bulk",
+        "[IWG_Heat_Method_Bulk]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
@@ -419,7 +357,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 8.0E-4;
+    real tPerturbationCubic = 5.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -441,85 +379,22 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    moris::Cell< MSI::Dof_Type > tPhiDDof  = { MSI::Dof_Type::PHID };
+    moris::Cell< MSI::Dof_Type > tThetaDof = { MSI::Dof_Type::THETA };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tPhiDDof, tThetaDof };
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the properties
-
-    // body heat load
-    std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
-    tPropHeatLoad->set_parameters( { {{ -2.3 }} } );
-    tPropHeatLoad->set_val_function( tConstValFunc );
-
-    // body force
-    std::shared_ptr< fem::Property > tPropBodyForce3D = std::make_shared< fem::Property >();
-    tPropBodyForce3D->set_val_function( tValFunc_BodyForce_3D );
-    std::shared_ptr< fem::Property > tPropBodyForce2D = std::make_shared< fem::Property >();
-    tPropBodyForce2D->set_val_function( tValFunc_BodyForce_2D );
-
-    // isochoric heat capacity
-    std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
-    tPropHeatCapacity->set_parameters( { {{ 5.7 }} } );
-    tPropHeatCapacity->set_val_function( tConstValFunc );
-
-    // specific gas constant
-    std::shared_ptr< fem::Property > tPropGasConstant = std::make_shared< fem::Property >();
-    tPropGasConstant->set_parameters( { {{ 2.8 }} } );
-    tPropGasConstant->set_val_function( tConstValFunc );
-
-    // dynamic viscosity
-    std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 11.9 }} } );
-    tPropViscosity->set_val_function( tConstValFunc );
-
-    // thermal conductivity
-    std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 3.7 }} } );
-    tPropConductivity->set_val_function( tConstValFunc );
-
-    // Capillarity Coefficient
-    std::shared_ptr< fem::Property > tPropCapillarity = std::make_shared< fem::Property >();
-    tPropCapillarity->set_parameters( { {{ 2.1 }} } );
-    tPropCapillarity->set_val_function( tConstValFunc );
-
-    // First VdW constant
-    std::shared_ptr< fem::Property > tPropFirstVdWconst = std::make_shared< fem::Property >();
-    tPropFirstVdWconst->set_parameters( { {{ 9.1 }} } );
-    tPropFirstVdWconst->set_val_function( tConstValFunc );
-
-    // Second VdW constant
-    std::shared_ptr< fem::Property > tPropSecondVdWconst = std::make_shared< fem::Property >();
-    tPropSecondVdWconst->set_parameters( { {{ 6.9 }} } );
-    tPropSecondVdWconst->set_val_function( tConstValFunc );
-
-    // define constitutive model and assign properties
-    fem::CM_Factory tCMFactory;
-
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_VDW );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
-    tCMMasterFluid->set_property( tPropHeatCapacity,   "IsochoricHeatCapacity" );
-    tCMMasterFluid->set_property( tPropGasConstant,    "SpecificGasConstant" );
-    tCMMasterFluid->set_property( tPropViscosity,      "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropConductivity,   "ThermalConductivity" );
-    tCMMasterFluid->set_property( tPropCapillarity,    "CapillarityCoefficient" );
-    tCMMasterFluid->set_property( tPropFirstVdWconst,  "FirstVdWconstant" );
-    tCMMasterFluid->set_property( tPropSecondVdWconst, "SecondVdWconstant" );
+    // create IWG
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK );
+            tIWGFactory.create_IWG( fem::IWG_Type::HEAT_METHOD_BULK );
 
-    tIWG->set_residual_dof_type( tTempDof );
+    tIWG->set_residual_dof_type( tPhiDDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -532,15 +407,13 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::PHID ) )   = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::THETA ) )    = 1;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::PHID ) )   = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::THETA ) )    = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -550,11 +423,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
         //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
         //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
-        // use correct body force for number of spatial dimensions
-        if ( iSpaceDim == 2 )
-            tIWG->set_property( tPropBodyForce2D, "BodyForce" );
-        else if ( iSpaceDim == 3 )
-            tIWG->set_property( tPropBodyForce3D, "BodyForce" );
+        // create normal for IWG
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -564,8 +434,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
-                // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                // set normal
+                tNormal( 1 ) = -2.6;
+
                 break;
             }
             case 3 :
@@ -573,8 +444,10 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
-                // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                // set normal
+                tNormal( 1 ) = -2.6;
+                tNormal( 2 ) =  9.4;
+
                 break;
             }
             default:
@@ -584,8 +457,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             }
         }
 
-        // set space dimension to CM
-        tCMMasterFluid->set_space_dim( iSpaceDim );
+        // assign normal to IWG
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -656,10 +530,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofRho  = tNumCoeff;
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofTemp = tNumCoeff;
-            int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
+            int tNumDofPhiD  = tNumCoeff;
+            int tNumDofTheta = tNumCoeff;
+            int tTotalNumDof = tNumDofPhiD + tNumDofTheta;
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule (
@@ -670,43 +543,34 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                     mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatRho;
-            fill_RhoHat( tMasterDOFHatRho, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTemp;
-            fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatPhiD;
+            fill_RhoHat( tMasterDOFHatPhiD, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatTheta;
+            fill_TempHat( tMasterDOFHatTheta, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
-            // create the field interpolator density
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
+            // create the field interpolator phiD
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPhiDDof );
+            tMasterFIs( 0 )->set_coeff( tMasterDOFHatPhiD );
 
-            // create the field interpolator velocity
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
-
-            // create the field interpolator pressure
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+            // create the field interpolator Theta
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tThetaDof );
+            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTheta );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofRho - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofRho, tNumDofRho + tNumDofVel - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofPhiD - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofPhiD, tTotalNumDof - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofRho - 1 },
-                    { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
-                    { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+                    { 0, tNumDofPhiD - 1 },
+                    { tNumDofPhiD, tTotalNumDof - 1 } };
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
-            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
@@ -740,12 +604,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
 
-            // set the interpolator manager to the set
-            tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
-
-            // set IWG field interpolator manager
-            tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
-
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
@@ -754,9 +612,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                 //std::cout << "-------------------------------------------------------------------\n" << std::flush;
                 //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
-                // reset CM evaluation flags
-                tCMMasterFluid->reset_eval_flags();
-
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
@@ -764,7 +619,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG

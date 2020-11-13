@@ -33,6 +33,8 @@ namespace moris
     {
         class Set;
         class Field_Interpolator_Manager;
+        class FEM_Model;
+
         //------------------------------------------------------------------------------
         /**
          * Integrand of Weak Form of Governing Equations
@@ -241,26 +243,7 @@ namespace moris
                  */
                 void set_phase_name(
                         std::string aPhaseName,
-                        mtk::Master_Slave aIsMaster )
-                {
-                    switch( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            mMasterPhaseName = aPhaseName;
-                            break;
-                        }
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            mSlavePhaseName = aPhaseName;
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "IWG::set_phase_name - aIsMaster can only be master or slave.");
-                        }
-                    }
-                }
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -268,25 +251,7 @@ namespace moris
                  * param[ in ]  aIsMaster an enum for master or slave
                  * param[ out ] mName     a string for phase name
                  */
-                std::string get_phase_name( mtk::Master_Slave aIsMaster )
-                {
-                    switch( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            return mMasterPhaseName;
-                        }
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            return mSlavePhaseName;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "IWG::get_phase_name - aIsMaster can only be master or slave.");
-                            return mMasterPhaseName;
-                        }
-                    }
-                }
+                std::string get_phase_name( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -653,27 +618,42 @@ namespace moris
                 /**
                  * evaluate the derivative of the residual
                  * wrt the geometry design variables by finite difference
-                 * @param[ in ] aWStar         weight associated to evaluation point
-                 * @param[ in ] aPerturbation  real for dv perturbation
-                 * @param[ in ] aIsActive      cell of vectors for active dv
-                 * @param[ in ] aVertexIndices vertices indices
-                 * @param[ in ] aFDSchemeType  enum for FD scheme
+                 * @param[ in ] aWStar            weight associated to evaluation point
+                 * @param[ in ] aPerturbation     real for relative dv perturbation
+                 * @param[ in ] aGeoLocalAssembly matrix filled with pdv local assembly indices
+                 * @param[ in ] aFDSchemeType     enum for FD scheme
                  */
                 void compute_dRdp_FD_geometry(
-                        moris::real                       aWStar,
-                        moris::real                       aPerturbation,
-                        moris::Cell< Matrix< DDSMat > > & aIsActive,
-                        Matrix< IndexMat >              & aVertexIndices,
-                        fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                        moris::real          aWStar,
+                        moris::real          aPerturbation,
+                        Matrix< DDSMat >   & aGeoLocalAssembly,
+                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+
+                void compute_dRdp_FD_geometry_bulk(
+                        moris::real          aWStar,
+                        moris::real          aPerturbation,
+                        Matrix< DDSMat >   & aGeoLocalAssembly,
+                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+
+                void compute_dRdp_FD_geometry_sideset(
+                        moris::real          aWStar,
+                        moris::real          aPerturbation,
+                        Matrix< DDSMat >   & aGeoLocalAssembly,
+                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+
+                void compute_dRdp_FD_geometry_time_sideset(
+                        moris::real          aWStar,
+                        moris::real          aPerturbation,
+                        Matrix< DDSMat >   & aGeoLocalAssembly,
+                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
                 void compute_dRdp_FD_geometry_double(
-                        moris::real                       aWStar,
-                        moris::real                       aPerturbation,
-                        moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
-                        Matrix< IndexMat >              & aMasterVertexIndices,
-                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
-                        Matrix< IndexMat >              & aSlaveVertexIndices,
-                        fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                        moris::real          aWStar,
+                        moris::real          aPerturbation,
+                        Matrix< IndexMat > & aMasterVertexIndices,
+                        Matrix< IndexMat > & aSlaveVertexIndices,
+                        Matrix< DDSMat >   & aGeoLocalAssembly,
+                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -141,18 +141,17 @@ namespace moris
                 /**
                  * initialize the geometry interpolator for the IG element
                  * using the mesh and GE
-                 * @param[ in ] aIsActiveDv list of if design variable is active
-                 *                          (vertexIndex)(DvType) for master element
+                 * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
+                 *                               ( tNumNodes x tNumPdvTypes )
                  */
-                void init_ig_geometry_interpolator(
-                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
+                void init_ig_geometry_interpolator( Matrix< DDSMat > & aGeoLocalAssembly );
 
+                //------------------------------------------------------------------------------
                 /**
                  * initialize the geometry interpolator for the IG element
                  * using the mesh only
                  */
                 void init_ig_geometry_interpolator();
-
         };
 
         //------------------------------------------------------------------------------

@@ -1536,12 +1536,12 @@ namespace moris
 
             // set size for assembly vector
             mPdvMatAssemblyVector.set_size( tCounter, 1, -1 );
-
         }
 
         //--------------------------------------------------------------------------
 
-        void Set::create_geo_pdv_assembly_map( std::shared_ptr< fem::Cluster > aFemCluster )
+        void Set::create_geo_pdv_assembly_map(
+                std::shared_ptr< fem::Cluster > aFemCluster )
         {
             // get the design variable interface
             MSI::Design_Variable_Interface * tDVInterface =
@@ -1557,75 +1557,88 @@ namespace moris
             moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
             aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
-            // clean up assembly map
-            mPdvGeoAssemblyMap.clear();
-
             // clean up assembly vector
-            Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNodeIndicesOnCluster.numel() * tRequestedDvTypes.size(), 1, -1 );
+            mPdvGeoAssemblyVector.set_size( 0, 0 );
+
+            // get the pdv active flags and ids from the FEM IG nodes
+            Matrix< DDSMat > tIsActivePdv;
+            Matrix< DDSMat > tPdvIds;
+            this->get_equation_model()->get_integration_xyz_pdv_active_flags_and_ids(
+                    tNodeIndicesOnCluster,
+                    tRequestedDvTypes,
+                    tIsActivePdv,
+                    tPdvIds );
 
             // init active geo pdv counter
             uint tActiveGeoPdvCounter = 0;
 
-            // loop over the requested pdv types
-            for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
+            // set flag for active pdv
+            mPdvGeoAssemblyFlag = ( sum( tIsActivePdv ) > 0 );
+
+            // if there are some active pdvs
+            if( mPdvGeoAssemblyFlag )
             {
-                // get treated geo pdv type
-                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+                // clean up assembly map
+                mPdvGeoAssemblyMap.clear();
 
-                // build geo pdv type cell
-                moris::Cell< PDV_Type > tGeoPdvMat = { tGeoPdvType };
+                // get number of pdv types
+                uint tNumPdvTypes = tRequestedDvTypes.size();
 
-                // loop over the ig nodes on cluster
+                // get number of nodes on cluster
                 uint tNumIGNodes = tNodeIndicesOnCluster.numel();
-                for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
+
+                // reset assembly indices on nodes
+                this->get_equation_model()->reset_integration_xyz_pdv_assembly_indices( tNodeIndicesOnCluster );
+
+                // clean up assembly vector
+                Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNumIGNodes * tNumPdvTypes, 1, -1 );
+
+                // loop over the requested pdv types
+                for( uint iGeoPdv = 0; iGeoPdv < tNumPdvTypes; iGeoPdv++ )
                 {
-                    // get treated node index
-                    moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
+                    // get treated geo pdv type
+                    PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
 
-                    // build node index matrix
-                    Matrix< IndexMat > tNodeIndexMat = {{ tNodeIndex }};
+                    // get treated geo pdv type index
+                    //moris_index tGeoPdvIndex = static_cast< uint >( tGeoPdvType );
 
-                    // check if active
-                    moris::Cell< moris::Matrix< DDRMat > > tPdvValue( 1 );
-                    tPdvValue( 0 ).set_size( 1, 1 );
-                    moris::Cell< moris::Matrix< DDSMat > > tIsActivePdv;
-                    tDVInterface->get_ig_pdv_value(
-                            tNodeIndexMat,
-                            tGeoPdvMat,
-                            tPdvValue,
-                            tIsActivePdv );
-
-                    // create key pair
-                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
-
-                    // if active and not set in the map
-                    if( tIsActivePdv( 0 )( 0 ) && ( mPdvGeoAssemblyMap.find( tKeyPair ) == mPdvGeoAssemblyMap.end() ) )
+                    // loop over the ig nodes on cluster
+                    for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
                     {
-                        // fill the map
-                        mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
+                        // get treated node index
+                        moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
 
-                        // get the id associated to the pdv
-                        moris::Cell< moris::Matrix< DDSMat > > tPdvId;
-                        tDVInterface->get_ig_dv_ids_for_type_and_ind(
-                                tNodeIndexMat,
-                                tGeoPdvMat,
-                                tPdvId );
+                        // create key pair
+                        std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
 
-                        // fill the global assembly vector
-                        tPdvGeoAssemblyVectorTemp( tActiveGeoPdvCounter ) = tPdvId( 0 )( 0 );
+                        // if active and not set in the map
+                        if( tIsActivePdv( iIGNode, iGeoPdv ) &&
+                                ( mPdvGeoAssemblyMap.find( tKeyPair ) == mPdvGeoAssemblyMap.end() ) )
+                        {
+                            // fill the map
+                            mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
 
-                        // update active geo pdv counter
-                        tActiveGeoPdvCounter++;
+                            // set node local index on cluster
+                            this->get_equation_model()->set_integration_xyz_pdv_assembly_index(
+                                    tNodeIndex,
+                                    tGeoPdvType,
+                                    tActiveGeoPdvCounter );
+
+                            // fill the global assembly vector
+                            tPdvGeoAssemblyVectorTemp( tActiveGeoPdvCounter ) = tPdvIds( iIGNode, iGeoPdv );
+
+                            // update active geo pdv counter
+                            tActiveGeoPdvCounter++;
+                        }
                     }
                 }
-            }
 
-            mPdvGeoAssemblyVector.set_size( 0, 0 );
-            if( tActiveGeoPdvCounter > 0 )
-            {
-                // fill assembly vector
-                mPdvGeoAssemblyVector.set_size( tActiveGeoPdvCounter, 1, -1 );
-                mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
+                if( tActiveGeoPdvCounter > 0 )
+                {
+                    // fill assembly vector
+                    mPdvGeoAssemblyVector.set_size( tActiveGeoPdvCounter, 1, -1 );
+                    mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
+                }
             }
         }
 

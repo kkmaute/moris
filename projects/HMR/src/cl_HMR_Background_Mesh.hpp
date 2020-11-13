@@ -453,11 +453,21 @@ namespace moris
 
             //--------------------------------------------------------------------------------
 
-
-            void create_proc_dims_minMeshInterface(
+            /**
+             * Processor decomposition method to minimize the mesh interface between adjacent
+             * processors. This functions is called for minimum mesh interface decomposition
+             * method only (mProcDecompMethod = 2 in hmr::Parameters).
+             *
+             * @param[in]  aNumberOfDimensions   must be 1, 2, or 3
+             * @param[in]  aMeshDims             the dimensions of the mesh
+             * @param[out] aProcDims             determined processor grid dimensions
+             *
+             * @return void
+             */
+            void create_proc_dims_min_mesh_interface(
                                     const uint           & aNumberOfDimensions,
                                     Matrix < DDLUMat >   & aMeshDims,
-                                    Matrix < DDUMat >    & aProcDimsTemp)
+                                    Matrix < DDUMat >    & aProcDimensions)
 
             {
 
@@ -471,14 +481,14 @@ namespace moris
                 //1D Processor Grid
                 if (aNumberOfDimensions==1)
                 {
-                    aProcDimsTemp.set_size( 1, 1 );
-                    aProcDimsTemp(0) = par_size();
+                    aProcDimensions.set_size( 1, 1 );
+                    aProcDimensions(0) = par_size();
                 }
 
                 //2D Processor Grid
                 else if (aNumberOfDimensions==2)
                 {
-                    aProcDimsTemp.set_size( 2, 1 );
+                    aProcDimensions.set_size( 2, 1 );
                     //Iterating through "i" (x) direction processors
                     for (uint i=1; i <= (uint) par_size(); i++)
                     {
@@ -488,8 +498,8 @@ namespace moris
                         {
                             tInterfaceCount = aMeshDims(1)*(i-1) + aMeshDims(0)*(par_size()/i-1);
                             //Assigning processor grid dimensions
-                            aProcDimsTemp(0) = i;
-                            aProcDimsTemp(1) = par_size()/i;
+                            aProcDimensions(0) = i;
+                            aProcDimensions(1) = par_size()/i;
                         }
 
                         //Otherwise, is i a factor of the number of processors?
@@ -500,8 +510,8 @@ namespace moris
                             {
                                 tInterfaceCount = aMeshDims(1)*(i-1) + aMeshDims(0)*(par_size()/i-1);
                                 //Assigning processor grid dimensions
-                                aProcDimsTemp(0) = i;
-                                aProcDimsTemp(1) = par_size()/i;
+                                aProcDimensions(0) = i;
+                                aProcDimensions(1) = par_size()/i;
                             }
                             else
                             {
@@ -514,7 +524,7 @@ namespace moris
                 //3D Processor Grid
                 else if (aNumberOfDimensions == 3)
                 {
-                    aProcDimsTemp.set_size( 3, 1 );
+                    aProcDimensions.set_size( 3, 1 );
 
                     // Iterating through i-direction processor possibilities
                     for (uint i = 1; i <= (uint) par_size(); i++)
@@ -532,9 +542,9 @@ namespace moris
                                             aMeshDims(0)*aMeshDims(2)*(j-1) + aMeshDims(1)*aMeshDims(2)*(i-1);
 
                                     //Repace processor grid dimensions
-                                    aProcDimsTemp(0) = i;
-                                    aProcDimsTemp(1) = j;
-                                    aProcDimsTemp(2) = par_size()/(i*j);
+                                    aProcDimensions(0) = i;
+                                    aProcDimensions(1) = j;
+                                    aProcDimensions(2) = par_size()/(i*j);
                                 }
 
                                 // Is i*j a factor of processor count?
@@ -551,9 +561,9 @@ namespace moris
                                                 aMeshDims(0)*aMeshDims(2)*(j-1) + aMeshDims(1)*aMeshDims(2)*(i-1);
 
                                         //Repace processor grid dimensions
-                                        aProcDimsTemp(0) = i;
-                                        aProcDimsTemp(1) = j;
-                                        aProcDimsTemp(2) = par_size()/(i*j);
+                                        aProcDimensions(0) = i;
+                                        aProcDimensions(1) = j;
+                                        aProcDimensions(2) = par_size()/(i*j);
                                     }
                                 }
 
@@ -638,7 +648,7 @@ namespace moris
                     //Minimize mesh interface decomposition method
                     case 2:
                     {
-                        create_proc_dims_minMeshInterface(N,
+                        create_proc_dims_min_mesh_interface(N,
                                 tNumberOfElementsPerDimension,
                                 mProcDims);
                         break;
@@ -665,7 +675,7 @@ namespace moris
                     tNumberOfElementsPerDimensionOnProc( k ) = tNumberOfElementsPerDimension ( k ) /  mProcDims( k ) ;
 
                     if( par_rank() == 0 )
-                    {;
+                    {
                         // make sure that cart size is OK
                         if ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) != 0 )
                         {

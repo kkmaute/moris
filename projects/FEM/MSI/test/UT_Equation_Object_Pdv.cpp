@@ -282,9 +282,9 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // create model
         mdl::Model * tModel = new mdl::Model(
                 &tMeshManager,
-                                               0,
-                                               tSetInfo,
-                                               tDesignVariableInterface );
+                0,
+                tSetInfo,
+                tDesignVariableInterface );
 
         // get the solver interface
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();

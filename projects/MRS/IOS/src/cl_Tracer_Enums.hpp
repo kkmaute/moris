@@ -19,6 +19,7 @@ namespace moris
             GlobalClock,
             MSI,
             Mesh,
+            XTK,
             TEST_CASE,
             OptimizationAlgorithm,
             Unknown
@@ -49,6 +50,11 @@ namespace moris
             SQP,
             Sweep,
             EquationModel,
+            Overall,
+            Decompose,
+            Enrichment,
+            GhostStabilization,
+            Multigrid,
             Unknown
     };
 

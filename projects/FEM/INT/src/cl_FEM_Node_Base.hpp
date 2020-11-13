@@ -12,6 +12,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"      //MTK/src
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -158,6 +159,73 @@ namespace moris
                 virtual void get_vertex_coords( Matrix< DDRMat > & aVertexCoords )
                 {
                     MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_coords()" );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get vertex active flags (if relevant)
+                 * @param[ out ] aPdvTypes
+                 * @param[ out ] aIsActiveDv
+                 */
+                virtual void get_vertex_xyz_active_flags(
+                        Matrix< DDSMat >                    & aIsActiveDv,
+                        const moris::Cell < enum PDV_Type > & aPdvTypes )
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_active_flags()" );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set vertex active flags (if relevant)
+                 * @param[ out ] aIsActiveDv
+                 */
+                virtual void set_vertex_xyz_active_flags(
+                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::set_vertex_active_flags()" );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get vertex pdv ids (if relevant)
+                 * @param[ out ] aPdvTypes
+                 * @param[ out ] aIsActiveDv
+                 */
+                virtual void get_vertex_xyz_pdv_ids(
+                        Matrix< DDSMat >                    & aXYZPdvIds,
+                        const moris::Cell < enum PDV_Type > & aPdvTypes )
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_xyz_pdv_ids()" );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set vertex active flags (if relevant)
+                 * @param[ out ] aIsActiveDv
+                 */
+                virtual void set_vertex_xyz_pdv_ids(
+                        moris::Cell< Matrix< DDSMat > > & aXYZPvIds )
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::set_vertex_xyz_pdv_ids()" );
+                }
+
+                virtual void set_local_xyz_pdv_assembly_index(
+                        moris_index   aLocalPdvAssemblyIndex,
+                        enum PDV_Type aPdvType )
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::set_local_xyz_pdv_assembly_index()" );
+                }
+
+                virtual void reset_local_xyz_pdv_assembly_index()
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::reset_local_xyz_pdv_assembly_index()" );
+                }
+
+                virtual void get_local_xyz_pdv_assembly_indices(
+                                        Matrix< DDSMat >                    & aXYZLocalAssemblyIndices,
+                                        const moris::Cell < enum PDV_Type > & aPdvTypes )
+                {
+                    MORIS_ERROR( false, "Entered virtual function Node_Base::get_local_xyz_pdv_assembly_indices()" );
                 }
 
                 //------------------------------------------------------------------------------
