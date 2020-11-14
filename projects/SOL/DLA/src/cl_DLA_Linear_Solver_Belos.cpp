@@ -20,11 +20,6 @@
 #include "BelosEpetraAdapter.hpp"
 
 #include "Ifpack.h"
-#include "Ifpack_Preconditioner.h"
-#include "Ifpack_ILUT.h"
-#include "Ifpack_ILU.h"
-#include "Ifpack_LocalFilter.h"
-
 #include "Ifpack_AdditiveSchwarz.h"
 
 using namespace moris;
@@ -94,45 +89,55 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
     // B E G I N N I N G   O F   I F P A C K   C O N S T R U C T I O N //
     // =============================================================== //
 
-    ParameterList List;
-
     // Allocate an IFPACK factory.  The object contains no data, only
     // the Create() method for creating preconditioners.
     Ifpack Factory;
 
-    // Get pointer to operator
-    Epetra_RowMatrix* tOperator = aLinearSystem->get_matrix()->get_matrix();
-
-    // Create the preconditioner.  For the list of PrecType values that
-    // Create() accepts, please check the IFPACK documentation.
-    std::string PrecType = "ILU"; // incomplete LU - ILUT not working
+    // Hard-code options - should be done through input parameters
+    std::string PrecType; // 0: incomplete LU 1: ILUT (not working)
+    int tPrecTypeInd = 0;
     int OverlapLevel = 1;
 
-    RCP< Ifpack_Preconditioner > Prec = rcp (Factory.Create (PrecType, tOperator, OverlapLevel));
+    ParameterList List;
 
     // Specify parameters for ILU.  ILU is local to each MPI process.
-    if ( PrecType == "ILU" )
+    switch (tPrecTypeInd)
     {
-        List.set (" fact: drop tolerance"    , 1e-9 );
-        List.set (" fact: level-of-fill"     , 1    );
-        List.set ( "fact: absolute threshold", 0.0  );
-        List.set ( "fact: relative threshold", 1.0  );
-        List.set ( "fact: relax value"       , 0.0  );
+        case 0:
+        {
+            PrecType = "ILU";
+            List.set (" fact: drop tolerance"    , 1e-9 );
+            List.set (" fact: level-of-fill"     , 1    );
+            break;
+        }
+        case 1:
+        {
+            PrecType = "ILUT";
+            List.set ( "fact: drop tolerance"    , 1.e-9 );
+            List.set ( "fact: ilut level-of-fill", 12.0  );
+            break;
+        }
+        default:
+        {
+            MORIS_ERROR(false,"Incorrect preconditioner type.\n");
+        }
     }
 
-    if ( PrecType == "ILUT" )
-    {
-        List.set ( "fact: drop tolerance"    , 1.e-9 );
-        List.set ( "fact: ilut level-of-fill", 12.0  );
-        List.set ( "fact: absolute threshold", 0.0   );
-        List.set ( "fact: relative threshold", 1.0   );
-        List.set ( "fact: relax value"       , 0.0   );
-    }
+    List.set ( "schwarz: combine mode"     , "Add");
+    //List.set ( "schwarz: combine mode"     , "Zero");
+    //List.set ( "schwarz: compute condest"  , false );
+    //List.set ( "schwarz: filter singletons", false );
+    //List.set ( "schwarz: reordering type"  , "rcm" );
 
-    List.set ( "schwarz: combine mode"     , "Zero");
-    List.set ( "schwarz: compute condest"  , false );
-    List.set ( "schwarz: filter singletons", false );
-    List.set ( "schwarz: reordering type"  , "rcm" );
+    // Get pointer to operator
+    //Epetra_RowMatrix & tOperator = *(aLinearSystem->get_matrix()->get_matrix());
+
+    //EpetraExt::RowMatrixToMatlabFile( "mat.mat", tOperator );
+
+    // Create the preconditioner.  For the list of PrecType values that
+    //RCP< Ifpack_Preconditioner > Prec = rcp (Factory.Create (PrecType, tOperator, OverlapLevel));
+
+    RCP< Ifpack_Preconditioner > Prec =  rcp (Factory.Create (PrecType, &*aLinearSystem->get_matrix()->get_matrix(), OverlapLevel));
 
     // Set the parameters.
     IFPACK_CHK_ERR(Prec->SetParameters(List));
@@ -192,12 +197,12 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
     // Tell the solver what problem you want to solve.
     solver->setProblem (problem);
 
-    //	Belos::ReturnType result = solver->solve();
+    //Belos::ReturnType result = solver->solve();
     solver->solve();
     // Ask the solver how many iterations the last solve() took.
-    //	const int numIters = solver->getNumIters();
+    //const int numIters = solver->getNumIters();
     //
-    //	std::cout<<"iter : "<<numIters<<std::endl;
+    //std::cout<<"iter : "<<numIters<<std::endl;
 
     return 0;
 }
