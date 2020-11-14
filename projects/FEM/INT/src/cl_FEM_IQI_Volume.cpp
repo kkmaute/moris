@@ -21,23 +21,17 @@ namespace moris
             std::shared_ptr< Property > tPropDensity =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
-            // init density value
-            Matrix< DDRMat > tPropVal;
-
             // if density property
             if ( tPropDensity != nullptr )
             {
                 // evaluate the density
-                tPropVal = tPropDensity->val();
+                aQI = tPropDensity->val();
             }
             else
             {
                 // set density to 1
-                tPropVal = {{ 1.0 }};
+                aQI = {{ 1.0 }};
             }
-
-            // evaluate the QI
-            aQI = tPropVal;
         }
 
         //------------------------------------------------------------------------------
