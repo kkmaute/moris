@@ -51,43 +51,41 @@ namespace moris
             Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get body load property
-            std::shared_ptr< Property > tPropLoad =
+            std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the Stabilization Parameter
-            std::shared_ptr< Stabilization_Parameter > tGGLSParam =
+            std::shared_ptr< Stabilization_Parameter > & tGGLSParam =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
+            // get sub-matrix
+            auto tRes = mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex } );
+
             // compute the residual
-            mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
-                            trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux() +
-                            trans( tFITemp->N() ) * tCMDiffusion->EnergyDot() );
+            tRes += aWStar * (
+                    trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux() +
+                    trans( tFITemp->N() ) * tCMDiffusion->EnergyDot() );
 
             // if body load
             if ( tPropLoad != nullptr )
             {
                 // compute contribution of body load to residual
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                trans( tFITemp->N() ) * tPropLoad->val()( 0 ) );
+                tRes -= aWStar * (
+                        trans( tFITemp->N() ) * tPropLoad->val()( 0 ) );
             }
 
             // if stabilization parameter is defined
             if ( tGGLSParam != nullptr )
             {
                 // compute the residual from bulk diffusion term
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
-                                trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
-                                ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) );
+                tRes += aWStar * (
+                        trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
+                        ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) );
             }
 
             // check for nan, infinity
@@ -113,15 +111,15 @@ namespace moris
             Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get body load property
-            std::shared_ptr< Property > tPropLoad =
+            std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the Stabilization Parameter
-            std::shared_ptr< Stabilization_Parameter > tGGLSParam =
+            std::shared_ptr< Stabilization_Parameter > & tGGLSParam =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
             // get the number of master dof type dependencies
@@ -138,32 +136,32 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
+                // get sub-matrix
+                auto tJac =  mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
                 // if body load
                 if ( tPropLoad != nullptr )
                 {
                     // if body load property has dependency on the dof type
                     if ( tPropLoad->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFITemp->N() ) * tPropLoad->dPropdDOF( tDofType ) );
+                        // add contribution to Jacobian
+                        tJac -= aWStar * (
+                                trans( tFITemp->N() ) * tPropLoad->dPropdDOF( tDofType ) );
                     }
                 }
 
                 // if constitutive model has dependency on the dof type
                 if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
-                    // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) +
-                                    trans( tFITemp->N() ) * tCMDiffusion->dEnergyDotdDOF( tDofType )  );
+                    // compute the Jacobian
+                    tJac += aWStar * (
+                            trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) +
+                            trans( tFITemp->N() ) * tCMDiffusion->dEnergyDotdDOF( tDofType )  );
                     // FIXME add derivative of the test strain
                 }
-
 
                 // if stabilization parameter is defined
                 if ( tGGLSParam != nullptr )
@@ -175,7 +173,7 @@ namespace moris
                     //     // if body load property has dependency on the dof type
                     //     if ( tPropLoad->check_dof_dependency( tDofType ) )
                     //     {
-                    //         // compute contribution of body load to jacobian
+                    //         // compute contribution of body load to Jacobian
                     //         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                     //                 { tMasterDepStartIndex, tMasterDepStopIndex } )
                     //                 -= aWStar * ( trans( tFITemp->N() ) * tGGLSParam->val()( 0 ) * tPropLoad->dPropdDOF( tDofType ) );
@@ -185,20 +183,16 @@ namespace moris
                     // if constitutive model has dependency on the dof type
                     if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                     {
-                        // compute the jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tGGLSParam->val()(0) *  trans( tCMDiffusion->testStrain() ) *
-                                        ( tCMDiffusion->dGradEnergyDotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
+                        // compute the Jacobian
+                        tJac += aWStar * (
+                                tGGLSParam->val()(0) *  trans( tCMDiffusion->testStrain() ) *
+                                ( tCMDiffusion->dGradEnergyDotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
                     }
 
                     // add contribution from stabilization parameter
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMDiffusion->testStrain() ) * ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) *
-                                    tGGLSParam->dSPdMasterDOF( tDofType ) );
+                    tJac += aWStar * (
+                            trans( tCMDiffusion->testStrain() ) * ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) *
+                            tGGLSParam->dSPdMasterDOF( tDofType ) );
                 }
             }
 
@@ -281,8 +275,7 @@ namespace moris
             //                // if diffusion constitutive model has dependency on the dv type
             //                if ( tCMDiffusion->check_dv_dependency( tDvType ) )
             //                {
-            //                    // compute the jacobian
-            //                    // compute the jacobian
+            //                    // compute the Jacobian
             //                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
             //                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
             //                    += aWStar * ( trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDV( tDvType ) );
