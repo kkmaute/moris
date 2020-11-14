@@ -48,7 +48,7 @@ namespace moris
                 // pointer to function for G evaluation
                 void ( * mEvalGFunc )(
                         Matrix< DDRMat >   & aG,
-                        Matrix< DDRMat >   & aInvSpaceJacobian );
+                        const Matrix< DDRMat >   & aInvSpaceJacobian );
 
                 /*
                  * Rem: mParameters( 0 ) - CI = 36
@@ -149,7 +149,7 @@ namespace moris
                  */
                 static void eval_G_2d(
                         Matrix< DDRMat > & aG,
-                        Matrix< DDRMat > & aInvSpaceJacobian );
+                        const Matrix< DDRMat > & aInvSpaceJacobian );
 
                 /**
                  * evaluate G in 3d
@@ -158,7 +158,7 @@ namespace moris
                  */
                 static void eval_G_3d(
                         Matrix< DDRMat > & aG,
-                        Matrix< DDRMat > & aSpaceJacobian );
+                        const Matrix< DDRMat > & aSpaceJacobian );
 
                 //------------------------------------------------------------------------------
         };
