@@ -641,7 +641,22 @@ namespace moris
             // Entity Ownership Functions
             //##############################################
 
-            // FIXME pure virtual or default implementation
+            /**
+             * Gets the owner of a node.
+             *
+             * @param aNodeIndex Node index
+             * @return Node owner
+             */
+            virtual uint get_node_owner(moris_index aNodeIndex) const = 0;
+
+            /**
+             * Gets the owner of an element.
+             *
+             * @param aElementIndex Element index
+             * @return Element owner
+             */
+            virtual uint get_element_owner(moris_index aElementIndex) const = 0;
+
             /**
              * Gets the owner of a given entity.
              *
@@ -650,9 +665,7 @@ namespace moris
              * @param aBSPlineMeshIndex B-spline mesh index
              * @return Entity owner
              */
-            virtual
-            moris_id
-            get_entity_owner(
+            virtual uint get_entity_owner(
                     moris_index       aEntityIndex,
                     enum EntityRank   aEntityRank,
                     const moris_index aBSPlineMeshIndex = 0) const;

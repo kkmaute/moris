@@ -744,7 +744,7 @@ namespace moris
                         for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
                         {
                             // If this processor owns this coefficient
-                            if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                             {
                                 // New ADV needs to be created on this processor
                                 tNumNewOwnedADVs++;
@@ -812,7 +812,7 @@ namespace moris
                             tSharedADVIds(tGeometryIndex)(tBSplineIndex) = tNewADVId;
 
                             // If this processor owns this coefficient set to owned list and set bounds
-                            if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                             {
                                 // Bounds
                                 mLowerBounds(tOwnedADVIndex) = tBSplineLowerBound;

@@ -74,7 +74,7 @@ namespace moris
             // Assign ADVs
             for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
             {
-                if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                 {
                     // Assign distributed vector element based on B-spline ID and offset
                     (*aOwnedADVs)(aOwnedADVIds(aOwnedADVIdsOffset++)) = tTargetField(tBSplineIndex);
@@ -85,7 +85,7 @@ namespace moris
             uint tOwnedNodeCount = 0;
             for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
             {
-                if (par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
+                if ((uint) par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
                 {
                     tOwnedNodeCount++;
                 }
@@ -102,7 +102,7 @@ namespace moris
                         EntityRank::NODE,
                         tBSplineMeshIndex);
                 tSharedNodeIDs(tNodeIndex) = tNodeID;
-                if (par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
+                if ((uint) par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
                 {
                     tOwnedNodeIDs(tOwnedNodeCount++) = tNodeID;
                 }
@@ -167,7 +167,7 @@ namespace moris
             // Evaluate field at owned nodes
             for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
             {
-                if (par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, this->get_bspline_mesh_index()))
+                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, this->get_bspline_mesh_index()))
                 {
                     sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,

@@ -49,7 +49,7 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
     {
         // Get the nodes connected to this element
         if(tXTKBMesh.get_element_phase_index(tUnintersectedElements(i)) == aPhaseIndex &&
-                tBMMeshData.get_entity_owner(tUnintersectedElements(i),moris::EntityRank::ELEMENT) == tParRank)
+                tBMMeshData.get_entity_owner(tUnintersectedElements(i),moris::EntityRank::ELEMENT) == (uint) tParRank)
         {
 
             moris::Matrix< moris::IndexMat > tElementToNode
@@ -112,7 +112,7 @@ compute_child_element_volume_by_phase(moris::moris_index                        
 
         moris::size_t tNumElems = tChildMesh.get_num_entities(EntityRank::ELEMENT);
 
-        if(tBMMeshData.get_entity_owner(tChildMesh.get_parent_element_index(),moris::EntityRank::ELEMENT) == tParRank)
+        if(tBMMeshData.get_entity_owner(tChildMesh.get_parent_element_index(),moris::EntityRank::ELEMENT) == (uint) tParRank)
         {
         for(size_t j = 0; j <tNumElems; j++)
         {

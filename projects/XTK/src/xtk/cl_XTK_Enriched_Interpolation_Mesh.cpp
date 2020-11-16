@@ -418,6 +418,20 @@ namespace xtk
         return tGlobalMaxId;
     }
 
+    //------------------------------------------------------------------------------
+
+    uint Enriched_Interpolation_Mesh::get_node_owner(moris_index aNodeIndex) const
+    {
+        return this->get_mtk_vertex(aNodeIndex).get_owner();
+    }
+
+    //------------------------------------------------------------------------------
+
+    uint Enriched_Interpolation_Mesh::get_element_owner(moris_index aElementIndex) const
+    {
+        return this->get_mtk_cell(aElementIndex).get_owner();
+    }
+
     // ----------------------------------------------------------------------------
 
     void

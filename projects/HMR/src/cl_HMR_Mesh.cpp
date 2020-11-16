@@ -1303,7 +1303,28 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        moris_id Mesh::get_entity_owner(
+        uint Mesh::get_node_owner(moris_index aNodeIndex) const
+        {
+            return mMesh->get_node_by_index(aNodeIndex)->get_owner();
+        }
+
+        //-----------------------------------------------------------------------------
+
+        uint Mesh::get_element_owner(moris_index aElementIndex) const
+        {
+            if ( mDatabase->get_parameters()->use_number_aura() )
+            {
+                return mMesh->get_element_including_aura(aElementIndex)->get_owner();
+            }
+            else
+            {
+                return mMesh->get_element(aElementIndex)->get_owner();
+            }
+        }
+
+        //-----------------------------------------------------------------------------
+
+        uint Mesh::get_entity_owner(
                 moris_index        aEntityIndex,
                 enum EntityRank    aEntityRank,
                 const moris_index  aIndex) const
