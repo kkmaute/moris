@@ -1137,10 +1137,20 @@ namespace moris
             Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
             Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
-            // Loop through sets
+            // Determine if we need to do the below loop
+            bool tDoJankLoop = false;
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 if (aPdvTypes(tMeshSetIndex).size() > 0)
+                {
+                    tDoJankLoop = true;
+                }
+            }
+
+            if (tDoJankLoop)
+            {
+                // Loop through sets
+                for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
                 {
                     uint tCurrentNode = 0;
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);

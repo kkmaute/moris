@@ -427,7 +427,7 @@ namespace moris
                 CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tApproxTarget);
 
                 // Check sensitivities
-                if (par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
+                if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
                 {
                     check_equal(
                             tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
