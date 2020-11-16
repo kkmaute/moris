@@ -120,15 +120,25 @@ namespace moris
         void Field_Interpolator::reset_eval_flags()
         {
             // reset bool for evaluation
-            mNEval       = true;
-            mNBuildEval  = true;
-            mdNdxEval    = true;
-            md2Ndx2Eval  = true;
-            md3Ndx3Eval  = true;
-            mdNdtEval    = true;
-            md2Ndt2Eval  = true;
-            md2NdxtEval  = true;
+            mNEval           = true;
+            mNBuildEval      = true;
+            mdNdxEval        = true;
+            md2Ndx2Eval      = true;
+            md3Ndx3Eval      = true;
+            mdNdtEval        = true;
+            md2Ndt2Eval      = true;
+            md2NdxtEval      = true;
             mDivOperatorEval = true;
+
+            mValEval    = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator::reset_eval_flags_coefficients()
+        {
+            // reset bool for evaluation
+            mValEval    = true;
         }
 
         //------------------------------------------------------------------------------
@@ -177,6 +187,7 @@ namespace moris
 
             // reset bool for evaluation
             this->reset_eval_flags();
+            this->reset_eval_flags_coefficients();
         }
 
         //------------------------------------------------------------------------------
@@ -189,6 +200,9 @@ namespace moris
 
             // set the coefficients
             mUHat = aUHat;
+
+            // reset bool for evaluation
+            this->reset_eval_flags_coefficients();
         }
 
         //------------------------------------------------------------------------------
@@ -338,11 +352,10 @@ namespace moris
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
 
             // evaluate the space Jacobian from the geometry interpolator
-            Matrix< DDRMat > tJGeot;
-            mGeometryInterpolator->space_jacobian( tJGeot );
+            const Matrix< DDRMat > & tInvJGeot = mGeometryInterpolator->inverse_space_jacobian();
 
             // compute first derivative of the space shape function wrt x
-            Matrix< DDRMat > tdNSpacedX = inv(tJGeot) * tdNSpacedXi;
+            Matrix< DDRMat > tdNSpacedX = tInvJGeot * tdNSpacedXi;
 
             // evaluate NTime for the time interpolation
             Matrix < DDRMat > tNTime;
@@ -515,11 +528,10 @@ namespace moris
             mTimeInterpolation->eval_dNdXi( mTau, tdNTimedtau );
 
             // evaluate the Jacobian from the time geometry interpolator
-            Matrix< DDRMat > tJGeot;
-            mGeometryInterpolator->time_jacobian( tJGeot );
+            Matrix< DDRMat > tInvJGeot = mGeometryInterpolator->inverse_time_jacobian();
 
             // evaluate dNTimedt
-            Matrix< DDRMat > tdNTimedt = inv( tJGeot ) * tdNTimedtau;
+            Matrix< DDRMat > tdNTimedt = tInvJGeot * tdNTimedtau;
 
             // evaluate N for the field space interpolation
             Matrix < DDRMat > tNSpace;
@@ -614,8 +626,7 @@ namespace moris
             mTimeInterpolation->eval_dNdXi( mTau, tdNTimedTau );
 
             // evaluate the time Jacobian from the geometry interpolator
-            Matrix< DDRMat > tJGeoTimet;
-            mGeometryInterpolator->time_jacobian( tJGeoTimet );
+            Matrix< DDRMat > tJGeoTimet = mGeometryInterpolator->time_jacobian();
 
             // compute first derivative of the space shape function wrt x
             Matrix< DDRMat > tdNTimedT = tdNTimedTau / tJGeoTimet( 0 );
@@ -625,11 +636,10 @@ namespace moris
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
 
             // evaluate the space Jacobian from the geometry interpolator
-            Matrix< DDRMat > tJGeoSpacet;
-            mGeometryInterpolator->space_jacobian( tJGeoSpacet );
+            const Matrix< DDRMat > & tInvJGeoSpacet = mGeometryInterpolator->inverse_space_jacobian();
 
             // compute first derivative of the space shape function wrt x
-            Matrix< DDRMat > tdNSpacedX = inv(tJGeoSpacet) * tdNSpacedXi;
+            Matrix< DDRMat > tdNSpacedX = tInvJGeoSpacet * tdNSpacedXi;
 
             // set size md2Ndxt for the field
             md2Ndxt.set_size( mNSpaceDim, mNFieldBases, 0.0 );
@@ -644,14 +654,31 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Field_Interpolator::val()
+        const Matrix< DDRMat > & Field_Interpolator::val()
+        {
+            // if field value needs to be evaluated
+            if( mValEval )
+            {
+                // evaluate field value
+                this->eval_val();
+
+                // set bool for evaluation
+                mValEval = false;
+            }
+            // return member data
+            return mVal;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator::eval_val()
         {
             // check that mUHat is set
             MORIS_ASSERT( mUHat.numel() > 0,
-                    "Field_Interpolator::val - mUHat is not set." );
+                    "Field_Interpolator::eval_val - mUHat is not set." );
 
             //evaluate the field value
-            return trans( this->NBuild() * mUHat ) ;
+            mVal = trans( this->NBuild() * mUHat ) ;
         }
 
         //------------------------------------------------------------------------------

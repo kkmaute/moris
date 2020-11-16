@@ -29,8 +29,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Time_Boundary::init_ig_geometry_interpolator(
-                uint                              aTimeOrdinal,
-                moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
+                uint aTimeOrdinal )
         {
             // get param space time
             real tTimeParamCoeff = 2.0 * aTimeOrdinal - 1.0;
@@ -49,49 +48,53 @@ namespace moris
                     mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
             Matrix< DDRMat > tIGParamTimeCoords( 1, 1, tTimeParamCoeff );
 
-            // get the requested geo pdv types
-            moris::Cell < enum PDV_Type > tGeoPdvType;
-            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+            // set physical space and current time coefficients for IG element GI
+            tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+            tIGGI->set_time_coeff(  tIGPhysTimeCoords );
 
-            // determine if there are IG pdvs
-            if ( tGeoPdvType.size() )
+            // set parametric space and current time coefficients for IG element GI
+            tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+            tIGGI->set_time_param_coeff(  tIGParamTimeCoords );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Time_Boundary::init_ig_geometry_interpolator(
+                uint               aTimeOrdinal,
+                Matrix< DDSMat > & aGeoLocalAssembly )
+        {
+            // get param space time
+            real tTimeParamCoeff = 2.0 * aTimeOrdinal - 1.0;
+
+            // get geometry interpolator
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
+            // get physical space and current and previous time coordinates for IG element
+            Matrix< DDRMat > tIGPhysSpaceCoords = mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysTimeCoords( 1, 1,
+                    mCluster->mInterpolationElement->get_time()( aTimeOrdinal ) );
+
+            // get master parametric space and current and previous time coordinates for IG element
+            Matrix< DDRMat > tIGParamSpaceCoords =
+                    mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
+            Matrix< DDRMat > tIGParamTimeCoords( 1, 1, tTimeParamCoeff );
+
+            // get the local cluster assembly indices
+            if( mSet->get_geo_pdv_assembly_flag() )
             {
-                // get space dimension
-                uint tSpaceDim = tIGPhysSpaceCoords.n_cols();
-
                 // get the vertices indices for IG element
                 Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
-                // get the pdv values from the MSI/GEN interface
-                moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
-                mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
+                // get the requested geo pdv types
+                moris::Cell < enum PDV_Type > tGeoPdvType;
+                mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+                // get local assembly indices
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
                         tVertexIndices,
                         tGeoPdvType,
-                        tPdvValueList,
-                        aIsActiveDv );
-
-                // reshape the XYZ values into a cell of vectors
-                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
-                {
-                    for ( uint iNode = 0; iNode < tIGPhysSpaceCoords.n_rows(); iNode++)
-                    {
-                        if ( ! aIsActiveDv(iSpaceDim)(iNode) )
-                        {
-                            tPdvValueList( iSpaceDim )( iNode ) = tIGPhysSpaceCoords( iNode,iSpaceDim );
-                        }
-                        else
-                        {
-                            MORIS_ASSERT( equal_to(tPdvValueList( iSpaceDim )( iNode ),tIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
-                                    "GE coordinate and MTK coordinate differ\n");
-                        }
-                    }
-                }
-
-                // reshape the cell of vectors tPdvValueList into a matrix tIGPhysSpaceCoords
-                tIGPhysSpaceCoords.set_size( 0, 0 );
-                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
-                        tPdvValueList,
-                        tIGPhysSpaceCoords );
+                        aGeoLocalAssembly );
             }
 
             // set physical space and current time coefficients for IG element GI
@@ -120,8 +123,7 @@ namespace moris
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                this->init_ig_geometry_interpolator( iTimeBoundary );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -171,8 +173,7 @@ namespace moris
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                this->init_ig_geometry_interpolator( iTimeBoundary );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -218,8 +219,7 @@ namespace moris
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                this->init_ig_geometry_interpolator( iTimeBoundary );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -270,12 +270,9 @@ namespace moris
                 // get param space time
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
-                // get the vertices indices
-                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                Matrix< DDSMat > tGeoLocalAssembly;
+                this->init_ig_geometry_interpolator( iTimeBoundary, tGeoLocalAssembly );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -327,12 +324,9 @@ namespace moris
                 // get param space time
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
-                // get the vertices indices
-                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                Matrix< DDSMat > tGeoLocalAssembly;
+                this->init_ig_geometry_interpolator( iTimeBoundary, tGeoLocalAssembly );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -361,13 +355,12 @@ namespace moris
                                 tFDScheme );
 
                         // compute dRdpGeo at evaluation point
-                        if( tIsActiveDv.size() != 0 )
+                        if( mSet->get_geo_pdv_assembly_flag() )
                         {
                             mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
                                     tWStar,
                                     tFDPerturbation,
-                                    tIsActiveDv,
-                                    tVertexIndices,
+                                    tGeoLocalAssembly,
                                     tFDScheme );
                         }
                     }
@@ -392,8 +385,7 @@ namespace moris
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                this->init_ig_geometry_interpolator( iTimeBoundary );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -438,8 +430,7 @@ namespace moris
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                this->init_ig_geometry_interpolator( iTimeBoundary );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -483,12 +474,8 @@ namespace moris
                 // get param space time
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
-                // get the vertices indices
-                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                this->init_ig_geometry_interpolator( iTimeBoundary );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -539,12 +526,9 @@ namespace moris
                 // get param space time
                 real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
-                // get the vertices indices
-                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
                 // set physical and parametric space and time coefficients for IG element
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+                Matrix< DDSMat > tGeoLocalAssembly;
+                this->init_ig_geometry_interpolator( iTimeBoundary, tGeoLocalAssembly );
 
                 // loop over integration points
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -572,13 +556,12 @@ namespace moris
                                 tFDScheme );
 
                         // compute dQIdpGeo at evaluation point
-                        if( tIsActiveDv.size() != 0 )
+                        if( mSet->get_geo_pdv_assembly_flag() )
                         {
                             mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
                                     tWStar,
                                     tFDPerturbation,
-                                    tIsActiveDv,
-                                    tVertexIndices,
+                                    tGeoLocalAssembly,
                                     tFDScheme );
                         }
                     }

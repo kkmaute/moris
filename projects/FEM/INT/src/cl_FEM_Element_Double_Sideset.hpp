@@ -126,16 +126,24 @@ namespace moris
                  * initialize the geometry interpolator for the IG master and slave element
                  * @param[ in ] aMasterSideOrdinal side ordinal for the master element
                  * @param[ in ] aSlaveSideOrdinal  side ordinal for the slave element
-                 * @param[ in ] aMasterIsActiveDv  list of if design variable is active
-                 *                                 (vertexIndex)(pdvType) for master element
-                 * @param[ in ] aSlaveIsActiveDv   list of if design variable is active
-                 *                                 (vertexIndex)(pdvType) for slave element
                  */
                 void init_ig_geometry_interpolator(
                         uint aMasterSideOrdinal,
-                        uint aSlaveSideOrdinal,
-                        moris::Cell< Matrix< DDSMat > > & aMasterIsActiveDv,
-                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActiveDv );
+                        uint aSlaveSideOrdinal );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize the geometry interpolator for the IG master and slave element
+                 * @param[ in ] aMasterSideOrdinal side ordinal for the master element
+                 * @param[ in ] aSlaveSideOrdinal  side ordinal for the slave element
+                 * @param[ in ] aGeoLocalAssembly  matrix with pdv local assembly indices
+                 *                                 for master element
+                 *                                 ( NumVertexIndices x NumPdvTypes )
+                 */
+                void init_ig_geometry_interpolator(
+                        uint               aMasterSideOrdinal,
+                        uint               aSlaveSideOrdinal,
+                        Matrix< DDSMat > & aGeoLocalAssembly );
         };
 
         //------------------------------------------------------------------------------

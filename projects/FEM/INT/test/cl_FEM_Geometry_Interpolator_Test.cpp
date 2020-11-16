@@ -104,8 +104,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check space jacobian
         Matrix< DDRMat > tdNdXi = tGeoInterpolator.dNdXi();
-        Matrix< DDRMat > tSpaceJt;
-        tGeoInterpolator.space_jacobian( tSpaceJt );
+        Matrix< DDRMat > tSpaceJt = tGeoInterpolator.space_jacobian();
         Matrix< DDRMat > tSpaceJtMatlab( 1, 1, 2.0 );
 
         bool tSpaceJCheck = true;
@@ -120,8 +119,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check time jacobian
         Matrix< DDRMat > tdNdTau = tGeoInterpolator.dNdTau();
-        Matrix< DDRMat > tTimeJt;
-        tGeoInterpolator.time_jacobian( tTimeJt );
+        Matrix< DDRMat > tTimeJt = tGeoInterpolator.time_jacobian();
         Matrix< DDRMat > tTimeJtMatlab( 1, 1, 2.5 );
 
         bool tTimeJCheck = true;
@@ -320,8 +318,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check space jacobian
         Matrix< DDRMat > tdNdXi = tGeoInterpolator.dNdXi();
-        Matrix< DDRMat > tSpaceJt;
-        tGeoInterpolator.space_jacobian( tSpaceJt );
+        Matrix< DDRMat > tSpaceJt = tGeoInterpolator.space_jacobian();
         Matrix< DDRMat > tSpaceJtMatlab = {{ 1.593750000000000, 0.531250000000000 },
                 { 0.668750000000000, 1.456250000000000}};
 
@@ -337,8 +334,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check time jacobian
         Matrix< DDRMat > tdNdTau = tGeoInterpolator.dNdTau();
-        Matrix< DDRMat > tTimeJt;
-        tGeoInterpolator.time_jacobian( tTimeJt );
+        Matrix< DDRMat > tTimeJt = tGeoInterpolator.time_jacobian();
         Matrix< DDRMat > tTimeJtMatlab( 1, 1, 2.5 );
 
         bool tTimeJCheck = true;
@@ -593,8 +589,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check space jacobian
         Matrix< DDRMat > tdNdXi = tGeoInterpolator.dNdXi();
-        Matrix< DDRMat > tSpaceJt;
-        tGeoInterpolator.space_jacobian( tSpaceJt );
+        Matrix< DDRMat > tSpaceJt = tGeoInterpolator.space_jacobian();
         Matrix< DDRMat > tSpaceJtMatlab = {
                 { 1.593750000000000,   0.531250000000000,  -0.027187500000000},
                 { 0.668750000000000,   1.456250000000000,   0.429562500000000},
@@ -612,8 +607,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check time jacobian
         Matrix< DDRMat > tdNdTau = tGeoInterpolator.dNdTau();
-        Matrix< DDRMat > tTimeJt;
-        tGeoInterpolator.time_jacobian( tTimeJt );
+        Matrix< DDRMat > tTimeJt = tGeoInterpolator.time_jacobian();
         Matrix< DDRMat > tTimeJtMatlab( 1, 1, 2.5 );
 
         bool tTimeJCheck = true;

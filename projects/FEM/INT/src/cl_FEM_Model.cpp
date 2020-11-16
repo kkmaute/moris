@@ -59,112 +59,58 @@ namespace moris
 
             mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
+            // set the space dimension
+            mSpaceDim = tIPMesh->get_spatial_dim();
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create nodes
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer1;
-
-            // ask IP mesh about number of IP vertices on proc
-            luint tNumIPNodes = tIPMesh->get_num_nodes();
-
-            // set size for list IP nodes
-            mIPNodes.resize( tNumIPNodes, nullptr );
-
-            // loop over IP mesh vertices
-            for( uint iNode = 0; iNode < tNumIPNodes; iNode++ )
-            {
-                // create a new IP Node
-                mIPNodes( iNode ) = new fem::Node( &tIPMesh->get_mtk_vertex( iNode ) );
-            }
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.",
-                        ( unsigned int ) tNumIPNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            this->create_interpolation_nodes( tIPMesh );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create sets
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_fem_sets( tIPMesh, tIGMesh, aSetInfo );
+        }
 
-            // start timer
-            tic tTimer2;
+        //------------------------------------------------------------------------------
 
-            // get the number of sets
-            uint tNumFemSets = aSetInfo.size();
+        FEM_Model::FEM_Model(
+                mtk::Mesh_Manager                 * aMeshManager,
+                const moris_index                 & aMeshPairIndex,
+                moris::Cell< fem::Set_User_Info > & aSetInfo,
+                MSI::Design_Variable_Interface    * aDesignVariableInterface )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex )
+        {
+            this->set_design_variable_interface( aDesignVariableInterface );
 
-            // create equation sets
-            mFemSets.resize( tNumFemSets, nullptr );
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 0: unpack mesh
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // get pointers to interpolation and integration meshes
+            mtk::Interpolation_Mesh* tIPMesh = nullptr;
+            mtk::Integration_Mesh*   tIGMesh = nullptr;
 
-            // get number of IP cells
-            uint tNumIPCells = tIPMesh->get_num_elems();
+            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
-            // reserve size for list of equation objects
-            mFemClusters.reserve( tNumIPCells );
+            // set the space dimension
+            mSpaceDim = tIPMesh->get_spatial_dim();
 
-            // loop over the used fem set
-            for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
-            {
-                // get the mesh set name
-                std::string tMeshSetName = aSetInfo( iSet).get_mesh_set_name();
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: create interpolation nodes
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_interpolation_nodes( tIPMesh );
 
-                moris_index tMeshSetIndex;
-                if( tMeshSetName.size() > 0 )
-                {
-                    // get the mesh set index from its name
-                    tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
-                }
-                else
-                {
-                    tMeshSetIndex = aSetInfo( iSet ).get_mesh_index();
-                }
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create integration nodes
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_integration_nodes( tIGMesh );
 
-                // fill the mesh set index to fem set index map
-                mMeshSetToFemSetMap[ std::make_tuple(
-                        tMeshSetIndex,
-                        aSetInfo( iSet ).get_time_continuity(),
-                        aSetInfo( iSet ).get_time_boundary() ) ] = iSet;
-
-                // get the mesh set pointer
-                moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
-
-                // if non-empty mesh set
-                if ( tMeshSet->get_num_clusters_on_set() !=0 )
-                {
-                    // create a fem set
-                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
-                    mFemSets( iSet )->set_equation_model( this );
-                }
-                // if empty mesh set
-                else
-                {
-                    // create an empty fem set
-                    mFemSets( iSet ) = new fem::Set();
-                    mFemSets( iSet )->set_equation_model( this );
-                }
-
-                // collect equation objects associated with the set
-                mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
-            }
-            // shrink list to fit size
-            mFemClusters.shrink_to_fit();
-
-            // stop timer
-            real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
-
-            uint tNumElements       = mFemClusters.size();
-            uint tGlobalNumElements = sum_all(tNumElements);
-
-            // print output
-            MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
-                    tGlobalNumElements ,
-                    (real) tElapsedTime / 1000.0 );
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create fem sets
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_fem_sets( tIPMesh, tIGMesh, aSetInfo );
         }
 
         //------------------------------------------------------------------------------
@@ -201,44 +147,290 @@ namespace moris
                 real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "FEM_Model: unpack FEM input in %5.3f seconds.",
+                MORIS_LOG_INFO( "FEM_Model - unpack FEM input in %5.3f seconds.",
                         ( double ) tElapsedTime / 1000 );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create IP nodes
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_interpolation_nodes( tIPMesh );
 
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create fem sets
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_fem_sets( tIPMesh, tIGMesh );
+        }
+
+        //------------------------------------------------------------------------------
+
+        FEM_Model::FEM_Model(
+                mtk::Mesh_Manager                           * aMeshManager,
+                const moris_index                           & aMeshPairIndex,
+                moris::Cell< moris::Cell< ParameterList > >   aParameterList,
+                std::shared_ptr< Library_IO >                 aLibrary,
+                MSI::Design_Variable_Interface              * aDesignVariableInterface )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex ),
+          mParameterList( aParameterList )
+        {
+            this->set_design_variable_interface( aDesignVariableInterface );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 0: unpack fem input and mesh
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
-            tic tTimer1;
+            tic tTimer0;
+
+            // get pointers to interpolation and integration meshes
+            mtk::Interpolation_Mesh* tIPMesh = nullptr;
+            mtk::Integration_Mesh*   tIGMesh = nullptr;
+            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
+
+            // set the space dimension
+            mSpaceDim = tIPMesh->get_spatial_dim();
+
+            // unpack the FEM inputs
+            this->initialize( aLibrary );
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO( "FEM_Model - unpack FEM input in %5.3f seconds.",
+                        ( double ) tElapsedTime / 1000 );
+            }
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: create interpolation nodes
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_interpolation_nodes( tIPMesh );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create integration nodes
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_integration_nodes( tIGMesh );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create fem sets
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            this->create_fem_sets( tIPMesh, tIGMesh );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::create_interpolation_nodes( mtk::Interpolation_Mesh* aIPMesh )
+        {
+            // start timer
+            tic tTimer;
 
             // ask mesh about number of IP nodes on proc
-            luint tNumIPNodes = tIPMesh->get_num_nodes();
+            luint tNumIPNodes = aIPMesh->get_num_nodes();
 
             // create IP node objects
             mIPNodes.resize( tNumIPNodes, nullptr );
 
             for( uint iNode = 0; iNode < tNumIPNodes; iNode++ )
             {
-                mIPNodes( iNode ) = new fem::Node( &tIPMesh->get_mtk_vertex( iNode ) );
+                mIPNodes( iNode ) = new fem::Node( &aIPMesh->get_mtk_vertex( iNode ) );
             }
 
             // stop timer
-            real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             uint tGlobalNumNodes = sum_all(tNumIPNodes);
 
             // print output
-            MORIS_LOG_INFO( "FEM_Model: created %u FEM IP nodes in %5.3f seconds.",
+            MORIS_LOG_INFO(
+                    "FEM_Model::create_interpolation_nodes - created %u FEM IP nodes    in %5.3f seconds.",
                     tGlobalNumNodes,
                     ( double ) tElapsedTime / 1000 );
+        }
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create fem sets
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //------------------------------------------------------------------------------
 
+        void FEM_Model::create_integration_nodes( mtk::Integration_Mesh * aIGMesh )
+        {
             // start timer
-            tic tTimer2;
+            tic tTimer;
+
+            // ask IG mesh about number of IG vertices on proc
+            luint tNumIGNodes = aIGMesh->get_num_nodes();
+
+            // set size for list IG nodes
+            mIGNodes.resize( tNumIGNodes, nullptr );
+
+            moris::Cell < enum PDV_Type > tGeoPdvType;
+            switch ( mSpaceDim )
+            {
+                case 1 :
+                    tGeoPdvType = { PDV_Type::X_COORDINATE };
+                    break;
+                case 2 :
+                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+                    break;
+                case 3 :
+                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
+                    break;
+                default:
+                    MORIS_ERROR( false,
+                            "FEM_Model::create_integration_nodes - Space dimension can only be 1, 2 or 3D.");
+            }
+
+            // loop over IG mesh vertices
+            for( uint iNode = 0; iNode < tNumIGNodes; iNode++ )
+            {
+                // create a new IG Node
+                mIGNodes( iNode ) = new fem::Node( &aIGMesh->get_mtk_vertex( iNode ) );
+
+                // get IG node index
+                uint tVertexIndex = mIGNodes( iNode )->get_index();
+
+                // get IG node coordinates
+                Matrix< DDRMat > tVertexCoordsFromMesh;
+                mIGNodes( iNode )->get_vertex_coords( tVertexCoordsFromMesh );
+
+                // get the pdv values from the MSI/GEN interface
+                Matrix< IndexMat > tVertexIndices( 1, 1, tVertexIndex );
+                moris::Cell< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
+                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+                this->get_design_variable_interface()->get_ig_pdv_value(
+                        tVertexIndices,
+                        tGeoPdvType,
+                        tVertexCoordsFromGen,
+                        tIsActiveDv );
+
+                // set active flags for xyz
+                mIGNodes( iNode )->set_vertex_xyz_active_flags( tIsActiveDv );
+
+                // reshape the XYZ values into a cell of vectors
+                for( uint iSpaceDim = 0; iSpaceDim < mSpaceDim; iSpaceDim++ )
+                {
+                    if ( tIsActiveDv( iSpaceDim )( 0 ) )
+                    {
+                        MORIS_ERROR( equal_to(
+                                tVertexCoordsFromGen( iSpaceDim )( 0 ),
+                                tVertexCoordsFromMesh( iSpaceDim ), 1.0 ) ,
+                                "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ\n");
+                    }
+                }
+
+                // get the id associated to the pdv
+                moris::Cell< moris::Matrix< DDSMat > > tPdvIds;
+                this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
+                        tVertexIndices,
+                        tGeoPdvType,
+                        tPdvIds );
+
+                // set pdv ids for xyz
+                mIGNodes( iNode )->set_vertex_xyz_pdv_ids( tPdvIds );
+            }
+
+            if( par_rank() == 0 )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                MORIS_LOG_INFO(
+                        "FEM_Model::create_integration_nodes   - created %u FEM IG nodes    in %5.3f seconds.",
+                        ( unsigned int ) tNumIGNodes,
+                        ( double ) tElapsedTime / 1000 );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::create_fem_sets(
+                mtk::Interpolation_Mesh           * aIPMesh,
+                mtk::Integration_Mesh             * aIGMesh,
+                moris::Cell< fem::Set_User_Info > & aSetInfo )
+        {
+            // start timer
+            tic tTimer;
+
+            // get the number of sets
+            uint tNumFemSets = aSetInfo.size();
+
+            // create equation sets
+            mFemSets.resize( tNumFemSets, nullptr );
+
+            // get number of IP cells
+            uint tNumIPCells = aIPMesh->get_num_elems();
+
+            // reserve size for list of equation objects
+            mFemClusters.reserve( tNumIPCells );
+
+            // loop over the used fem set
+            for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
+            {
+                // get the mesh set name
+                std::string tMeshSetName = aSetInfo( iSet).get_mesh_set_name();
+
+                moris_index tMeshSetIndex;
+                if( tMeshSetName.size() > 0 )
+                {
+                    // get the mesh set index from its name
+                    tMeshSetIndex = aIGMesh->get_set_index_by_name( tMeshSetName );
+                }
+                else
+                {
+                    tMeshSetIndex = aSetInfo( iSet ).get_mesh_index();
+                }
+
+                // fill the mesh set index to fem set index map
+                mMeshSetToFemSetMap[ std::make_tuple(
+                        tMeshSetIndex,
+                        aSetInfo( iSet ).get_time_continuity(),
+                        aSetInfo( iSet ).get_time_boundary() ) ] = iSet;
+
+                // get the mesh set pointer
+                moris::mtk::Set * tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
+
+                // if non-empty mesh set
+                if ( tMeshSet->get_num_clusters_on_set() !=0 )
+                {
+                    // create a fem set
+                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, aSetInfo( iSet ), mIPNodes );
+                    mFemSets( iSet )->set_equation_model( this );
+                }
+                // if empty mesh set
+                else
+                {
+                    // create an empty fem set
+                    mFemSets( iSet ) = new fem::Set();
+                    mFemSets( iSet )->set_equation_model( this );
+                }
+
+                // collect equation objects associated with the set
+                mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
+            }
+            // shrink list to fit size
+            mFemClusters.shrink_to_fit();
+
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            uint tNumElements       = mFemClusters.size();
+            uint tGlobalNumElements = sum_all(tNumElements);
+
+            // print output
+            MORIS_LOG_INFO(
+                    "FEM_Model::create_fem_sets            - created %u FEM IP elements in %5.3f seconds.",
+                    tGlobalNumElements ,
+                    (real) tElapsedTime / 1000.0 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::create_fem_sets(
+                mtk::Interpolation_Mesh * aIPMesh,
+                mtk::Integration_Mesh   * aIGMesh )
+        {
+            // start timer
+            tic tTimer;
 
             // get number of fem sets
             uint tNumFemSets = mSetInfo.size();
@@ -247,7 +439,7 @@ namespace moris
             mFemSets.resize( tNumFemSets, nullptr );
 
             // get number of IP cells
-            uint tNumIPCells = tIPMesh->get_num_elems();
+            uint tNumIPCells = aIPMesh->get_num_elems();
 
             // reserve size for list of equation objects
             mFemClusters.reserve( tNumIPCells );
@@ -259,7 +451,7 @@ namespace moris
                 std::string tMeshSetName = mSetInfo( iSet ).get_mesh_set_name();
 
                 // get the mesh set index from its name
-                moris_index tMeshSetIndex = tIGMesh->get_set_index_by_name( tMeshSetName );
+                moris_index tMeshSetIndex = aIGMesh->get_set_index_by_name( tMeshSetName );
 
                 // fill the mesh set index to fem set index map
                 mMeshSetToFemSetMap[ std::make_tuple(
@@ -268,7 +460,7 @@ namespace moris
                         mSetInfo( iSet ).get_time_boundary() ) ] = iSet;
 
                 // get the mesh set pointer
-                moris::mtk::Set * tMeshSet = tIGMesh->get_set_by_index( tMeshSetIndex );
+                moris::mtk::Set * tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
 
                 // if non-empty mesh set
                 if ( tMeshSet->get_num_clusters_on_set() != 0 )
@@ -295,15 +487,181 @@ namespace moris
             mFemClusters.shrink_to_fit();
 
             // stop timer
-            tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             uint tNumElements       = mFemClusters.size();
             uint tGlobalNumElements = sum_all(tNumElements);
 
             // print output
-            MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
+            MORIS_LOG_INFO(
+                    "FEM_Model::create_fem_sets            - created %u FEM IP elements in %5.3f seconds.",
                     tGlobalNumElements,
                     ( double ) tElapsedTime / 1000.0 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::get_integration_xyz_active_flags(
+                const Matrix< IndexMat >      & aNodeIndices,
+                const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                Matrix< DDSMat >              & aIsActiveDv )
+        {
+            // Get the number of node indices requested
+            uint tNumIndices = aNodeIndices.length();
+
+            // Get the number of dv types requested
+            uint tNumTypes = aRequestedPdvTypes.size();
+
+            // set size for is active dv types
+            aIsActiveDv.set_size( tNumIndices, tNumTypes, 0 );
+
+            // loop over the requested dv types
+            for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( tNode );
+
+                // get flags from nodes
+                Matrix< DDSMat > tIsActiveDvTemp;
+                mIGNodes( tNodeIndex )->get_vertex_xyz_active_flags(
+                        tIsActiveDvTemp,
+                        aRequestedPdvTypes );
+
+                aIsActiveDv.get_row( tNode ) = tIsActiveDvTemp.matrix_data();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::get_integration_xyz_pdv_ids(
+                const Matrix< IndexMat >      & aNodeIndices,
+                const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                Matrix< DDSMat >              & aXYZPdvIds )
+        {
+            // Get the number of node indices requested
+            uint tNumIndices = aNodeIndices.length();
+
+            // Get the number of dv types requested
+            uint tNumTypes = aRequestedPdvTypes.size();
+
+            // set size for is active dv types
+            aXYZPdvIds.set_size( tNumIndices, tNumTypes, -1 );
+
+            // loop over the requested dv types
+            for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( tNode );
+
+                // get flags from nodes
+                Matrix< DDSMat > tPdvIdsTemp;
+                mIGNodes( tNodeIndex )->get_vertex_xyz_pdv_ids(
+                        tPdvIdsTemp,
+                        aRequestedPdvTypes );
+
+                aXYZPdvIds.get_row( tNode ) = tPdvIdsTemp.matrix_data();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::get_integration_xyz_pdv_active_flags_and_ids(
+                const Matrix< IndexMat >      & aNodeIndices,
+                const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                Matrix< DDSMat >              & aIsActiveDv,
+                Matrix< DDSMat >              & aXYZPdvIds )
+        {
+            // Get the number of node indices requested
+            uint tNumIndices = aNodeIndices.length();
+
+            // Get the number of dv types requested
+            uint tNumTypes = aRequestedPdvTypes.size();
+
+            // set size for is active dv types
+            aIsActiveDv.set_size( tNumIndices, tNumTypes, 0 );
+
+            // set size for is active dv types
+            aXYZPdvIds.set_size( tNumIndices, tNumTypes, -1 );
+
+            // loop over the requested dv types
+            for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( tNode );
+
+                // get flags from nodes
+                Matrix< DDSMat > tIsActiveDvTemp;
+                mIGNodes( tNodeIndex )->get_vertex_xyz_active_flags(
+                        tIsActiveDvTemp,
+                        aRequestedPdvTypes );
+                aIsActiveDv.get_row( tNode ) = tIsActiveDvTemp.matrix_data();
+
+                // get flags from nodes
+                Matrix< DDSMat > tPdvIdsTemp;
+                mIGNodes( tNodeIndex )->get_vertex_xyz_pdv_ids(
+                        tPdvIdsTemp,
+                        aRequestedPdvTypes );
+                aXYZPdvIds.get_row( tNode ) = tPdvIdsTemp.matrix_data();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::reset_integration_xyz_pdv_assembly_indices(
+                        const Matrix< IndexMat > & aNodeIndices )
+        {
+            // Get the number of node indices requested
+            uint tNumIndices = aNodeIndices.length();
+
+            // loop over the requested dv types
+            for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( tNode );
+
+                // get assembly index from nodes
+                mIGNodes( tNodeIndex )->reset_local_xyz_pdv_assembly_index();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::get_integration_xyz_pdv_assembly_indices(
+                const Matrix< IndexMat >      & aNodeIndices,
+                const moris::Cell< PDV_Type > & aRequestedPdvTypes,
+                Matrix< DDSMat >              & aXYZPdvAssemblyIndices )
+        {
+            // Get the number of node indices requested
+            uint tNumIndices = aNodeIndices.length();
+
+            // Get the number of dv types requested
+            uint tNumTypes = aRequestedPdvTypes.size();
+
+            // set size for is active dv types
+            aXYZPdvAssemblyIndices.set_size( tNumIndices, tNumTypes, -1 );
+
+            // loop over the requested dv types
+            for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
+            {
+                // get node index
+                uint tNodeIndex = aNodeIndices( tNode );
+
+                // get assembly index from nodes
+                Matrix< DDSMat > tPdvAssemblyIndicesTemp;
+                mIGNodes( tNodeIndex )->get_local_xyz_pdv_assembly_indices(
+                        tPdvAssemblyIndicesTemp,
+                        aRequestedPdvTypes );
+
+                aXYZPdvAssemblyIndices.get_row( tNode ) = tPdvAssemblyIndicesTemp.matrix_data();
+            }
+        }
+
+        void FEM_Model::set_integration_xyz_pdv_assembly_index(
+                                moris_index aNodeIndex,
+                                enum PDV_Type aPdvType,
+                                moris_index aXYZPdvAssemblyIndex )
+        {
+            mIGNodes( aNodeIndex )->set_local_xyz_pdv_assembly_index( aXYZPdvAssemblyIndex, aPdvType );
         }
 
         //------------------------------------------------------------------------------

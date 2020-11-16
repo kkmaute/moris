@@ -30,7 +30,9 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
-//#include "cl_XTK_Enrichment.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 using namespace moris;
 
 namespace xtk
@@ -170,14 +172,12 @@ namespace xtk
     {
         // Start the clock
         std::clock_t tStart = std::clock();
+        
+        Tracer tTracer(EntityBase::XTK, EntityType::Overall, EntityAction::Run);
 
         mVerbose = mParameterList.get<bool>("verbose");
         
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::cout<<"XTK: Start"<<std::endl;
-        }
-
+  
         if( !mInitializeCalled )
         {
             MORIS_ERROR( mMTKInputPerformer != nullptr ,"xtk::Model::perform(), mMTKInputPerformer not set!");
@@ -392,15 +392,12 @@ namespace xtk
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
-        // Start clock
-        std::clock_t tTotalTime = std::clock();
+        Tracer tTracer(EntityBase::XTK, EntityType::Decompose, EntityAction::Run);
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
         uint tNumGeometries     = mGeometryEngine->get_num_geometries();
-
-        print_decompsition_preamble(aMethods);
-
+        
         // Tell the subdivision to assign node Ids if it is the only subdivision method (critical for outputting)
         // This is usually only going to happen in test cases
         // Note: the Conformal subdivision methods dependent on node ids for subdivision routine, the node Ids are set regardless of the below boolean
@@ -415,13 +412,6 @@ namespace xtk
         // outer cell - geometry index, inner cell active child mesh indices for each geometries
         moris::Cell<moris::Matrix<moris::IndexMat>> tActiveChildMeshIndicesByGeom(tNumGeometries);
 
-        // iterate through geometry descriptions
-        for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
-        {
-
-        }
-
-
         // Loop over each geometry and have an active child mesh indices list for each
         for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
         {
@@ -430,8 +420,6 @@ namespace xtk
 
             for (moris::size_t iDecomp = 0; iDecomp < tNumDecompositions; iDecomp++)
             {
-                // start timing on this decomposition
-                std::clock_t start = std::clock();
 
                 // Perform subdivision
                 this->decompose_internal(aMethods(iDecomp), iGeom, tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
@@ -439,17 +427,6 @@ namespace xtk
                 // Change the first subdivision flag as false
                 tFirstSubdivisionFlag = false;
 
-                // print timing
-                if(moris::par_rank() == 0 && mVerbose)
-                {
-                    std::clock_t tEndTime = std::clock();
-
-                    std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
-                            " for geometry "<<iGeom<< " completed in " <<(tEndTime - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-
-                    std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
-                            " for geometry "<<iGeom<< " had "<<  tActiveChildMeshIndices.numel()<<" intersected background elements."<<std::endl;
-                }
             }
 
             // If it's not the last geometry tell the geometry engine we're moving on
@@ -462,13 +439,6 @@ namespace xtk
         // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
         // i.e set element ids, indices for children elements
         this->finalize_decomp_in_xtk_mesh(tSetPhase);
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::clock_t tEndTime = std::clock();
-            this->add_timing_data(tEndTime - tTotalTime,"Full Decomp","Overall");
-            std::cout<<"XTK: Decomposition completed in " <<(tEndTime - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -830,7 +800,6 @@ namespace xtk
                             }
                             if (tFirstParentOnInterface and tSecondParentOnInterface)
                             {
-                                std::cout<<"Both parents on the interface"<<std::endl;
                                 // Tell the child mesh this edge is actually on the interface already
                                 tChildMesh.mark_edge_as_on_interface(tEdgeInd);
                             }
@@ -3375,8 +3344,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             moris_index      const & aMeshIndex)
     {
-        // Start the clock
-        std::clock_t start = std::clock();
+        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Run);
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3388,14 +3356,6 @@ namespace xtk
 
         // Change the enrichment flag
         mEnriched = true;
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::clock_t tEndTime = std::clock();
-            this->add_timing_data(tEndTime - start,"Full Basis Enrichment","Overall");
-            std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-            std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -3405,9 +3365,6 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
-        // Start the clock
-        std::clock_t start = std::clock();
-
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
         // allocate some new enriched interpolation and integration meshes
@@ -3418,20 +3375,6 @@ namespace xtk
 
         // Change the enrichment flag
         mEnriched = true;
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::clock_t tEndTime = std::clock();
-            this->add_timing_data(tEndTime - start,"Basis Enrichment","Overall");
-
-            std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-            std::cout<<"XTK: Basis enrichment performed on meshes:";
-            for(moris::uint i = 0; i < aMeshIndex.numel(); i++)
-            {
-                std::cout<<std::setw(6)<<aMeshIndex(i);
-            }
-            std::cout<<std::endl;
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -3496,24 +3439,17 @@ namespace xtk
     void
     Model::construct_face_oriented_ghost_penalization_cells()
     {
+        Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Run);
+
         MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
 
         MORIS_ERROR(!mGhost,"Ghost penalization has already been called");
-
-        std::clock_t start = std::clock();
 
         mGhostStabilization = new Ghost_Stabilization(this);
 
         mGhostStabilization->setup_ghost_stabilization();
 
         mGhost = true;
-
-        if(moris::par_rank() == 0  && mVerbose)
-        {
-            std::clock_t tEndTime = std::clock();
-            this->add_timing_data(tEndTime - start,"Ghost","Overall");
-            std::cout<<"XTK: Ghost stabilization setup completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -3530,6 +3466,8 @@ namespace xtk
     void
     Model::construct_multigrid()
     {
+        Tracer tTracer(EntityBase::XTK, EntityType::Multigrid, EntityAction::Run);
+
         mMultigrid = std::make_shared< xtk::Multigrid >( this );
 
         mMultigrid->build_enriched_coeff_to_background_coeff_map();

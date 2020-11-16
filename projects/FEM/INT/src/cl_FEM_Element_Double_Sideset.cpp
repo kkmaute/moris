@@ -35,10 +35,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Double_Sideset::init_ig_geometry_interpolator(
-                uint                              aMasterSideOrdinal,
-                uint                              aSlaveSideOrdinal,
-                moris::Cell< Matrix< DDSMat > > & aMasterIsActiveDv,
-                moris::Cell< Matrix< DDSMat > > & aSlaveIsActiveDv )
+                uint aMasterSideOrdinal,
+                uint aSlaveSideOrdinal )
         {
             // get master IG geometry interpolator
             Geometry_Interpolator * tMasterIGGI =
@@ -49,12 +47,6 @@ namespace moris
             Geometry_Interpolator * tSlaveIGGI =
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                     get_IG_geometry_interpolator();
-
-            // get the vertices indices
-            Matrix< IndexMat > tMasterVertexIndices =
-                    mMasterCell->get_vertices_ind_on_side_ordinal( aMasterSideOrdinal );
-            Matrix< IndexMat > tSlaveVertexIndices  =
-                    mSlaveCell->get_vertices_ind_on_side_ordinal( aSlaveSideOrdinal );
 
             // get master physical space and time coordinates for IG element
             Matrix< DDRMat > tMasterIGPhysSpaceCoords =
@@ -86,72 +78,88 @@ namespace moris
             // FIXME not true if time is not linear
             Matrix< DDRMat > tSlaveIGParamTimeCoords = {{-1.0}, {1.0}};
 
-            // get the requested geo pdv types
-            moris::Cell < enum PDV_Type > tGeoPdvType;
-            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+            // set physical space and time coefficients for master IG element GI
+            tMasterIGGI->set_space_coeff( tMasterIGPhysSpaceCoords );
+            tMasterIGGI->set_time_coeff(  tMasterIGPhysTimeCoords );
 
-            // Determine if there are IG PDVs
-            if ( tGeoPdvType.size() )
+            // set physical space and time coefficients for slave IG element GI
+            tSlaveIGGI->set_space_coeff( tSlaveIGPhysSpaceCoords );
+            tSlaveIGGI->set_time_coeff(  tSlaveIGPhysTimeCoords );
+
+            // set parametric space and time coefficients for master IG element GI
+            tMasterIGGI->set_space_param_coeff( tMasterIGParamSpaceCoords );
+            tMasterIGGI->set_time_param_coeff(  tMasterIGParamTimeCoords );
+
+            // set parametric space and time coefficients for slave IG element GI
+            tSlaveIGGI->set_space_param_coeff( tSlaveIGParamSpaceCoords );
+            tSlaveIGGI->set_time_param_coeff(  tSlaveIGParamTimeCoords );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Double_Sideset::init_ig_geometry_interpolator(
+                uint aMasterSideOrdinal,
+                uint aSlaveSideOrdinal,
+                Matrix< DDSMat > & aGeoLocalAssembly )
+        {
+            // get master IG geometry interpolator
+            Geometry_Interpolator * tMasterIGGI =
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                    get_IG_geometry_interpolator();
+
+            // get slave IG geometry interpolator
+            Geometry_Interpolator * tSlaveIGGI =
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                    get_IG_geometry_interpolator();
+
+            // get master physical space and time coordinates for IG element
+            Matrix< DDRMat > tMasterIGPhysSpaceCoords =
+                    mMasterCell->get_cell_physical_coords_on_side_ordinal( aMasterSideOrdinal );
+            Matrix< DDRMat > tMasterIGPhysTimeCoords =
+                    mCluster->mInterpolationElement->get_time();
+
+            // get slave physical space and time coordinates for IG element
+            Matrix< DDRMat > tSlaveIGPhysSpaceCoords =
+                    mSlaveCell->get_cell_physical_coords_on_side_ordinal( aSlaveSideOrdinal );
+            Matrix< DDRMat > tSlaveIGPhysTimeCoords =
+                    mCluster->mInterpolationElement->get_time();
+
+            // get master parametric space and time coordinates for IG element
+            Matrix< DDRMat > tMasterIGParamSpaceCoords =
+                    mCluster->get_cell_local_coords_on_side_wrt_interp_cell(
+                            mCellIndexInCluster,
+                            aMasterSideOrdinal,
+                            mtk::Master_Slave::MASTER );
+            // FIXME not true if time is not linear
+            Matrix< DDRMat > tMasterIGParamTimeCoords = {{-1.0}, {1.0}};
+
+            // get slave parametric space and time coordinates for IG element
+            Matrix< DDRMat > tSlaveIGParamSpaceCoords =
+                    mCluster->get_cell_local_coords_on_side_wrt_interp_cell(
+                            mCellIndexInCluster,
+                            aSlaveSideOrdinal,
+                            mtk::Master_Slave::SLAVE );
+            // FIXME not true if time is not linear
+            Matrix< DDRMat > tSlaveIGParamTimeCoords = {{-1.0}, {1.0}};
+
+            // get the local cluster assembly indices
+            if( mSet->get_geo_pdv_assembly_flag() )
             {
-                // get space dimension
-                uint tSpaceDim = tMasterIGPhysSpaceCoords.n_cols();
+                // get the vertices indices
+                Matrix< IndexMat > tMasterVertexIndices =
+                        mMasterCell->get_vertices_ind_on_side_ordinal( aMasterSideOrdinal );
+                Matrix< IndexMat > tSlaveVertexIndices  =
+                        mSlaveCell->get_vertices_ind_on_side_ordinal( aSlaveSideOrdinal );
 
-                // get the pdv values from the MSI/GEN interface
-                moris::Cell< Matrix< DDRMat > > tMasterPdvValueList( tSpaceDim );
-                mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
+                // get the requested geo pdv types
+                moris::Cell < enum PDV_Type > tGeoPdvType;
+                mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+                // get local assembly indices
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
                         tMasterVertexIndices,
                         tGeoPdvType,
-                        tMasterPdvValueList,
-                        aMasterIsActiveDv );
-
-                moris::Cell< Matrix< DDRMat > > tSlavePdvValueList( tSpaceDim );
-                mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
-                        tSlaveVertexIndices,
-                        tGeoPdvType,
-                        tSlavePdvValueList,
-                        aSlaveIsActiveDv );
-
-                // reshape the XYZ values into a cell of vectors
-                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
-                {
-                    // Master side
-                    for ( uint iNode = 0; iNode < tMasterIGPhysSpaceCoords.n_rows(); iNode++)
-                    {
-                        if ( ! aMasterIsActiveDv(iSpaceDim)(iNode) )
-                        {
-                            tMasterPdvValueList( iSpaceDim )( iNode ) = tMasterIGPhysSpaceCoords( iNode,iSpaceDim );
-                        }
-                        else
-                        {
-                            MORIS_ASSERT( equal_to(tMasterPdvValueList( iSpaceDim )( iNode ),tMasterIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
-                                    "GE coordinate and MTK coordinate differ\n");
-                        }
-                    }
-
-                    // Slave side
-                    for ( uint iNode = 0; iNode < tSlaveIGPhysSpaceCoords.n_rows(); iNode++)
-                    {
-                        if ( ! aSlaveIsActiveDv(iSpaceDim)(iNode) )
-                        {
-                            tSlavePdvValueList( iSpaceDim )( iNode ) = tSlaveIGPhysSpaceCoords( iNode,iSpaceDim );
-                        }
-                        else
-                        {
-                            MORIS_ASSERT( equal_to(tSlavePdvValueList( iSpaceDim )( iNode ),tSlaveIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
-                                    "GE coordinate and MTK coordinate differ\n");
-                        }
-                    }
-                }
-
-                // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
-                tMasterIGPhysSpaceCoords.set_size( 0, 0 );
-                tSlaveIGPhysSpaceCoords.set_size( 0, 0 );
-                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
-                        tMasterPdvValueList,
-                        tMasterIGPhysSpaceCoords );
-                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
-                        tSlavePdvValueList,
-                        tSlaveIGPhysSpaceCoords );
+                        aGeoLocalAssembly );
             }
 
             // set physical space and time coefficients for master IG element GI
@@ -180,13 +188,7 @@ namespace moris
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
 
             // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
-            moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
-            moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
-            this->init_ig_geometry_interpolator(
-                    tMasterSideOrd,
-                    tSlaveSideOrd,
-                    tMasterIsActiveDv,
-                    tSlaveIsActiveDv );
+            this->init_ig_geometry_interpolator( tMasterSideOrd, tSlaveSideOrd );
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
@@ -257,13 +259,7 @@ namespace moris
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
 
             // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
-            moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
-            moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
-            this->init_ig_geometry_interpolator(
-                    tMasterSideOrd,
-                    tSlaveSideOrd,
-                    tMasterIsActiveDv,
-                    tSlaveIsActiveDv );
+            this->init_ig_geometry_interpolator( tMasterSideOrd, tSlaveSideOrd );
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
@@ -330,13 +326,7 @@ namespace moris
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
 
             // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
-            moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
-            moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
-            this->init_ig_geometry_interpolator(
-                    tMasterSideOrd,
-                    tSlaveSideOrd,
-                    tMasterIsActiveDv,
-                    tSlaveIsActiveDv );
+            this->init_ig_geometry_interpolator( tMasterSideOrd, tSlaveSideOrd );
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
@@ -405,14 +395,12 @@ namespace moris
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the master/slave ig geometry interpolator physical/parm space and time coefficients
-            moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
-            moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
+            // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
+            Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator(
                     tMasterSideOrd,
                     tSlaveSideOrd,
-                    tMasterIsActiveDv,
-                    tSlaveIsActiveDv );
+                    tGeoLocalAssembly );
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
@@ -493,14 +481,12 @@ namespace moris
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
 
-            // set the master/slave ig geometry interpolator physical/parm space and time coefficients
-            moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
-            moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
+            // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
+            Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator(
                     tMasterSideOrd,
                     tSlaveSideOrd,
-                    tMasterIsActiveDv,
-                    tSlaveIsActiveDv );
+                    tGeoLocalAssembly );
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
@@ -566,22 +552,20 @@ namespace moris
                             tFDScheme );
 
                     // if active pdv on master or slave
-                    if( ( tMasterIsActiveDv.size() != 0 ) || ( tSlaveIsActiveDv.size() !=0 ) )
+                    if( mSet->get_geo_pdv_assembly_flag() )
                     {
                         // compute dRdpGeo at evaluation point
                         mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry_double(
                                 tWStar,
                                 tFDPerturbation,
-                                tMasterIsActiveDv,
                                 tMasterVertexIndices,
-                                tSlaveIsActiveDv,
                                 tSlaveVertexIndices,
+                                tGeoLocalAssembly,
                                 tFDScheme );
                     }
                 }
             }
         }
-
 
         //------------------------------------------------------------------------------
 
@@ -592,13 +576,7 @@ namespace moris
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
 
             // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
-            moris::Cell< Matrix< DDSMat > > tMasterIsActiveDv;
-            moris::Cell< Matrix< DDSMat > > tSlaveIsActiveDv;
-            this->init_ig_geometry_interpolator(
-                    tMasterSideOrd,
-                    tSlaveSideOrd,
-                    tMasterIsActiveDv,
-                    tSlaveIsActiveDv );
+            this->init_ig_geometry_interpolator( tMasterSideOrd, tSlaveSideOrd );
 
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
