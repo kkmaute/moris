@@ -80,28 +80,24 @@ namespace moris
 
         void CM_Fluid_Compressible_Van_der_Waals::reset_specific_eval_flags()
         {
-            // get number of Dof Types
-            uint tNumGlobalDofTypes = mGlobalDofTypes.size();
-            uint tNumDirectDofTypes = mDofTypes.size();
-
             // reset Pressure
             mPressureEval = true;
-            mPressureDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mPressureDofEval.fill( true );
 
             // reset dof derivative of velocity
             mdNveldtEval = true;
 
             // reset Thermal Flux -------------------------------------
             mThermalFluxEval = true;
-            mThermalFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mThermalFluxDofEval.fill( true );
 
             // reset work Flux
             mWorkFluxEval = true;
-            mWorkFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mWorkFluxDofEval.fill( true );
 
             // reset energy Flux
             mEnergyFluxEval = true;
-            mEnergyFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mEnergyFluxDofEval.fill( true );
 
             // reset mechanical Flux
             //mStressEval = true;
@@ -109,19 +105,19 @@ namespace moris
 
             // reset Thermal Traction ----------------------------------
             mThermalTractionEval = true;
-            mThermalTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mThermalTractionDofEval.fill( true );
 
             // reset work Traction
             mWorkTractionEval = true;
-            mWorkTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mWorkTractionDofEval.fill( true );
 
             // reset energy Traction
             mEnergyTractionEval = true;
-            mEnergyTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mEnergyTractionDofEval.fill( true );
 
             // reset Mechanical Traction
             mMechanicalTractionEval = true;
-            mMechanicalTractionDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mMechanicalTractionDofEval.fill( true );
 
             // reset velocity matrix for flattened tensors -------------
             mVelocityMatrixEval = true;
@@ -136,11 +132,11 @@ namespace moris
 
             // reset test tractions --------------------------------
 
-            mThermalTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
-            mdThermalTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+            mThermalTestTractionEval.fill( true );
+            mdThermalTestTractiondDofEval.fill( true );
 
-            mMechanicalTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
-            mdMechanicalTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+            mMechanicalTestTractionEval.fill( true );
+            mdMechanicalTestTractiondDofEval.fill( true );
         }
 
         //--------------------------------------------------------------------------------------------------------------
