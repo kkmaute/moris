@@ -53,11 +53,11 @@ namespace moris
                     mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get current weight property
-            std::shared_ptr< Property > tPropWeightCurrent =
+            std::shared_ptr< Property > & tPropWeightCurrent =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
 
             // get previous weight property
-            std::shared_ptr< Property > tPropWeightPrevious =
+            std::shared_ptr< Property > & tPropWeightPrevious =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
             // FIXME set initial time
@@ -76,7 +76,7 @@ namespace moris
             else
             {
                 // get previous weight property
-                std::shared_ptr< Property > tPropInitialCondition =
+                std::shared_ptr< Property > & tPropInitialCondition =
                         mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
                 // compute the jump
@@ -113,7 +113,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get current weight property
-            std::shared_ptr< Property > tPropWeightCurrent =
+            std::shared_ptr< Property > & tPropWeightCurrent =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
 
             // get the number of master dof type dependencies
@@ -194,7 +194,7 @@ namespace moris
                     mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get previous weight property
-            std::shared_ptr< Property > tPropWeightPrevious =
+            std::shared_ptr< Property > & tPropWeightPrevious =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
             // get the number of master dof type dependencies

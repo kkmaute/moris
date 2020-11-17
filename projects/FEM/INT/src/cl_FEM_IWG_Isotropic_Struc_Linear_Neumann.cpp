@@ -43,11 +43,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get traction load property
-            std::shared_ptr< Property > tPropTraction =
+            std::shared_ptr< Property > & tPropTraction =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
             // get traction load property
-            std::shared_ptr< Property > tPropPressure =
+            std::shared_ptr< Property > & tPropPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // compute the residual
@@ -90,11 +90,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get traction load property
-            std::shared_ptr< Property > tPropTraction =
+            std::shared_ptr< Property > & tPropTraction =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
             // get traction load property
-            std::shared_ptr< Property > tPropPressure =
+            std::shared_ptr< Property > & tPropPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // compute the Jacobian for indirect IWG dof dependencies through properties

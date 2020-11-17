@@ -59,7 +59,7 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSP =
+            std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // loop over the order
@@ -131,7 +131,7 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSP =
+            std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // order 1

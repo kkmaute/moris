@@ -67,21 +67,21 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the elasticity constitutive model
-            std::shared_ptr< Constitutive_Model > tCMMasterElasticity
+            std::shared_ptr< Constitutive_Model > & tCMMasterElasticity
             = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveElasticity
+            std::shared_ptr< Constitutive_Model > & tCMSlaveElasticity
             = mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPPenalty
+            std::shared_ptr< Stabilization_Parameter > & tSPPenalty
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
 
             // get the master weight stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPMasterWeight
+            std::shared_ptr< Stabilization_Parameter > & tSPMasterWeight
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
 
             // get the master weight stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPSlaveWeight
+            std::shared_ptr< Stabilization_Parameter > & tSPSlaveWeight
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
 
 
@@ -224,21 +224,21 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the elasticity constitutive model
-            std::shared_ptr< Constitutive_Model > tCMMasterElasticity
+            std::shared_ptr< Constitutive_Model > & tCMMasterElasticity
             = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveElasticity
+            std::shared_ptr< Constitutive_Model > & tCMSlaveElasticity
             = mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPPenalty
+            std::shared_ptr< Stabilization_Parameter > & tSPPenalty
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
 
             // get the master weight stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPMasterWeight
+            std::shared_ptr< Stabilization_Parameter > & tSPMasterWeight
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
 
             // get the master weight stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPSlaveWeight
+            std::shared_ptr< Stabilization_Parameter > & tSPSlaveWeight
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
 
             // get number of master dof dependencies

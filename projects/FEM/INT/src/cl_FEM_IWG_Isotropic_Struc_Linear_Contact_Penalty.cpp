@@ -66,17 +66,17 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the elasticity constitutive model
-            std::shared_ptr< Constitutive_Model > tCMMasterElasticity
+            std::shared_ptr< Constitutive_Model > & tCMMasterElasticity
             = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveElasticity
+            std::shared_ptr< Constitutive_Model > & tCMSlaveElasticity
             = mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPPenalty
+            std::shared_ptr< Stabilization_Parameter > & tSPPenalty
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPStabPen
+            std::shared_ptr< Stabilization_Parameter > & tSPStabPen
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
 
 
@@ -167,17 +167,17 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the elasticity constitutive model
-            std::shared_ptr< Constitutive_Model > tCMMasterElasticity
+            std::shared_ptr< Constitutive_Model > & tCMMasterElasticity
             = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveElasticity
+            std::shared_ptr< Constitutive_Model > & tCMSlaveElasticity
             = mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPPenalty
+            std::shared_ptr< Stabilization_Parameter > & tSPPenalty
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPStabPen
+            std::shared_ptr< Stabilization_Parameter > & tSPStabPen
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
 
 
