@@ -18,7 +18,7 @@ namespace moris
         void IQI_Volume::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get density property
-            std::shared_ptr< Property > tPropDensity =
+            std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
             // if density property
@@ -41,7 +41,7 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get density property
-            std::shared_ptr< Property > tPropDensity =
+            std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
             // Dof dependency

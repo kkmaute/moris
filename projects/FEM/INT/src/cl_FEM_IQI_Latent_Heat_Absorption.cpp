@@ -63,11 +63,11 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get properties
-            std::shared_ptr< Property > tPropDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
-            std::shared_ptr< Property > tPropLatHeat = mMasterProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) );
-            std::shared_ptr< Property > tPropPCtemp  = mMasterProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) );
-            std::shared_ptr< Property > tPropPCconst = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) );
-            std::shared_ptr< Property > tPropPSfunct = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) );
+            std::shared_ptr< Property > & tPropDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            std::shared_ptr< Property > & tPropLatHeat = mMasterProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > & tPropPCtemp  = mMasterProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) );
+            std::shared_ptr< Property > & tPropPCconst = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) );
+            std::shared_ptr< Property > & tPropPSfunct = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) );
 
             // get the temperature FI
             Field_Interpolator * tFITemp =
