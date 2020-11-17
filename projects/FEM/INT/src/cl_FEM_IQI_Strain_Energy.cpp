@@ -31,7 +31,7 @@ namespace moris
         void IQI_Strain_Energy::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMElasticity =
+            std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST ) );
 
             // evaluate the QI
@@ -45,7 +45,7 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMElasticity =
+            std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST ) );
 
             // if elasticity CM depends on dof type

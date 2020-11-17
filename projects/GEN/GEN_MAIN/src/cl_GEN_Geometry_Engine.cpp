@@ -744,7 +744,7 @@ namespace moris
                         for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
                         {
                             // If this processor owns this coefficient
-                            if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                             {
                                 // New ADV needs to be created on this processor
                                 tNumNewOwnedADVs++;
@@ -812,7 +812,7 @@ namespace moris
                             tSharedADVIds(tGeometryIndex)(tBSplineIndex) = tNewADVId;
 
                             // If this processor owns this coefficient set to owned list and set bounds
-                            if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                             {
                                 // Bounds
                                 mLowerBounds(tOwnedADVIndex) = tBSplineLowerBound;
@@ -1137,10 +1137,20 @@ namespace moris
             Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
             Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
-            // Loop through sets
+            // Determine if we need to do the below loop
+            bool tDoJankLoop = false;
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 if (aPdvTypes(tMeshSetIndex).size() > 0)
+                {
+                    tDoJankLoop = true;
+                }
+            }
+
+            if (tDoJankLoop)
+            {
+                // Loop through sets
+                for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
                 {
                     uint tCurrentNode = 0;
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);

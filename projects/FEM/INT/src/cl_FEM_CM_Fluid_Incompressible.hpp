@@ -22,6 +22,7 @@ namespace moris
         class CM_Fluid_Incompressible : public Constitutive_Model
         {
             protected:
+
                 // default properties
                 std::shared_ptr< Property > mPropViscosity = nullptr;
                 std::shared_ptr< Property > mPropDensity   = nullptr;
@@ -49,7 +50,7 @@ namespace moris
                         const moris::Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
                 void ( CM_Fluid_Incompressible:: * m_flatten_normal )(
                         const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal ) = nullptr;
+                        Matrix< DDRMat >       & aFlatNormal ) = nullptr;
 
                 //--------------------------------------------------------------------------------------------------------------
             public:

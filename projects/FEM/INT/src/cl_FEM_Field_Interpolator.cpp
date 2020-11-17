@@ -352,7 +352,7 @@ namespace moris
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
 
             // evaluate the space Jacobian from the geometry interpolator
-            Matrix< DDRMat > tInvJGeot = mGeometryInterpolator->inverse_space_jacobian();
+            const Matrix< DDRMat > & tInvJGeot = mGeometryInterpolator->inverse_space_jacobian();
 
             // compute first derivative of the space shape function wrt x
             Matrix< DDRMat > tdNSpacedX = tInvJGeot * tdNSpacedXi;
@@ -636,7 +636,7 @@ namespace moris
             mSpaceInterpolation->eval_dNdXi( mXi, tdNSpacedXi );
 
             // evaluate the space Jacobian from the geometry interpolator
-            Matrix< DDRMat > tInvJGeoSpacet = mGeometryInterpolator->inverse_space_jacobian();
+            const Matrix< DDRMat > & tInvJGeoSpacet = mGeometryInterpolator->inverse_space_jacobian();
 
             // compute first derivative of the space shape function wrt x
             Matrix< DDRMat > tdNSpacedX = tInvJGeoSpacet * tdNSpacedXi;

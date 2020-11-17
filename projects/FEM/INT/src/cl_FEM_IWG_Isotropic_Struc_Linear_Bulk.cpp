@@ -48,41 +48,36 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get body load property
-            std::shared_ptr< Property > tPropLoad =
+            std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
 
             // get bedding property
-            std::shared_ptr< Property > tPropBedding =
+            std::shared_ptr< Property > & tPropBedding =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMElasticty =
+            std::shared_ptr< Constitutive_Model > & tCMElasticty =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
+            // get sub-matrix
+            auto tRes = mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex } );
+
             // compute the residual
-            mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
-                            trans( tCMElasticty->testStrain() ) * tCMElasticty->flux() );
+            tRes += aWStar * ( trans( tCMElasticty->testStrain() ) * tCMElasticty->flux() );
 
             // if body load
             if ( tPropLoad != nullptr )
             {
                 // compute body load contribution
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                trans( tDisplacementFI->N() ) * tPropLoad->val() );
+                tRes -= aWStar * ( trans( tDisplacementFI->N() ) * tPropLoad->val() );
             }
 
             // if bedding
             if ( tPropBedding != nullptr )
             {
                 // compute body load contribution
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
-                                trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val() );
+                tRes += aWStar * ( trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val() );
             }
 
             // check for nan, infinity
@@ -108,15 +103,15 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ));
 
             // get body load property
-            std::shared_ptr< Property > tPropLoad =
+            std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
 
             // get bedding property
-            std::shared_ptr< Property > tPropBedding =
+            std::shared_ptr< Property > & tPropBedding =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMElasticty =
+            std::shared_ptr< Constitutive_Model > & tCMElasticty =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the number of master dof dependencies
@@ -133,6 +128,11 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
+                // get sub-matrix
+                auto tJac = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
                 // if body load
                 if ( tPropLoad != nullptr )
                 {
@@ -140,10 +140,7 @@ namespace moris
                     if ( tPropLoad->check_dof_dependency( tDofType ) )
                     {
                         // compute the contribution to Jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tDisplacementFI->N() ) * tPropLoad->dPropdDOF( tDofType ) );
+                        tJac -= aWStar * ( trans( tDisplacementFI->N() ) * tPropLoad->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -153,19 +150,14 @@ namespace moris
                     if( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // if dof type is displacement, add bedding contribution
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );
+                        tJac += aWStar * ( trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );
                     }
 
                     // consider contributions from dependency of bedding parameter on DOFs
                     if ( tPropBedding->check_dof_dependency( tDofType ) )
                     {
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tDisplacementFI->N() ) *  tDisplacementFI->val() * tPropBedding->dPropdDOF( tDofType ) );
+                        tJac += aWStar * (
+                                trans( tDisplacementFI->N() ) *  tDisplacementFI->val() * tPropBedding->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -173,10 +165,7 @@ namespace moris
                 if ( tCMElasticty->check_dof_dependency( tDofType ) )
                 {
                     // compute the contribution to Jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
+                    tJac += aWStar * ( trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
                 }
             }
 

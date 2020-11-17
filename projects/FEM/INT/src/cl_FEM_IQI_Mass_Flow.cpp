@@ -31,11 +31,12 @@ namespace moris
         void IQI_Mass_Flow::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > tCMFluid =
+            std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > tPropDensity = tCMFluid->get_property( "Density" );
+            std::shared_ptr< Property > & tPropDensity =
+                    tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
@@ -53,11 +54,12 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > tCMFluid =
+            std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > tPropDensity = tCMFluid->get_property( "Density" );
+            std::shared_ptr< Property > & tPropDensity =
+                    tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator

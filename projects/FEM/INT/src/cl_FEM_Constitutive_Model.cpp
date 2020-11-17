@@ -51,72 +51,60 @@ namespace moris
 
         void Constitutive_Model::reset_eval_flags()
         {
-            // get number of direct dof dependencies
-            uint tNumDirectDofTypes = mDofTypes.size();
-
-            // get number of global dof dependencies
-            uint tNumDofTypes = mGlobalDofTypes.size();
-
-//            // get number of direct dv dependencies
-//            uint tNumDirectDvTypes = mDvTypes.size();
-//
-//            // get number of global dv dependencies
-//            uint tNumDvTypes = mGlobalDvTypes.size();
-
             // reset the flux value and derivative flags
             mFluxEval = true;
-            mdFluxdDofEval.set_size( tNumDofTypes, 1, true );
+            mdFluxdDofEval.fill( true );
 
             // reset the divergence of the flux value and derivative flags
             mDivFluxEval = true;
-            mddivfluxduEval.set_size( tNumDofTypes, 1, true );
+            mddivfluxduEval.fill( true );
 
             // reset the gradient of the divergence of the flux value and derivative flags
             mGradDivFluxEval = true;
-            mGradDivFluxDofEval.set_size( tNumDofTypes, 1, true );
+            mGradDivFluxDofEval.fill( true );
 
             // reset the traction value and derivative flags
             mTractionEval      = true;
-            mdTractiondDofEval.set_size( tNumDofTypes, 1, true );
+            mdTractiondDofEval.fill( true );
 
             // reset the test traction value and derivative flags
-            mTestTractionEval.set_size( tNumDirectDofTypes, 1, true );
-            mdTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumDofTypes, true );
+            mTestTractionEval.fill( true );
+            mdTestTractiondDofEval.fill( true );
 
             // reset the stress value and derivative flags
             mStressEval        = true;
-            mdStressdDofEval.set_size( tNumDofTypes, 1, true );
+            mdStressdDofEval.fill( true );
 
             // reset the strain value and derivative flags
             mStrainEval        = true;
-            mdStraindDofEval.set_size( tNumDofTypes, 1, true );
+            mdStraindDofEval.fill( true );
 
             // reset the divergence of the strain value and derivative flags
             mDivStrainEval     = true;
-            mddivstrainduEval.set_size( tNumDofTypes, 1, true );
+            mddivstrainduEval.fill( true );
 
             // reset the test strain value and derivative flags
             mTestStrainEval    = true;
 
             // reset the constitutive matrix value and derivative flags
             mConstEval         = true;
-            mdConstdDofEval.set_size( tNumDofTypes, 1, true );
+            mdConstdDofEval.fill( true );
 
             // reset the energy value and derivative flags
             mEnergyEval        = true;
-            mEnergyDofEval.set_size( tNumDofTypes, 1, true );
+            mEnergyDofEval.fill( true );
 
             // reset the rate of the energy value and derivative flags
             mEnergyDotEval     = true;
-            mEnergyDotDofEval.set_size( tNumDofTypes, 1, true );
+            mEnergyDotDofEval.fill( true );
 
             // reset the gradient of the energy value and derivative flags
             mGradEnergyEval    = true;
-            mGradEnergyDofEval.set_size( tNumDofTypes, 1, true );
+            mGradEnergyDofEval.fill( true );
 
             // reset the rate of the gradient of the energy value and derivative flags
             mGradEnergyDotEval = true;
-            mGradEnergyDotDofEval.set_size( tNumDofTypes, 1, true );
+            mGradEnergyDotDofEval.fill( true );
 
             // reset underlying properties
             for( std::shared_ptr< Property > tProp : mProperties )
@@ -161,7 +149,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< fem::Property > Constitutive_Model::get_property(
+        std::shared_ptr< fem::Property > & Constitutive_Model::get_property(
                 std::string aPropertyString )
         {
             // check that aPropertyString makes sense

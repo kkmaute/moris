@@ -126,9 +126,9 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            std::shared_ptr< Property > tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+            std::shared_ptr< Property > & tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > & tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > & tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -184,9 +184,9 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            std::shared_ptr< Property > tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+            std::shared_ptr< Property > & tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > & tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > & tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -260,7 +260,8 @@ namespace moris
         void SP_Incompressible_Flow::eval_G( Matrix< DDRMat > & aG )
         {
             // get the space jacobian from IP geometry interpolator
-            Matrix< DDRMat > tSpaceJacobian = mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
+            const Matrix< DDRMat > & tSpaceJacobian =
+                    mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
 
             // FIXME should not be here
             mSpaceDim = mMasterFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
@@ -272,7 +273,7 @@ namespace moris
 
         void SP_Incompressible_Flow::eval_G_2d(
                 Matrix< DDRMat > & aG,
-                Matrix< DDRMat > & aInvSpaceJacobian )
+                const Matrix< DDRMat > & aInvSpaceJacobian )
         {
             // set size for aG
             aG.set_size( 2, 2, 0.0 );
@@ -286,7 +287,7 @@ namespace moris
 
         void SP_Incompressible_Flow::eval_G_3d(
                 Matrix< DDRMat > & aG,
-                Matrix< DDRMat > & aInvSpaceJacobian )
+                const Matrix< DDRMat > & aInvSpaceJacobian )
         {
             // set size for aG
             aG.set_size( 3, 3, 0.0 );

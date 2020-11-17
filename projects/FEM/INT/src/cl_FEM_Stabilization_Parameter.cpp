@@ -63,20 +63,16 @@ namespace moris
             mPPEval = true;
 
             // reset the master dof derivative flags
-            uint tNumMasterDofTypes = mMasterGlobalDofTypes.size();
-            mdPPdMasterDofEval.set_size( tNumMasterDofTypes, 1, true );
+            mdPPdMasterDofEval.fill( true );
 
             // reset the slave dof derivative flags
-            uint tNumSlaveDofTypes = mSlaveGlobalDofTypes.size();
-            mdPPdSlaveDofEval.set_size( tNumSlaveDofTypes, 1, true );
+            mdPPdSlaveDofEval.fill( true );
 
             // reset the master dv derivative flags
-            uint tNumMasterDvTypes = mMasterGlobalDvTypes.size();
-            mdPPdMasterDvEval.set_size( tNumMasterDvTypes, 1, true );
+            mdPPdMasterDvEval.fill( true );
 
             // reset the slave dv derivative flags
-            uint tNumSlaveDvTypes = mSlaveGlobalDvTypes.size();
-            mdPPdSlaveDvEval.set_size( tNumSlaveDvTypes, 1, true );
+            mdPPdSlaveDvEval.fill( true );
 
             // reset underlying master constitutive models
             for( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )

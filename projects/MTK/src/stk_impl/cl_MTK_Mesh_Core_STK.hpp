@@ -291,8 +291,23 @@ public:
     //##############################################
     // Entity Ownership Functions
     //##############################################
-    moris_id
-    get_entity_owner(  moris_index     aEntityIndex,
+    /**
+     * Gets the owner of a node.
+     *
+     * @param aNodeIndex Node index
+     * @return Node owner
+     */
+    uint get_node_owner(moris_index aNodeIndex) const;
+
+    /**
+     * Gets the owner of an element.
+     *
+     * @param aElementIndex Element index
+     * @return Element owner
+     */
+    uint get_element_owner(moris_index aElementIndex) const;
+
+    uint get_entity_owner(  moris_index     aEntityIndex,
                        enum EntityRank aEntityRank,
 					   const moris_index     aIndex = 0) const;
 

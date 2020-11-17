@@ -41,7 +41,7 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the property
-            std::shared_ptr< Property > tProperty =
+            std::shared_ptr< Property > & tProperty =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
             // if property depends on dof type

@@ -112,11 +112,11 @@ namespace moris
 
                 // pointer to function for space detJ
                 real ( Geometry_Interpolator:: * mSpaceDetJFunc )(
-                        Matrix< DDRMat > & aSpaceJt ) = nullptr;
+                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
                 // pointer to function for time detJ
                 real (  Geometry_Interpolator:: * mTimeDetJFunc )(
-                        Matrix< DDRMat > & aTimeJt ) = nullptr;
+                        const Matrix< DDRMat > & aTimeJt ) = nullptr;
 
                 // pointer to function for normal
                 void (  Geometry_Interpolator:: * mNormalFunc )(
@@ -676,20 +676,20 @@ namespace moris
                 /**
                  * evaluate space detJ
                  */
-                real eval_space_detJ_side_line( Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_side_tri( Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_side_quad( Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_line( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_tri( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_quad( const Matrix< DDRMat > & aSpaceJt );
 
-                real eval_space_detJ_bulk_line_quad_hex( Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_bulk_tri( Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_bulk_tet( Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_line_quad_hex( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet( const Matrix< DDRMat > & aSpaceJt );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate time detJ
                  */
-                real eval_time_detJ_side( Matrix< DDRMat > & aTimeJt );
-                real eval_time_detJ_bulk( Matrix< DDRMat > & aTimeJt );
+                real eval_time_detJ_side( const Matrix< DDRMat > & aTimeJt );
+                real eval_time_detJ_bulk( const Matrix< DDRMat > & aTimeJt );
 
                 //------------------------------------------------------------------------------
                 /**

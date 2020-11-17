@@ -40,34 +40,48 @@ void check_results(
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
+    // define reference node IDs
+    Cell<uint> tReferenceNodeId  = {6220,2082,25202,7873};
+
     if (gPrintReferenceValues)
     {
-        //        std::cout << "Number of dimensions: " << tNumDims  << std::endl;
-        //        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        //        std::cout << "Number of elements  : " << tNumElems << std::endl;
-        //
-        //        // coordinates of reference point
-        //        moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point");
-        //
-        //        // time value for reference time step
-        //        std::cout << "Time value: " << std::scientific << std::setprecision(15) << aExoIO.get_time_value() << std::endl;
-        //
-        //        // solution of reference point at reference time step
-        //        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
-        //                aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
-        //
-        //        // value of IQI at reference time step
-        //        std::cout << "IQI value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
+
+        uint tNumDims  = tExoIO.get_number_of_dimensions();
+        uint tNumNodes = tExoIO.get_number_of_nodes();
+        uint tNumElems = tExoIO.get_number_of_elements();
+
+        std::cout << "Number of dimensions: " << tNumDims  << std::endl;
+        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
+        std::cout << "Number of elements  : " << tNumElems << std::endl;
+
+        // coordinates of reference point
+        moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId(aTestCaseIndex) ), "Coordinates of reference point");
+
+        // time value for reference time step
+        std::cout << "Time value: " << std::scientific << std::setprecision(15) << tExoIO.get_time_value() << std::endl;
+
+        // solution of reference point at reference time step
+        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision(15) <<
+                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 ) << "," <<
+                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 3, 0 ) << "," <<
+                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 ) <<
+                std::endl;
+
+        // solution of reference point at reference time step
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
+                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 5, 0 ) << std::endl;
+
+        // value of IQI at reference time step
+        std::cout << "IQI value: " << std::scientific << std::setprecision(15) << tExoIO.get_global_variable(0, 0 ) << std::endl;
 
         return;
     }
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = {3,3,3,3};
-    Cell<uint> tReferenceNumNodes = {0,0,0,0};
-    Cell<uint> tReferenceNumElems = {0,0,0,0};
-
-    Cell<uint> tReferenceNodeId  = {0,0,0,0};
+    Cell<uint> tReferenceNumNodes = {19723,6676,25468,8160};
+    Cell<uint> tReferenceNumElems = {40254,13396,45640,14274};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -76,19 +90,22 @@ void check_results(
 
     MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
             tReferenceNumDims(aTestCaseIndex),tNumDims,std::abs((tNumDims-tReferenceNumDims(aTestCaseIndex))/tReferenceNumDims(aTestCaseIndex)*100.0));
-    MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",
+    MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, percent error %12.5e.",
             tReferenceNumNodes(aTestCaseIndex),tNumNodes,std::abs((tNumNodes-tReferenceNumNodes(aTestCaseIndex))/tReferenceNumNodes(aTestCaseIndex)*100.0));
-    MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",
-            tReferenceNumNodes(aTestCaseIndex),tNumElems,std::abs((tNumElems-(aTestCaseIndex))/(aTestCaseIndex)*100.0));
+    MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, percent error %12.5e.",
+            tReferenceNumElems(aTestCaseIndex),tNumElems,std::abs((tNumElems-tReferenceNumElems(aTestCaseIndex))/tReferenceNumElems(aTestCaseIndex)*100.0));
 
     REQUIRE( tNumDims  ==  tReferenceNumDims(aTestCaseIndex)  );
     REQUIRE( tNumNodes ==  tReferenceNumNodes(aTestCaseIndex) );
-    REQUIRE( tNumElems ==  tReferenceNumNodes(aTestCaseIndex) );
+    REQUIRE( tNumElems ==  tReferenceNumElems(aTestCaseIndex) );
 
     // define reference coordinates for node aNodeId
     Cell<Matrix< DDRMat >> tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { {+7.600000000000002e-01},{+2.422727272727273e-01} } );
+    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
+    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
+    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
+    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId(aTestCaseIndex) );
@@ -102,10 +119,13 @@ void check_results(
     MORIS_LOG_INFO("Check nodal z-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceCoordinate(aTestCaseIndex)(2),tActualCoordinate(2),tRelDiffNorm*100.0);
 
-    REQUIRE( tRelDiffNorm <  1.0e-8 );
+    REQUIRE( tRelDiffNorm <  1.0e-5 );
 
     // check time value for time step index 0
     Cell<real> tReferenceTime;
+    tReferenceTime.push_back( 1.000000000000000e+00 );
+    tReferenceTime.push_back( 1.000000000000000e+00 );
+    tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
 
     real tActualTime = tExoIO.get_time_value( );
@@ -117,11 +137,34 @@ void check_results(
 
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
-    // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 8.670906164633136e+04 );
+    // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
+     Cell<Matrix< DDRMat >> tReferenceDisplacement;
 
-    real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
+     tReferenceDisplacement.push_back( { {-1.279576517421459e+00},{-2.572539354814217e+00},{-1.696472211537414e-05} } );
+     tReferenceDisplacement.push_back( { {-1.279576517421466e+00},{-2.572539354814230e+00},{-1.696472211536791e-05} } );
+     tReferenceDisplacement.push_back( { {-1.279576438846494e+00},{-2.572538953704380e+00},{-1.696494757037638e-05} } );
+     tReferenceDisplacement.push_back( { {-1.279576376895859e+00},{-2.572538984104519e+00},{-1.696482501575149e-05} } );
+
+     Matrix< DDRMat > tActualDisplacement = {
+             { tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 ) },
+             { tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 3, 0 ) },
+             { tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 ) } };
+
+     real tRelDispDifference = norm( tActualDisplacement - tReferenceDisplacement(aTestCaseIndex) ) / norm( tReferenceDisplacement(aTestCaseIndex) );
+
+     MORIS_LOG_INFO("Check nodal displacements:  reference %12.5e, actual %12.5e, percent error %12.5e.",
+             norm(tReferenceDisplacement(aTestCaseIndex)) ,norm(tActualDisplacement),tRelDispDifference*100.0);
+
+     REQUIRE(  tRelDispDifference < 1.0e-4);
+
+    // check temperature at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
+    Cell<real> tReferenceTemperature;
+    tReferenceTemperature.push_back( 1.996956411990344e+02 );
+    tReferenceTemperature.push_back( 1.996956411990309e+02 );
+    tReferenceTemperature.push_back( 1.996956418031047e+02 );
+    tReferenceTemperature.push_back( 1.996956412836340e+02 );
+
+    real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 5, 0 );
 
     real tRelTempDifference = std::abs( ( tActualTemperature - tReferenceTemperature(aTestCaseIndex) ) / tReferenceTemperature(aTestCaseIndex) );
 
@@ -133,7 +176,10 @@ void check_results(
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
     Cell<real> tReferenceIQI;
-    tReferenceIQI.push_back( 8.324886510380027e+04 );
+    tReferenceIQI.push_back( 4.911266121905413e-01 );
+    tReferenceIQI.push_back( 4.911266121905526e-01 );
+    tReferenceIQI.push_back( 4.911265475060168e-01 );
+    tReferenceIQI.push_back( 4.911265475060048e-01 );
 
     real tActualIQI = tExoIO.get_global_variable(0, 0 );
 
@@ -175,7 +221,7 @@ TEST_CASE("Pressure_Vessel_3D_Linear",
         case 1:
         {
             // perform check
-            //check_results("Pressure_Vessel_3D.exo",0);
+            check_results("Pressure_Vessel_3D.exo",0);
             break;
         }
         // Test Case 1
@@ -187,7 +233,7 @@ TEST_CASE("Pressure_Vessel_3D_Linear",
                 gLogger.set_screen_output_rank(1);
 
                 // perform check
-                // check_results("Pressure_Vessel_3D.exo.1",1);
+                check_results("Pressure_Vessel_3D.exo",1);
 
                 // reset screen output processor
                 gLogger.set_screen_output_rank(0);
@@ -231,7 +277,7 @@ TEST_CASE("Pressure_Vessel_3D_Immersed_Linear",
         case 1:
         {
             // perform check
-            // check_results("Pressure_Vessel_3D_Immersed.exo",0);
+            check_results("Pressure_Vessel_3D_Immersed.exo",2);
             break;
         }
         // Test Case 3
@@ -243,7 +289,7 @@ TEST_CASE("Pressure_Vessel_3D_Immersed_Linear",
                 gLogger.set_screen_output_rank(1);
 
                 // perform check
-                // check_results("Pressure_Vessel_3D_Immersed.exo",1);
+                check_results("Pressure_Vessel_3D_Immersed.exo",3);
 
                 // reset screen output processor
                 gLogger.set_screen_output_rank(0);

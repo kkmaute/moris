@@ -453,6 +453,20 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
+    uint Enriched_Integration_Mesh::get_node_owner(moris_index aNodeIndex) const
+    {
+        return mModel->mBackgroundMesh.get_vertex_owner(aNodeIndex);
+    }
+
+    //------------------------------------------------------------------------------
+
+    uint Enriched_Integration_Mesh::get_element_owner(moris_index aElementIndex) const
+    {
+        return this->get_mtk_cell(aElementIndex).get_owner();
+    }
+
+    //------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string     aSetName) const
     {
@@ -1994,7 +2008,7 @@ namespace xtk
             // get the child mesh
             Child_Mesh * tChildMesh = &mModel->get_cut_mesh().get_child_mesh((moris_index)iCM);
 
-            if(tBGMesh.get_entity_owner(tChildMesh->get_parent_element_index(),EntityRank::ELEMENT) == tMyProcRank)
+            if(tBGMesh.get_entity_owner(tChildMesh->get_parent_element_index(),EntityRank::ELEMENT) == (uint)tMyProcRank)
             {
 
                 // tell the child mesh to construct its double side sets between subphases

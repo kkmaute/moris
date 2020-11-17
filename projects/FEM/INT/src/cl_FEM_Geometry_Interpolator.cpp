@@ -650,10 +650,10 @@ namespace moris
         real Geometry_Interpolator::det_J()
         {
             // get the space jacobian
-            Matrix< DDRMat > tSpaceJt = this->space_jacobian();
+            const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
 
             // get the time Jacobian
-            Matrix< DDRMat > tTimeJt = this->time_jacobian();
+            const Matrix< DDRMat > & tTimeJt = this->time_jacobian();
 
             // compute detJ for space
             real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
@@ -668,7 +668,7 @@ namespace moris
         real Geometry_Interpolator::space_det_J()
         {
             // get the space jacobian
-            Matrix< DDRMat > tSpaceJt = this->space_jacobian();
+            const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
 
             // compute detJ for space
             real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
@@ -680,7 +680,7 @@ namespace moris
         real Geometry_Interpolator::time_det_J()
         {
             // get the time Jacobian
-            Matrix< DDRMat > tTimeJt = this->time_jacobian();
+            const Matrix< DDRMat > & tTimeJt = this->time_jacobian();
 
             // compute detJ for time
             real detJTime  = ( this->*mTimeDetJFunc )( tTimeJt );
@@ -692,7 +692,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_side_line(
-                Matrix< DDRMat > & aSpaceJt )
+                const Matrix< DDRMat > & aSpaceJt )
         {
             return norm( aSpaceJt );
         }
@@ -700,7 +700,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_side_tri(
-                Matrix< DDRMat > & aSpaceJt )
+                const Matrix< DDRMat > & aSpaceJt )
         {
             return norm( cross(
                     aSpaceJt.get_row( 0 ) - aSpaceJt.get_row( 2 ),
@@ -710,7 +710,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_side_quad(
-                Matrix< DDRMat > & aSpaceJt )
+                const Matrix< DDRMat > & aSpaceJt )
         {
             return norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) );
         }
@@ -718,7 +718,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_line_quad_hex(
-                Matrix< DDRMat > & aSpaceJt )
+                const Matrix< DDRMat > & aSpaceJt )
         {
             return det( aSpaceJt );
         }
@@ -726,7 +726,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_tri(
-                Matrix< DDRMat > & aSpaceJt )
+                const Matrix< DDRMat > & aSpaceJt )
         {
             Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
 
@@ -739,7 +739,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_tet(
-                Matrix< DDRMat > & aSpaceJt )
+                const Matrix< DDRMat > & aSpaceJt )
         {
             Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
 
@@ -752,7 +752,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_time_detJ_side(
-                Matrix< DDRMat > & aTimeJt )
+                const Matrix< DDRMat > & aTimeJt )
         {
             return 1.0;
         }
@@ -760,7 +760,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_time_detJ_bulk(
-                Matrix< DDRMat > & aTimeJt )
+                const Matrix< DDRMat > & aTimeJt )
         {
             return det( aTimeJt );
         }
@@ -866,7 +866,7 @@ namespace moris
 
             aGlobalParamPoint( { 0, tNumSpaceCoords - 1 } ) = trans( this->NXi()  * mXiHat );
 
-            aGlobalParamPoint( tNumSpaceCoords ) = dot( this->NTau(),mTauHat );
+            aGlobalParamPoint( tNumSpaceCoords ) = dot( this->NTau(), mTauHat );
         }
 
         //------------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"
 
+#include "fn_norm.hpp"
+
 namespace moris
 {
     namespace fem
@@ -36,15 +38,14 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
             // get analytical solution property
-            std::shared_ptr< Property > tPropH1Check =
+            std::shared_ptr< Property > & tPropH1Check =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
 
             // get jump between value and analytic
-            Matrix< DDRMat > tJump =
-                    reshape( tFI->gradx( 1 ) - tPropH1Check->val(), tFI->gradx( 1 ).numel(), 1 );
-
+            real tJumpNorm = norm ( reshape( tFI->gradx( 1 ) - tPropH1Check->val(), tFI->gradx( 1 ).numel(), 1 ) );
+            
             // evaluate the QI
-            aQI = trans( tJump ) * tJump ;
+            aQI = tJumpNorm * tJumpNorm ;
         }
 
         //------------------------------------------------------------------------------
@@ -57,8 +58,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

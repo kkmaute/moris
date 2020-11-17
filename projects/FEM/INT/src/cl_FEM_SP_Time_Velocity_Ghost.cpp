@@ -34,7 +34,7 @@ namespace moris
         void SP_Time_Velocity_Ghost::eval_SP()
         {
             // get the density property
-            std::shared_ptr< Property > tDensityProp =
+            std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
@@ -61,7 +61,7 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the density property
-            std::shared_ptr< Property > tDensityProp =
+            std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
