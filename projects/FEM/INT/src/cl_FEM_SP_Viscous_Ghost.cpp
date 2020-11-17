@@ -35,7 +35,7 @@ namespace moris
         void SP_Viscous_Ghost::eval_SP()
         {
             // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
+            std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // compute stabilization parameter value
@@ -60,7 +60,8 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > & tViscosityProp =
+                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // if viscosity depends on dof type
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )

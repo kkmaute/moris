@@ -250,7 +250,7 @@ namespace moris
                     get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropKinViscosity =
+            std::shared_ptr< Property > & tPropKinViscosity =
                     this->get_properties( aIsMaster )( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the viscosity value
@@ -302,7 +302,7 @@ namespace moris
                     get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the kinematic viscosity property
-            std::shared_ptr< Property > tPropKinViscosity =
+            std::shared_ptr< Property > & tPropKinViscosity =
                     this->get_properties( aIsMaster )( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the viscosity value
@@ -398,7 +398,7 @@ namespace moris
                     get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the kinematic viscosity property
-            std::shared_ptr< Property > tPropKinViscosity =
+            std::shared_ptr< Property > & tPropKinViscosity =
                     this->get_properties( aIsMaster )( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // compute chi
@@ -426,7 +426,7 @@ namespace moris
                     get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the kinematic viscosity property
-            std::shared_ptr< Property > tPropKinViscosity =
+            std::shared_ptr< Property > & tPropKinViscosity =
                     this->get_properties( aIsMaster )( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // compute chi

@@ -51,9 +51,9 @@ namespace moris
             mPPVal.set_size( 3, 1, 0.0 );
 
             // get the master/slave material property
-            std::shared_ptr< Property > tMasterPropMaterial =
+            std::shared_ptr< Property > & tMasterPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            std::shared_ptr< Property > tSlavePropMaterial =
+            std::shared_ptr< Property > & tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the master/slave material property values
@@ -95,9 +95,9 @@ namespace moris
                     0.0 );
 
             // get the master/slave material property
-            std::shared_ptr< Property > tMasterPropMaterial =
+            std::shared_ptr< Property > & tMasterPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            std::shared_ptr< Property > tSlavePropMaterial =
+            std::shared_ptr< Property > & tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the master/slave material property values

@@ -22,6 +22,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Pressure_Ghost::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -31,6 +32,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Pressure_Ghost::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -86,9 +88,9 @@ namespace moris
         void SP_Pressure_Ghost::eval_SP()
         {
             // get the viscosity and density property
-            std::shared_ptr< Property > tViscosityProp =
+            std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > tDensityProp   =
+            std::shared_ptr< Property > & tDensityProp   =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the velocity FI
@@ -138,11 +140,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
+            std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the density property
-            std::shared_ptr< Property > tDensityProp =
+            std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute infinity norm
