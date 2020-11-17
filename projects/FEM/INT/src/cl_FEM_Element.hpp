@@ -211,29 +211,24 @@ namespace moris
                 /**
                  * compute quantity of interest
                  * @param[ in ] aMeshIndex  an index for the used IG mesh
-                 * @param[ in ] aOutputType an enum for the output type
+                 * @param[ in ] aQINames    list of QI names to be evaluated
                  * @param[ in ] aFieldType  an enum for computation/field type
                  */
                 void compute_quantity_of_interest(
-                        const uint            aMeshIndex,
-                        const std::string   & aQIName,
-                        enum vis::Field_Type  aFieldType  )
+                        const uint                         aMeshIndex,
+                        const moris::Cell< std::string > & aQINames,
+                        enum vis::Field_Type               aFieldType )
                 {
                     switch ( aFieldType )
                     {
                         case vis::Field_Type::GLOBAL :
                         {
-                            this->compute_quantity_of_interest_global( aMeshIndex, aQIName );
-                            break;
-                        }
-                        case vis::Field_Type::NODAL :
-                        {
-                            this->compute_quantity_of_interest_nodal( aMeshIndex, aQIName );
+                            this->compute_quantity_of_interest_global( aMeshIndex, aQINames );
                             break;
                         }
                         case vis::Field_Type::ELEMENTAL :
                         {
-                            this->compute_quantity_of_interest_elemental( aMeshIndex, aQIName );
+                            this->compute_quantity_of_interest_elemental( aMeshIndex, aQINames );
                             break;
                         }
                         default :
@@ -247,11 +242,11 @@ namespace moris
                 /**
                  * compute quantity of interest in a global way
                  * @param[ in ] aMeshIndex  an index for the used IG mesh
-                 * @param[ in ] aOutputType an enum for the output type
+                 * @param[ in ] aQINames    list of QI names to be evaluated
                  */
                 virtual void compute_quantity_of_interest_global(
-                        const uint          aMeshIndex,
-                        const std::string & aQIName )
+                        const uint                         aMeshIndex,
+                        const moris::Cell< std::string > & aQINames )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - Not implemented for base class." );
                 }
@@ -273,11 +268,11 @@ namespace moris
                 /**
                  * compute quantity of interest in an elemental way
                  * @param[ in ] aMeshIndex  an index for the used IG mesh
-                 * @param[ in ] aOutputType an enum for the output type
+                 * @param[ in ] aQINames    list of QI names to be evaluated
                  */
                 virtual void compute_quantity_of_interest_elemental(
-                        const uint          aMeshIndex,
-                        const std::string & aQIName )
+                        const uint                         aMeshIndex,
+                        const moris::Cell< std::string > & aQINames )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
                 }

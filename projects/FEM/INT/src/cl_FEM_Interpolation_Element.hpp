@@ -156,14 +156,14 @@ namespace moris
                 /**
                  * compute the quantity of interest on cluster
                  * @param[ in ] aMeshIndex  index for vis mesh used
-                 * @param[ in ] aOutputType an enum for output type
+                 * @param[ in ] aQINames    list of QI names to evaluate
                  * @param[ in ] aFieldType  an enum for computation/return type
                  *                          GLOBAL, NODAL, ELEMENTAL
                  */
                 void compute_quantity_of_interest(
-                        const uint              aClusterIndex,
-                        const std::string     & aQIName,
-                        enum  vis::Field_Type   aFieldType );
+                        const uint                         aClusterIndex,
+                        const moris::Cell< std::string > & aQINames,
+                        enum  vis::Field_Type              aFieldType );
 
                 //------------------------------------------------------------------------------
                 /**

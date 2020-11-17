@@ -2677,42 +2677,69 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Set::compute_quantity_of_interest(
-                const uint              aMeshIndex,
-                Matrix< DDRMat >      * aElementFieldValues,
-                Matrix< DDRMat >      * aNodalFieldValues,
-                moris::real           * aGlobalScalar,
-                const std::string     & aQIName,
-                enum vis::Field_Type    aFieldType )
+        void Set::compute_quantity_of_interest_nodal(
+                const uint                         aMeshIndex,
+                Matrix< DDRMat >                 * aNodalFieldValues,
+                const moris::Cell< std::string > & aQINames )
         {
-            mSetElementalValues = aElementFieldValues;
-            mSetNodalValues     = aNodalFieldValues;
-            mSetGlobalValues    = aGlobalScalar;
+            // set the nodal set values to the ones provided
+            mSetNodalValues = aNodalFieldValues;
 
-            mSetNodalCounter.set_size( (*mSetNodalValues).numel(), 1, 0 );
-
-            mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), 1, 0.0 );
-			
-			// check if this set has the requested IQI
-            if( mIQINameToIndexMap.key_exists( aQIName ) )
+            // loop over equation objects
+            uint tNumEqObjs = mEquationObjList.size();
+            for( uint Ik = 0; Ik < tNumEqObjs; Ik++ )
             {
-                for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
-                {
-                    mEquationObjList( Ik )->compute_quantity_of_interest(
-                            aMeshIndex,
-                            aQIName,
-                            aFieldType );
-                }
+                // compute quantity of interest
+                mEquationObjList( Ik )->compute_quantity_of_interest(
+                        aMeshIndex,
+                        aQINames,
+                        vis::Field_Type::NODAL );
+            }
+        }
 
-                //FIXME I do not like this at all. someone change it
-                for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
-                {
-                    if( mSetNodalCounter(Ik) != 0)
-                    {
-                        (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
-                    }
-                }
-			}
+        //------------------------------------------------------------------------------
+
+        void Set::compute_quantity_of_interest_global(
+                const uint                         aMeshIndex,
+                Matrix< DDRMat >                 * aGlobalFieldValues,
+                const moris::Cell< std::string > & aQINames )
+        {
+            // set the global set values to the ones provided
+            mSetGlobalValues = aGlobalFieldValues;
+
+            // loop over equation objects
+            uint tNumEqObjs = mEquationObjList.size();
+            for( uint Ik = 0; Ik < tNumEqObjs; Ik++ )
+            {
+                // compute quantity of interest
+                mEquationObjList( Ik )->compute_quantity_of_interest(
+                        aMeshIndex,
+                        aQINames,
+                        vis::Field_Type::GLOBAL );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Set::compute_quantity_of_interest_elemental(
+                const uint                         aMeshIndex,
+                Matrix< DDRMat >                 * aElementalFieldValues,
+                const moris::Cell< std::string > & aQINames )
+        {
+            // set the elemental set values to the ones provided
+            mSetElementalValues = aElementalFieldValues;
+            mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), aQINames.size(), 0.0 );
+
+            // loop over equation objects
+            uint tNumEqObjs = mEquationObjList.size();
+            for( uint Ik = 0; Ik < tNumEqObjs; Ik++ )
+            {
+                // compute quantity of interest
+                mEquationObjList( Ik )->compute_quantity_of_interest(
+                        aMeshIndex,
+                        aQINames,
+                        vis::Field_Type::ELEMENTAL );
+            }
         }
 
         //------------------------------------------------------------------------------

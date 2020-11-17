@@ -117,9 +117,7 @@ namespace moris
 
             Matrix< DDRMat > * mSetElementalValues;
             Matrix< DDRMat > * mSetNodalValues;
-            moris::real      * mSetGlobalValues;
-
-            Matrix< DDUMat > mSetNodalCounter;
+            Matrix< DDRMat > * mSetGlobalValues;
 
             uint tNumRHS = 1;
 
@@ -595,23 +593,47 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * compute quantity of interest
-             * @param[ in ] aMeshIndex
-             * @param[ in ] aElementFieldValues
-             * @param[ in ] aNodalFieldValues
-             * @param[ in ] aGlobalScalar
-             * @param[ in ] aOutputType
-             * @param[ in ] aFieldType
+             * compute quantity of interest global
+             * @param[ in ] aMeshIndex   mesh index to defined IG mesh to use
+             * @param[ in ] aFieldValues matrix to be filled with QI global values
+             * @param[ in ] aQINames     list of QI names to compute
              */
-            virtual void compute_quantity_of_interest(
-                        const uint              aMeshIndex,
-                        Matrix< DDRMat >      * aElementFieldValues,
-                        Matrix< DDRMat >      * aNodalFieldValues,
-                        moris::real           * aGlobalScalar,
-                        const std::string     & aQIName,
-                        enum vis::Field_Type    aFieldType)
+            virtual void compute_quantity_of_interest_global(
+                    const uint                         aMeshIndex,
+                    Matrix< DDRMat >                 * aFieldValues,
+                    const moris::Cell< std::string > & aQINames )
             {
-                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest - not implemented for base class." );
+                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_global - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute quantity of interest nodal
+             * @param[ in ] aMeshIndex   mesh index to defined IG mesh to use
+             * @param[ in ] aFieldValues matrix to be filled with QI nodal values
+             * @param[ in ] aQINames     list of QI names to compute
+             */
+            virtual void compute_quantity_of_interest_nodal(
+                    const uint                         aMeshIndex,
+                    Matrix< DDRMat >                 * aFieldValues,
+                    const moris::Cell< std::string > & aQINames )
+            {
+                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_nodal - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute quantity of interest elemental
+             * @param[ in ] aMeshIndex   mesh index to defined IG mesh to use
+             * @param[ in ] aFieldValues matrix to be filled with QI elemental values
+             * @param[ in ] aQINames     list of QI names to compute
+             */
+            virtual void compute_quantity_of_interest_elemental(
+                    const uint                         aMeshIndex,
+                    Matrix< DDRMat >                 * aFieldValues,
+                    const moris::Cell< std::string > & aQINames )
+            {
+                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
             }
 
             //------------------------------------------------------------------------------

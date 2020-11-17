@@ -797,9 +797,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Interpolation_Element::compute_quantity_of_interest(
-                const uint              aMeshIndex,
-                const std::string     & aQIName,
-                enum vis::Field_Type    aFieldType )
+                const uint                         aMeshIndex,
+                const moris::Cell< std::string > & aQINames,
+                enum vis::Field_Type               aFieldType )
         {
             // compute pdof values
             // FIXME do this only once
@@ -816,27 +816,13 @@ namespace moris
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
-            // get the set local index
-            moris_index tIQISetLocalIndex =
-                    mSet->mIQINameToIndexMap.find( aQIName );
-
-            // get IQI
-            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
-
-            // 
-            tIQI->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                tIQI->set_field_interpolator_manager( mSet->get_field_interpolator_manager(
-                        mtk::Master_Slave::SLAVE ),
-                        mtk::Master_Slave::SLAVE );
-            }
-
+            // if nodal field
             if( aFieldType == vis::Field_Type::NODAL )
             {
                 // get the master vertices indices on the mesh cluster
@@ -862,22 +848,32 @@ namespace moris
                     // set vertex coordinates for field interpolator
                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
-                    // reset the requested IQI
-                    tIQI->reset_eval_flags();
+                    // loop over the IQIs
+                    for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )
+                    {
+                        // if IQI defined on set
+                        if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
+                        {
+                            // get the set local index for IQI name
+                            moris_index tIQISetLocalIndex = mSet->mIQINameToIndexMap.find( aQINames( iIQI ) );
 
-                    // compute quantity of interest at evaluation point
-                    Matrix< DDRMat > tQIValue;
-                    tIQI->compute_QI( tQIValue );
+                            // reset the requested IQI
+                            mSet->mIQIs( tIQISetLocalIndex )->reset_eval_flags();
 
-                    // fill in the nodal set values
-                    ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 ) =
-                            tQIValue( 0 );
+                            // compute quantity of interest at evaluation point
+                            Matrix< DDRMat > tQIValue;
+                            mSet->mIQIs( tIQISetLocalIndex )->compute_QI( tQIValue );
+
+                            // fill in the nodal set values
+                            ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), iIQI ) = tQIValue( 0 );
+                        }
+                    }
                 }
             }
             else
             {
                 // ask cluster to compute quantity of interest
-                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aQIName, aFieldType );
+                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aQINames, aFieldType );
             }
         }
 
