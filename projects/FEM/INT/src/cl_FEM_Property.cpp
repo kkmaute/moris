@@ -18,10 +18,10 @@ namespace moris
             mdPropdxEval = true;
 
             // reset the property derivatives wrt dof type
-            mPropDofDerEval.set_size( mDofTypes.size(), 1, true );
+            mPropDofDerEval.fill( true );
 
             // reset the property derivatives wrt dv type
-            mPropDvDerEval.set_size( mDvTypes.size(), 1, true );
+            mPropDvDerEval.fill( true );
         }
 
         //------------------------------------------------------------------------------
