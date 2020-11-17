@@ -337,6 +337,28 @@ public:
         }
     }
 
+    /**
+     * Gets the owner of a node.
+     *
+     * @param aNodeIndex Node index
+     * @return Node owner
+     */
+    uint get_node_owner(moris_index aNodeIndex) const
+    {
+        return par_rank();
+    }
+
+    /**
+     * Gets the owner of an element.
+     *
+     * @param aElementIndex Element index
+     * @return Element owner
+     */
+    uint get_element_owner(moris_index aElementIndex) const
+    {
+        return par_rank();
+    }
+
     enum CellTopology
     get_blockset_topology(const std::string & aSetName)
     {

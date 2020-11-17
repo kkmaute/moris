@@ -422,14 +422,29 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_id
-        Mesh::get_entity_owner(
+        uint Mesh::get_entity_owner(
                 moris_index       aEntityIndex,
                 enum EntityRank   aEntityRank,
                 const moris_index aBSPlineMeshIndex) const
         {
-            MORIS_ERROR(0," get entity owner has no base implementation");
-            return 0;
+            uint tEntityOwner = 0;
+            switch (aEntityRank)
+            {
+                case EntityRank::NODE:
+                {
+                    tEntityOwner = this->get_node_owner(aEntityIndex);
+                }
+                case EntityRank::ELEMENT:
+                {
+                    tEntityOwner = this->get_element_owner(aEntityIndex);
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Mesh::get_entity_owner() has no base implementation for this entity type.");
+                }
+            }
+
+            return tEntityOwner;
         }
 
         //--------------------------------------------------------------------------------------------------------------

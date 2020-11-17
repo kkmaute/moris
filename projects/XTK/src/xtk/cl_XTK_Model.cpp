@@ -2229,7 +2229,7 @@ namespace xtk
 
                     Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
 
-                    MORIS_ASSERT(par_rank() == mBackgroundMesh.get_mesh_data().get_entity_owner(tParentCellIndex,EntityRank::ELEMENT),
+                    MORIS_ASSERT((uint) par_rank() == mBackgroundMesh.get_mesh_data().get_entity_owner(tParentCellIndex,EntityRank::ELEMENT),
                             "I dont own this entity that had info requestsed.");
 
                     // place in return data
@@ -4735,7 +4735,7 @@ namespace xtk
 
             moris_index tSideIndex = tElementFaces(tSideSetOrdinals(iSide));
 
-            if(tMeshData.get_entity_owner(tElementIndex, EntityRank::ELEMENT) == tMyProcRank)
+            if(tMeshData.get_entity_owner(tElementIndex, EntityRank::ELEMENT) == (uint)tMyProcRank)
             {
                 tHasChildren = mBackgroundMesh.entity_has_children(tElementIndex,EntityRank::ELEMENT);
                 // get the faces from the child mesh

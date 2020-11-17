@@ -654,8 +654,22 @@ namespace mtk
     //##############################################
     // Entity Ownership Functions
     //##############################################
-    moris_id
-    Mesh_Core_STK::get_entity_owner( moris_index     aEntityIndex,
+
+    uint Mesh_Core_STK::get_node_owner(moris_index aNodeIndex) const
+    {
+        return this->get_entity_owner(aNodeIndex, EntityRank::NODE);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    uint Mesh_Core_STK::get_element_owner(moris_index aElementIndex) const
+    {
+        return this->get_entity_owner(aElementIndex, EntityRank::ELEMENT);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    uint Mesh_Core_STK::get_entity_owner( moris_index     aEntityIndex,
                                 enum EntityRank aEntityRank,
 								const moris_index     aIndex ) const
     {
