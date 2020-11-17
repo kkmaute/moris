@@ -27,42 +27,42 @@
 
 namespace moris
 {
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        /**
-         * this function takes a path and makes it parrallel
-         */
-        std::string
-        make_path_parallel( const std::string & aPath )
+    /**
+     * this function takes a path and makes it parrallel
+     */
+    std::string
+    make_path_parallel( const std::string & aPath )
+    {
+        // test if running in parallel mode
+        if ( par_size() > 1 )
         {
-            // test if running in parallel mode
-            if ( par_size() > 1 )
-            {
-                // get file extesion
-                auto tFileExt = aPath.substr(
-                        aPath.find_last_of("."),
-                        aPath.length() );
+            // get file extesion
+            auto tFileExt = aPath.substr(
+                    aPath.find_last_of("."),
+                    aPath.length() );
 
-                // get base path
-                auto tBasePath = aPath.substr(
-                        0,
-                        aPath.find_last_of(".") );
+            // get base path
+            auto tBasePath = aPath.substr(
+                    0,
+                    aPath.find_last_of(".") );
 
-                // add proc number to path
-                std::string aParallelPath = tBasePath + "_"
-                                           +  std::to_string( par_size() ) + "."
-                                           +  std::to_string( par_rank() )
-                                           + tFileExt;
-                return aParallelPath;
-            }
-            else
-            {
-                // do not modify path
-                return aPath;
-            }
+            // add proc number to path
+            std::string aParallelPath = tBasePath + "_"
+                    +  std::to_string( par_size() ) + "."
+                    +  std::to_string( par_rank() )
+            + tFileExt;
+            return aParallelPath;
         }
+        else
+        {
+            // do not modify path
+            return aPath;
+        }
+    }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * create a new HDF5 file
@@ -78,7 +78,7 @@ namespace moris
                 H5P_DEFAULT);
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * open an existing hdf5 file
@@ -110,7 +110,7 @@ namespace moris
                 H5P_DEFAULT);
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * close an open hdf5 file
@@ -121,7 +121,7 @@ namespace moris
         return H5Fclose( aFileID );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * test if a dataset exists
@@ -133,7 +133,7 @@ namespace moris
         return H5Lexists( aFileID, aLabel.c_str(), tDataSet );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
     /**
      *
      * @brief                 returns a HDF5 enum defining the
@@ -150,7 +150,7 @@ namespace moris
         return 0;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template <> hid_t
     get_hdf5_datatype( const int & aSample )
@@ -158,7 +158,7 @@ namespace moris
         return H5T_NATIVE_INT;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template <> hid_t
     get_hdf5_datatype( const long int & aSample )
@@ -166,7 +166,7 @@ namespace moris
         return H5T_NATIVE_LONG;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     // moris::uint
     template <> hid_t
@@ -175,7 +175,7 @@ namespace moris
         return H5T_NATIVE_UINT;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     // moris::luint
     template <> hid_t
@@ -184,7 +184,7 @@ namespace moris
         return H5T_NATIVE_ULONG;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template <> hid_t
     get_hdf5_datatype( const double & aSample )
@@ -192,7 +192,7 @@ namespace moris
         return H5T_NATIVE_DOUBLE;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template <> hid_t
     get_hdf5_datatype( const long double & aSample )
@@ -200,7 +200,7 @@ namespace moris
         return H5T_NATIVE_LDOUBLE;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template<> hid_t
     get_hdf5_datatype( const bool & aSample )
@@ -208,7 +208,7 @@ namespace moris
         return H5T_NATIVE_HBOOL;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * this function returns true of both the HDF5 datatype
@@ -222,7 +222,7 @@ namespace moris
                 == sizeof( T );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * unpacks a moris::Mat and stores it into the file
@@ -246,9 +246,9 @@ namespace moris
     {
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
-                       "Sizes of MORIS datatype and HDF5 datatype do not match." );
+                "Sizes of MORIS datatype and HDF5 datatype do not match." );
 
-//        MORIS_ASSERT( aMatrix.numel() != 0, "save_matrix_to_hdf5_file(), Output matrix has zero elements");
+        //        MORIS_ASSERT( aMatrix.numel() != 0, "save_matrix_to_hdf5_file(), Output matrix has zero elements");
 
         // test if dataset exists
         if ( dataset_exists( aFileID, aLabel ) )
@@ -269,7 +269,7 @@ namespace moris
 
         // create data space
         hid_t  tDataSpace
-            = H5Screate_simple( 2, tDims, NULL);
+        = H5Screate_simple( 2, tDims, NULL);
 
         // select data type for matrix to save
         hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) );
@@ -293,11 +293,11 @@ namespace moris
         {
             // allocate top level array which contains rows
             typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
-                                        malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
+                                                malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
 
             // allocate memory for data
             tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
-                                        malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
+                                                malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
 
             // loop over all rows and allocate colums
             for( hsize_t i=0; i<tDims[ 0 ]; ++i )
@@ -337,7 +337,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_matrix_to_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * unpacks a moris::Mat and stores it into the file
@@ -407,11 +407,11 @@ namespace moris
         {
             // allocate top level array which contains rows
             typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
-                                        malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
+                                                malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
 
             // allocate memory for data
             tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
-                                        malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
+                                                malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
 
             // loop over all rows and allocate colums
             for( hsize_t i=1; i<tDims[ 0 ]; ++i )
@@ -454,7 +454,7 @@ namespace moris
         // check for error
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_matrix_from_hdf5_file()" );
     }
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * saves a scalar value to a file
@@ -528,7 +528,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_scalar_to_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template <>
     void
@@ -589,7 +589,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_scalar_to_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     /**
      * loads a scalar value from a file
@@ -661,7 +661,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_scalar_from_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template <>
     void
@@ -724,7 +724,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_scalar_from_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     void
     save_string_to_hdf5_file(
@@ -783,7 +783,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_string_to_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     void
     load_string_from_hdf5_file(
@@ -841,7 +841,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_string_from_hdf5_file()" );
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 }
 
 #endif /* PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_ */

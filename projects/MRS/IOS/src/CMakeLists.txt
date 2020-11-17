@@ -16,6 +16,7 @@ set(HEADERS
     fn_stringify_matrix.hpp
 	fn_to_stdio.hpp
 	HDF5_Tools.hpp
+	cl_Ascii.hpp
 	IO_Tools.hpp
 	ios.hpp
 	Log_Constants.hpp
@@ -30,6 +31,7 @@ set(LIB_SOURCES
     cl_Query_Tree.cpp
     cl_Tracer_Enums.cpp
     cl_XML_Parser.cpp
+    cl_Ascii.cpp
     )
 
 
