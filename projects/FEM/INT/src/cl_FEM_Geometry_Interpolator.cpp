@@ -78,8 +78,11 @@ namespace moris
             md2NdTau2Eval = true;
             md3NdTau3Eval = true;
 
+            mSpaceDetJEval   = true;
             mSpaceJacEval    = true;
             mInvSpaceJacEval = true;
+
+            mTimeDetJEval    = true;
             mTimeJacEval     = true;
             mInvTimeJacEval  = true;
         }
