@@ -53,6 +53,10 @@ namespace moris
                 uint mNumTimeBases;
                 uint mNumTimeDim;
 
+                // space and time jacobians
+                real mSpaceDetJ;
+                real mTimeDetJ;
+
                 // matrix of space coefficients xHat
                 // and matrix of time coefficients tHat
                 Matrix < DDRMat > mXHat;
@@ -89,8 +93,11 @@ namespace moris
                 bool md2NdTau2Eval = true;
                 bool md3NdTau3Eval = true;
 
+                bool mSpaceDetJEval   = true;
                 bool mSpaceJacEval    = true;
                 bool mInvSpaceJacEval = true;
+
+                bool mTimeDetJEval    = true;
                 bool mTimeJacEval     = true;
                 bool mInvTimeJacEval  = true;
 
@@ -117,6 +124,12 @@ namespace moris
                 // pointer to function for time detJ
                 real (  Geometry_Interpolator:: * mTimeDetJFunc )(
                         const Matrix< DDRMat > & aTimeJt ) = nullptr;
+
+                // point to function for inverse of space jacobian
+                void ( Geometry_Interpolator:: * mInvSpaceJacFunc )() = nullptr;
+
+                // point to function for inverse of time jacobian
+                void ( Geometry_Interpolator:: * mInvTimeJacFunc )() = nullptr;
 
                 // pointer to function for normal
                 void (  Geometry_Interpolator:: * mNormalFunc )(
@@ -502,6 +515,7 @@ namespace moris
                 void eval_space_jacobian();
 
                 //------------------------------------------------------------------------------
+
                 /**
                  * get the inverse of the geometry Jacobian in space
                  * @param[ out ] mInvSpaceJac inverse of the transposed of geometry Jacobian in space
@@ -557,8 +571,8 @@ namespace moris
                  * at given space and time evaluation point
                  */
                 real det_J();
-                real space_det_J();
-                real time_det_J();
+                const real & space_det_J();
+                const real & time_det_J();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -677,12 +691,14 @@ namespace moris
                  * evaluate space detJ
                  */
                 real eval_space_detJ_side_line( const Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_side_tri( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_tri ( const Matrix< DDRMat > & aSpaceJt );
                 real eval_space_detJ_side_quad( const Matrix< DDRMat > & aSpaceJt );
 
-                real eval_space_detJ_bulk_line_quad_hex( const Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_bulk_tri( const Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_bulk_tet( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_line( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_quad( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_hex ( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri ( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet ( const Matrix< DDRMat > & aSpaceJt );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -690,6 +706,22 @@ namespace moris
                  */
                 real eval_time_detJ_side( const Matrix< DDRMat > & aTimeJt );
                 real eval_time_detJ_bulk( const Matrix< DDRMat > & aTimeJt );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate space jacobians
+                 */
+                void eval_inverse_space_jacobian_1d();
+                void eval_inverse_space_jacobian_2d();
+                void eval_inverse_space_jacobian_3d();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate time jacobians
+                 */
+                void eval_inverse_time_jacobian_1d();
+                void eval_inverse_time_jacobian_2d();
+                void eval_inverse_time_jacobian_3d();
 
                 //------------------------------------------------------------------------------
                 /**

@@ -78,8 +78,11 @@ namespace moris
             md2NdTau2Eval = true;
             md3NdTau3Eval = true;
 
+            mSpaceDetJEval   = true;
             mSpaceJacEval    = true;
             mInvSpaceJacEval = true;
+
+            mTimeDetJEval    = true;
             mTimeJacEval     = true;
             mInvTimeJacEval  = true;
         }
@@ -88,8 +91,11 @@ namespace moris
 
         void Geometry_Interpolator::reset_eval_flags_coordinates()
         {
+            mSpaceDetJEval   = true;
             mSpaceJacEval    = true;
             mInvSpaceJacEval = true;
+
+            mTimeDetJEval    = true;
             mTimeJacEval     = true;
             mInvTimeJacEval  = true;
         }
@@ -521,10 +527,10 @@ namespace moris
 
         const Matrix< DDRMat > & Geometry_Interpolator::space_jacobian()
         {
-            // if space jacobian needs to be evaluated
+            // if space Jacobian needs to be evaluated
             if( mSpaceJacEval )
             {
-                // evaluate the space jacobian
+                // evaluate the space Jacobian
                 this->eval_space_jacobian();
 
                 // set bool for evaluation
@@ -549,10 +555,10 @@ namespace moris
 
         const Matrix< DDRMat > & Geometry_Interpolator::inverse_space_jacobian()
         {
-            // if inverse of the space jacobian needs to be evaluated
+            // if inverse of the space Jacobian needs to be evaluated
             if( mInvSpaceJacEval )
             {
-                // evaluate the inverse of the space jacobian
+                // evaluate the inverse of the space Jacobian
                 this->eval_inverse_space_jacobian();
 
                 // set bool for evaluation
@@ -566,7 +572,55 @@ namespace moris
         void Geometry_Interpolator::eval_inverse_space_jacobian()
         {
             // compute the Jacobian
-            mInvSpaceJac = inv( this->space_jacobian() );
+            (this->*mInvSpaceJacFunc)();
+        }
+
+        void Geometry_Interpolator::eval_inverse_space_jacobian_1d()
+        {
+            mInvSpaceJac = inv ( this->space_jacobian() );
+        }
+
+        void Geometry_Interpolator::eval_inverse_space_jacobian_2d()
+        {
+            // get the space Jacobian
+            const Matrix< DDRMat > & tSpacJac = this->space_jacobian();
+
+            // compute inverse of 3x3 matrix
+            real tInvDet = 1.0/(this->space_det_J());
+
+            MORIS_ASSERT(tInvDet > 1e-18," space determinate close to zero.\n");
+
+            // compute inverse
+            mInvSpaceJac.set_size(2,2);
+
+            mInvSpaceJac(0, 0) =  tSpacJac(1, 1) * tInvDet;
+            mInvSpaceJac(0, 1) = -tSpacJac(0, 1) * tInvDet;
+            mInvSpaceJac(1, 0) = -tSpacJac(1, 0) * tInvDet;
+            mInvSpaceJac(1, 1) =  tSpacJac(0, 0) * tInvDet;
+        }
+
+        void Geometry_Interpolator::eval_inverse_space_jacobian_3d()
+        {
+            // get the space Jacobian
+            const Matrix< DDRMat > & tSpacJac = this->space_jacobian();
+
+            // compute inverse of 3x3 matrix
+            real tInvDet = 1.0/(this->space_det_J());
+
+            MORIS_ASSERT(tInvDet > 1e-18," space determinate close to zero.\n");
+
+            // compute inverse
+            mInvSpaceJac.set_size(3,3);
+
+            mInvSpaceJac(0, 0) = (tSpacJac(1, 1) * tSpacJac(2, 2) - tSpacJac(2, 1) * tSpacJac(1, 2)) * tInvDet;
+            mInvSpaceJac(0, 1) = (tSpacJac(0, 2) * tSpacJac(2, 1) - tSpacJac(0, 1) * tSpacJac(2, 2)) * tInvDet;
+            mInvSpaceJac(0, 2) = (tSpacJac(0, 1) * tSpacJac(1, 2) - tSpacJac(0, 2) * tSpacJac(1, 1)) * tInvDet;
+            mInvSpaceJac(1, 0) = (tSpacJac(1, 2) * tSpacJac(2, 0) - tSpacJac(1, 0) * tSpacJac(2, 2)) * tInvDet;
+            mInvSpaceJac(1, 1) = (tSpacJac(0, 0) * tSpacJac(2, 2) - tSpacJac(0, 2) * tSpacJac(2, 0)) * tInvDet;
+            mInvSpaceJac(1, 2) = (tSpacJac(1, 0) * tSpacJac(0, 2) - tSpacJac(0, 0) * tSpacJac(1, 2)) * tInvDet;
+            mInvSpaceJac(2, 0) = (tSpacJac(1, 0) * tSpacJac(2, 1) - tSpacJac(2, 0) * tSpacJac(1, 1)) * tInvDet;
+            mInvSpaceJac(2, 1) = (tSpacJac(2, 0) * tSpacJac(0, 1) - tSpacJac(0, 0) * tSpacJac(2, 1)) * tInvDet;
+            mInvSpaceJac(2, 2) = (tSpacJac(0, 0) * tSpacJac(1, 1) - tSpacJac(1, 0) * tSpacJac(0, 1)) * tInvDet;
         }
 
         //------------------------------------------------------------------------------
@@ -597,10 +651,10 @@ namespace moris
 
         const Matrix< DDRMat > & Geometry_Interpolator::time_jacobian()
         {
-            // if space jacobian needs to be evaluated
+            // if space Jacobian needs to be evaluated
             if( mTimeJacEval )
             {
-                // evaluate the space jacobian
+                // evaluate the space Jacobian
                 this->eval_time_jacobian();
 
                 // set bool for evaluation
@@ -625,10 +679,10 @@ namespace moris
 
         const Matrix< DDRMat > & Geometry_Interpolator::inverse_time_jacobian()
         {
-            // if inverse of the time jacobian needs to be evaluated
+            // if inverse of the time Jacobian needs to be evaluated
             if( mInvTimeJacEval )
             {
-                // evaluate the inverse of the time jacobian
+                // evaluate the inverse of the time Jacobian
                 this->eval_inverse_time_jacobian();
 
                 // set bool for evaluation
@@ -641,52 +695,73 @@ namespace moris
 
         void Geometry_Interpolator::eval_inverse_time_jacobian()
         {
-            // compute the Jacobian
-            mInvTimeJac = inv( this->time_jacobian() );
+            // compute inverse the time Jacobian
+            (this->*mInvTimeJacFunc)();
+        }
+
+        void Geometry_Interpolator::eval_inverse_time_jacobian_1d()
+        {
+            mInvTimeJac = inv ( this->time_jacobian() );
+        }
+
+        void Geometry_Interpolator::eval_inverse_time_jacobian_2d()
+        {
+            mInvTimeJac = inv ( this->time_jacobian() );
+        }
+
+        void Geometry_Interpolator::eval_inverse_time_jacobian_3d()
+        {
+            mInvTimeJac = inv ( this->time_jacobian() );
         }
 
         //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::det_J()
         {
-            // get the space jacobian
-            const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
-
-            // get the time Jacobian
-            const Matrix< DDRMat > & tTimeJt = this->time_jacobian();
-
-            // compute detJ for space
-            real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
-
-            // compute detJ for time
-            real detJTime  = ( this->*mTimeDetJFunc )( tTimeJt );
-
             // compute the determinant of the space time Jacobian
-            return detJSpace * detJTime;
+            return this->space_det_J() * this->time_det_J();
         }
 
-        real Geometry_Interpolator::space_det_J()
+        //------------------------------------------------------------------------------
+
+        const real & Geometry_Interpolator::space_det_J()
         {
-            // get the space jacobian
-            const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
+            // if determinant of space Jacobian needs to be evaluated
+            if( mSpaceDetJEval )
+            {
+                // get the space Jacobian
+                const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
 
-            // compute detJ for space
-            real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
+                // compute detJ for space
+                mSpaceDetJ = ( this->*mSpaceDetJFunc )( tSpaceJt );
 
-            // compute the determinant of the space time Jacobian
-            return detJSpace;
+                // set bool for evaluation
+                mSpaceDetJEval = false;
+            }
+
+            // return member value
+            return mSpaceDetJ;
         }
 
-        real Geometry_Interpolator::time_det_J()
+        //------------------------------------------------------------------------------
+
+        const real & Geometry_Interpolator::time_det_J()
         {
-            // get the time Jacobian
-            const Matrix< DDRMat > & tTimeJt = this->time_jacobian();
+            // if determinant of time Jacobian needs to be evaluated
+            if( mTimeDetJEval )
+            {
+                // get the space Jacobian
+                const Matrix< DDRMat > & tTimeJt = this->time_jacobian();
 
-            // compute detJ for time
-            real detJTime  = ( this->*mTimeDetJFunc )( tTimeJt );
+                // compute detJ for space
+                mTimeDetJ = ( this->*mTimeDetJFunc )( tTimeJt );
 
-            // compute the determinant of the space time Jacobian
-            return detJTime;
+                // set bool for evaluation
+                mTimeDetJEval = false;
+            }
+
+            // return member value
+            return mTimeDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -716,11 +791,24 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
-        real Geometry_Interpolator::eval_space_detJ_bulk_line_quad_hex(
+        real Geometry_Interpolator::eval_space_detJ_bulk_line(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return det( aSpaceJt );
+            return det(aSpaceJt);
+        }
+
+        real Geometry_Interpolator::eval_space_detJ_bulk_quad(
+                const Matrix< DDRMat > & aSpaceJt )
+        {
+            return aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0);
+        }
+
+        real Geometry_Interpolator::eval_space_detJ_bulk_hex(
+                const Matrix< DDRMat > & aSpaceJt )
+        {
+            return +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(2,1)*aSpaceJt(1,2))
+                   -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
+                   +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0));
         }
 
         //------------------------------------------------------------------------------
@@ -728,6 +816,7 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_bulk_tri(
                 const Matrix< DDRMat > & aSpaceJt )
         {
+            // FIXME: should be worked out for different parametric dimensions
             Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
 
             tSpaceJt2( { 1, mNumSpaceParamDim - 1 },{ 0, mNumSpaceParamDim - 1 } ) =
@@ -741,6 +830,7 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_bulk_tet(
                 const Matrix< DDRMat > & aSpaceJt )
         {
+            // FIXME: should be worked out for different parametric dimensions
             Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
 
             tSpaceJt2( { 1, mNumSpaceParamDim - 1 }, { 0, mNumSpaceParamDim - 1 } ) =
@@ -905,7 +995,7 @@ namespace moris
                 Matrix< DDRMat > tdNdXi;
                 mSpaceInterpolation->eval_dNdXi( aParamCoordinates, tdNdXi );
 
-                // compute jacobian
+                // compute Jacobian
                 Matrix< DDRMat > tJ = trans( tdNdXi * mXHat );
 
                 // solve
@@ -1528,18 +1618,21 @@ namespace moris
             {
                 case 1 :
                 {
+                    mInvSpaceJacFunc              =  &Geometry_Interpolator::eval_inverse_space_jacobian_1d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
                     break;
                 }
                 case 2 :
                 {
+                    mInvSpaceJacFunc              =  &Geometry_Interpolator::eval_inverse_space_jacobian_2d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
                     break;
                 }
                 case 3 :
                 {
+                    mInvSpaceJacFunc              =  &Geometry_Interpolator::eval_inverse_space_jacobian_3d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                     break;
@@ -1557,16 +1650,19 @@ namespace moris
             {
                 case 1 :
                 {
+                    mInvTimeJacFunc               = &Geometry_Interpolator::eval_inverse_time_jacobian_1d;
                     mSecondDerivativeMatricesTime = this->eval_matrices_for_second_derivative_1d;
                     break;
                 }
                 case 2 :
                 {
+                    mInvTimeJacFunc               = &Geometry_Interpolator::eval_inverse_time_jacobian_2d;
                     mSecondDerivativeMatricesTime = this->eval_matrices_for_second_derivative_2d;
                     break;
                 }
                 case 3 :
                 {
+                    mInvTimeJacFunc               = &Geometry_Interpolator::eval_inverse_time_jacobian_3d;
                     mSecondDerivativeMatricesTime = this->eval_matrices_for_second_derivative_3d;
                     break;
                 }
@@ -1610,10 +1706,18 @@ namespace moris
                 switch( mGeometryType )
                 {
                     case mtk::Geometry_Type::LINE :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_line;
+                        break;
+                    }
                     case mtk::Geometry_Type::QUAD :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_quad;
+                        break;
+                    }
                     case mtk::Geometry_Type::HEX :
                     {
-                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_line_quad_hex;
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_hex;
                         break;
                     }
 
