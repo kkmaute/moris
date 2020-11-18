@@ -191,8 +191,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
                 tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tGlobalSideIntegPoint;
-                tSideGeoInterp.map_integration_point( tGlobalSideIntegPoint );
+                const Matrix< DDRMat > & tGlobalSideIntegPoint = tSideGeoInterp.map_integration_point();
 
                 // evaluate surfDetJ
                 real tSurfDetJ = tSideGeoInterp.det_J();
@@ -449,8 +448,7 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
                 tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tGlobalIntegPoint;
-                tSideGeoInterp.map_integration_point( tGlobalIntegPoint );
+                const Matrix< DDRMat > & tGlobalIntegPoint = tSideGeoInterp.map_integration_point();
 
                 // evaluate surfDetJ and normal
                 real tSurfDetJ = tSideGeoInterp.det_J();
@@ -676,8 +674,7 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
                  tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
 
                  // get the treated integration point location in the volume ref space
-                 Matrix< DDRMat > tGlobalSideIntegPoint;
-                 tSideGeoInterp.map_integration_point( tGlobalSideIntegPoint );
+                 const Matrix< DDRMat > & tGlobalSideIntegPoint = tSideGeoInterp.map_integration_point();
 
                  // evaluate surfDetJ
                  real tSurfDetJ = tSideGeoInterp.det_J();
@@ -853,8 +850,7 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
                 tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tGlobalSideIntegPoint;
-                tSideGeoInterp.map_integration_point( tGlobalSideIntegPoint );
+                const Matrix< DDRMat > & tGlobalSideIntegPoint = tSideGeoInterp.map_integration_point();
 
                 // evaluate surfDetJ
                 real tSurfDetJ = tSideGeoInterp.det_J();
