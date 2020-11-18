@@ -38,7 +38,7 @@ namespace moris
 
                 // Level set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
-                mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
+                mIsocontourTolerance(aParameterLists(0)(0).get<real>("isocontour_tolerance")),
 
                 // ADVs/IQIs
                 mADVs(aParameterLists(0)(0).get<sint>("advs_size")
@@ -108,9 +108,9 @@ namespace moris
                 mtk::Interpolation_Mesh*          aMesh,
                 Matrix<DDRMat>                    aADVs,
                 real                              aIsocontourThreshold,
-                real                              aErrorFactor)
+                real                              aIsocontourTolerance)
                 : mIsocontourThreshold(aIsocontourThreshold),
-                  mErrorFactor(aErrorFactor),
+                  mIsocontourTolerance(aIsocontourTolerance),
                   mADVs(aADVs),
                   mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
@@ -330,7 +330,8 @@ namespace moris
                         aFirstNodeCoordinates,
                         aSecondNodeCoordinates,
                         mGeometries(mActiveGeometryIndex),
-                        mIsocontourThreshold);
+                        mIsocontourThreshold,
+                        mIsocontourTolerance);
             }
 
             return tEdgeIsIntersected;
