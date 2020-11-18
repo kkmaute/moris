@@ -691,9 +691,6 @@ namespace moris
                  */
                 void set_function_pointers();
 
-                const Matrix< DDRMat > & eval_mapping();
-                const Matrix< DDRMat > & return_mapping();
-
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate space detJ
