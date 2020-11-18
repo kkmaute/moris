@@ -56,11 +56,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         mtk::Geometry_Type tGeoTypeIG = mtk::Geometry_Type::QUAD;
 
         // define a QUAD4 integration element, i.e. space param coordinates xiHat
-        Matrix< DDRMat > tXiHatIG  = {{ -1.0, -1.0 }, {  0.0, -1.0 }, {  0.0,  1.0 }, { -1.0,  1.0 }};
+        Matrix< DDRMat > tXiHatIG  = {{ -1.0, -1.0 }, { 1.0, -1.0 }, { 1.0, 1.0 }, { -1.0, 1.0 }};
+
         Matrix< DDRMat > tTauHatIG = {{-1.0}, {1.0}, {0.0}};
 
         // the QUAD4 integration element in space physical coordinates xHat
-        Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0 }, { 0.5, 0.0 }, { 0.5, 1.0 }, { 0.0, 1.0 }};
+        Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 } };
         Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
         // integration mesh interpolation rule
@@ -153,12 +154,16 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             for( uint i = 0; i < tNumTimeBases; i++ )
             {
                 // fill the space time parametric coordinates matrix with space coordinates
-                tInterpParamCoords( { 0, tIntegNumParamSpaceDim-1 }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 })
-                    = trans( tXiHatIG );
+                tInterpParamCoords(
+                        { 0, tIntegNumParamSpaceDim-1 },
+                        { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 }) =
+                                trans( tXiHatIG );
 
                 // fill the space time parametric coordinates matrix with time coordinates
-                tInterpParamCoords( { tIntegNumParamSpaceDim, tIntegNumParamSpaceDim }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 })
-                    = tTimeParamCoords( i ) * tOnes;
+                tInterpParamCoords(
+                        { tIntegNumParamSpaceDim, tIntegNumParamSpaceDim },
+                        { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 }) =
+                                tTimeParamCoords( i ) * tOnes;
              }
 
             // compute the parametric coordinates of the SideParamPoint in the parent reference element
@@ -205,12 +210,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         REQUIRE( tMappedIPCheck );
 
         // check the surface value
-        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 0.5 ) < tEpsilon );
+        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 1.0 ) < tEpsilon );
         //std::cout<<tSurface<<std::endl;
         REQUIRE( tSurfaceCheck );
 
         // check the surface value
-        tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 0.5 ) < tEpsilon );
+        tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 1.0 ) < tEpsilon );
         //std::cout<<tSurface2<<std::endl;
         REQUIRE( tSurfaceCheck2 );
 
@@ -490,17 +495,23 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         mtk::Geometry_Type tGeoTypeIG = mtk::Geometry_Type::HEX;
 
         // define a HEX8 integration element, i.e. space param coordinates xiHat
-        Matrix< DDRMat > tXiHatIG = {{ -1.0, -1.0, -1.0 }, {  0.0, -1.0, -1.0 },
-                                     {  0.0,  1.0, -1.0 }, { -1.0,  1.0, -1.0 },
-                                     { -1.0, -1.0,  1.0 }, {  0.0, -1.0,  1.0 },
-                                     {  0.0,  1.0,  1.0 }, { -1.0,  1.0,  1.0 }};
+        Matrix< DDRMat > tXiHatIG = {
+                { -1.0, -1.0, -1.0 }, {  1.0, -1.0, -1.0 },
+                {  1.0,  1.0, -1.0 }, { -1.0,  1.0, -1.0 },
+                { -1.0, -1.0,  1.0 }, {  1.0, -1.0,  1.0 },
+                {  1.0,  1.0,  1.0 }, { -1.0,  1.0,  1.0 }};
         Matrix< DDRMat > tTauHatIG = {{-1.0}, {1.0}, {0.0}};
 
         // the HEX8 integration element in param  coordinates xiHat, tauHat
-        Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0, 0.0 }, { 0.5, 0.0, 0.0 },
-                                    { 0.5, 1.0, 0.0 }, { 0.0, 1.0, 0.0 },
-                                    { 0.0, 0.0, 1.0 }, { 0.5, 0.0, 1.0 },
-                                    { 0.5, 1.0, 1.0 }, { 0.0, 1.0, 1.0 }};
+        Matrix< DDRMat > tXHatIG  {
+            { 0.0, 0.0, 0.0 },
+                { 1.0, 0.0, 0.0 },
+                { 1.0, 1.0, 0.0 },
+                { 0.0, 1.0, 0.0 },
+                { 0.0, 0.0, 1.0 },
+                { 1.0, 0.0, 1.0 },
+                { 1.0, 1.0, 1.0 },
+                { 0.0, 1.0, 1.0 }};
         Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
         // integration mesh interpolation rule
@@ -594,12 +605,16 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             for( uint i = 0; i < tNumTimeBases; i++ )
             {
                 // fill the space time parametric coordinates matrix with space coordinates
-                tInterpParamCoords( { 0, tIntegNumParamSpaceDim-1 }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 })
-                    = trans( tXiHatIG );
+                tInterpParamCoords(
+                        { 0, tIntegNumParamSpaceDim-1 },
+                        { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 }) =
+                                trans( tXiHatIG );
 
                 // fill the space time parametric coordinates matrix with time coordinates
-                tInterpParamCoords( { tIntegNumParamSpaceDim, tIntegNumParamSpaceDim }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 })
-                    = tTimeParamCoords( i ) * tOnes;
+                tInterpParamCoords(
+                        { tIntegNumParamSpaceDim, tIntegNumParamSpaceDim },
+                        { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases-1 }) =
+                                tTimeParamCoords( i ) * tOnes;
              }
 
             // compute the parametric coordinates of the SideParamPoint in the parent reference element
@@ -645,12 +660,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         REQUIRE( tMappedIPCheck );
 
         // check the surface value
-        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 0.5 ) < tEpsilon );
+        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 1.0 ) < tEpsilon );
         //std::cout<<tSurface<<std::endl;
         REQUIRE( tSurfaceCheck );
 
         // check the surface value
-        tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 0.5 ) < tEpsilon );
+        tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 1.0 ) < tEpsilon );
         //std::cout<<tSurface2<<std::endl;
         REQUIRE( tSurfaceCheck2 );
 
