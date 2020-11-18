@@ -331,8 +331,6 @@ namespace moris
             mIGGeometryInterpolator->set_space_time( aLocalParamPoint );
 
             // bring evaluation point in the IP param space
-//            Matrix< DDRMat > tGlobalParamPoint;
-//            mIGGeometryInterpolator->map_integration_point( tGlobalParamPoint );
             const Matrix< DDRMat > & tGlobalParamPoint =
                     mIGGeometryInterpolator->map_integration_point();
 
