@@ -97,6 +97,8 @@ namespace moris
                     m_eval_teststrain   = &CM_Struc_Linear_Isotropic::eval_teststrain_2d;
                     m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_2d;
 
+                    mStrain.set_size( 3, 1, 0.0 );
+
                     switch( mPlaneType )
                     {
                         case Model_Type::PLANE_STRESS :
@@ -108,11 +110,13 @@ namespace moris
                                 case Model_Type::FULL :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::full_plane_stress;
+                                    mConst.set_size( 3, 3, 0.0 );
                                     break;
                                 }
                                 case Model_Type::DEVIATORIC :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_plane_stress;
+                                    mConst.set_size( 3, 3, 0.0 );
                                     break;
                                 }
                                 default:
@@ -129,11 +133,13 @@ namespace moris
                                 case Model_Type::FULL :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::full_plane_strain;
+                                    mConst.set_size( 4, 3, 0.0 );
                                     break;
                                 }
                                 case Model_Type::DEVIATORIC :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_plane_strain;
+                                    mConst.set_size( 4, 3, 0.0 );
                                     break;
                                 }
                                 default:
@@ -156,16 +162,21 @@ namespace moris
                     m_eval_teststrain   = &CM_Struc_Linear_Isotropic::eval_teststrain_3d;
                     m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_3d;
 
+                    mStrain.set_size( 6, 1, 0.0 );
+
+
                     switch(mTensorType)
                     {
                         case Model_Type::FULL :
                         {
                             mConstFunc = &CM_Struc_Linear_Isotropic::full_3d;
+                            mConst.set_size( 6, 6, 0.0 );
                             break;
                         }
                         case Model_Type::DEVIATORIC :
                         {
                             mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_3d;
+                            mConst.set_size( 6, 6, 0.0 );
                             break;
                         }
                         default:
@@ -257,7 +268,7 @@ namespace moris
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->gradx( 1 );
 
             // evaluate the strain
-            mStrain.set_size( 3, 1, 0.0 );
+            mStrain.fill( 0.0 );
             mStrain( 0, 0 ) = tDisplGradx( 0, 0 );
             mStrain( 1, 0 ) = tDisplGradx( 1, 1 );
             mStrain( 2, 0 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
@@ -286,7 +297,7 @@ namespace moris
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->gradx( 1 );
 
             // evaluate the strain
-            mStrain.set_size( 6, 1, 0.0 );
+            mStrain.fill( 0.0 );
             mStrain( 0, 0 ) = tDisplGradx( 0, 0 );
             mStrain( 1, 0 ) = tDisplGradx( 1, 1 );
             mStrain( 2, 0 ) = tDisplGradx( 2, 2 );
@@ -392,14 +403,16 @@ namespace moris
             return tInvBulkModulus;
         }
 
-        void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic( moris::real aNu,
+        void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic(
+                moris::real aNu,
                 moris::real aEMod,
                 moris::real & aInvBulkModulus )
         {
             aInvBulkModulus = 3.0 * ( 1.0 - 2.0 * aNu ) / aEMod;
         }
 
-        void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_plane_stress( moris::real aNu,
+        void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_plane_stress(
+                moris::real aNu,
                 moris::real aEMod,
                 moris::real & aInvBulkModulus )
         {
@@ -721,7 +734,6 @@ namespace moris
                 moris::real aNu )
         {
             moris::real tPre = aEmod / ( 1 - std::pow( aNu, 2 ) );
-            mConst.set_size( 3, 3, 0.0 );
 
             mConst( 0, 0 ) = tPre;
             mConst( 1, 1 ) = tPre;
@@ -737,7 +749,6 @@ namespace moris
                 moris::real aNu )
         {
             moris::real tPre = aEmod / ((1 + aNu) * 2.0);
-            mConst.set_size( 3, 3, 0.0 );
 
             mConst( 0, 0 ) =  tPre;
             mConst( 1, 1 ) =  tPre;
@@ -753,7 +764,6 @@ namespace moris
                 moris::real aNu )
         {
             moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
-            mConst.set_size( 4, 3, 0.0 );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -771,7 +781,6 @@ namespace moris
                 moris::real aNu )
         {
             moris::real tPre = aEmod / (3.0 * (1.0 + aNu ) );
-            mConst.set_size( 4, 3, 0.0 );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;
@@ -789,7 +798,6 @@ namespace moris
                 moris::real aNu )
         {
             moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu );
-            mConst.set_size( 6, 6, 0.0 );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -812,7 +820,6 @@ namespace moris
                 moris::real aNu )
         {
             moris::real tPre = aEmod / ( 3.0 * ( 1.0 + aNu ) );
-            mConst.set_size( 6, 6, 0.0 );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;
