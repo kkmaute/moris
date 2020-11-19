@@ -145,40 +145,6 @@ namespace moris
 
             // create a dof and dv type maps
             this->create_dof_and_dv_type_maps();
-
-            // integration info-------------------------------------------------------------
-            //------------------------------------------------------------------------------
-
-            // set default time integration order
-            mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::LINE;
-            fem::Integration_Order tTimeIntegrationOrder = fem::Integration_Order::BAR_2;
-
-            // if a time set
-            if( mTimeContinuity || mTimeBoundary )
-            {
-                tTimeGeometryType     = mtk::Geometry_Type::POINT;
-                tTimeIntegrationOrder = fem::Integration_Order::POINT;
-            }
-
-            // create an integration rule
-            Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
-                    Integration_Type::GAUSS,
-                    this->get_auto_integration_order(
-                            mElementType,
-                            mIGGeometryType,
-                            mIPSpaceInterpolationOrder ),
-                            tTimeGeometryType,
-                            Integration_Type::GAUSS,
-                            tTimeIntegrationOrder );
-
-            // create an integrator
-            Integrator tIntegrator( tIntegrationRule );
-
-            // get integration points
-            tIntegrator.get_points( mIntegPoints );
-
-            // get integration weights
-            tIntegrator.get_weights( mIntegWeights );
         }
 
         //------------------------------------------------------------------------------
@@ -231,11 +197,6 @@ namespace moris
                 {
                     tIQI->set_set_pointer( this );
                 }
-
-                //            if( !aIsForward )
-                //            {
-                //                this->create_requested_dv_assembly_map();
-                //            }
             }
         }
 
@@ -247,6 +208,9 @@ namespace moris
             {
                 // delete the field interpolator pointers
                 this->delete_pointers();
+
+                // creat integration information
+                this->create_integrator( aModelSolverInterface );
 
                 // create the field interpolators
                 this->create_field_interpolator_managers( aModelSolverInterface );
@@ -288,6 +252,70 @@ namespace moris
                 delete mMasterPreviousFIManager;
                 mMasterPreviousFIManager = nullptr;
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Set::create_integrator( MSI::Model_Solver_Interface * aModelSolverInterface )
+        {
+            // get time levels from model solver interface
+            Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
+            uint tMaxTimeLevels = tTimeLevels.max();
+
+            // init time geometry type
+            mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::UNDEFINED;
+
+            // init time integration order
+            fem::Integration_Order tTimeIntegrationOrder = fem::Integration_Order::UNDEFINED;
+
+            // switch on maximum time level
+            switch ( tMaxTimeLevels )
+            {
+                case 1 :
+                {
+                    tTimeGeometryType     = mtk::Geometry_Type::LINE;
+                    tTimeIntegrationOrder = fem::Integration_Order::BAR_1;
+                    break;
+                }
+                case 2 :
+                {
+                    tTimeGeometryType     = mtk::Geometry_Type::LINE;
+                    tTimeIntegrationOrder = fem::Integration_Order::BAR_2;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Set::create_integrator - only 1 or 2 time levels handled so far.");
+                }
+            }
+
+            // if a time sideset or boundary
+            if( mTimeContinuity || mTimeBoundary )
+            {
+                tTimeGeometryType     = mtk::Geometry_Type::POINT;
+                tTimeIntegrationOrder = fem::Integration_Order::POINT;
+            }
+
+            // create an integration rule
+            Integration_Rule tIntegrationRule(
+                    mIGGeometryType,
+                    Integration_Type::GAUSS,
+                    this->get_auto_integration_order(
+                            mElementType,
+                            mIGGeometryType,
+                            mIPSpaceInterpolationOrder ),
+                            tTimeGeometryType,
+                            Integration_Type::GAUSS,
+                            tTimeIntegrationOrder );
+
+            // create an integrator
+            Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            tIntegrator.get_points( mIntegPoints );
+
+            // get integration weights
+            tIntegrator.get_weights( mIntegWeights );
         }
 
         //------------------------------------------------------------------------------

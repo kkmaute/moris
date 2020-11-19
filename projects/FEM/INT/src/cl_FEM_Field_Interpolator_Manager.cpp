@@ -295,7 +295,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field_Interpolator_Manager::set_space_time( Matrix< DDRMat > & aParamPoint )
+        void Field_Interpolator_Manager::set_space_time(
+                const Matrix< DDRMat > & aParamPoint )
         {
             // loop over the dof field interpolators
             for ( uint iDofFI = 0; iDofFI < mDofTypes.size(); iDofFI++ )
@@ -330,8 +331,8 @@ namespace moris
             mIGGeometryInterpolator->set_space_time( aLocalParamPoint );
 
             // bring evaluation point in the IP param space
-            Matrix< DDRMat > tGlobalParamPoint;
-            mIGGeometryInterpolator->map_integration_point( tGlobalParamPoint );
+            const Matrix< DDRMat > & tGlobalParamPoint =
+                    mIGGeometryInterpolator->map_integration_point();
 
             // set evaluation point for interpolators (FIs and IP GI)
             this->set_space_time( tGlobalParamPoint );
