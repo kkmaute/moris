@@ -61,6 +61,24 @@ public:
     };
 
     // ---------------------------------------------------------------------------------------------------------------
+
+    void build_dof_translator(
+            const Matrix< IdMat > & aFullMap,
+            const bool aFlag )
+    {
+        MORIS_ERROR( false, "not implemented for petsc yet");
+    };
+
+    // ---------------------------------------------------------------------------------------------------------------
+
+    virtual void translate_ids_to_free_point_ids(
+            const moris::Matrix< IdMat > & tIdsIn,
+                  moris::Matrix< IdMat > & tIdsOut )
+    {
+        MORIS_ERROR( false, "not implemented for petsc yet");
+    };
+
+    // ---------------------------------------------------------------------------------------------------------------
     void print()
     {
         MORIS_ERROR( false, "not implemented yet");

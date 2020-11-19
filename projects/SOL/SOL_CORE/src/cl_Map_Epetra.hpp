@@ -17,14 +17,22 @@
 #include "Epetra_BlockMap.h"
 #include "Epetra_Map.h"
 
+class Epetra_MultiVector;
+
 namespace moris
 {
+    class Solver_Interface;
+
     class Map_Epetra : public sol::Dist_Map
     {
         private:
             Communicator_Epetra      mEpetraComm;
 
             Epetra_Map * mEpetraMap = nullptr;
+//            Epetra_BlockMap * mEpetraMap = nullptr;
+            Epetra_Map * mEpetraPointMap = nullptr;
+
+            Epetra_MultiVector      *mFullToFreePoint = nullptr;
 
             void translator( const moris::uint      & aNumMaxDofs,
                     const moris::uint      & aNumMyDofs,
@@ -55,7 +63,24 @@ namespace moris
             Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
 
             //-------------------------------------------------------------------------------------------------------------
+
+            Epetra_Map * get_epetra_point_map()      { return mEpetraPointMap; };
+            Epetra_Map * get_epetra_point_map() const{ return mEpetraPointMap; };
+
+            //-------------------------------------------------------------------------------------------------------------
             moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            void build_dof_translator(
+                    const Matrix< IdMat > & aFullMap,
+                    const bool aFlag );
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            void translate_ids_to_free_point_ids(
+                    const moris::Matrix< IdMat > & tIdsIn,
+                          moris::Matrix< IdMat > & tIdsOut );
 
             //-------------------------------------------------------------------------------------------------------------
 
