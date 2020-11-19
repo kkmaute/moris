@@ -208,6 +208,12 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * create integrator
+             */
+            void create_integrator( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+            //------------------------------------------------------------------------------
+            /**
              * set visualization mesh set
              * @param[ in ] aVisMeshSet a mesh set pointer for visualization
              */

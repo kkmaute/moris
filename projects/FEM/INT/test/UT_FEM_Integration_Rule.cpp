@@ -92,8 +92,7 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
             tGI.set_space_time( tLocalIntegrationPoint );
 
             // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
+            const Matrix< DDRMat > & tGlobalIntegrationPoint = tGI.map_integration_point();
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
@@ -196,8 +195,7 @@ TEST_CASE("Integration_Rule_QUAD", "[moris],[fem],[Integration_Rule_QUAD]")
             tGI.set_space_time( tLocalIntegrationPoint );
 
             // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
+            const Matrix< DDRMat > & tGlobalIntegrationPoint = tGI.map_integration_point();
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
@@ -304,8 +302,7 @@ TEST_CASE("Integration_Rule_HEX", "[moris],[fem],[Integration_Rule_HEX]")
             tGI.set_space_time( tLocalIntegrationPoint );
 
             // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
+            const Matrix< DDRMat > & tGlobalIntegrationPoint = tGI.map_integration_point();
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
@@ -413,8 +410,7 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
             tGI.set_space_time( tLocalIntegrationPoint );
 
             // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
+            const Matrix< DDRMat > & tGlobalIntegrationPoint = tGI.map_integration_point();
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
@@ -524,8 +520,7 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
             tGI.set_space_time( tLocalIntegrationPoint );
 
             // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
+            const Matrix< DDRMat > & tGlobalIntegrationPoint = tGI.map_integration_point();
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();

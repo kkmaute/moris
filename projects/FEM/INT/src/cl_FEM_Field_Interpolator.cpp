@@ -60,6 +60,12 @@ namespace moris
 
             // get number of coefficients
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
+
+            // init storage size
+            mN.set_size( mNumberOfFields, mNFieldCoeff, 0.0 );
+            mdNdx.set_size( mNSpaceDim, mNFieldBases, 0.0 );
+            mdNdt.set_size( mNTimeDim, mNFieldBases, 0.0 );
+            md2Ndxt.set_size( mNSpaceDim, mNFieldBases, 0.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -97,6 +103,12 @@ namespace moris
 
             // get number of coefficients
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
+
+            // init storage size
+            mN.set_size( mNumberOfFields, mNFieldCoeff, 0.0 );
+            mdNdx.set_size( mNSpaceDim, mNFieldBases, 0.0 );
+            mdNdt.set_size( mNTimeDim, mNFieldBases, 0.0 );
+            md2Ndxt.set_size( mNSpaceDim, mNFieldBases, 0.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -130,7 +142,7 @@ namespace moris
             md2NdxtEval      = true;
             mDivOperatorEval = true;
 
-            mValEval    = true;
+            mValEval         = true;
         }
 
         //------------------------------------------------------------------------------
@@ -265,9 +277,6 @@ namespace moris
 
         void Field_Interpolator::eval_N()
         {
-            // init matrix
-            mN.set_size( mNumberOfFields, mNFieldCoeff, 0.0 );
-
             // loop over the fields
             for( uint iField = 0; iField < mNumberOfFields; iField++ )
             {
@@ -361,14 +370,13 @@ namespace moris
             Matrix < DDRMat > tNTime;
             mTimeInterpolation->eval_N( mTau, tNTime );
 
-            // set size dNFielddx for the field
-            mdNdx.set_size( mNSpaceDim, mNFieldBases, 0.0 );
-
             // build the space time dNFielddXi row by row
             for ( moris::uint Ik = 0; Ik < mNTimeBases; Ik++ )
             {
-                mdNdx( { 0, mNSpaceDim - 1 }, { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
-                        tdNSpacedX * tNTime( Ik );
+                mdNdx(
+                        { 0, mNSpaceDim - 1 },
+                        { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) =
+                                tdNSpacedX * tNTime( Ik );
             }
         }
 
@@ -409,13 +417,14 @@ namespace moris
             // build the space time d2NFielddxi2 row by row
             for ( moris::uint Ik = 0; Ik < mNTimeBases; Ik++ )
             {
-                td2NFielddxi2( { 0, tNumRows - 1 }, { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
-                        td2NSpacedxi2 * tNTime( Ik );
+                td2NFielddxi2(
+                        { 0, tNumRows - 1 },
+                        { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
+                                td2NSpacedxi2 * tNTime( Ik );
             }
 
             //build the second derivatives of the space time SF wrt x
             td2NFielddxi2 -= tKGeot * tdNFielddx;
-
             md2Ndx2 = inv( tLGeot ) * td2NFielddxi2;
         }
 
@@ -460,8 +469,10 @@ namespace moris
             // compute td3NFielddXi3
             for ( moris::uint Ik = 0; Ik < mNTimeBases; Ik++ )
             {
-                td3NFielddxi3( { 0, tNumRows - 1 }, { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } )
-                                += td3NSpacedxi3 * tNTime( Ik );
+                td3NFielddxi3(
+                        { 0, tNumRows - 1 },
+                        { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
+                                td3NSpacedxi3 * tNTime( Ik );
             }
 
             // build the third derivatives of the space time SF wrt x
@@ -537,14 +548,13 @@ namespace moris
             Matrix < DDRMat > tNSpace;
             mSpaceInterpolation->eval_N( mXi, tNSpace );
 
-            // set size tdNFielddt for the field
-            mdNdt.set_size( mNTimeDim, mNFieldBases, 0.0 );
-
             // build the space time dNdTau row by row
             for ( moris::uint Ik = 0; Ik < mNTimeBases; Ik++ )
             {
-                mdNdt( { 0, mNTimeDim - 1 }, { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
-                        tNSpace * tdNTimedt( Ik );
+                mdNdt(
+                        { 0, mNTimeDim - 1 },
+                        { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) =
+                                tNSpace * tdNTimedt( Ik );
             }
         }
 
@@ -585,8 +595,10 @@ namespace moris
             // compute second derivatives of the space time SF wrt tau row by row
             for ( uint Ik = 0; Ik < mNTimeBases; Ik++ )
             {
-                td2NFielddtau2( { 0, mNTimeDim - 1 }, { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
-                        tNSpace * td2NTimedtau2( Ik );
+                td2NFielddtau2(
+                        { 0, mNTimeDim - 1 },
+                        { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
+                                tNSpace * td2NTimedtau2( Ik );
             }
 
             // build the second derivatives of the space time SF wrt t
@@ -641,14 +653,13 @@ namespace moris
             // compute first derivative of the space shape function wrt x
             Matrix< DDRMat > tdNSpacedX = tInvJGeoSpacet * tdNSpacedXi;
 
-            // set size md2Ndxt for the field
-            md2Ndxt.set_size( mNSpaceDim, mNFieldBases, 0.0 );
-
             // build the space time d2Ndxt
             for( moris::uint Ik = 0; Ik < mNTimeBases; Ik++ )
             {
-                md2Ndxt( { 0, mNSpaceDim - 1 }, { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) +=
-                        tdNSpacedX * tdNTimedT( Ik );
+                md2Ndxt(
+                        { 0, mNSpaceDim - 1 },
+                        { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) =
+                                tdNSpacedX * tdNTimedT( Ik );
             }
         }
 

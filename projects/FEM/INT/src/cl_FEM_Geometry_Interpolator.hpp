@@ -117,6 +117,11 @@ namespace moris
                 Matrix< DDRMat > mTimeJac;
                 Matrix< DDRMat > mInvTimeJac;
 
+                Matrix< DDRMat > mMappedPoint;
+
+                // flag for mapping evaluation point
+                bool mMapFlag = false;
+
                 // pointer to function for space detJ
                 real ( Geometry_Interpolator:: * mSpaceDetJFunc )(
                         const Matrix< DDRMat > & aSpaceJt ) = nullptr;
@@ -665,7 +670,7 @@ namespace moris
                  * map an integration point from local param coords to global param coords
                  * @param[ in ] aGlobalParamPoint param coords in global parametric space
                  */
-                void map_integration_point( Matrix< DDRMat > & aGlobalParamPoint );
+                const Matrix< DDRMat > & map_integration_point();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -697,8 +702,10 @@ namespace moris
                 real eval_space_detJ_bulk_line( const Matrix< DDRMat > & aSpaceJt );
                 real eval_space_detJ_bulk_quad( const Matrix< DDRMat > & aSpaceJt );
                 real eval_space_detJ_bulk_hex ( const Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_bulk_tri ( const Matrix< DDRMat > & aSpaceJt );
-                real eval_space_detJ_bulk_tet ( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri_param_2( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri_param_3( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet_param_3( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet_param_4( const Matrix< DDRMat > & aSpaceJt );
 
                 //------------------------------------------------------------------------------
                 /**

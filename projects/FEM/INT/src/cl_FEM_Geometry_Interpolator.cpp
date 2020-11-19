@@ -249,6 +249,12 @@ namespace moris
             mXiLocal  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
             mTauLocal = aParamPoint( mNumSpaceParamDim );
 
+            // if no mapping required
+            if( !mMapFlag )
+            {
+                mMappedPoint = aParamPoint;
+            }
+
             // reset bool for evaluation
             this->reset_eval_flags();
             this->reset_eval_flags_coordinates();
@@ -273,6 +279,13 @@ namespace moris
             // set input values
             mXiLocal  = aSpaceParamPoint;
 
+            // if no mapping required
+            if( !mMapFlag )
+            {
+                mMappedPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } ) =
+                        aSpaceParamPoint.matrix_data();
+            }
+
             // reset bool for evaluation
             this->reset_eval_flags();
             this->reset_eval_flags_coordinates();
@@ -296,6 +309,12 @@ namespace moris
 
             // set input values
             mTauLocal  = aTimeParamPoint;
+
+            // if no mapping required
+            if( !mMapFlag )
+            {
+                mMappedPoint( mNumSpaceParamDim ) = aTimeParamPoint( 0 );
+            }
 
             // reset bool for evaluation
             this->reset_eval_flags();
@@ -588,7 +607,7 @@ namespace moris
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
 
-            MORIS_ASSERT(tInvDet > 1e-18," space determinate close to zero.\n");
+            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
 
             // compute inverse
             mInvSpaceJac.set_size(2,2);
@@ -607,7 +626,7 @@ namespace moris
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
 
-            MORIS_ASSERT(tInvDet > 1e-18," space determinate close to zero.\n");
+            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
 
             // compute inverse
             mInvSpaceJac.set_size(3,3);
@@ -791,6 +810,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real Geometry_Interpolator::eval_space_detJ_bulk_line(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -813,30 +833,54 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::eval_space_detJ_bulk_tri(
+        real Geometry_Interpolator::eval_space_detJ_bulk_tri_param_2(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            // FIXME: should be worked out for different parametric dimensions
-            Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
+            return (aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0))/ 2.0;
+        }
 
-            tSpaceJt2( { 1, mNumSpaceParamDim - 1 },{ 0, mNumSpaceParamDim - 1 } ) =
-                    trans( aSpaceJt );
-
-            return det( tSpaceJt2 ) / 2.0;
+        real Geometry_Interpolator::eval_space_detJ_bulk_tri_param_3(
+                const Matrix< DDRMat > & aSpaceJt )
+        {
+            return (+(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0))
+                    -(aSpaceJt(0,0)*aSpaceJt(2,1)-aSpaceJt(0,1)*aSpaceJt(2,0))
+                    +(aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0))) / 2.0;
         }
 
         //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::eval_space_detJ_bulk_tet(
+        real Geometry_Interpolator::eval_space_detJ_bulk_tet_param_3(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            // FIXME: should be worked out for different parametric dimensions
-            Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
+            return (+aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(2,1)*aSpaceJt(1,2))
+                    -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
+                    +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0))) / 6.0;
+        }
 
-            tSpaceJt2( { 1, mNumSpaceParamDim - 1 }, { 0, mNumSpaceParamDim - 1 } ) =
-                    trans( aSpaceJt );
+        real Geometry_Interpolator::eval_space_detJ_bulk_tet_param_4(
+                const Matrix< DDRMat > & aSpaceJt )
+        {
+            real tSubDet1 =
+                    +aSpaceJt(1,0)*(aSpaceJt(2,1)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,1))
+                    -aSpaceJt(1,1)*(aSpaceJt(2,0)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,0))
+                    +aSpaceJt(1,2)*(aSpaceJt(2,0)*aSpaceJt(3,1)-aSpaceJt(2,1)*aSpaceJt(3,0));
 
-            return det( tSpaceJt2 ) / 6.0;
+            real tSubDet2 =
+                    +aSpaceJt(0,0)*(aSpaceJt(2,1)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,1))
+                    -aSpaceJt(0,1)*(aSpaceJt(2,0)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,0))
+                    +aSpaceJt(0,2)*(aSpaceJt(2,0)*aSpaceJt(3,1)-aSpaceJt(2,1)*aSpaceJt(3,0));
+
+            real tSubDet3 =
+                    +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(3,2)-aSpaceJt(1,2)*aSpaceJt(3,1))
+                    -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(3,2)-aSpaceJt(1,2)*aSpaceJt(3,0))
+                    +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(3,1)-aSpaceJt(1,1)*aSpaceJt(3,0));
+
+            real tSubDet4 =
+                    +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,1))
+                    -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
+                    +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0));
+
+            return ( tSubDet1 - tSubDet2 + tSubDet3 - tSubDet4 ) / 6.0;
         }
 
         //------------------------------------------------------------------------------
@@ -940,23 +984,27 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::map_integration_point(
-                Matrix< DDRMat > & aGlobalParamPoint )
+        const Matrix< DDRMat > & Geometry_Interpolator::map_integration_point()
         {
-            // check that mXiHat and mTauHat are set
-            MORIS_ASSERT( mXiHat.numel() > 0,
-                    "Geometry_Interpolator::map_integration_point - mXiHat is not set." );
-            MORIS_ASSERT( mTauHat.numel() > 0,
-                    "Geometry_Interpolator::map_integration_point - mTauHat is not set." );
+            // if eval mapping
+            if( mMapFlag )
+            {
+                // check that mXiHat and mTauHat are set
+                MORIS_ASSERT( mXiHat.numel() > 0,
+                        "Geometry_Interpolator::eval_mapping - mXiHat is not set." );
+                MORIS_ASSERT( mTauHat.numel() > 0,
+                        "Geometry_Interpolator::eval_mapping - mTauHat is not set." );
 
-            // evaluate the coords of the mapped param point
-            uint tNumSpaceCoords = mXiHat.n_cols();
+                uint tSize = mXiHat.n_cols();
 
-            aGlobalParamPoint.set_size( tNumSpaceCoords + 1, 1 );
+                // set mapped space coordinates
+                mMappedPoint( { 0, tSize - 1 } ) = trans( this->NXi() * mXiHat );
 
-            aGlobalParamPoint( { 0, tNumSpaceCoords - 1 } ) = trans( this->NXi()  * mXiHat );
+                // set mapped time coordinates
+                mMappedPoint( tSize ) = dot( this->NTau(), mTauHat );
+            }
 
-            aGlobalParamPoint( tNumSpaceCoords ) = dot( this->NTau(), mTauHat );
+            return mMappedPoint;
         }
 
         //------------------------------------------------------------------------------
@@ -1121,12 +1169,10 @@ namespace moris
                 const Matrix< DDRMat > & aXHat )
         {
             // first help matrix
-            aJ3at.set_size( 1, 1 );
-            aJ3at( 0, 0 ) = std::pow( aJt( 0, 0 ), 3 );
+            aJ3at.set_size( 1, 1, std::pow( aJt( 0, 0 ), 3 ) );
 
             // second help matrix
-            aJ3bt.set_size( 1, 1 );
-            aJ3bt( 0, 0 ) = 3 * aJ2bt( 0, 0 ) * aJt( 0, 0 );
+            aJ3bt.set_size( 1, 1, 3 * aJ2bt( 0, 0 ) * aJt( 0, 0 ) );
 
             // third help matrix
             aJ3ct = ad3NdXi3 * aXHat;
@@ -1618,21 +1664,21 @@ namespace moris
             {
                 case 1 :
                 {
-                    mInvSpaceJacFunc              =  &Geometry_Interpolator::eval_inverse_space_jacobian_1d;
+                    mInvSpaceJacFunc               =  &Geometry_Interpolator::eval_inverse_space_jacobian_1d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
                     break;
                 }
                 case 2 :
                 {
-                    mInvSpaceJacFunc              =  &Geometry_Interpolator::eval_inverse_space_jacobian_2d;
+                    mInvSpaceJacFunc               =  &Geometry_Interpolator::eval_inverse_space_jacobian_2d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
                     break;
                 }
                 case 3 :
                 {
-                    mInvSpaceJacFunc              =  &Geometry_Interpolator::eval_inverse_space_jacobian_3d;
+                    mInvSpaceJacFunc               =  &Geometry_Interpolator::eval_inverse_space_jacobian_3d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                     break;
@@ -1640,7 +1686,6 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - unknown number of dimensions. " );
-                    break;
                 }
             }
 
@@ -1681,18 +1726,30 @@ namespace moris
                     {
                         mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_side_line;
                         mNormalFunc    = &Geometry_Interpolator::eval_normal_side_line;
+
+                        // set size for storage
+                        mMapFlag = true;
+                        mMappedPoint.set_size( 3, 1, 0.0 );
                         break;
                     }
                     case mtk::Geometry_Type::TRI :
                     {
                         mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_side_tri;
                         mNormalFunc    = &Geometry_Interpolator::eval_normal_side_tri;
+
+                        // set size for storage
+                        mMapFlag = true;
+                        mMappedPoint.set_size( 4, 1, 0.0 );
                         break;
                     }
                     case mtk::Geometry_Type::QUAD :
                     {
                         mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_side_quad;
                         mNormalFunc    = &Geometry_Interpolator::eval_normal_side_quad;
+
+                        // set size for storage
+                        mMapFlag = true;
+                        mMappedPoint.set_size( 4, 1, 0.0 );
                         break;
                     }
                     default :
@@ -1708,28 +1765,65 @@ namespace moris
                     case mtk::Geometry_Type::LINE :
                     {
                         mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_line;
+
+                        // set size for storage
+                        mMappedPoint.set_size( 2, 1, 0.0 );
                         break;
                     }
+
                     case mtk::Geometry_Type::QUAD :
                     {
                         mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_quad;
+
+                        // set size for storage
+                        mMappedPoint.set_size( 3, 1, 0.0 );
                         break;
                     }
+
                     case mtk::Geometry_Type::HEX :
                     {
                         mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_hex;
+
+                        // set size for storage
+                        mMappedPoint.set_size( 4, 1, 0.0 );
                         break;
                     }
 
                     case mtk::Geometry_Type::TRI :
                     {
-                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tri;
+                        switch( mNumSpaceParamDim )
+                        {
+                            case 2 :
+                                mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tri_param_2;
+                                break;
+                            case 3 :
+                                mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tri_param_3;
+                                break;
+                            default :
+                                MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                        }
+                        // set size for storage
+                        mMapFlag = true;
+                        mMappedPoint.set_size( 3, 1, 0.0 );
                         break;
                     }
 
                     case mtk::Geometry_Type::TET :
                     {
-                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tet;
+                        switch( mNumSpaceParamDim )
+                        {
+                            case 3 :
+                                mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tet_param_3;
+                                break;
+                            case 4 :
+                                mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tet_param_4;
+                                break;
+                            default :
+                                MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - Parametric space dimensions can only be 3 or 4." );
+                        }
+                        // set size for storage
+                        mMapFlag = true;
+                        mMappedPoint.set_size( 4, 1, 0.0 );
                         break;
                     }
 
