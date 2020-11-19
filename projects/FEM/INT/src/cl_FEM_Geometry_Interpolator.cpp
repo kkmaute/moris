@@ -607,7 +607,7 @@ namespace moris
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
 
-            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
+            MORIS_ASSERT(tInvDet < 1e+18," space determinant close to zero.");
 
             // compute inverse
             mInvSpaceJac.set_size(2,2);
@@ -626,7 +626,7 @@ namespace moris
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
 
-            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
+            MORIS_ASSERT(tInvDet < 1e+18," space determinant close to zero.");
 
             // compute inverse
             mInvSpaceJac.set_size(3,3);
