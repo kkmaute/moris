@@ -120,6 +120,8 @@ namespace moris
 
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
 
+
+
     /*
      * Prints communication header to log
      * @param[in]  CommType - Enum for communication type to be documented
@@ -837,6 +839,41 @@ namespace moris
             Cell<Cell<std::string>> & aGatheredCells,
             moris_index aTag,
             moris_index aBaseProc = 0);
+
+    moris::sint
+    gather_value_and_scatter_offset(const sint & aLocalInput)
+    {
+        sint tParOffset=0;
+
+        sint tMyPID = par_rank();
+
+        sint tNumProcs = par_size();
+
+        sint *tAllNumMaster = nullptr, *tAllMasterOffsets = nullptr;
+        // All processes send number of master dof sets to PID=0
+        if ( tMyPID == 0 )
+        {
+            tAllNumMaster    = (int*) alloca(sizeof(int)*tNumProcs);
+            tAllMasterOffsets = (int*) alloca(sizeof(int)*tNumProcs);
+            std::fill(tAllNumMaster, tAllNumMaster + tNumProcs, 0);
+            std::fill(tAllMasterOffsets, tAllMasterOffsets + tNumProcs, 0);
+        }
+
+        sint tNumMyMaster = aLocalInput;
+
+        // All send number of master dof sets to processor 0
+        MPI_Gather( &tNumMyMaster, 1, MPI_INT, tAllNumMaster, 1, MPI_INT, 0, MPI_COMM_WORLD );
+
+        if (tMyPID == 0)
+        {
+            for ( sint Ik = 1; Ik < tNumProcs; ++Ik)
+                tAllMasterOffsets[Ik] = tAllMasterOffsets[Ik-1] + tAllNumMaster[Ik-1];
+        }
+
+        MPI_Scatter( tAllMasterOffsets, 1, MPI_INT, &tParOffset , 1, MPI_INT, 0, MPI_COMM_WORLD );
+
+        return tParOffset;
+    }
 
 }
 

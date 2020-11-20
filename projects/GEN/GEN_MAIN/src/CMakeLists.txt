@@ -46,6 +46,8 @@ set(HEADERS
 	geometry/cl_GEN_Plane.hpp
 	geometry/cl_GEN_Mesh_Field_Geometry.hpp
 	geometry/cl_GEN_User_Defined_Geometry.hpp
+	geometry/cl_GEN_Voxel_Input.hpp
+	geometry/cl_GEN_Single_Grain.hpp
 	geometry/cl_GEN_Level_Set.hpp
 	geometry/cl_GEN_Stored_Geometry.hpp
 	geometry/cl_GEN_Multigeometry.hpp
@@ -127,6 +129,8 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Plane.cpp
 	geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	geometry/cl_GEN_User_Defined_Geometry.cpp
+	geometry/cl_GEN_Voxel_Input.cpp
+	geometry/cl_GEN_Single_Grain.cpp
 	geometry/cl_GEN_Level_Set.cpp
 	geometry/cl_GEN_Stored_Geometry.cpp
 	geometry/cl_GEN_Multigeometry.cpp

@@ -19,6 +19,7 @@ set(HEADERS
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
     cl_DLA_Linear_Solver_Algorithm.hpp
+    cl_DLA_Preconditioner_Trilinos.hpp
     cl_DLA_Geometric_Multigrid.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -38,6 +39,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
     cl_DLA_Solver_Interface.cpp
+    cl_DLA_Preconditioner_Trilinos.cpp
     cl_DLA_Solver_Factory.cpp)
 
 # List library dependencies

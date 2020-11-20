@@ -101,6 +101,21 @@ namespace moris
         }
 
         /**
+         * Same as a geometry parameter list, but forces the user to specify the path to the voxel file
+         *
+         * @return Voxel geometrie parameterlist
+         */
+        ParameterList create_voxel_field_parameter_list()
+        {
+            ParameterList tParameterList = create_geometry_parameter_list();
+
+            tParameterList.set("type", "voxel");             // User-defined geometry
+            tParameterList.insert("voxel_field_file", "");       // voxel file
+
+            return tParameterList;
+        }
+
+        /**
          * Creates a parameter list that will be used to create a swiss cheese slice. The parameters here are different
          * than those of a typical geometry.
          *
