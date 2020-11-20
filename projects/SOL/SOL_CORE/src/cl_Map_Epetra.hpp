@@ -17,46 +17,76 @@
 #include "Epetra_BlockMap.h"
 #include "Epetra_Map.h"
 
+class Epetra_MultiVector;
+
 namespace moris
 {
-class Map_Epetra : public sol::Dist_Map
-{
-private:
-    Communicator_Epetra      mEpetraComm;
+    class Solver_Interface;
 
-    Epetra_Map * mEpetraMap = nullptr;
+    class Map_Epetra : public sol::Dist_Map
+    {
+        private:
+            Communicator_Epetra      mEpetraComm;
 
-    void translator( const moris::uint      & aNumMaxDofs,
-                     const moris::uint      & aNumMyDofs,
-                     const Matrix< DDSMat > & aMyLocaltoGlobalMap,
-                           Matrix< DDSMat > & aMyGlobalConstraintDofs,
-                     const Matrix< DDUMat > & aMyConstraintDofs );
+            Epetra_Map * mEpetraMap = nullptr;
+//            Epetra_BlockMap * mEpetraMap = nullptr;
+            Epetra_Map * mEpetraPointMap = nullptr;
 
-protected:
+            Epetra_MultiVector      *mFullToFreePoint = nullptr;
 
-public:
+            void translator( const moris::uint      & aNumMaxDofs,
+                    const moris::uint      & aNumMyDofs,
+                    const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                    Matrix< DDSMat > & aMyGlobalConstraintDofs,
+                    const Matrix< DDUMat > & aMyConstraintDofs );
 
-//-------------------------------------------------------------------------------------------------------------
+        protected:
 
-    Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
-                const Matrix< DDUMat > & aMyConstraintDofs );
+        public:
 
-//-------------------------------------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------------------------------------
 
-    Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds );
+            Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
+                    const Matrix< DDUMat > & aMyConstraintDofs );
 
-//-------------------------------------------------------------------------------------------------------------
-    /** Destructor */
-    ~Map_Epetra();
+            //-------------------------------------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------------------------------------
+            Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds );
 
-    Epetra_Map * get_epetra_map()      { return mEpetraMap; };
-    Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
+            //-------------------------------------------------------------------------------------------------------------
+            /** Destructor */
+            ~Map_Epetra();
 
-//-------------------------------------------------------------------------------------------------------------
-    moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
-};
+            //-------------------------------------------------------------------------------------------------------------
+
+            Epetra_Map * get_epetra_map()      { return mEpetraMap; };
+            Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            Epetra_Map * get_epetra_point_map()      { return mEpetraPointMap; };
+            Epetra_Map * get_epetra_point_map() const{ return mEpetraPointMap; };
+
+            //-------------------------------------------------------------------------------------------------------------
+            moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            void build_dof_translator(
+                    const Matrix< IdMat > & aFullMap,
+                    const bool aFlag );
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            void translate_ids_to_free_point_ids(
+                    const moris::Matrix< IdMat > & tIdsIn,
+                          moris::Matrix< IdMat > & tIdsOut );
+
+            //-------------------------------------------------------------------------------------------------------------
+
+            void print();
+
+    };
 }
 
 #endif /* SRC_DISTLINALG_CL_MAP_EPETRA_HPP_ */

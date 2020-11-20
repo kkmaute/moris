@@ -89,7 +89,7 @@ void Vector_Epetra::vec_plus_vec(
         const moris::real   & aScaleThis )
 {
     // check if both vectors are build with the same map
-    const Epetra_Map* tMap = aVecA.get_map()->get_epetra_map();
+    const Epetra_BlockMap* tMap = aVecA.get_map()->get_epetra_map();
 
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
@@ -99,7 +99,25 @@ void Vector_Epetra::vec_plus_vec(
     }
     else
     {
-        MORIS_ASSERT( false, "Update option not implemented for vectors with different maps, yet" );
+        mEpetraVector->Scale( aScaleThis );
+
+        sint tNumElements = mEpetraVector->MyLength();
+
+        Matrix< IdMat > tIdMat( tNumElements, 1, MORIS_ID_MAX );
+
+        for( sint Ik = 0; Ik < tNumElements; Ik++)
+        {
+            tIdMat( Ik ) = mMap->get_epetra_map()->GID( Ik );
+        }
+
+        //FIXME adjust for multivector
+        Matrix< DDRMat > tValues;
+        aVecA.extract_copy( tValues );
+
+        this->sum_into_global_values(
+                 tIdMat,
+                 tValues,
+                 0 );
     }
 }
 
@@ -135,7 +153,7 @@ void Vector_Epetra::scale_vector(
 void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
 {
     // check if both vectores have the same map
-    const Epetra_Map* tMap = aSourceVec.get_map()->get_epetra_map();
+    const Epetra_BlockMap* tMap = aSourceVec.get_map()->get_epetra_map();
 
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
