@@ -57,7 +57,7 @@ namespace moris
             Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the selection matrix property
-            std::shared_ptr< Property > tPropSelect =
+            std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -76,15 +76,15 @@ namespace moris
             }
 
             // get the imposed displacement property
-            std::shared_ptr< Property > tPropDirichlet =
+            std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get CM for elasticity
-            std::shared_ptr< Constitutive_Model > tCMElasticity =
+            std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get SP for Nitsche
-            std::shared_ptr< Stabilization_Parameter > tSPNitsche =
+            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute jump
@@ -122,7 +122,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the selection matrix property
-            std::shared_ptr< Property > tPropSelect =
+            std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -141,15 +141,15 @@ namespace moris
             }
 
             // get the imposed displacement property
-            std::shared_ptr< Property > tPropDirichlet =
+            std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get CM for elasticity
-            std::shared_ptr< Constitutive_Model > tCMElasticity =
+            std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get SP for Nitsche
-            std::shared_ptr< Stabilization_Parameter > tSPNitsche =
+            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute jump

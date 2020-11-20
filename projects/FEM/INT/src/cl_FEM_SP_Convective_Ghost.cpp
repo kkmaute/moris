@@ -93,7 +93,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density property
-            std::shared_ptr< Property > tDensityProp =
+            std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get absolute value of u.n
@@ -131,7 +131,7 @@ namespace moris
             real tAbsReal = std::sqrt( tNormalDispl * tNormalDispl + mEpsilon * mEpsilon ) - mEpsilon;
 
             // get the density property
-            std::shared_ptr< Property > tDensityProp =
+            std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // if velocity dof

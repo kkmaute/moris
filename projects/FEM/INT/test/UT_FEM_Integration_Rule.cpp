@@ -91,10 +91,6 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
             // set local integration point
             tGI.set_space_time( tLocalIntegrationPoint );
 
-            // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
-
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
 
@@ -194,10 +190,6 @@ TEST_CASE("Integration_Rule_QUAD", "[moris],[fem],[Integration_Rule_QUAD]")
 
             // set local integration point
             tGI.set_space_time( tLocalIntegrationPoint );
-
-            // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
@@ -303,10 +295,6 @@ TEST_CASE("Integration_Rule_HEX", "[moris],[fem],[Integration_Rule_HEX]")
             // set local integration point
             tGI.set_space_time( tLocalIntegrationPoint );
 
-            // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
-
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
 
@@ -411,10 +399,6 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
 
             // set local integration point
             tGI.set_space_time( tLocalIntegrationPoint );
-
-            // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();
@@ -522,10 +506,6 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
 
             // set local integration point
             tGI.set_space_time( tLocalIntegrationPoint );
-
-            // map integration point
-            Matrix< DDRMat > tGlobalIntegrationPoint;
-            tGI.map_integration_point( tGlobalIntegrationPoint );
 
             // evaluate surfDetJ
             real tSurfDetJ = tGI.det_J();

@@ -84,7 +84,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity =
+            std::shared_ptr< Property > & tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // get the norm of velocity
@@ -149,7 +149,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity =
+            std::shared_ptr< Property > & tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // compute the norm of velocity

@@ -30,10 +30,6 @@ namespace moris
                 MSI::Dof_Type mDofPressure  = MSI::Dof_Type::P;
                 MSI::Dof_Type mDofViscosity = MSI::Dof_Type::VISCOSITY;
 
-//                // default properties
-//                std::shared_ptr< Property > mPropViscosity = nullptr;
-//                std::shared_ptr< Property > mPropDensity   = nullptr;
-//
                 // property type for CM
                 enum class CM_Property_Type
                 {

@@ -614,21 +614,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Sideset::compute_quantity_of_interest_global(
-                const uint          aMeshIndex,
-                const std::string & aQIName )
+                const uint                         aMeshIndex,
+                const moris::Cell< std::string > & aQINames )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
-
-            // get the set local index
-            moris_index tIQISetLocalIndex =
-                    mSet->mIQINameToIndexMap.find( aQIName );
-
-            // get IQI
-            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -647,96 +640,44 @@ namespace moris
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
 
-                // reset the requested IQI
-                tIQI->reset_eval_flags();
+                // loop over IQIs
+                uint tNumIQIs = aQINames.size();
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
+                    {
+                        // get the set local index
+                        moris_index tIQISetLocalIndex =
+                                mSet->mIQINameToIndexMap.find( aQINames( iIQI ) );
 
-                // set the normal for the IWG
-                tIQI->set_normal( tNormal );
+                        // reset the requested IQI
+                        mSet->mIQIs( tIQISetLocalIndex )->reset_eval_flags();
 
-                // compute quantity of interest at evaluation point
-                Matrix< DDRMat > tQIValue;
-                tIQI->compute_QI( tQIValue );
+                        // set the normal for the IWG
+                        mSet->mIQIs( tIQISetLocalIndex )->set_normal( tNormal );
 
-                // FIXME assemble on the set here or inside the compute QI?
-                *( mSet->mSetGlobalValues ) += tQIValue( 0 ) * tWStar;
-            }
-        }
+                        // compute quantity of interest at evaluation point
+                        Matrix< DDRMat > tQIValue;
+                        mSet->mIQIs( tIQISetLocalIndex )->compute_QI( tQIValue );
 
-        //------------------------------------------------------------------------------
-
-        void Element_Sideset::compute_quantity_of_interest_nodal(
-                const uint          aMeshIndex,
-                const std::string & aQIName )
-        {
-            // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator( tSideOrd );
-
-            // get the vertices
-            moris::Cell< mtk::Vertex const * > tVertices =
-                    mMasterCell->get_vertices_on_side_ordinal( tSideOrd );
-
-            // get the set local index
-            moris_index tIQISetLocalIndex =
-                    mSet->mIQINameToIndexMap.find( aQIName );
-
-            // get IQI
-            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
-
-            // loop over the vertices
-            uint tNumNodes = tVertices.size();
-            for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
-            {
-                // get the ith vertex coordinates in the IP param space
-                Matrix< DDRMat > tGlobalIntegPoint = mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ).get_row( iVertex );
-                tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
-                tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = mCluster->mInterpolationElement->get_time()( 0 );
-                tGlobalIntegPoint = trans( tGlobalIntegPoint );
-
-                // set vertex coordinates for field interpolator
-                mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
-
-                // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
-
-                // reset the requested IQI
-                tIQI->reset_eval_flags();
-
-                // set the normal for the IWG
-                tIQI->set_normal( tNormal );
-
-                // compute quantity of interest at evaluation point
-                Matrix< DDRMat > tQIValue;
-                tIQI->compute_QI( tQIValue );
-
-                // FIXME assemble on the set here or inside the compute QI?
-                // FIXME add up on shared node and divide or overwrite
-                (*mSet->mSetNodalValues)( tVertices( iVertex )->get_index(), 0 ) += tQIValue( 0 );
-
-                mSet->mSetNodalCounter( tVertices( iVertex )->get_index(), 0 ) += 1;
+                        // assemble computed QI on the set
+                        ( *( mSet->mSetGlobalValues ) )( iIQI ) += tQIValue( 0 ) * tWStar;
+                    }
+                }
             }
         }
 
         //------------------------------------------------------------------------------
 
         void Element_Sideset::compute_quantity_of_interest_elemental(
-                const uint          aMeshIndex,
-                const std::string & aQIName )
+                const uint                         aMeshIndex,
+                const moris::Cell< std::string > & aQINames )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
-
-            // get the set local index
-            moris_index tIQISetLocalIndex =
-                    mSet->mIQINameToIndexMap.find( aQIName );
-
-            // get IQI
-            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -755,19 +696,31 @@ namespace moris
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
 
-                // reset the requested IQI
-                tIQI->reset_eval_flags();
+                // loop over IQIs
+                uint tNumIQIs = aQINames.size();
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
+                    {
+                        // get the set local index
+                        moris_index tIQISetLocalIndex =
+                                mSet->mIQINameToIndexMap.find( aQINames( iIQI ) );
 
-                // set the normal for the IWG
-                tIQI->set_normal( tNormal );
+                        // reset the requested IQI
+                        mSet->mIQIs( tIQISetLocalIndex )->reset_eval_flags();
 
-                // compute quantity of interest at evaluation point
-                Matrix< DDRMat > tQIValue;
-                tIQI->compute_QI( tQIValue );
+                        // set the normal for the IWG
+                        mSet->mIQIs( tIQISetLocalIndex )->set_normal( tNormal );
 
-                // FIXME assemble on the set here or inside the compute QI?
-                ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 ) +=
-                        tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                        // compute quantity of interest at evaluation point
+                        Matrix< DDRMat > tQIValue;
+                        mSet->mIQIs( tIQISetLocalIndex )->compute_QI( tQIValue );
+
+                        // assemble computed QI on the set
+                        ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), iIQI ) +=
+                                tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                    }
+                }
             }
         }
 

@@ -39,7 +39,7 @@ namespace moris
         void SP_Dirichlet_Nitsche::eval_SP()
         {
             // get the material property
-            std::shared_ptr< Property > tPropMaterial =
+            std::shared_ptr< Property > & tPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // compute stabilization parameter value
@@ -68,7 +68,7 @@ namespace moris
                     0.0 );
 
             // get the material property
-            std::shared_ptr< Property > tPropMaterial =
+            std::shared_ptr< Property > & tPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // if material property depends on the dof type

@@ -56,7 +56,7 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSP =
+            std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
 
             // loop over the interpolation order
@@ -127,7 +127,7 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSP =
+            std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
 
             // get number of master and slave dependencies

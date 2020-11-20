@@ -161,10 +161,6 @@ namespace moris
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
-            // get viscosity property
-            std::shared_ptr< Property > tPropViscosity =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
-
             // evaluate uTilde = u - 1/sigma cb2 gradv
             Matrix< DDRMat > tModVelocity =
                     tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
@@ -331,7 +327,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance =
+            std::shared_ptr< Property > & tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
             // get the viscosity value
@@ -389,7 +385,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance =
+            std::shared_ptr< Property > & tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
             // get the viscosity value
@@ -460,7 +456,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropKinViscosity =
+            std::shared_ptr< Property > & tPropKinViscosity =
                     mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
 
             // get the viscosity value
@@ -509,7 +505,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the fluid  kinematic viscosity property
-            std::shared_ptr< Property > tPropKinViscosity =
+            std::shared_ptr< Property > & tPropKinViscosity =
                     mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
 
             // get the viscosity value
@@ -737,7 +733,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity =
+            std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
 
             // compute chi
@@ -762,7 +758,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity =
+            std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
 
             // compute chi
@@ -890,7 +886,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance =
+            std::shared_ptr< Property > & tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
             // get the wall distance value
@@ -925,7 +921,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance properties
-            std::shared_ptr< Property > tPropWallDistance =
+            std::shared_ptr< Property > & tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
             // get the wall distance value
@@ -1118,7 +1114,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance =
+            std::shared_ptr< Property > & tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
             // get the wall distance value
@@ -1166,7 +1162,7 @@ namespace moris
                         mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
                 // get the wall distance property
-                std::shared_ptr< Property > tPropWallDistance =
+                std::shared_ptr< Property > & tPropWallDistance =
                         mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
                 // get the wall distance value

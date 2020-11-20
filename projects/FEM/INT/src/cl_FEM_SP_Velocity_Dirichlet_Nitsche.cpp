@@ -93,9 +93,9 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity and density property
-            std::shared_ptr< Property > tPropViscosity =
+            std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > tPropDensity   =
+            std::shared_ptr< Property > & tPropDensity   =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute infinity norm of u
@@ -139,11 +139,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity =
+            std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the density property
-            std::shared_ptr< Property > tPropDensity =
+            std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute infinity norm

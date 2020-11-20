@@ -18,10 +18,10 @@ namespace moris
             mdPropdxEval = true;
 
             // reset the property derivatives wrt dof type
-            mPropDofDerEval.set_size( mDofTypes.size(), 1, true );
+            mPropDofDerEval.fill( true );
 
             // reset the property derivatives wrt dv type
-            mPropDvDerEval.set_size( mDvTypes.size(), 1, true );
+            mPropDvDerEval.fill( true );
         }
 
         //------------------------------------------------------------------------------
@@ -67,6 +67,7 @@ namespace moris
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDofTypes( iDof )( 0 ) ) );
             }
+
             tMaxEnum++;
 
             // set the Dof_Type map size
@@ -135,10 +136,12 @@ namespace moris
 
             // determine the max Dv_Type enum
             sint tMaxEnum = 0;
+
             for( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV )( 0 ) ) );
             }
+
             tMaxEnum++;
 
             // set the Dv_Type map size
@@ -168,6 +171,7 @@ namespace moris
                 // bool is set to true
                 tDvDependency = true;
             }
+
             // return bool for dependency
             return tDvDependency;
         }
@@ -254,6 +258,7 @@ namespace moris
                 // set bool for evaluation
                 mPropEval = false;
             }
+
             // return the property value
             return mProp;
         }
@@ -287,6 +292,7 @@ namespace moris
                 // set bool for evaluation
                 mdPropdxEval = false;
             }
+
             // return the property value
             return mdPropdx;
         }

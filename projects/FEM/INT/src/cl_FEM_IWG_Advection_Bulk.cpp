@@ -52,11 +52,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPSUPG =
+            std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form
@@ -98,11 +98,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPSUPG =
+            std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form
@@ -195,7 +195,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             aRT = tCMDiffusion->EnergyDot() +
@@ -222,7 +222,7 @@ namespace moris
             aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // if CM diffusion depends on dof type

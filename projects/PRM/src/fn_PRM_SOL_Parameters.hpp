@@ -43,6 +43,116 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        // P R E C O N I T I O N E R   P A R A M E T E R L I S T //
+
+        void create_ifpack_precondtitioner_parameterlist( ParameterList & aParameterlist )
+        {
+            // ASSIGN DEFAULT PARAMETER VALUES
+            // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662, https://trilinos.github.io/pdfs/IfpackUserGuide.pdf
+
+            // set ifpack preconditioner type
+            // options are ILU, ILUT
+            aParameterlist.insert( "ifpack_prec_type" , "" );
+
+            aParameterlist.insert( "fact: drop tolerance", 1e-9 );
+
+            aParameterlist.insert( "fact: level-of-fill", 1 );
+
+            aParameterlist.insert( "fact: ilut level-of-fill", 1.0 );
+
+            aParameterlist.insert( "fact: absolute threshold" , 0.0 );
+
+            aParameterlist.insert( "fact: relative threshold" ,  1.0 );
+
+            aParameterlist.insert( "fact: relax value" ,  0.0 );
+
+            aParameterlist.insert( "schwarz: combine mode" ,  "Zero" );
+
+            aParameterlist.insert( "schwarz: compute condest" ,  true );
+
+            aParameterlist.insert( "schwarz: filter singletons" ,  false );
+
+            aParameterlist.insert( "schwarz: reordering type" ,  "rcm" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void create_ml_precondtitioner_parameterlist( ParameterList & aParameterlist )
+        {
+            // General Parameters
+
+            // options are SA
+            aParameterlist.insert( "ml_prec_type" , "" );
+
+            aParameterlist.insert( "PDE equations" , 1 );
+            aParameterlist.insert( "ML output" , 0 );
+            aParameterlist.insert( "print unused" , 0 );
+            aParameterlist.insert( "ML print initial list" , -2 );
+            aParameterlist.insert( "ML print final list" , -2 );
+            aParameterlist.insert( "eigen-analysis: type" , "cg" );
+            aParameterlist.insert( "eigen-analysis: iterations" , 10 );
+
+            // Multigrid Cycle Parameters
+            aParameterlist.insert( "cycle applications" , 1 );
+            aParameterlist.insert( "max levels" , 10 );
+            aParameterlist.insert( "increasing or decreasing" , "increasing" );
+            aParameterlist.insert( "prec type" , "MGV" );
+
+            // Aggregation and Prolongator Parameters
+            aParameterlist.insert( "aggregation: type" , "Uncoupled" );
+            aParameterlist.insert( "aggregation: threshold" , 0.0 );
+            aParameterlist.insert( "aggregation: damping factor" , 1.3333333333333333 );
+            aParameterlist.insert( "aggregation: smoothing sweeps" , 1 );
+
+            aParameterlist.insert( "aggregation: use tentative restriction" , false );
+            aParameterlist.insert( "aggregation: symmetrize" , false );
+            aParameterlist.insert( "aggregation: global aggregates" , 1 );
+            aParameterlist.insert( "aggregation: local aggregates" , 1 );
+            aParameterlist.insert( "aggregation: nodes per aggregate" , 512 );
+
+            aParameterlist.insert( "energy minimization: enable" , false );
+            aParameterlist.insert( "energy minimization: type" , 2 );
+            aParameterlist.insert( "energy minimization: droptol" , 0.0 );
+            aParameterlist.insert( "energy minimization: cheap" , false );
+
+            // Smoother Parameters
+            aParameterlist.insert( "smoother: type" , "Chebyshev" );
+            aParameterlist.insert( "smoother: sweeps" , 2 );
+            aParameterlist.insert( "smoother: damping factor" , 1.0 );
+            aParameterlist.insert( "smoother: pre or post" , "both" );
+            aParameterlist.insert( "smoother: Aztec as solver" , false );
+
+            aParameterlist.insert( "smoother: ifpack level-of-fill" , 0.0 );
+            aParameterlist.insert( "smoother: ifpack overlap" , 0 );
+            aParameterlist.insert( "smoother: ifpack absolute threshold" , 0.0 );
+            aParameterlist.insert( "smoother: ifpack relative threshold" , 0.0 );
+
+            // Coarsest Grid Parameters
+            aParameterlist.insert( "coarse: type" , "Amesos-KLU" );
+            aParameterlist.insert( "coarse: max size" , 128 );
+            aParameterlist.insert( "coarse: pre or post" , "post" );
+            aParameterlist.insert( "coarse: sweeps" , 1 );
+            aParameterlist.insert( "coarse: damping factor" , 1.0 );
+
+            // Load-Balancing Parameters
+            aParameterlist.insert( "repartition: enable" , 0 );
+            aParameterlist.insert( "repartition: partitioner" , "Zoltan" );
+
+            // Analysis Parameters
+            aParameterlist.insert( "analyze memory" , false );
+            aParameterlist.insert( "viz: enable" , false );
+            aParameterlist.insert( "viz: output format" , "vtk" );
+            aParameterlist.insert( "viz: print starting solution" , false );
+
+            // Smoothed Aggregation and the Null Space
+            aParameterlist.insert( "null space: type" , "default vectors" );
+            aParameterlist.insert( "null space: dimension" , 1 );
+            //aParameterlist.insert( "null space: vectors" , NULL );
+            aParameterlist.insert( "null space: vectors to compute" , 2 );
+            aParameterlist.insert( "null space: add default vectors" , true );
+        }
+
+        //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
         ParameterList create_linear_algorithm_parameter_list_aztec( )
@@ -196,6 +306,10 @@ namespace moris
 
             // set convergence criteria
             tLinAlgorithmParameterList.insert( "Convergence Tolerance" ,  1e-08 );
+
+            create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+
+            create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -416,16 +530,16 @@ namespace moris
             switch( aSolverType )
             {
                 case ( sol::SolverType::AZTEC_IMPL ):
-                                return create_linear_algorithm_parameter_list_aztec( );
+                                                return create_linear_algorithm_parameter_list_aztec( );
                 break;
                 case ( sol::SolverType::AMESOS_IMPL ):
-                                return create_linear_algorithm_parameter_list_amesos();
+                                                return create_linear_algorithm_parameter_list_amesos();
                 break;
                 case ( sol::SolverType::BELOS_IMPL ):
-                                return create_linear_algorithm_parameter_list_belos();
+                                                return create_linear_algorithm_parameter_list_belos();
                 break;
                 case ( sol::SolverType::PETSC ):
-                                return create_linear_algorithm_parameter_list_petsc( );
+                                                return create_linear_algorithm_parameter_list_petsc( );
                 break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
@@ -459,7 +573,7 @@ namespace moris
         //    return tParameterList;
         //}
 
-        //------------------------------------------------------------------------------
+
 
     }/* end_namespace_prm */
 }/* end_namespace_moris */

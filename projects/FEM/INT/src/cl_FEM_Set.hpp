@@ -208,6 +208,12 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * create integrator
+             */
+            void create_integrator( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+            //------------------------------------------------------------------------------
+            /**
              * set visualization mesh set
              * @param[ in ] aVisMeshSet a mesh set pointer for visualization
              */
@@ -682,20 +688,42 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * compute a quantity of interest
-             * @param[ in ] aElementFieldValues
-             * @param[ in ] aNodelFieldValues
-             * @param[ in ] aGlobalScalar
-             * @param[ in ] aOutputType
-             * @param[ in ] aFieldType
+             * compute a quantity of interest nodal
+             * @param[ in ] aMeshIndex        vis mesh index to define mesh
+             *                                on which values are evaluated
+             * @param[ in ] aNodalFieldValues matrix to fill with nodal values
+             * @param[ in ] aQINames          list of IQI names to be evaluated
              */
-            void compute_quantity_of_interest(
-                    const uint            aMeshIndex,
-                    Matrix< DDRMat >      * aElementFieldValues,
-                    Matrix< DDRMat >      * aNodalFieldValues,
-                    moris::real           * aGlobalScalar,
-                    const std::string     & aQIName,
-                    enum vis::Field_Type    aFieldType );
+            void compute_quantity_of_interest_nodal(
+                    const uint                         aMeshIndex,
+                    Matrix< DDRMat >                 * aNodalFieldValues,
+                    const moris::Cell< std::string > & aQINames );
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute a quantity of interest global
+             * @param[ in ] aMeshIndex         vis mesh index to define mesh
+             *                                 on which values are evaluated
+             * @param[ in ] aGlobalFieldValues matrix to fill with global values
+             * @param[ in ] aQINames           list of IQI names to be evaluated
+             */
+            void compute_quantity_of_interest_global(
+                    const uint                         aMeshIndex,
+                    Matrix< DDRMat >                 * aGlobalFieldValues,
+                    const moris::Cell< std::string > & aQINames );
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute a quantity of interest elemental
+             * @param[ in ] aMeshIndex            vis mesh index to define mesh
+             *                                    on which values are evaluated
+             * @param[ in ] aElementalFieldValues matrix to fill with elemental values
+             * @param[ in ] aQINames              list of IQI names to be evaluated
+             */
+            void compute_quantity_of_interest_elemental(
+                    const uint                         aMeshIndex,
+                    Matrix< DDRMat >                 * aElementalFieldValues,
+                    const moris::Cell< std::string > & aQINames );
 
             //------------------------------------------------------------------------------
             /**

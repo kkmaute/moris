@@ -55,18 +55,18 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
 
             // get the source property
-            std::shared_ptr< Property > tPropSource =
+            std::shared_ptr< Property > & tPropSource =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tIncFluidCM =
+            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density
             real tDensity = tIncFluidCM->get_property( "Density" )->val()(0);
 
             // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tIncFlowSP =
+            std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // compute residual strong form
@@ -113,18 +113,18 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the source property
-            std::shared_ptr< Property > tPropSource =
+            std::shared_ptr< Property > & tPropSource =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tIncFluidCM =
+            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density
             real tDensity = tIncFluidCM->get_property( "Density" )->val()( 0 );
 
             // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tIncFlowSP =
+            std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // compute the residual strong form
@@ -229,20 +229,19 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tGravityProp = mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
-            std::shared_ptr< Property > tThermalExpProp = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > tRefTempProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            std::shared_ptr< Property > & tGravityProp    =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            std::shared_ptr< Property > & tThermalExpProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            std::shared_ptr< Property > & tRefTempProp    =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tIncFluidCM =
+            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
-            // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tIncFlowSP =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
-
             // get the density property from CM
-            std::shared_ptr< Property > tDensityProp = tIncFluidCM->get_property( "Density" );
+            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
@@ -290,20 +289,16 @@ namespace moris
                     tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the gravity properties
-            std::shared_ptr< Property > tGravityProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
-            std::shared_ptr< Property > tThermalExpProp = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > tRefTempProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            std::shared_ptr< Property > & tGravityProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            std::shared_ptr< Property > & tThermalExpProp = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            std::shared_ptr< Property > & tRefTempProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tIncFluidCM =
+            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
-            // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tIncFlowSP =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
-
             // get the density property from CM
-            std::shared_ptr< Property > tDensityProp = tIncFluidCM->get_property( "Density" );
+            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the density value
             real tDensity = tDensityProp->val()( 0 );

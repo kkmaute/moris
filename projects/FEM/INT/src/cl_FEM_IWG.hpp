@@ -516,7 +516,7 @@ namespace moris
                  * @param[ in ]  aIsMaster       enum master or slave
                  * @param[ out ] mGlobalDofTypes global list of group of dof types
                  */
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
@@ -525,7 +525,7 @@ namespace moris
                  * @param[ in ]  aIsMaster       enum master or slave
                  * @param[ out ] mGlobalDvTypes global list of group of dv types
                  */
-                moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+                const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------

@@ -249,7 +249,7 @@ namespace moris
                  * @param[ in ]  aPropertyString string describing the property to get
                  * @param[ out ] aProperty       property shared pointer
                  */
-                std::shared_ptr< fem::Property > get_property( std::string aPropertyString );
+                std::shared_ptr< fem::Property > & get_property( std::string aPropertyString );
 
                 //------------------------------------------------------------------------------
                 /**

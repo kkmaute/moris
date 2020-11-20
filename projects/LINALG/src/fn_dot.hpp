@@ -20,29 +20,26 @@
 
 namespace moris
 {
-/**
- * @brief Calculates the dot (scalar) product between two matrices or vectors of the same size
- * @f$ s=\mathbf{A}_{i,j}*\mathbf{B}_{i,j}@f$ \n
- *
- *@param[in] aA A given matrix
- *@param[in] aB A given matrix
- *
- * Example:
- * @include LNA/src/fn_dot.inc
- *
- */
-template< typename Matrix_Type >
-auto
-dot(
-        Matrix< Matrix_Type > const & aA,
-        Matrix< Matrix_Type > const & aB)
--> decltype( dot( aA.matrix_data(), aB.matrix_data() ) )
-{
-    return dot( aA.matrix_data(), aB.matrix_data() );
+    /**
+     * @brief Calculates the dot (scalar) product between two matrices or vectors of the same size
+     * @f$ s=\mathbf{A}_{i,j}*\mathbf{B}_{i,j}@f$ \n
+     *
+     *@param[in] aA A given matrix
+     *@param[in] aB A given matrix
+     *
+     * Example:
+     * @include LNA/src/fn_dot.inc
+     *
+     */
+    template< typename Matrix_Type >
+    auto
+    dot(
+            Matrix< Matrix_Type > const & aA,
+            Matrix< Matrix_Type > const & aB)
+    -> decltype( dot( aA.matrix_data(), aB.matrix_data() ) )
+    {
+        return dot( aA.matrix_data(), aB.matrix_data() );
+    }
 }
-}
-
-
-
 
 #endif /* PROJECTS_LINALG_SRC_FN_DOT_HPP_ */

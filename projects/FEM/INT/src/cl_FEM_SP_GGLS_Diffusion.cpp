@@ -100,7 +100,7 @@ namespace moris
             real tDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
             real tHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
 
-            std::shared_ptr< Property > tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > & tPropLatentHeat = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
 
             // time step size
             real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
@@ -151,13 +151,13 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the properties
-            std::shared_ptr< Property > tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-            std::shared_ptr< Property > tPropDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > tPropHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
-            std::shared_ptr< Property > tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
-            std::shared_ptr< Property > tPropMeltTemp     = mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
-            std::shared_ptr< Property > tPropPCconst      = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
-            std::shared_ptr< Property > tPropPSfunc       = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+            std::shared_ptr< Property > & tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+            std::shared_ptr< Property > & tPropDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > & tPropHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+            std::shared_ptr< Property > & tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > & tPropMeltTemp     = mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+            std::shared_ptr< Property > & tPropPCconst      = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+            std::shared_ptr< Property > & tPropPSfunc       = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
 
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

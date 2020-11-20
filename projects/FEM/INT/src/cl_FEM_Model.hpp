@@ -115,6 +115,7 @@ namespace moris
                         const moris_index                 & aMeshPairIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo );
 
+                //------------------------------------------------------------------------------
                 /**
                  * constructor
                  * @param[ in ] aMesh          mesh for this problem
@@ -246,6 +247,7 @@ namespace moris
                         const moris::Cell< PDV_Type > & aRequestedPdvTypes,
                         Matrix< DDSMat >              & aXYZPdvAssemblyIndices );
 
+                //------------------------------------------------------------------------------
                 /**
                  * reset integration xyz pdv local cluster assembly indices
                  * @param[ in ] aNodeIndices list of node indices to reset
@@ -253,6 +255,7 @@ namespace moris
                 void reset_integration_xyz_pdv_assembly_indices(
                         const Matrix< IndexMat > & aNodeIndices );
 
+                //------------------------------------------------------------------------------
                 /**
                  * set integration xyz pdv local cluster assembly index
                  * @param[ in ] aNodeIndex           node index
@@ -328,8 +331,6 @@ namespace moris
                 /**
                  * MTK set to fem set index map
                  */
-                //map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map()
-                //map< std::pair< moris_index, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
                 map< std::tuple< moris_index, bool, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
                 {
                     return mMeshSetToFemSetMap;

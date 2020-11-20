@@ -61,6 +61,8 @@ public:
     Matrix<IndexMat>          get_element_indices_in_block_set(uint aSetIndex);
     void                      get_sideset_elems_loc_inds_and_ords( const  std::string     & aSetName, Matrix< IndexMat >     & aElemIndices, Matrix< IndexMat >     & aSidesetOrdinals ) const;
     moris_id                  get_max_entity_id( enum EntityRank aEntityRank,const moris_index aIndex =0 ) const;
+    uint                      get_node_owner(moris_index aNodeIndex) const;
+    uint                      get_element_owner(moris_index aElementIndex) const;
 
     //------------------------------------------------------------------------------
     // end mesh core functions

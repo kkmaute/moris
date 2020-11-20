@@ -90,7 +90,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density property
-            std::shared_ptr< Property > tPropDensity =
+            std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute fv1
@@ -161,7 +161,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tPropDynViscosity =
+            std::shared_ptr< Property > & tPropDynViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY ) );
 
             // compute chi
@@ -185,7 +185,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
-            std::shared_ptr< Property > tPropDynViscosity =
+            std::shared_ptr< Property > & tPropDynViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY ) );
 
             // if dof type is viscosity

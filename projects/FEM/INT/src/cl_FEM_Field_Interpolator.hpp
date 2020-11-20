@@ -73,15 +73,17 @@ namespace moris
                 moris::Cell< PDV_Type > mDvType;
 
                 // flag for evaluation
-                bool mNBuildEval = true;
-                bool mNEval      = true;
-                bool mdNdxEval   = true;
-                bool md2Ndx2Eval = true;
-                bool md3Ndx3Eval = true;
-                bool mdNdtEval   = true;
-                bool md2Ndt2Eval = true;
-                bool md2NdxtEval = true;
+                bool mNBuildEval      = true;
+                bool mNEval           = true;
+                bool mdNdxEval        = true;
+                bool md2Ndx2Eval      = true;
+                bool md3Ndx3Eval      = true;
+                bool mdNdtEval        = true;
+                bool md2Ndt2Eval      = true;
+                bool md2NdxtEval      = true;
                 bool mDivOperatorEval = true;
+
+                bool mValEval         = true;
 
                 // storage
                 Matrix< DDRMat > mNBuild;
@@ -93,6 +95,8 @@ namespace moris
                 Matrix< DDRMat > md2Ndt2;
                 Matrix< DDRMat > md2Ndxt;
                 Matrix< DDRMat > mDivOperator;
+
+                Matrix< DDRMat > mVal;
 
                 //------------------------------------------------------------------------------
             public:
@@ -158,6 +162,12 @@ namespace moris
                  * reset evaluation flags
                  */
                 void reset_eval_flags();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * reset evaluation flags when coefficients are changed
+                 */
+                void reset_eval_flags_coefficients();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -368,10 +378,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get the field at given space and time Xi, Tau
+                 * @param[ out ]          interpolated field
+                 */
+                const Matrix< DDRMat > & val();
+
+                /**
                  * evaluates the field at given space and time Xi, Tau
                  * @param[ out ]          interpolated field
                  */
-                Matrix< DDRMat > val();
+                void eval_val();
 
                 //------------------------------------------------------------------------------
                 /**
