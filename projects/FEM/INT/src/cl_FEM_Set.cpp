@@ -44,14 +44,14 @@ namespace moris
             this->determine_set_type();
 
             // loop over the IWGs on the set
-            for(  std::shared_ptr< IWG > tIWG : mIWGs )
+            for(  const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // set the fem set pointer to the IWG
                 tIWG->set_set_pointer( this );
             }
 
             // loop over the IQIs on the set
-            for(  std::shared_ptr< IQI > tIQI : mIQIs )
+            for(  const std::shared_ptr< IQI > & tIQI : mIQIs )
             {
                 // set the fem set pointer to the IQI
                 tIQI->set_set_pointer( this );
@@ -187,13 +187,13 @@ namespace moris
                 this->build_requested_IQI_dof_type_list();
 
                 // set fem set pointer to IWGs FIXME still needed done in constructor?
-                for(  std::shared_ptr< IWG > tIWG : mRequestedIWGs )
+                for( const std::shared_ptr< IWG > & tIWG : mRequestedIWGs )
                 {
                     tIWG->set_set_pointer( this );
                 }
 
                 // set fem set pointer to IQIs FIXME still needed done in constructor?
-                for(  std::shared_ptr< IQI > tIQI : mRequestedIQIs )
+                for( const std::shared_ptr< IQI > & tIQI : mRequestedIQIs )
                 {
                     tIQI->set_set_pointer( this );
                 }
@@ -227,7 +227,7 @@ namespace moris
 
         void Set::free_memory()
         {
-            for(  std::shared_ptr< IWG > tIWG : mIWGs )
+            for( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 tIWG->free_memory();
             }
@@ -329,22 +329,23 @@ namespace moris
             uint tSlaveDvCounter  = 0;
 
             // loop over the IWGs
-            for ( std::shared_ptr< IWG > tIWG : mIWGs )
+            for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // get an IWG non unique dof and dv types
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
                 moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
+
                 tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // update dof and dv type counters
                 tMasterDofCounter += tActiveDofType( 0 ).size();
-                tMasterDvCounter  += tActiveDvType( 0 ).size();
-                tSlaveDofCounter += tActiveDofType( 1 ).size();
-                tSlaveDvCounter  += tActiveDvType( 1 ).size();
+                tMasterDvCounter  += tActiveDvType ( 0 ).size();
+                tSlaveDofCounter  += tActiveDofType( 1 ).size();
+                tSlaveDvCounter   += tActiveDvType ( 1 ).size();
             }
 
             // loop over the IQIs
-            for ( std::shared_ptr< IQI > tIQI : mIQIs )
+            for ( const std::shared_ptr< IQI > & tIQI : mIQIs )
             {
                 // get an IWG non unique dof and dv types
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
@@ -353,9 +354,9 @@ namespace moris
 
                 // update dof and dv type counter
                 tMasterDofCounter += tActiveDofType( 0 ).size();
-                tMasterDvCounter  += tActiveDvType( 0 ).size();
-                tSlaveDofCounter += tActiveDofType( 1 ).size();
-                tSlaveDvCounter  += tActiveDvType( 1 ).size();
+                tMasterDvCounter  += tActiveDvType ( 0 ).size();
+                tSlaveDofCounter  += tActiveDofType( 1 ).size();
+                tSlaveDvCounter   += tActiveDvType ( 1 ).size();
             }
 
             mUniqueDofTypeListMasterSlave.resize( 2 );
@@ -371,43 +372,45 @@ namespace moris
             mUniqueDvTypeList.reserve( tMasterDvCounter + tSlaveDvCounter );
 
             // loop over the IWGs
-            for ( std::shared_ptr< IWG > tIWG : mIWGs )
+            for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // get non unique dof and dv types
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
                 moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
+
                 tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // populate the corresponding unique dof and dv type lists
                 mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
                 mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
-                mUniqueDvTypeListMasterSlave( 0 ).append( tActiveDvType( 0 ) );
-                mUniqueDvTypeListMasterSlave( 1 ).append( tActiveDvType( 1 ) );
+                mUniqueDvTypeListMasterSlave ( 0 ).append( tActiveDvType ( 0 ) );
+                mUniqueDvTypeListMasterSlave ( 1 ).append( tActiveDvType ( 1 ) );
 
                 mUniqueDofTypeList.append( tActiveDofType( 0 ) );
                 mUniqueDofTypeList.append( tActiveDofType( 1 ) );
-                mUniqueDvTypeList.append( tActiveDvType( 0 ) );
-                mUniqueDvTypeList.append( tActiveDvType( 1 ) );
+                mUniqueDvTypeList.append ( tActiveDvType ( 0 ) );
+                mUniqueDvTypeList.append ( tActiveDvType ( 1 ) );
             }
 
             // loop over the IQIs
-            for ( std::shared_ptr< IQI > tIQI : mIQIs )
+            for ( const std::shared_ptr< IQI > & tIQI : mIQIs )
             {
                 // get non unique dof and dv types
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
                 moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
+
                 tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // populate the corresponding unique dof and dv type lists
                 mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
                 mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
-                mUniqueDvTypeListMasterSlave( 0 ).append( tActiveDvType( 0 ) );
-                mUniqueDvTypeListMasterSlave( 1 ).append( tActiveDvType( 1 ) );
+                mUniqueDvTypeListMasterSlave ( 0 ).append( tActiveDvType ( 0 ) );
+                mUniqueDvTypeListMasterSlave ( 1 ).append( tActiveDvType ( 1 ) );
 
                 mUniqueDofTypeList.append( tActiveDofType( 0 ) );
                 mUniqueDofTypeList.append( tActiveDofType( 1 ) );
-                mUniqueDvTypeList.append( tActiveDvType( 0 ) );
-                mUniqueDvTypeList.append( tActiveDvType( 1 ) );
+                mUniqueDvTypeList.append ( tActiveDvType ( 0 ) );
+                mUniqueDvTypeList.append ( tActiveDvType ( 1 ) );
             }
 
             {
@@ -492,12 +495,12 @@ namespace moris
             Matrix< DDSMat > tSlaveDvCheckList ( tNumDvTypes, 1, -1 );
 
             // loop over the IWGs
-            for ( std::shared_ptr< IWG > tIWG : mIWGs )
+            for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // get master dof and dv types for the IWG
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeMaster =
                         tIWG->get_global_dof_type_list();
-                moris::Cell< moris::Cell< PDV_Type > >  tDvTypeMaster =
+                const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeMaster =
                         tIWG->get_global_dv_type_list();
 
                 // loop over the IWG active master dof type
@@ -535,10 +538,10 @@ namespace moris
                 }
 
                 // get slave dof and dv types for the IWG
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeSlave =
                         tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
-                moris::Cell< moris::Cell< PDV_Type > >  tDvTypeSlave =
+                const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeSlave =
                         tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                 // loop over the IWG active slave dof type
@@ -577,12 +580,13 @@ namespace moris
             }
 
             // loop over the IQIs
-            for ( std::shared_ptr< IQI > tIQI : mIQIs )
+            for ( const std::shared_ptr< IQI > & tIQI : mIQIs )
             {
                 // get master dof and dv types for the IWG
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeMaster =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeMaster =
                         tIQI->get_global_dof_type_list();
-                moris::Cell< moris::Cell< PDV_Type > >  tDvTypeMaster =
+
+                const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeMaster =
                         tIQI->get_global_dv_type_list();
 
                 // loop over the IQI active master dof type
@@ -620,9 +624,9 @@ namespace moris
                 }
 
                 // get slave dof and dv types for the IWG
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypeSlave =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeSlave =
                         tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-                moris::Cell< moris::Cell< PDV_Type > >  tDvTypeSlave =
+                const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeSlave =
                         tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                 // loop over the IWG active slave dof type
@@ -925,7 +929,7 @@ namespace moris
         void Set::set_IWG_field_interpolator_managers()
         {
             // loop over the IWGs
-            for ( std::shared_ptr< IWG > tIWG : mIWGs )
+            for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // set the master FI manager
                 tIWG->set_field_interpolator_manager( mMasterFIManager );
@@ -962,7 +966,7 @@ namespace moris
                         tIWG->get_stabilization_parameters();
 
                 // loop over the SP
-                for( auto tSP : tSPs )
+                for( const std::shared_ptr< Stabilization_Parameter > & tSP : tSPs )
                 {
                     // check if SP is null
                     if( tSP != nullptr )
@@ -986,7 +990,7 @@ namespace moris
                         tIQI->get_stabilization_parameters();
 
                 // loop over the SPs
-                for( auto tSP : tSPs )
+                for( const std::shared_ptr< Stabilization_Parameter > & tSP : tSPs )
                 {
                     // check if SP is null
                     if( tSP != nullptr )
@@ -1003,7 +1007,7 @@ namespace moris
         void Set::set_IQI_field_interpolator_managers()
         {
             // loop over the IQIs
-            for ( std::shared_ptr< IQI > tIQI : mIQIs )
+            for ( const std::shared_ptr< IQI > & tIQI : mIQIs )
             {
                 // set IQI master FI manager
                 tIQI->set_field_interpolator_manager( mMasterFIManager );

@@ -1378,11 +1378,11 @@ namespace moris
                 uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
                 // get dof type list from master phase
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & tMasterDofTypes =
                         mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                 // get dof type list from master phase
-                moris::Cell< moris::Cell< PDV_Type > > tMasterPdvTypes =
+                const moris::Cell< moris::Cell< PDV_Type > > & tMasterPdvTypes =
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                 // set master dof dependencies
@@ -1406,11 +1406,11 @@ namespace moris
                     uint tSlavePhaseIndex = mPhaseMap[ tSlavePhaseName ];
 
                     // get dof type list from phase
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tSlaveDofTypes =
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tSlaveDofTypes =
                             mPhaseInfo( tSlavePhaseIndex ).get_dof_type_list();
 
                     // get pdv type list from phase
-                    moris::Cell< moris::Cell< PDV_Type > > tSlavePdvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tSlavePdvTypes =
                             mPhaseInfo( tSlavePhaseIndex ).get_dv_type_list();
 
                     // set slave dof dependencies
@@ -1527,11 +1527,11 @@ namespace moris
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
                     // get dof type list from phase
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes =
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypes =
                             mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                     // get dof type list from phase
-                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tDvTypes =
                             mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                     // set master dof dependencies
