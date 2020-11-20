@@ -160,6 +160,15 @@ namespace moris
              * @return ADV IDs
              */
             Matrix<DDSMat> get_determining_adv_ids(uint aPDVIndex);
+
+             /**
+             * Gets coordinates stored with host.
+             * @return coordinates
+             */
+            const Matrix< DDRMat > & get_coords()
+            {
+                return mCoordinates;
+            }
             
         };
     }
