@@ -7,6 +7,8 @@
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_Voxel_Input.hpp"
+#include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_Level_Set.hpp"
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
@@ -71,6 +73,19 @@ namespace moris
                 if (not tMultigeometryFound)
                 {
                     tGeometries.push_back(tGeometry);
+                }
+
+                if( aGeometryParameterLists(tGeometryIndex).get<std::string>("type") == "voxel")
+                {
+                    moris::uint tNumVoxelIds = reinterpret_cast< Voxel_Input* >(tGeometry.get())->get_num_voxel_Ids();
+
+                    for( moris::uint Ik = 1; Ik <= tNumVoxelIds-0; Ik++ )
+                    {
+                        std::shared_ptr<Geometry> tGeometrySingleGrain =
+                                create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary, tGeometry, Ik);
+
+                        tGeometries.push_back( tGeometrySingleGrain );
+                    }
                 }
             }
 
@@ -139,6 +154,19 @@ namespace moris
                 {
                     tGeometries.push_back(tGeometry);
                 }
+
+                if( aGeometryParameterLists(tGeometryIndex).get<std::string>("type") == "voxel")
+                {
+                    moris::uint tNumVoxelIds = reinterpret_cast< Voxel_Input* >(tGeometry.get())->get_num_voxel_Ids();
+
+                    for( moris::uint Ik = 1; Ik <= tNumVoxelIds-0; Ik++ )
+                    {
+                        std::shared_ptr<Geometry> tGeometrySingleGrain =
+                                create_geometry(aGeometryParameterLists(tGeometryIndex), aOwnedADVs, aLibrary, tGeometry, Ik);
+
+                        tGeometries.push_back( tGeometrySingleGrain );
+                    }
+                }
             }
 
             // Add multigeometries at the end
@@ -155,7 +183,9 @@ namespace moris
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary)
+                std::shared_ptr<Library_IO> aLibrary,
+                std::shared_ptr<Geometry>   aGeometry,
+                uint                        aIndex)
         {
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
@@ -292,6 +322,41 @@ namespace moris
                         tBSplineLowerBound,
                         tBSplineUpperBound);
             }
+            else if (tGeometryType == "voxel" and aGeometry )
+            {
+                // Create user-defined geometry
+                return std::make_shared<Single_Grain>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        aGeometry,
+                        aIndex,
+                        tGeometryName,
+                        tNumRefinements,
+                        tRefinementMeshIndex,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex);
+            }
+            else if (tGeometryType == "voxel")
+            {
+
+                // Get sensitivity function if needed
+                std::string tVoxelFieldName = aGeometryParameterList.get<std::string>("voxel_field_file");
+
+                // Create user-defined geometry
+                return std::make_shared<Voxel_Input>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tVoxelFieldName,
+                        tGeometryName,
+                        tNumRefinements,
+                        tRefinementMeshIndex,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex);
+            }
             else if (tGeometryType == "swiss_cheese_slice")
             {
                 // Check for definition
@@ -367,7 +432,9 @@ namespace moris
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 sol::Dist_Vector*           aOwnedADVs,
-                std::shared_ptr<Library_IO> aLibrary)
+                std::shared_ptr<Library_IO> aLibrary,
+                std::shared_ptr<Geometry>   aGeometry,
+                uint                        aIndex)
         {
             // Geometry type
             std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
@@ -503,6 +570,40 @@ namespace moris
                         tBSplineMeshIndex,
                         tBSplineLowerBound,
                         tBSplineUpperBound);
+            }
+            else if (tGeometryType == "voxel" and aGeometry )
+            {
+                // Create user-defined geometry
+                return std::make_shared<Single_Grain>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        aGeometry,
+                        aIndex,
+                        tGeometryName,
+                        tNumRefinements,
+                        tRefinementMeshIndex,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex);
+            }
+            else if (tGeometryType == "voxel")
+            {
+                // Get sensitivity function if needed
+                std::string tVoxelFieldName = aGeometryParameterList.get<std::string>("voxel_field_file");
+
+                // Create user-defined geometry
+                return std::make_shared<Voxel_Input>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tVoxelFieldName,
+                        tGeometryName,
+                        tNumRefinements,
+                        tRefinementMeshIndex,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex);
             }
             else if (tGeometryType == "swiss_cheese_slice")
             {

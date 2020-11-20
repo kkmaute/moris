@@ -515,6 +515,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 0 ).resize( 2 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+        tParameterlist( 0 )( 1 ).set( "ifpack_prec_type", "ILU");
 
         tParameterlist( 1 ).resize( 2 );
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();

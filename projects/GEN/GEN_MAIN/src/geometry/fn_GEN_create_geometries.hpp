@@ -47,7 +47,9 @@ namespace moris
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr);
+                std::shared_ptr<Library_IO> aLibrary = nullptr,
+                std::shared_ptr<Geometry>   aGeometry = nullptr,
+                uint                        aIndex = 0);
 
         /**
          * Creates an instance of the specified Geometry class and returns a shared pointer to it.
@@ -60,7 +62,9 @@ namespace moris
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 sol::Dist_Vector*           aOwnedADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr);
+                std::shared_ptr<Library_IO> aLibrary = nullptr,
+                std::shared_ptr<Geometry>   aGeometry = nullptr,
+                uint                        aIndex = 0);
 
         /**
          * Sets the geometry variables which depend on ADVs. Used by create_geometry().

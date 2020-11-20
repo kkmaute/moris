@@ -957,6 +957,7 @@ namespace moris
             }
 
             Matrix< DDSMat > tLocalAdofIds ( tCounter, 1, -1 );
+            //Matrix< DDSMat > tLocalAdofIds ( mNumOwnedAdofs, 1, -1 );
 
             tCounter =0;
 
@@ -980,132 +981,6 @@ namespace moris
             Matrix< DDSMat > tLocalAdofIdsSorted;
 
             sort( tLocalAdofIds, tLocalAdofIdsSorted);
-            //-------------------------------------------------------------------------------------
-            //        // Initialize counter
-            //        moris::uint tCounterAdofIds = 0;//FIXME check if owned
-            //
-            //        // Loop over all pdof hosts
-            //        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )//FIXME check if owned
-            //        {
-            //            // Loop over all dof types
-            //            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )//FIXME check if owned
-            //            {
-            //                // Get dof type index
-            //                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
-            //
-            //                // get number of time levels on this dof type
-            //                moris::uint tTimeLevels = mPdofHostList( Ij )->get_pdof_time_list( tDofTypeIndex ).size();
-            //                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
-            //                {
-            //                    // Get vector with adof ids for this pdof
-            //                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ij )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
-            //
-            //                    tCounterAdofIds += tAdofIds.numel();
-            //                }
-            //            }
-            //        }
-            //
-            //        // Initialize
-            //        Matrix< DDSMat > tLocalAdofIds ( tCounterAdofIds, 1, -1 );
-            //
-            //        // Re-initialize counter
-            //        tCounterAdofIds = 0;
-            //
-            //        // Loop over all pdof hosts
-            //        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )
-            //        {
-            //            // Loop over all dof types
-            //            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
-            //            {
-            //                // Get dof type index
-            //                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
-            //
-            //                // get number of time levels on this dof type
-            //                moris::uint tTimeLevels = mPdofHostList( Ij )->get_pdof_time_list( tDofTypeIndex ).size();
-            //                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
-            //                {
-            //                    // Get vector with adof ids for this pdof
-            //                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ij )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
-            //
-            //                    // Add adof Ids to list
-            //                    tLocalAdofIds( {tCounterAdofIds, tCounterAdofIds + tAdofIds.numel() -1 }, { 0, 0 } ) = tAdofIds.matrix_data();
-            //
-            //                    tCounterAdofIds += tAdofIds.numel();
-            //                }
-            //            }
-            //        }
-            //
-            //        // make list unique
-            //        Matrix< DDSMat > tLocalUniqueAdofIds;
-            //        unique( tLocalAdofIds, tLocalUniqueAdofIds );
-            //
-            //        MORIS_ASSERT( tLocalUniqueAdofIds.min() != -1, "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
-            //
-            //        return tLocalUniqueAdofIds;
-            //    }
-            //
-            //    //-----------------------------------------------------------------------------------------------------------
-            //    Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
-            //    {
-            //        // Initialize counter
-            //        moris::uint tCounterAdofIds = 0;
-            //
-            //        // Loop over all pdof hosts
-            //        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )
-            //        {
-            //            // Loop over all dof types
-            //            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
-            //            {
-            //                // Get dof type index
-            //                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
-            //
-            //                // get number of time levels on this dof type
-            //                moris::uint tTimeLevels = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex ).size();
-            //                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
-            //                {
-            //                    // Get vector with adof ids for this pdof
-            //                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
-            //
-            //                    tCounterAdofIds =+ tAdofIds.numel();
-            //                }
-            //            }
-            //        }
-            //
-            //        // Initialize
-            //        Matrix< DDSMat > tLocalAdofIds ( tCounterAdofIds, 1, -1 );
-            //
-            //        // Re-initialize counter
-            //        tCounterAdofIds = 0;
-            //
-            //        // Loop over all pdof hosts
-            //        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )
-            //        {
-            //            // Loop over all dof types
-            //            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
-            //            {
-            //                // Get dof type index
-            //                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
-            //
-            //                // get number of time levels on this dof type
-            //                moris::uint tTimeLevels = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex ).size();
-            //                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
-            //                {
-            //                    // Get vector with adof ids for this pdof
-            //                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
-            //
-            //                    // Add adof Ids to list
-            //                    tLocalAdofIds( {tCounterAdofIds, tCounterAdofIds + tAdofIds.numel() -1 }, { 0, 0 } ) = tAdofIds.matrix_data();
-            //
-            //                    tCounterAdofIds =+ tAdofIds.numel();
-            //                }
-            //            }
-            //        }
-            //
-            //        // make list unique
-            //        Matrix< DDSMat > tLocalUniqueAdofIds;
-            //        unique( tLocalAdofIds, tLocalUniqueAdofIds );
-            //
-            //        MORIS_ASSERT( tLocalUniqueAdofIds.min() != -1, "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
 
             return tLocalAdofIdsSorted;
         }
