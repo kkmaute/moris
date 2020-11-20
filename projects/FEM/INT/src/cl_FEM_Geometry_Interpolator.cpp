@@ -1997,6 +1997,7 @@ namespace moris
                 case mtk::Geometry_Type::POINT :
                 {
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
+                    mMapFlag = true;
                     break;
                 }
                 case mtk::Geometry_Type::LINE :
