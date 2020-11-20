@@ -639,14 +639,17 @@ namespace moris
                     // get number of pdof values for dof type
                     uint tNumPdofValuesForType = tMasterAdjointOriginal( Ik )( Ia ).numel();
 
-                    // fill reordered adjoint pdof values
-                    tAdjointPdofValuesReordered( Ik )(
-                            { tCounter, tCounter + tNumPdofValuesForType - 1 },
-                            { 0, 0 } ) =
-                                    tMasterAdjointOriginal( Ik )( Ia ).matrix_data();
+                    if( tNumPdofValuesForType > 0 )
+                    {
+                        // fill reordered adjoint pdof values
+                        tAdjointPdofValuesReordered( Ik )(
+                                { tCounter, tCounter + tNumPdofValuesForType - 1 },
+                                { 0, 0 } ) =
+                                        tMasterAdjointOriginal( Ik )( Ia ).matrix_data();
 
-                    // update counter
-                    tCounter += tNumPdofValuesForType;
+                        // update counter
+                        tCounter += tNumPdofValuesForType;
+                    }
                 }
 
                 // get number of master pdof values
@@ -672,14 +675,17 @@ namespace moris
                         // get number of pdof values for dof type
                         uint tNumPdofValuesForType = tSlaveAdjointOriginal( Ik )( Ia ).numel();
 
-                        // fill reordered adjoint pdof values
-                        tAdjointPdofValuesReordered( Ik )(
-                                { tCounter, tCounter + tNumPdofValuesForType - 1 },
-                                { 0, 0 } ) =
-                                        tSlaveAdjointOriginal( Ik )( Ia ).matrix_data();
+                        if( tNumPdofValuesForType > 0 )
+                        {
+                            // fill reordered adjoint pdof values
+                            tAdjointPdofValuesReordered( Ik )(
+                                    { tCounter, tCounter + tNumPdofValuesForType - 1 },
+                                    { 0, 0 } ) =
+                                            tSlaveAdjointOriginal( Ik )( Ia ).matrix_data();
 
-                        // update counter
-                        tCounter += tNumPdofValuesForType;
+                            // update counter
+                            tCounter += tNumPdofValuesForType;
+                        }
                     }
                 }
             }
@@ -690,6 +696,7 @@ namespace moris
             this->fill_mat_pdv_assembly_vector();
             Matrix< DDSMat > tLocalToGlobalIdsIPPdv =
                     mEquationSet->get_mat_pdv_assembly_vector();
+            print(tLocalToGlobalIdsIPPdv,"tLocalToGlobalIdsIPPdv");
 
             // if the assembly vector is not empty
             if( tLocalToGlobalIdsIPPdv.numel() != 0 )
@@ -714,6 +721,7 @@ namespace moris
             // get the assembly vector
             Matrix< DDSMat > tLocalToGlobalIdsIGPdv =
                     mEquationSet->get_geo_pdv_assembly_vector();
+            print(tLocalToGlobalIdsIGPdv,"tLocalToGlobalIdsIGPdv");
 
             // if assembly vector is not empty
             if( tLocalToGlobalIdsIGPdv.numel() != 0 )
