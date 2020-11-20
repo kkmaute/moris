@@ -1839,6 +1839,7 @@ namespace moris
             {
                 case mtk::Geometry_Type::POINT :
                 {
+                    mMapFlag = true;
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
                     break;
                 }
