@@ -53,10 +53,6 @@ namespace moris
                 uint mNumTimeBases;
                 uint mNumTimeDim;
 
-                // space and time jacobians
-                real mSpaceDetJ;
-                real mTimeDetJ;
-
                 // matrix of space coefficients xHat
                 // and matrix of time coefficients tHat
                 Matrix < DDRMat > mXHat;
@@ -114,8 +110,11 @@ namespace moris
 
                 Matrix< DDRMat > mSpaceJac;
                 Matrix< DDRMat > mInvSpaceJac;
+                real mSpaceDetJ;
+
                 Matrix< DDRMat > mTimeJac;
                 Matrix< DDRMat > mInvTimeJac;
+                real mTimeDetJ;
 
                 Matrix< DDRMat > mMappedPoint;
 

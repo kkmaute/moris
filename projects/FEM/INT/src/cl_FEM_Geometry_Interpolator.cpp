@@ -607,7 +607,7 @@ namespace moris
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
 
-            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
+            MORIS_ASSERT(tInvDet < 1e+18," space determinate close to zero.\n");
 
             // compute inverse
             mInvSpaceJac.set_size(2,2);
@@ -626,7 +626,7 @@ namespace moris
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
 
-            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
+            MORIS_ASSERT(tInvDet < 1e+18," space determinate close to zero.\n");
 
             // compute inverse
             mInvSpaceJac.set_size(3,3);
@@ -995,7 +995,7 @@ namespace moris
                 MORIS_ASSERT( mTauHat.numel() > 0,
                         "Geometry_Interpolator::eval_mapping - mTauHat is not set." );
 
-                uint tSize = mXiHat.n_cols();
+                uint tSize = mMappedPoint.numel() - 1;
 
                 // set mapped space coordinates
                 mMappedPoint( { 0, tSize - 1 } ) = trans( this->NXi() * mXiHat );
