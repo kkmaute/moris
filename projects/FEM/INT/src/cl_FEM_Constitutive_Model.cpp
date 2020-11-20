@@ -107,7 +107,7 @@ namespace moris
             mGradEnergyDotDofEval.fill( true );
 
             // reset underlying properties
-            for( std::shared_ptr< Property > tProp : mProperties )
+            for( const std::shared_ptr< Property > & tProp : mProperties )
             {
                 if ( tProp != nullptr )
                 {
@@ -198,7 +198,7 @@ namespace moris
             // set the size of the dof type list
             uint tCounterMax = tNumDofTypes;
 
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if( tProperty != nullptr )
                 {
@@ -219,12 +219,12 @@ namespace moris
                 tCounter++;
             }
 
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if( tProperty != nullptr )
                 {
                     // get active dof types
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType =
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -387,6 +387,7 @@ namespace moris
                 // bool is set to true
                 tDofDependency = true;
             }
+
             // return bool for dependency
             return tDofDependency;
         }
@@ -439,7 +440,7 @@ namespace moris
             // set the size of the dv type list
             uint tCounterMax = tNumDvTypes;
 
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if( tProperty != nullptr )
                 {
@@ -460,7 +461,7 @@ namespace moris
                 tCounter++;
             }
 
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if( tProperty != nullptr )
                 {
@@ -591,7 +592,7 @@ namespace moris
             mFIManager = aFieldInterpolatorManager;
 
             // loop over the underlying properties
-            for( std::shared_ptr< Property > tProp : this->get_properties() )
+            for( const std::shared_ptr< Property > & tProp : this->get_properties() )
             {
                 if (tProp != nullptr )
                 {
@@ -617,12 +618,13 @@ namespace moris
             }
 
             // loop over properties
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tProperty->get_dof_type_list();
 
                     // loop over property dof types
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -644,12 +646,13 @@ namespace moris
             }
 
             // loop over the properties
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tProperty->get_dof_type_list();
 
                     // loop over property dof types
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -665,7 +668,7 @@ namespace moris
 
         void Constitutive_Model::get_non_unique_dof_and_dv_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >        & aDvTypes )
+                moris::Cell< PDV_Type >      & aDvTypes )
         {
             // initialize dof counter
             uint tDofCounter = 0;
@@ -686,7 +689,7 @@ namespace moris
             }
 
             // loop over properties
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if ( tProperty != nullptr )
                 {
@@ -721,14 +724,16 @@ namespace moris
             }
 
             // loop over the properties
-            for ( std::shared_ptr< Property > tProperty : mProperties )
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tProperty->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     // populate the dof and dv type lists
@@ -1140,6 +1145,7 @@ namespace moris
                     tDofCounter++;
                 }
             }
+
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
@@ -2168,6 +2174,7 @@ namespace moris
                 // set bool for evaluation
                 mddivfluxduEval( tDofIndex ) = false;
             }
+
             // return the divergence of the flux value
             return mddivfluxdu( tDofIndex );
         }
@@ -2176,7 +2183,7 @@ namespace moris
 
         const Matrix< DDRMat > & Constitutive_Model::traction(
                 const Matrix< DDRMat > & aNormal,
-                enum CM_Function_Type aCMFunctionType )
+                enum CM_Function_Type    aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
             MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,

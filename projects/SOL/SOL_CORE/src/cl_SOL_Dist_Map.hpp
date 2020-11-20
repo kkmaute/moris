@@ -22,6 +22,8 @@
 
 namespace moris
 {
+    class Solver_Interface;
+
     namespace sol
     {
         class Dist_Map
@@ -43,6 +45,22 @@ namespace moris
 
             // ---------------------------------------------------------------------------------------------------------
 
+            virtual void build_dof_translator(
+                    const Matrix< IdMat > & aFullMap,
+                    const bool aFlag ) = 0;
+
+            // ---------------------------------------------------------------------------------------------------------
+
+            virtual void translate_ids_to_free_point_ids(
+                    const moris::Matrix< IdMat > & tIdsIn,
+                          moris::Matrix< IdMat > & tIdsOut ) = 0;
+
+            // ---------------------------------------------------------------------------------------------------------
+
+            virtual void print() = 0;
+
+            // ---------------------------------------------------------------------------------------------------------
+
             /**
              * @brief Get Epetra free map.
              *
@@ -57,6 +75,17 @@ namespace moris
             virtual Epetra_Map* get_epetra_map() const
             {
                 MORIS_ERROR( false, "get_epetra_map() function has no child implementation" );
+                return nullptr;
+            };
+
+            virtual Epetra_Map * get_epetra_point_map()
+            {
+                MORIS_ERROR( false, "get_epetra_point_map() function has no child implementation" );
+                return nullptr;
+            };
+            virtual Epetra_Map * get_epetra_point_map() const
+            {
+                MORIS_ERROR( false, "get_epetra_point_map() function has no child implementation" );
                 return nullptr;
             };
 

@@ -666,6 +666,7 @@ namespace moris
         tParameterlist.resize(7);
 
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
 
         tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 

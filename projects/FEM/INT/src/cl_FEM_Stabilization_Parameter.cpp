@@ -75,7 +75,7 @@ namespace moris
             mdPPdSlaveDvEval.fill( true );
 
             // reset underlying master constitutive models
-            for( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
@@ -84,7 +84,7 @@ namespace moris
             }
 
             // reset underlying slave constitutive models
-            for( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -93,7 +93,7 @@ namespace moris
             }
 
             // reset underlying master properties
-            for( std::shared_ptr< Property > tProp : mMasterProp )
+            for( const std::shared_ptr< Property > & tProp : mMasterProp )
             {
                 if( tProp != nullptr )
                 {
@@ -102,7 +102,7 @@ namespace moris
             }
 
             // reset underlying slave properties
-            for( std::shared_ptr< Property > tProp : mSlaveProp )
+            for( const std::shared_ptr< Property > & tProp : mSlaveProp )
             {
                 if( tProp != nullptr )
                 {
@@ -343,7 +343,7 @@ namespace moris
             }
 
             // loop over the underlying constitutive models
-            for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
+            for( const std::shared_ptr< Constitutive_Model > & tCM : this->get_constitutive_models( aIsMaster ) )
             {
                 if ( tCM != nullptr )
                 {
@@ -353,7 +353,7 @@ namespace moris
             }
 
             // loop over the underlying properties
-            for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
+            for( const std::shared_ptr< Property > & tProp : this->get_properties( aIsMaster ) )
             {
                 if ( tProp != nullptr )
                 {
@@ -452,7 +452,7 @@ namespace moris
             }
 
             // loop over the master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -466,7 +466,7 @@ namespace moris
             }
 
             // loop over slave properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -480,7 +480,7 @@ namespace moris
             }
 
             // loop over master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -494,7 +494,7 @@ namespace moris
             }
 
             // loop over slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -525,7 +525,7 @@ namespace moris
             }
 
             // loop over master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -539,7 +539,7 @@ namespace moris
             }
 
             // loop over slave properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -553,7 +553,7 @@ namespace moris
             }
 
             // loop over the master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -567,7 +567,7 @@ namespace moris
             }
 
             // loop over the slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -585,7 +585,7 @@ namespace moris
 
         void Stabilization_Parameter::get_non_unique_dof_and_dv_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >        & aDvTypes )
+                moris::Cell< PDV_Type >      & aDvTypes )
         {
             // init dof and dv counters
             uint tDofCounter = 0;
@@ -620,13 +620,14 @@ namespace moris
             }
 
             // loop over the master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > tProperty : mMasterProp )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
                             tActiveDvTypes );
 
@@ -638,14 +639,16 @@ namespace moris
             }
 
             // loop over slave properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tProperty->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     //update counters
@@ -655,14 +658,16 @@ namespace moris
             }
 
             // loop over master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tCM->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     //update counters
@@ -672,14 +677,16 @@ namespace moris
             }
 
             // loop over slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tCM->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     //update counters
@@ -721,14 +728,16 @@ namespace moris
             }
 
             // loop over master properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >  tActiveDvTypes;
-                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tProperty->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     // populate the dof list
@@ -738,14 +747,16 @@ namespace moris
             }
 
             // loop over slave properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >  tActiveDvTypes;
-                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tProperty->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     // populate the dof list
@@ -755,14 +766,16 @@ namespace moris
             }
 
             // loop over the master constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tCM->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     // populate the dof list
@@ -772,14 +785,16 @@ namespace moris
             }
 
             // loop over the slave constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tCM->get_non_unique_dof_and_dv_types(
+                            tActiveDofTypes,
                             tActiveDvTypes );
 
                     // populate the dof list
@@ -788,7 +803,6 @@ namespace moris
                 }
             }
         }
-
 
         //------------------------------------------------------------------------------
 
@@ -802,7 +816,7 @@ namespace moris
             tCounterMax += mMasterDofTypes.size();
 
             // get number of dof types from properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if( tProperty != nullptr )
                 {
@@ -811,7 +825,7 @@ namespace moris
             }
 
             // get number of dof types from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
@@ -842,12 +856,13 @@ namespace moris
             }
 
             // get dof type from properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if( tProperty != nullptr )
                 {
                     // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tProperty->get_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -876,12 +891,13 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tCM->get_global_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -920,7 +936,7 @@ namespace moris
             tCounterMax += mSlaveDofTypes.size();
 
             // get number of dof types from properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if( tProperty != nullptr )
                 {
@@ -929,7 +945,7 @@ namespace moris
             }
 
             // get number of dof types from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -960,12 +976,13 @@ namespace moris
             }
 
             // get dof type from properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if( tProperty != nullptr )
                 {
                     // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tProperty->get_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -994,12 +1011,13 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tCM->get_global_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -1185,7 +1203,7 @@ namespace moris
             tCounterMax += mMasterDvTypes.size();
 
             // get number of dv types from properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if( tProperty != nullptr )
                 {
@@ -1194,7 +1212,7 @@ namespace moris
             }
 
             // get number of dof types from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
@@ -1225,12 +1243,13 @@ namespace moris
             }
 
             // get dv type from properties
-            for ( std::shared_ptr< Property > tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property > & tProperty : mMasterProp )
             {
                 if( tProperty != nullptr )
                 {
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvType =
+                            tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1259,12 +1278,13 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+                   const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvType =
+                           tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1303,7 +1323,7 @@ namespace moris
             tCounterMax += mSlaveDvTypes.size();
 
             // get number of dv types from properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if( tProperty != nullptr )
                 {
@@ -1312,7 +1332,7 @@ namespace moris
             }
 
             // get number of dv types from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -1343,12 +1363,13 @@ namespace moris
             }
 
             // get dv type from properties
-            for ( std::shared_ptr< Property > tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if( tProperty != nullptr )
                 {
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvType =
+                            tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
@@ -1377,12 +1398,13 @@ namespace moris
             }
 
             // get dv type from constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvType =
+                            tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )

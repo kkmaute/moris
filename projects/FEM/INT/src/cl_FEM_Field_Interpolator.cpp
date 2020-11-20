@@ -545,7 +545,7 @@ namespace moris
             mTimeInterpolation->eval_dNdXi( mTau, tdNTimedtau );
 
             // evaluate the Jacobian from the time geometry interpolator
-            Matrix< DDRMat > tInvJGeot = mGeometryInterpolator->inverse_time_jacobian();
+            const Matrix< DDRMat > & tInvJGeot = mGeometryInterpolator->inverse_time_jacobian();
 
             // evaluate dNTimedt
             Matrix< DDRMat > tdNTimedt = tInvJGeot * tdNTimedtau;
@@ -656,7 +656,7 @@ namespace moris
             mTimeInterpolation->eval_dNdXi( mTau, tdNTimedTau );
 
             // evaluate the time Jacobian from the geometry interpolator
-            Matrix< DDRMat > tJGeoTimet = mGeometryInterpolator->time_jacobian();
+            const Matrix< DDRMat > & tJGeoTimet = mGeometryInterpolator->time_jacobian();
 
             // compute first derivative of the space shape function wrt x
             Matrix< DDRMat > tdNTimedT = tdNTimedTau / tJGeoTimet( 0 );
