@@ -90,14 +90,14 @@ namespace moris
             }
 
             // reset constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
                     tCM->reset_eval_flags();
                 }
             }
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -106,7 +106,7 @@ namespace moris
             }
 
             // reset stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            for ( const std::shared_ptr< Stabilization_Parameter > & tSP : mStabilizationParam )
             {
                 if( tSP != nullptr )
                 {
