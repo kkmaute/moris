@@ -227,7 +227,7 @@ namespace moris
                  * set an evaluation point in space and time
                  * @param[ in ] aParamPoint coordinates of an evaluation point
                  */
-                void set_space_time_from_local_IG_point( Matrix< DDRMat > & aLocalParamPoint );
+                void set_space_time_from_local_IG_point( const Matrix< DDRMat > & aLocalParamPoint );
 
                 //------------------------------------------------------------------------------
                 /**
