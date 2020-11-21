@@ -116,7 +116,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the current integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -160,7 +161,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -204,7 +206,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -264,7 +267,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -315,7 +319,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->
@@ -369,7 +374,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -406,7 +412,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -453,7 +460,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -502,7 +510,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -545,7 +554,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
@@ -592,7 +602,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
