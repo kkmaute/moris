@@ -253,10 +253,11 @@ namespace moris
                 /**
                  * returns the number of nodes owned and shared on current proc
                  */
-                auto get_number_of_nodes_on_proc() const -> decltype ( mNumberOfUsedNodes )
-                    {
+                auto get_number_of_nodes_on_proc()
+                const -> decltype ( mNumberOfUsedNodes )
+                {
                     return mNumberOfUsedNodes;
-                    }
+                }
 
                 // ----------------------------------------------------------------------------
 
