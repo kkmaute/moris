@@ -919,6 +919,8 @@ namespace moris
             return tDetJ;
         }
 
+        //------------------------------------------------------------------------------
+
         real Geometry_Interpolator::eval_space_detJ_bulk_quad(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -933,6 +935,8 @@ namespace moris
 
             return tDetJ;
         }
+
+        //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_hex(
                 const Matrix< DDRMat > & aSpaceJt )
@@ -969,6 +973,8 @@ namespace moris
             return tDetJ;
         }
 
+        //------------------------------------------------------------------------------
+
         real Geometry_Interpolator::eval_space_detJ_bulk_tri_param_3(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -1003,25 +1009,27 @@ namespace moris
             return tDetJ;
         }
 
+        //------------------------------------------------------------------------------
+
         real Geometry_Interpolator::eval_space_detJ_bulk_tet_param_4(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            real tSubDet1 =
+            const real tSubDet1 =
                     +aSpaceJt(1,0)*(aSpaceJt(2,1)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,1))
                     -aSpaceJt(1,1)*(aSpaceJt(2,0)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,0))
                     +aSpaceJt(1,2)*(aSpaceJt(2,0)*aSpaceJt(3,1)-aSpaceJt(2,1)*aSpaceJt(3,0));
 
-            real tSubDet2 =
+            const real tSubDet2 =
                     +aSpaceJt(0,0)*(aSpaceJt(2,1)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,1))
                     -aSpaceJt(0,1)*(aSpaceJt(2,0)*aSpaceJt(3,2)-aSpaceJt(2,2)*aSpaceJt(3,0))
                     +aSpaceJt(0,2)*(aSpaceJt(2,0)*aSpaceJt(3,1)-aSpaceJt(2,1)*aSpaceJt(3,0));
 
-            real tSubDet3 =
+            const real tSubDet3 =
                     +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(3,2)-aSpaceJt(1,2)*aSpaceJt(3,1))
                     -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(3,2)-aSpaceJt(1,2)*aSpaceJt(3,0))
                     +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(3,1)-aSpaceJt(1,1)*aSpaceJt(3,0));
 
-            real tSubDet4 =
+            const real tSubDet4 =
                     +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,1))
                     -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
                     +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0));
@@ -1996,6 +2004,7 @@ namespace moris
             {
                 case mtk::Geometry_Type::POINT :
                 {
+                    mMapFlag      = true;
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
                     break;
                 }
