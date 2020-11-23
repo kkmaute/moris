@@ -43,6 +43,27 @@ namespace moris
             }
         }
 
+        const moris::Cell< MSI::Dof_Type > & Equation_Set::get_dof_type_list_2(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    return mMasterDofTypesList;
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    return mSlaveDofTypesList;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Equation_Set::get_dof_type_list_2 - can only be MASTER or SLAVE");
+                    return mMasterDofTypesList;
+                }
+            }
+        }
+
         //------------------------------------------------------------------------------
 
         Matrix< DDSMat > & Equation_Set::get_dof_type_map(
