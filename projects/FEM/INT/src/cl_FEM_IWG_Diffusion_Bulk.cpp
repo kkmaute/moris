@@ -51,15 +51,15 @@ namespace moris
             Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get body load property
-            std::shared_ptr< Property > & tPropLoad =
+            const std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the Stabilization Parameter
-            std::shared_ptr< Stabilization_Parameter > & tGGLSParam =
+            const std::shared_ptr< Stabilization_Parameter > & tGGLSParam =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
             // get sub-matrix
@@ -111,15 +111,15 @@ namespace moris
             Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get body load property
-            std::shared_ptr< Property > & tPropLoad =
+            const std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the Stabilization Parameter
-            std::shared_ptr< Stabilization_Parameter > & tGGLSParam =
+            const std::shared_ptr< Stabilization_Parameter > & tGGLSParam =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
             // get the number of master dof type dependencies
@@ -129,7 +129,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );

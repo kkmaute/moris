@@ -92,7 +92,7 @@ namespace moris
             private:
 
                 // flag for evaluation
-                bool mPropEval = true;
+                bool mPropEval    = true;
                 bool mdPropdxEval = true;
                 moris::Matrix< DDBMat > mPropDofDerEval;
                 moris::Matrix< DDBMat > mPropDvDerEval;
@@ -161,7 +161,8 @@ namespace moris
                  * set parameters
                  * @param[ in ] aParameters list of parameters for property evaluation
                  */
-                void set_parameters( moris::Cell< moris::Matrix< DDRMat > > aParameters )
+                void set_parameters(
+                        const moris::Cell< moris::Matrix< DDRMat > > & aParameters )
                 {
                     mParameters = aParameters;
                 }
@@ -221,7 +222,8 @@ namespace moris
                  * set dof derivative functions
                  * @param[ in ] aDofDerFunctions list function for property derivatives wrt dof
                  */
-                void set_dof_derivative_functions( moris::Cell< PropertyFunc > aDofDerFunctions )
+                void set_dof_derivative_functions(
+                        const moris::Cell< PropertyFunc > & aDofDerFunctions )
                 {
                     // set functions for derivatives wrt dof
                     mDofDerFunctions = aDofDerFunctions;
@@ -246,7 +248,8 @@ namespace moris
                  * set dv derivative functions
                  * @param[ in ] aDofDerFunctions list function for property derivatives wrt dv
                  */
-                void set_dv_derivative_functions( moris::Cell< PropertyFunc > aDvDerFunctions )
+                void set_dv_derivative_functions(
+                        const moris::Cell< PropertyFunc > & aDvDerFunctions )
                 {
                     // set functions for derivatives wrt dv
                     mDvDerFunctions = aDvDerFunctions;
@@ -271,7 +274,8 @@ namespace moris
                  * set a list of active dof types
                  * @param[ in ] aDofTypes list of dof types
                  */
-                void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes );
+                void set_dof_type_list(
+                        const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -307,7 +311,7 @@ namespace moris
                  * @param[ in ]  aDofType cell of dof type
                  * @param[ out ] aBool    boolean, true if dependency on the dof type
                  */
-                bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > aDofType );
+                bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -350,7 +354,7 @@ namespace moris
                  * @param[ in ]  aDvType cell of dv type
                  * @param[ out ] aBool   boolean, true if dependency on the dv type
                  */
-                bool check_dv_dependency( const moris::Cell< PDV_Type > aDvType );
+                bool check_dv_dependency( const moris::Cell< PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -377,14 +381,14 @@ namespace moris
                  * @param[ in ]  aDofType   cell of dof type
                  * @param[ out ] adPropdDOF matrix with derivative wrt to the dof type
                  */
-                const Matrix< DDRMat > & dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType );
+                const Matrix< DDRMat > & dPropdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate property derivatives wrt a dof type
                  * @param[ in ] aDofType cell of dof type
                  */
-                void eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType );
+                void eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -392,14 +396,14 @@ namespace moris
                  * @param[ in ]  aDvType   cell of dv type
                  * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
                  */
-                const Matrix< DDRMat > & dPropdDV( const moris::Cell< PDV_Type > aDvType );
+                const Matrix< DDRMat > & dPropdDV( const moris::Cell< PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate property derivatives wrt a design variable
                  * @param[ in ] aDvType cell of dv type
                  */
-                void eval_dPropdDV( const moris::Cell< PDV_Type > aDvType );
+                void eval_dPropdDV( const moris::Cell< PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
