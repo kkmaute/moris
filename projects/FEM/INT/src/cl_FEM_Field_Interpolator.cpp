@@ -251,12 +251,6 @@ namespace moris
             mSpaceInterpolation->eval_N( mXi, tNSpace );
             mTimeInterpolation ->eval_N( mTau, tNTime );
 
-            // debug
-//            print( mXi, "mXi" );
-//            print( mTau, "mTau" );
-//            print( tNSpace, "tNSpace" );
-//            print( tNTime, "tNTime" );
-
             //evaluate space time SF by multiplying space and time SF
             mNBuild = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
         }
@@ -562,17 +556,6 @@ namespace moris
                         { Ik * mNSpaceBases, ( Ik + 1 ) * mNSpaceBases - 1 } ) =
                                 tNSpace * tdNTimedt( Ik );
             }
-
-            // debug
-            //mdNdt = -1.0 * mdNdt;
-            std::cout << "\n\n FIELD INTERPOLATOR ============================================================== \n" << std::flush;
-//            print( tdNTimedtau, "tdNTimedtau" );
-//            print( tdNTimedt,   "tdNTimedt" );
-//            print( tInvJGeot,   "tInvJGeot" );
-//            print( tNSpace,     "tNSpace" );
-            print( mdNdt,       "mdNdt" );
-            print( mUHat,       "mUHat" );
-            std::cout << " ================================================================================== \n\n" << std::flush;
 
         }
 
