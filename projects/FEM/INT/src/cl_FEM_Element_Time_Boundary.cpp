@@ -136,22 +136,34 @@ namespace moris
                     mSet->get_field_interpolator_manager()->
                             set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IWGs
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
+                        // get requested IWG
+                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                         // reset IWG
-                        mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                        tReqIWG->reset_eval_flags();
 
-                        // compute jacobian at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                        // compute Jacobian at evaluation point
+                        tReqIWG->compute_residual( tWStar );
 
-                        // compute jacobian at evaluation point
-                        // compute off-diagonal jacobian for staggered solve
-                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                        // compute Jacobian at evaluation point
+                        // compute off-diagonal Jacobian for staggered solve
+                        tReqIWG->compute_jacobian( tWStar );
                     }
                 }
             }
@@ -187,18 +199,30 @@ namespace moris
                     mSet->get_field_interpolator_manager()->
                             set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_jacobian: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IWGs
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
-                        // reset IWG
-                        mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                        // get requested IWG
+                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
 
-                        // compute jacobian at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                        // reset IWG
+                        tReqIWG->reset_eval_flags();
+
+                        // compute Jacobian at evaluation point
+                        tReqIWG->compute_jacobian( tWStar );
                     }
                 }
             }
@@ -234,24 +258,36 @@ namespace moris
                     mSet->get_field_interpolator_manager()->
                             set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_jacobian_and_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IWGs
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
+                        // get requested IWG
+                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                         // reset IWG
-                        mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                        tReqIWG->reset_eval_flags();
 
                         if( mSet->mEquationModel->get_is_forward_analysis() )
                         {
                             // compute residual at evaluation point
-                            mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                            tReqIWG->compute_residual( tWStar );
                         }
 
-                        // compute jacobian at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                        // compute Jacobian at evaluation point
+                        tReqIWG->compute_jacobian( tWStar );
                     }
                 }
             }
@@ -288,18 +324,30 @@ namespace moris
                     mSet->get_field_interpolator_manager()->
                             set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_dRdp: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IWGs
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
+                        // get requested IWG
+                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                         // reset IWG
-                        mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                        tReqIWG->reset_eval_flags();
 
                         // compute dRdpMat at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_dRdp( tWStar );
+                        tReqIWG->compute_dRdp( tWStar );
                     }
                 }
             }
@@ -343,18 +391,30 @@ namespace moris
                     mSet->get_field_interpolator_manager()->
                             set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_dRdp_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IWGs
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
+                        // get requested IWG
+                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                         // reset IWG
-                        mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                        tReqIWG->reset_eval_flags();
 
                         // compute dRdpMat at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
+                        tReqIWG->compute_dRdp_FD_material(
                                 tWStar,
                                 tFDPerturbation,
                                 tFDScheme );
@@ -362,7 +422,7 @@ namespace moris
                         // compute dRdpGeo at evaluation point
                         if( mSet->get_geo_pdv_assembly_flag() )
                         {
-                            mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
+                            tReqIWG->compute_dRdp_FD_geometry(
                                     tWStar,
                                     tFDPerturbation,
                                     tGeoLocalAssembly,
@@ -402,9 +462,18 @@ namespace moris
                     // set evaluation point for interpolators (FIs and GIs)
                     mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_QI: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -448,9 +517,18 @@ namespace moris
                     // set evaluation point for interpolators (FIs and GIs)
                     mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_dQIdu: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -494,9 +572,18 @@ namespace moris
                     // set evaluation point for interpolators (FIs and GIs)
                     mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_dQIdp_explicit: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -548,9 +635,18 @@ namespace moris
                     // set evaluation point for interpolators (FIs and GIs)
                     mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                    // compute detJ of integration domain
+                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // skip if detJ smaller than threshold
+                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                    {
+                        MORIS_LOG_INFO("Element_Time_Boundary::compute_dQIdp_explicit_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                        continue;
+                    }
+
                     // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
-                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
 
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
