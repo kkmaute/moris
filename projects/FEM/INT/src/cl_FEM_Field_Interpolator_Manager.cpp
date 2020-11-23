@@ -325,7 +325,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_space_time_from_local_IG_point(
-                Matrix< DDRMat > & aLocalParamPoint )
+                const Matrix< DDRMat > & aLocalParamPoint )
         {
             // set evaluation point in the IG param space for IG geometry interpolator
             mIGGeometryInterpolator->set_space_time( aLocalParamPoint );

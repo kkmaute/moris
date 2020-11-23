@@ -351,7 +351,8 @@ namespace moris
             // if viscosity is the test dof
             if( aTestDofTypes( 0 ) == mDofViscosity && aDofTypes( 0 ) == mDofViscosity )
             {
-                std::cout<<"Missing second order derivative - FD for now"<<std::endl;
+                // FIXME: Missing second order derivative - FD for now
+                //std::cout<<"Missing second order derivative - FD for now"<<std::endl;
 
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size(
                         tFITest->get_number_of_space_time_coefficients(),
