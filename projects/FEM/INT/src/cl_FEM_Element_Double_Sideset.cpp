@@ -211,10 +211,11 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
-                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // get local integration point for the slave integration cell
+                // get copy of local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+
                 tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}) =
                         tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
@@ -224,9 +225,18 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    MORIS_LOG_INFO("Element_Double_Sideset::compute_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -234,18 +244,21 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // set the normal for the IWG
-                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+                    tReqIWG->set_normal( tNormal );
 
                     // compute residual at integration point
-                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                    tReqIWG->compute_residual( tWStar );
 
-                    // compute jacobian at integration point
-                    // compute off-diagonal jacobian for staggered solve
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    // compute Jacobian at integration point
+                    // compute off-diagonal Jacobian for staggered solve
+                    tReqIWG->compute_jacobian( tWStar );
                 }
             }
         }
@@ -282,10 +295,11 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
-                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // get local integration point for the slave integration cell
+                // get copy of local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+
                 tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0}) =
                         tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
@@ -295,9 +309,18 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    MORIS_LOG_INFO("Element_Double_Sideset::compute_jacobian: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh and set if for the IWG
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -305,14 +328,17 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // set the normal for the IWG
-                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+                    tReqIWG->set_normal( tNormal );
 
                     // compute residual at integration point
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    tReqIWG->compute_jacobian( tWStar );
                 }
             }
         }
@@ -346,10 +372,11 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
-                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // get local integration point for the slave integration cell
+                // get copy of local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+
                 tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}) =
                         tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
@@ -359,9 +386,18 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    MORIS_LOG_INFO("Element_Double_Sideset::compute_jacobian_and_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -369,20 +405,23 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // set the normal for the IWG
-                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+                    tReqIWG->set_normal( tNormal );
 
                     if( mSet->mEquationModel->get_is_forward_analysis() )
                     {
                         // compute residual at integration point
-                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                        tReqIWG->compute_residual( tWStar );
                     }
 
                     // compute jacobian at integration point
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    tReqIWG->compute_jacobian( tWStar );
                 }
             }
         }
@@ -443,9 +482,18 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    MORIS_LOG_INFO("Element_Double_Sideset::compute_dRdp: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh and set if for the IWG
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -453,15 +501,17 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // set the normal for the IWG
-                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+                    tReqIWG->set_normal( tNormal );
 
                     // compute dRdp at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp( tWStar );
-
+                    tReqIWG->compute_dRdp( tWStar );
                 }
             }
         }
@@ -519,8 +569,9 @@ namespace moris
 
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0}) =
-                        tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+
+                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2}) =
+                        tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2}); //fixme better way?
 
                 // set evaluation point for master and slave interpolators
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
@@ -529,9 +580,18 @@ namespace moris
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
 
-                // compute the integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    MORIS_LOG_INFO("Element_Double_Sideset::compute_dRdp_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh and set if for the IWG
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
@@ -539,14 +599,17 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // set the normal for the IWG
-                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+                    tReqIWG->set_normal( tNormal );
 
                     // compute dRdpMat at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material_double(
+                    tReqIWG->compute_dRdp_FD_material_double(
                             tWStar,
                             tFDPerturbation,
                             tFDScheme );
@@ -555,7 +618,7 @@ namespace moris
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
                         // compute dRdpGeo at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry_double(
+                        tReqIWG->compute_dRdp_FD_geometry_double(
                                 tWStar,
                                 tFDPerturbation,
                                 tMasterVertexIndices,

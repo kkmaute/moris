@@ -46,9 +46,8 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tResStartIndex, tResStopIndex },
-                    { 0, 0 } ) += aWStar * (
-                            - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() );
+                    { tResStartIndex, tResStopIndex } ) -=
+                            aWStar * ( trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -80,7 +79,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type
-                Cell< MSI::Dof_Type > tDepDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > tDepDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the dof type indices for assembly
                 uint tDepDofIndex   = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Master_Slave::MASTER );

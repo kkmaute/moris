@@ -63,18 +63,25 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the diffusion constitutive model for master and slave
-            std::shared_ptr< Constitutive_Model > tCMMasterDiff =
+            const std::shared_ptr< Constitutive_Model > & tCMMasterDiff =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveDiff =
+            const std::shared_ptr< Constitutive_Model > & tCMSlaveDiff =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPGhost =
+            const std::shared_ptr< Stabilization_Parameter > & tSPGhost =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // FIXME get the conductivity for master and slave
             real tMasterConductivity = tCMMasterDiff->constitutive()( 0, 0 );
             real tSlaveConductivity  = tCMSlaveDiff->constitutive()( 0, 0 );
+
+            // get sub-matrices
+            auto tResMaster = mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex } );
+
+            auto tResSlave = mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex } );
 
             // loop over the interpolation order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -86,22 +93,19 @@ namespace moris
                 Matrix< DDRMat > tNormalMatrix;
                 this->get_flat_normal_matrix( tNormalMatrix, iOrder );
 
-                // multiply common terms
+                // multiply common terms (note: needs to be stored as matrix (not via auto)
+                // as gradx call generates temporary matrix only
                 Matrix< DDRMat > tPreMultiply =
                         tSPGhost->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix *
                         ( tMasterConductivity * tMasterFI->gradx( iOrder ) - tSlaveConductivity * tSlaveFI->gradx( iOrder ) );
 
                 // compute master residual
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
-                                trans( tMasterFI->dnNdxn( iOrder ) ) * tPreMultiply );
+                tResMaster += aWStar * (
+                        trans( tMasterFI->dnNdxn( iOrder ) ) * tPreMultiply );
 
                 // compute slave residual
-                mSet->get_residual()( 0 )(
-                        { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                trans( tSlaveFI->dnNdxn( iOrder ) ) * tPreMultiply );
+                tResSlave -= aWStar * (
+                        trans( tSlaveFI->dnNdxn( iOrder ) ) * tPreMultiply );
             }
 
             // check for nan, infinity
@@ -140,13 +144,13 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the diffusion constitutive model for master and slave
-            std::shared_ptr< Constitutive_Model > tCMMasterDiff =
+            const std::shared_ptr< Constitutive_Model > & tCMMasterDiff =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > tCMSlaveDiff =
+            const std::shared_ptr< Constitutive_Model > & tCMSlaveDiff =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPGhost =
+            const std::shared_ptr< Stabilization_Parameter > & tSPGhost =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // FIXME get the conductivity for master and slave
@@ -166,31 +170,35 @@ namespace moris
                 Matrix< DDRMat > tNormalMatrix;
                 this->get_flat_normal_matrix( tNormalMatrix, iOrder );
 
-                // compute the jacobian for indirect dof dependencies through master constitutive models
+                // compute the Jacobian for indirect dof dependencies through master constitutive models
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tIndexDep      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
                     uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 );
                     uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 );
 
+                    auto tJacMaster = mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tDepStartIndex,       tDepStopIndex } );
+
+                    auto tJacSlave =  mSet->get_jacobian()(
+                            { tSlaveResStartIndex, tSlaveResStopIndex },
+                            { tDepStartIndex,      tDepStopIndex } );
+
                     // if dependency on the dof type
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } ) += aWStar * (
+                        // add contribution to Jacobian
+                        tJacMaster += aWStar * (
                                         tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
 
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } ) -= aWStar * (
+                       tJacSlave -= aWStar * (
                                         tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
@@ -199,49 +207,50 @@ namespace moris
                     // if diffusion CM depends on dof type
                     if( tCMMasterDiff->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
+                        // add contribution to Jacobian
+                        tJacMaster -= aWStar * (
                                         tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
 
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
+                        tJacSlave += aWStar * (
                                         tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
                     }
                 }
 
-                // compute the jacobian for indirect dof dependencies through slave constitutive models
+                // compute the Jacobian for indirect dof dependencies through slave constitutive models
                 uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
                 for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
                 {
                     // get dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+                    const Cell< MSI::Dof_Type > & tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
 
                     // get index for the dof type
                     sint tIndexDep      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
                     uint tDepStartIndex = mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 );
                     uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 );
 
+                    // get sub-matrices
+                    auto tJacMaster = mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tDepStartIndex,       tDepStopIndex } );
+
+                    auto tJacSlave = mSet->get_jacobian()(
+                            { tSlaveResStartIndex, tSlaveResStopIndex },
+                            { tDepStartIndex,      tDepStopIndex } );
+
                     // if dependency on the dof type
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
+                        // add contribution to Jacobian
+                        tJacMaster -= aWStar * (
                                         tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
 
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
+                        tJacSlave += aWStar * (
                                         tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
@@ -250,20 +259,16 @@ namespace moris
                     // if diffusion CM depends on dof type
                     if( tCMSlaveDiff->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
-                                        tSPGhost->val()( 0 )
-                                        * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                        * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
+                        // add contribution to Jacobian
+                        tJacMaster -= aWStar * (
+                                tSPGhost->val()( 0 )
+                                * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
 
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
-                                        tSPGhost->val()( 0 )
-                                        * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
-                                        * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
+                        tJacSlave += aWStar * (
+                                tSPGhost->val()( 0 )
+                                * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
+                                * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
                     }
                 }
             }

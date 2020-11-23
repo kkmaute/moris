@@ -370,7 +370,7 @@ namespace moris
              * get requested IWGs
              * @param[ out ] mRequestedIWGs cell of requested IWG pointers
              */
-            moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
+            const moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
             {
                 return mRequestedIWGs;
             }
@@ -401,7 +401,7 @@ namespace moris
              * get local requested IQIs for sensitivity analysis
              * @param[ out ] mRequestedIQIs cell of IQIs pointers
              */
-            moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
+            const moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
             {
                 return mRequestedIQIs;
             }
