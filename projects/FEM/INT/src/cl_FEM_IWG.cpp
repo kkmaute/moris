@@ -90,14 +90,14 @@ namespace moris
             }
 
             // reset constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
                 if( tCM != nullptr )
                 {
                     tCM->reset_eval_flags();
                 }
             }
-            for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {
@@ -106,7 +106,7 @@ namespace moris
             }
 
             // reset stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            for ( const std::shared_ptr< Stabilization_Parameter > & tSP : mStabilizationParam )
             {
                 if( tSP != nullptr )
                 {
@@ -804,9 +804,9 @@ namespace moris
 
                     // populate the dof and dv lists
                     aDofTypes( 0 ).append( tActiveDofTypes );
-                    aDvTypes( 0 ).append( tActiveDvTypes );
+                    aDvTypes ( 0 ).append( tActiveDvTypes );
                     aDofTypes( 1 ).append( tActiveDofTypes );
-                    aDvTypes( 1 ).append( tActiveDvTypes );
+                    aDvTypes ( 1 ).append( tActiveDvTypes );
                 }
             }
         }
@@ -873,7 +873,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDofCheckList( tDofTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -894,7 +894,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDvCheckList( tDvTypeIndex) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDvCheckList( tDvTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -922,7 +922,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDofCheckList( tDofTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -943,7 +943,7 @@ namespace moris
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
                         {
-                            // put the dv type in the checklist
+                            // put the dv type in the check list
                             tDvCheckList( tDvTypeIndex ) = 1;
 
                             // put the dv type in the global type list
@@ -971,7 +971,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDofCheckList( tDofTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -992,7 +992,7 @@ namespace moris
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
                         {
-                            // put the dv type in the checklist
+                            // put the dv type in the check list
                             tDvCheckList( tDvTypeIndex ) = 1;
 
                             // put the dv type in the global type list
@@ -1021,7 +1021,7 @@ namespace moris
                 // get set index for dof type
                 sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( mSlaveDofTypes( iDof )( 0 ) );
 
-                // put the dof type in the checklist
+                // put the dof type in the check list
                 tDofCheckList( tDofTypeIndex ) = 1;
 
                 // put the dof type in the global type list
@@ -1034,7 +1034,7 @@ namespace moris
                 // get set index for dv type
                 sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mSlaveDvTypes( iDv )( 0 ) );
 
-                // put the dv type in the checklist
+                // put the dv type in the check list
                 tDvCheckList( tDvTypeIndex ) = 1;
 
                 // put the dv type in the global type list
@@ -1059,7 +1059,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDofCheckList( tDofTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -1080,7 +1080,7 @@ namespace moris
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
                         {
-                            // put the dv type in the checklist
+                            // put the dv type in the check list
                             tDvCheckList( tDvTypeIndex ) = 1;
 
                             // put the dv type in the global type list
@@ -1108,7 +1108,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDofCheckList( tDofTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -1129,7 +1129,7 @@ namespace moris
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
                         {
-                            // put the dv type in the checklist
+                            // put the dv type in the check list
                             tDvCheckList( tDvTypeIndex ) = 1;
 
                             // put the dv type in the global type list
@@ -1157,7 +1157,7 @@ namespace moris
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
                         {
-                            // put the dof type in the checklist
+                            // put the dof type in the check list
                             tDofCheckList( tDofTypeIndex ) = 1;
 
                             // put the dof type in the global type list
@@ -1178,7 +1178,7 @@ namespace moris
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
                         {
-                            // put the dv type in the checklist
+                            // put the dv type in the check list
                             tDvCheckList( tDvTypeIndex ) = 1;
 
                             // put the dv type in the global type list
@@ -1241,7 +1241,7 @@ namespace moris
                     }
                 }
             }
-            // if jacobian evaluation
+            // if Jacobian evaluation
             else
             {
                 // get the requested dof types
@@ -1533,7 +1533,7 @@ namespace moris
                             // compute the residual
                             this->compute_residual( aWStar );
 
-                            // assemble the jacobian
+                            // assemble the Jacobian
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=

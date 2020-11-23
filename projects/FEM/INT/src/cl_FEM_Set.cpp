@@ -1786,7 +1786,7 @@ namespace moris
             uint tCounter = 0;
 
             // loop over all IQIs and build a name to index map
-            for( auto tIQI : mIQIs )
+            for( const std::shared_ptr<IQI> & tIQI : mIQIs )
             {
                 std::string tIQIName = tIQI->get_name();
 
@@ -1798,7 +1798,7 @@ namespace moris
 
         void Set::build_requested_IWG_dof_type_list( const bool aIsResidual )
         {
-            for( auto tIWG : mRequestedIWGs )
+            for( const std::shared_ptr<IWG> & tIWG : mRequestedIWGs )
             {
                 tIWG->build_requested_dof_type_list( aIsResidual );
             }
@@ -1808,7 +1808,7 @@ namespace moris
 
         void Set::build_requested_IQI_dof_type_list()
         {
-            for( auto tIQI : mRequestedIQIs )
+            for( const std::shared_ptr<IQI> & tIQI : mRequestedIQIs )
             {
                 tIQI->build_requested_dof_type_list();
             }
