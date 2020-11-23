@@ -64,8 +64,11 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     // initialize cell of checks
     moris::Cell<bool> tChecks( 4, false );
 
+    // size of finite difference pertubation
+    real tPertubationSize = 7.0e-6;
+
     // real for check
-    real tEpsilonRel = 1.0E-6;
+    real tEpsilonRel = 1.8E-6;
 
     // create the properties --------------------------------------------------------------------- //
 
@@ -184,7 +187,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdEnergyDotdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-6 );
+    tCMMasterDiffLinIsoPC->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-5 );
 
     //check stress derivative
     bool tCheckEnergyDot = fem::check( tdEnergyDotdDOF, tdEnergyDotdDOF_FD, tEpsilonRel );
@@ -205,7 +208,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradEnergydDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, 1E-6 );
+    tCMMasterDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, tPertubationSize );
 
     //check stress derivative
     bool tCheckGradH = fem::check( tdGradEnergydDOF, tdGradEnergydDOF_FD, tEpsilonRel );
@@ -227,7 +230,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradEnergyDotdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, 1E-6 );
+    tCMMasterDiffLinIsoPC->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, tPertubationSize );
 
     //check stress derivative
     bool tCheckGradEnergyDot = fem::check( tdGradEnergyDotdDOF, tdGradEnergyDotdDOF_FD, tEpsilonRel );
@@ -249,7 +252,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
 
     // evaluate the constitutive model strain derivative by FD
     Matrix< DDRMat > tdGradDivFluxdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, 1E-6 );
+    tCMMasterDiffLinIsoPC->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, tPertubationSize );
 
     //check strain derivative
     bool tCheckGradDivFlux = fem::check( tdGradDivFluxdDOF, tdGradDivFluxdDOF_FD, tEpsilonRel );
@@ -303,9 +306,9 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD4]
             mtk::Interpolation_Order::LINEAR,
             Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
-
+    // 4.3 - 5.2 - 6.1
     // set coefficients for field interpolators
-    Matrix< DDRMat > tUHat0 = {{5.3},{5.1},{4.8},{5.3},{4.8},{4.9},{5.5},{4.9}};
+    Matrix< DDRMat > tUHat0 = {{4.3},{4.6},{4.3},{4.5},{5.4},{5.9},{5.8},{5.6}};
     Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
 
     // run test
