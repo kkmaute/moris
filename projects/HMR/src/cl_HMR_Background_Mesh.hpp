@@ -670,16 +670,46 @@ namespace moris
 
                 // calculate number of elements per dimension
                 Matrix< DDLUMat > tNumberOfElementsPerDimensionOnProc( N, 1 );
+
+                // remainder used if tNumberOfElementsPerDimension(k) isn't a
+                // multiple of mProcDims(k).
+                Matrix< DDLUMat > tRemainder( N, 1 );
+
                 for ( uint k=0; k<N; ++k )
                 {
-                    tNumberOfElementsPerDimensionOnProc( k ) = tNumberOfElementsPerDimension ( k ) /  mProcDims( k ) ;
+                    /*
+                     * This conditional determines whether a remainder element
+                     * is added to the processor dimension.  This will only
+                     * affect situations where the number of elements in a
+                     * direction is not a multiple of the number of processors
+                     * in that direction.
+                     *
+                     * For example, if there are 10 elements and 3 processors
+                     * in a direction, this will assign 4 elements to proc 1
+                     * and 3 elements to the other 2.
+                     */
+                    if (mMyProcCoords(k) < (tNumberOfElementsPerDimension(k) % mProcDims(k)))
+                    {
+                        // Remainder applied
+                        tRemainder(k) = 1;
+                    }
+                    else
+                    {
+                        // Remainder omitted
+                        tRemainder(k) = 0;
+                    }
+
+                    // assigning number of elements on this direction of the processor
+                    tNumberOfElementsPerDimensionOnProc(k) = (tNumberOfElementsPerDimension(k) -
+                            (tNumberOfElementsPerDimension(k) % mProcDims(k))) / mProcDims(k) +
+                            tRemainder(k);
 
                     if( par_rank() == 0 )
                     {
                         // make sure that cart size is OK
-                        if ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) != 0 )
+                        if ((tNumberOfElementsPerDimension(k) - tRemainder(k)) % mProcDims( k ) != 0 )
                         {
-                            MORIS_ASSERT( 0, "proc size incompatible to defined elements per dimension" );
+                            MORIS_ASSERT( 0, "decompose_mesh(): Error determining number of elements on proc" );
                         }
                     }
                 }
@@ -692,10 +722,13 @@ namespace moris
 
                 for ( uint k=0; k<N; ++k )
                 {
-                    tDomainIJK( 0, k ) =   mPaddingSize + tNumberOfElementsPerDimensionOnProc ( k ) * mMyProcCoords ( k );
-
+                    // calculates domain start taking into account remainder elements
+                    tDomainIJK( 0, k ) =   mPaddingSize + tNumberOfElementsPerDimensionOnProc ( k ) *
+                            mMyProcCoords ( k ) + (1 - tRemainder(k)) *
+                            (tNumberOfElementsPerDimension(k) % mProcDims(k));
                     tDomainIJK( 1, k ) =   tDomainIJK( 0, k ) + tNumberOfElementsPerDimensionOnProc ( k ) - 1;
                 }
+
 
                 // create proc domain
                 Domain< N > tMySubDomain( tDomainIJK, mPaddingSize );
