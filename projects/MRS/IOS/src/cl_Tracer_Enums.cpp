@@ -30,6 +30,7 @@ const std::string get_enum_str(enum EntityBase aEntityBase)
     case EntityBase::GlobalClock:       return "GlobalClock";
     case EntityBase::MSI:               return "MSI";
     case EntityBase::Mesh:              return "Mesh";
+    case EntityBase::XTK:               return "XTK";
     case EntityBase::OptimizationAlgorithm:      return "OptimizationAlgorithm";
     case EntityBase::TEST_CASE:         return "TEST_CASE";
 
@@ -50,6 +51,7 @@ enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
     else if (aEnumString == "GlobalClock")      return EntityBase::GlobalClock;
     else if (aEnumString == "MSI")              return EntityBase::MSI;
     else if (aEnumString == "Mesh")             return EntityBase::Mesh;
+    else if (aEnumString == "XTK")             return EntityBase::XTK;
     else if (aEnumString == "OptimizationAlgorithm")     return EntityBase::OptimizationAlgorithm;
     else if (aEnumString == "TEST_CASE")        return EntityBase::TEST_CASE;
 
@@ -87,6 +89,11 @@ const std::string get_enum_str(enum EntityType aEntityType)
     case EntityType::SQP:           return "SQP";
     case EntityType::Sweep:         return "Sweep";
     case EntityType::EquationModel: return "EquationModel";
+    case EntityType::Overall:       return "Overall";
+    case EntityType::Decompose:     return "Decompose";
+    case EntityType::Enrichment:    return "Enrichment";
+    case EntityType::Multigrid:     return "Multigrid";
+    case EntityType::GhostStabilization: return "GhostStabilization";
 
     default:
 //        MORIS_ASSERT(false, "Invalid EntityType Enum provided.");
@@ -114,6 +121,11 @@ enum EntityType get_entity_type_enum_from_str(std::string aEnumString)
     else if (aEnumString == "LBFGS")         return EntityType::LBFGS;
     else if (aEnumString == "Sweep")         return EntityType::Sweep;
     else if (aEnumString == "EquationModel") return EntityType::EquationModel;
+    else if (aEnumString == "Overall")       return EntityType::Overall;
+    else if (aEnumString == "Decompose")     return EntityType::Decompose;
+    else if (aEnumString == "Enrichment")    return EntityType::Enrichment;
+    else if (aEnumString == "Multigrid")     return EntityType::Multigrid;
+    else if (aEnumString == "GhostStabilization") return EntityType::GhostStabilization;
 
     else
     {
