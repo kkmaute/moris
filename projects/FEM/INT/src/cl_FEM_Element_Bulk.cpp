@@ -128,7 +128,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -185,7 +185,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_jacobian: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_jacobian: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -242,7 +242,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_jacobian_and_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_jacobian_and_residual: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -315,7 +315,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_dRdp: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_dRdp: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -380,7 +380,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_dRdp_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_dRdp_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -446,7 +446,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_QI: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_QI: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -493,7 +493,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_dQIdp_explicit: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_dQIdp_explicit: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -550,7 +550,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_dQIdp_explicit_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_dQIdp_explicit_FD: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -609,7 +609,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_dQIdu: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_dQIdu: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -662,7 +662,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("lement_Bulk::compute_quantity_of_interest_global: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_quantity_of_interest_global: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
@@ -719,7 +719,7 @@ namespace moris
                 // skip if detJ smaller than threshold
                 if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
                 {
-                    MORIS_LOG_INFO("Element_Bulk::compute_quantity_of_interest_elemental: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
+//                    MORIS_LOG_INFO("Element_Bulk::compute_quantity_of_interest_elemental: Skip quadrature point evaluation due to small detJ (%e)\n.",tDetJ);
                     continue;
                 }
 
