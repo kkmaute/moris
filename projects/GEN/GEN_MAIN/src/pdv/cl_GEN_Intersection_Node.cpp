@@ -28,12 +28,10 @@ namespace moris
                                               {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
                                      aIsocontourThreshold)),
                   mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(
-                          std::abs(mInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)) < aTolerance),
-                  mSecondParentOnInterface(
-                          std::abs(mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)) < aTolerance),
                   mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
         {
+            mFirstParentOnInterface  = std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex,  aFirstNodeCoordinates) )  < aTolerance;
+            mSecondParentOnInterface = std::abs( mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) < aTolerance;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -47,12 +45,14 @@ namespace moris
                 : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
                              {aFirstNodeCoordinates, aSecondNodeCoordinates},
                              xtk::Linear_Basis_Function(),
-                             Matrix<DDRMat>( { {0.0} } ) ),
-                  mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(false),
-                  mSecondParentOnInterface(false),
-                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+                             Matrix<DDRMat>( { {0.0} } ) )
         {
+            mInterfaceGeometry = aInterfaceGeometry;
+
+            mFirstParentOnInterface  = false;
+            mSecondParentOnInterface = false;
+
+            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
