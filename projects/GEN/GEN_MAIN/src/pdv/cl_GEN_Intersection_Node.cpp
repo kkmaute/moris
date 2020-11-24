@@ -25,12 +25,14 @@ namespace moris
                                      Matrix<DDRMat>(
                                              {{aInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
                                               {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
-                                     aIsocontourThreshold)),
-                  mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(mInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates) == 0.0),
-                  mSecondParentOnInterface(mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) == 0.0),
-                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+                                     aIsocontourThreshold))
         {
+            mInterfaceGeometry = aInterfaceGeometry;
+
+            mFirstParentOnInterface  = std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex,  aFirstNodeCoordinates) )  < 1e-12;
+            mSecondParentOnInterface = std::abs( mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) < 1e-12;
+
+            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -44,12 +46,14 @@ namespace moris
                 : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
                              {aFirstNodeCoordinates, aSecondNodeCoordinates},
                              xtk::Linear_Basis_Function(),
-                             Matrix<DDRMat>( { {0.0} } ) ),
-                  mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(false),
-                  mSecondParentOnInterface(false),
-                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+                             Matrix<DDRMat>( { {0.0} } ) )
         {
+            mInterfaceGeometry = aInterfaceGeometry;
+
+            mFirstParentOnInterface  = false;
+            mSecondParentOnInterface = false;
+
+            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
