@@ -2,6 +2,7 @@
 #define MORIS_CL_GEN_PHASE_TABLE_HPP_
 
 #include "cl_Matrix.hpp"
+#include "cl_Bitset.hpp"
 
 namespace moris
 {
@@ -50,10 +51,10 @@ namespace moris
             /**
              * Get phase index based on entity phase info
              *
-             * @param aEntityPhaseInfo Phase info
+             * @param aGeometrySigns Geometry sign info
              * @return Phase index
              */
-            moris_index get_phase_index(Matrix<IndexMat> const &aEntityPhaseInfo);
+            uint get_phase_index(const Bitset<512>& aGeometrySigns);
 
             /**
              * Gets the name of a requested phase

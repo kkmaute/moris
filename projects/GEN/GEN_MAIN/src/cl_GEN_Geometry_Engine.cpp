@@ -1,5 +1,6 @@
 // MRS
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Bitset.hpp"
 #include "cl_Tracer.hpp"
 
 // GEN
@@ -458,29 +459,31 @@ namespace moris
                 moris_index            aNodeIndex,
                 const Matrix<DDRMat> & aCoordinates)
         {
-            // 0 for neg 1 for pos
-            Matrix< IndexMat > tPhaseOnOff(1, this->get_num_geometries());
+            // Initialize bitset of geometry signs
+            Bitset<512> tGeometrySigns(0);
 
+            // Flip bits as needed
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-               moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
-
-                tPhaseOnOff(0, tGeometryIndex) = 0;
-
-                if (tProxIndex == 2)
-                {
-                    tPhaseOnOff(0, tGeometryIndex) = 1;
-                }
+                moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
+                tGeometrySigns.set(tGeometryIndex, tProxIndex == 2);
             }
 
-            return mPhaseTable.get_phase_index(tPhaseOnOff);
+            return mPhaseTable.get_phase_index(tGeometrySigns);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         moris_index Geometry_Engine::get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff)
         {
-            return mPhaseTable.get_phase_index(aElemOnOff);
+            // FIXME
+            Bitset<512> tGeometrySigns(0);
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                tGeometrySigns.set(tGeometryIndex, aElemOnOff(tGeometryIndex));
+            }
+
+            return mPhaseTable.get_phase_index(tGeometrySigns);
         }
 
         //--------------------------------------------------------------------------------------------------------------

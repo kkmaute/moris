@@ -1,6 +1,5 @@
 #include "cl_GEN_Phase_Table.hpp"
 #include "fn_linspace.hpp"
-#include "cl_Bitset.hpp"
 
 namespace moris
 {
@@ -17,16 +16,20 @@ namespace moris
                   mBulkPhases(aBulkPhases),
                   mPhaseNames(aPhaseNames)
         {
-            if (aBulkPhases.numel() > 0)
+            if (mBulkPhases.numel() > 0)
             {
                 // Number of phases
-                mNumPhases = aBulkPhases.max() + 1;
+                mNumPhases = mBulkPhases.max() + 1;
 
                 // Default phase names
                 if (mPhaseNames.size() == 0)
                 {
                     this->set_default_phase_names();
                 }
+
+                // Check for phase table size
+                MORIS_ERROR(mBulkPhases.length() == std::pow(2, mNumGeometries),
+                        "Must provide bulk phase information for each of the 2^n geometry combinations.");
             }
         }
 
@@ -48,17 +51,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index Phase_Table::get_phase_index(const Matrix<IndexMat>& aEntityPhaseInfo)
+        uint Phase_Table::get_phase_index(const Bitset<512>& aGeometrySigns)
         {
-            MORIS_ASSERT(aEntityPhaseInfo.length() == mNumGeometries, "Phase information must be provided for every geometry.");
-            
             uint tPhaseEntry = 0;
-            for (uint j = 0; j < mNumGeometries; j++)
+            for (uint tGeometryIndex = 0; tGeometryIndex < mNumGeometries; tGeometryIndex++)
             {
-                MORIS_ASSERT(aEntityPhaseInfo(j) == 0 or aEntityPhaseInfo(j) == 1,
-                        "Phase not 1 or 0. Note: 1 corresponds to a positive and 0 to a negative");
-
-                tPhaseEntry += std::pow(2, mNumGeometries) / std::pow(2, j + 1) * aEntityPhaseInfo(j);
+                tPhaseEntry += std::pow(2, mNumGeometries) / std::pow(2, tGeometryIndex + 1) * aGeometrySigns.test(tGeometryIndex);
             }
 
             return mBulkPhases(tPhaseEntry);
@@ -99,10 +97,10 @@ namespace moris
                 // Print phase entry
                 std::cout << std::setw(8) << tPhaseEntry << " | "
                           << std::setw(8) << mBulkPhases(tPhaseEntry) << " | "
-                          << std::setw(8) << mPhaseNames(tPhaseEntry).substr(0, 8) << " | ";
+                          << std::setw(8) << mPhaseNames(mBulkPhases(tPhaseEntry)).substr(0, 8) << " | ";
 
                 // Geometry signs (reversed)
-                Bitset<32> tGeometrySigns(tPhaseEntry);
+                Bitset<512> tGeometrySigns(tPhaseEntry);
 
                 // Print geometry signs
                 for (uint tGeometryIndex = mNumGeometries; tGeometryIndex-- > 0;)
