@@ -174,10 +174,7 @@ namespace moris
 
                 this->create_dof_assembly_map( aIsResidual );
 
-                if( !mFemModel->get_is_forward_analysis() )
-                {
-                    this->create_mat_pdv_assembly_map();
-                }
+                this->create_mat_pdv_assembly_map();
 
                 this->create_requested_IWG_list();
 
