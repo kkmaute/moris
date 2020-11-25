@@ -17,6 +17,7 @@
 #include "fn_inv.hpp" //ALG
 #include "fn_norm.hpp" //ALG
 #include "fn_linsolve.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -33,7 +34,6 @@ namespace moris
     TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
     {
         SECTION("Matrix Tests using default"){
-
 
             srand (time(0));
             moris::uint tNumCR = rand()%200;
@@ -83,6 +83,21 @@ namespace moris
                 Matrix< DDRMat > tE = tA*tB*tC*tD;
             }
             std::cout<<"Matrix multiplication with expression templates completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)* 1000<<" s."<<std::endl;
+
+            //check plus and minus operators
+            Matrix< DDRMat > tMpm1(2,2,1);
+            Matrix< DDRMat > tMpm2(2,2,2);
+            Matrix< DDRMat > tMpm3(2,2,3);
+
+            // note keep: + tMpm1
+            Matrix< DDRMat > tMplusRes = ( + tMpm1 +  tMpm2 + tMpm3 );
+            REQUIRE( moris::equal_to(tMplusRes(0,0), 6.0) );
+            REQUIRE( moris::equal_to(tMplusRes(1,1), 6.0) );
+
+            // note keep: - tMpm1
+            Matrix< DDRMat > tMminusRes = ( - tMpm1 - tMpm2 - tMpm3 );
+            REQUIRE( moris::equal_to(tMminusRes(0,0), -6.0) );
+            REQUIRE( moris::equal_to(tMminusRes(1,1), -6.0) );
 
             // Create matrix base
             Matrix< DDRMat > tMatrix1(1,2);
@@ -184,18 +199,31 @@ namespace moris
             // Modify the original and see if the copy changes (it shouldn't)
             tMatrix7(0,0) = 44;
 
+            REQUIRE( moris::equal_to( tMatrix7(0,0)    , 44.0 ) );
+            REQUIRE( moris::equal_to( tMatrix7Copy(0,0),  1.0 ) );
 
+
+            // check sub-matrix functionality
             Matrix< DDRMat > a( 3, 3 );
             a( 0, 0 ) = 1.0; a( 0, 1 ) = 2.0; a( 0, 2 ) = 3.0;
             a( 1, 0 ) = 4.0; a( 1, 1 ) = 5.0; a( 1, 2 ) = 6.0;
-            a( 2, 0 ) = 9.0; a( 2, 1 ) = 8.0; a( 2, 2 ) = 9.0;
+            a( 2, 0 ) = 9.0; a( 2, 1 ) = 8.0; a( 2, 2 ) = 7.0;
 
-            Matrix< DDRMat > aSpan = a( {1, 2}, {1, 2} );
-            REQUIRE( moris::equal_to( aSpan( 0, 0 ), 5.0 ) );
-            REQUIRE( moris::equal_to( aSpan( 0, 1 ), 6.0 ) );
-            REQUIRE( moris::equal_to( aSpan( 1, 0 ), 8.0 ) );
-            REQUIRE( moris::equal_to( aSpan( 1, 1 ), 9.0 ) );
+            Matrix< DDRMat > aSubMatrix = a( {1, 2}, {1, 2} );
+            REQUIRE( moris::equal_to( aSubMatrix( 0, 0 ), 5.0 ) );
+            REQUIRE( moris::equal_to( aSubMatrix( 0, 1 ), 6.0 ) );
+            REQUIRE( moris::equal_to( aSubMatrix( 1, 0 ), 8.0 ) );
+            REQUIRE( moris::equal_to( aSubMatrix( 1, 1 ), 7.0 ) );
 
+            Matrix< DDRMat > aSubVec1 = a( {0, 2} );
+            REQUIRE( moris::equal_to( aSubVec1( 0 ), 1.0 ) );
+            REQUIRE( moris::equal_to( aSubVec1( 1 ), 4.0 ) );
+            REQUIRE( moris::equal_to( aSubVec1( 2 ), 9.0 ) );
+
+            Matrix< DDRMat > aSubVec2 = a( {0, 2}, 2 );
+            REQUIRE( moris::equal_to( aSubVec2( 0 ), 3.0 ) );
+            REQUIRE( moris::equal_to( aSubVec2( 1 ), 6.0 ) );
+            REQUIRE( moris::equal_to( aSubVec2( 2 ), 7.0 ) );
 
             //        // Index out of bounds
             //        REQUIRE_THROWS(tMatrix7(3,3) = 0);
@@ -288,8 +316,6 @@ namespace moris
 
         tResultMatMoris = tResultMatMoris + tMorisMat;
 
-        tResultMatMoris = tResultMatMoris + tMorisMat;
-
         for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
             tResultMatMoris = tResultMatMoris + tMorisMat;
@@ -350,6 +376,61 @@ namespace moris
                 ( double ) tTimeForSummationMoris2/tTimeForSummationArma2,
                 ( double ) tTimeForSummationArma1/tTimeForSummationArma2,
                 ( double ) tTimeForSummationArma2/tTimeForSummationArma2 );
+
+        // time Moris Matrix involving transpose --------------------------------------------------
+
+        tTimeStamp = std::clock();
+
+         tResultMatMoris = tMorisMat;
+
+         for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+         {
+             tResultMatMoris = iCounter/tNumRepetitions * tResultMatMoris + tMorisMat;
+         }
+
+         real tTimeForSummationNoTransMoris = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+         MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
+                 tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummationNoTransMoris, norm(tResultMatMoris) );
+
+        tTimeStamp = std::clock();
+
+        tResultMatMoris = tMorisMat;
+
+        for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+        {
+            tResultMatMoris = trans( iCounter/tNumRepetitions * tResultMatMoris ) + tMorisMat;
+        }
+
+        real tTimeForSummationTransMoris = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus with transpose'         %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
+                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummationTransMoris, norm(tResultMatMoris) );
+
+        // time Arma Matrix involving transpose --------------------------------------------------
+        tTimeStamp = std::clock();
+
+        tResultMatArma = tArmaMat;
+
+        for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+        {
+            tResultMatArma = iCounter/tNumRepetitions * tResultMatArma + tArmaMat;
+        }
+
+        real tTimeForSummationNoTransArma = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i Arma-matrices: %5.2f milliseconds (result: %e).",
+                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummationNoTransArma, norm(tResultMatArma) );
+
+        tTimeStamp = std::clock();
+
+        tResultMatArma = tArmaMat;
+
+        for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+        {
+            tResultMatArma = trans( iCounter/tNumRepetitions * tResultMatArma ) + tArmaMat;
+        }
+
+        real tTimeForSummationTransArma = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus with transpose'         %i %i x %i Arma-matrices: %5.2f milliseconds (result: %e).",
+                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummationTransArma, norm(tResultMatArma) );
 
     }
 
