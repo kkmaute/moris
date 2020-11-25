@@ -18,7 +18,9 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    // Dummy user-defined geometry
+    // Dummy user-defined functions
+    uint user_defined_phase_function(const Bitset<512>& aGeometrySigns);
+
     real user_defined_geometry_field(const Matrix<DDRMat>& aCoordinates,
                                      const Cell<real*>&    aParameters);
 
@@ -59,6 +61,59 @@ namespace moris
                                 real aXSemidiameter,
                                 real aYSemidiameter,
                                 bool aCheck = true);
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Phase Table", "[gen], [geometry], [phase table]")
+        {
+            // Create phase table using number of geometries
+            Phase_Table tPhaseTable(3);
+
+            // Check number of phases
+            CHECK(tPhaseTable.get_num_phases() == 8);
+
+            // Check individual phases
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(0)) == 0);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(4)) == 1);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(2)) == 2);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(6)) == 3);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(1)) == 4);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(5)) == 5);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(3)) == 6);
+            CHECK(tPhaseTable.get_phase_index(Bitset<512>(7)) == 7);
+
+            // Create phase custom phase table
+            Phase_Table tPhaseTableCustom(3, Matrix<DDUMat>({{3, 2, 1, 0, 0, 1, 2, 3}}));
+
+            // Check number of phases
+            CHECK(tPhaseTableCustom.get_num_phases() == 4);
+
+            // Check individual phases
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(0)) == 3);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(4)) == 2);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(2)) == 1);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(6)) == 0);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(1)) == 0);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(5)) == 1);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(3)) == 2);
+            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(7)) == 3);
+
+            // Create phase custom phase table
+            Phase_Table tPhaseTableFunction(4, &user_defined_phase_function);
+
+            // Check number of phases
+            CHECK(tPhaseTableFunction.get_num_phases() == 4);
+
+            // Check individual phases
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(0)) == 3);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(4)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(2)) == 1);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(6)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(1)) == 0);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(5)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(3)) == 1);
+            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(7)) == 2);
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -842,6 +897,22 @@ namespace moris
             CHECK((aSwissCheese->get_field_value(0, {{aXCenter - aXSemidiameter, aYCenter}}) == Approx(0.0)) == aCheck);
             CHECK((aSwissCheese->get_field_value(0, {{aXCenter, aYCenter - aYSemidiameter}}) == Approx(0.0)) == aCheck);
         }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    uint user_defined_phase_function(const Bitset<512>& aGeometrySigns)
+    {
+        uint tPhaseIndex = 3;
+        for (uint tGeometryIndex = 0; tGeometryIndex < 8; tGeometryIndex++)
+        {
+            if (aGeometrySigns.test(tGeometryIndex))
+            {
+                tPhaseIndex = tGeometryIndex;
+            }
+        }
+
+        return tPhaseIndex;
     }
 
     //------------------------------------------------------------------------------------------------------------------
