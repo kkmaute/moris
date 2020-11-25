@@ -15,12 +15,21 @@ using namespace moris;
 Vector_Epetra::Vector_Epetra(
         sol::Dist_Map*  aMapClass,
         const sint      aNumVectors,
-        bool            aManageMap) : sol::Dist_Vector( aMapClass, aManageMap )
+        bool            aPointMap,
+        bool            aManageMap) : sol::Dist_Vector( aMapClass, aManageMap ),
+                mVecBuildWithPointMap( aPointMap )
 {
     mNumVectors = aNumVectors;
 
     // Build Epetra Vector
-    mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_map(), aNumVectors );
+    if( aPointMap )
+    {
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_point_map(), aNumVectors );
+    }
+    else
+    {
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_map(), aNumVectors );
+    }
 
     // Get pointer to MultiVector values
     mValuesPtr = mEpetraVector->Values();
@@ -66,11 +75,29 @@ void Vector_Epetra::sum_into_global_values(
         const moris::Matrix< DDRMat > & aValues,
         const uint                    & aVectorIndex )
 {
-    // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
-            aGlobalIds.data(),
-            aValues.data(),
-            aVectorIndex );
+    if( mVecBuildWithPointMap )
+    {
+        Matrix< IdMat > tPointFreeIds;
+        mMap->translate_ids_to_free_point_ids( aGlobalIds, tPointFreeIds );
+
+        // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+        reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues(
+                tPointFreeIds.numel(),
+                tPointFreeIds.data(),
+                aValues.data(),
+                aVectorIndex );
+    }
+    else
+    {
+        // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+        reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues(
+                aGlobalIds.numel(),
+                aGlobalIds.data(),
+                aValues.data(),
+                aVectorIndex );
+    }
+
+
 }
 
 //----------------------------------------------------------------------------------------------
@@ -99,25 +126,53 @@ void Vector_Epetra::vec_plus_vec(
     }
     else
     {
-        mEpetraVector->Scale( aScaleThis );
-
-        sint tNumElements = mEpetraVector->MyLength();
-
-        Matrix< IdMat > tIdMat( tNumElements, 1, MORIS_ID_MAX );
-
-        for( sint Ik = 0; Ik < tNumElements; Ik++)
+        if( ! mVecBuildWithPointMap )
         {
-            tIdMat( Ik ) = mMap->get_epetra_map()->GID( Ik );
+            mEpetraVector->Scale( aScaleThis );
+
+            sint tNumElements = mEpetraVector->MyLength();
+
+            Matrix< IdMat > tIdMat( tNumElements, 1, MORIS_ID_MAX );
+
+            for( sint Ik = 0; Ik < tNumElements; Ik++)
+            {
+                tIdMat( Ik ) = mMap->get_epetra_map()->GID( Ik );
+            }
+
+            //FIXME adjust for multivector
+            Matrix< DDRMat > tValues;
+            aVecA.extract_copy( tValues );
+
+            this->sum_into_global_values(
+                    tIdMat,
+                    tValues,
+                    0 );
         }
+        else
+        {
+            mEpetraVector->Scale( aScaleThis );
 
-        //FIXME adjust for multivector
-        Matrix< DDRMat > tValues;
-        aVecA.extract_copy( tValues );
+            sint tNumElements = mEpetraVector->MyLength();
 
-        this->sum_into_global_values(
-                 tIdMat,
-                 tValues,
-                 0 );
+            Matrix< IdMat > tIdMat( tNumElements, 1, MORIS_ID_MAX );
+
+            for( sint Ik = 0; Ik < tNumElements; Ik++)
+            {
+                tIdMat( Ik ) = mMap->get_epetra_map()->GID( Ik );
+            }
+
+            Matrix< IdMat > tPointIds;
+            mMap->translate_ids_to_free_point_ids( tIdMat, tPointIds );
+
+            //FIXME adjust for multivector
+            Matrix< DDRMat > tValues;
+            aVecA.extract_copy( tValues );
+
+            this->sum_into_global_values(
+                    tPointIds,
+                    tValues,
+                    0 );
+        }
     }
 }
 

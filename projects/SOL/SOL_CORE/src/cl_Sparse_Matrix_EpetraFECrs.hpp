@@ -27,15 +27,19 @@ class Sparse_Matrix_EpetraFECrs : public sol::Dist_Matrix
 private:
     moris::Matrix< DDUMat > mDirichletBCVec;
 
+    const bool mMatBuildWithPointMap =  false;
+
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );
 
 protected:
 
 public:
-    Sparse_Matrix_EpetraFECrs( moris::Solver_Interface * aInput,
-                               sol::Dist_Map*            aMap );
-							   
+    Sparse_Matrix_EpetraFECrs(
+            moris::Solver_Interface * aInput,
+            sol::Dist_Map*            aMap,
+            bool aPointMap = false);
+
 	Sparse_Matrix_EpetraFECrs(
         const sol::Dist_Map*  aRowMap,
         const sol::Dist_Map*  aColMap  );

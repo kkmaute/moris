@@ -32,7 +32,11 @@ namespace moris
 //            Epetra_BlockMap * mEpetraMap = nullptr;
             Epetra_Map * mEpetraPointMap = nullptr;
 
+            Epetra_Map * mFullOverlappigMap = nullptr;               //FIXME move this map to the solver warehouse
+
             Epetra_MultiVector      *mFullToFreePoint = nullptr;
+
+            void build_point_map();
 
             void translator( const moris::uint      & aNumMaxDofs,
                     const moris::uint      & aNumMyDofs,
