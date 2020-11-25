@@ -53,7 +53,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tResStartIndex, tResStopIndex }) += aWStar * (
                             tPropHeatTransfer->val() *
-                            ( tFI->val() - tPropAmbientTemp->val() ) * trans( tFI->N() ) );
+                            ( tFI->val() - tPropAmbientTemp->val() ) * tFI->N_trans() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -104,7 +104,7 @@ namespace moris
                 if( tDepDofType( 0 ) == mResidualDofType( 0 ) )
                 {
                     tJac += aWStar *
-                            tPropHeatTransfer->val() * trans( tFI->N() ) *  tFI->N();
+                            tPropHeatTransfer->val() * tFI->N_trans() *  tFI->N();
                 }
 
                 // if dependency of heat transfer coefficient on dof type
@@ -112,7 +112,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     tJac += aWStar * (tFI->val() - tPropAmbientTemp->val() ) *
-                                    trans( tFI->N() ) * tPropHeatTransfer->dPropdDOF( tDepDofType );
+                                    tFI->N_trans() * tPropHeatTransfer->dPropdDOF( tDepDofType );
                 }
             }
 

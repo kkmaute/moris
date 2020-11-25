@@ -53,7 +53,7 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get field interpolatopr for a given dof type
+            // get field interpolator for a given dof type
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
@@ -94,9 +94,9 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
-                            - trans( tFI->N() ) * tM * tCMDiffusion->traction( mNormal )
+                            - tFI->N_trans() * tM * tCMDiffusion->traction( mNormal )
                             + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tJump
-                            + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tJump );
+                            + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -178,7 +178,7 @@ namespace moris
                 {
                     tJac += aWStar * (
                             mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
-                            + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) ;
+                            + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tFI->N() ) ;
                 }
 
                 // if dependency on the dof type
@@ -187,7 +187,7 @@ namespace moris
                     // add contribution to Jacobian
                     tJac += aWStar * (
                             - mBeta  * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
-                            - tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                            - tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
@@ -195,7 +195,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     tJac += aWStar * (
-                            - trans( tFI->N() ) * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
+                            - tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
                             + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tM( 0 ) * tJump( 0 ) );
                 }
 
@@ -204,7 +204,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     tJac += aWStar * (
-                            trans( tFI->N() ) * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                            tFI->N_trans() * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
 
