@@ -51,14 +51,6 @@ namespace moris
     {
         return aA.matrix_data();
     }
-
-    template< typename Matrix_Type >
-    auto
-    operator-( Matrix< Matrix_Type > const & aA )
-    ->decltype( - aA.matrix_data() )
-    {
-        return - aA.matrix_data();
-    }
 }
 
 

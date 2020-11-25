@@ -65,6 +65,14 @@ namespace moris
     {
         return scalar_subtraction(aMatrix.matrix_data(), aScalar);
     }
+
+    template< typename Matrix_Type >
+    auto
+    operator-( Matrix< Matrix_Type > const & aA )
+    ->decltype( - aA.matrix_data() )
+    {
+        return - aA.matrix_data();
+    }
 }
 
 #endif /* PROJECTS_LINALG_SRC_OP_MINUS_HPP_ */
