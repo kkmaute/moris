@@ -27,8 +27,8 @@ namespace moris
                                               {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
                                      aIsocontourThreshold)),
                   mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(mInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates) == 0.0),
-                  mSecondParentOnInterface(mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) == 0.0),
+                  mFirstParentOnInterface( std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates) ) <=  1E-10),
+                  mSecondParentOnInterface(std::abs(mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) <= 1E-10),
                   mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
         {
         }
