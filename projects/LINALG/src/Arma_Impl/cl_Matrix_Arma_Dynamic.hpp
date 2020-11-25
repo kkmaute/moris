@@ -463,7 +463,7 @@ namespace moris
             }
 
             /*
-             * Block operations for vector-like matrices
+             * Block operations for columns of matrices
              */
 
             auto
@@ -471,8 +471,6 @@ namespace moris
                     std::pair< moris::size_t, moris::size_t > const & aI, const moris::size_t  aColIndex = 0 )
             ->decltype(mMatrix( arma::span( aI.first, aI.second ), aColIndex ) )
             {
-                MORIS_ASSERT(isvector(*this),"Using vector () operator on non-vector");
-
                 return mMatrix( arma::span( aI.first, aI.second ), aColIndex );
             }
 
@@ -485,8 +483,6 @@ namespace moris
                     std::pair< moris::size_t, moris::size_t > const & aI, const moris::size_t  aColIndex = 0 ) const
             ->decltype(mMatrix( arma::span( aI.first, aI.second ), aColIndex ) )
             {
-                MORIS_ASSERT(isvector(*this),"Using vector () operator on non-vector");
-
                 return mMatrix( arma::span( aI.first, aI.second ), aColIndex );
             }
 
