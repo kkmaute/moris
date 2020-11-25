@@ -18,6 +18,8 @@
 #include "cl_Tracer.hpp"
 #include "cl_Tracer_Enums.hpp"
 
+#include "cl_Ascii.hpp"
+
 
 using namespace moris;
 using namespace tsa;
@@ -84,6 +86,47 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
         }
 
         mSolverInterface->compute_IQI();
+
+
+//        //------------------------------------------------------------------------
+//
+//
+//        // build Ascii reader
+//        moris::Ascii tAsciiReader( "./Matrix_aaaa", moris::FileMode::OPEN_RDONLY );
+//
+//        // get number of lines in asci file
+//        moris::uint tNumLines = tAsciiReader.length();
+//
+//        for( uint Ik = 1; Ik < tNumLines; Ik++ )
+//        {
+//            std::string tFileLine = tAsciiReader.line( Ik );
+//
+//            // reset position
+//            size_t tPos = 0;
+//
+//            Matrix< DDRMat > tVal( 1,1);
+//
+//            if( !tFileLine.empty()  )
+//            {
+//                // find string
+//                tPos = tFileLine.find( " " );
+//
+//                tFileLine =  tFileLine.substr( tPos+1, tFileLine.size() );
+//
+//                // copy value into output matrix
+//                if( !tFileLine.empty() )
+//                {
+//                    tVal( 0 ) = stod(  tFileLine.substr( 0, tFileLine.size() ) );
+//                }
+//            }
+//
+//            Matrix< DDSMat > tMat( 1,1,Ik-1);
+//            aFullVector( tSolVecIndex )->replace_global_values( tMat,tVal);
+//
+//            std::cout<<" replace value: "<<tMat( 0 )<<" with "<<tVal( 0 )<<std::endl;
+//        }
+
+        //------------------------------------------------------------------------
 
         // input second time slap value for output
         mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached );

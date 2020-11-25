@@ -100,15 +100,15 @@ namespace moris
             moris::uint tJ = std::floor( ( aCoordinates( 1 ) - tDomainOffset( 1 ) ) / tVoxelSizeY );
             moris::uint tK = std::floor( ( aCoordinates( 2 ) - tDomainOffset( 2 ) ) / tVoxelSizeZ );
 
-            if( aCoordinates( 0 ) >=  tDomainDimensions( 0 ) + tDomainOffset( 0  ))
+            if( aCoordinates( 0 ) >=  tDomainDimensions( 0 ) + tDomainOffset( 0  ) )
             {
                 tI = mVoxelsInX-1;
             }
-            if( aCoordinates( 1 ) >=  tDomainDimensions( 1 ) + tDomainOffset( 1 ))
+            if( aCoordinates( 1 ) >=  tDomainDimensions( 1 ) + tDomainOffset( 1 ) )
             {
                 tJ = mVoxelsInY-1;
             }
-            if( aCoordinates( 2 ) >=  tDomainDimensions( 2 ) + tDomainOffset( 2 ))
+            if( aCoordinates( 2 ) >=  tDomainDimensions( 2 ) + tDomainOffset( 2 ) )
             {
                 tK = mVoxelsInZ-1;
             }

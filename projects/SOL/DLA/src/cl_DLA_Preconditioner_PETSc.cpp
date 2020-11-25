@@ -52,6 +52,12 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
     for ( moris::uint Ik = 0; Ik < tProlongationList.size(); Ik++ )
     {
         MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &tTransposeOperators( Ik ) );
+
+//        if( Ik == 0 )
+//        {
+//            std::string tString = "aaa";
+//            tProlongationList( Ik )->save_matrix_to_matlab_file( tString.c_str() );
+//        }
     }
 
     // set restriction operators

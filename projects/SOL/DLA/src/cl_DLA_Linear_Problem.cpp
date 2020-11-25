@@ -26,6 +26,8 @@ namespace moris
             // zero out full LHS vec
             mFullVectorLHS->vec_put_scalar( 0.0 );
 
+            mFreeVectorLHS->vec_plus_vec( 1.0, *mPointVectorLHS, 0.0 );
+
             // Import free LHS to full LHS
             mFullVectorLHS->import_local_to_global( *mFreeVectorLHS );
 
@@ -36,6 +38,8 @@ namespace moris
         void Linear_Problem::set_free_solver_LHS( sol::Dist_Vector * aFullSolVector)
         {
             mFreeVectorLHS->import_local_to_global( *aFullSolVector );
+
+            mPointVectorLHS->vec_plus_vec( 1.0, *mFreeVectorLHS, 0.0 );
         }
 
         //----------------------------------------------------------------------------------------
@@ -43,12 +47,13 @@ namespace moris
         {
             // zero out RHS
             mVectorRHS->vec_put_scalar( 0.0 );
+            mPointVectorRHS->vec_put_scalar( 0.0 );
 
             // zero out matrix
             mMat->mat_put_scalar( 0.0 );
 
             //
-            mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector );
+            mSolverInterface->fill_matrix_and_RHS( mMat, mPointVectorRHS, aFullSolutionVector );
         }
 
         //----------------------------------------------------------------------------------------
@@ -58,14 +63,15 @@ namespace moris
 
             // Zero out RHS
             mVectorRHS->vec_put_scalar( 0.0 );
+            mPointVectorRHS->vec_put_scalar( 0.0 );
 
             // start timer
             tic tTimer;
 
             // assemble RHS
-            mSolverInterface->assemble_RHS( mVectorRHS );
+            mSolverInterface->assemble_RHS( mPointVectorRHS );
 
-            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mVectorRHS );
+            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
 
             if( !mSolverInterface->get_is_forward_analysis() )
             {
@@ -80,14 +86,17 @@ namespace moris
             //mVectorRHS->print();
         }
 
+        //----------------------------------------------------------------------------------------
+
         void Linear_Problem::assemble_staggered_residual_contribution()
         {
-            mSolverInterface->assemble_staggerd_RHS_contribution( mVectorRHS );
+            mSolverInterface->assemble_staggerd_RHS_contribution( mPointVectorRHS );
             //std::cout<<"second RHS"<<std::endl;
             //mVectorRHS->print();
         }
 
         //----------------------------------------------------------------------------------------
+
         void Linear_Problem::assemble_jacobian()
         {
             Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleJacobian);
@@ -98,7 +107,7 @@ namespace moris
             tic tTimer;
 
             // assemble Jacobian
-            mSolverInterface->assemble_jacobian( mMat);
+            mSolverInterface->assemble_jacobian( mMat );
 
             if( mSolverWarehouse )
             {
@@ -118,14 +127,15 @@ namespace moris
         void Linear_Problem::assemble_residual_and_jacobian( )
         {
             mVectorRHS->vec_put_scalar( 0.0 );
+            mPointVectorRHS->vec_put_scalar( 0.0 );
             mMat->mat_put_scalar( 0.0 );
 
             // start timer
             tic tTimer;
 
-            mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS );
+            mSolverInterface->fill_matrix_and_RHS( mMat, mPointVectorRHS );
 
-            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mVectorRHS );
+            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
 
             if( !mSolverInterface->get_is_forward_analysis() )
             {
@@ -140,6 +150,7 @@ namespace moris
                 }
             }
 
+            //mMat->print();
             // stop timer
             //real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             //MORIS_LOG_INFO( "Assembly of Residual and Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
@@ -158,10 +169,10 @@ namespace moris
                           mSolverInterface->get_num_rhs() );
 
             // multiply jacobian with previous solution vector
-            mMat->mat_vec_product( *mFreeVectorLHS, *tMatTimesSolVec, false );
+            mMat->mat_vec_product( *mPointVectorLHS, *tMatTimesSolVec, false );
 
             // add contribution to RHS
-            mVectorRHS->vec_plus_vec( 1.0, *tMatTimesSolVec, 1.0 );
+            mPointVectorRHS->vec_plus_vec( 1.0, *tMatTimesSolVec, 1.0 );
 
             delete tMatTimesSolVec;
         }

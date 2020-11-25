@@ -162,7 +162,7 @@ namespace moris
             // Create full ADVs
             sol::Matrix_Vector_Factory tDistributedFactory;
             sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
-            sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap, 1, true);
+            sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap, 1, false, true);
 
             // Import ADVs
             tFullVector->import_local_to_global(*mOwnedADVs);
@@ -850,8 +850,8 @@ namespace moris
                 sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
                 // Create vectors
-                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, true);
-                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, true);
+                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
+                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
 
                 // Assign primitive ADVs
                 if (par_rank() == 0)

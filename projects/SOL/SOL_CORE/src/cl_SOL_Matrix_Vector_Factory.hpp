@@ -32,7 +32,8 @@ namespace moris
     
             Dist_Matrix *create_matrix(
                     Solver_Interface *aInput,
-                    Dist_Map* aMap);
+                    Dist_Map* aMap,
+                    bool aPointMap = false );
     
             Dist_Matrix *create_matrix(
                     Dist_Map* aRowMap,
@@ -46,11 +47,13 @@ namespace moris
                     moris::Solver_Interface *aInput,
                     Dist_Map* aMap,
                     const sint aNumVectors = 1,
+                    bool aPointMap = false,
                     bool aManageMap = false);
     
             Dist_Vector *create_vector(
                     Dist_Map* aMap,
                     const sint aNumVectors = 1,
+                    bool aPointMap = false,
                     bool aManageMap = false);
 
             /**
