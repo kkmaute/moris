@@ -64,8 +64,10 @@ namespace moris
             tParameterList.insert("PDV_types", "");          // Requested PDV types for sensitivity analysis
 
             // Phase table
-            tParameterList.insert("phase_table", ""); // Construct phase table directly
-            tParameterList.insert("print_phase_table", false); // print the phase table
+            tParameterList.insert("phase_table", "");          // Construct phase table directly
+            tParameterList.insert("phase_function_name", "");  // User-defined function for determining phase indices
+            tParameterList.insert("number_of_phases", 0);      // Number of phases for a user-defined phase function
+            tParameterList.insert("print_phase_table", false); // Whether or not to print the phase table
 
             return tParameterList;
         }

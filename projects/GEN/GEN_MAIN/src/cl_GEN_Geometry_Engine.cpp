@@ -68,9 +68,7 @@ namespace moris
                 mPropertyParameterLists(aParameterLists(2)),
                 
                 // Phase table
-                mPhaseTable(aParameterLists(0)(0).get<std::string>("phase_table").length()
-                        ? Phase_Table(mGeometries.size(), string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")))
-                        : Phase_Table(mGeometries.size()))
+                mPhaseTable(mGeometries.size(), string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")))
         {
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
@@ -89,6 +87,21 @@ namespace moris
 
             // Initialize PDV type list
             this->initialize_pdv_type_list();
+
+            // Recreate phase table via different methods if needed
+            std::string tPhaseFunctionName = aParameterLists(0)(0).get<std::string>("phase_function_name");
+            if (tPhaseFunctionName != "")
+            {
+                // User-defined phase function
+                mPhaseTable = Phase_Table(
+                        aParameterLists(0)(0).get<sint>("number_of_phases"),
+                        aLibrary->load_gen_phase_function(tPhaseFunctionName));
+            }
+            else if (aParameterLists(0)(0).get<std::string>("phase_table") == "")
+            {
+                // Unique phase per geometry combination
+                mPhaseTable = Phase_Table(mGeometries.size());
+            }
 
             // Print the phase table if requested
             if (aParameterLists(0)(0).get<bool>("print_phase_table") and par_rank() == 0)

@@ -44,6 +44,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Phase_Table::Phase_Table(
+                uint                     aNumPhases,
+                MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                Cell<std::string>        aPhaseNames)
+                : Phase_Table(0, {{aNumPhases - 1}}, aPhaseNames)
+        {
+            mPhaseFunction = aPhaseFunction;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         uint Phase_Table::get_num_phases()
         {
             return mNumPhases;
@@ -53,13 +64,20 @@ namespace moris
 
         uint Phase_Table::get_phase_index(const Bitset<512>& aGeometrySigns)
         {
-            uint tPhaseEntry = 0;
-            for (uint tGeometryIndex = 0; tGeometryIndex < mNumGeometries; tGeometryIndex++)
+            if (mPhaseFunction)
             {
-                tPhaseEntry += std::pow(2, mNumGeometries) / std::pow(2, tGeometryIndex + 1) * aGeometrySigns.test(tGeometryIndex);
+                return mPhaseFunction(aGeometrySigns);
             }
+            else
+            {
+                uint tPhaseEntry = 0;
+                for (uint tGeometryIndex = 0; tGeometryIndex < mNumGeometries; tGeometryIndex++)
+                {
+                    tPhaseEntry += std::pow(2, mNumGeometries) / std::pow(2, tGeometryIndex + 1) * aGeometrySigns.test(tGeometryIndex);
+                }
 
-            return mBulkPhases(tPhaseEntry);
+                return mBulkPhases(tPhaseEntry);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

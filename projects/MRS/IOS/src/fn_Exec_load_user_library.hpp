@@ -18,6 +18,7 @@
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Param_List.hpp"
 
@@ -61,6 +62,8 @@ namespace moris
     typedef bool ( *MORIS_POINTER_FUNC ) ( void * aPointer );
 
     typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+
+    typedef uint ( *MORIS_GEN_PHASE_FUNCTION )( const Bitset<512>& aGeometrySigns );
 
     typedef real ( *MORIS_GEN_FIELD_FUNCTION ) (
             const moris::Matrix< DDRMat >     & aCoordinates,
@@ -240,6 +243,24 @@ namespace moris
              MORIS_FEM_FREE_FUNCTION aUserFunction
              = reinterpret_cast<MORIS_FEM_FREE_FUNCTION>
              ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
+
+             // create error message
+             std::string tError =  "Could not find symbol " + aFunctionName
+                     + "  within file " + mPath;
+
+             // make sure that loading succeeded
+             MORIS_ERROR( aUserFunction, tError.c_str() );
+
+             // return function handle
+             return aUserFunction;
+         }
+
+         MORIS_GEN_PHASE_FUNCTION
+         load_gen_phase_function( const std::string & aFunctionName )
+         {
+             MORIS_GEN_PHASE_FUNCTION aUserFunction
+                     = reinterpret_cast<MORIS_GEN_PHASE_FUNCTION>
+                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
              // create error message
              std::string tError =  "Could not find symbol " + aFunctionName

@@ -3,6 +3,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_Bitset.hpp"
+#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -16,6 +17,7 @@ namespace moris
             uint mNumPhases = 0;           // Number of bulk phases
             Matrix<DDUMat> mBulkPhases;    // Geometric sign to bulk phase
             Cell<std::string> mPhaseNames; // Phase names
+            MORIS_GEN_PHASE_FUNCTION mPhaseFunction = nullptr;
             
         public:
 
@@ -40,6 +42,17 @@ namespace moris
             Phase_Table(
                     uint              aNumGeometries,
                     Cell<std::string> aPhaseNames = {});
+
+            /**
+             * Create a phase table where the phase indices are decided by a user-defined function.
+             *
+             * @param aNumPhases Number of bulk phases
+             * @param aPhaseFunction User-defined phase function
+             */
+            Phase_Table(
+                    uint                     aNumPhases,
+                    MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                    Cell<std::string>        aPhaseNames = {});
 
             /**
              * Get the number of phases
