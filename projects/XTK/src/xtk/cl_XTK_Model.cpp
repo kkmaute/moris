@@ -3211,8 +3211,6 @@ namespace xtk
         // allocate
         moris::moris_index tElement0           = MORIS_INDEX_MAX;
         moris::moris_index tElement1           = MORIS_INDEX_MAX;
-        moris::moris_index tElement0PhaseIndex = MORIS_INDEX_MAX;
-        moris::moris_index tElement1PhaseIndex = MORIS_INDEX_MAX;
 
         // iterate through pairs
         for(moris::uint iP = 0; iP<tNumPairs; iP++)
@@ -3228,8 +3226,7 @@ namespace xtk
             // Figure out which element in the pair gets to keep the original
             if(tElement0 != MORIS_INDEX_MAX)
             {
-                tElement0PhaseIndex = mBackgroundMesh.get_element_phase_index(tElement0);
-                tElement0GeomSign = mGeometryEngine->get_phase_sign_of_given_phase_and_geometry(tElement0PhaseIndex,aGeometryIndex);
+                tElement0GeomSign = 0;
 
                 if(tElement0GeomSign == tValWhichUsesUnzipped)
                 {
@@ -3239,8 +3236,7 @@ namespace xtk
 
             if(tElement1 != MORIS_INDEX_MAX)
             {
-                tElement1PhaseIndex = mBackgroundMesh.get_element_phase_index(tElement1);
-                tElement1GeomSign = mGeometryEngine->get_phase_sign_of_given_phase_and_geometry(tElement1PhaseIndex,aGeometryIndex);
+                tElement1GeomSign = 0;
                 if(tElement1GeomSign == tValWhichUsesUnzipped)
                 {
                     tElementWhichKeepsUsesUnzippedNodes(iP) = 1;

@@ -283,16 +283,9 @@ namespace moris
                     const Matrix<DDRMat>&       aGlobalNodeCoord );
 
             /**
-             * @brief Get the total number of phases in the phase table
+             * Get the total number of phases in the phase table
              */
             size_t get_num_phases();
-
-            /**
-             * @brief Get the 0 or 1 value associated with a given phase and geometry index
-             */
-            moris_index get_phase_sign_of_given_phase_and_geometry(
-                    moris_index aPhaseIndex,
-                    moris_index aGeometryIndex );
 
             /**
              * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)

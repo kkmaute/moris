@@ -66,8 +66,10 @@ namespace moris
                 mProperties(create_properties(aParameterLists(2), mADVs, mGeometries, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
                 
-                // phase table
-                mPhaseTable(mGeometries.size())
+                // Phase table
+                mPhaseTable(aParameterLists(0)(0).get<std::string>("phase_table").length()
+                        ? Phase_Table(mGeometries.size(), string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")))
+                        : Phase_Table(mGeometries.size()))
         {
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
@@ -86,15 +88,8 @@ namespace moris
 
             // Initialize PDV type list
             this->initialize_pdv_type_list();
-            
-            // Set map if its a non-standard phase table (i.e. the map is not 1-1 between index and bulk phase).
-            if (aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
-            {
-                Matrix<IndexMat> tPhaseTable = string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table"));
-                mPhaseTable.set_index_to_bulk_phase_map(tPhaseTable);
-            }
 
-            // print the phase table if requested (since GEN doesn't have a perform operator this is going here)
+            // Print the phase table if requested
             if (aParameterLists(0)(0).get<bool>("print_phase_table") and par_rank() == 0)
             {
                 mPhaseTable.print();
@@ -455,15 +450,6 @@ namespace moris
         size_t Geometry_Engine::get_num_phases()
         {
             return mPhaseTable.get_num_phases();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris_index Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
-                moris_index aPhaseIndex,
-                moris_index aGeometryIndex )
-        {
-            return mPhaseTable.get_phase_sign_of_given_phase_and_geometry( aPhaseIndex,aGeometryIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------
