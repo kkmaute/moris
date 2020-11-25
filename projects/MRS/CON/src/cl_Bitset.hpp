@@ -131,11 +131,10 @@ namespace moris
          * @return Bitset.
          */
         auto
-        set(
-                const moris::size_t index )
-        -> decltype( mBitset.set( index ) )
+        set( moris::size_t aIndex, bool aValue = true )
+        -> decltype( mBitset.set( aIndex, aValue ) )
         {
-            return( mBitset.set( index ) );
+            return( mBitset.set( aIndex, aValue ) );
         }
 
         // -----------------------------------------------------------------------------
