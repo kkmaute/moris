@@ -26,12 +26,14 @@ namespace moris
                                      Matrix<DDRMat>(
                                              {{aInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
                                               {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
-                                     aIsocontourThreshold)),
-                  mInterfaceGeometry(aInterfaceGeometry),
-                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+                                     aIsocontourThreshold))
         {
+            mInterfaceGeometry = aInterfaceGeometry;
+
             mFirstParentOnInterface  = std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex,  aFirstNodeCoordinates) )  < aTolerance;
             mSecondParentOnInterface = std::abs( mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) < aTolerance;
+
+            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates  + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
