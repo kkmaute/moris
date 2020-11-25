@@ -35,20 +35,33 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
           mNumMyDofs = 8;
           mMyGlobalElements.resize( mNumMyDofs, 1 );
           mMyConstraintDofs.resize( 2, 1 );
-          mMyGlobalElements(0,0) = 0;    mMyGlobalElements(1,0) = 1;  mMyGlobalElements(2,0) = 8;    mMyGlobalElements(3,0) = 9;    mMyGlobalElements(4,0) = 16;    mMyGlobalElements(5,0) = 17;    mMyGlobalElements(6,0) = 14;    mMyGlobalElements(7,0) = 15;
+          mMyGlobalElements(0,0) = 0;    mMyGlobalElements(1,0) = 1;
+          mMyGlobalElements(2,0) = 8;    mMyGlobalElements(3,0) = 9;
+          mMyGlobalElements(4,0) = 16;    mMyGlobalElements(5,0) = 17;
+          mMyGlobalElements(6,0) = 14;    mMyGlobalElements(7,0) = 15;
+
           mNumElements = 1;
           mMyConstraintDofs(0,0) = 0;    mMyConstraintDofs(1,0) = 1;
-          mEleDofConectivity( 0, 0) = 0;   mEleDofConectivity( 1, 0) = 1; mEleDofConectivity( 2, 0) = 8; mEleDofConectivity( 3, 0) = 9; mEleDofConectivity( 4, 0) = 16; mEleDofConectivity( 5, 0) = 17; mEleDofConectivity( 6, 0) = 14; mEleDofConectivity( 7, 0) = 15;
+
+          mEleDofConectivity( 0, 0) = 0;   mEleDofConectivity( 1, 0) = 1;
+          mEleDofConectivity( 2, 0) = 8; mEleDofConectivity( 3, 0) = 9;
+          mEleDofConectivity( 4, 0) = 16; mEleDofConectivity( 5, 0) = 17;
+          mEleDofConectivity( 6, 0) = 14; mEleDofConectivity( 7, 0) = 15;
+
           mMyRHSValues(0).fill( 0.0 );
           break;
         case 1:
           mNumMyDofs = 4;
           mMyGlobalElements.resize( mNumMyDofs, 1 );
           mMyConstraintDofs.resize( 1, 1 );
-          mMyGlobalElements(0,0) = 2;   mMyGlobalElements(1,0) = 3;    mMyGlobalElements(2,0) = 10;    mMyGlobalElements(3,0) = 11;
+          mMyGlobalElements(0,0) = 2;   mMyGlobalElements(1,0) = 3;
+          mMyGlobalElements(2,0) = 10;    mMyGlobalElements(3,0) = 11;
           mNumElements = 1;
           mMyConstraintDofs(0,0) = 3;
-          mEleDofConectivity( 0, 0) = 8;        mEleDofConectivity( 1, 0) = 9; mEleDofConectivity( 2, 0) = 2; mEleDofConectivity( 3, 0) = 3; mEleDofConectivity( 4, 0) = 10; mEleDofConectivity( 5, 0) = 11; mEleDofConectivity( 6, 0) = 16; mEleDofConectivity( 7, 0) = 17;
+          mEleDofConectivity( 0, 0) = 8;        mEleDofConectivity( 1, 0) = 9;
+          mEleDofConectivity( 2, 0) = 2; mEleDofConectivity( 3, 0) = 3;
+          mEleDofConectivity( 4, 0) = 10; mEleDofConectivity( 5, 0) = 11;
+          mEleDofConectivity( 6, 0) = 16; mEleDofConectivity( 7, 0) = 17;
           mMyRHSValues(0).fill( 0.0 );
           break;
         case 2:
@@ -56,16 +69,23 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
           mMyGlobalElements.resize( mNumMyDofs, 1 );
           mMyGlobalElements(0,0) = 4;    mMyGlobalElements(1,0) = 5;
           mNumElements = 1;
-          mEleDofConectivity( 0, 0) = 16;        mEleDofConectivity( 1, 0) = 17;    mEleDofConectivity( 2, 0) = 10;    mEleDofConectivity( 3, 0) = 11;    mEleDofConectivity( 4, 0) = 4;    mEleDofConectivity( 5, 0) = 5;    mEleDofConectivity( 6, 0) = 12;    mEleDofConectivity( 7, 0) = 13;
+          mEleDofConectivity( 0, 0) = 16;        mEleDofConectivity( 1, 0) = 17;
+          mEleDofConectivity( 2, 0) = 10;    mEleDofConectivity( 3, 0) = 11;
+          mEleDofConectivity( 4, 0) = 4;    mEleDofConectivity( 5, 0) = 5;
+          mEleDofConectivity( 6, 0) = 12;    mEleDofConectivity( 7, 0) = 13;
           mMyRHSValues(0)( 0, 0 )= 0.0;      mMyRHSValues(0)( 1, 0 )= 0.0;    mMyRHSValues(0)( 2, 0 )= 0.0;    mMyRHSValues(0)( 3, 0 )= 0.0;   mMyRHSValues(0)( 4, 0 )= 0.0;
           mMyRHSValues(0)( 5, 0 )= 1.0;      mMyRHSValues(0)( 6, 0 )= 0.0;    mMyRHSValues(0)( 7, 0 )= 0.0;
           break;
         case 3:
           mNumMyDofs = 4;
           mMyGlobalElements.resize( mNumMyDofs, 1 );
-          mMyGlobalElements(0,0) = 12;    mMyGlobalElements(1,0) = 13;    mMyGlobalElements(2,0) = 6;    mMyGlobalElements(3,0) = 7;
+          mMyGlobalElements(0,0) = 12;    mMyGlobalElements(1,0) = 13;
+          mMyGlobalElements(2,0) = 6;    mMyGlobalElements(3,0) = 7;
           mNumElements = 1;
-          mEleDofConectivity( 0, 0) = 14;    mEleDofConectivity( 1, 0) = 15;    mEleDofConectivity( 2, 0) = 16;    mEleDofConectivity( 3, 0) = 17;    mEleDofConectivity( 4, 0) = 12;    mEleDofConectivity( 5, 0) = 13;    mEleDofConectivity( 6, 0) = 6;        mEleDofConectivity( 7, 0) = 7;
+          mEleDofConectivity( 0, 0) = 14;    mEleDofConectivity( 1, 0) = 15;
+          mEleDofConectivity( 2, 0) = 16;    mEleDofConectivity( 3, 0) = 17;
+          mEleDofConectivity( 4, 0) = 12;    mEleDofConectivity( 5, 0) = 13;
+          mEleDofConectivity( 6, 0) = 6;        mEleDofConectivity( 7, 0) = 7;
           mMyRHSValues(0).fill( 0.0 );
           break;
         }
