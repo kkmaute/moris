@@ -55,7 +55,7 @@ namespace moris
             // Level set
             enum Intersection_Mode mIntersectionMode = Intersection_Mode::LEVEL_SET;
             real mIsocontourThreshold;
-            real mErrorFactor;
+            real mIsocontourTolerance;
 
             // Spatial dimensions
             uint mSpatialDim;
@@ -124,7 +124,7 @@ namespace moris
              * @param aMesh Mesh for computing level-set values
              * @param aADVs ADV vector
              * @param aIsocontourThreshold Threshold for setting the level-set isocontour
-             * @param aErrorFactor Error factor for determining if a node is on an interface
+             * @param aIsocontourTolerance Tolerance for determining if a node is on an interface
              */
             Geometry_Engine(
                     Cell< std::shared_ptr<Geometry> > aGeometry,
@@ -132,7 +132,7 @@ namespace moris
                     mtk::Interpolation_Mesh*          aMesh,
                     Matrix<DDRMat>                    aADVs = {{}},
                     real                              aIsocontourThreshold = 0.0,
-                    real                              aErrorFactor = 0.0);
+                    real                              aIsocontourTolerance = 0.0);
 
             /**
              * Destructor

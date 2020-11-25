@@ -50,7 +50,7 @@ namespace moris
 
         // IQI sensitivity vector
         sol::Dist_Map* tPDVMap = tDistributedFactory.create_map(tOwnedPDVIds);
-        sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector(tPDVMap, 2, true);
+        sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector(tPDVMap, 2, false, true);
 
         // Fill values
         if (par_rank() == 0)
@@ -342,7 +342,7 @@ namespace moris
 
                     // Create intersection node
                     std::shared_ptr<Intersection_Node> tIntersectionNode = std::make_shared<Intersection_Node>(
-                            0, 0, tFirstParentCoordinates, tSecondParentCoordinates, tCircle, 0.0);
+                            0, 0, tFirstParentCoordinates, tSecondParentCoordinates, tCircle, 0.0, 0.0);
 
                     // Add intersection node to PDV host manager
                     tPDVHostManager.set_intersection_node(tNodeIndex, tIntersectionNode);

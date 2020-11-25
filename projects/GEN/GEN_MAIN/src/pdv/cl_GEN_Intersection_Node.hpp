@@ -29,10 +29,13 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aParentNodeIndices Node indices of the parent of this node
-             * @param aParentNodeCoordinates Coordinates of the parent of this node
+             * @param aFirstNodeIndex Index of the first parent of this node
+             * @param aSecondNodeIndex Index of the second parent of this node
+             * @param aFirstNodeCoordinates Coordinates of the first parent of this node
+             * @param aSecondNodeCoordinates Coordinates of the second parent of this node
              * @param aInterfaceGeometry Geometry that intersects the parent to create this child
              * @param aIsocontourThreshold Threshold for determining the intersection location of the child node
+             * @param aTolerance Tolerance for determining if parent nodes are on the interface or not
              */
             Intersection_Node(
                     uint                      aFirstNodeIndex,
@@ -40,7 +43,8 @@ namespace moris
                     const Matrix<DDRMat>&     aFirstNodeCoordinates,
                     const Matrix<DDRMat>&     aSecondNodeCoordinates,
                     std::shared_ptr<Geometry> aInterfaceGeometry,
-                    real                      aIsocontourThreshold);
+                    real                      aIsocontourThreshold,
+                    real                      aTolerance);
 
             Intersection_Node(
                     uint                      aFirstNodeIndex,

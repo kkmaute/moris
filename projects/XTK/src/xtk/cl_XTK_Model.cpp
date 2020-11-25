@@ -448,7 +448,7 @@ namespace xtk
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Decompose, EntityAction::Run);
+        Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::Decompose);
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
@@ -476,7 +476,6 @@ namespace xtk
 
             for (moris::size_t iDecomp = 0; iDecomp < tNumDecompositions; iDecomp++)
             {
-
                 // Perform subdivision
                 this->decompose_internal(aMethods(iDecomp), iGeom, tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
 
@@ -512,17 +511,22 @@ namespace xtk
         {
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
             {
+                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeRegularHex8);
+
                 this->decompose_internal_reg_sub_hex8(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
             }
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4:
             {
+                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeRegularQuad4);
+
                 this->decompose_internal_reg_sub_quad4(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
 
             }
             case Subdivision_Method::C_HIERARCHY_TET4:
             {
+                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeHierarchyTet4);
 
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
@@ -764,6 +768,8 @@ namespace xtk
             }
             case Subdivision_Method::C_TRI3:
             {
+                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeHierarchyTri3);
+
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
                 if(aFirstSubdivision)
@@ -999,8 +1005,6 @@ namespace xtk
                         }
                     }
                 }
-
-
 
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -3400,7 +3404,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             moris_index      const & aMeshIndex)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Run);
+        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Enrich);
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3421,6 +3425,8 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
+        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Enrich);
+
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
         // allocate some new enriched interpolation and integration meshes

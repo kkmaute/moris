@@ -75,6 +75,7 @@ namespace moris
                 // flag for evaluation
                 bool mNBuildEval      = true;
                 bool mNEval           = true;
+                bool mNTransEval      = true;
                 bool mdNdxEval        = true;
                 bool md2Ndx2Eval      = true;
                 bool md3Ndx3Eval      = true;
@@ -84,10 +85,22 @@ namespace moris
                 bool mDivOperatorEval = true;
 
                 bool mValEval         = true;
+                bool mValTransEval    = true;
+
+                bool mGradx1Eval      = true;
+                bool mGradx2Eval      = true;
+                bool mGradx3Eval      = true;
+
+                bool mGradt1Eval      = true;
+                bool mGradt2Eval      = true;
+                bool mGradt3Eval      = true;
+
+                bool mGradxtEval      = true;
 
                 // storage
                 Matrix< DDRMat > mNBuild;
                 Matrix< SDRMat > mN;
+                Matrix< SDRMat > mNTrans;
                 Matrix< DDRMat > mdNdx;
                 Matrix< DDRMat > md2Ndx2;
                 Matrix< DDRMat > md3Ndx3;
@@ -97,6 +110,17 @@ namespace moris
                 Matrix< DDRMat > mDivOperator;
 
                 Matrix< DDRMat > mVal;
+                Matrix< DDRMat > mValTrans;
+
+                Matrix< DDRMat > mGradx1;
+                Matrix< DDRMat > mGradx2;
+                Matrix< DDRMat > mGradx3;
+
+                Matrix< DDRMat > mGradt1;
+                Matrix< DDRMat > mGradt2;
+                Matrix< DDRMat > mGradt3;
+
+                Matrix< DDRMat > mGradxt;
 
                 //------------------------------------------------------------------------------
             public:
@@ -297,17 +321,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * return the N for vectorial field ( space time shape functions )
+                 * return the N for vector field ( space time shape functions )
                  * @param[ out ] ( nNumberOfFields x mNFieldCoeff )
                  */
                 const Matrix < SDRMat > & N();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the N for vectorial field ( space time shape functions )
+                 * evaluate the N for vector field ( space time shape functions )
                  * @param[ out ] ( nNumberOfFields x mNFieldCoeff )
                  */
                 void eval_N();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return the transpose of N for vector field ( space time shape functions )
+                 * @param[ out ] ( nNumberOfFields x mNFieldCoeff )
+                 */
+                const Matrix < SDRMat > & N_trans();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -389,13 +420,25 @@ namespace moris
                  */
                 void eval_val();
 
+                /**
+                 * get the transpose of the field at given space and time Xi, Tau
+                 * @param[ out ]          interpolated field
+                 */
+                const Matrix< DDRMat > & val_trans();
+
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the field space derivatives at given space and time evaluation point
                  * @param[ in ]  aDerivativeOrder  order of the required derivatives
                  * @param[ out ] gradx             space derivatives
                  */
-                Matrix< DDRMat > gradx( const uint & aDerivativeOrder );
+                const Matrix< DDRMat > & gradx( const uint & aDerivativeOrder );
+
+                /**
+                 * evaluates the field space derivatives at given space and time evaluation point
+                 * @param[ in ]  aDerivativeOrder  order of the required derivatives
+                 */
+                void eval_gradx( const uint & aDerivativeOrder );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -423,14 +466,25 @@ namespace moris
                  * @param[ in ] aDerivativeOrder  order of the required derivative
                  * @param[ out ] gradt            time derivatives
                  */
-                Matrix< DDRMat > gradt( const uint & aDerivativeOrder );
+                const Matrix< DDRMat > & gradt( const uint & aDerivativeOrder );
+
+                /**
+                 * evaluates the field time derivative at given space and time evaluation point
+                 * @param[ in ] aDerivativeOrder  order of the required derivative
+                 */
+                void eval_gradt( const uint & aDerivativeOrder );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the mixed field space & time derivative at given space and time evaluation point
                  * @param[ out ] gradxt            mixed space time derivatives
                  */
-                Matrix< DDRMat > gradxt();
+                const Matrix< DDRMat > & gradxt();
+
+                /**
+                 * evaluates the mixed field space & time derivative at given space and time evaluation point
+                 */
+                void eval_gradxt();
 
                 //------------------------------------------------------------------------------
         };

@@ -27,6 +27,8 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_IQI_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
+
 //FEM/MSI/src
 #include "cl_MSI_Design_Variable_Interface.hpp"
 //MTK/src
@@ -115,10 +117,8 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     Geometry_Interpolator tGI( tGIRule );
 
     // create space coeff xHat
-    arma::Mat< double > tXMatrix;
-    tXMatrix.randu( 8, 3 );
     Matrix< DDRMat > tXHat;
-    tXHat = 10.0 * tXMatrix;
+    fill_xhat_Elast( tXHat, 3, 1 );
 
     // create time coeff tHat
     Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
@@ -135,14 +135,12 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
                                  Interpolation_Type::LAGRANGE,
                                  mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
+                                 Interpolation_Type::LAGRANGE,
+                                 mtk::Interpolation_Order::LINEAR );
 
     // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 3 );
     Matrix< DDRMat > tDOFHat;
-    tDOFHat = 10.0 * tMatrix;
+    fill_uhat_Elast( tDOFHat, 3, 1 );
 
     // create a cell of field interpolators for IWG
     moris::Cell< Field_Interpolator* > tFIs( 1 );
@@ -157,10 +155,8 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tFIs( 0 )->set_space_time( tParamPoint );
 
     // create random dv coefficients
-    arma::Mat< double > tMatrixDv;
-    tMatrixDv.randu( 8, 1 );
     Matrix< DDRMat > tDvHat;
-    tDvHat = 10.0 * tMatrixDv;
+    fill_phat_Elast( tDvHat, 3, 1 );
 
     // create a cell of field interpolators for IWG
     moris::Cell< Field_Interpolator* > tDvFIs( 1 );
@@ -230,19 +226,19 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
 
     // set size and populate residual assembly map
     tIQI->mSet->mResDofAssemblyMap.resize( 1 );
-    tIQI->mSet->mResDofAssemblyMap( 0 ) = { { 0, 23 } };
+    tIQI->mSet->mResDofAssemblyMap( 0 ) = { { 0, 47 } };
 
     // set size and populate jacobian assembly map
     tIQI->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIQI->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 23 } };
+    tIQI->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 47 } };
 
     // set size and fill the set dv assembly map
     tIQI->mSet->mPdvMatAssemblyMap.resize( 1 );
-    tIQI->mSet->mPdvMatAssemblyMap( 0 ) = { { 0, 7 } };
+    tIQI->mSet->mPdvMatAssemblyMap( 0 ) = { { 0, 15 } };
 
     // set size and init the set residual and jacobian
     tIQI->mSet->mResidual.resize( 1 );
-    tIQI->mSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
+    tIQI->mSet->mResidual( 0 ).set_size( 48, 1, 0.0 );
 
     // set size and init the set residual and jacobian
     tIQI->mSet->mQI.resize( 1 );

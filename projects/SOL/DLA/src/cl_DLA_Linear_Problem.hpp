@@ -29,12 +29,14 @@ namespace moris
         private:
 
         protected:
-            sol::Dist_Matrix   * mMat           = nullptr;
-            sol::Dist_Vector   * mVectorRHS     = nullptr;
-            sol::Dist_Vector   * mFreeVectorLHS = nullptr;
-            sol::Dist_Vector   * mFullVectorLHS = nullptr;
-            sol::Dist_Map*  mMap           = nullptr;
-            sol::Dist_Map*  mMapFree       = nullptr;
+            sol::Dist_Matrix   * mMat            = nullptr;
+            sol::Dist_Vector   * mVectorRHS      = nullptr;
+            sol::Dist_Vector   * mFreeVectorLHS  = nullptr;
+            sol::Dist_Vector   * mPointVectorRHS = nullptr;
+            sol::Dist_Vector   * mPointVectorLHS = nullptr;
+            sol::Dist_Vector   * mFullVectorLHS  = nullptr;
+            sol::Dist_Map*  mMap                 = nullptr;
+            sol::Dist_Map*  mMapFree             = nullptr;
 
             Solver_Interface * mSolverInterface = nullptr;
 
@@ -67,13 +69,13 @@ namespace moris
 
             virtual moris::sint solve_linear_system() = 0;
 
-            sol::Dist_Vector * get_free_solver_LHS() { return mFreeVectorLHS; };
+            sol::Dist_Vector * get_free_solver_LHS() { return mPointVectorLHS; };
 
             void set_free_solver_LHS( sol::Dist_Vector * aFullSolVector);
 
             sol::Dist_Vector * get_full_solver_LHS();
 
-            sol::Dist_Vector * get_solver_RHS() { return mVectorRHS; };
+            sol::Dist_Vector * get_solver_RHS() { return mPointVectorRHS; };
 
             sol::Dist_Matrix * get_matrix() { return mMat; };
 

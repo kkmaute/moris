@@ -59,7 +59,7 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSP =
+            const std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // loop over the order
@@ -131,7 +131,7 @@ namespace moris
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSP =
+            const std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // order 1
@@ -151,7 +151,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tIndexDep      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );

@@ -53,12 +53,12 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get field interpolatopr for a given dof type
+            // get field interpolator for a given dof type
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -77,15 +77,15 @@ namespace moris
             }
 
             // get imposed temperature property
-            std::shared_ptr< Property > & tPropDirichlet =
+            const std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the elasticity CM
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute jump
@@ -93,11 +93,10 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
-                            - trans( tFI->N() ) * tM * tCMDiffusion->traction( mNormal )
+                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
+                            - tFI->N_trans() * tM * tCMDiffusion->traction( mNormal )
                             + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tJump
-                            + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tJump );
+                            + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -123,7 +122,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -142,15 +141,15 @@ namespace moris
             }
 
             // get imposed temperature property
-            std::shared_ptr< Property > & tPropDirichlet =
+            const std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the elasticity CM
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute jump
@@ -158,10 +157,11 @@ namespace moris
 
             // compute the Jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -178,7 +178,7 @@ namespace moris
                 {
                     tJac += aWStar * (
                             mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
-                            + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) ;
+                            + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tFI->N() ) ;
                 }
 
                 // if dependency on the dof type
@@ -187,7 +187,7 @@ namespace moris
                     // add contribution to Jacobian
                     tJac += aWStar * (
                             - mBeta  * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
-                            - tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                            - tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
@@ -195,7 +195,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     tJac += aWStar * (
-                            - trans( tFI->N() ) * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
+                            - tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
                             + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tM( 0 ) * tJump( 0 ) );
                 }
 
@@ -204,7 +204,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     tJac += aWStar * (
-                            trans( tFI->N() ) * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                            tFI->N_trans() * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
 

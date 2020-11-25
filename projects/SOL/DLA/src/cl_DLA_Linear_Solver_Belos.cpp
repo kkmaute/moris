@@ -195,6 +195,12 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
                     rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector(), false ),
                     rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector(), false ) ) );
 
+    // debug
+    //Matrix< DDRMat > tResidualVec;
+    //dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector()->extract_copy( tResidualVec );
+    //(aLinearSystem->get_solver_RHS())->extract_copy( tResidualVec );
+    //print( tResidualVec, "tResidualVec" );
+
     problem->setLeftPrec( belosPrec );
 
     bool set = problem->setProblem();

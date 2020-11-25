@@ -46,25 +46,7 @@ Map_Epetra::Map_Epetra(
             tIndexBase,
             *mEpetraComm.get_epetra_comm() );
 
-    // build point map
-    sint tNumMyPoints = mEpetraMap->NumMyPoints();
-
-    moris::uint tGlobID = gather_value_and_scatter_offset( tNumMyPoints );
-
-    //    int* myDofIds = (int*) alloca (sizeof(int)*numMyPoints);
-    moris::Matrix< IdMat > tMyDofIds( tNumMyPoints, 1 );
-
-    for( sint Ik = 0; Ik < tNumMyPoints; Ik++ )
-    {
-        tMyDofIds( Ik )= tGlobID++;
-    }
-
-    mEpetraPointMap = new Epetra_Map(
-            -1,
-            tNumMyPoints,
-            tMyDofIds.data(),
-            tIndexBase,
-            *mEpetraComm.get_epetra_comm());
+    this->build_point_map();
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -82,6 +64,9 @@ Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds )
             aMyGlobalIds.data(),
             tIndexBase,
             *mEpetraComm.get_epetra_comm() );
+
+    this->build_point_map();
+
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -89,6 +74,31 @@ Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds )
 Map_Epetra::~Map_Epetra()
 {
     delete mEpetraMap;
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+void Map_Epetra::build_point_map()
+{
+    // build point map
+    sint tNumMyPoints = mEpetraMap->NumMyPoints();
+
+    moris::uint tGlobID = gather_value_and_scatter_offset( tNumMyPoints );
+
+    //    int* myDofIds = (int*) alloca (sizeof(int)*numMyPoints);
+    moris::Matrix< IdMat > tMyDofIds( tNumMyPoints, 1 );
+
+    for( sint Ik = 0; Ik < tNumMyPoints; Ik++ )
+    {
+        tMyDofIds( Ik )= tGlobID++;
+    }
+
+    mEpetraPointMap = new Epetra_Map(
+            -1,
+            tNumMyPoints,
+            tMyDofIds.data(),
+            0,
+            *mEpetraComm.get_epetra_comm());
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -131,43 +141,43 @@ void Map_Epetra::build_dof_translator(
         const Matrix< IdMat > & aFullMap,
         const bool aFlag )
 {
-    Epetra_Map * tFullOverlappigMap = new Epetra_Map(
+    mFullOverlappigMap = new Epetra_Map(
             -1,
             aFullMap.n_rows(),
             aFullMap.data() ,
             0,
             *mEpetraComm.get_epetra_comm() );
 
-//    mDofMap     = &*aModel->GetDofHandler()->GetDofMap()->GetEpetraMap();
-//    mFullToFree = new Epetra_IntVector(*mDofMap, true);
-//
-//    // Initialize every point as constrained
-//    mFullToFree->PutValue(-1);
-//
-//    mFreeToFull = new Epetra_IntVector(*mEpetraMap,true);
-//    aModel->GetDofHandler()->FillTranslator(
-//            aLinSysId,
-//            mFullToFree->MyLength(),
-//            mFullToFree->Values(),
-//            mFreeToFull->MyLength(),
-//            mFreeToFull->Values());
-//
-//    if (!mTranslateMemory)
-//    {
-//        mTranslateMemory = new Int[mFullToFree->MyLength()];
-//    }
-//
-//    if(!mEpetraPointMap)
-//    {
-//        return;
-//    }
+    //    mDofMap     = &*aModel->GetDofHandler()->GetDofMap()->GetEpetraMap();
+    //    mFullToFree = new Epetra_IntVector(*mDofMap, true);
+    //
+    //    // Initialize every point as constrained
+    //    mFullToFree->PutValue(-1);
+    //
+    //    mFreeToFull = new Epetra_IntVector(*mEpetraMap,true);
+    //    aModel->GetDofHandler()->FillTranslator(
+    //            aLinSysId,
+    //            mFullToFree->MyLength(),
+    //            mFullToFree->Values(),
+    //            mFreeToFull->MyLength(),
+    //            mFreeToFull->Values());
+    //
+    //    if (!mTranslateMemory)
+    //    {
+    //        mTranslateMemory = new Int[mFullToFree->MyLength()];
+    //    }
+    //
+    //    if(!mEpetraPointMap)
+    //    {
+    //        return;
+    //    }
 
-    mFullToFreePoint = new Epetra_MultiVector( *tFullOverlappigMap, 1 );
+    mFullToFreePoint = new Epetra_MultiVector( *mFullOverlappigMap, 1 );
 
     // Initialize every point as constrained
     mFullToFreePoint->PutScalar(-1);
 
-//    Epetra_BlockMap* masterMap     = aModel->GetDofHandler()->GetMasterDofMap()->GetEpetraMap();
+    //    Epetra_BlockMap* masterMap     = aModel->GetDofHandler()->GetMasterDofMap()->GetEpetraMap();
     Epetra_MultiVector* tTempVec = new Epetra_MultiVector( *mEpetraMap, 1 );
 
     // Initialize every point as constrained
@@ -192,12 +202,12 @@ void Map_Epetra::build_dof_translator(
                 (moris::real)mEpetraPointMap->GID( Ik ) );
     }
 
-    Epetra_Import* tImporter = new Epetra_Import( *tFullOverlappigMap, *mEpetraMap );
+    Epetra_Import* tImporter = new Epetra_Import( *mFullOverlappigMap, *mEpetraMap );
 
     // Update mFullToFreePoint by importing the local master masterTemp into the global mFullToFreePoint
     sint tStatus = mFullToFreePoint->Import( *tTempVec, *tImporter, Insert );
 
-    std::cout<<*mFullToFreePoint<<std::endl;
+    //std::cout<<*mFullToFreePoint<<std::endl;
 
     if (tStatus!=0)
     {
@@ -207,33 +217,43 @@ void Map_Epetra::build_dof_translator(
     delete( tImporter );
     delete( tTempVec );
 
-//    this->BuildOffProcSizesList();
-//
-//    if (aReIndexBlockMap)
-//    {
-//        this->ReIndexBlockMap();
-//    }
+    //    this->BuildOffProcSizesList();
+    //
+    //    if (aReIndexBlockMap)
+    //    {
+    //        this->ReIndexBlockMap();
+    //    }
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
 
 void Map_Epetra::translate_ids_to_free_point_ids(
         const moris::Matrix< IdMat > & tIdsIn,
-              moris::Matrix< IdMat > & tIdsOut )
+        moris::Matrix< IdMat > & tIdsOut )
 {
     uint tNumIds = tIdsIn.numel();
 
     tIdsOut.set_size( tNumIds, 1, MORIS_ID_MAX );
 
+    MORIS_ASSERT( mFullOverlappigMap != nullptr, "Map_Epetra::translate_ids_to_free_point_ids(), mFullOverlappigMap not set ");
+
     // Loop over all DoFs of the current element
     for( uint Ik = 0; Ik < tNumIds ; Ik++ )
     {
+//        if( tIdsIn( Ik ) == -1)
+//        {
+//            tIdsOut( Ik ) = -1;
+//            continue;
+//        }
         // Get local index
-        moris_index tLocalIndex = mEpetraMap->LID( tIdsIn( Ik ) );
+        moris_index tLocalIndex = mFullOverlappigMap->LID( tIdsIn( Ik ) );
 
         // Get the free DoF ID of the current DoF
         tIdsOut( Ik ) = mFullToFreePoint->Values()[ tLocalIndex ];
     }
+
+    //moris::print( tIdsIn, "tIdsIn");
+    //moris::print( tIdsOut, "tIdsOut");
 
     MORIS_ASSERT( tIdsOut.max() != MORIS_ID_MAX, "Map_Epetra::translate_Ids_to_free_point_ids(), vector not correctly filled.");
 }

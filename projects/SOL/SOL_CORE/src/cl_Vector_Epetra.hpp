@@ -30,12 +30,15 @@ namespace moris
         // Pointer to MultiVector values
         moris::real * mValuesPtr;
 
+        const bool mVecBuildWithPointMap;
+
     protected:
 
     public:
 
         Vector_Epetra(       sol::Dist_Map*  aMapClass,
                        const sint            aNumVectors,
+                             bool            aPointMap = false,
                              bool            aManageMap = false);
 
         /** Destructor */

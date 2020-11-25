@@ -23,26 +23,31 @@ namespace moris
             mMapType = aMapType;
         }
 
+        //-------------------------------------------------------------------------------------------
+
         Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
                 Solver_Interface * aInput,
-                Dist_Map* aMap )
+                Dist_Map* aMap,
+                bool aPointMap )
         {
             Dist_Matrix * tSparseMatrix = nullptr;
 
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap );
-                    break;
+                            tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap, aPointMap );
+                break;
                 case (MapType::Petsc):
-                    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
-                    break;
+                            tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+                break;
                 default:
                     MORIS_ERROR( false, "No matrix type specified." );
                     break;
             }
             return tSparseMatrix;
         }
+
+        //-------------------------------------------------------------------------------------------
 
         Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
                 Dist_Map* aRowMap,
@@ -53,17 +58,19 @@ namespace moris
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
-                    break;
-                    //case (MapType::Petsc):
-                    //    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
-                    //    break;
+                            tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
+                break;
+                //case (MapType::Petsc):
+                //    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+                //    break;
                 default:
                     MORIS_ERROR( false, "No matrix type specified." );
                     break;
             }
             return tSparseMatrix;
         }
+
+        //-------------------------------------------------------------------------------------------
 
         Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
                 const uint aRows,
@@ -74,11 +81,11 @@ namespace moris
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
-                    break;
+                            tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
+                break;
                 case (MapType::Petsc):
-                    tSparseMatrix = new Matrix_PETSc( aRows, aCols );
-                    break;
+                            tSparseMatrix = new Matrix_PETSc( aRows, aCols );
+                break;
                 default:
                     MORIS_ERROR( false, "No matrix type specified." );
                     break;
@@ -91,6 +98,7 @@ namespace moris
                 Solver_Interface * aInput,
                 Dist_Map* aMap,
                 const sint aNumVectors,
+                bool aPointMap,
                 bool aManageMap )
         {
             Dist_Vector * tDistVector = nullptr;
@@ -98,12 +106,12 @@ namespace moris
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aManageMap );
-                    break;
+                            tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap,  aManageMap );
+                break;
                 case (MapType::Petsc):
-                    MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
-                    tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors, aManageMap );
-                    break;
+                            MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
+                tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors, aManageMap );
+                break;
                 default:
                     MORIS_ERROR( false, "No vector type specified." );
                     break;
@@ -114,6 +122,7 @@ namespace moris
         Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
                 Dist_Map* aMap,
                 const sint aNumVectors,
+                bool aPointMap,
                 bool aManageMap)
         {
             Dist_Vector * tDistVector = nullptr;
@@ -121,12 +130,12 @@ namespace moris
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aManageMap );
-                    break;
-                    //    case (MapType::Petsc):
-                    //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
-                    //        tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
-                    //        break;
+                            tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap, aManageMap );
+                break;
+                //    case (MapType::Petsc):
+                //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
+                //        tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
+                //        break;
                 default:
                     MORIS_ERROR( false, "No vector type specified." );
                     break;
@@ -144,11 +153,11 @@ namespace moris
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tMap = new Map_Epetra( aMyGlobalIds, aMyConstraintIds );
-                    break;
+                            tMap = new Map_Epetra( aMyGlobalIds, aMyConstraintIds );
+                break;
                 case (MapType::Petsc):
-                    tMap = new Map_PETSc( aMyGlobalIds, aMyConstraintIds );
-                    break;
+                            tMap = new Map_PETSc( aMyGlobalIds, aMyConstraintIds );
+                break;
                 default:
                     MORIS_ERROR( false, "Matrix_Vector_Factory::create_map(), map type not specified" );
                     break;
@@ -164,11 +173,11 @@ namespace moris
             switch( mMapType )
             {
                 case (MapType::Epetra):
-                    tMap = new Map_Epetra( aMyGlobalIds );
-                    break;
+                            tMap = new Map_Epetra( aMyGlobalIds );
+                break;
                 case (MapType::Petsc):
-                    tMap = new Map_PETSc( aMyGlobalIds );
-                    break;
+                            tMap = new Map_PETSc( aMyGlobalIds );
+                break;
                 default:
                     MORIS_ERROR( false, "No map type specified" );
                     break;

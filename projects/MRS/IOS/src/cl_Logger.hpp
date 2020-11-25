@@ -372,6 +372,18 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            /**
+             * Sign in to the logger with an entity action.
+             *
+             * @param aEntityBase Entity base
+             * @param aEntityType Entity type
+             * @param aEntityAction Entity action
+             */
+            void sign_in(
+                    std::string aEntityBase,
+                    std::string aEntityType,
+                    std::string aEntityAction);
+
             // sign in
             void sign_in(
                     enum EntityBase   aEntityBase,
@@ -409,9 +421,9 @@ namespace moris
             {
                     std::string tLine =   ios::stringify(mGlobalClock.mIndentationLevel) + ";"
                             + ios::stringify(mGlobalClock.mCurrentFunctionID(mGlobalClock.mIndentationLevel)) + ";"
-                            +   get_enum_str(mGlobalClock.mCurrentEntity(mGlobalClock.mIndentationLevel)) + ";"
-                            +   get_enum_str(mGlobalClock.mCurrentType(mGlobalClock.mIndentationLevel)) + ";"
-                            +   get_enum_str(mGlobalClock.mCurrentAction(mGlobalClock.mIndentationLevel)) + ";"
+                            +   mGlobalClock.mCurrentEntity(mGlobalClock.mIndentationLevel) + ";"
+                            +   mGlobalClock.mCurrentType(mGlobalClock.mIndentationLevel) + ";"
+                            +   mGlobalClock.mCurrentAction(mGlobalClock.mIndentationLevel) + ";"
                             +   get_enum_str(aOutputSpecifier) + ";"
                             + ios::stringify(aOutputValue) + "\n";
 

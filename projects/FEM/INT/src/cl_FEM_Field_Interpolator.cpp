@@ -133,6 +133,7 @@ namespace moris
         {
             // reset bool for evaluation
             mNEval           = true;
+            mNTransEval      = true;
             mNBuildEval      = true;
             mdNdxEval        = true;
             md2Ndx2Eval      = true;
@@ -143,6 +144,17 @@ namespace moris
             mDivOperatorEval = true;
 
             mValEval         = true;
+            mValTransEval    = true;
+
+            mGradx1Eval      = true;
+            mGradx2Eval      = true;
+            mGradx3Eval      = true;
+
+            mGradt1Eval      = true;
+            mGradt2Eval      = true;
+            mGradt3Eval      = true;
+
+            mGradxtEval      = true;
         }
 
         //------------------------------------------------------------------------------
@@ -150,7 +162,18 @@ namespace moris
         void Field_Interpolator::reset_eval_flags_coefficients()
         {
             // reset bool for evaluation
-            mValEval    = true;
+            mValEval         = true;
+            mValTransEval    = true;
+
+            mGradx1Eval      = true;
+            mGradx2Eval      = true;
+            mGradx3Eval      = true;
+
+            mGradt1Eval      = true;
+            mGradt2Eval      = true;
+            mGradt3Eval      = true;
+
+            mGradxtEval      = true;
         }
 
         //------------------------------------------------------------------------------
@@ -286,6 +309,23 @@ namespace moris
                         { iField * mNFieldBases, ( iField + 1 ) * mNFieldBases - 1 } ) =
                                 this->NBuild().matrix_data();
             }
+        }
+        //------------------------------------------------------------------------------
+
+        const Matrix < SDRMat > & Field_Interpolator::N_trans()
+        {
+            // if shape functions need to be evaluated
+            if( mNTransEval )
+            {
+                // evaluate the shape functions
+                mNTrans = trans( this->N() );
+
+                // set bool for evaluation
+                mNTransEval = false;
+            }
+
+            // return member value
+            return mNTrans;
         }
 
         //------------------------------------------------------------------------------
@@ -517,7 +557,6 @@ namespace moris
                     // return member data
                     return md2Ndt2;
                 }
-
                 default :
                     MORIS_ERROR( false, "Field_Interpolator::dnNdtn - Derivative order not implemented." );
                     return mdNdt;
@@ -676,6 +715,7 @@ namespace moris
                 // set bool for evaluation
                 mValEval = false;
             }
+
             // return member data
             return mVal;
         }
@@ -694,30 +734,139 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Field_Interpolator::gradx( const uint & aDerivativeOrder )
+        const Matrix< DDRMat > & Field_Interpolator::val_trans()
         {
-            // check that mUHat is set
-            MORIS_ASSERT( mUHat.numel() > 0,
-                    "Field_Interpolator::gradx - mUHat is not set." );
+            // if field value needs to be evaluated
+            if( mValTransEval )
+            {
+                // evaluate transpose of field value
+                mValTrans = trans( this->val() ) ;
 
-            // check that aDerivativeOrder is supported
-            MORIS_ASSERT( aDerivativeOrder > 0 && aDerivativeOrder < 4,
-                    "Field_Interpolator::gradx - aDerivativeOrder is not supported." );
+                // set bool for evaluation
+                mValTransEval = false;
+            }
 
-            // evaluate and return gradient
-            return this->dnNdxn( aDerivativeOrder ) * mUHat ;
+            // return member data
+            return mValTrans;
         }
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Field_Interpolator::gradxt( )
+        const Matrix< DDRMat > & Field_Interpolator::gradx( const uint & aDerivativeOrder )
+        {
+            switch ( aDerivativeOrder )
+            {
+                case 1:
+                {
+                    // if field value needs to be evaluated
+                    if( mGradx1Eval )
+                    {
+                        // evaluate gradient
+                        this->eval_gradx( 1 );
+
+                        // set bool for evaluation
+                        mGradx1Eval = false;
+                    }
+                    return mGradx1;
+                    break;
+                }
+                case 2:
+                {
+                    // if field value needs to be evaluated
+                    if( mGradx2Eval )
+                    {
+                        // evaluate gradient
+                        this->eval_gradx( 2 );
+
+                        // set bool for evaluation
+                        mGradx2Eval = false;
+                    }
+                    return mGradx2;
+                    break;
+                }
+                case 3:
+                {
+                    // if field value needs to be evaluated
+                    if( mGradx3Eval )
+                    {
+                        // evaluate gradient
+                        this->eval_gradx( 3 );
+
+                        // set bool for evaluation
+                        mGradx3Eval = false;
+                    }
+                    return mGradx3;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Field_Interpolator:: gradx - Spatial derivative order not implemented." );
+                    return mGradx1;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator::eval_gradx( const uint & aDerivativeOrder )
+        {
+            // check that mUHat is set
+             MORIS_ASSERT( mUHat.numel() > 0,
+                     "Field_Interpolator::eval_gradx - mUHat is not set." );
+
+             switch ( aDerivativeOrder )
+             {
+                 case 1:
+                 {
+                     mGradx1 = this->dnNdxn( 1 ) * mUHat;
+                     return;
+                     break;
+                 }
+                 case 2:
+                 {
+                     mGradx2 = this->dnNdxn( 2 ) * mUHat;
+                     return;
+                     break;
+                 }
+                 case 3:
+                 {
+                     mGradx3 = this->dnNdxn( 3 ) * mUHat;
+                     return;
+                     break;
+                 }
+                 default :
+                 {
+                     MORIS_ERROR( false, "Field_Interpolator:: eval_gradx - Spatial derivative order not implemented." );
+                 }
+             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & Field_Interpolator::gradxt( )
+        {
+            if( mGradxtEval )
+            {
+                // evaluate gradient
+                this->eval_gradxt();
+
+                // set bool for evaluation
+                mGradxtEval = false;
+            }
+
+            return mGradxt;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator::eval_gradxt( )
         {
             // check that mUHat is set
             MORIS_ASSERT( mUHat.numel() > 0,
                     "Field_Interpolator::gradxt - mUHat is not set." );
 
             // evaluate and return gradient
-            return this->d2Ndxt( ) * mUHat ;
+            mGradxt = this->d2Ndxt( ) * mUHat ;
         }
 
         //------------------------------------------------------------------------------
@@ -755,17 +904,73 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Field_Interpolator::gradt( const uint & aDerivativeOrder )
+        const Matrix< DDRMat > & Field_Interpolator::gradt( const uint & aDerivativeOrder )
+        {
+            switch ( aDerivativeOrder )
+            {
+                case 1:
+                {
+                    // if field value needs to be evaluated
+                    if( mGradt1Eval )
+                    {
+                        // evaluate gradient
+                        this->eval_gradt( 1 );
+
+                        // set bool for evaluation
+                        mGradt1Eval = false;
+                    }
+                    return mGradt1;
+                    break;
+                }
+                case 2:
+                {
+                    // if field value needs to be evaluated
+                    if( mGradt2Eval )
+                    {
+                        // evaluate gradient
+                        this->eval_gradt( 2 );
+
+                        // set bool for evaluation
+                        mGradt2Eval = false;
+                    }
+                    return mGradt2;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Field_Interpolator:: gradt - Temporal derivative order not implemented." );
+                    return mGradt1;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator::eval_gradt( const uint & aDerivativeOrder )
         {
             // check that mUHat is set
-            MORIS_ASSERT( mUHat.numel() > 0,  "Field_Interpolator::gradt - mUHat is not set." );
+             MORIS_ASSERT( mUHat.numel() > 0,
+                     "Field_Interpolator::eval_gradt - mUHat is not set." );
 
-            // check that aDerivativeOrder is supported
-            MORIS_ASSERT( aDerivativeOrder > 0 && aDerivativeOrder < 3,
-                    "Field_Interpolator::gradt - aDerivativeOrder is not supported." );
-
-            // evaluate and return gradient
-            return this->dnNdtn( aDerivativeOrder ) * mUHat ;
+             switch ( aDerivativeOrder )
+             {
+                 case 1:
+                 {
+                     mGradt1 = this->dnNdtn( 1 ) * mUHat;
+                     return;
+                     break;
+                 }
+                 case 2:
+                 {
+                     mGradt2 = this->dnNdtn( 2 ) * mUHat;
+                     return;
+                     break;
+                 }
+                 default :
+                 {
+                     MORIS_ERROR( false, "Field_Interpolator:: eval_gradt - Temporal derivative order not implemented." );
+                 }
+             }
         }
 
         //------------------------------------------------------------------------------

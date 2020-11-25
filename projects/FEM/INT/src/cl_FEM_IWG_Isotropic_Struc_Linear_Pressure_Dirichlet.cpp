@@ -59,7 +59,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -78,11 +78,11 @@ namespace moris
             }
 
             // get the imposed displacement property
-            std::shared_ptr< Property > & tPropDirichlet =
+            const std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get CM for elasticity
-            std::shared_ptr< Constitutive_Model > & tCMElasticity =
+            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // compute displacement jump
@@ -119,7 +119,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -138,11 +138,11 @@ namespace moris
             }
 
             // get the imposed displacement property
-            std::shared_ptr< Property > & tPropDirichlet =
+            const std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get CM for elasticity
-            std::shared_ptr< Constitutive_Model > & tCMElasticity =
+            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // compute jump
@@ -154,7 +154,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for this dof type
                 uint tDofDepIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );

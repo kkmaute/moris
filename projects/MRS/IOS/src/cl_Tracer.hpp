@@ -30,19 +30,32 @@ class Tracer
     //-------------------------------- PUPLIC ---------------------------------//
     public:
 
+        /**
+         * Constructor
+         *
+         * @param aEntityBase Entity base
+         * @param aEntityType Entity type
+         * @param aEntityAction Entity action
+         */
+        Tracer(std::string aEntityBase,
+               std::string aEntityType,
+               std::string aEntityAction)
+        {
+            gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
+        }
 
-    // constructor: perform sign in operation if called
-    Tracer( enum moris::EntityBase aEntityBase, enum moris::EntityType aEntityType, enum moris::EntityAction aEntityAction )
-    {
-        gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
-    };
+        // constructor: perform sign in operation if called
+        Tracer( enum moris::EntityBase aEntityBase, enum moris::EntityType aEntityType, enum moris::EntityAction aEntityAction )
+        {
+            gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
+        };
 
 
-    // destructor: automatically perform sign out operation when tracer gets destructed
-    ~Tracer()
-    {
-        gLogger.sign_out();
-    };
+        // destructor: automatically perform sign out operation when tracer gets destructed
+        ~Tracer()
+        {
+            gLogger.sign_out();
+        };
 
 
     }; // class Tracer
