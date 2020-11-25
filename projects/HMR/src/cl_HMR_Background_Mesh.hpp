@@ -704,14 +704,6 @@ namespace moris
                             (tNumberOfElementsPerDimension(k) % mProcDims(k))) / mProcDims(k) +
                             tRemainder(k);
 
-                    if( par_rank() == 0 )
-                    {
-                        // make sure that cart size is OK
-                        if ((tNumberOfElementsPerDimension(k) - tRemainder(k)) % mProcDims( k ) != 0 )
-                        {
-                            MORIS_ASSERT( 0, "decompose_mesh(): Error determining number of elements on proc" );
-                        }
-                    }
                 }
 
 
