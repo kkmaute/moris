@@ -218,6 +218,7 @@ namespace moris
                 DIFF_LIN_ISO_PC, // DIFF_LIN_ISO with phase change
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
+                STRUC_NONLIN_ISO,
                 FLUID_INCOMPRESSIBLE,
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,
