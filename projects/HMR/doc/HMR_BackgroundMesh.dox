@@ -217,7 +217,7 @@ method will reduce the number of mesh-to-mesh interfaces across processor
 domains by using a processor grid of \f$(N_x,N_y)=(4,2)\f$
 
 @image html Proc_Decomp_Method_2.png "Figure 2: Minimum Mesh Interface <!--
---> Decomposition method with four processors and 8 by 2 mesh." width=700px
+--> Decomposition method with four processors and 8 by 1 mesh." width=700px
 
 */
 #---------------------------------------------------------------------------

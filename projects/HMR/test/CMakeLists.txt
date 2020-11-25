@@ -38,7 +38,7 @@ set_target_properties(${HMR_TEST} PROPERTIES OUTPUT_NAME ${HMR_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-    set(HMR_TEST_PROCS ${MORIS_TEST_PROCS})
+    set(HMR_TEST_PROCS ${MORIS_TEST_PROCS_HMR})
     foreach(PROCS ${HMR_TEST_PROCS})
         set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
         add_test(NAME ${HMR_PARALLEL_TEST} 

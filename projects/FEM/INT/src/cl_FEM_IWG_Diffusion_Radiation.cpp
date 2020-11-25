@@ -67,7 +67,7 @@ namespace moris
                     { tResStartIndex, tResStopIndex } ) += aWStar * (
                             mStefanBoltzmannConst * tAlpha *
                             ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
-                            trans( tFI->N() ) );
+                            tFI->N_trans() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -132,7 +132,7 @@ namespace moris
                     tJac += aWStar * tAlpha * mStefanBoltzmannConst * (
                             4.0 * std::pow( tT , 3.0 ) - 12.0 * tT0 * std::pow( tT , 2.0 ) +
                             2.0 * tT * std::pow( tT0 , 2.0 ) + 4.0 * std::pow( tT0 , 3.0 ) ) *
-                                    trans( tFI->N() ) * tFI->N();
+                                    tFI->N_trans() * tFI->N();
                 }
 
                 // if dependency of heat transfer coefficient on dof type
@@ -141,7 +141,7 @@ namespace moris
                     // add contribution to jacobian
                     tJac  += aWStar * mStefanBoltzmannConst *
                             ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
-                            trans( tFI->N() ) * tPropEmissivity->dPropdDOF( tDepDofType );
+                            tFI->N_trans() * tPropEmissivity->dPropdDOF( tDepDofType );
                 }
             }
 

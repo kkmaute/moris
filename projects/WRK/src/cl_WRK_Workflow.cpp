@@ -84,12 +84,12 @@ namespace moris
             mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
-            // XTK perform - decompose - enrich - ghost - multigrid
-            mPerformerManager->mXTKPerformer( 0 )->perform();
-
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(
-                    mPerformerManager->mMTKPerformer( 1 )->get_integration_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
+
+            // XTK perform - decompose - enrich - ghost - multigrid
+            mPerformerManager->mXTKPerformer( 0 )->perform();
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 ) );

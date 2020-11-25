@@ -84,7 +84,8 @@ namespace moris
             mddivstrainduEval.fill( true );
 
             // reset the test strain value and derivative flags
-            mTestStrainEval    = true;
+            mTestStrainEval         = true;
+            mTestStrainTransEval    = true;
 
             // reset the constitutive matrix value and derivative flags
             mConstEval         = true;
@@ -2059,6 +2060,7 @@ namespace moris
                 // set bool for evaluation
                 mEnergyEval = false;
             }
+
             // return the flux value
             return mEnergy;
         }
@@ -2080,6 +2082,7 @@ namespace moris
                 // set bool for evaluation
                 mEnergyDotEval = false;
             }
+
             // return the flux value
             return mEnergyDot;
         }
@@ -2101,6 +2104,7 @@ namespace moris
                 // set bool for evaluation
                 mGradEnergyDotEval = false;
             }
+
             // return the flux value
             return mGradEnergyDot;
         }
@@ -2122,6 +2126,7 @@ namespace moris
                 // set bool for evaluation
                 mGradEnergyEval = false;
             }
+
             // return the flux value
             return mGradEnergy;
         }
@@ -2143,6 +2148,7 @@ namespace moris
                 // set bool for evaluation
                 mGradDivFluxEval = false;
             }
+
             // return the flux value
             return mGradDivFlux;
         }
@@ -2225,6 +2231,7 @@ namespace moris
                 // set bool for evaluation
                 mTestTractionEval( tTestDofIndex ) = false;
             }
+
             // return the test traction value
             return mTestTraction( tTestDofIndex );
         }
@@ -2245,6 +2252,7 @@ namespace moris
                 // set bool for evaluation
                 mStressEval = false;
             }
+
             // return the strain value
             return mStress;
         }
@@ -2265,6 +2273,7 @@ namespace moris
                 // set bool for evaluation
                 mStrainEval = false;
             }
+
             // return the strain value
             return mStrain;
         }
@@ -2286,6 +2295,7 @@ namespace moris
                 // set bool for evaluation
                 mDivStrainEval = false;
             }
+
             // return the divergence of the strain value
             return mDivStrain;
         }
@@ -2317,6 +2327,7 @@ namespace moris
                 // set bool for evaluation
                 mddivstrainduEval( tDofIndex ) = false;
             }
+
             // return the divergence of the strain value
             return mddivstraindu( tDofIndex );
         }
@@ -2338,6 +2349,7 @@ namespace moris
                 // set bool for evaluation
                 mTestStrainEval = false;
             }
+
             // return the test strain value
             return mTestStrain;
         }
@@ -2359,8 +2371,27 @@ namespace moris
                 // set bool for evaluation
                 mConstEval = false;
             }
+
             // return the constitutive matrix value
             return mConst;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & Constitutive_Model::testStrain_trans( enum CM_Function_Type aCMFunctionType )
+        {
+            // if the test strain was not evaluated
+            if( mTestStrainTransEval )
+            {
+                // evaluate the test strain
+                mTestStrainTrans = trans( this->testStrain(aCMFunctionType));
+
+                // set bool for evaluation
+                mTestStrainTransEval = false;
+            }
+
+            // return the test strain value
+            return mTestStrainTrans;
         }
 
         //------------------------------------------------------------------------------

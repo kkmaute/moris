@@ -75,8 +75,8 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic",
                         tConstraintsFD(tADVIndex),
                         100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
-                CHECK(tObjectiveAnalytical(tADVIndex)   == Approx(tObjectiveFD(tADVIndex)));
-                CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
+                CHECK(tObjectiveAnalytical(tADVIndex)   == Approx(tObjectiveFD(tADVIndex)).scale(1000));
+                CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)).scale(1000));
             }
         }
 
@@ -145,8 +145,8 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered",
                         tConstraintsFD(tADVIndex),
                         100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
-                CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
-                CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
+                CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)).scale(1000));
+                CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)).scale(1000));
             }
         }
 

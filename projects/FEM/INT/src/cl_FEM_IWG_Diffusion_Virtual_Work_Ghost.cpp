@@ -93,8 +93,7 @@ namespace moris
                 Matrix< DDRMat > tNormalMatrix;
                 this->get_flat_normal_matrix( tNormalMatrix, iOrder );
 
-                // multiply common terms (note: needs to be stored as matrix (not via auto)
-                // as gradx call generates temporary matrix only
+                // multiply common terms (note: needs to be stored as matrix
                 Matrix< DDRMat > tPreMultiply =
                         tSPGhost->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix *
                         ( tMasterConductivity * tMasterFI->gradx( iOrder ) - tSlaveConductivity * tSlaveFI->gradx( iOrder ) );

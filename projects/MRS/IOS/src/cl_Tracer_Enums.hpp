@@ -51,7 +51,7 @@ namespace moris
             Sweep,
             EquationModel,
             Overall,
-            Decompose,
+            Decomposition,
             Enrichment,
             GhostStabilization,
             Multigrid,
@@ -79,6 +79,12 @@ namespace moris
             AssembleResidual,
             AssembleJacAndRes,
             AssembleRHS,
+            Decompose,
+            DecomposeRegularHex8,
+            DecomposeRegularQuad4,
+            DecomposeHierarchyTet4,
+            DecomposeHierarchyTri3,
+            Enrich,
             Run,
             Unknown
     };

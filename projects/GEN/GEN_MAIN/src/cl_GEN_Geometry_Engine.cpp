@@ -1,5 +1,6 @@
 // MRS
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Tracer.hpp"
 
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -38,7 +39,7 @@ namespace moris
 
                 // Level set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
-                mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
+                mIsocontourTolerance(aParameterLists(0)(0).get<real>("isocontour_tolerance")),
 
                 // ADVs/IQIs
                 mADVs(aParameterLists(0)(0).get<sint>("advs_size")
@@ -108,9 +109,9 @@ namespace moris
                 mtk::Interpolation_Mesh*          aMesh,
                 Matrix<DDRMat>                    aADVs,
                 real                              aIsocontourThreshold,
-                real                              aErrorFactor)
+                real                              aIsocontourTolerance)
                 : mIsocontourThreshold(aIsocontourThreshold),
-                  mErrorFactor(aErrorFactor),
+                  mIsocontourTolerance(aIsocontourTolerance),
                   mADVs(aADVs),
                   mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
@@ -330,7 +331,8 @@ namespace moris
                         aFirstNodeCoordinates,
                         aSecondNodeCoordinates,
                         mGeometries(mActiveGeometryIndex),
-                        mIsocontourThreshold);
+                        mIsocontourThreshold,
+                        mIsocontourTolerance);
             }
 
             return tEdgeIsIntersected;
@@ -591,6 +593,9 @@ namespace moris
 
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
+            // Tracer
+            Tracer tTracer("GeometryEngine", "NoType", "CreatePDVs");
+
             // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
@@ -713,6 +718,9 @@ namespace moris
 
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
+            // Tracer
+            Tracer tTracer("GeometryEngine", "NoType", "SetUpGeometries");
+
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
 
@@ -982,6 +990,9 @@ namespace moris
 
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
+            // Tracer
+            Tracer tTracer("GeometryEngine", "NoType", "FieldOutput");
+
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);
         }

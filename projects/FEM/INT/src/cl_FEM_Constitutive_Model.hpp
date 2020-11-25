@@ -139,6 +139,7 @@ namespace moris
 
                 // storage for test strain evaluation
                 Matrix< DDRMat > mTestStrain;
+                Matrix< DDRMat > mTestStrainTrans;
 
                 // storage for constitutive matrix evaluation
                 Matrix< DDRMat > mConst;
@@ -195,7 +196,8 @@ namespace moris
                 moris::Matrix< DDBMat > mddivstrainduEval;
 
                 // flag for test strain related evaluation
-                bool mTestStrainEval = true;
+                bool mTestStrainEval      = true;
+                bool mTestStrainTransEval = true;
 
                 // flag for constitutive matrix related evaluation
                 bool mConstEval = true;
@@ -707,6 +709,13 @@ namespace moris
                  * @param[ out ] mTestStrain constitutive model test strain
                  */
                 virtual const Matrix< DDRMat > & testStrain(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the transpose of the constitutive model test strain
+                 * @param[ out ] mTestStrain transpose of constitutive model test strain
+                 */
+                virtual const Matrix< DDRMat > & testStrain_trans(
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------

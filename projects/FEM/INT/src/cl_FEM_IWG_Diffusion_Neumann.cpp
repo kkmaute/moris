@@ -47,7 +47,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tResStartIndex, tResStopIndex } ) -=
-                            aWStar * ( trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() );
+                            aWStar * ( tFI->N_trans() * mMasterProp( tNeumannIndex )->val() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -93,7 +93,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
                             { tDepStartIndex, tDepStopIndex } ) -= aWStar * (
-                                    trans( tFI->N() ) * mMasterProp( tNeumannIndex )->dPropdDOF( tDepDofType ) );
+                                    tFI->N_trans() * mMasterProp( tNeumannIndex )->dPropdDOF( tDepDofType ) );
                 }
             }
 
