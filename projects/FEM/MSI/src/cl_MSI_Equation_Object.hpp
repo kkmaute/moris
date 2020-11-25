@@ -86,6 +86,10 @@ namespace moris
 
             moris::uint mNumPdofSystems = 0;
 
+            // bool
+            bool mUniqueAdofTypeListFlag = false;
+            bool mFreePdofListFlag       = false;
+
             friend class fem::Element;
             friend class fem::Cluster;
 

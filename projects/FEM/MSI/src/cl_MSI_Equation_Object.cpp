@@ -53,7 +53,7 @@ namespace moris
                 const moris::uint                  aNumUsedDofTypes,
                 const Matrix< DDSMat >           & aPdofTypeMap,
                 const Matrix< DDUMat >           & aTimePerDofType,
-                moris::Cell< Pdof_Host * > & aPdofHostList )
+                moris::Cell< Pdof_Host * >       & aPdofHostList )
         {
             // Resize list containing this equations objects pdof hosts set
             mNumPdofSystems = mNodeObj.size();
@@ -189,6 +189,9 @@ namespace moris
                     }
                 }
             }
+
+            // free pdof type list created, set flag to true
+            mFreePdofListFlag = true;
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -271,6 +274,9 @@ namespace moris
                     moris::unique( tNonUniqueAdofIds, mUniqueAdofTypeList( Ia )( Ik ) );
                 }
             }
+
+            // unique adof type list created, set flag to true
+            mUniqueAdofTypeListFlag = true;
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -360,15 +366,21 @@ namespace moris
                 // Loop over all adof types of this equation object
                 for ( moris::uint Ij = 0; Ij < mUniqueAdofTypeList( Ik ).size(); Ij++ )
                 {
+                    MORIS_ASSERT( mUniqueAdofTypeListFlag,
+                            "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. " );
+
                     //Get number of unique adofs of this equation object
                     moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ik )( Ij ).numel();
 
-                    MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+                    //MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+
+                    MORIS_ASSERT( mFreePdofListFlag,
+                            "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. " );
 
                     // Get MAX number of pdofs for this equation object
                     moris::uint tNumMyPdofs = mFreePdofList( Ik )( Ij ).size();
 
-                    MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+                    //MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
 
                     aPADofMap( Ik )( Ij ).set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -688,7 +700,7 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void Equation_Object::get_egn_obj_jacobian_and_residual(
-                Matrix< DDRMat > & aEqnObjMatrix,
+                Matrix< DDRMat >         & aEqnObjMatrix,
                 Cell< Matrix< DDRMat > > & aEqnObjRHS )
         {
             // compute Jacobian
