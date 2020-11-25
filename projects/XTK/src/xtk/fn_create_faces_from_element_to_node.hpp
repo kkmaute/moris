@@ -33,16 +33,16 @@ namespace xtk
             moris::Matrix< moris::IndexMat >       & aNodeToFace,
             moris::Matrix< moris::IndexMat >       & aFaceToElement)
     {
-        //hardcoded values could be provided as a function input
+        //hard-coded values could be provided as a function input
         moris::size_t tMaxFacePerNode = 10;
         moris::size_t tMaxUsed        = 0;
 
         // Initialize
-        moris::size_t tNumElements       = aElementToNode.n_rows();
-        moris::size_t tNumFacesPerElem   = aCellConnectivity->get_num_facets();
-        moris::size_t tNumNodesPerFace   = aCellConnectivity->get_num_verts_per_facet();
-        moris::size_t tNumFaceCreated    = 0;
-        moris::size_t tMaxNumFaces       = tNumElements*tNumFacesPerElem;
+        moris::size_t tNumElements     = aElementToNode.n_rows();
+        moris::size_t tNumFacesPerElem = aCellConnectivity->get_num_facets();
+        moris::size_t tNumNodesPerFace = aCellConnectivity->get_num_verts_per_facet();
+        moris::size_t tNumFaceCreated  = 0;
+        moris::size_t tMaxNumFaces     = tNumElements*tNumFacesPerElem;
 
         moris::Matrix< moris::IndexMat > tNodeToFaceCounter(1,aNumNodes,0);
         moris::Matrix< moris::IndexMat > tFaceToElemCounter(1,tMaxNumFaces,0);
@@ -59,7 +59,7 @@ namespace xtk
         aNodeToFace.resize   (aNumNodes, tMaxFacePerNode);
         aNodeToFace.fill(MORIS_INDEX_MAX);
 
-        aFaceToElement.resize(tMaxNumFaces,tMaxFacePerNode);
+        aFaceToElement.resize(tMaxNumFaces,2);
         aFaceToElement.fill(MORIS_INDEX_MAX);
 
         // TET4 specific topology map
@@ -121,7 +121,7 @@ namespace xtk
                     for(moris::size_t k = 0; k<tNumNodesPerFace; k++)
                     {
                         tNodeInd = tElementFaceToNode(j,k);
-                        tCount =  tNodeToFaceCounter(0,tNodeInd);
+                        tCount   = tNodeToFaceCounter(0,tNodeInd);
 
                         // make sure we have not exceeded the allocated space in node to face
                         if(tCount>=aNodeToFace.n_cols())
