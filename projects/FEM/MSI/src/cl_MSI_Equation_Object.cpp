@@ -50,9 +50,9 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void Equation_Object::create_my_pdof_hosts(
-                const moris::uint                  aNumUsedDofTypes,
-                const Matrix< DDSMat >           & aPdofTypeMap,
-                const Matrix< DDUMat >           & aTimePerDofType,
+                const moris::uint            aNumUsedDofTypes,
+                const Matrix< DDSMat >     & aPdofTypeMap,
+                const Matrix< DDUMat >     & aTimePerDofType,
                 moris::Cell< Pdof_Host * > & aPdofHostList )
         {
             // Resize list containing this equations objects pdof hosts set
@@ -260,7 +260,7 @@ namespace moris
                     // Loop over all pdofs to get their adofs and put them into a unique list
                     for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
                     {
-                        tNonUniqueAdofIds ( { tAdofPosCounter, tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() -1 }, { 0, 0 } )
+                        tNonUniqueAdofIds ( { tAdofPosCounter, tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() -1 } )
                                                             = mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
 
                         // Add number if these adofs to number of assembled adofs
@@ -516,7 +516,7 @@ namespace moris
 
                     if( tNumEntries != 0 )
                     {
-                        aEqnObjAdofId( { tCounter, tCounter + tNumEntries - 1 }, { 0, 0 }) =
+                        aEqnObjAdofId( { tCounter, tCounter + tNumEntries - 1 } ) =
                                 mUniqueAdofTypeList( Ii )( tDofTypeIndex ).matrix_data();
 
                         tCounter += tNumEntries;
@@ -539,8 +539,6 @@ namespace moris
             // build T-matrix
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap_1( tTMatrix );
-
-            //print(mEquationSet->get_jacobian(),"jac");
 
             // project pdof residual to adof residual
             aEqnObjMatrix = trans( tTMatrix ) * mEquationSet->get_jacobian() * tTMatrix;
@@ -579,9 +577,12 @@ namespace moris
 
             aEqnObjRHS.resize( tNumRHS );
 
+            // build transpose of Tmatrix
+            Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
-                aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
+                aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
             }
         }
 
@@ -610,9 +611,12 @@ namespace moris
 
             aEqnObjRHS.resize( tNumRHS );
 
+            // build transpose of Tmatrix
+            Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
-                aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
+                aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
             }
         }
 
@@ -647,6 +651,9 @@ namespace moris
                 uint tNumRHS  =tCoeff_Original.size();
                 Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
 
+                // build transpose of Tmatrix
+                Matrix< DDRMat > tJacobianTrans = trans( mEquationSet->get_jacobian() );
+
                 // loop over the rhs
                 for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
@@ -666,7 +673,7 @@ namespace moris
                         }
                     }
 
-                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * tCoeff1( Ik );
+                    tElementalResidual( Ik ) = tJacobianTrans * tCoeff1( Ik );
                 }
             }
 
@@ -677,11 +684,14 @@ namespace moris
             // init
             aEqnObjRHS.resize( tNumRHS );
 
+            // build transpose of Tmatrix
+            Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+
             // loop over rhs
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
                 // project
-                aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
+                aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
             }
         }
 
@@ -722,9 +732,12 @@ namespace moris
 
             aEqnObjRHS.resize( tNumRHS );
 
+            // build transpose of Tmatrix
+            Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
-                aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
+                aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
             }
         }
 
@@ -760,11 +773,17 @@ namespace moris
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
-                            // seperate master slave index
-                            sint tSeperateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
+                            // build transpose of Jacobian
+                            Matrix< DDRMat > tJacTrans = 
+                                    trans( mEquationSet->get_jacobian()(
+                                            { tStartRow, tEndRow },
+                                            { tStartCol, tEndCol } ) );
+
+                            // separate master slave index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
 
                             // get the ith dof type group
-                            moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mMasterDofTypes( tSeperateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
@@ -784,6 +803,7 @@ namespace moris
                                 Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
 
                                 tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
+
                                 //fixme get rid of for loop
                                 uint tCounter=0;
                                 for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
@@ -794,8 +814,7 @@ namespace moris
                                     }
                                 }
 
-                                aElementResidual(Ik)( { tStartCol, tEndCol },{ 0, 0 } )
-                                += trans( mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) ) * tCoeff1( Ik );
+                                aElementResidual(Ik)( { tStartCol, tEndCol } ) += tJacTrans * tCoeff1( Ik );
                             }
                         }
 
@@ -809,11 +828,12 @@ namespace moris
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
-                            // seperate master slave index
-                            sint tSeperateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::SLAVE );
+                            // separate master slave index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::SLAVE );
 
                             // get the ith dof type group
-                            moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mSlaveDofTypes( tSeperateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = 
+                                    mEquationSet->mSlaveDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
@@ -824,7 +844,7 @@ namespace moris
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual(0)( { tStartRow, tEndRow },{ 0, 0 } )
+                            aElementResidual(0)( { tStartRow, tEndRow } )
                             -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
                     }
@@ -847,11 +867,12 @@ namespace moris
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
-                            // seperate master slave index
-                            sint tSeperateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::MASTER );
+                            // separate master slave index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::MASTER );
 
                             // get the ith dof type group
-                            moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mMasterDofTypes( tSeperateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = 
+                                    mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
@@ -862,7 +883,7 @@ namespace moris
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual(0)( { tStartRow, tEndRow },{ 0, 0 } )
+                            aElementResidual(0)( { tStartRow, tEndRow } )
                             -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
 
@@ -876,11 +897,12 @@ namespace moris
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
-                            // seperate master slave index
-                            sint tSeperateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::SLAVE );
+                            // separate master slave index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::SLAVE );
 
                             // get the ith dof type group
-                            moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mSlaveDofTypes( tSeperateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = 
+                                    mEquationSet->mSlaveDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
@@ -891,7 +913,7 @@ namespace moris
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual(0)( { tStartRow, tEndRow },{ 0, 0 } )
+                            aElementResidual(0)( { tStartRow, tEndRow } )
                             -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
                     }

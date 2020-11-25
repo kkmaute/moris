@@ -773,7 +773,7 @@ endif()
 # -------------------------------------------------------------------------
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(MORIS_TEST_PROCS 1 2 4)
-	set(MORIS_TEST_PROCS_HMR 1 2 4)
+	set(MORIS_TEST_PROCS_HMR 1 2 4 12)
 endif()
 
 if (MORIS_USE_VALGRIND)
