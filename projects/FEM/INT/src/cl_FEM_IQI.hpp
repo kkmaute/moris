@@ -389,7 +389,7 @@ namespace moris
              * return a cell of dof types
              * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -408,7 +408,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -451,7 +451,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+            const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------

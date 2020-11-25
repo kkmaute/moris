@@ -116,30 +116,42 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the current integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // FIXME: enforced nodal weak bcs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                    tReqIWG->set_nodal_weak_bcs(
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute residual at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                    tReqIWG->compute_residual( tWStar );
 
-                    // compute off-diagonal jacobian for staggered solve
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    // compute off-diagonal Jacobian for staggered solve
+                    tReqIWG->compute_jacobian( tWStar );
                 }
             }
         }
@@ -160,27 +172,39 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                    tReqIWG->set_nodal_weak_bcs(
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
-                    // compute jacobian at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    // compute Jacobian at evaluation point
+                    tReqIWG->compute_jacobian( tWStar );
                 }
             }
         }
@@ -204,33 +228,45 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                    tReqIWG->set_nodal_weak_bcs(
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
                     if( mSet->mEquationModel->get_is_forward_analysis() )
                     {
                         // compute residual at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                        tReqIWG->compute_residual( tWStar );
                     }
 
-                    // compute jacobian at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    // compute Jacobian at evaluation point
+                    tReqIWG->compute_jacobian( tWStar );
                 }
 
                 if( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
@@ -264,27 +300,39 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                    tReqIWG->set_nodal_weak_bcs(
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute dRdpMat at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp( tWStar );
+                    tReqIWG->compute_dRdp( tWStar );
                 }
             }
         }
@@ -315,28 +363,40 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->
                         set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
                     // reset IWG
-                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+                    tReqIWG->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                    tReqIWG->set_nodal_weak_bcs(
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute dRdpMat at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
+                    tReqIWG->compute_dRdp_FD_material(
                             tWStar,
                             tFDPerturbation,
                             tFDScheme );
@@ -344,7 +404,7 @@ namespace moris
                     // compute dRdpGeo at evaluation point
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
-                        mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
+                        tReqIWG->compute_dRdp_FD_geometry(
                                 tWStar,
                                 tFDPerturbation,
                                 tGeoLocalAssembly,
@@ -369,14 +429,23 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -406,14 +475,23 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -453,14 +531,23 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -502,14 +589,23 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -545,14 +641,23 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over IQI
                 uint tNumIQIs = aQINames.size();
@@ -592,14 +697,23 @@ namespace moris
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
-                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
                 // compute integration point weight
-                real tWStar = mSet->get_integration_weights()( iGP ) *
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over IQI
                 for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )

@@ -83,11 +83,10 @@ namespace moris
     // FUNCTIONS ENABLING TRACING AND CLOCK LOGGING --------------------------------
     // -----------------------------------------------------------------------------
 
-    // sign in
     void Logger::sign_in(
-            enum EntityBase aEntityBase,
-            enum EntityType aEntityType,
-            enum EntityAction aEntityAction )
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction)
     {
         // pass save info to clock
         mGlobalClock.sign_in(aEntityBase, aEntityType, aEntityAction);
@@ -108,21 +107,32 @@ namespace moris
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1)
-                                                              << "__Start: " << get_enum_str(aEntityBase)
-                                                              << " - " << get_enum_str(aEntityType)
-                                                              << " - " << get_enum_str(aEntityAction)
-                                                              << " \n";
+                            << "__Start: " << aEntityBase
+                            << " - " << aEntityType
+                            << " - " << aEntityAction
+                            << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << " \n";
                 }
                 else
                 {
-                    std::cout << "Signing in: " << get_enum_str(aEntityBase)
-                                                << " - " << get_enum_str(aEntityType)
-                                                << " - " << get_enum_str(aEntityAction)
-                                                << " \n";
+                    std::cout << "Signing in: " << aEntityBase
+                            << " - " << aEntityType
+                            << " - " << aEntityAction
+                            << " \n";
                 }
             }
         }
+    }
+
+    // -----------------------------------------------------------------------------
+
+    // sign in
+    void Logger::sign_in(
+            enum EntityBase aEntityBase,
+            enum EntityType aEntityType,
+            enum EntityAction aEntityAction )
+    {
+        this->sign_in(get_enum_str(aEntityBase), get_enum_str(aEntityType), get_enum_str(aEntityAction));
     }
 
     // -----------------------------------------------------------------------------
@@ -152,7 +162,7 @@ namespace moris
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
                 else
-                    std::cout << "Signing out " << get_enum_str( mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) ) <<
+                    std::cout << "Signing out " << mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) <<
                     ". Elapsed time = " <<
                     ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
                     " \n" << std::flush;
@@ -178,7 +188,7 @@ namespace moris
             if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
             {
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
-                        get_enum_str( mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) ) << " - " <<
+                        mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) << " - " <<
                         get_enum_str( OutputSpecifier::Iteration ) << ": " <<
                         ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
                         " \n" << std::flush;
@@ -186,7 +196,7 @@ namespace moris
             else
             {
                 std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": " <<
-                        get_enum_str( mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) ) << " - " <<
+                        mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) << " - " <<
                         ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
                         " \n" << std::flush;
             }
@@ -217,10 +227,10 @@ namespace moris
         while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( aEntityBase == mGlobalClock.mCurrentEntity( tIndentLevel ) &&
-                    ( aEntityType == mGlobalClock.mCurrentType( tIndentLevel ) ||
-                            aEntityType == EntityType::Arbitrary ) &&
-                    ( aEntityAction == mGlobalClock.mCurrentAction( tIndentLevel ) ||
+            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity( tIndentLevel ) and
+                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType( tIndentLevel ) or
+                            aEntityType == EntityType::Arbitrary ) and
+                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction( tIndentLevel ) or
                             aEntityAction == EntityAction::Arbitrary ) )
             {
                 tInstanceFound = true;

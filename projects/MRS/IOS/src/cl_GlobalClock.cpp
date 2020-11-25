@@ -28,13 +28,13 @@ namespace moris
         mCurrentFunctionID.resize( 1 , mMaxFunctionID );
 
         // initialize list of entities
-        mCurrentEntity.resize( 1 , EntityBase::GlobalClock );
+        mCurrentEntity.resize( 1 , "GlobalClock" );
 
         // initialize list of entity types
-        mCurrentType.resize( 1 , EntityType::Base );
+        mCurrentType.resize( 1 , "Base" );
 
         // initialize list of Actions
-        mCurrentAction.resize( 1 , EntityAction::Create );
+        mCurrentAction.resize( 1 , "Create" );
 
         // initialize list of Actions
         mCurrentIteration.resize( 1 , 0 );
@@ -46,9 +46,9 @@ namespace moris
     // --------------------------------------------------------------------------------
 
     void GlobalClock::sign_in(
-            enum EntityBase   aEntityBase,
-            enum EntityType   aEntityType,
-            enum EntityAction aEntityAction )
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction)
     {
         // increment indentation level
         mIndentationLevel++;

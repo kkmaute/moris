@@ -40,13 +40,13 @@ class GlobalClock
     Cell< uint > mCurrentFunctionID;
 
     // lists of currently active entities in tracing tree
-    Cell< enum EntityBase > mCurrentEntity;
+    Cell< std::string > mCurrentEntity;
 
     // lists of currently active entity types in tracing tree
-    Cell< enum EntityType > mCurrentType;
+    Cell< std::string > mCurrentType;
 
     // list of currently active action
-    Cell< enum EntityAction > mCurrentAction;
+    Cell< std::string > mCurrentAction;
 
     // list of current iteration for each instance
     Cell< uint > mCurrentIteration;
@@ -71,10 +71,18 @@ class GlobalClock
 
     // --------------------------------------------------------------------------------
     // operation to start tracing new entity, increment all lists
+
+    /**
+     * Sign in to the clock with an entity action.
+     *
+     * @param aEntityBase Entity base
+     * @param aEntityType Entity type
+     * @param aEntityAction Entity action
+     */
     void sign_in(
-            enum EntityBase   aEntityBase,
-            enum EntityType   aEntityType,
-            enum EntityAction aEntityAction );
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction);
 
     // --------------------------------------------------------------------------------
     // operation to stop tracing an entity, decrement all lists

@@ -128,7 +128,7 @@ namespace moris
                     }
                     else
                     {
-                        td2fdT2 = ( 6.0 * (tTlower + tTupper) - 12.0 * tTemp  )  / std::pow(aPCconst, 3.0);
+                        td2fdT2 = ( 6.0 * (tTlower + tTupper) - ( 12.0 * tTemp )  )  / std::pow(aPCconst, 3.0);
                     }
                     break;
                 }

@@ -36,7 +36,7 @@ namespace moris
         class Geometry_Interpolator
         {
                 // tolerance for check
-                real mEpsilon = 1e-12;
+                const real mEpsilon = 1e-12;
 
                 // pointer to space interpolation function object
                 Interpolation_Function_Base * mSpaceInterpolation = nullptr;
@@ -53,7 +53,7 @@ namespace moris
                 uint mNumTimeBases;
                 uint mNumTimeDim;
 
-                // space and time jacobians
+                // space and time Jacobians
                 real mSpaceDetJ;
                 real mTimeDetJ;
 
@@ -166,6 +166,19 @@ namespace moris
                         Matrix< DDRMat >       & aLt,
                         const Matrix< DDRMat > & ad2NdTau2,
                         const Matrix< DDRMat > & aTHat );
+
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
+
+                // smallest acceptable value for DetJ
+                // note: needs to allow for small negative numbers as used to identify degenerated elements
+                static const real sDetJLowerLimit;
+
+                // smallest acceptable value for DetJ used in building inverse of Jacobian
+                // note: should be strictly positive as used for building inverse of matrix
+                // note: this value should be used to identify and skip degenerated cells
+                static const real sDetJInvJacLowerLimit;
 
                 //------------------------------------------------------------------------------
             public:
@@ -887,9 +900,6 @@ namespace moris
                         Matrix< DDRMat > & aJ3ct,
                         const Matrix< DDRMat > & ad3NdXi3,
                         const Matrix< DDRMat > & aXHat );
-
-                //------------------------------------------------------------------------------
-
         };
 
         //------------------------------------------------------------------------------

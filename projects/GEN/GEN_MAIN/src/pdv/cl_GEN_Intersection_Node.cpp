@@ -17,7 +17,8 @@ namespace moris
                 const Matrix<DDRMat>&     aFirstNodeCoordinates,
                 const Matrix<DDRMat>&     aSecondNodeCoordinates,
                 std::shared_ptr<Geometry> aInterfaceGeometry,
-                real                      aIsocontourThreshold)
+                real                      aIsocontourThreshold,
+                real                      aTolerance)
                 : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
                              {aFirstNodeCoordinates, aSecondNodeCoordinates},
                              xtk::Linear_Basis_Function(),
@@ -25,12 +26,14 @@ namespace moris
                                      Matrix<DDRMat>(
                                              {{aInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
                                               {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
-                                     aIsocontourThreshold)),
-                  mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface( std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates) ) <=  1E-10),
-                  mSecondParentOnInterface(std::abs(mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) <= 1E-10),
-                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+                                     aIsocontourThreshold))
         {
+            mInterfaceGeometry = aInterfaceGeometry;
+
+            mFirstParentOnInterface  = std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex,  aFirstNodeCoordinates) )  < aTolerance;
+            mSecondParentOnInterface = std::abs( mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) < aTolerance;
+
+            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates  + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -44,12 +47,14 @@ namespace moris
                 : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
                              {aFirstNodeCoordinates, aSecondNodeCoordinates},
                              xtk::Linear_Basis_Function(),
-                             Matrix<DDRMat>( { {0.0} } ) ),
-                  mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(false),
-                  mSecondParentOnInterface(false),
-                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+                             Matrix<DDRMat>( { {0.0} } ) )
         {
+            mInterfaceGeometry = aInterfaceGeometry;
+
+            mFirstParentOnInterface  = false;
+            mSecondParentOnInterface = false;
+
+            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------

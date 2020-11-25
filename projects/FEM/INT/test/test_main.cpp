@@ -13,7 +13,7 @@
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Logger.hpp" // MRS/IOS/src
+#include "cl_Logger.hpp"                // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -38,9 +38,6 @@ main(
     // finalize moris global communication manager
     gMorisComm.finalize();
 
-
     return result;
-
 }
-
 

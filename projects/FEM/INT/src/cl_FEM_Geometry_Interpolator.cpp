@@ -12,6 +12,12 @@ namespace moris
 {
     namespace fem
     {
+        // smallest acceptable value for DetJ
+        const real Geometry_Interpolator::sDetJLowerLimit = -1.0e-18;
+
+        // smallest acceptable value for DetJ used in building inverse of Jacobian
+        const real Geometry_Interpolator::sDetJInvJacLowerLimit = 1.0e-12;
+
         //------------------------------------------------------------------------------
 
         Geometry_Interpolator::Geometry_Interpolator(
@@ -596,7 +602,19 @@ namespace moris
 
         void Geometry_Interpolator::eval_inverse_space_jacobian_1d()
         {
-            mInvSpaceJac = inv ( this->space_jacobian() );
+            // get the space Jacobian
+            const Matrix< DDRMat > & tSpacJac = this->space_jacobian();
+
+            MORIS_ASSERT(tSpacJac(0,0) > sDetJInvJacLowerLimit,
+                    "Space determinate (1D) close to zero or negative: %e\n", tSpacJac(0,0));
+
+            mInvSpaceJac.set_size(1,1);
+
+            mInvSpaceJac(0,0) = 1.0/tSpacJac(0,0);
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
+                    "Inconsistent space Jacobian (1D)\n");
         }
 
         void Geometry_Interpolator::eval_inverse_space_jacobian_2d()
@@ -604,10 +622,11 @@ namespace moris
             // get the space Jacobian
             const Matrix< DDRMat > & tSpacJac = this->space_jacobian();
 
+            MORIS_ASSERT(this->space_det_J() > sDetJInvJacLowerLimit,
+                    "Space determinate (2D) close to zero or negative: %e\n", this->space_det_J());
+
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
-
-//            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
 
             // compute inverse
             mInvSpaceJac.set_size(2,2);
@@ -616,6 +635,10 @@ namespace moris
             mInvSpaceJac(0, 1) = -tSpacJac(0, 1) * tInvDet;
             mInvSpaceJac(1, 0) = -tSpacJac(1, 0) * tInvDet;
             mInvSpaceJac(1, 1) =  tSpacJac(0, 0) * tInvDet;
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
+                    "Inconsistent space Jacobian (2D)");
         }
 
         void Geometry_Interpolator::eval_inverse_space_jacobian_3d()
@@ -623,10 +646,11 @@ namespace moris
             // get the space Jacobian
             const Matrix< DDRMat > & tSpacJac = this->space_jacobian();
 
+            MORIS_ASSERT(this->space_det_J() > sDetJInvJacLowerLimit,
+                    "Space determinate (3D) close to zero or negative: %e\n", this->space_det_J());
+
             // compute inverse of 3x3 matrix
             real tInvDet = 1.0/(this->space_det_J());
-
-//            MORIS_ASSERT(tInvDet > 1e+18," space determinate close to zero.\n");
 
             // compute inverse
             mInvSpaceJac.set_size(3,3);
@@ -640,6 +664,10 @@ namespace moris
             mInvSpaceJac(2, 0) = (tSpacJac(1, 0) * tSpacJac(2, 1) - tSpacJac(2, 0) * tSpacJac(1, 1)) * tInvDet;
             mInvSpaceJac(2, 1) = (tSpacJac(2, 0) * tSpacJac(0, 1) - tSpacJac(0, 0) * tSpacJac(2, 1)) * tInvDet;
             mInvSpaceJac(2, 2) = (tSpacJac(0, 0) * tSpacJac(1, 1) - tSpacJac(1, 0) * tSpacJac(0, 1)) * tInvDet;
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
+                    "Inconsistent space Jacobian (3D)");
         }
 
         //------------------------------------------------------------------------------
@@ -720,17 +748,72 @@ namespace moris
 
         void Geometry_Interpolator::eval_inverse_time_jacobian_1d()
         {
-            mInvTimeJac = inv ( this->time_jacobian() );
+            // get the space Jacobian
+            const Matrix< DDRMat > & tTimeJac = this->time_jacobian();
+
+            MORIS_ASSERT(tTimeJac(0,0) > sDetJInvJacLowerLimit,
+                    "Time determinate (1D) close to zero or negative: %e\n", tTimeJac(0,0));
+
+            mInvTimeJac.set_size(1,1);
+
+            mInvTimeJac = 1.0/tTimeJac(0,0);
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
+                    "Inconsistent time Jacobian (1D)");
         }
 
         void Geometry_Interpolator::eval_inverse_time_jacobian_2d()
         {
-            mInvTimeJac = inv ( this->time_jacobian() );
+            // get the space Jacobian
+            const Matrix< DDRMat > & tTimeJac = this->time_jacobian();
+
+            MORIS_ASSERT(this->time_det_J() > sDetJInvJacLowerLimit,
+                    "Time determinate (2D) close to zero or negative: %e\n", this->time_det_J());
+
+            // compute inverse of 2x2 matrix
+            real tInvDet = 1.0/(this->time_det_J());
+
+            // compute inverse
+            mInvTimeJac.set_size(2,2);
+
+            mInvTimeJac(0, 0) =  tTimeJac(1, 1) * tInvDet;
+            mInvTimeJac(0, 1) = -tTimeJac(0, 1) * tInvDet;
+            mInvTimeJac(1, 0) = -tTimeJac(1, 0) * tInvDet;
+            mInvTimeJac(1, 1) =  tTimeJac(0, 0) * tInvDet;
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
+                    "Inconsistent time Jacobian (2D)");
         }
 
         void Geometry_Interpolator::eval_inverse_time_jacobian_3d()
         {
-            mInvTimeJac = inv ( this->time_jacobian() );
+            // get the space Jacobian
+            const Matrix< DDRMat > & tTimeJac = this->time_jacobian();
+
+            MORIS_ASSERT(this->time_det_J() > sDetJInvJacLowerLimit,
+                    "Time determinate (3D) close to zero or negative: %e\n", this->time_det_J());
+
+            // compute inverse of 3x3 matrix
+            real tInvDet = 1.0/(this->time_det_J());
+
+            // compute inverse
+            mInvTimeJac.set_size(3,3);
+
+            mInvTimeJac(0, 0) = (tTimeJac(1, 1) * tTimeJac(2, 2) - tTimeJac(2, 1) * tTimeJac(1, 2)) * tInvDet;
+            mInvTimeJac(0, 1) = (tTimeJac(0, 2) * tTimeJac(2, 1) - tTimeJac(0, 1) * tTimeJac(2, 2)) * tInvDet;
+            mInvTimeJac(0, 2) = (tTimeJac(0, 1) * tTimeJac(1, 2) - tTimeJac(0, 2) * tTimeJac(1, 1)) * tInvDet;
+            mInvTimeJac(1, 0) = (tTimeJac(1, 2) * tTimeJac(2, 0) - tTimeJac(1, 0) * tTimeJac(2, 2)) * tInvDet;
+            mInvTimeJac(1, 1) = (tTimeJac(0, 0) * tTimeJac(2, 2) - tTimeJac(0, 2) * tTimeJac(2, 0)) * tInvDet;
+            mInvTimeJac(1, 2) = (tTimeJac(1, 0) * tTimeJac(0, 2) - tTimeJac(0, 0) * tTimeJac(1, 2)) * tInvDet;
+            mInvTimeJac(2, 0) = (tTimeJac(1, 0) * tTimeJac(2, 1) - tTimeJac(2, 0) * tTimeJac(1, 1)) * tInvDet;
+            mInvTimeJac(2, 1) = (tTimeJac(2, 0) * tTimeJac(0, 1) - tTimeJac(0, 0) * tTimeJac(2, 1)) * tInvDet;
+            mInvTimeJac(2, 2) = (tTimeJac(0, 0) * tTimeJac(1, 1) - tTimeJac(1, 0) * tTimeJac(0, 1)) * tInvDet;
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
+                    "Inconsistent time Jacobian (3D)");
         }
 
         //------------------------------------------------------------------------------
@@ -788,7 +871,12 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_side_line(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return norm( aSpaceJt );
+            real tDetJ = norm( aSpaceJt );
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (side line) close to zero or negative: %e\n", tDetJ);
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -796,9 +884,15 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_side_tri(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return norm( cross(
-                    aSpaceJt.get_row( 0 ) - aSpaceJt.get_row( 2 ),
-                    aSpaceJt.get_row( 1 ) - aSpaceJt.get_row( 2 ) ) ) / 2.0;
+            real tDetJ =
+                    norm( cross(
+                            aSpaceJt.get_row( 0 ) - aSpaceJt.get_row( 2 ),
+                            aSpaceJt.get_row( 1 ) - aSpaceJt.get_row( 2 ) ) ) / 2.0;
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (side tri) close to zero or negative: %e\n", tDetJ);
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -806,7 +900,12 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_side_quad(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) );
+            real tDetJ = norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) );
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (side quad) close to zero or negative: %e\n", tDetJ);
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -814,21 +913,53 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_bulk_line(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return det(aSpaceJt);
+            real tDetJ = aSpaceJt(0,0);
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (bulk 1D) close to zero or negative: %e\n", tDetJ);
+
+            MORIS_ASSERT( std::abs( det(aSpaceJt) - tDetJ ) < 1e-8*tDetJ,
+                    "Inconsistent space determinant (bulk 1D): %e vs %e\n",
+                    tDetJ,det(aSpaceJt));
+
+            return tDetJ;
         }
+
+        //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_quad(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0);
+            real tDetJ = aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0);
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (bulk 2D) close to zero or negative: %e\n", tDetJ);
+
+            MORIS_ASSERT( std::abs( det(aSpaceJt) - tDetJ ) < 1e-8*tDetJ,
+                    "Inconsistent space determinant (bulk 2D): %e vs %e\n",
+                    tDetJ,det(aSpaceJt));
+
+            return tDetJ;
         }
+
+        //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_hex(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(2,1)*aSpaceJt(1,2))
-                   -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
-                   +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0));
+            real tDetJ =
+                    +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(2,1)*aSpaceJt(1,2))
+                    -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
+                    +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0));
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (bulk 3D) close to zero or negative: %e\n", tDetJ);
+
+            MORIS_ASSERT( std::abs( det(aSpaceJt) - tDetJ ) < 1e-8*tDetJ,
+                    "Inconsistent space determinant (bulk 3D): %e vs %e\n",
+                    tDetJ,det(aSpaceJt));
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -836,15 +967,32 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_bulk_tri_param_2(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return (aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0))/ 2.0;
+            real tDetJ = (aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0))/ 2.0;
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (Tri-P2) close to zero or negative: %e\n", tDetJ);
+
+            MORIS_ASSERT( std::abs( det(aSpaceJt) - tDetJ ) < 1e-8*tDetJ,
+                    "Inconsistent space determinant (Tri-P2): %e vs %e\n",
+                    tDetJ,det(aSpaceJt));
+
+            return tDetJ;
         }
+
+        //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_tri_param_3(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return (+(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0))
+            real tDetJ = (
+                    +(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0))
                     -(aSpaceJt(0,0)*aSpaceJt(2,1)-aSpaceJt(0,1)*aSpaceJt(2,0))
                     +(aSpaceJt(0,0)*aSpaceJt(1,1)-aSpaceJt(0,1)*aSpaceJt(1,0))) / 2.0;
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (Tri-P3) close to zero or negative: %e\n", tDetJ);
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -852,10 +1000,22 @@ namespace moris
         real Geometry_Interpolator::eval_space_detJ_bulk_tet_param_3(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            return (+aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(2,1)*aSpaceJt(1,2))
+            real tDetJ = (
+                    +aSpaceJt(0,0)*(aSpaceJt(1,1)*aSpaceJt(2,2)-aSpaceJt(2,1)*aSpaceJt(1,2))
                     -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
                     +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0))) / 6.0;
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (Tet-P3) close to zero or negative: %e\n", tDetJ);
+
+            MORIS_ASSERT( std::abs( det(aSpaceJt) - tDetJ ) < 1e-8*tDetJ,
+                    "Inconsistent space determinant (Tet-P3): %e vs %e\n",
+                    tDetJ,det(aSpaceJt));
+
+            return tDetJ;
         }
+
+        //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::eval_space_detJ_bulk_tet_param_4(
                 const Matrix< DDRMat > & aSpaceJt )
@@ -880,7 +1040,12 @@ namespace moris
                     -aSpaceJt(0,1)*(aSpaceJt(1,0)*aSpaceJt(2,2)-aSpaceJt(1,2)*aSpaceJt(2,0))
                     +aSpaceJt(0,2)*(aSpaceJt(1,0)*aSpaceJt(2,1)-aSpaceJt(1,1)*aSpaceJt(2,0));
 
-            return ( tSubDet1 - tSubDet2 + tSubDet3 - tSubDet4 ) / 6.0;
+            real tDetJ = ( tSubDet1 - tSubDet2 + tSubDet3 - tSubDet4 ) / 6.0;
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Space determinant (Tet-P4) close to zero or negative: %e\n", tDetJ);
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -896,7 +1061,13 @@ namespace moris
         real Geometry_Interpolator::eval_time_detJ_bulk(
                 const Matrix< DDRMat > & aTimeJt )
         {
-            return det( aTimeJt );
+            //FIXME: Needs to be specialized
+            real tDetJ = det(aTimeJt);
+
+            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                    "Time determinant (bulk) close to zero or negative: %e\n", tDetJ);
+
+            return tDetJ;
         }
 
         //------------------------------------------------------------------------------
@@ -1014,24 +1185,14 @@ namespace moris
                 Matrix< DDRMat > & aParamCoordinates )
         {
             // set max iteration
-            uint tMaxIter = 10;
+            const uint tMaxIter = 5;
 
-            // init previous param coords
-            Matrix< DDRMat > tPreviousParamCoordinates(
-                    aParamCoordinates.n_rows(),
-                    aParamCoordinates.n_cols(),
-                    10.0 );
+            // set convergence criterion
+            const real tConvCrit = 1e-12;
 
             // Newton loop
             for( uint iIter = 0; iIter <= tMaxIter; iIter++ )
             {
-                // break update
-                real tError = norm( tPreviousParamCoordinates - aParamCoordinates );
-                if( tError < 1e-12 )
-                {
-                    break;
-                }
-
                 // compute NXi
                 Matrix< DDRMat > tNXi;
                 mSpaceInterpolation->eval_N( aParamCoordinates, tNXi );
@@ -1039,24 +1200,22 @@ namespace moris
                 // compute residual
                 Matrix< DDRMat > tR = trans( aPhysCoordinates - tNXi * mXHat );
 
+                // check for convergence
+                if( norm(tR) < tConvCrit )
+                {
+                    return;
+                }
+
                 // compute dNdXI
                 Matrix< DDRMat > tdNdXi;
                 mSpaceInterpolation->eval_dNdXi( aParamCoordinates, tdNdXi );
 
-                // compute Jacobian
-                Matrix< DDRMat > tJ = trans( tdNdXi * mXHat );
-
                 // solve
-                aParamCoordinates += trans( inv( tJ ) * tR );
-
-                // update previous coords
-                tPreviousParamCoordinates = aParamCoordinates;
-
-                if( iIter == tMaxIter )
-                {
-                    MORIS_LOG_INFO("Geometry_Interpolator::update_local_coordinates - No convergence.");
-                }
+                aParamCoordinates += trans( inv( trans( tdNdXi * mXHat ) ) * tR );
             }
+
+            // getting here means that iterations exceeded maximum number
+            MORIS_ASSERT(true, "Geometry_Interpolator::update_local_coordinates - No convergence.");
         }
 
         //------------------------------------------------------------------------------
@@ -1664,21 +1823,21 @@ namespace moris
             {
                 case 1 :
                 {
-                    mInvSpaceJacFunc               =  &Geometry_Interpolator::eval_inverse_space_jacobian_1d;
+                    mInvSpaceJacFunc               = &Geometry_Interpolator::eval_inverse_space_jacobian_1d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
                     break;
                 }
                 case 2 :
                 {
-                    mInvSpaceJacFunc               =  &Geometry_Interpolator::eval_inverse_space_jacobian_2d;
+                    mInvSpaceJacFunc               = &Geometry_Interpolator::eval_inverse_space_jacobian_2d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
                     break;
                 }
                 case 3 :
                 {
-                    mInvSpaceJacFunc               =  &Geometry_Interpolator::eval_inverse_space_jacobian_3d;
+                    mInvSpaceJacFunc               = &Geometry_Interpolator::eval_inverse_space_jacobian_3d;
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                     mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                     break;
@@ -1839,6 +1998,7 @@ namespace moris
             {
                 case mtk::Geometry_Type::POINT :
                 {
+                    mMapFlag      = true;
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
                     break;
                 }

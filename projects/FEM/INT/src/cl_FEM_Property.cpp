@@ -36,7 +36,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Property::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
         {
             // set dof type list
             mDofTypes = aDofTypes;
@@ -67,6 +67,7 @@ namespace moris
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDofTypes( iDof )( 0 ) ) );
             }
+
             tMaxEnum++;
 
             // set the Dof_Type map size
@@ -83,7 +84,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Property::check_dof_dependency(
-                const moris::Cell< MSI::Dof_Type > aDofType )
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // get the dof type index
             uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
@@ -135,10 +136,12 @@ namespace moris
 
             // determine the max Dv_Type enum
             sint tMaxEnum = 0;
+
             for( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV )( 0 ) ) );
             }
+
             tMaxEnum++;
 
             // set the Dv_Type map size
@@ -154,7 +157,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool Property::check_dv_dependency( const moris::Cell< PDV_Type > aDvType )
+        bool Property::check_dv_dependency(
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -168,6 +172,7 @@ namespace moris
                 // bool is set to true
                 tDvDependency = true;
             }
+
             // return bool for dependency
             return tDvDependency;
         }
@@ -202,7 +207,7 @@ namespace moris
 
         void Property::get_non_unique_dof_and_dv_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >  & aDvTypes )
+                moris::Cell< PDV_Type >      & aDvTypes )
         {
             // init counter
             uint tDofCounter = 0;
@@ -254,6 +259,7 @@ namespace moris
                 // set bool for evaluation
                 mPropEval = false;
             }
+
             // return the property value
             return mProp;
         }
@@ -287,6 +293,7 @@ namespace moris
                 // set bool for evaluation
                 mdPropdxEval = false;
             }
+
             // return the property value
             return mdPropdx;
         }
@@ -310,7 +317,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Property::dPropdDOF(
-                const moris::Cell< MSI::Dof_Type > aDofType )
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),
@@ -335,7 +342,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
+        void Property::eval_dPropdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // get the dof index
             uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -358,7 +366,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Property::dPropdDV(
-                const moris::Cell< PDV_Type > aDvType )
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // if aDvType is not an active dv type for the property
             MORIS_ERROR( this->check_dv_dependency( aDvType ),
@@ -383,7 +391,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_dPropdDV( const moris::Cell< PDV_Type > aDvType )
+        void Property::eval_dPropdDV(
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // get the dv index
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );

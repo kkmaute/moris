@@ -177,6 +177,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
         tParameterlist( 0 )( 0 ).set( "intersection_mode", "LEVEL_SET");
+        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1E-12);
 
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
