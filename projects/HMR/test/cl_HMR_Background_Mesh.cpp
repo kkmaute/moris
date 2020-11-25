@@ -2459,10 +2459,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
             // update element table
             //tBackgroundMesh->collect_active_elements();
 
-            uint tActivePattern = tBackgroundMesh->get_activation_pattern();
-
-
-
             // create pointer to an element
             moris::hmr::Background_Element_Base * tElement = nullptr;
 
