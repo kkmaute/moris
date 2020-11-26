@@ -403,6 +403,15 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * compute dQIdp explicit and implicit on equation object
+             */
+            virtual void compute_dQIdp_explicit_implicit()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit_implicit - not implemented in msi." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
              * compute dQIdu on equation object
              */
             virtual void compute_dQIdu()
