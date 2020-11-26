@@ -146,6 +146,7 @@ namespace moris
             case EntityAction::Compute:                return "Compute";
             case EntityAction::Compute_dQIdp_Expl:     return "Compute_dQIdp_Expl";
             case EntityAction::Compute_dQIdp_Impl:     return "Compute_dQIdp_Impl";
+            case EntityAction::ComputedQIdpExplImpl:   return "ComputedQIdpExplImpl";
             case EntityAction::Create:                 return "Create";
             case EntityAction::Evaluate:               return "Evaluate";
             case EntityAction::AssembleJacobian:       return "AssembleJacobian";
@@ -176,6 +177,7 @@ namespace moris
         else if (aEnumString == "Compute")                 return EntityAction::Compute;
         else if (aEnumString == "Compute_dQIdp_Expl")      return EntityAction::Compute_dQIdp_Expl;
         else if (aEnumString == "Compute_dQIdp_Impl")      return EntityAction::Compute_dQIdp_Impl;
+        else if (aEnumString == "ComputedQIdpExplImpl")    return EntityAction::ComputedQIdpExplImpl;
         else if (aEnumString == "Create")                  return EntityAction::Create;
         else if (aEnumString == "Evaluate")                return EntityAction::Evaluate;
         else if (aEnumString == "AssembleJacobian")        return EntityAction::AssembleJacobian;

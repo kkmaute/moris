@@ -390,6 +390,12 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * compute explicit and implicit dQidp
+             */
+            void compute_explicit_and_implicit_dQIdp();
+
+            //------------------------------------------------------------------------------
+            /**
              * initialize QI
              */
             void initialize_IQIs();

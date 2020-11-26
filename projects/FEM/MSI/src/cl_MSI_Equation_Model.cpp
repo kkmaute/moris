@@ -148,6 +148,48 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Equation_Model::compute_explicit_and_implicit_dQIdp()
+        {
+            //Trace this function
+            Tracer tTracer(EntityBase::MSI, EntityType::EquationModel, EntityAction::ComputedQIdpExplImpl);
+
+            // get local number of equation sets
+            moris::uint tNumSets = mFemSets.size();
+
+            // loop over local equation sets
+            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
+            {
+                // get number of equation object on treated equation set
+                moris::uint tNumEqObjOnSet =
+                        mFemSets( tSetIndex )->get_num_equation_objects();
+
+                // initialize treated equation set //FIXME????
+                mFemSets( tSetIndex )->initialize_set( false );
+
+                // loop over equation objects on treated equation set
+                for ( moris::uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
+                {
+                    // compute dQIdp implicit
+                    mFemSets( tSetIndex )->
+                            get_equation_object_list()( tEqObjIndex )->
+                            compute_dQIdp_explicit_implicit();
+                }
+
+                // free memory on treated equation set
+                mFemSets( tSetIndex )->free_matrix_memory();
+            }
+
+            // global assembly to switch entries to the right processor
+            mExplicitdQidp->vector_global_assembly();
+            //mExplicitdQidp->print();
+
+            // global assembly to switch entries to the right processor
+            mImplicitdQidp->vector_global_assembly();
+            //mImplicitdQidp->print();
+        }
+
+        //------------------------------------------------------------------------------
+
         void Equation_Model::compute_implicit_dQIdp()
         {
             //Trace this function

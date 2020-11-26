@@ -73,6 +73,7 @@ namespace moris
             Compute,
             Compute_dQIdp_Expl,
             Compute_dQIdp_Impl,
+            ComputedQIdpExplImpl,
             Create,
             Evaluate,
             AssembleJacobian,
