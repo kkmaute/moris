@@ -352,6 +352,35 @@ namespace moris
                 }
             }
         }
+        
+        //------------------------------------------------------------------------------
+
+        void Cluster::compute_dRdp_and_dQIdp()
+        {
+            // bool for analytical sensitivity analysis
+            bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+
+            // if analytical sensitivity analysis
+            if( tIsAnalyticalSA )
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dQIdp for the IG element
+                    MORIS_ERROR( false, "Case not handled yet");
+                }
+            }
+            // if finite difference sensitivity analysis
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dQIdp for the IG element
+                    mElements( iElem )->compute_dRdp_and_dQIdp_FD();
+                }
+            }
+        }
 
         //------------------------------------------------------------------------------
 

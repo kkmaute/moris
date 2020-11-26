@@ -98,6 +98,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp and dQIdp by finite difference
+                 */
+                void compute_dRdp_and_dQIdp_FD();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute quantity of interest in a global way
                  * @param[ in ] aMeshIndex mesh index for used IG mesh
                  * @param[ in ] aQINames   list of IQI names to compute

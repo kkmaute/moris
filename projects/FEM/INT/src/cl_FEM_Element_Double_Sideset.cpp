@@ -627,6 +627,122 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Element_Double_Sideset::compute_dRdp_and_dQIdp_FD()
+        {
+            // get finite difference scheme type
+            fem::FDScheme_Type tFDScheme =
+                    mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
+            // get treated side ordinal on the master and on the slave
+            uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator(
+                    tMasterSideOrd,
+                    tSlaveSideOrd,
+                    tGeoLocalAssembly );
+
+            // get first corresponding node from master to slave
+            moris::mtk::Vertex const * tSlaveNode =
+                    mCluster->get_left_vertex_pair(
+                            mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+
+            moris_index tSlaveNodeOrdOnSide =
+                    mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode );
+
+            // get rotation matrix from left to right
+            Matrix< DDRMat> tR;
+            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
+
+            // get the vertices indices
+            Matrix< IndexMat > tMasterVertexIndices =
+                    mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
+            Matrix< IndexMat > tSlaveVertexIndices  =
+                    mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get local integration point for the master integration cell
+                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // get local integration point for the slave integration cell
+                Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+
+                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2}) =
+                        tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2}); //fixme better way?
+
+                // set evaluation point for master and slave interpolators
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                        set_space_time_from_local_IG_point( tMasterLocalIntegPoint );
+
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                        set_space_time_from_local_IG_point( tSlaveLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // get the normal from mesh and set if for the IWG
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
+                    // reset IWG
+                    tReqIWG->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    tReqIWG->set_normal( tNormal );
+
+                    // compute dRdpMat at evaluation point
+                    tReqIWG->compute_dRdp_FD_material_double(
+                            tWStar,
+                            tFDPerturbation,
+                            tFDScheme );
+
+                    // if active pdv on master or slave
+                    if( mSet->get_geo_pdv_assembly_flag() )
+                    {
+                        // compute dRdpGeo at evaluation point
+                        tReqIWG->compute_dRdp_FD_geometry_double(
+                                tWStar,
+                                tFDPerturbation,
+                                tMasterVertexIndices,
+                                tSlaveVertexIndices,
+                                tGeoLocalAssembly,
+                                tFDScheme );
+                    }
+                }
+
+                //FIXME add part over IQIs
+
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         real Element_Double_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // get treated side ordinal on the master and on the slave
