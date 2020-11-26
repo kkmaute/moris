@@ -1,5 +1,6 @@
 // MRS
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Bitset.hpp"
 #include "cl_Tracer.hpp"
 
 // GEN
@@ -66,8 +67,8 @@ namespace moris
                 mProperties(create_properties(aParameterLists(2), mADVs, mGeometries, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
                 
-                // phase table
-                mPhaseTable(mGeometries.size())
+                // Phase table
+                mPhaseTable(mGeometries.size(), string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")))
         {
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
@@ -86,15 +87,23 @@ namespace moris
 
             // Initialize PDV type list
             this->initialize_pdv_type_list();
-            
-            // Set map if its a non-standard phase table (i.e. the map is not 1-1 between index and bulk phase).
-            if (aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
+
+            // Recreate phase table via different methods if needed
+            std::string tPhaseFunctionName = aParameterLists(0)(0).get<std::string>("phase_function_name");
+            if (tPhaseFunctionName != "")
             {
-                Matrix<IndexMat> tPhaseTable = string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table"));
-                mPhaseTable.set_index_to_bulk_phase_map(tPhaseTable);
+                // User-defined phase function
+                mPhaseTable = Phase_Table(
+                        aParameterLists(0)(0).get<sint>("number_of_phases"),
+                        aLibrary->load_gen_phase_function(tPhaseFunctionName));
+            }
+            else if (aParameterLists(0)(0).get<std::string>("phase_table") == "")
+            {
+                // Unique phase per geometry combination
+                mPhaseTable = Phase_Table(mGeometries.size());
             }
 
-            // print the phase table if requested (since GEN doesn't have a perform operator this is going here)
+            // Print the phase table if requested
             if (aParameterLists(0)(0).get<bool>("print_phase_table") and par_rank() == 0)
             {
                 mPhaseTable.print();
@@ -153,7 +162,7 @@ namespace moris
             // Create full ADVs
             sol::Matrix_Vector_Factory tDistributedFactory;
             sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
-            sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap, 1, true);
+            sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap, 1, false, true);
 
             // Import ADVs
             tFullVector->import_local_to_global(*mOwnedADVs);
@@ -459,42 +468,35 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
-                moris_index aPhaseIndex,
-                moris_index aGeometryIndex )
-        {
-            return mPhaseTable.get_phase_sign_of_given_phase_and_geometry( aPhaseIndex,aGeometryIndex );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         size_t Geometry_Engine::get_phase_index(
                 moris_index            aNodeIndex,
                 const Matrix<DDRMat> & aCoordinates)
         {
-            // 0 for neg 1 for pos
-            Matrix< IndexMat > tPhaseOnOff(1, this->get_num_geometries());
+            // Initialize bitset of geometry signs
+            Bitset<512> tGeometrySigns(0);
 
+            // Flip bits as needed
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-               moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
-
-                tPhaseOnOff(0, tGeometryIndex) = 0;
-
-                if (tProxIndex == 2)
-                {
-                    tPhaseOnOff(0, tGeometryIndex) = 1;
-                }
+                moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
+                tGeometrySigns.set(tGeometryIndex, tProxIndex == 2);
             }
 
-            return mPhaseTable.get_phase_index(tPhaseOnOff);
+            return mPhaseTable.get_phase_index(tGeometrySigns);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         moris_index Geometry_Engine::get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff)
         {
-            return mPhaseTable.get_phase_index(aElemOnOff);
+            // FIXME
+            Bitset<512> tGeometrySigns(0);
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                tGeometrySigns.set(tGeometryIndex, aElemOnOff(tGeometryIndex));
+            }
+
+            return mPhaseTable.get_phase_index(tGeometrySigns);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -848,8 +850,8 @@ namespace moris
                 sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
                 // Create vectors
-                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, true);
-                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, true);
+                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
+                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
 
                 // Assign primitive ADVs
                 if (par_rank() == 0)

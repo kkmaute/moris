@@ -55,6 +55,9 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
         mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
 
+        mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+        mPointVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
         mSolverInterface->build_graph( mMat );
@@ -93,6 +96,9 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
     mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
     mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
 
+    mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
+    mPointVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
+
     mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
     mSolverInterface->build_graph( mMat );
@@ -113,6 +119,12 @@ Linear_System_PETSc::~Linear_System_PETSc()
 
     delete mFullVectorLHS;
     mFullVectorLHS=nullptr;
+
+    delete mPointVectorLHS;
+    mPointVectorLHS=nullptr;
+
+    delete mPointVectorRHS;
+    mPointVectorRHS=nullptr;
 
 //    mSolverInterface->delete_multigrid();
 
@@ -158,7 +170,9 @@ moris::sint Linear_System_PETSc::solve_linear_system()
 
     KSPSetFromOptions( tPetscKSPProblem );
 
-    KSPSolve( tPetscKSPProblem, static_cast<Vector_PETSc*>(mVectorRHS)->get_petsc_vector(), static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector() );
+    KSPSolve( tPetscKSPProblem,
+            static_cast<Vector_PETSc*>(mPointVectorRHS)->get_petsc_vector(),
+            static_cast<Vector_PETSc*>(mPointVectorLHS)->get_petsc_vector() );
 
     KSPDestroy( &tPetscKSPProblem );
 
@@ -171,7 +185,7 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
     //VecGetArray (tSolution, &  LHSValues.data());
 
     moris::sint tVecLocSize;
-    VecGetLocalSize( static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector(), &tVecLocSize );
+    VecGetLocalSize( static_cast<Vector_PETSc*>(mPointVectorLHS)->get_petsc_vector(), &tVecLocSize );
 
     // FIXME replace with VecGetArray()
     moris::Matrix< DDSMat > tVal ( tVecLocSize, 1 , 0 );
@@ -196,7 +210,7 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
         tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0)+Ik;
     }
 
-    VecGetValues( static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
+    VecGetValues( static_cast<Vector_PETSc*>(mPointVectorLHS)->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
 }
 
 //------------------------------------------------------------------------------------------

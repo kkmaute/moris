@@ -31,14 +31,19 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
         mMap = tMatFactory.create_map( aInput->get_my_local_global_overlapping_map() );      //FIXME
 
+        mMapFree->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false);
+
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMapFree );
+        mMat = tMatFactory.create_matrix( aInput, mMapFree,true );
 
         uint tNumRHS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
         mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS );
         mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS );
+
+        mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS, true );
+        mPointVectorLHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS, true );
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap,  tNumRHS );
 
@@ -80,25 +85,30 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 }
 
 //----------------------------------------------------------------------------------------
-Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
-                                                sol::SOL_Warehouse       * aSolverWarehouse,
-                                                sol::Dist_Map*  aFreeMap,
-                                                sol::Dist_Map*  aFullMap ) : moris::dla::Linear_Problem( aInput )
+Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface   * aInput,
+                                                sol::SOL_Warehouse * aSolverWarehouse,
+                                                sol::Dist_Map      * aFreeMap,
+                                                sol::Dist_Map      * aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         mTplType = sol::MapType::Epetra;
         mSolverWarehouse = aSolverWarehouse;
         sol::Matrix_Vector_Factory    tMatFactory( mTplType );
 
-        // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, aFreeMap );
+        aFreeMap->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false);
 
-        uint tNumRHMS = aInput->get_num_rhs();
+        // Build matrix
+        mMat = tMatFactory.create_matrix( aInput, aFreeMap, true );
+
+        uint tNumRHS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
-        mVectorRHS     = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHMS );
+        mVectorRHS      = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
+        mFreeVectorLHS  = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHMS );
+        mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS, true );
+        mPointVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS, true );
+
+        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHS );
 
         mSolverInterface->build_graph( mMat );
 }
@@ -118,6 +128,12 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
 
     delete mFullVectorLHS;
     mFullVectorLHS=nullptr;
+
+    delete mPointVectorLHS;
+    mPointVectorLHS=nullptr;
+
+    delete mPointVectorRHS;
+    mPointVectorRHS=nullptr;
 
     delete mMap;
     delete mMapFree;
@@ -151,7 +167,7 @@ moris::sint Linear_System_Trilinos::solve_linear_system()
 //------------------------------------------------------------------------------------------
 void Linear_System_Trilinos::get_solution( Matrix< DDRMat > & LHSValues )
 {
-    mFreeVectorLHS->extract_copy( LHSValues );
+    mPointVectorLHS->extract_copy( LHSValues );
 }
 
 

@@ -173,8 +173,8 @@ TEST_CASE("Phase Table Scratch","[XTK_PHASE_TABLE]")
             moris_index tNumGeom      = tGeometryVector.size();
             // moris::ge::Phase_Table tPhaseTable( tNumGeom ); 
             moris_index tNumBulkPhase = 3;
-            Matrix<IndexMat> tGeomIndexToBulkPhase = {{0,0,2,2,0,0,2,1}};
-            moris::ge::Phase_Table tPhaseTable( tNumGeom, tNumBulkPhase, tGeomIndexToBulkPhase );
+            Matrix<DDUMat> tGeomIndexToBulkPhase = {{0,0,2,2,0,0,2,1}};
+            moris::ge::Phase_Table tPhaseTable( tNumGeom, tGeomIndexToBulkPhase );
 
             tPhaseTable.print();
 

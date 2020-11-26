@@ -2009,7 +2009,7 @@ namespace xtk
         Cell<moris::moris_index> const & tSubphaseBulkPhases  = this->get_subphase_bin_bulk_phase();
 
         //iterate through subphases and create neighborhoods between subphases
-        // from low bulk phase to high bulk phase alwaya
+        // from low bulk phase to high bulk phase always
 
         for(moris::uint iSP0 = 0; iSP0 < tSubphaseClusters.size(); iSP0++)
         {
@@ -2046,15 +2046,20 @@ namespace xtk
                             moris_index tInterfaceNeighborSideOrd = MORIS_INDEX_MAX;
                             for(moris::uint iS = 0; iS < tFacetToCell.n_cols(); iS++)
                             {
-                                if(tFacetToCell(tFacetCmIndex,iS) != tCMLocCellInd)
+                                if(tFacetToCell(tFacetCmIndex,iS) != tCMLocCellInd )
                                 {
                                     tInterfaceNeighbor = tFacetToCell(tFacetCmIndex,iS);
-                                    tInterfaceNeighborSideOrd = this->get_cell_facet_ordinal(tInterfaceNeighbor,tFacetCmIndex);
+                                    if(tInterfaceNeighbor != MORIS_INDEX_MAX)
+                                    {
+                                        tInterfaceNeighborSideOrd = this->get_cell_facet_ordinal(tInterfaceNeighbor,tFacetCmIndex);
+                                    }
                                     break;
                                 }
                             }
 
                             // if this cell belongs to the other subphase add the pair and shared side ordinal
+                            if(tInterfaceNeighbor != std::numeric_limits<moris_index>::max())
+                            {
                             if(this->get_element_subphase_index(tInterfaceNeighbor) == (moris_index) iSP1)
                             {
                                 // add this subphase pair to the double side sets if we havent done so
@@ -2071,6 +2076,7 @@ namespace xtk
                                 mDoubleSideSetFacetPairs(tDblSideIndex).push_back({tSideOrd,tInterfaceNeighborSideOrd});
 
                                 tCount++;
+                            }
                             }
                         }
                     }
