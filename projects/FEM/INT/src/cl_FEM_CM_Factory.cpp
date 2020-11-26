@@ -4,6 +4,7 @@
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
+#include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_CM_Fluid_Turbulence.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
@@ -27,6 +28,9 @@ namespace moris
 
                 case  Constitutive_Type::STRUC_LIN_ISO :
                     return std::make_shared< CM_Struc_Linear_Isotropic >();
+
+                case  Constitutive_Type::STRUC_NONLIN_ISO :
+                    return std::make_shared< CM_Struc_Nonlinear_Isotropic >();
 
                 case Constitutive_Type::FLUID_INCOMPRESSIBLE :
                     return std::make_shared< CM_Fluid_Incompressible >();

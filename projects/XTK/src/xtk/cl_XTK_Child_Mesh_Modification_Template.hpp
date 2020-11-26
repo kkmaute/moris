@@ -1875,6 +1875,7 @@ private:
             }
             case(35):
             {
+                // done
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,5},{0,1,5,4},{4,1,5,3}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
@@ -1911,6 +1912,7 @@ private:
             }
             case(02):
             {
+                // done
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,1,2,3},{5,4,1,3},{0,4,5,3}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
@@ -1942,7 +1944,7 @@ private:
                 mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{3,1,2,3,1,5},{0,3,3,3,0,1},{0,1,3,0,4,1}});
                 mNewParentFaceRanks = moris::Matrix< moris::DDSTMat >({{3,2,2,2},{2,3,3,2},{2,2,3,2}});
                 mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3},{0,0,0,3},{0,1,0,3}});
-                mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{std::numeric_limits<moris::size_t>::max()},{0},{2}});
+                mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{std::numeric_limits<moris::size_t>::max()},{1},{2}});
                 break;
             }
             case(10):
@@ -1983,6 +1985,7 @@ private:
             }
             case(04):
             {
+                // done
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,4,2,5},{4,1,2,5},{0,5,2,3}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
@@ -1995,6 +1998,7 @@ private:
             }
             case(40):
             {
+                // done
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,1,2,4},{5,4,2,3},{0,5,2,3}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
@@ -2007,6 +2011,7 @@ private:
             }
             case(34):
             {
+                // done
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,5,2,4},{0,1,2,5},{4,5,2,3}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
@@ -2031,6 +2036,7 @@ private:
             }
             case(25):
             {
+                // done
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,3},{0,1,4,5},{1,2,4,5}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
