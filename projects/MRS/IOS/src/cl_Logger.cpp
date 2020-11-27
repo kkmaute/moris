@@ -140,14 +140,20 @@ namespace moris
     // signing out
     void Logger::sign_out()
     {
+        // stop timer
+        real tElapsedTime = ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC;
+
+        // compute maximum and minimum time used by processors
+        real tElapsedTimeMax = logger_max_all(tElapsedTime);
+        real tElapsedTimeMin = logger_min_all(tElapsedTime);
+
         // log to file
         if( mWriteToAscii )
         {
             // log current position in code
-            this->log_to_file(OutputSpecifier::ElapsedTime,
-                    ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
+            this->log_to_file(OutputSpecifier::ElapsedTime,tElapsedTime);
         }
-
+            
         // log to console - only processor mOutputRank prints message
         if ( logger_par_rank() == mOutputRank )
         {
@@ -156,16 +162,24 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_ElapsedTime = " <<
-                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
+                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) <<
+                            "_ElapsedTime (max/min) = " <<
+                            tElapsedTimeMax <<
+                            " / " <<
+                            tElapsedTimeMin <<
                             " \n" << std::flush;
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
-                else
-                    std::cout << "Signing out " << mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) <<
-                    ". Elapsed time = " <<
-                    ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
-                    " \n" << std::flush;
+                else                
+                {
+                    std::cout << "Signing out " <<
+                            mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) <<
+                            ". Elapsed time (max/min) = " <<
+                            tElapsedTimeMax <<
+                            " / " <<
+                            tElapsedTimeMin <<
+                           " \n" << std::flush;
+                }
             }
         }
 

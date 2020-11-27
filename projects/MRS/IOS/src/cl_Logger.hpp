@@ -27,6 +27,23 @@ int logger_par_rank()
 
 namespace moris
 {
+
+    real
+    logger_max_all( const real & aLocalInput )
+    {
+        real aGlobalMax;
+        MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+        return aGlobalMax;
+    }
+
+    real
+    logger_min_all( const real & aLocalInput )
+    {
+        real aGlobalMin;
+        MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+        return aGlobalMin;
+    }
+
     class Logger
     {
         public:
