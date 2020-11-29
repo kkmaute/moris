@@ -716,6 +716,13 @@ namespace moris
             // compute Jacobian
             this->compute_jacobian_and_residual();
 
+            // check for zero-size Jacobian
+            // note: if size of Jacobian is zero, also residuals are ignored
+            if ( mEquationSet->get_jacobian().numel() == 0 )
+            {
+                return;
+            }
+
             // build T-matrix
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap_1( tTMatrix );

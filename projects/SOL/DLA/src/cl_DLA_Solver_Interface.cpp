@@ -56,17 +56,22 @@ void Solver_Interface::fill_matrix_and_RHS(
         this->get_equation_object_operator_and_rhs( Ii, tElementMatrix, tElementRHS );
 
         // Fill element in distributed matrix
-        aMat->fill_matrix(
-                tElementTopology.length(),
-                tElementMatrix,
-                tElementTopology );
+        if ( tElementMatrix.numel() > 0 )
+        {
+            aMat->fill_matrix(
+                    tElementTopology.length(),
+                    tElementMatrix,
+                    tElementTopology );
+        }
 
         // Fill elementRHS in distributed RHS
-        aVectorRHS->sum_into_global_values(
-                tElementTopology,
-                tElementRHS(0) );
+        if (tElementRHS(0).numel() > 0 )
+        {
+            aVectorRHS->sum_into_global_values(
+                    tElementTopology,
+                    tElementRHS(0) );
+        }
     }
-
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
     aMat->matrix_global_assembly();
@@ -96,13 +101,16 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
             Cell< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_rhs( Ii, Ik, tElementRHS );
 
+            // Fill elementRHS in distributed RHS
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
-                // Fill elementRHS in distributed RHS
-                aVectorRHS->sum_into_global_values(
-                        tElementTopology,
-                        tElementRHS( Ia ),
-                        Ia );
+                if ( tElementRHS( Ia ).numel() > 0 )
+                {
+                    aVectorRHS->sum_into_global_values(
+                            tElementTopology,
+                            tElementRHS( Ia ),
+                            Ia );
+                }
             }
         }
 
@@ -112,7 +120,7 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
 
-//    aVectorRHS->print();
+    //    aVectorRHS->print();
 }
 
 void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS )
@@ -137,13 +145,16 @@ void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vect
             Cell< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_staggered_rhs( Ii, Ik, tElementRHS );
 
+            // Fill elementRHS in distributed RHS
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
-                // Fill elementRHS in distributed RHS
-                aVectorRHS->sum_into_global_values(
-                        tElementTopology,
-                        tElementRHS( Ia ),
-                        Ia );
+                if ( tElementRHS( Ia ).numel() > 0 )
+                {
+                    aVectorRHS->sum_into_global_values(
+                            tElementTopology,
+                            tElementRHS( Ia ),
+                            Ia );
+                }
             }
         }
 
@@ -153,7 +164,7 @@ void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vect
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
 
-//    aVectorRHS->print();
+    //    aVectorRHS->print();
 }
 
 
@@ -188,11 +199,12 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
 
                     for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
                     {
-                        // Fill elementRHS in distributed RHS
-                        aVectorRHS->sum_into_global_values(
-                                tElementTopology,
-                                tElementRHS( Ia ),
-                                Ia );
+                        if ( tElementRHS( Ia ).numel() > 0 )
+                            // Fill elementRHS in distributed RHS
+                            aVectorRHS->sum_into_global_values(
+                                    tElementTopology,
+                                    tElementRHS( Ia ),
+                                    Ia );
                     }
                 }
             }
@@ -203,7 +215,7 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
         // global assembly to switch entries to the right processor
         aVectorRHS->vector_global_assembly();
 
-//        aVectorRHS->print();
+        //        aVectorRHS->print();
     }
 }
 
@@ -230,11 +242,15 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
             this->get_equation_object_operator( Ii, Ik, tElementMatrix );
 
             // Fill element in distributed matrix
-            aMat->fill_matrix( tElementTopology.length(),
-                    tElementMatrix,
-                    tElementTopology );
+            if ( tElementMatrix.numel() > 0 )
+            {
+                aMat->fill_matrix(
+                        tElementTopology.length(),
+                        tElementMatrix,
+                        tElementTopology );
+            }
         }
-        aMat->matrix_global_assembly();   // Mathias: check whether this needs to be done for each block
+        aMat->matrix_global_assembly();   // FIXME: Mathias: check whether this needs to be done for each block
         this->free_block_memory( Ii );
     }
 
@@ -246,7 +262,8 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 
 //---------------------------------------------------------------------------------------------------------
 
-void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
+void Solver_Interface::fill_matrix_and_RHS(
+        moris::sol::Dist_Matrix * aMat,
         moris::sol::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
@@ -271,21 +288,28 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
             this->get_equation_object_operator_and_rhs( Ii, Ik, tElementMatrix, tElementRHS );
 
             // Fill element in distributed matrix
-            aMat->fill_matrix(
-                    tElementTopology.length(),
-                    tElementMatrix,
-                    tElementTopology );
+            if (tElementMatrix.numel() > 0 )
+            {
+                aMat->fill_matrix(
+                        tElementTopology.length(),
+                        tElementMatrix,
+                        tElementTopology );
+            }
 
             // Loop over all RHS vectors
             for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
             {
-                // Fill elementRHS in distributed RHS
-                aVectorRHS->sum_into_global_values(
-                        tElementTopology,
-                        tElementRHS( Ia ),
-                        Ia );
+                if ( tElementRHS( Ia ).numel() > 0 )
+                {
+                    // Fill elementRHS in distributed RHS
+                    aVectorRHS->sum_into_global_values(
+                            tElementTopology,
+                            tElementRHS( Ia ),
+                            Ia );
+                }
             }
         }
+
         aMat->matrix_global_assembly();
         this->free_block_memory( Ii );
     }
@@ -293,7 +317,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
     //    aMat->print();
-	//aVectorRHS->print();
+    //aVectorRHS->print();
 
     aVectorRHS->vector_global_assembly();
 }
@@ -320,7 +344,7 @@ void Solver_Interface::get_adof_ids_based_on_criteria(
             // resize adof id vector
             aCriteriaIds.resize( aCriteriaIds.size() + tNumEquationObjectOnSet );
 
-            // hardcoded for right now. FIXME the moment I have time
+            // hard-coded for right now. FIXME the moment I have time
             this->set_requested_IQI_names( {"IQIBulkVolumeFraction"} );
 
             // initialize set
@@ -329,7 +353,7 @@ void Solver_Interface::get_adof_ids_based_on_criteria(
             // loop over equation objects on set
             for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
             {
-                // calcuate criteria
+                // compute criteria
                 this->calculate_criteria( Ii, Ik );
 
                 // get criteria
