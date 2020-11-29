@@ -141,7 +141,7 @@ namespace moris
     void Logger::sign_out()
     {
         // stop timer
-        real tElapsedTime = ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC;
+        real tElapsedTime = ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
         // compute maximum and minimum time used by processors
         real tElapsedTimeMax = logger_max_all(tElapsedTime);
@@ -173,7 +173,7 @@ namespace moris
                 else                
                 {
                     std::cout << "Signing out " <<
-                            mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) <<
+                            mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] <<
                             ". Elapsed time (max/min) = " <<
                             tElapsedTimeMax <<
                             " / " <<
@@ -202,16 +202,16 @@ namespace moris
             if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
             {
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
-                        mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) << " - " <<
+                        mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
                         get_enum_str( OutputSpecifier::Iteration ) << ": " <<
-                        ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
+                        ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] ) <<
                         " \n" << std::flush;
             }
             else
             {
                 std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": " <<
-                        mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) << " - " <<
-                        ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
+                        mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                        ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] ) <<
                         " \n" << std::flush;
             }
 
@@ -221,7 +221,7 @@ namespace moris
                 // formated output to log file
                 this->log_to_file(
                         OutputSpecifier::Iteration,
-                        mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) );
+                        mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] );
             }
         }
     }
@@ -241,10 +241,10 @@ namespace moris
         while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity( tIndentLevel ) and
-                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType( tIndentLevel ) or
+            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType[ tIndentLevel ] or
                             aEntityType == EntityType::Arbitrary ) and
-                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction( tIndentLevel ) or
+                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction[ tIndentLevel ] or
                             aEntityAction == EntityAction::Arbitrary ) )
             {
                 tInstanceFound = true;
@@ -256,24 +256,79 @@ namespace moris
 
         // return iteration count if the instance was found
         if ( tInstanceFound )
-            return mGlobalClock.mCurrentIteration( tIndentLevel - 1 );
+        {
+            return mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ];
+        }
 
-        // throw error if instance was not found
-        else
-            return 0;
+        return 0;
     }
 
     //------------------------------------------------------------------------------
 
-    uint Logger::get_opt_iteration()
+    void Logger::set_iteration(
+            enum EntityBase   aEntityBase,
+            enum EntityType   aEntityType,
+            enum EntityAction aEntityAction,
+            uint              aIter)
     {
-        // iteration of arbitrary Optimization Algorithm
-        // note: this can be done, as there's always only one active opt.-alg.
-        return this->get_iteration(
-                EntityBase::OptimizationAlgorithm ,
-                EntityType::Arbitrary,
-                EntityAction::Arbitrary );
+        // initialize
+        uint tIndentLevel = 0;
+        bool tInstanceFound = false;
+
+        // go through global clock stack from bottom and look for requested instance
+        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        {
+            // check if Instance matches the instance searched for
+            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType[ tIndentLevel ] or
+                            aEntityType == EntityType::Arbitrary ) and
+                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction[ tIndentLevel ] or
+                            aEntityAction == EntityAction::Arbitrary ) )
+            {
+                tInstanceFound = true;
+            }
+
+            // increment cursor
+            tIndentLevel++;
+        }
+
+        // return iteration count if the instance was found
+        if ( tInstanceFound )
+        {
+            mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ] = aIter;
+        }
+        // throw error if instance was not found
+        else
+        {
+            std::cout << "Logger::set_iteration: Iteration index was not found and could not be set.\n";
+            throw;
+        }
     }
+
+    //------------------------------------------------------------------------------
+
+     uint Logger::get_opt_iteration()
+     {
+         // iteration of arbitrary Optimization Algorithm
+         // note: this can be done, as there's always only one active opt.-alg.
+         return this->get_iteration(
+                 EntityBase::OptimizationAlgorithm ,
+                 EntityType::Arbitrary,
+                 EntityAction::Arbitrary );
+     }
+
+     //------------------------------------------------------------------------------
+
+      void Logger::set_opt_iteration( uint aIter)
+      {
+          // iteration of arbitrary Optimization Algorithm
+          // note: this can be done, as there's always only one active opt.-alg.
+          this->set_iteration(
+                  EntityBase::OptimizationAlgorithm ,
+                  EntityType::Arbitrary,
+                  EntityAction::Arbitrary,
+                  aIter);
+      }
 
     // -----------------------------------------------------------------------------
 

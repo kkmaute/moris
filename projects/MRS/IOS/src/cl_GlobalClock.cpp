@@ -7,15 +7,11 @@
 // define time functions
 #include <ctime>
 
-// Define Cells
-#include "cl_Cell.hpp"
-
 // Define uint, real, etc.
 #include "typedefs.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"
-
 
 namespace moris
 {
@@ -106,11 +102,10 @@ namespace moris
     void GlobalClock::iterate()
     {
         // increment iteration counter of currently active action
-        mCurrentIteration( mIndentationLevel ) ++;
+        mCurrentIteration[ mIndentationLevel ] ++;
     }
 
     // --------------------------------------------------------------------------------
-
 } // namespace moris
 
 

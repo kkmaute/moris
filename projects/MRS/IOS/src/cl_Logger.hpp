@@ -107,7 +107,7 @@ namespace moris
                 {
                     // log runtime of clock
                     this->log_to_file(OutputSpecifier::ElapsedTime,
-                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
+                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC );
 
                     //close file
                     mStream.close();
@@ -427,8 +427,22 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            // set the iteration of a logged instance
+            void set_iteration(
+                    enum EntityBase   aEntityBase,
+                    enum EntityType   aEntityType,
+                    enum EntityAction aEntityAction,
+                    uint              aIter);
+
+            //------------------------------------------------------------------------------
+
             // request/get the iteration of the optimization algorithm
             uint get_opt_iteration();
+
+            //------------------------------------------------------------------------------
+
+            // request/get the iteration of the optimization algorithm
+            void set_opt_iteration( uint aIter );
 
             //------------------------------------------------------------------------------
 
@@ -437,10 +451,10 @@ namespace moris
             void log_to_file(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
             {
                     std::string tLine =   ios::stringify(mGlobalClock.mIndentationLevel) + ";"
-                            + ios::stringify(mGlobalClock.mCurrentFunctionID(mGlobalClock.mIndentationLevel)) + ";"
-                            +   mGlobalClock.mCurrentEntity(mGlobalClock.mIndentationLevel) + ";"
-                            +   mGlobalClock.mCurrentType(mGlobalClock.mIndentationLevel) + ";"
-                            +   mGlobalClock.mCurrentAction(mGlobalClock.mIndentationLevel) + ";"
+                            + ios::stringify(mGlobalClock.mCurrentFunctionID[mGlobalClock.mIndentationLevel]) + ";"
+                            +   mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] + ";"
+                            +   mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] + ";"
+                            +   mGlobalClock.mCurrentAction[mGlobalClock.mIndentationLevel] + ";"
                             +   get_enum_str(aOutputSpecifier) + ";"
                             + ios::stringify(aOutputValue) + "\n";
 
