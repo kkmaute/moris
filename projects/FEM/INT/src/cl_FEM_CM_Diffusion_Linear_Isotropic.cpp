@@ -24,6 +24,7 @@ namespace moris
             mPropertyMap[ "Conductivity" ] = static_cast< uint >( CM_Property_Type::CONDUCTIVITY );
             mPropertyMap[ "Density" ]      = static_cast< uint >( CM_Property_Type::DENSITY );
             mPropertyMap[ "HeatCapacity" ] = static_cast< uint >( CM_Property_Type::HEAT_CAPACITY );
+            mPropertyMap[ "EigenStrain" ]  = static_cast< uint >( CM_Property_Type::EIGEN_STRAIN );
         }
 
         //------------------------------------------------------------------------------
@@ -49,6 +50,10 @@ namespace moris
                 {
                     mTempDof = tDofType;
                 }
+                else if ( tDofString == "Theta" )
+                {
+                    mThetaDof  = tDofType;
+                }
                 else
                 {
                     // error unknown dof string
@@ -71,6 +76,9 @@ namespace moris
 
             // set the density property
             mPropDensity = get_property( "Density" );
+
+            // set the eigenstrain property
+            mPropEigenStrain = get_property( "EigenStrain" );
         }
 
         //------------------------------------------------------------------------------
@@ -80,6 +88,18 @@ namespace moris
             // compute flux
             mFlux = mPropConductivity->val()( 0 ) *
                     mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
+
+            if ( mPropEigenStrain != nullptr )
+            {
+                // Get field interpolator for theta
+                Field_Interpolator * tFITheta = mFIManager->get_field_interpolators_for_type( mThetaDof );
+
+                // compute normalized gradient of theta
+                const Matrix< DDRMat > & tGradTheta = tFITheta->gradx( 1 );
+
+                // add eigen strain contribution
+                mFlux += mPropConductivity->val()( 0 ) * tGradTheta / norm( tGradTheta );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -280,7 +300,7 @@ namespace moris
             Field_Interpolator * tFITemp =
                     mFIManager->get_field_interpolators_for_type( mTempDof );
 
-            // if direct dependency on the dof type
+            // if direct dependency on the mTempDof type
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
@@ -294,6 +314,26 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ) +=
                         tFITemp->gradx( 1 ) * mPropConductivity->dPropdDOF( aDofTypes );
+            }
+
+            // if direct dependency on the mThetaDof type
+            if( aDofTypes( 0 ) == mThetaDof )
+            {
+                // Get field interpolator for theta
+                Field_Interpolator * tFITheta = mFIManager->get_field_interpolators_for_type( mThetaDof );
+
+                // compute normalized gradient of Theta
+                const Matrix< DDRMat > & tBTheta    = tFITheta->dnNdxn( 1 );
+                const Matrix< DDRMat > & tGradTheta = tFITheta->gradx( 1 );
+
+                real tNorm = norm( tGradTheta );
+
+                Matrix< DDRMat > tNormGradTheta = tGradTheta / tNorm;
+                Matrix< DDRMat > tNormBTheta    = tBTheta / tNorm;
+
+                // compute derivative with direct dependency
+                mdFluxdDof( tDofIndex ) +=
+                        mPropConductivity->val()( 0 ) *  ( tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
             }
         }
 
