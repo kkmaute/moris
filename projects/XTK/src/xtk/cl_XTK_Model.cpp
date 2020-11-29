@@ -171,9 +171,6 @@ namespace xtk
     void
     Model::perform()
     {
-        // Start the clock
-        std::clock_t tStart = std::clock();
-        
         Tracer tTracer(EntityBase::XTK, EntityType::Overall, EntityAction::Run);
 
         mVerbose = mParameterList.get<bool>("verbose");
@@ -229,6 +226,8 @@ namespace xtk
 
             if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
             {
+                Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Visualize);
+
                 for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
                 {
                     mGhostStabilization->visualize_ghost_on_mesh(i);
@@ -309,7 +308,7 @@ namespace xtk
 
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
-            std::clock_t tStart = std::clock();
+            Tracer tTracer(EntityBase::XTK, EntityType::Overall, EntityAction::Visualize);
 
             if (mParameterList.get<bool>("deactivate_empty_sets"))
             {
@@ -323,8 +322,6 @@ namespace xtk
             // Write the fields
             writer.set_time(0.0);
             writer.close_file();
-
-            std::cout<<"XTK: Write integration mesh to exodus file completed in " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
         
         // print the memory usage of XTK
@@ -333,14 +330,6 @@ namespace xtk
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print("XTK Model");
         }
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::clock_t tEndTime = std::clock();
-            this->add_timing_data(tEndTime,"Work Flow Overall Time","Overall");
-            std::cout<<"XTK: Total time elapsed " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        }
-        
     }
 
     // ----------------------------------------------------------------------------------
@@ -3497,7 +3486,7 @@ namespace xtk
     void
     Model::construct_face_oriented_ghost_penalization_cells()
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Run);
+        Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Stabilize);
 
         MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
 
@@ -3853,7 +3842,7 @@ namespace xtk
         xtk::create_faces_from_element_to_node(tCellInfo, mBackgroundMesh.get_num_entities(EntityRank::NODE), tCMElementToNode, tElementToFace, tFaceToNode, tNodeToFace, tFaceToElement);
 
         // remove this data right away since it is not needed
-        tNodeToFace.resize(0,0);
+        tNodeToFace.set_size(0,0);
 
         // element connectivity
         moris::size_t tNumFacePerElem = tCellInfo->get_num_facets();
