@@ -13,11 +13,12 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("is_optimization_problem", false); // Whether or not to use OPT
-            tParameterList.insert("problem", "user_defined"); // OPT Problem class type
-            tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
-                                                                      // central, forward, backward, or none
-            tParameterList.insert("finite_difference_epsilons", "1E-8"); // Epsilon(s) to use per ADV for finite differencing
+            tParameterList.insert("is_optimization_problem", false);      // Whether or not to use OPT
+            tParameterList.insert("problem", "user_defined");             // OPT Problem class type
+            tParameterList.insert("restart_file", "");                    // Name of restart file
+            tParameterList.insert("finite_difference_type", "none");      // Type of finite differencing for gradients;
+                                                                          // central, forward, backward, or none
+            tParameterList.insert("finite_difference_epsilons", "1E-8");  // Epsilon(s) to use per ADV for finite differencing
             tParameterList.insert("library", ""); // Path to a shared object file for user-defined functions
 
             return tParameterList;
@@ -55,6 +56,7 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "algorithm"    , "gcmma"); // Algorithm name, don't change
+            tParameterList.insert( "restart_index", 0    );   // Restart iteration index
             tParameterList.insert( "max_its"      , 100  );   // Maximum number of iterations
             tParameterList.insert( "max_inner_its", 0    );   // Maximum inner iterations per every optimization iteration
             tParameterList.insert( "norm_drop"    , 1e-4 );   // Relative change in objective convergence criteria
