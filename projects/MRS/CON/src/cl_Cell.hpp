@@ -58,7 +58,7 @@ namespace moris
                     A           const aValue )
             : mCell( aSize, aValue )
             {
-                MORIS_ASSERT(sizeof(T)*aSize < MORIS_MAX_CELL_CAPACITY,
+                MORIS_CHECK_MEMORY(sizeof(T)*aSize < MORIS_MAX_CELL_CAPACITY,
                          "Cell::Cell: Maximum allowable capacity exceeded: %f MB.\n",sizeof(T)*aSize/1e6);
             }
 
@@ -68,7 +68,7 @@ namespace moris
                     moris::uint const aSize )
             : mCell( aSize )
             {
-                MORIS_ASSERT(sizeof(T)*aSize < MORIS_MAX_CELL_CAPACITY,
+                MORIS_CHECK_MEMORY(sizeof(T)*aSize < MORIS_MAX_CELL_CAPACITY,
                          "Cell::Cell: Maximum allowable capacity exceeded: %f MB.\n",sizeof(T)*aSize/1e6);
             }
 
@@ -313,7 +313,7 @@ namespace moris
             void
             reserve( moris::size_t const & new_cap )
             {
-                MORIS_ASSERT(sizeof(T)*new_cap < MORIS_MAX_CELL_CAPACITY,
+                MORIS_CHECK_MEMORY(sizeof(T)*new_cap < MORIS_MAX_CELL_CAPACITY,
                          "Cell::reserve: Maximum allowable capacity exceeded: %f MB.\n",sizeof(T)*new_cap/1e6);
 
                mCell.reserve( new_cap );
@@ -344,19 +344,13 @@ namespace moris
             void
             shrink_to_fit()
             {
-#ifdef DEBUG
-                uint tOldCapacity = this->capacity();
-
-                mCell.shrink_to_fit();
-
                 // check that resize on large cells does not indicate overly conservative initial size allocation
-                MORIS_ASSERT(
+                MORIS_CHECK_MEMORY(
                         sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
-                                this->size() > MORIS_CELL_RESIZE_FRACTION_LIMIT * tOldCapacity : true,
+                                this->size() > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
                                 "Cell::shrink_to_fit: Shrink to less than 1 percent of large matrix - reduce initial allocation\n");
-#else
+
                 mCell.shrink_to_fit();
-#endif
             }
 
             //------------------------------------------------------------------
@@ -477,11 +471,11 @@ namespace moris
                     moris::size_t const & aCount,
                     T                     aValue = T() )
             {
-                MORIS_ASSERT(sizeof(T)*aCount < MORIS_MAX_CELL_CAPACITY,
+                MORIS_CHECK_MEMORY(sizeof(T)*aCount < MORIS_MAX_CELL_CAPACITY,
                          "Cell::resize: Maximum allowable capacity exceeded: %f MB.\n",sizeof(T)*aCount/1e6);
 
                 // check that resize on large cells does not indicate overly conservative initial size allocation
-                MORIS_ASSERT(
+                MORIS_CHECK_MEMORY(
                         sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
                                 aCount > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
                                 "Cell::resize: Resize to less than 1 percent of large matrix - reduce initial allocation");

@@ -167,8 +167,8 @@ namespace xtk
         aFaceToElement.resize(tNumFaceCreated,2);
         aNodeToFace.resize(aNumNodes,tMaxUsed);
 
-        // Check for number of resize operations; note needs to be "<=" for tNumElements = tResize = 0
-        MORIS_ASSERT( tResize <= tNumElements,
+        // Check for number of resize operations; note check needs to be "<=" for tNumElements = tResize = 0
+        MORIS_CHECK_MEMORY( tResize <= tNumElements,
                 "create_faces_from_element_to_node: Number of resize operations too large (%d / %d) - increase tMaxFacePerNode parameter.\n",
                 tResize,tNumElements);
     }

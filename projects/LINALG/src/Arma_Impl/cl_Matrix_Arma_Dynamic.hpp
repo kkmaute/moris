@@ -58,7 +58,7 @@ namespace moris
                     size_t const & aNumCols)
             : mMatrix(aNumRows,aNumCols)
             {
-                MORIS_ASSERT(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
+                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
                         "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
 
                 this->fill_with_NANs();
@@ -68,7 +68,7 @@ namespace moris
                     size_t const & aNumEl)
             : mMatrix(aNumEl,1)
             {
-                MORIS_ASSERT(sizeof(Type)*aNumEl < MORIS_MAX_MATRIX_SIZE,
+                MORIS_CHECK_MEMORY(sizeof(Type)*aNumEl < MORIS_MAX_MATRIX_SIZE,
                         "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumEl/1e6);
 
                 this->fill_with_NANs();
@@ -93,7 +93,7 @@ namespace moris
                     Type   const & aFillVal)
             : mMatrix( aNumRows, aNumCols )
             {
-                MORIS_ASSERT(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
+                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
                          "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
 
                 mMatrix.fill(aFillVal);
@@ -105,7 +105,7 @@ namespace moris
                     size_t const & aNumCols)
             : mMatrix( aArray, aNumRows, aNumCols )
             {
-                MORIS_ASSERT(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
+                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
                          "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
             }
 
@@ -129,10 +129,13 @@ namespace moris
                     const size_t & aNumCols)
             {
                 // check that resize on large cells does not indicate overly conservative initial size allocation
-                MORIS_ASSERT(
+                MORIS_CHECK_MEMORY(
                         sizeof(Type)*this->numel() > MORIS_MATRIX_RESIZE_CHECK_LIMIT * MORIS_MAX_MATRIX_SIZE ?
                         aNumRows*aNumCols > MORIS_MATRIX_RESIZE_FRACTION_LIMIT * this->numel() : true,
                         "Matrix::resize: resize to less than 1 percent of large matrix - reduce initial allocation.\n");
+
+                MORIS_CHECK_MEMORY(aNumRows*aNumCols > 0,
+                        "Matrix::resize: use set_size instead of resize(0,0).\n");
 
                 mMatrix.resize(aNumRows, aNumCols);
             }
@@ -142,7 +145,7 @@ namespace moris
                     const size_t & aNumRows,
                     const size_t & aNumCols)
             {
-                MORIS_ASSERT(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
+                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
                          "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
 
                 mMatrix.set_size(aNumRows, aNumCols);
@@ -156,7 +159,7 @@ namespace moris
                     const size_t & aNumCols,
                     const Type   & aFillValue )
             {
-                MORIS_ASSERT(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
+                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
                          "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
 
                 mMatrix.set_size( aNumRows, aNumCols );
