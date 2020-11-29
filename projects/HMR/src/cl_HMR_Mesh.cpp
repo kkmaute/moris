@@ -1394,7 +1394,7 @@ namespace moris
         {
             MORIS_ASSERT(par_size() == 1,"Not implemented in HMR (pending completion of entity sharing info in HMR");
 
-            aProcsWhomShareEntity.resize(0,0);
+            aProcsWhomShareEntity.set_size(0,0);
         }
 
         //-----------------------------------------------------------------------------

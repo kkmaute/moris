@@ -1793,7 +1793,7 @@ namespace xtk
         }
 
         mHasCoincidentEdges = false;
-        mEdgeOnInterface.resize(0,0);
+        mEdgeOnInterface.set_size(0,0);
     }
 
     // ---------------------------------------------------------------------------------
@@ -2483,7 +2483,7 @@ namespace xtk
 
         this->setup_face_ancestry();
 
-        mNodeToFace.resize(0,0);
+        mNodeToFace.set_size(0,0);
     }
 
     // ---------------------------------------------------------------------------------
@@ -2509,7 +2509,7 @@ namespace xtk
 
         setup_edge_ancestry();
 
-        mNodeToEdge.resize(0,0);
+        mNodeToEdge.set_size(0,0);
     }
 
     // ---------------------------------------------------------------------------------
@@ -3730,7 +3730,7 @@ namespace xtk
     void
     Child_Mesh::cleanup_intersect_connectivity()
     {
-        mIntersectConnectivity.resize(0,0);
+        mIntersectConnectivity.set_size(0,0);
         mIntersectedEdges.clear();
         mIntersectedCMNodeIndex.clear();
     }

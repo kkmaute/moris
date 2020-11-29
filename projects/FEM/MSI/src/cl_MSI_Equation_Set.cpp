@@ -351,11 +351,11 @@ namespace moris
 
         void Equation_Set::free_matrix_memory()
         {
-            // if the jacobian matrix was created
+            // if the Jacobian matrix was created
             if ( mJacobianExist )
             {
                 // resize it to 0x0
-                mJacobian.resize( 0, 0 );
+                mJacobian.set_size( 0, 0 );
 
                 // reset the exist flag
                 mJacobianExist = false;
@@ -367,7 +367,7 @@ namespace moris
                 // resize each matrix to 0x0
                 for( auto & tResidual : mResidual )
                 {
-                    tResidual.resize( 0, 0 );
+                    tResidual.set_size( 0, 0 );
                 }
                 mResidual.clear();
 
