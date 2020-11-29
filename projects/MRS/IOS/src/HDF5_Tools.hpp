@@ -379,7 +379,6 @@ namespace moris
         // get the data type of the set
         hid_t tDataType = H5Dget_type( tDataSet );
 
-
         // make sure that datatype fits to type of matrix
         if (        H5Tget_class( tDataType )
                 !=  H5Tget_class( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) ) )
