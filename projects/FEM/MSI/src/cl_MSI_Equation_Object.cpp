@@ -713,13 +713,15 @@ namespace moris
                 Matrix< DDRMat >         & aEqnObjMatrix,
                 Cell< Matrix< DDRMat > > & aEqnObjRHS )
         {
-            // compute Jacobian
+            // compute Jacobian and residual
             this->compute_jacobian_and_residual();
 
             // check for zero-size Jacobian
             // note: if size of Jacobian is zero, also residuals are ignored
             if ( mEquationSet->get_jacobian().numel() == 0 )
             {
+                aEqnObjMatrix.set_size(0,0);
+                aEqnObjRHS.resize(0);
                 return;
             }
 
@@ -749,11 +751,13 @@ namespace moris
 
             uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 
+            // resize RHS
             aEqnObjRHS.resize( tNumRHS );
 
-            // build transpose of Tmatrix
+            // build transpose of T-matrix
             Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
 
+            // multiply RHS with T-matrix
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
                 aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
