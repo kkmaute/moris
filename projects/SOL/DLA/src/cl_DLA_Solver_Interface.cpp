@@ -45,14 +45,16 @@ void Solver_Interface::fill_matrix_and_RHS(
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();
 
+    moris::Matrix< DDSMat > tElementTopology;
+    Matrix< DDRMat >         tElementMatrix;
+    Cell< Matrix< DDRMat > > tElementRHS;
+
     // Loop over all local elements to fill matrix and RHS
     for (moris::uint Ii=0; Ii< numLocElements; Ii++)
     {
-        moris::Matrix< DDSMat > tElementTopology;
         this->get_element_topology( Ii, tElementTopology );
 
-        Matrix< DDRMat >         tElementMatrix;
-        Cell< Matrix< DDRMat > > tElementRHS;
+        // compute linear operator and RHS
         this->get_equation_object_operator_and_rhs( Ii, tElementMatrix, tElementRHS );
 
         // Fill element in distributed matrix
@@ -65,13 +67,19 @@ void Solver_Interface::fill_matrix_and_RHS(
         }
 
         // Fill elementRHS in distributed RHS
-        if (tElementRHS(0).numel() > 0 )
+        if ( tElementRHS.size() > 0 )
         {
-            aVectorRHS->sum_into_global_values(
-                    tElementTopology,
-                    tElementRHS(0) );
+            if (tElementRHS(0).numel() > 0 )
+            {
+                aVectorRHS->sum_into_global_values(
+                        tElementTopology,
+                        tElementRHS(0) );
+            }
         }
+
+        this->free_block_memory( Ii );
     }
+
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
     aMat->matrix_global_assembly();
@@ -86,6 +94,9 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 
     moris::uint tNumRHS = this->get_num_rhs();
 
+    Cell< Matrix< DDRMat > > tElementRHS;
+    Matrix< DDSMat >         tElementTopology;
+
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
     {
@@ -95,21 +106,26 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 
         for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
-            Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
+            // compute RHS
             this->get_equation_object_rhs( Ii, Ik, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+            if ( tElementRHS.size() > 0 )
             {
-                if ( tElementRHS( Ia ).numel() > 0 )
+                MORIS_ASSERT(tElementRHS.size() == tNumRHS,
+                        "Number of RHS does not match cell with RHS vectors.\n");
+
+                for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
                 {
-                    aVectorRHS->sum_into_global_values(
-                            tElementTopology,
-                            tElementRHS( Ia ),
-                            Ia );
+                    if ( tElementRHS( Ia ).numel() > 0 )
+                    {
+                        aVectorRHS->sum_into_global_values(
+                                tElementTopology,
+                                tElementRHS( Ia ),
+                                Ia );
+                    }
                 }
             }
         }
@@ -119,8 +135,6 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
-
-    //    aVectorRHS->print();
 }
 
 void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS )
@@ -129,6 +143,9 @@ void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vect
     moris::uint tNumBlocks = this->get_num_my_blocks();
 
     moris::uint tNumRHS = this->get_num_rhs();
+
+    Matrix< DDSMat >         tElementTopology;
+    Cell< Matrix< DDRMat > > tElementRHS;
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
@@ -139,34 +156,35 @@ void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vect
 
         for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
-            Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_staggered_rhs( Ii, Ik, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+            if ( tElementRHS.size() > 0 )
             {
-                if ( tElementRHS( Ia ).numel() > 0 )
+                MORIS_ASSERT(tElementRHS.size() == tNumRHS,
+                        "Number of RHS does not match cell with RHS vectors.\n");
+
+                for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
                 {
-                    aVectorRHS->sum_into_global_values(
-                            tElementTopology,
-                            tElementRHS( Ia ),
-                            Ia );
+                    if ( tElementRHS( Ia ).numel() > 0 )
+                    {
+                        aVectorRHS->sum_into_global_values(
+                                tElementTopology,
+                                tElementRHS( Ia ),
+                                Ia );
+                    }
                 }
             }
+
+            this->free_block_memory( Ii );
         }
 
-        this->free_block_memory( Ii );
+        // global assembly to switch entries to the right processor
+        aVectorRHS->vector_global_assembly();
     }
-
-    // global assembly to switch entries to the right processor
-    aVectorRHS->vector_global_assembly();
-
-    //    aVectorRHS->print();
 }
-
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -178,6 +196,9 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
         moris::uint tNumBlocks = this->get_num_my_blocks();
 
         moris::uint tNumRHS = this->get_num_rhs();
+
+        Matrix< DDSMat >         tElementTopology;
+        Cell< Matrix< DDRMat > > tElementRHS;
 
         // Loop over all local elements to build matrix graph
         for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
@@ -191,20 +212,24 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
 
                 for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
-                    Matrix< DDSMat > tElementTopology;
                     this->get_element_topology(Ii, Ik, tElementTopology );
 
-                    Cell< Matrix< DDRMat > > tElementRHS;
                     this->get_equation_object_off_diag_rhs( Ii, Ik, tElementRHS );
 
-                    for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+                    // Fill elementRHS in distributed RHS
+                    if ( tElementRHS.size() > 0 )
                     {
-                        if ( tElementRHS( Ia ).numel() > 0 )
-                            // Fill elementRHS in distributed RHS
-                            aVectorRHS->sum_into_global_values(
-                                    tElementTopology,
-                                    tElementRHS( Ia ),
-                                    Ia );
+                        MORIS_ASSERT(tElementRHS.size() == tNumRHS,
+                                "Number of RHS does not match cell with RHS vectors.\n");
+
+                        for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+                        {
+                            if ( tElementRHS( Ia ).numel() > 0 )
+                                aVectorRHS->sum_into_global_values(
+                                        tElementTopology,
+                                        tElementRHS( Ia ),
+                                        Ia );
+                        }
                     }
                 }
             }
@@ -214,8 +239,6 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
 
         // global assembly to switch entries to the right processor
         aVectorRHS->vector_global_assembly();
-
-        //        aVectorRHS->print();
     }
 }
 
@@ -226,6 +249,9 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 
+    Matrix< DDSMat > tElementTopology;
+    Matrix< DDRMat > tElementMatrix;
+
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
@@ -235,10 +261,8 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 
         for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
-            Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            Matrix< DDRMat > tElementMatrix;
             this->get_equation_object_operator( Ii, Ik, tElementMatrix );
 
             // Fill element in distributed matrix
@@ -250,14 +274,12 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
                         tElementTopology );
             }
         }
-        aMat->matrix_global_assembly();   // FIXME: Mathias: check whether this needs to be done for each block
+
         this->free_block_memory( Ii );
     }
 
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
-
-    //aMat->print();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -297,30 +319,34 @@ void Solver_Interface::fill_matrix_and_RHS(
             }
 
             // Loop over all RHS vectors
-            for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+            if ( tElementRHS.size() > 0 )
             {
-                if ( tElementRHS( Ia ).numel() > 0 )
+                MORIS_ASSERT(tElementRHS.size() == tNumRHS,
+                        "Number of RHS does not match cell with RHS vectors.\n");
+
+                for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
                 {
-                    // Fill elementRHS in distributed RHS
-                    aVectorRHS->sum_into_global_values(
-                            tElementTopology,
-                            tElementRHS( Ia ),
-                            Ia );
+                    if ( tElementRHS( Ia ).numel() > 0 )
+                    {
+                        // Fill elementRHS in distributed RHS
+                        aVectorRHS->sum_into_global_values(
+                                tElementTopology,
+                                tElementRHS( Ia ),
+                                Ia );
+                    }
                 }
             }
         }
 
-        aMat->matrix_global_assembly();
         this->free_block_memory( Ii );
     }
 
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
-    //    aMat->print();
-    //aVectorRHS->print();
-
     aVectorRHS->vector_global_assembly();
 }
+
+//---------------------------------------------------------------------------------------------------------
 
 void Solver_Interface::get_adof_ids_based_on_criteria( 
         moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
