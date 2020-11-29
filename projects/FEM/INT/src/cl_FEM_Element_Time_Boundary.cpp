@@ -113,6 +113,12 @@ namespace moris
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get number of integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
@@ -175,6 +181,12 @@ namespace moris
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get number of integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
@@ -232,6 +244,12 @@ namespace moris
         {
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
 
             // get number of integration points integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -297,6 +315,12 @@ namespace moris
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get number of integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
@@ -353,15 +377,21 @@ namespace moris
 
         void Element_Time_Boundary::compute_dRdp_FD()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
 
             // get the finite difference perturbation size
             real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // get number of integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -435,6 +465,12 @@ namespace moris
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // get number of integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
@@ -488,6 +524,12 @@ namespace moris
         {
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
 
             // get number of integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -543,6 +585,12 @@ namespace moris
             // get number of IWGs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
@@ -594,15 +642,21 @@ namespace moris
 
         void Element_Time_Boundary::compute_dQIdp_explicit_FD()
         {
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
 
             // get the finite difference perturbation size
             real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
-
-            // get number of IWGs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();

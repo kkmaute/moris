@@ -183,6 +183,15 @@ namespace moris
 
         void Element_Double_Sideset::compute_residual()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal on the master and on the slave
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
@@ -201,9 +210,6 @@ namespace moris
             // get rotation matrix from left to right
             Matrix< DDRMat> tR;
             rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -266,6 +272,15 @@ namespace moris
 
         void Element_Double_Sideset::compute_jacobian()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal on the master and on the slave
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
@@ -284,9 +299,6 @@ namespace moris
             // get rotation matrix from left to right
             Matrix< DDRMat> tR;
             rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -345,6 +357,15 @@ namespace moris
 
         void Element_Double_Sideset::compute_jacobian_and_residual()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal on the master and on the slave
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
@@ -362,11 +383,9 @@ namespace moris
             Matrix< DDRMat> tR;
             rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
 
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point for the master integration cell
@@ -427,6 +446,15 @@ namespace moris
 
         void Element_Double_Sideset::compute_dRdp()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal on the master and on the slave
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
@@ -455,9 +483,6 @@ namespace moris
                     mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
             Matrix< IndexMat > tSlaveVertexIndices  =
                     mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -516,6 +541,15 @@ namespace moris
 
         void Element_Double_Sideset::compute_dRdp_FD()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -551,9 +585,6 @@ namespace moris
                     mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
             Matrix< IndexMat > tSlaveVertexIndices  =
                     mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -629,6 +660,15 @@ namespace moris
 
         void Element_Double_Sideset::compute_dRdp_and_dQIdp_FD()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -664,9 +704,6 @@ namespace moris
                     mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
             Matrix< IndexMat > tSlaveVertexIndices  =
                     mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();

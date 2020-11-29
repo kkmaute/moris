@@ -18,8 +18,8 @@ namespace moris
                 Set                * aSet,
                 Cluster            * aCluster,
                 moris::moris_index   aCellIndexInCluster)
-        : Element( aCell, aSet, aCluster, aCellIndexInCluster )
-        {}
+                                : Element( aCell, aSet, aCluster, aCellIndexInCluster )
+                                  {}
 
         //------------------------------------------------------------------------------
 
@@ -109,14 +109,20 @@ namespace moris
 
         void Element_Sideset::compute_residual()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -175,14 +181,20 @@ namespace moris
 
         void Element_Sideset::compute_jacobian()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -236,17 +248,23 @@ namespace moris
 
         void Element_Sideset::compute_jacobian_and_residual()
         {
-            // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator( tSideOrd );
-
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IWGs or IQIs
+            if (tNumIWGs == 0 && tNumIQIs == 0)
+            {
+                return;
+            }
+
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator( tSideOrd );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -321,15 +339,21 @@ namespace moris
 
         void Element_Sideset::compute_dRdp()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tSideOrd, tGeoLocalAssembly );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -384,6 +408,15 @@ namespace moris
 
         void Element_Sideset::compute_dRdp_FD()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -397,9 +430,6 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tSideOrd, tGeoLocalAssembly );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -467,17 +497,24 @@ namespace moris
 
         void Element_Sideset::compute_QI()
         {
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
 
-            // get number of IQIs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -521,17 +558,24 @@ namespace moris
 
         void Element_Sideset::compute_dQIdu()
         {
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
 
-            // get number of IQIs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -559,22 +603,22 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-//                    // check if IQI has dof dependencies
-//                    moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypeList =
-//                            mSet->get_requested_IQIs()( iIQI )->get_global_dof_type_list();
-//
-//                    // if there are dof dependencies
-//                    if( aDofTypeList.size() > 0 )
-//                    {
-                        // reset IWG
-                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                    //                    // check if IQI has dof dependencies
+                    //                    moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypeList =
+                    //                            mSet->get_requested_IQIs()( iIQI )->get_global_dof_type_list();
+                    //
+                    //                    // if there are dof dependencies
+                    //                    if( aDofTypeList.size() > 0 )
+                    //                    {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
-                        // set the normal for the IWG
-                        mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
+                    // set the normal for the IWG
+                    mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
 
-                        // compute dQIdu at evaluation point
-                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
-//                    }
+                    // compute dQIdu at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                    //                    }
                 }
             }
         }
@@ -583,6 +627,15 @@ namespace moris
 
         void Element_Sideset::compute_dQIdp_explicit()
         {
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
@@ -590,11 +643,9 @@ namespace moris
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tSideOrd, tGeoLocalAssembly );
 
-            // get number of IWGs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -638,6 +689,15 @@ namespace moris
 
         void Element_Sideset::compute_dQIdp_explicit_FD()
         {
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if (tNumIQIs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -651,9 +711,6 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tSideOrd, tGeoLocalAssembly );
-
-            // get number of IWGs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -713,6 +770,18 @@ namespace moris
 
         void Element_Sideset::compute_dRdp_and_dQIdp_FD()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IWGs and IQIs
+            if ( tNumIWGs == 0 && tNumIQIs == 0 )
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -726,12 +795,6 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tSideOrd, tGeoLocalAssembly );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
-            // get number of IWGs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -831,6 +894,29 @@ namespace moris
                 const uint                         aMeshIndex,
                 const moris::Cell< std::string > & aQINames )
         {
+            // determine active IQIs - FIXME: this needs to be done on a cluster level
+            Cell<moris_index> tIQISetLocalIndex;
+            Cell<moris_index> tIQISetGlobalIndex;
+
+            for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )
+            {
+                // if IQI defined
+                if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
+                {
+                    // get the set local index
+                    tIQISetLocalIndex.push_back( mSet->mIQINameToIndexMap.find( aQINames( iIQI ) ) );
+                    tIQISetGlobalIndex.push_back(iIQI);
+                }
+            }
+
+            // number of active local IQIs
+            uint tNumLocalIQIs = tIQISetLocalIndex.size();
+
+            if ( tNumLocalIQIs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
@@ -839,6 +925,7 @@ namespace moris
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -863,29 +950,22 @@ namespace moris
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
 
-                // loop over IQIs
-                uint tNumIQIs = aQINames.size();
-                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                // loop over IQI
+                for( uint iLocIQI = 0; iLocIQI < tNumLocalIQIs; iLocIQI++ )
                 {
-                    if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
-                    {
-                        // get the set local index
-                        moris_index tIQISetLocalIndex =
-                                mSet->mIQINameToIndexMap.find( aQINames( iIQI ) );
+                    // reset the requested IQI
+                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->reset_eval_flags();
 
-                        // reset the requested IQI
-                        mSet->mIQIs( tIQISetLocalIndex )->reset_eval_flags();
+                    // set the normal for the IWG
+                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->set_normal( tNormal );
 
-                        // set the normal for the IWG
-                        mSet->mIQIs( tIQISetLocalIndex )->set_normal( tNormal );
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQIValue;
+                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->compute_QI( tQIValue );
 
-                        // compute quantity of interest at evaluation point
-                        Matrix< DDRMat > tQIValue;
-                        mSet->mIQIs( tIQISetLocalIndex )->compute_QI( tQIValue );
-
-                        // assemble computed QI on the set
-                        ( *( mSet->mSetGlobalValues ) )( iIQI ) += tQIValue( 0 ) * tWStar;
-                    }
+                    // assemble computed QI on the set
+                    ( *( mSet->mSetGlobalValues ) )( tIQISetGlobalIndex(iLocIQI) ) +=
+                            tQIValue( 0 ) * tWStar;
                 }
             }
         }
@@ -896,6 +976,29 @@ namespace moris
                 const uint                         aMeshIndex,
                 const moris::Cell< std::string > & aQINames )
         {
+            // determine active IQIs - FIXME: this needs to be done on a cluster level
+            Cell<moris_index> tIQISetLocalIndex;
+            Cell<moris_index> tIQISetGlobalIndex;
+
+            for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )
+            {
+                // if IQI defined
+                if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
+                {
+                    // get the set local index
+                    tIQISetLocalIndex.push_back( mSet->mIQINameToIndexMap.find( aQINames( iIQI ) ) );
+                    tIQISetGlobalIndex.push_back(iIQI);
+                }
+            }
+
+            // number of active local IQIs
+            uint tNumLocalIQIs = tIQISetLocalIndex.size();
+
+            if ( tNumLocalIQIs == 0)
+            {
+                return;
+            }
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
@@ -928,30 +1031,23 @@ namespace moris
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
 
-                // loop over IQIs
-                uint tNumIQIs = aQINames.size();
-                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                // loop over IQI
+                for( uint iLocIQI = 0; iLocIQI < tNumLocalIQIs; iLocIQI++ )
                 {
-                    if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
-                    {
-                        // get the set local index
-                        moris_index tIQISetLocalIndex =
-                                mSet->mIQINameToIndexMap.find( aQINames( iIQI ) );
+                    // reset the requested IQI
+                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->reset_eval_flags();
 
-                        // reset the requested IQI
-                        mSet->mIQIs( tIQISetLocalIndex )->reset_eval_flags();
+                    // set the normal for the IWG
+                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->set_normal( tNormal );
 
-                        // set the normal for the IWG
-                        mSet->mIQIs( tIQISetLocalIndex )->set_normal( tNormal );
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQIValue;
+                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->compute_QI( tQIValue );
 
-                        // compute quantity of interest at evaluation point
-                        Matrix< DDRMat > tQIValue;
-                        mSet->mIQIs( tIQISetLocalIndex )->compute_QI( tQIValue );
-
-                        // assemble computed QI on the set
-                        ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), iIQI ) +=
-                                tQIValue( 0 ) * tWStar / tNumIntegPoints;
-                    }
+                    // assemble computed QI on the set
+                    ( *mSet->mSetElementalValues )(
+                            mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tIQISetGlobalIndex(iLocIQI) ) +=
+                                    tQIValue( 0 ) * tWStar / tNumIntegPoints;
                 }
             }
         }
