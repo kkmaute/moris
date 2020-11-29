@@ -107,6 +107,8 @@ namespace moris
 
         moris::sint Model_Solver_Interface::get_adof_index_for_type( moris::uint aDofType )
         {
+            // Note: Make sure to add for each DOF type a default interpolation index to the MSI Parameter list
+
             // Get dof type enum
             enum Dof_Type tDofType = mDofMgn.get_dof_type_enum( aDofType );
 
