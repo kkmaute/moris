@@ -38,7 +38,7 @@ int main( int argc, char * argv[] )
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
-    Kokkos::finalize_all();
+    //Kokkos::finalize_all();
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();
