@@ -86,6 +86,8 @@ namespace moris
             DecomposeHierarchyTet4,
             DecomposeHierarchyTri3,
             Enrich,
+            Stabilize,
+            Visualize,
             Run,
             Unknown
     };
