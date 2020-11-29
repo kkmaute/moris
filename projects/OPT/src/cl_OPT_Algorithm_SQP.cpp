@@ -151,12 +151,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_SQP::solve(std::shared_ptr<Problem> aOptProb )
+        void Algorithm_SQP::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
             Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::SQP, EntityAction::Solve);
 
-            mProblem = aOptProb; // set the member variable mProblem to aOptProb
+            mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
+            mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 
             int tInform = 0;
             int tPrint = 0;
@@ -318,6 +319,9 @@ namespace moris
                 // update the vector of design variables
                 Matrix<DDRMat> tADVs(x, mProblem->get_num_advs(), 1);
                 mProblem->set_advs(tADVs);
+
+                // Write restart file
+                this->write_advs_to_file(mOptIter,tADVs);
 
                 // set update for objectives and constraints
                 mProblem->mUpdateObjectives = true;

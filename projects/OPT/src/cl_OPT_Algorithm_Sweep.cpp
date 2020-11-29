@@ -39,7 +39,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_Sweep::solve(std::shared_ptr<Problem> aOptProb )
+        void Algorithm_Sweep::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
             Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::Sweep, EntityAction::Solve);
@@ -47,7 +47,8 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
             // Initialize
             //----------------------------------------------------------------------------------------------------------
-            mProblem = aOptProb; // set the member variable mProblem to aOptProb
+            mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
+            mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 
             // Set initial compute flags
             mProblem->mUpdateObjectives = this->mUpdateObjectives;

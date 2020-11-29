@@ -16,7 +16,8 @@ using namespace moris;
 //----------------------------------------------------------------------------------------------------------------------
 
 OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
-        : mMaxIterations(aParameterList.get< moris::sint >( "max_its" )),
+        : mRestartIndex(aParameterList.get< moris::sint >( "restart_index" )),
+          mMaxIterations(aParameterList.get< moris::sint >( "max_its" )),
           mMaxInnerIterations(aParameterList.get< moris::sint >( "max_inner_its" )),
           mNormDrop(aParameterList.get< moris::real >( "norm_drop" )),
           mAsympAdapt0(aParameterList.get< moris::real >( "asymp_adapt0" )),
@@ -35,12 +36,19 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
+void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     // Trace optimization
     Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::GCMMA, EntityAction::Solve);
 
-    mProblem = aOptProb; // set the member variable mProblem to aOptProb
+    mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
+    mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
+
+    // Set optimization iteration index for restart
+    if ( mRestartIndex > 0)
+    {
+        gLogger.set_opt_iteration( mRestartIndex );
+    }
 
     if (par_rank() == 0)
     {
@@ -172,6 +180,9 @@ void opt_alg_gcmma_func_wrap(
 
     // Update the ADV matrix
     Matrix<DDRMat> tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+
+    // Write restart file
+    aOptAlgGCMMA->write_advs_to_file(aIter,tADVs);
 
     // Recruit help from other procs and solve for criteria
     aOptAlgGCMMA->criteria_solve(tADVs);

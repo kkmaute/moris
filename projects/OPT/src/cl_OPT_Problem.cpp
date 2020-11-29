@@ -5,6 +5,7 @@
 #include "fn_trans.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Communication_Tools.hpp"
+#include "HDF5_Tools.hpp"
 
 extern moris::Logger gLogger;
 
@@ -22,10 +23,12 @@ namespace moris
             // Set interface
             mInterface = aInterface;
 
+            // Parameters: restart file name
+            mRestartFile = aParameterList.get<std::string>("restart_file");
+
             // Parameters: finite differencing
             mFiniteDifferenceType = aParameterList.get<std::string>("finite_difference_type");
             string_to_mat(aParameterList.get<std::string>("finite_difference_epsilons"), mFiniteDifferenceEpsilons);
-
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -50,6 +53,45 @@ namespace moris
 
             // Set finite difference epsilons knowing number of advs
             this->set_finite_differencing(mFiniteDifferenceType, mFiniteDifferenceEpsilons);
+
+            // Read advs from restart file
+            if ( par_rank() == 0 && ! mRestartFile.empty() )
+            {
+                MORIS_LOG_INFO("Reading ADVs from restart file: %s",mRestartFile.c_str() );
+
+                // Open open restart file
+                hid_t tFileID  = open_hdf5_file( mRestartFile );
+
+                // Define matrix in which to read restart ADVs
+                Matrix<DDRMat> tRestartADVs;
+                Matrix<DDRMat> tRestartUpperBounds;
+                Matrix<DDRMat> tRestartLowerBounds;
+
+                // Read ADVS from restart file
+                herr_t tStatus = 0;
+                load_matrix_from_hdf5_file( tFileID, "ADVs",        tRestartADVs,        tStatus);
+                load_matrix_from_hdf5_file( tFileID, "UpperBounds", tRestartUpperBounds, tStatus);
+                load_matrix_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds, tStatus);
+
+                // Close restart file
+                close_hdf5_file(tFileID);
+
+                // Check for matching sizes
+                MORIS_ERROR( tRestartADVs.numel() == mADVs.numel(),
+                        "Number of restart ADVS does not match.\n");
+                MORIS_ERROR( tRestartUpperBounds.numel() == mUpperBounds.numel(),
+                        "Number of restart upper bounds of ADVs does not match.\n");
+                MORIS_ERROR( tRestartLowerBounds.numel() == mLowerBounds.numel(),
+                        "Number of restart lower bounds of ADVs does not match.\n");
+
+                MORIS_LOG_INFO("Norm of ADV vector - before loading restart %e   after %d.\n",
+                        norm(mADVs), norm(tRestartADVs) );
+
+                // Copy restart vectors on member variables
+                mADVs        = tRestartADVs;
+                mUpperBounds = tRestartUpperBounds;
+                mLowerBounds = tRestartLowerBounds;
+            }
 
             // Get the criteria at the first step
             mCriteria = mInterface->get_criteria(mADVs);
@@ -365,6 +407,5 @@ namespace moris
         }
 
         // -------------------------------------------------------------------------------------------------------------
-
     }
 }

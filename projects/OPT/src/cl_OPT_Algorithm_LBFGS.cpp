@@ -48,12 +48,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_LBFGS::solve(std::shared_ptr<Problem> aOptProb )
+        void Algorithm_LBFGS::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
             Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::LBFGS, EntityAction::Solve);
 
-            mProblem = aOptProb;  // set the member variable mProblem to aOptProb
+            mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
+            mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 
             int n = mProblem->get_num_advs(); // number of design variables
 
@@ -137,6 +138,9 @@ namespace moris
             // Update the ADV matrix
             Matrix<DDRMat> tADVs(aAdv, mProblem->get_num_advs(), 1);
             mProblem->set_advs(tADVs);
+
+            // Write restart file
+            this->write_advs_to_file(aIter,tADVs);
 
             // Call to update objectives and constraints
             mProblem->mUpdateObjectives = true;
