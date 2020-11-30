@@ -79,6 +79,9 @@ namespace moris
                 bool mTimeSideset = false;
 
                 // flag for evaluation
+                bool mValxEval    = true;
+                bool mValtEval    = true;
+
                 bool mNXiEval     = true;
                 bool mdNdXiEval   = true;
                 bool md2NdXi2Eval = true;
@@ -98,6 +101,9 @@ namespace moris
                 bool mInvTimeJacEval  = true;
 
                 // storage
+                Matrix< DDRMat > mValx;
+                Matrix< DDRMat > mValt;
+
                 Matrix< DDRMat > mNXi;
                 Matrix< DDRMat > mdNdXi;
                 Matrix< DDRMat > md2NdXi2;
@@ -129,10 +135,10 @@ namespace moris
                 real (  Geometry_Interpolator:: * mTimeDetJFunc )(
                         const Matrix< DDRMat > & aTimeJt ) = nullptr;
 
-                // point to function for inverse of space jacobian
+                // point to function for inverse of space Jacobian
                 void ( Geometry_Interpolator:: * mInvSpaceJacFunc )() = nullptr;
 
-                // point to function for inverse of time jacobian
+                // point to function for inverse of time Jacobian
                 void ( Geometry_Interpolator:: * mInvTimeJacFunc )() = nullptr;
 
                 // pointer to function for normal
@@ -668,14 +674,14 @@ namespace moris
                  * evaluates the space geometry field at a given evaluation point in space
                  * @param[ out ] aX   location in space
                  */
-                Matrix< DDRMat > valx();
+                const Matrix< DDRMat > & valx();
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the space geometry field at a given evaluation point in time
                  * @param[ out ] aT   location in time
                  */
-                Matrix< DDRMat > valt();
+                const Matrix< DDRMat > & valt();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -728,7 +734,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate space jacobians
+                 * evaluate space Jacobians
                  */
                 void eval_inverse_space_jacobian_1d();
                 void eval_inverse_space_jacobian_2d();
@@ -736,7 +742,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate time jacobians
+                 * evaluate time Jacobians
                  */
                 void eval_inverse_time_jacobian_1d();
                 void eval_inverse_time_jacobian_2d();
