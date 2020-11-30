@@ -25,8 +25,8 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "WeightCurrent" ]  = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
-            mPropertyMap[ "WeightPrevious" ] = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
+            mPropertyMap[ "WeightCurrent" ]    = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
+            mPropertyMap[ "WeightPrevious" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
             mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
         }
 
@@ -53,11 +53,11 @@ namespace moris
                     mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get current weight property
-            std::shared_ptr< Property > & tPropWeightCurrent =
+            const std::shared_ptr< Property > & tPropWeightCurrent =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
 
             // get previous weight property
-            std::shared_ptr< Property > & tPropWeightPrevious =
+            const std::shared_ptr< Property > & tPropWeightPrevious =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
             // FIXME set initial time
@@ -76,7 +76,7 @@ namespace moris
             else
             {
                 // get previous weight property
-                std::shared_ptr< Property > & tPropInitialCondition =
+                const std::shared_ptr< Property > & tPropInitialCondition =
                         mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
                 // compute the jump
@@ -85,9 +85,8 @@ namespace moris
 
             // add contribution to residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
-                            trans( tFICurrent->N() ) * tJump );
+                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
+                            tFICurrent->N_trans() * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -123,7 +122,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -133,21 +132,21 @@ namespace moris
                 // if residual dof type
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
-                    // add contribution to jacobian
+                    // add contribution to Jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFICurrent->N() ) * tPropWeightCurrent->val()( 0 ) * tFICurrent->N() );
+                                    tFICurrent->N_trans() * tPropWeightCurrent->val()( 0 ) * tFICurrent->N() );
                 }
 
                 // if current weight property has dependency on the dof type
                 if ( tPropWeightCurrent->check_dof_dependency( tDofType ) )
                 {
-                    // add contribution to jacobian
+                    // add contribution to Jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFICurrent->N() ) * tFICurrent->val() * tPropWeightCurrent->dPropdDOF( tDofType ) );
+                                    tFICurrent->N_trans() * tFICurrent->val() * tPropWeightCurrent->dPropdDOF( tDofType ) );
                 }
             }
             // FIXME add derivative for initial conditions?
@@ -194,7 +193,7 @@ namespace moris
                     mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get previous weight property
-            std::shared_ptr< Property > & tPropWeightPrevious =
+            const std::shared_ptr< Property > & tPropWeightPrevious =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
             // get the number of master dof type dependencies
@@ -207,7 +206,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
                 {
                     // get the treated dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // FIXME needs to be assemble on previous time step solution?
                     // get the index for dof type, indices for assembly
@@ -218,21 +217,21 @@ namespace moris
                     // if residual dof type
                     if( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFICurrent->N() ) * tPropWeightPrevious->val()( 0 ) * tFIPrevious->N() );
+                                        tFICurrent->N_trans() * tPropWeightPrevious->val()( 0 ) * tFIPrevious->N() );
                     }
 
                     // if current weight property has dependency on the dof type
                     if ( tPropWeightPrevious->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFICurrent->N() ) * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                                        tFICurrent->N_trans() * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
                     }
                 //}
             }
