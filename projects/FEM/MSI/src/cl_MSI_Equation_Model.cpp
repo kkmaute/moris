@@ -20,7 +20,6 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 #include "cl_Communication_Tools.hpp"
 
@@ -151,7 +150,7 @@ namespace moris
         void Equation_Model::compute_explicit_and_implicit_dQIdp()
         {
             //Trace this function
-            Tracer tTracer(EntityBase::MSI, EntityType::EquationModel, EntityAction::ComputedQIdpExplImpl);
+            Tracer tTracer( "MSI", "EquationModel", "ComputedQIdpExplAndImpl" );
 
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
@@ -193,7 +192,7 @@ namespace moris
         void Equation_Model::compute_implicit_dQIdp()
         {
             //Trace this function
-            Tracer tTracer(EntityBase::MSI, EntityType::EquationModel, EntityAction::Compute_dQIdp_Impl);
+            Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
 
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
@@ -230,7 +229,7 @@ namespace moris
         void Equation_Model::compute_explicit_dQIdp()
         {
             //Trace this function
-            Tracer tTracer(EntityBase::MSI, EntityType::EquationModel, EntityAction::Compute_dQIdp_Expl);
+            Tracer tTracer(  "MSI", "EquationModel", "Compute_dQIdp_Expl" );
 
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();

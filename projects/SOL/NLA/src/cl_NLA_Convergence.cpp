@@ -17,7 +17,6 @@
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 namespace moris
 {
@@ -41,8 +40,8 @@ namespace moris
 
             aResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2()( 0 );
 
-            MORIS_LOG_SPEC( OutputSpecifier::ResidualNorm, aResNorm );
-            MORIS_LOG_SPEC( OutputSpecifier::SolutionNorm, solNorm(0) );
+            MORIS_LOG_SPEC( "ResidualNorm", aResNorm );
+            MORIS_LOG_SPEC( "SolutionNorm", solNorm(0) );
 
             if ( aIt <= 1)
             {

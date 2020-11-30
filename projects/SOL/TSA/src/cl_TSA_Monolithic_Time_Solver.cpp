@@ -16,7 +16,6 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 #include "cl_Ascii.hpp"
 
@@ -28,7 +27,7 @@ using namespace tsa;
 void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     // trace this solve
-    Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
+    Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
 
     this->finalize();
 
@@ -59,7 +58,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
         tTimeFrames.push_back( tTime );
 
         // log number of time steps
-        //MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
         MORIS_LOG_ITERATION();
 
         mSolverInterface->set_solution_vector( aFullVector( tSolVecIndex ) );
@@ -140,7 +138,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector * > & aFullAdjointVector )
 {
     // trace this solve
-    Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
+    Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
 
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
 
@@ -159,7 +157,7 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
         uint tPrevSolVecIndex = Ik-1;
 
         // log number of time steps
-        MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
+        MORIS_LOG_ITERATION();
 
         mSolverInterface->set_solution_vector( tSolVec( tSolVecIndex ) );
         mSolverInterface->set_solution_vector_prev_time_step( tSolVec( tPrevSolVecIndex ) );

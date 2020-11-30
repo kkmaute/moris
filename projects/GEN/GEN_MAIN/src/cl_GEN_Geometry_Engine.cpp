@@ -596,7 +596,7 @@ namespace moris
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "NoType", "CreatePDVs");
+            Tracer tTracer( "GeometryEngine", "CreatePDVs" );
 
             // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
@@ -721,7 +721,7 @@ namespace moris
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "NoType", "SetUpGeometries");
+            Tracer tTracer("GeometryEngine", "SetUpGeometries");
 
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
@@ -993,7 +993,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "NoType", "FieldOutput");
+            Tracer tTracer("GeometryEngine", "FieldOutput");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);
