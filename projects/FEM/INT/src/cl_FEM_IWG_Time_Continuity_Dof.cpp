@@ -112,7 +112,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get current weight property
-            std::shared_ptr< Property > & tPropWeightCurrent =
+            const std::shared_ptr< Property > & tPropWeightCurrent =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
 
             // get the number of master dof type dependencies
