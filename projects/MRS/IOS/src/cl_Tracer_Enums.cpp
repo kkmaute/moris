@@ -146,6 +146,7 @@ namespace moris
             case EntityAction::Compute:                return "Compute";
             case EntityAction::Compute_dQIdp_Expl:     return "Compute_dQIdp_Expl";
             case EntityAction::Compute_dQIdp_Impl:     return "Compute_dQIdp_Impl";
+            case EntityAction::ComputedQIdpExplImpl:   return "ComputedQIdpExplImpl";
             case EntityAction::Create:                 return "Create";
             case EntityAction::Evaluate:               return "Evaluate";
             case EntityAction::AssembleJacobian:       return "AssembleJacobian";
@@ -158,6 +159,8 @@ namespace moris
             case EntityAction::DecomposeRegularQuad4:  return "DecomposeRegularQuad4";
             case EntityAction::DecomposeHierarchyTet4: return "DecomposeHierarchyTet4";
             case EntityAction::DecomposeHierarchyTri3: return "DecomposeHierarchyTri3";
+            case EntityAction::Stabilize:              return "Stabilize";
+            case EntityAction::Visualize:              return "Visualize";
             case EntityAction::Run:                    return "Run";
 
             default:
@@ -176,6 +179,7 @@ namespace moris
         else if (aEnumString == "Compute")                 return EntityAction::Compute;
         else if (aEnumString == "Compute_dQIdp_Expl")      return EntityAction::Compute_dQIdp_Expl;
         else if (aEnumString == "Compute_dQIdp_Impl")      return EntityAction::Compute_dQIdp_Impl;
+        else if (aEnumString == "ComputedQIdpExplImpl")    return EntityAction::ComputedQIdpExplImpl;
         else if (aEnumString == "Create")                  return EntityAction::Create;
         else if (aEnumString == "Evaluate")                return EntityAction::Evaluate;
         else if (aEnumString == "AssembleJacobian")        return EntityAction::AssembleJacobian;
@@ -187,7 +191,8 @@ namespace moris
         else if (aEnumString == "DecomposeRegularHex8")    return EntityAction::DecomposeRegularHex8;
         else if (aEnumString == "DecomposeRegularQuad4")   return EntityAction::DecomposeRegularQuad4;
         else if (aEnumString == "DecomposeHierarchyTet4")  return EntityAction::DecomposeHierarchyTet4;
-        else if (aEnumString == "DecomposeHierarchyTri3")  return EntityAction::DecomposeHierarchyTri3;
+        else if (aEnumString == "Stabilize")               return EntityAction::Stabilize;
+        else if (aEnumString == "Visualize")               return EntityAction::Visualize;
         else if (aEnumString == "Run")                     return EntityAction::Run;
 
         else

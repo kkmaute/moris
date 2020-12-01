@@ -22,6 +22,22 @@
 #endif
 
 /**
+ * @brief Assertion for memory usage, only active if CHECK_MEMORY is defined.
+ */
+#if defined(CHECK_MEMORY)
+#define MORIS_CHECK_MEMORY( check, ...  ) \
+    do \
+    { \
+        if (! (check)) \
+        { \
+            moris::assert::moris_assert( __FILE__, __LINE__, __FUNCTION__, #check, __VA_ARGS__ ); \
+        } \
+    } while (false)
+#else
+#define MORIS_CHECK_MEMORY(check, ... )
+#endif
+
+/**
  * @brief Exit, active in debug and opt mode.
  */
 #define MORIS_ERROR( check, ... ) \

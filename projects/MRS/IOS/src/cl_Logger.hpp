@@ -11,7 +11,6 @@
 
 // for the global clock
 #include "cl_GlobalClock.hpp"
-#include "cl_Tracer_Enums.hpp"
 #include "fn_stringify.hpp"
 #include "Log_Constants.hpp"
 
@@ -27,6 +26,23 @@ int logger_par_rank()
 
 namespace moris
 {
+
+    real
+    logger_max_all( const real & aLocalInput )
+    {
+        real aGlobalMax;
+        MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+        return aGlobalMax;
+    }
+
+    real
+    logger_min_all( const real & aLocalInput )
+    {
+        real aGlobalMin;
+        MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+        return aGlobalMin;
+    }
+
     class Logger
     {
         public:
@@ -89,8 +105,8 @@ namespace moris
                 if( mWriteToAscii )
                 {
                     // log runtime of clock
-                    this->log_to_file(OutputSpecifier::ElapsedTime,
-                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
+                    this->log_to_file( "ElapsedTime" ,
+                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC );
 
                     //close file
                     mStream.close();
@@ -141,7 +157,7 @@ namespace moris
                 if( mWriteToAscii )
                 {
                     // formated output to log file
-                    this->log_to_file( OutputSpecifier::SignIn, 1.0);
+                    this->log_to_file( "SignIn" , 1.0 );
                 }
             };
 
@@ -344,8 +360,8 @@ namespace moris
             // log with specified output type
             template <class T>
             void log_specific(
-                    enum OutputSpecifier aOutputSpecifier,
-                    T                    aOutputValue)
+                    std::string  aOutputSpecifier,
+                    T            aOutputValue)
             {
                     // only processor 0 prints message
                     if (logger_par_rank() == mOutputRank )
@@ -354,18 +370,18 @@ namespace moris
                         if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                         {
                             std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
-                                    << get_enum_str(aOutputSpecifier) << ": "
+                                    << aOutputSpecifier << ": "
                                     << ios::stringify(aOutputValue) << " \n" << std::flush;
                         }
                         else
                         {
-                            std::cout << get_enum_str(aOutputSpecifier) << ": " << ios::stringify(aOutputValue) << " \n" << std::flush;
+                            std::cout << aOutputSpecifier << ": " << ios::stringify(aOutputValue) << " \n" << std::flush;
                         }
 
                         // write to file if requested
                         if( mWriteToAscii )
                         {
-                            this->log_to_file(aOutputSpecifier, aOutputValue);
+                            this->log_to_file( aOutputSpecifier, aOutputValue );
                         }
                     }
             }
@@ -384,12 +400,6 @@ namespace moris
                     std::string aEntityType,
                     std::string aEntityAction);
 
-            // sign in
-            void sign_in(
-                    enum EntityBase   aEntityBase,
-                    enum EntityType   aEntityType,
-                    enum EntityAction aEntityAction );
-
             //------------------------------------------------------------------------------
 
             // signing out
@@ -404,9 +414,18 @@ namespace moris
 
             // request/get the iteration of a logged instance
             uint get_iteration(
-                    enum EntityBase   aEntityBase,
-                    enum EntityType   aEntityType,
-                    enum EntityAction aEntityAction );
+                    std::string aEntityBase,
+                    std::string aEntityType,
+                    std::string aEntityAction );
+
+            //------------------------------------------------------------------------------
+
+            // set the iteration of a logged instance
+            void set_iteration(
+                    std::string aEntityBase,
+                    std::string aEntityType,
+                    std::string aEntityAction,
+                    uint              aIter);
 
             //------------------------------------------------------------------------------
 
@@ -415,17 +434,23 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            // request/get the iteration of the optimization algorithm
+            void set_opt_iteration( uint aIter );
+
+            //------------------------------------------------------------------------------
+
             // write logged info to formated file
             template <class T>
-            void log_to_file(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
+            void log_to_file( std::string aOutputSpecifier, T aOutputValue )
             {
-                    std::string tLine =   ios::stringify(mGlobalClock.mIndentationLevel) + ";"
-                            + ios::stringify(mGlobalClock.mCurrentFunctionID(mGlobalClock.mIndentationLevel)) + ";"
-                            +   mGlobalClock.mCurrentEntity(mGlobalClock.mIndentationLevel) + ";"
-                            +   mGlobalClock.mCurrentType(mGlobalClock.mIndentationLevel) + ";"
-                            +   mGlobalClock.mCurrentAction(mGlobalClock.mIndentationLevel) + ";"
-                            +   get_enum_str(aOutputSpecifier) + ";"
-                            + ios::stringify(aOutputValue) + "\n";
+                    std::string tLine =
+                            ios::stringify(mGlobalClock.mIndentationLevel) + ";"
+                            + ios::stringify(mGlobalClock.mCurrentFunctionID[mGlobalClock.mIndentationLevel]) + ";"
+                            +   mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] + ";"
+                            +   mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] + ";"
+                            +   mGlobalClock.mCurrentAction[mGlobalClock.mIndentationLevel] + ";"
+                            +   aOutputSpecifier + ";"
+                            + ios::stringify( aOutputValue ) + "\n";
 
                     mStream << tLine << std::flush;
             }
@@ -434,16 +459,16 @@ namespace moris
 
             template <class T1, class T2>
             void log2_to_file(
-                    enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
-                    enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2);
+                    std::string aOutputSpecifier1, T1 aOutputValue1,
+                    std::string aOutputSpecifier2, T2 aOutputValue2);
 
             //------------------------------------------------------------------------------
 
             template <class T1, class T2, class T3>
             void log3_to_file(
-                    enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
-                    enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2,
-                    enum OutputSpecifier aOutputSpecifier3, T3 aOutputValue3);
+                    std::string aOutputSpecifier1, T1 aOutputValue1,
+                    std::string aOutputSpecifier2, T2 aOutputValue2,
+                    std::string aOutputSpecifier3, T3 aOutputValue3);
 
             //------------------------------------------------------------------------------
 

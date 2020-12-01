@@ -1404,6 +1404,7 @@ namespace xtk
         this->setup_template_interface_facets( aMeshModTemplate, tParentCellInterfaceSideOrdinals );
 
         // Reindex the child mehs template
+        // this takes it from ordinals and such to indices
         reindex_template(aMeshModTemplate);
 
         mElementTopology = aMeshModTemplate.mElementTopology;
@@ -1477,6 +1478,7 @@ namespace xtk
             aInterfaceSideOrdinals.resize(aMeshModTemplate.mNumNewElem,mGeometryIndex.size());
             aInterfaceSideOrdinals.fill(std::numeric_limits<moris::size_t>::max());
 
+            // last column always just the new interface sides
             aInterfaceSideOrdinals.get_column(aInterfaceSideOrdinals.n_cols()-1) = aMeshModTemplate.mNewElementInterfaceSides.get_column(0);
 
             // get the facet rank
@@ -1502,13 +1504,14 @@ namespace xtk
                 MORIS_ASSERT(0,"Only 2d and 3d meshes supported");
             }
 
+            // iterate through previous geometry indices
             for(moris::uint  iG = 0 ; iG < mGeometryIndex.size() - 1; iG++ )
             {
-                // side ordinal of base cell on interface
+                // side ordinal of base cell on interface with respect to a previous geometry iG
                 size_t tInterfaceSideOrd = mElementInterfaceSides(aMeshModTemplate.mElemIndToReplace,iG);
                 if(tInterfaceSideOrd != std::numeric_limits<size_t>::max())
                 {
-
+                    // iterate through the facet ords ods 
                     for(moris::uint iCell = 0; iCell < tParentFacetOrds->n_rows(); iCell++ )
                     {
                         for(moris::uint iF = 0; iF < tParentFacetOrds->n_cols(); iF++ )
@@ -1524,75 +1527,13 @@ namespace xtk
                     }
                 }
             }
+
         }
         else
         {
             aInterfaceSideOrdinals = aMeshModTemplate.mNewElementInterfaceSides;
         }
     }
-
-    //void
-    //Child_Mesh::setup_template_interface_facets(Mesh_Modification_Template & aMeshModTemplate,
-    //                                            Matrix<DDSTMat> &           aInterfaceSideOrdinals)
-    //{
-    //    if(mGeometryIndex.size() > 1)
-    //    {
-    //        // resize and fill the output
-    //        aInterfaceSideOrdinals.resize(aMeshModTemplate.mNumNewElem,mGeometryIndex.size());
-    //        aInterfaceSideOrdinals.fill(std::numeric_limits<moris::size_t>::max());
-    //
-    //        aInterfaceSideOrdinals.get_column(aInterfaceSideOrdinals.n_cols()-1) = aMeshModTemplate.mNewElementInterfaceSides.get_column(0);
-    //
-    //        // get the facet rank
-    //        enum EntityRank tFacetRank = this->get_facet_rank();
-    //
-    //        // current index
-    //        moris::Matrix<moris::IndexMat> * tParentFacetOrds = nullptr;
-    //        moris::Matrix<moris::DDSTMat> * tParentFacetRanks = nullptr;
-    //        if(tFacetRank == EntityRank::FACE)
-    //        {
-    //            tParentFacetOrds =  & aMeshModTemplate.mNewParentFaceOrdinals;
-    //            tParentFacetRanks =  & aMeshModTemplate.mNewParentFaceRanks;
-    //        }
-    //        else if(tFacetRank == EntityRank::EDGE)
-    //        {
-    //            tParentFacetOrds =  & aMeshModTemplate.mNewParentEdgeOrdinals;
-    //            tParentFacetRanks =  & aMeshModTemplate.mNewParentEdgeRanks;
-    //        }
-    //        else
-    //        {
-    //            MORIS_ASSERT(0,"Only 2d and 3d meshes supported");
-    //        }
-    //
-    //        for(moris::uint  iG = 0 ; iG < mGeometryIndex.size() - 1; iG++ )
-    //        {
-    //            // side ordinal of base cell on interface
-    //            size_t tInterfaceSideOrd = mElementInterfaceSides(aMeshModTemplate.mElemIndToReplace,iG);
-    //            if(tInterfaceSideOrd != std::numeric_limits<size_t>::max())
-    //            {
-    //
-    //                for(moris::uint iCell = 0; iCell < tParentFacetOrds->n_rows(); iCell++ )
-    //                {
-    //                    for(moris::uint iF = 0; iF < tParentFacetOrds->n_cols(); iF++ )
-    //                    {
-    //                        if((*tParentFacetRanks)(iCell,iF) == (size_t) tFacetRank)
-    //                        {
-    //                            if((*tParentFacetOrds)(iCell,iF) == (moris_index) tInterfaceSideOrd)
-    //                            {
-    //                                aInterfaceSideOrdinals(iCell,iG) = iF;
-    //                            }
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    else
-    //    {
-    //        aInterfaceSideOrdinals = aMeshModTemplate.mNewElementInterfaceSides;
-    //    }
-    //}
 
     // ---------------------------------------------------------------------------------
 
@@ -1852,7 +1793,7 @@ namespace xtk
         }
 
         mHasCoincidentEdges = false;
-        mEdgeOnInterface.resize(0,0);
+        mEdgeOnInterface.set_size(0,0);
     }
 
     // ---------------------------------------------------------------------------------
@@ -2002,6 +1943,7 @@ namespace xtk
     Child_Mesh::construct_double_sides_between_subphases()
     {
         Matrix<IndexMat> const & tFacetToCell = this->get_facet_to_element();
+
         Matrix<IndexMat> const & tCellFacets  = this->get_element_to_facet();
 
         // information about subphases
@@ -2049,11 +1991,36 @@ namespace xtk
                                 if(tFacetToCell(tFacetCmIndex,iS) != tCMLocCellInd )
                                 {
                                     tInterfaceNeighbor = tFacetToCell(tFacetCmIndex,iS);
-                                    if(tInterfaceNeighbor != MORIS_INDEX_MAX)
+                                    if(tInterfaceNeighbor != std::numeric_limits<moris_index>::max())
                                     {
-                                        tInterfaceNeighborSideOrd = this->get_cell_facet_ordinal(tInterfaceNeighbor,tFacetCmIndex);
-                                    }
+                                    tInterfaceNeighborSideOrd = this->get_cell_facet_ordinal(tInterfaceNeighbor,tFacetCmIndex);
                                     break;
+                                    }
+                                    else
+                                    {
+                                        moris::print(this->get_face_to_node(),"this->get_face_to_node()");
+                                        moris::print(this->get_element_to_node(),"this->get_element_to_node()");
+                                        std::cout<<"Broken Facet cm index = "<<tFacetCmIndex<<std::endl;
+                                        std::cout<<"Wrt Geom index: "<<mGeometryIndex(iG)<<std::endl;
+                                        moris::Matrix< moris::IndexMat > tFacetNodes = this->get_face_to_node_local();
+                                        std::cout<<"Nodes: ";
+                                        for(moris::uint iT = 0; iT < tFacetNodes.n_cols(); iT++ )
+                                        {
+                                            std::cout<<mNodeIds(tFacetNodes(tFacetCmIndex,iT))<<" ";
+                                        }
+                                        std::cout<<std::endl;
+                                        
+                                        std::cout<<"cells to facet row ";
+                                        for(moris::uint iST = 0; iST < tFacetToCell.n_cols(); iST++)
+                                        {
+                                            std::cout<<tFacetToCell(tFacetCmIndex,iST)<<" ";
+                                        }
+
+                                        moris::print(mGeometryIndex,"mGeometryIndex");
+
+                                        throw;
+                                        
+                                    }
                                 }
                             }
 
@@ -2516,7 +2483,7 @@ namespace xtk
 
         this->setup_face_ancestry();
 
-        mNodeToFace.resize(0,0);
+        mNodeToFace.set_size(0,0);
     }
 
     // ---------------------------------------------------------------------------------
@@ -2542,7 +2509,7 @@ namespace xtk
 
         setup_edge_ancestry();
 
-        mNodeToEdge.resize(0,0);
+        mNodeToEdge.set_size(0,0);
     }
 
     // ---------------------------------------------------------------------------------
@@ -2928,7 +2895,7 @@ namespace xtk
                             mNodeInds(tNodeL),
                             mNodeInds(tNodeH)}};
                     // Get parent element information
-                    moris::Matrix< moris::IndexMat > tElementsAncestry({{mParentElementIndex}}); // Not used
+                    moris::Matrix< moris::IndexMat > tElementsAncestry({{mParentElementIndex}}); 
                     moris::Matrix< moris::IndexMat > tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
                     moris::Matrix< moris::DDSTMat >  tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
                     moris::Matrix< moris::IndexMat > tParentFaceInds  = mElementFaceParentInds.get_row(iE);
@@ -3763,7 +3730,7 @@ namespace xtk
     void
     Child_Mesh::cleanup_intersect_connectivity()
     {
-        mIntersectConnectivity.resize(0,0);
+        mIntersectConnectivity.set_size(0,0);
         mIntersectedEdges.clear();
         mIntersectedCMNodeIndex.clear();
     }

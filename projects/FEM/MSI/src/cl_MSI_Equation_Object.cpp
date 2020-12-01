@@ -189,6 +189,9 @@ namespace moris
                     }
                 }
             }
+
+            // free pdof type list created, set flag to true
+            mFreePdofListFlag = true;
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -271,6 +274,9 @@ namespace moris
                     moris::unique( tNonUniqueAdofIds, mUniqueAdofTypeList( Ia )( Ik ) );
                 }
             }
+
+            // unique adof type list created, set flag to true
+            mUniqueAdofTypeListFlag = true;
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -296,7 +302,7 @@ namespace moris
 
                 mUniqueAdofMapList( Ij ).resize( tNumUniqueAdofsTypes );
 
-                // Loop over all unique adofs tpes of this equation object
+                // Loop over all unique adofs types of this equation object
                 for ( moris::uint Ii = 0; Ii < tNumUniqueAdofsTypes; Ii++ )
                 {
                     moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ij )( Ii ).numel();
@@ -360,15 +366,21 @@ namespace moris
                 // Loop over all adof types of this equation object
                 for ( moris::uint Ij = 0; Ij < mUniqueAdofTypeList( Ik ).size(); Ij++ )
                 {
+                    MORIS_ASSERT( mUniqueAdofTypeListFlag,
+                            "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. " );
+
                     //Get number of unique adofs of this equation object
                     moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ik )( Ij ).numel();
 
-                    MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+                    //MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+
+                    MORIS_ASSERT( mFreePdofListFlag,
+                            "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. " );
 
                     // Get MAX number of pdofs for this equation object
                     moris::uint tNumMyPdofs = mFreePdofList( Ik )( Ij ).size();
 
-                    MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+                    //MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
 
                     aPADofMap( Ik )( Ij ).set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -698,11 +710,20 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void Equation_Object::get_egn_obj_jacobian_and_residual(
-                Matrix< DDRMat > & aEqnObjMatrix,
+                Matrix< DDRMat >         & aEqnObjMatrix,
                 Cell< Matrix< DDRMat > > & aEqnObjRHS )
         {
-            // compute Jacobian
+            // compute Jacobian and residual
             this->compute_jacobian_and_residual();
+
+            // check for zero-size Jacobian
+            // note: if size of Jacobian is zero, also residuals are ignored
+            if ( mEquationSet->get_jacobian().numel() == 0 )
+            {
+                aEqnObjMatrix.set_size(0,0);
+                aEqnObjRHS.resize(0);
+                return;
+            }
 
             // build T-matrix
             Matrix< DDRMat > tTMatrix;
@@ -730,11 +751,13 @@ namespace moris
 
             uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 
+            // resize RHS
             aEqnObjRHS.resize( tNumRHS );
 
-            // build transpose of Tmatrix
+            // build transpose of T-matrix
             Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
 
+            // multiply RHS with T-matrix
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
                 aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );

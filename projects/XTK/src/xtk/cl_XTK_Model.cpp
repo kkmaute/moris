@@ -12,6 +12,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
+//#include "cl_XTK_Contact_Sandbox.hpp"
 #include "cl_XTK_Multigrid.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
@@ -31,7 +32,6 @@
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 using namespace moris;
 
@@ -170,10 +170,7 @@ namespace xtk
     void
     Model::perform()
     {
-        // Start the clock
-        std::clock_t tStart = std::clock();
-        
-        Tracer tTracer(EntityBase::XTK, EntityType::Overall, EntityAction::Run);
+        Tracer tTracer( "XTK", "Overall", "Run" );
 
         mVerbose = mParameterList.get<bool>("verbose");
         
@@ -228,6 +225,8 @@ namespace xtk
 
             if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
             {
+                Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
+
                 for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
                 {
                     mGhostStabilization->visualize_ghost_on_mesh(i);
@@ -247,6 +246,60 @@ namespace xtk
         // place the pair in mesh manager
         mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
+        // if( mParameterList.get<bool>("contact_sandbox") )
+        // {
+        //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
+        //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
+
+        //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
+        //                                   tInterfaceSideSetName1,
+        //                                   tInterfaceSideSetName2,
+        //                                   mParameterList.get<real>("bb_epsilon"));
+
+        //     // generate vertex displacement fields
+        //     moris::real tInitialDisp = 0.0;
+        //     moris::real tPredictedDisplX = 0.03;
+        //     moris::real tPredictedDisplY = -0.03;
+        //     moris::real tPredictedDisplZ = -0.01;
+        //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
+        //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
+
+        //     // get the vertices in bulk phase 1 and displace them through the current time step
+        //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
+        //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
+
+        //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
+        //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
+
+        //     // iterate through child verts block
+        //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
+        //     {
+        //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
+        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+        //         if(this->get_spatial_dim() == 3)
+        //         {
+        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+        //         } 
+        //     }
+
+        //     // iterate through child verts block
+        //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
+        //     {
+        //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
+        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+        //         if(this->get_spatial_dim() == 3)
+        //         {
+        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+        //         }
+        //     }
+
+
+
+        //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
+        // }
+
         if( mParameterList.get<bool>("print_enriched_ig_mesh") )
         {
             tEnrIntegMesh.print();
@@ -254,7 +307,7 @@ namespace xtk
 
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
-            std::clock_t tStart = std::clock();
+            Tracer tTracer( "XTK", "Overall", "Visualize" );
 
             if (mParameterList.get<bool>("deactivate_empty_sets"))
             {
@@ -268,8 +321,6 @@ namespace xtk
             // Write the fields
             writer.set_time(0.0);
             writer.close_file();
-
-            std::cout<<"XTK: Write integration mesh to exodus file completed in " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
         
         // print the memory usage of XTK
@@ -277,13 +328,6 @@ namespace xtk
         {
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print("XTK Model");
-        }
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::clock_t tEndTime = std::clock();
-            this->add_timing_data(tEndTime,"Work Flow Overall Time","Overall");
-            std::cout<<"XTK: Total time elapsed " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
 
@@ -392,7 +436,7 @@ namespace xtk
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::Decompose);
+        Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
@@ -455,14 +499,14 @@ namespace xtk
         {
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeRegularHex8);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeRegularHex8" );
 
                 this->decompose_internal_reg_sub_hex8(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
             }
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeRegularQuad4);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeRegularQuad4" );
 
                 this->decompose_internal_reg_sub_quad4(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
@@ -470,7 +514,7 @@ namespace xtk
             }
             case Subdivision_Method::C_HIERARCHY_TET4:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeHierarchyTet4);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeHierarchyTet4" );
 
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
@@ -712,7 +756,7 @@ namespace xtk
             }
             case Subdivision_Method::C_TRI3:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeHierarchyTri3);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeHierarchyTri3" );
 
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
@@ -3344,7 +3388,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             moris_index      const & aMeshIndex)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Enrich);
+        Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3365,7 +3409,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Enrich);
+        Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3441,7 +3485,7 @@ namespace xtk
     void
     Model::construct_face_oriented_ghost_penalization_cells()
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Run);
+        Tracer tTracer( "XTK", "GhostStabilization", "Stabilize" );
 
         MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
 
@@ -3468,7 +3512,7 @@ namespace xtk
     void
     Model::construct_multigrid()
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Multigrid, EntityAction::Run);
+        Tracer tTracer( "XTK", "Multigrid", "Run" );
 
         mMultigrid = std::make_shared< xtk::Multigrid >( this );
 
@@ -3797,7 +3841,7 @@ namespace xtk
         xtk::create_faces_from_element_to_node(tCellInfo, mBackgroundMesh.get_num_entities(EntityRank::NODE), tCMElementToNode, tElementToFace, tFaceToNode, tNodeToFace, tFaceToElement);
 
         // remove this data right away since it is not needed
-        tNodeToFace.resize(0,0);
+        tNodeToFace.set_size(0,0);
 
         // element connectivity
         moris::size_t tNumFacePerElem = tCellInfo->get_num_facets();

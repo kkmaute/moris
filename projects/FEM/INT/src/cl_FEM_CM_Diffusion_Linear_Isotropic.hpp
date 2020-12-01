@@ -34,11 +34,13 @@ namespace moris
                 std::shared_ptr< Property > mPropConductivity = nullptr;
                 std::shared_ptr< Property > mPropHeatCapacity = nullptr;
                 std::shared_ptr< Property > mPropDensity      = nullptr;
+                std::shared_ptr< Property > mPropEigenStrain  = nullptr;
 
             private:
 
                 // Default dof type for CM
-                MSI::Dof_Type mTempDof = MSI::Dof_Type::TEMP;
+                MSI::Dof_Type mTempDof  = MSI::Dof_Type::TEMP;
+                MSI::Dof_Type mThetaDof = MSI::Dof_Type::UNDEFINED;
 
                 // property type for CM
                 enum class CM_Property_Type
@@ -46,6 +48,7 @@ namespace moris
                     CONDUCTIVITY,
                     HEAT_CAPACITY,
                     DENSITY,
+                    EIGEN_STRAIN,
                     MAX_ENUM
                 };
 

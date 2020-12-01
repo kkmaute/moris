@@ -61,8 +61,9 @@ namespace moris
 
     void MSI_Solver_Interface::postmultiply_implicit_dQds()
     {
-        mMSI->mEquationModel->compute_explicit_dQIdp();
-        mMSI->mEquationModel->compute_implicit_dQIdp();
+        mMSI->mEquationModel->compute_explicit_and_implicit_dQIdp();
+        //mMSI->mEquationModel->compute_explicit_dQIdp();
+        //mMSI->mEquationModel->compute_implicit_dQIdp();
     }
 
     void MSI_Solver_Interface::compute_IQI()

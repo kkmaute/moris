@@ -38,9 +38,6 @@ set(HEADERS
     cl_FEM_IWG_Diffusion_Interface.hpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
     
-    cl_FEM_IWG_Heat_Method_Bulk.hpp
-    cl_FEM_IWG_Heat_Method_Boundary.hpp    
-    
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
@@ -152,6 +149,7 @@ set(HEADERS
     cl_FEM_Constitutive_Model.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
+    cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Fluid_Turbulence.hpp
     cl_FEM_CM_Fluid_Compressible_Ideal.hpp
@@ -242,9 +240,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_Diffusion_Interface.cpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
     
-    cl_FEM_IWG_Heat_Method_Bulk.cpp
-    cl_FEM_IWG_Heat_Method_Boundary.cpp        
-    
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
@@ -299,6 +294,7 @@ set(LIB_SOURCES
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
+    cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     cl_FEM_CM_Fluid_Incompressible.cpp
     cl_FEM_CM_Fluid_Turbulence.cpp
     cl_FEM_CM_Fluid_Compressible_Ideal.cpp

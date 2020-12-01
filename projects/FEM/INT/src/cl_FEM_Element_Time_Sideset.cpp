@@ -128,11 +128,17 @@ namespace moris
 
         void Element_Time_Sideset::compute_residual()
         {
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator();
-
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -183,11 +189,17 @@ namespace moris
 
         void Element_Time_Sideset::compute_jacobian()
         {
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator();
-
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -241,14 +253,21 @@ namespace moris
 
         void Element_Time_Sideset::compute_jacobian_and_residual()
         {
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator();
-
-            // get number of IWGs
+             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
+            // set physical and parametric space and time coefficients for IG element
+             this->init_ig_geometry_interpolator();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point location
@@ -299,15 +318,22 @@ namespace moris
 
         void Element_Time_Sideset::compute_dRdp()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get integration point location in the reference surface
@@ -351,6 +377,15 @@ namespace moris
 
         void Element_Time_Sideset::compute_dRdp_FD()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // check for active IWGs
+            if (tNumIWGs == 0)
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -361,9 +396,6 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tGeoLocalAssembly );
-
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -423,17 +455,24 @@ namespace moris
 
         void Element_Time_Sideset::compute_QI()
         {
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator();
-
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if ( tNumIQIs == 0 )
+            {
+                return;
+            }
+
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
 
             // FIXME create a cell of IQI values
             moris::Cell< Matrix< DDRMat > > tQIValues( tNumIQIs );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -474,14 +513,21 @@ namespace moris
 
         void Element_Time_Sideset::compute_dQIdu()
         {
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator();
-
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
+            // check for active IQIs
+            if ( tNumIQIs == 0 )
+            {
+                return;
+            }
+
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
+
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -522,15 +568,22 @@ namespace moris
 
         void Element_Time_Sideset::compute_dQIdp_explicit()
         {
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if ( tNumIQIs == 0 )
+            {
+                return;
+            }
+
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
-            // get number of IWGs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -571,6 +624,15 @@ namespace moris
 
         void Element_Time_Sideset::compute_dQIdp_explicit_FD()
         {
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if ( tNumIQIs == 0 )
+            {
+                return;
+            }
+
             // get finite difference scheme type
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
@@ -581,9 +643,6 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
             this->init_ig_geometry_interpolator( tGeoLocalAssembly );
-
-            // get number of IWGs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -627,6 +686,114 @@ namespace moris
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
                         mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
+                                tWStar,
+                                tFDPerturbation,
+                                tGeoLocalAssembly,
+                                tFDScheme );
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Time_Sideset::compute_dRdp_and_dQIdp_FD()
+        {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // check for active IQIs
+            if ( tNumIWGs == 0 && tNumIQIs == 0 )
+            {
+                return;
+            }
+
+            // get finite difference scheme type
+            fem::FDScheme_Type tFDScheme =
+                    mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
+            // set physical and parametric space and time coefficients for IG element
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator( tGeoLocalAssembly );
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get integration point location in the reference surface
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager_previous_time()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // get requested IWG
+                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
+                    // reset IWG
+                    tReqIWG->reset_eval_flags();
+
+                    // compute dRdpMat at evaluation point
+                    tReqIWG->compute_dRdp_FD_material(
+                            tWStar,
+                            tFDPerturbation,
+                            tFDScheme );
+
+                    // compute dRdpGeo at evaluation point
+                    if( mSet->get_geo_pdv_assembly_flag() )
+                    {
+                        tReqIWG->compute_dRdp_FD_geometry(
+                                tWStar,
+                                tFDPerturbation,
+                                tGeoLocalAssembly,
+                                tFDScheme );
+                    }
+                }
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI = mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IWG
+                    tReqIQI->reset_eval_flags();
+
+                    // compute dQIdpMat at evaluation point
+                    tReqIQI->compute_dQIdp_FD_material(
+                            tWStar,
+                            tFDPerturbation,
+                            tFDScheme );
+
+                    // compute dQIdpGeo at evaluation point
+                    if( mSet->get_geo_pdv_assembly_flag() )
+                    {
+                        tReqIQI->compute_dQIdp_FD_geometry(
                                 tWStar,
                                 tFDPerturbation,
                                 tGeoLocalAssembly,

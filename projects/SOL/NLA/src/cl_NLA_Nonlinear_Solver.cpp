@@ -299,8 +299,6 @@ void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehou
 
 void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
 {
-    //Tracer tTracer(EntityBase::NonLinearSolver, EntityType::Unknown, EntityAction::Solve);
-
     mSolverInput = mSolverWarehouse->get_solver_interface() ;
 
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();

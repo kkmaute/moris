@@ -35,10 +35,11 @@ namespace moris
              * @brief MORIS interface for solving of optimization problem using
              *        GCMMA
              *
+             * @param[in] aCurrentOptAlgInd index of optimization algorithm
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve(std::shared_ptr<Problem> aOptProb );
+            void solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
 
             /**
              * @brief MORIS-GCMMA interface for evaluation of objectives and

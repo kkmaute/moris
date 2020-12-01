@@ -22,9 +22,6 @@
 #include "cl_FEM_IWG_Diffusion_Radiation.hpp"
 #include "cl_FEM_IWG_Diffusion_Interface.hpp"
 #include "cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp"
-//Diffusion for heat method
-#include "cl_FEM_IWG_Heat_Method_Bulk.hpp"
-#include "cl_FEM_IWG_Heat_Method_Boundary.hpp"
 //Advection
 #include "cl_FEM_IWG_Advection_Bulk.hpp"
 //Elasticity
@@ -127,14 +124,6 @@ namespace moris
 
                 case IWG_Type::SPATIALDIFF_VW_GHOST :
                     return std::make_shared< IWG_Diffusion_Virtual_Work_Ghost >();
-
-                    //------------------------------------------------------------------------------
-
-                case IWG_Type::HEAT_METHOD_BULK :
-                    return std::make_shared< IWG_Heat_Method_Bulk >();
-
-                case IWG_Type::HEAT_METHOD_BOUNDARY :
-                    return std::make_shared< IWG_Heat_Method_Boundary >();
 
                     //------------------------------------------------------------------------------
 

@@ -2,6 +2,7 @@
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Logger.hpp"                // MRS/IOS/src
 #include "banner.hpp"                   // COR/src
+#include <Kokkos_Core.hpp>
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -19,6 +20,8 @@ int main( int argc, char * argv[] )
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
+    // Kokkos::initialize(argc, argv);
+
     // set severity level 0 - all outputs
     gLogger.initialize( 2 );
 
@@ -34,6 +37,8 @@ int main( int argc, char * argv[] )
     }
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    //Kokkos::finalize_all();
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();

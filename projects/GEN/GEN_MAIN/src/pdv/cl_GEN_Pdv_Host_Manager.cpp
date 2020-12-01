@@ -533,12 +533,16 @@ namespace moris
                         moris_id tPDVID = mIpPdvHosts(tPDVHostIndex)->get_pdv_id(tPDVIndex);
                         Matrix<DDSMat> tADVIds = mIpPdvHosts(tPDVHostIndex)->get_determining_adv_ids(tPDVIndex);
 
-                        for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
+                        // FIXME checking if the pdv is defined
+                        if( tPDVID !=-1 )
                         {
-                            Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities;
+                            for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
+                            {
+                                Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities;
 
-                            // Fill matrix
-                            tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
+                                // Fill matrix
+                                tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
+                            }
                         }
                     }
                 }
@@ -564,7 +568,9 @@ namespace moris
 
                         for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
                         {
-                            Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities.get_row(tCoordinateIndex);
+                            Matrix<DDRMat> tIndividualSensitivity =
+                                    (*tdIQIdPDV)(tPDVID, tVectorIndex) *
+                                    tHostADVSensitivities.get_row(tCoordinateIndex);
 
                             // Fill matrix
                             tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
@@ -582,13 +588,14 @@ namespace moris
 
                         for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
                         {
-                            Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities.get_row(tCoordinateIndex);
+                            Matrix<DDRMat> tIndividualSensitivity =
+                                    (*tdIQIdPDV)(tPDVID, tVectorIndex) *
+                                    tHostADVSensitivities.get_row(tCoordinateIndex);
 
                             // Fill matrix
                             tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
                         }
                     }
-
                 }
             }
 

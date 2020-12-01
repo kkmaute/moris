@@ -47,7 +47,7 @@ namespace moris
             for (uint i = 0; i < mAlgorithms.size(); i++)
             {
                 // solve the optimization problem based on the algorithm cell
-                mAlgorithms(i)->solve(mProblem);
+                mAlgorithms(i)->solve(i, mProblem);
 
                 // scale the solution of the optimization problem
                 mProblem->scale_solution();

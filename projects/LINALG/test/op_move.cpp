@@ -19,9 +19,9 @@ namespace moris
 {
     TEST_CASE("moris::op_move", "[linalgebra],[op_move]" )
     {
-        Matrix< DDRMat > Amatrix(300,300,0.0);
-        Matrix< DDRMat > Bmatrix(300,300,0.0);
-        Matrix< DDRMat > Cmatrix(300,300);
+        Matrix< DDRMat > Amatrix(50,50,0.0);
+        Matrix< DDRMat > Bmatrix(50,50,0.0);
+        Matrix< DDRMat > Cmatrix(50,50);
 
         Amatrix(0,0)=1.0; Amatrix(0,1)=2.0; Amatrix(0,2)=3.0;
         Amatrix(1,0)=4.0; Amatrix(1,1)=5.0; Amatrix(1,2)=6.0;

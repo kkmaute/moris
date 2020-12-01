@@ -485,6 +485,8 @@ namespace moris
             // set size for the global dof type list
             mMasterDofTypes.reserve( tNumDofTypes );
             mSlaveDofTypes .reserve( tNumDofTypes );
+            mMasterDofTypesList.reserve( tNumDofTypes );
+            mSlaveDofTypesList .reserve( tNumDofTypes );
             mMasterDvTypes.reserve( tNumDvTypes );
             mSlaveDvTypes .reserve( tNumDvTypes );
 
@@ -517,6 +519,12 @@ namespace moris
 
                         // put the dof type in the global type list
                         mMasterDofTypes.push_back( tDofTypeMaster( iDOF ) );
+
+                        // put the dof type in the global type list
+                        for( uint jDof = 0; jDof < tDofTypeMaster( iDOF ).size(); jDof++ )
+                        {
+                            mMasterDofTypesList.push_back( tDofTypeMaster( iDOF )( jDof ) );
+                        }
                     }
                 }
 
@@ -558,6 +566,12 @@ namespace moris
 
                         // put the dof type in the global type list
                         mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+
+                        // put the dof type in the global type list
+                        for( uint jDof = 0; jDof < tDofTypeSlave( iDOF ).size(); jDof++ )
+                        {
+                            mSlaveDofTypesList.push_back( tDofTypeSlave( iDOF )( jDof ) );
+                        }
                     }
                 }
 
@@ -603,6 +617,12 @@ namespace moris
 
                         // put the dof type in the global type list
                         mMasterDofTypes.push_back( tDofTypeMaster( iDOF ) );
+
+                        // put the dof type in the global type list
+                        for( uint jDof = 0; jDof < tDofTypeMaster( iDOF ).size(); jDof++ )
+                        {
+                            mMasterDofTypesList.push_back( tDofTypeMaster( iDOF )( jDof ) );
+                        }
                     }
                 }
 
@@ -643,6 +663,12 @@ namespace moris
 
                         // put the dof type in the global type list
                         mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+
+                        // put the dof type in the global type list
+                        for( uint jDof = 0; jDof < tDofTypeSlave( iDOF ).size(); jDof++ )
+                        {
+                            mSlaveDofTypesList.push_back( tDofTypeSlave( iDOF )( jDof ) );
+                        }
                     }
                 }
 
@@ -666,7 +692,9 @@ namespace moris
 
             // shrink list to fit to number of unique dof and dv types
             mMasterDofTypes.shrink_to_fit();
+            mMasterDofTypesList.shrink_to_fit();
             mSlaveDofTypes .shrink_to_fit();
+            mSlaveDofTypesList.shrink_to_fit();
             mMasterDvTypes.shrink_to_fit();
             mSlaveDvTypes .shrink_to_fit();
         }

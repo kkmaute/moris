@@ -30,7 +30,7 @@ namespace moris
             private :
 
                 uint                              mNumVerticesOnSet;
-                moris::Matrix< DDSMat >           mVerticesOnSet;
+                moris::Matrix< IndexMat >         mVerticesOnSet;
 
                 uint                              mNumCellsOnBlock;
                 moris::Matrix< DDSMat >           mCellsOnBlock;
