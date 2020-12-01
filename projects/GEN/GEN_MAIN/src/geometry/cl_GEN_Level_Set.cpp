@@ -211,21 +211,20 @@ namespace moris
             }
 
             // Check if L2 is needed
-            if (mMesh->get_bspline_inds_of_node_loc_ind(tTestNodeIndex, this->get_bspline_mesh_index()).length() > 1
-                    or mMesh->get_num_nodes() > 2 * mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
+            if ( mMesh->get_bspline_inds_of_node_loc_ind(tTestNodeIndex, this->get_bspline_mesh_index()).length() > 1
+                    or mMesh->get_num_nodes() > 2 * mMesh->get_num_coeffs(this->get_bspline_mesh_index()) )
             {
-                // Check for serial
-                MORIS_ERROR(par_size() == 1, "L2 not implemented in parallel");
-
                 // Set values ons source field
                 Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
                 for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
                 {
-                    tSourceField(tNodeIndex) = aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                    tSourceField(tNodeIndex) =
+                            aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                 }
 
                 // Create integration mesh
-                mtk::Integration_Mesh * tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
+                mtk::Integration_Mesh * tIntegrationMesh =
+                        create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
 
                 // Create mesh manager
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
@@ -235,10 +234,7 @@ namespace moris
 
                 // Use mapper
                 mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
-                tMapper.perform_mapping(tSourceField,
-                                        EntityRank::NODE,
-                                        tTargetField,
-                                        EntityRank::BSPLINE);
+                tMapper.perform_mapping(tSourceField, EntityRank::NODE, tTargetField, EntityRank::BSPLINE);
             }
             else // Nodal values, no L2
             {
@@ -251,10 +247,12 @@ namespace moris
                     if (mMesh->node_has_interpolation(tNodeIndex, this->get_bspline_mesh_index()))
                     {
                         // Get B-spline index
-                        uint tBSplineIndex = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_bspline_mesh_index())(0);
+                        uint tBSplineIndex =
+                                mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_bspline_mesh_index())(0);
 
                         // Assign target field
-                        tTargetField(tBSplineIndex) = aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                        tTargetField(tBSplineIndex) =
+                                aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                     }
                 }
             }
