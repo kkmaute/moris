@@ -134,9 +134,6 @@ namespace moris
                         aNumRows*aNumCols > MORIS_MATRIX_RESIZE_FRACTION_LIMIT * this->numel() : true,
                         "Matrix::resize: resize to less than 1 percent of large matrix - reduce initial allocation.\n");
 
-                MORIS_CHECK_MEMORY(aNumRows*aNumCols > 0,
-                        "Matrix::resize: use set_size instead of resize(0,0).\n");
-
                 mMatrix.resize(aNumRows, aNumCols);
             }
 

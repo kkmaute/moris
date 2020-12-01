@@ -13,7 +13,7 @@ namespace moris
     namespace fem
     {
         // smallest acceptable value for DetJ
-        const real Geometry_Interpolator::sDetJLowerLimit = -1.0e-18;
+        const real Geometry_Interpolator::sDetJLowerLimit = -1.0e-12;
 
         // smallest acceptable value for DetJ used in building inverse of Jacobian
         const real Geometry_Interpolator::sDetJInvJacLowerLimit = 1.0e-12;

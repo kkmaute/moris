@@ -6,7 +6,6 @@
 // Logger package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 namespace moris
 {
@@ -42,7 +41,7 @@ namespace moris
         void Algorithm_Sweep::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
-            Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::Sweep, EntityAction::Solve);
+            Tracer tTracer( "OptimizationAlgorithm", "Sweep", "Solve" );
 
             //----------------------------------------------------------------------------------------------------------
             // Initialize

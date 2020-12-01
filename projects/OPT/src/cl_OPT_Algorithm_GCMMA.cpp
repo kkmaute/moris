@@ -5,7 +5,6 @@
 // Logger package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 // Third party header files
 #include "optalggcmmacall.hpp"
@@ -39,7 +38,7 @@ OptAlgGCMMA::~OptAlgGCMMA()
 void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     // Trace optimization
-    Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::GCMMA, EntityAction::Solve);
+    Tracer tTracer( "OptimizationAlgorithm", "GCMMA", "Solve" );
 
     mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
     mProblem          = aOptProb;           // set the member variable mProblem to aOptProb

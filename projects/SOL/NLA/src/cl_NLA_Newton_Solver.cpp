@@ -24,7 +24,6 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -68,7 +67,7 @@ Newton_Solver::~Newton_Solver()
 //--------------------------------------------------------------------------------------------------------------------------
 void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
 {
-    Tracer tTracer(EntityBase::NonLinearSolver, EntityType::Newton, EntityAction::Solve);
+    Tracer tTracer( "NonLinearSolver", "Newton", "Solve" );
 
     mNonlinearProblem = aNonlinearProblem;
 

@@ -27,7 +27,7 @@ namespace moris
 
     // log with specified output type
     //template <class T>
-    //void Logger::log_specific(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
+    //void Logger::log_specific( std::string aOutputSpecifier, T aOutputValue )
 
     // -----------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ namespace moris
         if( mWriteToAscii )
         {
             // formated output to log file
-            this->log_to_file( OutputSpecifier::SignIn, 1.0);
+            this->log_to_file( "SignIn" , 1.0);
         }
     }
 
@@ -95,7 +95,7 @@ namespace moris
         if( mWriteToAscii )
         {
             // formated output to log file
-            this->log_to_file( OutputSpecifier::SignIn, 1.0);
+            this->log_to_file( "SignIn", 1.0 );
         }
 
         // log to console - only processor mOutputRank prints message
@@ -126,17 +126,6 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-    // sign in
-    void Logger::sign_in(
-            enum EntityBase aEntityBase,
-            enum EntityType aEntityType,
-            enum EntityAction aEntityAction )
-    {
-        this->sign_in(get_enum_str(aEntityBase), get_enum_str(aEntityType), get_enum_str(aEntityAction));
-    }
-
-    // -----------------------------------------------------------------------------
-
     // signing out
     void Logger::sign_out()
     {
@@ -151,7 +140,7 @@ namespace moris
         if( mWriteToAscii )
         {
             // log current position in code
-            this->log_to_file(OutputSpecifier::ElapsedTime,tElapsedTime);
+            this->log_to_file( "ElapsedTime", tElapsedTime );
         }
             
         // log to console - only processor mOutputRank prints message
@@ -203,13 +192,13 @@ namespace moris
             {
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
                         mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
-                        get_enum_str( OutputSpecifier::Iteration ) << ": " <<
+                        "Iteration" << ": " <<
                         ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] ) <<
                         " \n" << std::flush;
             }
             else
             {
-                std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": " <<
+                std::cout << "Iteration" << ": " <<
                         mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
                         ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] ) <<
                         " \n" << std::flush;
@@ -220,7 +209,7 @@ namespace moris
             {
                 // formated output to log file
                 this->log_to_file(
-                        OutputSpecifier::Iteration,
+                        "Iteration",
                         mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] );
             }
         }
@@ -229,9 +218,9 @@ namespace moris
     //------------------------------------------------------------------------------
 
     uint Logger::get_iteration(
-            enum EntityBase   aEntityBase,
-            enum EntityType   aEntityType,
-            enum EntityAction aEntityAction )
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction )
     {
         // initialize
         uint tIndentLevel = 0;
@@ -241,11 +230,11 @@ namespace moris
         while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType[ tIndentLevel ] or
-                            aEntityType == EntityType::Arbitrary ) and
-                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction[ tIndentLevel ] or
-                            aEntityAction == EntityAction::Arbitrary ) )
+            if( aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or
+                            aEntityType == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or
+                            aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }
@@ -266,9 +255,9 @@ namespace moris
     //------------------------------------------------------------------------------
 
     void Logger::set_iteration(
-            enum EntityBase   aEntityBase,
-            enum EntityType   aEntityType,
-            enum EntityAction aEntityAction,
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction,
             uint              aIter)
     {
         // initialize
@@ -279,11 +268,11 @@ namespace moris
         while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType[ tIndentLevel ] or
-                            aEntityType == EntityType::Arbitrary ) and
-                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction[ tIndentLevel ] or
-                            aEntityAction == EntityAction::Arbitrary ) )
+            if( aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or
+                            aEntityType == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or
+                            aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }
@@ -312,9 +301,9 @@ namespace moris
          // iteration of arbitrary Optimization Algorithm
          // note: this can be done, as there's always only one active opt.-alg.
          return this->get_iteration(
-                 EntityBase::OptimizationAlgorithm ,
-                 EntityType::Arbitrary,
-                 EntityAction::Arbitrary );
+                 "OptimizationAlgorithm" ,
+                 "Arbitrary",
+                 "Arbitrary" );
      }
 
      //------------------------------------------------------------------------------
@@ -324,24 +313,19 @@ namespace moris
           // iteration of arbitrary Optimization Algorithm
           // note: this can be done, as there's always only one active opt.-alg.
           this->set_iteration(
-                  EntityBase::OptimizationAlgorithm ,
-                  EntityType::Arbitrary,
-                  EntityAction::Arbitrary,
+                  "OptimizationAlgorithm" ,
+                  "Arbitrary",
+                  "Arbitrary",
                   aIter);
       }
-
-    // -----------------------------------------------------------------------------
-
-    // logging operation using Clock Info, Output value is allowed to be any common number type
-    //void Logger::log_to_file(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
 
     // -----------------------------------------------------------------------------
 
     // logging operation using Clock Info, using multiple output values
     template <class T1, class T2>
     void Logger::log2_to_file(
-            enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
-            enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2)
+            std::string aOutputSpecifier1, T1 aOutputValue1,
+            std::string aOutputSpecifier2, T2 aOutputValue2)
     {
             this->log_to_file(aOutputSpecifier1, aOutputValue1);
             this->log_to_file(aOutputSpecifier2, aOutputValue2);
@@ -349,9 +333,9 @@ namespace moris
 
     template <class T1, class T2, class T3>
     void Logger::log3_to_file(
-            enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
-            enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2,
-            enum OutputSpecifier aOutputSpecifier3, T3 aOutputValue3)
+            std::string aOutputSpecifier1, T1 aOutputValue1,
+            std::string aOutputSpecifier2, T2 aOutputValue2,
+            std::string aOutputSpecifier3, T3 aOutputValue3)
     {
             this->log_to_file(aOutputSpecifier1, aOutputValue1);
             this->log_to_file(aOutputSpecifier2, aOutputValue2);
@@ -364,23 +348,23 @@ namespace moris
 
     void Logger::log_to_file(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::FreeText, aOutputString);
+        this->log_to_file( "FreeText", aOutputString);
     }
     void Logger::log_to_file_info(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::InfoText, aOutputString);
+        this->log_to_file( "InfoText", aOutputString);
     }
     void Logger::log_to_file_debug(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::DebugText, aOutputString);
+        this->log_to_file( "DebugText", aOutputString);
     }
     void Logger::log_to_file_warning(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::Warning, aOutputString);
+        this->log_to_file( "Warning", aOutputString);
     }
     void Logger::log_to_file_error(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::Error, aOutputString);
+        this->log_to_file( "Error", aOutputString);
     }
 
     // -----------------------------------------------------------------------------

@@ -3,7 +3,6 @@
 // Logger package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -154,7 +153,8 @@ namespace moris
         void Algorithm_SQP::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
-            Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::SQP, EntityAction::Solve);
+            Tracer tTracer( "OptimizationAlgorithm", "SQP", "Solve" );
+
 
             mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
             mProblem          = aOptProb;           // set the member variable mProblem to aOptProb

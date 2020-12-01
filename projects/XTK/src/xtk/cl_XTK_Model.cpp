@@ -32,7 +32,6 @@
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 using namespace moris;
 
@@ -171,7 +170,7 @@ namespace xtk
     void
     Model::perform()
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Overall, EntityAction::Run);
+        Tracer tTracer( "XTK", "Overall", "Run" );
 
         mVerbose = mParameterList.get<bool>("verbose");
         
@@ -226,7 +225,7 @@ namespace xtk
 
             if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Visualize);
+                Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
 
                 for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
                 {
@@ -308,7 +307,7 @@ namespace xtk
 
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
-            Tracer tTracer(EntityBase::XTK, EntityType::Overall, EntityAction::Visualize);
+            Tracer tTracer( "XTK", "Overall", "Visualize" );
 
             if (mParameterList.get<bool>("deactivate_empty_sets"))
             {
@@ -437,7 +436,7 @@ namespace xtk
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::Decompose);
+        Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
@@ -500,14 +499,14 @@ namespace xtk
         {
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeRegularHex8);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeRegularHex8" );
 
                 this->decompose_internal_reg_sub_hex8(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
             }
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeRegularQuad4);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeRegularQuad4" );
 
                 this->decompose_internal_reg_sub_quad4(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
@@ -515,7 +514,7 @@ namespace xtk
             }
             case Subdivision_Method::C_HIERARCHY_TET4:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeHierarchyTet4);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeHierarchyTet4" );
 
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
@@ -757,7 +756,7 @@ namespace xtk
             }
             case Subdivision_Method::C_TRI3:
             {
-                Tracer tTracer(EntityBase::XTK, EntityType::Decomposition, EntityAction::DecomposeHierarchyTri3);
+                Tracer tTracer( "XTK", "Decomposition", "DecomposeHierarchyTri3" );
 
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
@@ -3389,7 +3388,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             moris_index      const & aMeshIndex)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Enrich);
+        Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3410,7 +3409,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Enrichment, EntityAction::Enrich);
+        Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3486,7 +3485,7 @@ namespace xtk
     void
     Model::construct_face_oriented_ghost_penalization_cells()
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::GhostStabilization, EntityAction::Stabilize);
+        Tracer tTracer( "XTK", "GhostStabilization", "Stabilize" );
 
         MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
 
@@ -3513,7 +3512,7 @@ namespace xtk
     void
     Model::construct_multigrid()
     {
-        Tracer tTracer(EntityBase::XTK, EntityType::Multigrid, EntityAction::Run);
+        Tracer tTracer( "XTK", "Multigrid", "Run" );
 
         mMultigrid = std::make_shared< xtk::Multigrid >( this );
 
