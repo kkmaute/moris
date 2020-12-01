@@ -211,7 +211,8 @@ namespace moris
             }
 
             // Check if L2 is needed
-            if (mMesh->get_bspline_inds_of_node_loc_ind(tTestNodeIndex, this->get_bspline_mesh_index()).length() > 1)
+            if (mMesh->get_bspline_inds_of_node_loc_ind(tTestNodeIndex, this->get_bspline_mesh_index()).length() > 1
+                    or mMesh->get_num_nodes() > 2 * mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
             {
                 // Check for serial
                 MORIS_ERROR(par_size() == 1, "L2 not implemented in parallel");
