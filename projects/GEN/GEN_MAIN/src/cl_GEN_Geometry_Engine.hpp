@@ -78,13 +78,17 @@ namespace moris
 
             // Geometry
         protected:
+
             Cell<std::shared_ptr<Geometry>> mGeometries;
+
         private:
+
             size_t mActiveGeometryIndex = 0;
             Cell<ParameterList> mGeometryParameterLists;
             std::string mGeometryFieldFile = "";
             std::string mOutputMeshFile = "";
             bool mShapeSensitivities = false;
+            real mTimeOffset = 0.0;
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;

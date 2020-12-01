@@ -62,6 +62,7 @@ namespace moris
                 mGeometryParameterLists(aParameterLists(1)),
                 mGeometryFieldFile(aParameterLists(0)(0).get<std::string>("geometry_field_file")),
                 mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
+                mTimeOffset(aParameterLists(0)(0).get<real>("time_offset")),
 
                 // Properties
                 mProperties(create_properties(aParameterLists(2), mADVs, mGeometries, mLibrary)),
@@ -1001,13 +1002,31 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::output_fields_on_mesh(mtk::Mesh* aMesh, std::string aExodusFileName)
+        void Geometry_Engine::output_fields_on_mesh(
+                mtk::Mesh* aMesh,
+                std::string aExodusFileName)
         {
+            // time shift
+            real tTimeShift = 0.0;
+
             if (aExodusFileName != "")
             {
+                if ( mTimeOffset > 0)
+                {
+                    // get optimization iteration
+                    uint tOptIter = gLogger.get_opt_iteration();
+
+                    // set name
+                    std::string tOptIterStrg = std::to_string(tOptIter);
+                    aExodusFileName += ".e-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
+
+                    // determine time shift
+                    tTimeShift = tOptIter * mTimeOffset;
+                }
+
                 // Write mesh
                 mtk::Writer_Exodus tWriter(aMesh);
-                tWriter.write_mesh("", aExodusFileName, "", "gen_temp.exo");
+                tWriter.write_mesh("./", aExodusFileName, "./", "gen_temp.exo");
 
                 // Setup field names
                 uint tNumGeometries = mGeometries.size();
@@ -1033,6 +1052,9 @@ namespace moris
                         tFieldNames(tNumGeometries + tPropertyIndex) = "Property " + std::to_string(tPropertyIndex);
                     }
                 }
+
+                // write time to file
+                tWriter.set_time( tTimeShift );
 
                 // Set nodal fields based on field names
                 tWriter.set_nodal_fields(tFieldNames);
@@ -1087,7 +1109,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::write_geometry_fields(mtk::Mesh* aMesh, std::string aBaseFileName)
+        void Geometry_Engine::write_geometry_fields(
+                mtk::Mesh* aMesh,
+                std::string aBaseFileName)
         {
             if (aBaseFileName != "")
             {
