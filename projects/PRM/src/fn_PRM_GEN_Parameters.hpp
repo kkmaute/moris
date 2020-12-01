@@ -51,6 +51,7 @@ namespace moris
             tParameterList.insert("isocontour_tolerance", 0.0);      // Tolerance for determining interface nodes
             tParameterList.insert("output_mesh_file", "");           // File name for exodus mesh, if default no mesh is written
             tParameterList.insert("geometry_field_file", "");        // Base file name (without extension) for saving geometry fields
+            tParameterList.insert("time_offset", 0.0 );              // Time offset for writing files in optimization process
 
             // ADVs/IQIs
             tParameterList.insert("initial_advs", "");       // Initial ADVs, string converted into vector
