@@ -14,6 +14,7 @@
 #include <memory>
 #include <string>
 
+
 #include "cl_Communication_Tools.hpp" // COM/src
 
 
@@ -132,6 +133,10 @@ namespace moris
 
             // When built?
             std::fprintf( stdout, "     Build Date  : %s at %s\n", __DATE__ , __TIME__ );
+
+            // When run
+            time_t tTimeStamp = time(NULL);
+            std::fprintf( stdout, "     Date of Execution : %s \n", ctime(&tTimeStamp) );
 
             // What Matrix lib?
 #ifdef MORIS_USE_ARMA
