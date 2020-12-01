@@ -29,7 +29,7 @@ namespace moris
 {
 
     real
-    logger_max_all( const real & aLocalInput )
+    logger_max_all( real & aLocalInput )
     {
         real aGlobalMax;
         MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
@@ -37,7 +37,7 @@ namespace moris
     }
 
     real
-    logger_min_all( const real & aLocalInput )
+    logger_min_all( real & aLocalInput )
     {
         real aGlobalMin;
         MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
