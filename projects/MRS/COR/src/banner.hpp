@@ -136,7 +136,7 @@ namespace moris
 
             // When run
             time_t tTimeStamp = time(NULL);
-            std::fprintf( stdout, "     Date of Execution : %s \n", ctime(&tTimeStamp) );
+            std::fprintf( stdout, "     Date of Run : %s \n", ctime(&tTimeStamp) );
 
             // What Matrix lib?
 #ifdef MORIS_USE_ARMA

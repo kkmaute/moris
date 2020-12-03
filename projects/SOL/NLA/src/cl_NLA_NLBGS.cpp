@@ -19,6 +19,9 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace NLA;
 using namespace dla;
@@ -48,6 +51,9 @@ NonLinBlockGaussSeidel::~NonLinBlockGaussSeidel()
 
 void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
 {
+    // trace this solve
+    Tracer tTracer( "NonLinearSolver", "NLBGS", "Solve" );
+
     moris::sint tMaxIts = 10;
     moris::uint tNonLinSysStartIt = 0;
     moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
@@ -56,6 +62,9 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonli
     // NLBGS loop
     for ( sint It = 1; It <= tMaxIts; ++It )
     {
+        // log iterations
+        MORIS_LOG_ITERATION();
+
         moris::real tMaxNewTime      = 0.0;
 
         //get_nonlinear_problem()
@@ -66,7 +75,8 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonli
             // Loop over all non-linear systems
             for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems;Ik++)
             {
-                MORIS_LOG_INFO("NLBGS - Forward Analysis: Nonlinear system: %d.\n",Ik);
+                // Log/print which NL system is being solved
+                MORIS_LOG_SPEC("Forward Analysis Nonlinear System", Ik );
 
                 mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->solve( aNonlinearProblem->get_full_vector() );
             } // end loop over all non-linear sub-systems
@@ -76,7 +86,8 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonli
             // Loop over all non-linear systems backwards
             for (sint Ik = tNumNonLinSystems; Ik > (sint)tNonLinSysStartIt; Ik-- )
             {
-                MORIS_LOG_INFO("NLBGS - Sensitivity Analysis: Nonlinear system: %d.\n",Ik);
+                // Log/print which NL system is being solved
+                MORIS_LOG_SPEC("Sensitivity Analysis Nonlinear System", Ik );
 
                 mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik-1 )->solve( aNonlinearProblem->get_full_vector() );
             } // end loop over all non-linear sub-systems
@@ -162,5 +173,8 @@ void NonLinBlockGaussSeidel::compute_norms( const moris::sint aIter )
     }
 
     mMyNonLinSolverManager->get_residual_norm() = std::sqrt( tSqrtResNorm );
+
+    // log the residual norm
+    MORIS_LOG_SPEC( "ResidualNorm", mMyNonLinSolverManager->get_residual_norm() );
 }
 

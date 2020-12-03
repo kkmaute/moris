@@ -1,5 +1,4 @@
 #include "cl_OPT_Problem.hpp"
-#include "cl_Logger.hpp"
 #include "op_plus.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
@@ -7,6 +6,8 @@
 #include "cl_Communication_Tools.hpp"
 #include "HDF5_Tools.hpp"
 
+#include "cl_Logger.hpp"
+#include "fn_stringify_matrix.hpp"
 extern moris::Logger gLogger;
 
 namespace moris
@@ -127,6 +128,9 @@ namespace moris
             if (mUpdateObjectives)
             {
                 mObjectives = this->compute_objectives();
+
+                // log objective
+                MORIS_LOG_SPEC( "Objective", ios::stringify_log( mObjectives ) );
             }
             return mObjectives;
         }
@@ -138,6 +142,9 @@ namespace moris
             if (mUpdateConstraints)
             {
                 mConstraints = this->compute_constraints();
+
+                // log constraints
+                MORIS_LOG_SPEC( "Constraints", ios::stringify_log( mConstraints ) );
             }
             return mConstraints;
         }
@@ -167,6 +174,11 @@ namespace moris
             mADVs = aNewADVs;
             mCriteria = mInterface->get_criteria(aNewADVs);
             mInterface->get_dcriteria_dadv();
+
+            // log criteria and ADVs
+            MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
+            MORIS_LOG_SPEC( "MinADV", mADVs.min() );
+            MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -269,18 +281,26 @@ namespace moris
 
         void Problem::compute_objective_gradient_analytical()
         {
+            // log objective gradients
+            Matrix< DDRMat> tdObjectivedCriteria = this->compute_dobjective_dcriteria();
+            MORIS_LOG_SPEC( "dObjective_dCriteria", ios::stringify_log( tdObjectivedCriteria ) );
+
             mObjectiveGradient =
                     this->compute_dobjective_dadv() +
-                    this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
+                    tdObjectivedCriteria * mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
         void Problem::compute_constraint_gradient_analytical()
         {
+            // log objective gradients
+            Matrix< DDRMat> tdConstraintdCriteria = this->compute_dconstraint_dcriteria();
+            MORIS_LOG_SPEC( "dConstraint_dCriteria", ios::stringify_log( tdConstraintdCriteria ) );
+
             mConstraintGradient =
                     this->compute_dconstraint_dadv() +
-                    this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
+                    tdConstraintdCriteria * mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
