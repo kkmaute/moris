@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <iostream>
 
 // define time functions
 #include <ctime>
@@ -66,6 +67,15 @@ namespace moris
 
         // create time stamp for new entity
         mTimeStamps.push_back( (real) std::clock() );
+        
+#ifdef DEBUG
+        // check that indentation level and array size match
+        if( mIndentationLevel != mCurrentFunctionID.size() - 1 )
+        {
+            std::cout << "GlobalClock::sign_in - indentation level and array sizes do not match.\n";
+            throw;
+        }
+#endif
     }
 
     // --------------------------------------------------------------------------------
@@ -92,6 +102,15 @@ namespace moris
 
         // decrement indentation level
         mIndentationLevel--;
+
+#ifdef DEBUG
+        // check that indentation level and array size match
+        if( mIndentationLevel != mCurrentFunctionID.size() - 1 )
+        {
+            std::cout << "GlobalClock::sign_in - indentation level and array sizes do not match.\n";
+            throw;
+        }
+#endif
     }
 
     // --------------------------------------------------------------------------------
@@ -104,5 +123,4 @@ namespace moris
 
     // --------------------------------------------------------------------------------
 } // namespace moris
-
 
