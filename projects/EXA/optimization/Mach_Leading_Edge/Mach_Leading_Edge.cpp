@@ -452,25 +452,25 @@ namespace moris
                 aCriteria( 0 ) * tMaxTempScaling / tRefMaxTemp +
                 aCriteria( 2 ) * tPerimeterPenaltyParam  / tInitialFinPerimeter;
 
-        std::cout << "% --------------------------------- % \n" << std::flush;
-        std::cout << "% --------------------------------- % \n" << std::flush;
-        std::cout << "Max Temp Value = " << aCriteria( 0 ) << " \n" << std::flush;
-        std::cout << "Fin Volume = "     << aCriteria( 1 ) << " \n" << std::flush;
-        std::cout << "Perimeter = "      << aCriteria( 2 ) << " \n" << std::flush;
-        //std::cout << "Total Volume = "   << aCriteria( 3 ) << " \n" << std::flush;
-        std::cout << "Strain Energy = "  << aCriteria( 3 ) << " \n" << std::flush;
-        std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "Max Temp Value = " << aCriteria( 0 ) << " \n" << std::flush;
+        //std::cout << "Fin Volume = "     << aCriteria( 1 ) << " \n" << std::flush;
+        //std::cout << "Perimeter = "      << aCriteria( 2 ) << " \n" << std::flush;
+        ////std::cout << "Total Volume = "   << aCriteria( 3 ) << " \n" << std::flush;
+        //std::cout << "Strain Energy = "  << aCriteria( 3 ) << " \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
 
-        std::cout << " \n";
-        std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << " \n";
+        //std::cout << "% --------------------------------- % \n" << std::flush;
 
-        std::cout << "min ADV       = " << aADVs.min()         << " \n";
-        std::cout << "max ADV       = " << aADVs.max()         << " \n" << std::flush;
+        //std::cout << "min ADV       = " << aADVs.min()         << " \n";
+        //std::cout << "max ADV       = " << aADVs.max()         << " \n" << std::flush;
 
-        std::cout << "Objective = " << tObjectives( 0, 0 ) << " \n" << std::flush;
-        std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "Objective = " << tObjectives( 0, 0 ) << " \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
         
-		//  IQIMaxTemp, IQIStrainEnergy, IQIBSplineGeometryVolume, IQIBSplinesPerimeter, IQITotalVolume
+	//  IQIMaxTemp, IQIStrainEnergy, IQIBSplineGeometryVolume, IQIBSplinesPerimeter, IQITotalVolume
         
         return tObjectives;
     }
@@ -483,9 +483,9 @@ namespace moris
 
         tConstraints( 0, 0 ) = aCriteria( 1 ) * tVolumeScaling / tMaxAllowedFinVolume - 1.0 * tVolumeScaling;
 
-        std::cout << "Constraint = " << tConstraints( 0, 0 ) << " \n" << std::flush;
-        std::cout << "% --------------------------------- % \n" << std::flush;
-        std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "Constraint = " << tConstraints( 0, 0 ) << " \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
 
         return tConstraints;
     }
@@ -510,13 +510,12 @@ namespace moris
         tDObjectiveDCriteria( 2 ) = tPerimeterPenaltyParam / tInitialFinPerimeter;
         tDObjectiveDCriteria( 3 ) = tStrainEnergyScaling / tInitialStrainEnergy;
         
-        std::cout << "% --------------------------------- % \n" << std::flush;
-        std::cout << "dz/d(Max_Temp) = " << tDObjectiveDCriteria( 0 ) << " \n" << std::flush;
-        std::cout << "dz/d(Perimeter) = " << tDObjectiveDCriteria( 2 ) << " \n" << std::flush;
-        //std::cout << "dz/d(Total_Volume) = " << tDObjectiveDCriteria( 3 ) << " \n" << std::flush;
-        std::cout << "dz/d(Strain_Energy) = " << tDObjectiveDCriteria( 3 ) << " \n" << std::flush;
-        
-        
+        //std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "dz/d(Max_Temp) = " << tDObjectiveDCriteria( 0 ) << " \n" << std::flush;
+        //std::cout << "dz/d(Perimeter) = " << tDObjectiveDCriteria( 2 ) << " \n" << std::flush;
+        ////std::cout << "dz/d(Total_Volume) = " << tDObjectiveDCriteria( 3 ) << " \n" << std::flush;
+        //std::cout << "dz/d(Strain_Energy) = " << tDObjectiveDCriteria( 3 ) << " \n" << std::flush;
+
         return tDObjectiveDCriteria;
     }
 
@@ -536,8 +535,8 @@ namespace moris
         
         tDConstraintDCriteria( 1 ) = tVolumeScaling / tMaxAllowedFinVolume;
         
-        std::cout << "dg/d(Fin_Volume) = " << tDConstraintDCriteria( 1 ) << " \n" << std::flush;
-        std::cout << "% --------------------------------- % \n" << std::flush;
+        //std::cout << "dg/d(Fin_Volume) = " << tDConstraintDCriteria( 1 ) << " \n" << std::flush;
+        //std::cout << "% --------------------------------- % \n" << std::flush;
         
         return tDConstraintDCriteria;
     }        
