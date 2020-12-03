@@ -13,7 +13,7 @@
 
 // Logging package
 #include "cl_Logger.hpp"
-#include "cl_Stopwatch.hpp"
+#include "cl_Tracer.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 extern moris::Logger       gLogger;
@@ -182,8 +182,7 @@ namespace moris
         {
             if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
             {
-                // start timer
-                tic tTimer;
+                Tracer tTracer( "Output_Manager", "VisMesh", "CreateFile" );
 
                 this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
 
@@ -196,12 +195,6 @@ namespace moris
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
                 moris::real tElapsedTimeMax = max_all( tElapsedTime );
-
-                if ( par_rank() == 0 )
-                {
-                    MORIS_LOG_INFO( "VIS: Created Vis Mesh took %5.3f seconds.",
-                            ( double ) tElapsedTimeMax / 1000);
-                }
             }
         }
 
@@ -308,6 +301,8 @@ namespace moris
 
         void Output_Manager::write_mesh( const uint aVisMeshIndex )
         {
+            Tracer tTracer( "Output_Manager", "VisMesh", "WriteFile" );
+
             // skip writing mesh if mesh is empty
             if ( mWriter( aVisMeshIndex ) == nullptr )
             {
