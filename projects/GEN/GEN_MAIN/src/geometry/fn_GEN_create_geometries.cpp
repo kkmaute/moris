@@ -340,9 +340,14 @@ namespace moris
             }
             else if (tGeometryType == "voxel")
             {
-
                 // Get sensitivity function if needed
                 std::string tVoxelFieldName = aGeometryParameterList.get<std::string>("voxel_field_file");
+
+                moris::Matrix< moris::DDRMat > tDomainDimensions;
+                string_to_mat( aGeometryParameterList.get<std::string>("domain_dimensions"), tDomainDimensions );
+
+                moris::Matrix< moris::DDRMat > tDomainOffset;
+                string_to_mat( aGeometryParameterList.get<std::string>("domain_offset"), tDomainOffset );
 
                 // Create user-defined geometry
                 return std::make_shared<Voxel_Input>(
@@ -351,6 +356,8 @@ namespace moris
                         tADVIndices,
                         tConstantParameters,
                         tVoxelFieldName,
+                        tDomainDimensions,
+                        tDomainOffset,
                         tGeometryName,
                         tNumRefinements,
                         tRefinementMeshIndex,
@@ -592,6 +599,12 @@ namespace moris
                 // Get sensitivity function if needed
                 std::string tVoxelFieldName = aGeometryParameterList.get<std::string>("voxel_field_file");
 
+                moris::Matrix< moris::DDRMat > tDomainDimensions;
+                string_to_mat( aGeometryParameterList.get<std::string>("domain_dimensions"), tDomainDimensions );
+
+                moris::Matrix< moris::DDRMat > tDomainOffset;
+                string_to_mat( aGeometryParameterList.get<std::string>("domain_offset"), tDomainOffset );
+
                 // Create user-defined geometry
                 return std::make_shared<Voxel_Input>(
                         aOwnedADVs,
@@ -599,6 +612,8 @@ namespace moris
                         tADVIndices,
                         tConstantParameters,
                         tVoxelFieldName,
+                        tDomainDimensions,
+                        tDomainOffset,
                         tGeometryName,
                         tNumRefinements,
                         tRefinementMeshIndex,

@@ -302,7 +302,7 @@ namespace moris
 
                 mUniqueAdofMapList( Ij ).resize( tNumUniqueAdofsTypes );
 
-                // Loop over all unique adofs tpes of this equation object
+                // Loop over all unique adofs types of this equation object
                 for ( moris::uint Ii = 0; Ii < tNumUniqueAdofsTypes; Ii++ )
                 {
                     moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ij )( Ii ).numel();

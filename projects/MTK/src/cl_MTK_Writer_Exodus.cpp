@@ -814,12 +814,16 @@ namespace moris
                     return "TRI3";
                 case CellTopology::QUAD4:
                     return "QUAD4";
+                case CellTopology::QUAD9:
+                    return "QUAD9";
                 case CellTopology::TET4:
                     return "TET4";
                 case CellTopology::TET10:
                     return "TET10";
                 case CellTopology::HEX8:
                     return "HEX8";
+                case CellTopology::HEX27:
+                    return "HEX27";
                 case CellTopology::PRISM6:
                     return "PRISM6";
                 default:
@@ -838,12 +842,16 @@ namespace moris
                     return 3;
                 case CellTopology::QUAD4:
                     return 4;
+                case CellTopology::QUAD9:
+                    return 9;
                 case CellTopology::TET4:
                     return 4;
                 case CellTopology::TET10:
                     return 10;
                 case CellTopology::HEX8:
                     return 8;
+                case CellTopology::HEX27:
+                    return 27;
                 case CellTopology::PRISM6:
                     return 6;
                 default:
