@@ -177,8 +177,6 @@ namespace moris
 
             // log criteria and ADVs
             MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
-            MORIS_LOG_SPEC( "MinADV", mADVs.min() );
-            MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
         }
 
         // -------------------------------------------------------------------------------------------------------------
