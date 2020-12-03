@@ -5,6 +5,7 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -144,7 +145,8 @@ namespace moris
 
         const Matrix<DDRMat>& Level_Set::get_field_sensitivities(uint aNodeIndex)
         {
-            return mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index());
+            mSensitivities = trans(mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index()));
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
