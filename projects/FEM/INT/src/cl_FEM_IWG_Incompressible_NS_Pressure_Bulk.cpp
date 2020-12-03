@@ -77,7 +77,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) += 
                     aWStar * (
-                            trans( tPressureFI->N() ) * tVelocityFI->div() +
+                            tPressureFI->N_trans() * tVelocityFI->div() +
                             trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tRM );
 
             // if source term is defined
@@ -86,7 +86,7 @@ namespace moris
                 // add contribution of source term
                 mSet->get_residual()( 0 )(
                        { tMasterResStartIndex, tMasterResStopIndex } ) += 
-                       aWStar * ( trans( tPressureFI->N() ) * tPropSource->val()( 0 ) / tDensity );
+                       aWStar * ( tPressureFI->N_trans() * tPropSource->val()( 0 ) / tDensity );
             }
 
             // check for nan, infinity
@@ -153,7 +153,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tPressureFI->N() ) * tVelocityFI->div_operator() );
+                                    tPressureFI->N_trans() * tVelocityFI->div_operator() );
                 }
 
                 // compute the jacobian strong form
@@ -176,7 +176,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tPressureFI->N() ) * 1/tDensity * tPropSource->dPropdDOF( tDofType ) );
+                                        tPressureFI->N_trans() * 1/tDensity * tPropSource->dPropdDOF( tDofType ) );
                     }
                 }
 
