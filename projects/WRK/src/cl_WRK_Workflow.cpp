@@ -69,7 +69,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::perform(Matrix<DDRMat> aNewADVs)
+        Matrix<DDRMat> Workflow::perform(const Matrix<DDRMat> & aNewADVs)
         {
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
