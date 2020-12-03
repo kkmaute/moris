@@ -79,7 +79,7 @@ namespace moris
     namespace opt
     {
         Algorithm_SQP::Algorithm_SQP(ParameterList aParameterList)
-                        {
+        {
             // Initialize
             int tPrint = 0;
             int tSumm  = 0;
@@ -144,7 +144,7 @@ namespace moris
                     assert::error( "In cl_Algorithm_SQP.cpp" );
                 }
             }
-                        }
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
