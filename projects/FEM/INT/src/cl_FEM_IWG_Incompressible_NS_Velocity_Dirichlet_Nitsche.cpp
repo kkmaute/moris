@@ -102,9 +102,9 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                            - trans( tFIVelocity->N() ) * tM * tCMFluid->traction( mNormal )
+                            - tFIVelocity->N_trans() * tM * tCMFluid->traction( mNormal )
                             - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
-                            + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump );
+                            + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump );
 
             // if upwind
             if ( tPropUpwind )
@@ -112,7 +112,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) -= aWStar * (
-                                tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) *
+                                tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() *
                                 dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
             }
 
@@ -199,7 +199,7 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tFIVelocity->N()
-                                    + tSPNitsche->val()( 0 )  * trans( tFIVelocity->N() ) * tM * tFIVelocity->N() );
+                                    + tSPNitsche->val()( 0 )  * tFIVelocity->N_trans() * tM * tFIVelocity->N() );
                 }
 
                 // if imposed velocity depends on dof type
@@ -210,7 +210,7 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                     - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType )
-                                    + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                    + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -220,7 +220,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    - trans( tFIVelocity->N() ) * tM * tCMFluid->dTractiondDOF( tDofType, mNormal )
+                                    - tFIVelocity->N_trans() * tM * tCMFluid->dTractiondDOF( tDofType, mNormal )
                                     - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
                 }
 
@@ -231,7 +231,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tM * tVelocityJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    tFIVelocity->N_trans() * tM * tVelocityJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
 
                 // if upwind
@@ -243,8 +243,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N() +
-                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump * ( trans( mNormal ) * tFIVelocity->N() ) );
+                                        tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N() +
+                                        tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump * ( trans( mNormal ) * tFIVelocity->N() ) );
                     }
 
                     // if imposed velocity depends on dof type
@@ -253,7 +253,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) *
+                                        tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) *
                                         tM * tPropVelocity->dPropdDOF( tDofType ));
                     }
 
@@ -264,7 +264,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) *
+                                        tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) *
                                         tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
                     }
                 }
