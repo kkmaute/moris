@@ -159,7 +159,6 @@ namespace moris
 
             // log criteria and ADVs
             MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
-
             if ( mADVs.numel() > 0 )
             {
                 MORIS_LOG_SPEC( "MinADV", mADVs.min() );
