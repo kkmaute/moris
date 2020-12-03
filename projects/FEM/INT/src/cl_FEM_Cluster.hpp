@@ -250,6 +250,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp and dQIdp by analytical formulation
+                 */
+                void compute_dRdp_and_dQIdp();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dQIdu
                  */
                 void compute_dQIdu();

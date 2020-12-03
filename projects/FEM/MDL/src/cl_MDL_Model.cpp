@@ -105,11 +105,11 @@ namespace moris
                     mEquationModel,
                     tInterpolationMesh );
 
-            // finalize the fem sets
-            mEquationModel->finalize_equation_sets( mModelSolverInterface );
-
             // finalize the model solver interface
             mModelSolverInterface->finalize();
+
+            // finalize the fem sets
+            mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
@@ -232,12 +232,12 @@ namespace moris
                     mEquationModel,
                     tInterpolationMesh );
 
+            // finalize the model solver interface
+            mModelSolverInterface->finalize();
+
             // finalize the fem sets
             // FIXME pass in the interface
             mEquationModel->finalize_equation_sets( mModelSolverInterface );
-
-            // finalize the model solver interface
-            mModelSolverInterface->finalize();
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();

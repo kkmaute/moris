@@ -15,28 +15,28 @@ namespace moris
     {
         enum class Dof_Type
         {
-            UX,     //< X-Displacement
-            UY,     //< Y-Displacement
-            UZ,     //< Z-Displacement
-            TEMP,   //< Temperature degree of freedom
-            L2,     //< Least Squares type
-            MAPPING_DOF,
-            LS1,    //< Level set
-            LS2,    //< Level set
-            NLSX,   //< X-Level set normal
-            NLSY,   //< Y-Level set normal
-            NLSZ,   //< Z-Level set normal
-            THETA,  //< Heat method temperature
-            PHID,   //< Heat method distance field
-            PHISD,  //< Heat method signed distance field
-            VX,     //< X-Velocity
-            VY,     //< Y-Velocity
-            VZ,     //< Z-Velocity
-            P,      //< Pressure
-            RHO,    //< Density
-            VISCOSITY,
-            UNDEFINED, //< Undefined
-            END_ENUM//
+            UX,          //< X-Displacement
+            UY,          //< Y-Displacement
+            UZ,          //< Z-Displacement
+            TEMP,        //< Temperature degree of freedom
+            L2,          //< Least Squares type
+            MAPPING_DOF, //< L2 Mapping
+            LS1,         //< Level set
+            LS2,         //< Level set
+            NLSX,        //< X-Level set normal
+            NLSY,        //< Y-Level set normal
+            NLSZ,        //< Z-Level set normal
+            THETA,       //< Heat method temperature
+            PHID,        //< Heat method distance field
+            PHISD,       //< Heat method signed distance field
+            VX,          //< X-Velocity
+            VY,          //< Y-Velocity
+            VZ,          //< Z-Velocity
+            P,           //< Pressure
+            RHO,         //< Density
+            VISCOSITY,   //< Turbulence viscosity
+            UNDEFINED,   //< Undefined
+            END_ENUM     //
         };
 
         //------------------------------------------------------------------------------
@@ -100,7 +100,6 @@ namespace moris
 
             return tMSIDofTypeMap;
         }
-
     }
 }
 

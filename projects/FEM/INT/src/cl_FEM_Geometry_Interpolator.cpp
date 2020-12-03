@@ -13,7 +13,7 @@ namespace moris
     namespace fem
     {
         // smallest acceptable value for DetJ
-        const real Geometry_Interpolator::sDetJLowerLimit = -1.0e-18;
+        const real Geometry_Interpolator::sDetJLowerLimit = -1.0e-6;
 
         // smallest acceptable value for DetJ used in building inverse of Jacobian
         const real Geometry_Interpolator::sDetJInvJacLowerLimit = 1.0e-12;
@@ -74,7 +74,10 @@ namespace moris
 
         void Geometry_Interpolator::reset_eval_flags()
         {
-            // reset bool for evaluation
+            // reset booleans for evaluation
+            mValxEval     = true;
+            mValtEval     = true;
+
             mNXiEval      = true;
             mdNdXiEval    = true;
             md2NdXi2Eval  = true;
@@ -97,6 +100,9 @@ namespace moris
 
         void Geometry_Interpolator::reset_eval_flags_coordinates()
         {
+            mValxEval        = true;
+            mValtEval        = true;
+
             mSpaceDetJEval   = true;
             mSpaceJacEval    = true;
             mInvSpaceJacEval = true;
@@ -1131,26 +1137,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::valx()
+        const Matrix< DDRMat > & Geometry_Interpolator::valx()
         {
-            // check that mTHat is set
-            MORIS_ASSERT( mXHat.numel() > 0,
-                    "Geometry_Interpolator::valx - mXHat is not set." );
+            if ( mValxEval)
+            {
+                // check that mTHat is set
+                MORIS_ASSERT( mXHat.numel() > 0,
+                        "Geometry_Interpolator::valx - mXHat is not set." );
 
-            //evaluate the field
-            return this->NXi() * mXHat ;
+                //evaluate the field
+                mValx = this->NXi() * mXHat ;
+
+                mValxEval = false;
+            }
+
+            return mValx;
         }
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::valt()
+        const Matrix< DDRMat > & Geometry_Interpolator::valt()
         {
-            // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0,
-                    "Geometry_Interpolator::valt - mTHat is not set." );
+            if ( mValtEval)
+            {
+                // check that mTHat is set
+                MORIS_ASSERT( mTHat.numel()>0,
+                        "Geometry_Interpolator::valt - mTHat is not set." );
 
-            //evaluate the field
-            return this->NTau() * mTHat;
+                //evaluate the field
+                mValt = this->NTau() * mTHat;
+            }
+
+            return mValt;
         }
 
         //------------------------------------------------------------------------------
@@ -1166,7 +1184,7 @@ namespace moris
                 MORIS_ASSERT( mTauHat.numel() > 0,
                         "Geometry_Interpolator::eval_mapping - mTauHat is not set." );
 
-                uint tSize = mXiHat.n_cols();
+                uint tSize = mMappedPoint.numel() - 1;
 
                 // set mapped space coordinates
                 mMappedPoint( { 0, tSize - 1 } ) = trans( this->NXi() * mXiHat );
@@ -2000,6 +2018,7 @@ namespace moris
                 {
                     mMapFlag      = true;
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
+                    mMapFlag = true;
                     break;
                 }
                 case mtk::Geometry_Type::LINE :

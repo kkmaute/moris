@@ -20,7 +20,6 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 
 using namespace moris;
@@ -175,7 +174,7 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
         const bool & aCombinedResJacAssebly,
         const sint aNonLinearIt )
 {
-    Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
+    Tracer tTracer( "NonLinearProblem", "Build" );
 
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
@@ -225,7 +224,7 @@ void Nonlinear_Problem::build_linearized_problem(
         const sint   aNonLinearIt,
         const sint   aRestart )
 {
-    Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
+    Tracer tTracer( "NonLinearProblem", "Build" );
 
     this->restart_from_sol_vec( aRestart );
 

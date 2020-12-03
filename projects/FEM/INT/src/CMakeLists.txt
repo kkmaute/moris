@@ -38,9 +38,6 @@ set(HEADERS
     cl_FEM_IWG_Diffusion_Interface.hpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
     
-    cl_FEM_IWG_Heat_Method_Bulk.hpp
-    cl_FEM_IWG_Heat_Method_Boundary.hpp    
-    
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
@@ -242,9 +239,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_Diffusion_Radiation.cpp
     cl_FEM_IWG_Diffusion_Interface.cpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
-    
-    cl_FEM_IWG_Heat_Method_Bulk.cpp
-    cl_FEM_IWG_Heat_Method_Boundary.cpp        
     
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp

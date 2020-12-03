@@ -16,7 +16,6 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 #include "cl_Ascii.hpp"
 
@@ -28,7 +27,7 @@ using namespace tsa;
 void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     // trace this solve
-    Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
+    Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
 
     this->finalize();
 
@@ -59,7 +58,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
         tTimeFrames.push_back( tTime );
 
         // log number of time steps
-        //MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
         MORIS_LOG_ITERATION();
 
         mSolverInterface->set_solution_vector( aFullVector( tSolVecIndex ) );
@@ -70,11 +68,10 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
         // set time for current time slab
         mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
-        std::string tOrnament = "\n================================================================================\n";
-        std::string tTimeInfo = "Forward Solve Time Slab = " + std::to_string(Ik+1) +
-                "   Start | End Time = " + std::to_string(tTimeFrames( tSolVecIndex )(0,0)) +  " | " + std::to_string(tTimeFrames( tSolVecIndex )(1,0));
-
-        MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
+        // log time slap
+        MORIS_LOG_SPEC( "Forward Solve Time Slab", Ik+1 );
+        MORIS_LOG_SPEC( "Time Slap Start Time", tTimeFrames( tSolVecIndex )( 0, 0 ) );
+        MORIS_LOG_SPEC( "Time Slap End Time", tTimeFrames( tSolVecIndex )( 1, 0 ) );
 
         mNonlinearSolver->set_time_step_iter( Ik );
 
@@ -140,7 +137,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector * > & aFullAdjointVector )
 {
     // trace this solve
-    Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
+    Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
 
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
 
@@ -159,7 +156,7 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
         uint tPrevSolVecIndex = Ik-1;
 
         // log number of time steps
-        MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
+        MORIS_LOG_ITERATION();
 
         mSolverInterface->set_solution_vector( tSolVec( tSolVecIndex ) );
         mSolverInterface->set_solution_vector_prev_time_step( tSolVec( tPrevSolVecIndex ) );
@@ -171,12 +168,10 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
         mSolverInterface->set_previous_time( tTimeFrames( tPrevSolVecIndex ) );
         mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
-
-        std::string tOrnament = "\n================================================================================\n";
-               std::string tTimeInfo = "Adjoint Solve Time Slab = " + std::to_string(Ik) +
-                       "   Start | End Time = " + std::to_string(tTimeFrames( tSolVecIndex )(0,0)) +  " | " + std::to_string(tTimeFrames( tSolVecIndex )(1,0));
-
-        MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
+        // log time slap
+        MORIS_LOG_SPEC( "Adjoint Solve Time Slab", Ik );
+        MORIS_LOG_SPEC( "Time Slab Start Time", tTimeFrames( tSolVecIndex )( 0, 0 ) );
+        MORIS_LOG_SPEC( "Time Slab End Time", tTimeFrames( tSolVecIndex )( 1, 0 ) );
 
         mNonlinearSolverForAdjoint->set_time_step_iter( Ik );
 

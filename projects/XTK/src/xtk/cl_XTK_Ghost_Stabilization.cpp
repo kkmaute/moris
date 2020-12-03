@@ -1067,12 +1067,16 @@ namespace xtk
         moris::uint tNumSubphases = tSubphaseToSubphase.size();
 
         // reserve space in data
-        aGhostSetupData.mMasterSideIpCells.reserve(tNumBulkPhases*tNumSubphases);
-        aGhostSetupData.mSlaveSideIpCells.reserve(tNumBulkPhases*tNumSubphases);
-        aGhostSetupData.mMasterSideIgCellSideOrds.reserve(tNumBulkPhases*tNumSubphases);
-        aGhostSetupData.mSlaveSideIgCellSideOrds.reserve(tNumBulkPhases*tNumSubphases);
-        aGhostSetupData.mTrivialFlag.reserve(tNumBulkPhases*tNumSubphases);
-        aGhostSetupData.mTransitionLocation.reserve(tNumBulkPhases*tNumSubphases);
+        const moris::uint tReserveDim  = 10;
+
+        moris::uint tReserveSize = tNumBulkPhases*std::min(tReserveDim,tNumSubphases);
+
+        aGhostSetupData.mMasterSideIpCells.reserve(tReserveSize);
+        aGhostSetupData.mSlaveSideIpCells.reserve(tReserveSize);
+        aGhostSetupData.mMasterSideIgCellSideOrds.reserve(tReserveSize);
+        aGhostSetupData.mSlaveSideIgCellSideOrds.reserve(tReserveSize);
+        aGhostSetupData.mTrivialFlag.reserve(tReserveSize);
+        aGhostSetupData.mTransitionLocation.reserve(tReserveSize);
 
         aGhostSetupData.mMasterSideIpCells.resize(tNumBulkPhases);
         aGhostSetupData.mSlaveSideIpCells.resize(tNumBulkPhases);
@@ -1084,7 +1088,7 @@ namespace xtk
         //        mXTKModel->print_subphase_neighborhood();
 
         // flag indicating whether its trivial or not
-        moris_index tTrivial = 0;
+        moris_index tTrivial         = 0;
         moris_index tNonTrivialCount = 0;
 
         // iterate through subphases
@@ -1128,6 +1132,26 @@ namespace xtk
                 }
             }
         }
+
+        // check that reserved size was appropriate
+        MORIS_ASSERT(aGhostSetupData.mMasterSideIpCells.size() < tReserveSize,
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mMasterSideIpCells too small, increase by %f\n",
+                aGhostSetupData.mMasterSideIpCells.size()/ tReserveSize);
+        MORIS_ASSERT(aGhostSetupData.mSlaveSideIpCells.size() < tReserveSize,
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mSlaveSideIpCells too small, increase by %f\n",
+                aGhostSetupData.mSlaveSideIpCells.size()/ tReserveSize);
+        MORIS_ASSERT(aGhostSetupData.mMasterSideIgCellSideOrds.size() < tReserveSize,
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mMasterSideIgCellSideOrds too small, increase by %f\n",
+                aGhostSetupData.mMasterSideIgCellSideOrds.size()/ tReserveSize);
+        MORIS_ASSERT(aGhostSetupData.mSlaveSideIgCellSideOrds.size() < tReserveSize,
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mSlaveSideIgCellSideOrds too small, increase by %f\n",
+                aGhostSetupData.mSlaveSideIgCellSideOrds.size()/ tReserveSize);
+        MORIS_ASSERT(aGhostSetupData.mTrivialFlag.size() < tReserveSize,
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTrivialFlag too small, increase by %f\n",
+                aGhostSetupData.mTrivialFlag.size()/ tReserveSize);
+        MORIS_ASSERT(aGhostSetupData.mTransitionLocation.size() < tReserveSize,
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTransitionLocation too small, increase by %f\n",
+                aGhostSetupData.mTransitionLocation.size()/ tReserveSize);
 
         aGhostSetupData.mMasterSideIpCells.shrink_to_fit();
         aGhostSetupData.mSlaveSideIpCells.shrink_to_fit();

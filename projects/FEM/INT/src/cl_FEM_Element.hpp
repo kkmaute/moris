@@ -190,12 +190,22 @@ namespace moris
                     MORIS_ERROR( false, "Element::compute_dQIdp_explicit - Not implemented for base class." );
                 }
 
+
                 /**
                  * compute dQIdp by finite difference
                  */
                 virtual void compute_dQIdp_explicit_FD()
                 {
                     MORIS_ERROR( false, "Element::compute_dQIdp_explicit_FD - Not implemented for base class." );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dRdp and dQIdp by finite difference
+                 */
+                virtual void compute_dRdp_and_dQIdp_FD()
+                {
+                    MORIS_ERROR( false, "Element::compute_dRdp_and_dQIdp_FD - Not implemented for base class." );
                 }
 
                 //------------------------------------------------------------------------------

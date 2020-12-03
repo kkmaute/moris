@@ -34,7 +34,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat >       & aFaceToElement)
     {
         //hard-coded values could be provided as a function input
-        moris::size_t tMaxFacePerNode = 10;
+        moris::size_t tMaxFacePerNode = 5;
         moris::size_t tMaxUsed        = 0;
 
         // Initialize
@@ -51,6 +51,7 @@ namespace xtk
         moris::size_t tFaceIndex = 0;
         moris::size_t tNodeInd   = 0;
         moris::size_t tFirstInd  = 0;
+        moris::size_t tResize    = 0;
 
         // Allocate outputs
         aElementToFace.resize(tNumElements,tNumFacesPerElem);
@@ -127,6 +128,7 @@ namespace xtk
                         if(tCount>=aNodeToFace.n_cols())
                         {
                             aNodeToFace.resize(aNumNodes,aNodeToFace.n_cols()+tMaxFacePerNode);
+                            tResize++;
                         }
 
                         if(tCount>tMaxUsed)
@@ -164,6 +166,11 @@ namespace xtk
         aFaceToNode.resize(tNumFaceCreated,tNumNodesPerFace);
         aFaceToElement.resize(tNumFaceCreated,2);
         aNodeToFace.resize(aNumNodes,tMaxUsed);
+
+        // Check for number of resize operations; note check needs to be "<=" for tNumElements = tResize = 0
+        MORIS_CHECK_MEMORY( tResize <= tNumElements,
+                "create_faces_from_element_to_node: Number of resize operations too large (%d / %d) - increase tMaxFacePerNode parameter.\n",
+                tResize,tNumElements);
     }
 }
 

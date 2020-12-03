@@ -233,6 +233,7 @@ namespace moris
         tParameterlist(0)(0).set("is_optimization_problem", tIsOpt);
         tParameterlist(0)(0).set("problem", "user_defined");
         tParameterlist(0)(0).set( "library", tLibraryName );
+        tParameterlist(0)(0).set( "restart_file","");
 
         tParameterlist(2)(0) = moris::prm::create_gcmma_parameter_list();
         tParameterlist(2)(0).set("step_size", tMMAStepSize);

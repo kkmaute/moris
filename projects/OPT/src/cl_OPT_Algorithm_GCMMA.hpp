@@ -14,15 +14,17 @@ class OptAlgGCMMA : public moris::opt::Algorithm
 private:
     bool mRunning = true;
     bool mPrint;
-    moris::uint mResFlag = 0; // flag from GCMMA describing result of optimization algorithm
-    moris::sint mMaxIterations; // maximum number of iterations
-    moris::sint mMaxInnerIterations; // maximum inner iterations per every optimization iteration
-    moris::real mNormDrop; // relative change in objective convergence criteria
-    moris::real mAsympAdapt0; // initial asymptote adaptation factor
-    moris::real mAsympShrink; // shrinking asymptote adaptation factor
-    moris::real mAsympExpand; // expanding asymptote adaptation factor
-    moris::real mStepSize; // GCMMA step size
-    moris::real mPenalty; // GCMMA constraint penalty
+
+    moris::uint mResFlag = 0;         // flag from GCMMA describing result of optimization algorithm
+    moris::uint mRestartIndex;        // iteration index to be set when restarting
+    moris::sint mMaxIterations;       // maximum number of iterations
+    moris::sint mMaxInnerIterations;  // maximum inner iterations per every optimization iteration
+    moris::real mNormDrop;            // relative change in objective convergence criteria
+    moris::real mAsympAdapt0;         // initial asymptote adaptation factor
+    moris::real mAsympShrink;         // shrinking asymptote adaptation factor
+    moris::real mAsympExpand;         // expanding asymptote adaptation factor
+    moris::real mStepSize;            // GCMMA step size
+    moris::real mPenalty;             // GCMMA constraint penalty
 
     /**
      * @brief External function call for computing objective and constraints, to
@@ -62,10 +64,11 @@ public:
      * @brief MORIS interface for solving of optimization problem using
      *        GCMMA
      *
+     * @param[in] aCurrentOptAlgInd index of optimization algorithm
      * @param[in] aOptProb Object of type Problem containing relevant
      *            data regarding ADVs, the objective and constraints
      */
-    void solve( std::shared_ptr<moris::opt::Problem> aOptProb );
+    void solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Problem> aOptProb );
 
     /**
      * Sets the new ADVs to the problem and performs a new forward and sensitivity criteria solve in parallel.

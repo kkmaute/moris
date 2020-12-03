@@ -17,27 +17,30 @@ namespace moris
         private:
             std::shared_ptr<Criteria_Interface> mInterface;
 
-            Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
-            Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
-            Matrix<DDSMat> mConstraintTypes; // flags for types of constraints
-            Matrix<DDRMat> mObjectives = {{0.0}}; // objectives (always 1)
-            Matrix<DDRMat> mConstraints; // constraints
-            Matrix<DDRMat> mObjectiveGradient; // full gradient of the objectives with respect to the ADVs
-            Matrix<DDRMat> mConstraintGradient; // full gradient of the constraints with respect to the ADVs
-            Matrix<DDRMat> mFiniteDifferenceEpsilons; // Epsilon for finite differencing
+            Matrix<DDRMat> mUpperBounds;               // upper bounds on ADV vector
+            Matrix<DDRMat> mLowerBounds;               // lower bounds on ADV vector
+            Matrix<DDSMat> mConstraintTypes;           // flags for types of constraints
+            Matrix<DDRMat> mObjectives = {{0.0}};      // objectives (always 1)
+            Matrix<DDRMat> mConstraints;               // constraints
+            Matrix<DDRMat> mObjectiveGradient;         // full gradient of the objectives with respect to the ADVs
+            Matrix<DDRMat> mConstraintGradient;        // full gradient of the constraints with respect to the ADVs
+            Matrix<DDRMat> mFiniteDifferenceEpsilons;  // Epsilon for finite differencing
 
+            std::string mRestartFile;                  // Restart file
             std::string mFiniteDifferenceType;
+
             real mADVNormTolerance = 1E-12;
 
         protected:
-            Matrix<DDRMat> mADVs;    // Abstract Design Variable vector
-            Matrix<DDRMat> mCriteria; // vector of criteria values
+
+            Matrix<DDRMat> mADVs;       // Abstract Design Variable vector
+            Matrix<DDRMat> mCriteria;   // vector of criteria values
 
         public:
-            bool mUpdateObjectives = true; // whether or not to compute new objectives when requested
-            bool mUpdateConstraints = true; // whether or not to compute new constraints when requested
-            bool mUpdateObjectiveGradients = true; // "                 " objective gradients
-            bool mUpdateConstraintGradients = true; // "                 " constraint gradients
+            bool mUpdateObjectives = true;           // whether or not to compute new objectives when requested
+            bool mUpdateConstraints = true;          // whether or not to compute new constraints when requested
+            bool mUpdateObjectiveGradients = true;   // "                 " objective gradients
+            bool mUpdateConstraintGradients = true;  // "                 " constraint gradients
 
             /**
              * Constructor

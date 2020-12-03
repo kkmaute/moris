@@ -44,6 +44,9 @@ namespace moris
         mMSIParameterList.insert( "NLSX"       , 0 );
         mMSIParameterList.insert( "NLSY"       , 0 );
         mMSIParameterList.insert( "NLSZ"       , 0 );
+        mMSIParameterList.insert( "THETA"      , 0 );
+        mMSIParameterList.insert( "PHID"       , 0 );
+        mMSIParameterList.insert( "PHISD"      , 0 );
         mMSIParameterList.insert( "VX"         , 0 );
         mMSIParameterList.insert( "VY"         , 0 );
         mMSIParameterList.insert( "VZ"         , 0 );

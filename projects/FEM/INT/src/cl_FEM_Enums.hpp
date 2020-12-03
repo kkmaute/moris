@@ -117,9 +117,6 @@ namespace moris
                 SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change
                 SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
 
-                HEAT_METHOD_BULK,      // static diffusion bulk for heat method
-                HEAT_METHOD_BOUNDARY,  // static diffusion flux boundary for heat method
-
                 STRUC_LINEAR_BULK,     // linear elasticity bulk
                 STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
                 STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)

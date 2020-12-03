@@ -20,14 +20,14 @@
 
 namespace moris
 {
-	template< typename Matrix_Type >
-	Matrix<Matrix_Type>
-	move( Matrix< Matrix_Type > & aMatrix )
-	{
-		Matrix< Matrix_Type > tB = std::move(aMatrix);
-		aMatrix.resize(0,0);
-		return tB;
-	}
+    template< typename Matrix_Type >
+    Matrix<Matrix_Type>
+    move( Matrix< Matrix_Type > & aMatrix )
+    {
+        Matrix< Matrix_Type > tB = std::move(aMatrix);
+        aMatrix.set_size(0,0);
+        return tB;
+    }
 }
 
 #endif /* PROJECTS_LINALG_SRC_OP_MOVE_HPP_ */

@@ -10,7 +10,6 @@
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 #include "cl_Stopwatch.hpp"
 

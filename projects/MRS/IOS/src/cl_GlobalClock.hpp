@@ -8,9 +8,6 @@
 // define time functions
 #include <ctime>
 
-// Define Cells
-#include "cl_Cell.hpp"
-
 // Define uint, real, etc.
 #include "typedefs.hpp"
 
@@ -37,22 +34,22 @@ class GlobalClock
     uint mIndentationLevel = 0;
 
     // lists of currently active processes
-    Cell< uint > mCurrentFunctionID;
+    std::vector< uint > mCurrentFunctionID;
 
     // lists of currently active entities in tracing tree
-    Cell< std::string > mCurrentEntity;
+    std::vector< std::string > mCurrentEntity;
 
     // lists of currently active entity types in tracing tree
-    Cell< std::string > mCurrentType;
+    std::vector< std::string > mCurrentType;
 
     // list of currently active action
-    Cell< std::string > mCurrentAction;
+    std::vector< std::string > mCurrentAction;
 
     // list of current iteration for each instance
-    Cell< uint > mCurrentIteration;
+    std::vector< uint > mCurrentIteration;
 
     // list of starting times for each active entity
-    Cell< real > mTimeStamps;
+    std::vector< real > mTimeStamps;
 
     // track number of function IDs
     uint mMaxFunctionID = 0;

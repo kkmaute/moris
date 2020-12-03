@@ -11,7 +11,11 @@ namespace moris
         class Algorithm
         {
         protected:
+
+            uint mCurrentOptAlgInd;    // stores index of current optimization solver
+
             std::shared_ptr<moris::opt::Problem> mProblem;
+
             Matrix< DDSMat > mActive; // flag for active/inactive constraints
 
         public:
@@ -32,7 +36,12 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            virtual void solve(std::shared_ptr<Problem> aOptProb) = 0;
+            virtual void solve(uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb) = 0;
+
+            /**
+             * @brief write restart file with advs as well as upper and lower bounds
+             */
+            void write_advs_to_file( uint aIterationIndex, const Matrix<DDRMat> aADVs );
         };
     }
 }

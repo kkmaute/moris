@@ -27,7 +27,7 @@ namespace moris
 
     // log with specified output type
     //template <class T>
-    //void Logger::log_specific(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
+    //void Logger::log_specific( std::string aOutputSpecifier, T aOutputValue )
 
     // -----------------------------------------------------------------------------
 
@@ -75,8 +75,15 @@ namespace moris
         if( mWriteToAscii )
         {
             // formated output to log file
-            this->log_to_file( OutputSpecifier::SignIn, 1.0);
+            this->log_to_file( "SignIn" , 1.0);
         }
+
+        // log start of Global Clock to console - only processor mOutputRank prints message
+        if ( logger_par_rank() == mOutputRank )
+        {
+            std::cout << "Global Clock Initialized ... \n" << std::flush;
+        }
+
     }
 
     // -----------------------------------------------------------------------------
@@ -95,7 +102,7 @@ namespace moris
         if( mWriteToAscii )
         {
             // formated output to log file
-            this->log_to_file( OutputSpecifier::SignIn, 1.0);
+            this->log_to_file( "SignIn", 1.0 );
         }
 
         // log to console - only processor mOutputRank prints message
@@ -106,12 +113,12 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
+                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1)
-                            << "__Start: " << aEntityBase
+                            << "__" << aEntityBase
                             << " - " << aEntityType
                             << " - " << aEntityAction
                             << " \n";
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << " \n";
                 }
                 else
                 {
@@ -126,28 +133,23 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-    // sign in
-    void Logger::sign_in(
-            enum EntityBase aEntityBase,
-            enum EntityType aEntityType,
-            enum EntityAction aEntityAction )
-    {
-        this->sign_in(get_enum_str(aEntityBase), get_enum_str(aEntityType), get_enum_str(aEntityAction));
-    }
-
-    // -----------------------------------------------------------------------------
-
     // signing out
     void Logger::sign_out()
     {
+        // stop timer
+        real tElapsedTime = ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+
+        // compute maximum and minimum time used by processors
+        real tElapsedTimeMax = logger_max_all(tElapsedTime);
+        real tElapsedTimeMin = logger_min_all(tElapsedTime);
+
         // log to file
         if( mWriteToAscii )
         {
             // log current position in code
-            this->log_to_file(OutputSpecifier::ElapsedTime,
-                    ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
+            this->log_to_file( "ElapsedTime", tElapsedTime );
         }
-
+            
         // log to console - only processor mOutputRank prints message
         if ( logger_par_rank() == mOutputRank )
         {
@@ -156,16 +158,24 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_ElapsedTime = " <<
-                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
+                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
+                            "ElapsedTime (max/min) = " <<
+                            tElapsedTimeMax <<
+                            " / " <<
+                            tElapsedTimeMin <<
                             " \n" << std::flush;
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
-                else
-                    std::cout << "Signing out " << mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) <<
-                    ". Elapsed time = " <<
-                    ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
-                    " \n" << std::flush;
+                else                
+                {
+                    std::cout << "Signing out " <<
+                            mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] <<
+                            ". Elapsed time (max/min) = " <<
+                            tElapsedTimeMax <<
+                            " / " <<
+                            tElapsedTimeMin <<
+                           " \n" << std::flush;
+                }
             }
         }
 
@@ -187,17 +197,19 @@ namespace moris
             // switch based on OutputFormat provided
             if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
             {
+                std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) <<
+                        "===================================================================\n" << std::flush;
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
-                        mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) << " - " <<
-                        get_enum_str( OutputSpecifier::Iteration ) << ": " <<
-                        ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
+                        mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                        "Iteration" << ": " <<
+                        ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] ) <<
                         " \n" << std::flush;
             }
             else
             {
-                std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": " <<
-                        mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) << " - " <<
-                        ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
+                std::cout << "Iteration" << ": " <<
+                        mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                        ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] ) <<
                         " \n" << std::flush;
             }
 
@@ -206,8 +218,8 @@ namespace moris
             {
                 // formated output to log file
                 this->log_to_file(
-                        OutputSpecifier::Iteration,
-                        mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) );
+                        "Iteration",
+                        mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] );
             }
         }
     }
@@ -215,23 +227,22 @@ namespace moris
     //------------------------------------------------------------------------------
 
     uint Logger::get_iteration(
-            enum EntityBase   aEntityBase,
-            enum EntityType   aEntityType,
-            enum EntityAction aEntityAction )
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction )
     {
         // initialize
         uint tIndentLevel = 0;
         bool tInstanceFound = false;
 
         // go through global clock stack from bottom and look for requested instance
-        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        while( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( get_enum_str(aEntityBase) == mGlobalClock.mCurrentEntity( tIndentLevel ) and
-                    ( get_enum_str(aEntityType) == mGlobalClock.mCurrentType( tIndentLevel ) or
-                            aEntityType == EntityType::Arbitrary ) and
-                    ( get_enum_str(aEntityAction) == mGlobalClock.mCurrentAction( tIndentLevel ) or
-                            aEntityAction == EntityAction::Arbitrary ) )
+            if(
+                    aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType   == mGlobalClock.mCurrentType[ tIndentLevel ]   or aEntityType == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }
@@ -242,37 +253,86 @@ namespace moris
 
         // return iteration count if the instance was found
         if ( tInstanceFound )
-            return mGlobalClock.mCurrentIteration( tIndentLevel - 1 );
+        {
+            return mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ];
+        }
 
-        // throw error if instance was not found
-        else
-            return 0;
+        return 0;
     }
 
     //------------------------------------------------------------------------------
 
-    uint Logger::get_opt_iteration()
+    void Logger::set_iteration(
+            std::string aEntityBase,
+            std::string aEntityType,
+            std::string aEntityAction,
+            uint              aIter)
     {
-        // iteration of arbitrary Optimization Algorithm
-        // note: this can be done, as there's always only one active opt.-alg.
-        return this->get_iteration(
-                EntityBase::OptimizationAlgorithm ,
-                EntityType::Arbitrary,
-                EntityAction::Arbitrary );
+        // initialize
+        uint tIndentLevel = 0;
+        bool tInstanceFound = false;
+
+        // go through global clock stack from bottom and look for requested instance
+        while( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        {
+            // check if Instance matches the instance searched for
+            if(
+                    aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType   == mGlobalClock.mCurrentType  [ tIndentLevel ] or aEntityType   == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
+            {
+                tInstanceFound = true;
+            }
+
+            // increment cursor
+            tIndentLevel++;
+        }
+
+        // return iteration count if the instance was found
+        if ( tInstanceFound )
+        {
+            mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ] = aIter;
+        }
+        // throw error if instance was not found
+        else
+        {
+            std::cout << "Logger::set_iteration: Iteration index was not found and could not be set.\n";
+            throw;
+        }
     }
 
-    // -----------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    // logging operation using Clock Info, Output value is allowed to be any common number type
-    //void Logger::log_to_file(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
+     uint Logger::get_opt_iteration()
+     {
+         // iteration of arbitrary Optimization Algorithm
+         // note: this can be done, as there's always only one active opt.-alg.
+         return this->get_iteration(
+                 "OptimizationAlgorithm" ,
+                 "Arbitrary",
+                 "Arbitrary" );
+     }
+
+     //------------------------------------------------------------------------------
+
+      void Logger::set_opt_iteration( uint aIter)
+      {
+          // iteration of arbitrary Optimization Algorithm
+          // note: this can be done, as there's always only one active opt.-alg.
+          this->set_iteration(
+                  "OptimizationAlgorithm" ,
+                  "Arbitrary",
+                  "Arbitrary",
+                  aIter);
+      }
 
     // -----------------------------------------------------------------------------
 
     // logging operation using Clock Info, using multiple output values
     template <class T1, class T2>
     void Logger::log2_to_file(
-            enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
-            enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2)
+            std::string aOutputSpecifier1, T1 aOutputValue1,
+            std::string aOutputSpecifier2, T2 aOutputValue2)
     {
             this->log_to_file(aOutputSpecifier1, aOutputValue1);
             this->log_to_file(aOutputSpecifier2, aOutputValue2);
@@ -280,9 +340,9 @@ namespace moris
 
     template <class T1, class T2, class T3>
     void Logger::log3_to_file(
-            enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
-            enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2,
-            enum OutputSpecifier aOutputSpecifier3, T3 aOutputValue3)
+            std::string aOutputSpecifier1, T1 aOutputValue1,
+            std::string aOutputSpecifier2, T2 aOutputValue2,
+            std::string aOutputSpecifier3, T3 aOutputValue3)
     {
             this->log_to_file(aOutputSpecifier1, aOutputValue1);
             this->log_to_file(aOutputSpecifier2, aOutputValue2);
@@ -295,23 +355,23 @@ namespace moris
 
     void Logger::log_to_file(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::FreeText, aOutputString);
+        this->log_to_file( "FreeText", aOutputString);
     }
     void Logger::log_to_file_info(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::InfoText, aOutputString);
+        this->log_to_file( "InfoText", aOutputString);
     }
     void Logger::log_to_file_debug(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::DebugText, aOutputString);
+        this->log_to_file( "DebugText", aOutputString);
     }
     void Logger::log_to_file_warning(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::Warning, aOutputString);
+        this->log_to_file( "Warning", aOutputString);
     }
     void Logger::log_to_file_error(std::string aOutputString)
     {
-        this->log_to_file(OutputSpecifier::Error, aOutputString);
+        this->log_to_file( "Error", aOutputString);
     }
 
     // -----------------------------------------------------------------------------

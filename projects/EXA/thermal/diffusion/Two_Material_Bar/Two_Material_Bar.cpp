@@ -164,7 +164,8 @@ namespace moris
     }
 
     /* ------------------------------------------------------------------------ */
-    // Exact temperature 
+    // Exact temperature
+    // see Matlab file in test src folder
     
     void Func_Exact_Temperature(
             moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -189,6 +190,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Exact temperature gradients 
+    // see Matlab file in test src folder
 
     void Func_Exact_TemperatureGradient(
             moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -442,7 +444,7 @@ namespace moris
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitsche") ;
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "10.0") ;
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0") ;
         tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity1,Material") ;
         tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity2,Material") ;
         tSPCounter++;
@@ -451,7 +453,7 @@ namespace moris
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheTemp") ;
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "10.0") ;
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "100.0") ;
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity1,Material") ;
         tSPCounter++;
 
@@ -525,7 +527,7 @@ namespace moris
         // create parameter list for interface conditions
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterface12TEMP") ;
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP");

@@ -7,11 +7,7 @@
 #include <string>
 #include <cstring>
 
-
-#include "cl_Tracer_Enums.hpp"
-
 #include "cl_Logger.hpp"
-
 
 //get access to the global clock in gLogger;
 extern moris::Logger gLogger;
@@ -27,7 +23,7 @@ class Tracer
     // class has no member variables / is empty
 
 
-    //-------------------------------- PUPLIC ---------------------------------//
+    //-------------------------------- PUBLIC ---------------------------------//
     public:
 
         /**
@@ -44,12 +40,17 @@ class Tracer
             gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
         }
 
-        // constructor: perform sign in operation if called
-        Tracer( enum moris::EntityBase aEntityBase, enum moris::EntityType aEntityType, enum moris::EntityAction aEntityAction )
+        /**
+         * Constructor
+         *
+         * @param aEntityBase Entity base
+         * @param aEntityAction Entity action
+         */
+        Tracer(std::string aEntityBase,
+               std::string aEntityAction)
         {
-            gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
-        };
-
+            gLogger.sign_in( aEntityBase, "NoType", aEntityAction );
+        }
 
         // destructor: automatically perform sign out operation when tracer gets destructed
         ~Tracer()

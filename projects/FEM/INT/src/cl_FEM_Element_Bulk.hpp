@@ -95,6 +95,12 @@ namespace moris
                  * compute dQIdp by finite difference
                  */
                 void compute_dQIdp_explicit_FD();
+                
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dRdp and dQIdp by finite difference
+                 */
+                void compute_dRdp_and_dQIdp_FD();
 
                 //------------------------------------------------------------------------------
                 /**

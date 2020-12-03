@@ -113,6 +113,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp and dQIdp by finite difference
+                 */
+                void compute_dRdp_and_dQIdp_FD();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute volume over the element
                  * @param[ in ] aIsMaster enum for master or slave
                  */

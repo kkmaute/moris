@@ -142,10 +142,10 @@ void check_results(
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
     Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 7.770018971224823e+01 );
-    tReferenceTemperature.push_back( 7.746795619153676e+01 );
-    tReferenceTemperature.push_back( 7.728500000000685e+01 );
-    tReferenceTemperature.push_back( 7.728500000002118e+01 );
+    tReferenceTemperature.push_back( 7.731885467530020e+01 );
+    tReferenceTemperature.push_back( 7.729432195240925e+01 );
+    tReferenceTemperature.push_back( 7.728500000000312e+01 );
+    tReferenceTemperature.push_back( 7.728500000001044e+01 );
 
     real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
 
@@ -159,14 +159,14 @@ void check_results(
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
     Cell<real> tReferenceIQI_0;
-    tReferenceIQI_0.push_back( 2.986300967813157e+02 );
-    tReferenceIQI_0.push_back( 2.974016221550459e+02 );
+    tReferenceIQI_0.push_back( 3.481332925575233e+02 );
+    tReferenceIQI_0.push_back( 3.479932121344261e+02 );
     tReferenceIQI_0.push_back( 8.922568376614086e-22 );
     tReferenceIQI_0.push_back( 5.762418056802439e-20 );
 
     Cell<real> tReferenceIQI_1;
-    tReferenceIQI_1.push_back( 6.839104583440902e+02 );
-    tReferenceIQI_1.push_back( 6.839108591117790e+02 );
+    tReferenceIQI_1.push_back( 6.838626208796658e+02 );
+    tReferenceIQI_1.push_back( 6.838626251218382e+02 );
     tReferenceIQI_1.push_back( 2.911872014125403e-23 );
     tReferenceIQI_1.push_back( 2.805634603810048e-21 );
 

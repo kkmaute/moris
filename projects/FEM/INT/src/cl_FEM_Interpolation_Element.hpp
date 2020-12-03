@@ -136,6 +136,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp and dQIdp explicit
+                 */
+                void compute_dQIdp_explicit_implicit();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dQIdp
                  */
                 void compute_dQIdp_implicit();

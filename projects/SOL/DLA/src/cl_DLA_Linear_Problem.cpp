@@ -15,7 +15,6 @@
 
 // detailed logging package
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 namespace moris
 {
@@ -59,7 +58,7 @@ namespace moris
         //----------------------------------------------------------------------------------------
         void Linear_Problem::assemble_residual()
         {
-            Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleResidual);
+            Tracer tTracer( "LinearProblem", "AssembleResidual" );
 
             // Zero out RHS
             mVectorRHS->vec_put_scalar( 0.0 );
@@ -99,7 +98,7 @@ namespace moris
 
         void Linear_Problem::assemble_jacobian()
         {
-            Tracer tTracer(EntityBase::LinearProblem, EntityType::NoType, EntityAction::AssembleJacobian);
+            Tracer tTracer( "LinearProblem","AssembleJacobian" );
 
             mMat->mat_put_scalar( 0.0 );
 

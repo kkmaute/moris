@@ -252,7 +252,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
 
 moris::sint Linear_Solver_Aztec::solve_linear_system( )
 {
-    Tracer tTracer(EntityBase::LinearSolver, EntityType::Aztec, EntityAction::Solve);
+    Tracer tTracer( "LinearSolver", "Aztec", "Solve" );
 
     // Construct solver with linear system
     mAztecSolver = new AztecOO ( mEpetraProblem );

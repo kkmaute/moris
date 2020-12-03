@@ -200,63 +200,30 @@ namespace moris
 
         Matrix<DDRMat> Level_Set::map_to_bsplines(std::shared_ptr<Geometry> aGeometry)
         {
-            // Create field
+            // Create source field
+            Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
+            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            {
+                tSourceField(tNodeIndex) =
+                        aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+            }
+
+            // Create target field
             Matrix<DDRMat> tTargetField(0, 0);
 
-            // Find first node with interpolation
-            uint tTestNodeIndex = 0;
-            while (not mMesh->node_has_interpolation(tTestNodeIndex, this->get_bspline_mesh_index()))
-            {
-                tTestNodeIndex++;
-            }
+            // Create integration mesh
+            mtk::Integration_Mesh * tIntegrationMesh =
+                    create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
 
-            // Check if L2 is needed
-            if (mMesh->get_bspline_inds_of_node_loc_ind(tTestNodeIndex, this->get_bspline_mesh_index()).length() > 1)
-            {
-                // Check for serial
-                MORIS_ERROR(par_size() == 1, "L2 not implemented in parallel");
+            // Create mesh manager
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
 
-                // Set values ons source field
-                Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
-                for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
-                {
-                    tSourceField(tNodeIndex) = aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
-                }
+            // Register mesh pair
+            uint tMeshIndex = tMeshManager->register_mesh_pair(mMesh, tIntegrationMesh);
 
-                // Create integration mesh
-                mtk::Integration_Mesh * tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
-
-                // Create mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-
-                // Register mesh pair
-                uint tMeshIndex = tMeshManager->register_mesh_pair(mMesh, tIntegrationMesh);
-
-                // Use mapper
-                mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
-                tMapper.perform_mapping(tSourceField,
-                                        EntityRank::NODE,
-                                        tTargetField,
-                                        EntityRank::BSPLINE);
-            }
-            else // Nodal values, no L2
-            {
-                // Target field needs to be created because map from B-spline ID to node is not known
-                tTargetField.resize(mMesh->get_num_coeffs(this->get_bspline_mesh_index()), 1);
-
-                // Assign ADVs directly
-                for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
-                {
-                    if (mMesh->node_has_interpolation(tNodeIndex, this->get_bspline_mesh_index()))
-                    {
-                        // Get B-spline index
-                        uint tBSplineIndex = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_bspline_mesh_index())(0);
-
-                        // Assign target field
-                        tTargetField(tBSplineIndex) = aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
-                    }
-                }
-            }
+            // Use mapper
+            mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
+            tMapper.perform_mapping(tSourceField, EntityRank::NODE, tTargetField, EntityRank::BSPLINE);
 
             // Return mapped field
             return tTargetField;

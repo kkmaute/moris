@@ -14,7 +14,6 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-#include "cl_Tracer_Enums.hpp"
 
 using namespace moris;
 using namespace tsa;
@@ -23,7 +22,7 @@ using namespace tsa;
 void Staggered_Time_Solver::solve_staggered_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     // trace this solve
-    Tracer tTracer(EntityBase::TimeSolver, EntityType::Staggered, EntityAction::Solve);
+    Tracer tTracer( "TimeSolver", "Staggered", "Solve" );
 
     this->finalize();
 

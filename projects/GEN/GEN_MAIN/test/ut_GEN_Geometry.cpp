@@ -414,171 +414,116 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Linear B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry], [B-spline geometry linear]")
+        TEST_CASE("Nonlinear B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]")
         {
-            // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
-
-            // Circle parameters
-            real tRadius = 0.5;
-            real tLowerBound = -2.0;
-            real tUpperBound = 2.0;
-
-            // Level set circle parameter list
-            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
-            tCircleParameterList.set("type", "circle");
-            tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-            tCircleParameterList.set("bspline_mesh_index", 0);
-            tCircleParameterList.set("bspline_lower_bound", tLowerBound);
-            tCircleParameterList.set("bspline_upper_bound", tUpperBound);
-
-            // Set up geometry
-            Matrix<DDRMat> tADVs(0, 0);
-            std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
-
-            // Create geometry engine
-            Phase_Table tPhaseTable(1);
-            Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tPhaseTable, tMesh);
-
-            // Get ADVs/bounds
-            tADVs = tGeometryEngine.get_advs();
-            Matrix<DDRMat> tLowerBounds = tGeometryEngine.get_lower_bounds();
-            Matrix<DDRMat> tUpperBounds = tGeometryEngine.get_upper_bounds();
-
-            // Check that ADVs and bounds were created (specific values not checked)
-            if (par_rank() == 0)
+            // Loop over possible cases
+            for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
             {
-                REQUIRE(tADVs.length() == 49);
-                REQUIRE(tLowerBounds.length() == 49);
-                REQUIRE(tUpperBounds.length() == 49);
-                for (uint tBSplineIndex = 0; tBSplineIndex < 49; tBSplineIndex++)
+                // Determine mesh orders
+                uint tLagrangeOrder = 1;
+                uint tBSplineOrder = 1;
+                switch (tCaseNumber)
                 {
-                    CHECK(tADVs(tBSplineIndex) != Approx(0.0));
-                    CHECK(tLowerBounds(tBSplineIndex) == Approx(tLowerBound));
-                    CHECK(tUpperBounds(tBSplineIndex) == Approx(tUpperBound));
-                }
-            }
-            else
-            {
-                REQUIRE(tADVs.length() == 0);
-                REQUIRE(tLowerBounds.length() == 0);
-                REQUIRE(tUpperBounds.length() == 0);
-            }
-
-            // Get geometry back
-            tBSplineCircle = tGeometryEngine.get_geometry(0);
-
-            // Check field values at all nodes
-            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-            {
-                // Get node coordinates
-                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
-
-                // Set approximate target
-                Approx tApproxTarget =
-                        Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius);
-
-                // Check field value
-                CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tApproxTarget);
-
-                // Check sensitivities
-                if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
-                {
-                    check_equal(
-                            tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
-                            tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
-                    check_equal(
-                            tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                            tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        TEST_CASE("Nonlinear B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry], [B-spline geometry nonlinear]")
-        {
-            if (par_size() == 1)
-            {
-                // Loop over possible cases
-                for (uint tCaseNumber = 0; tCaseNumber <= 1; tCaseNumber++)
-                {
-                    // Determine mesh orders
-                    uint tLagrangeOrder = 1;
-                    uint tBSplineOrder = 1;
-                    switch (tCaseNumber)
+                    case 1:
                     {
-                        case 0:
-                        {
-                            tLagrangeOrder = 2;
-                            break;
-                        }
-                        case 1:
-                        {
-                            tBSplineOrder = 2;
-                            break;
-                        }
-                        default:
-                        {
-                            MORIS_ERROR(false, "Case not defined.");
-                        }
+                        tLagrangeOrder = 2;
+                        break;
                     }
+                    case 2:
+                    {
+                        tBSplineOrder = 2;
+                        break;
+                    }
+                    case 3:
+                    {
+                        tLagrangeOrder = 2;
+                        tBSplineOrder = 2;
+                        break;
+                    }
+                    default:
+                    {
+                        // Do nothing
+                    }
+                }
 
-                    // Create mesh
-                    mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2, tLagrangeOrder, tBSplineOrder);
+                // Create mesh
+                uint tNumElementsPerDimension = 10;
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                        tNumElementsPerDimension,
+                        tNumElementsPerDimension,
+                        tLagrangeOrder,
+                        tBSplineOrder);
 
-                    // Level set circle parameter list
-                    real tRadius = 0.5;
-                    ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
-                    tCircleParameterList.set("type", "circle");
-                    tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-                    tCircleParameterList.set("bspline_mesh_index", 0);
+                // Level set circle parameter list
+                real tRadius = 0.5;
+                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+                tCircleParameterList.set("type", "circle");
+                tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+                tCircleParameterList.set("bspline_mesh_index", 0);
 
-                    // Set up geometry
-                    Matrix<DDRMat> tADVs(0, 0);
-                    std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
+                // Set up geometry
+                Matrix<DDRMat> tADVs(0, 0);
+                std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
 
-                    // Create geometry engine
-                    Phase_Table tPhaseTable(1);
-                    Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tPhaseTable, tMesh);
+                // Create geometry engine
+                Phase_Table tPhaseTable(1);
+                Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tPhaseTable, tMesh);
 
-                    // Check that ADVs were created and L2 was performed
-                    tADVs = tGeometryEngine.get_advs();
-                    uint tNumADVs = pow(2 + tBSplineOrder, 2);
+                // Get ADVs and upper/lower bounds
+                tADVs = tGeometryEngine.get_advs();
+                Matrix<DDRMat> tLowerBounds = tGeometryEngine.get_lower_bounds();
+                Matrix<DDRMat> tUpperBounds = tGeometryEngine.get_upper_bounds();
+
+                // Set epsilon for checking
+                real tEpsilon = std::numeric_limits<real>::epsilon() * 1000;
+
+                // Check that ADVs were created and L2 was performed
+                if (par_rank() == 0)
+                {
+                    uint tNumADVs = pow(tNumElementsPerDimension + tBSplineOrder, 2);
                     REQUIRE(tADVs.length() == tNumADVs);
+                    REQUIRE(tLowerBounds.length() == tNumADVs);
+                    REQUIRE(tUpperBounds.length() == tNumADVs);
                     for (uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++)
                     {
-                        CHECK(tADVs(tBSplineIndex) != Approx(0.0));
+                        CHECK(tADVs(tBSplineIndex) != Approx(0.0).epsilon(tEpsilon));
                     }
+                }
+                else
+                {
+                    REQUIRE(tADVs.length() == 0);
+                    REQUIRE(tLowerBounds.length() == 0);
+                    REQUIRE(tUpperBounds.length() == 0);
+                }
 
-                    // Set epsilon for checking 
-                    real tEpsilon = std::numeric_limits<real>::epsilon()*100;
-                    
-                    // Epsilon must be much greater if Lagrange order is greater than B-spline order
-                    if (tLagrangeOrder > tBSplineOrder)
+                // Epsilon must be larger for a quadratic Lagrange mesh
+                if (tLagrangeOrder > 1)
+                {
+                    tEpsilon = 0.04;
+                }
+
+                // Get geometry back
+                tBSplineCircle = tGeometryEngine.get_geometry(0);
+
+                // Check field values and sensitivities at all nodes
+                Matrix<DDRMat> tTargetSensitivities;
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    // Get node coordinates
+                    Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                    // Set approximate field target
+                    Approx tApproxTarget =
+                            Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius)
+                            .scale(2.0)
+                            .epsilon(tEpsilon);
+
+                    // Check field value
+                    CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tApproxTarget);
+
+                    // Check sensitivities
+                    if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
                     {
-                        tEpsilon = 0.5;
-                    }
-
-                    // Get geometry back
-                    tBSplineCircle = tGeometryEngine.get_geometry(0);
-
-                    // Check field values and sensitivities at all nodes
-                    Matrix<DDRMat> tTargetSensitivities;
-                    for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-                    {
-                        // Get node coordinates
-                        Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
-
-                        // Set approximate field target
-                        Approx tTargetFieldValue =
-                                Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius)
-                                .epsilon(tEpsilon);
-
-                        // Check field value
-                        CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tTargetFieldValue);
-
-                        // Check sensitivities
                         check_equal(
                                 tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
                                 tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
@@ -586,29 +531,30 @@ namespace moris
                                 tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                                 tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
                     }
-
-                    // Set new ADVs
-                    tADVs = tADVs + (tRadius / 2.0);
-                    tGeometryEngine.set_advs(tADVs);
-
-                    // Check field values at all nodes again
-                    for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-                    {
-                        // Get node coordinates
-                        Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
-
-                        // Set approximate target
-                        Approx tApproxTarget =
-                                Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - (tRadius / 2.0))
-                                .epsilon(tEpsilon);
-
-                        // Check field value
-                        CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
-                    }
-
-                    // Clean up
-                    delete tMesh;
                 }
+
+                // Set new ADVs
+                tADVs = tADVs + (tRadius / 2.0);
+                tGeometryEngine.set_advs(tADVs);
+
+                // Check field values at all nodes again
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    // Get node coordinates
+                    Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                    // Set approximate target
+                    Approx tApproxTarget =
+                            Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - (tRadius / 2.0))
+                            .scale(2.0)
+                            .epsilon(tEpsilon);
+
+                    // Check field value
+                    CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                }
+
+                // Clean up
+                delete tMesh;
             }
         }
 

@@ -114,8 +114,8 @@ set(HEADER_INSTALL_DIR ${INC})
 ## CMake Paths
 
 list(APPEND CMAKE_MODULE_PATH 
-	"${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_modules"
-	"${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_wrappers" )
+    "${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_modules"
+    "${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_wrappers" )
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # -------------------------------------------------------------------------
@@ -154,8 +154,11 @@ option(MORIS_USE_VALGRIND
     
 option(MORIS_USE_MATRIX_FILL
     "Fill matrices by default with NANs or MaxValues." OFF )
+
+option(MORIS_USE_CHECK_MEMORY
+    "Check memory usage for matrices and cells." OFF )
     
-option(MORIS_USE_XTK "Have XTK Library" ON)	
+option(MORIS_USE_XTK "Have XTK Library" ON)    
 
 option(MORIS_HAVE_SYMBOLIC
     "Use symbolic information in executable." OFF )
@@ -202,7 +205,7 @@ option(MORIS_USE_EXAMPLES
     
 
 option(MORIS_HAVE_PARALLEL_TESTS
-	"Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
+    "Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
 
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
@@ -376,6 +379,10 @@ endif()
 
 if (MORIS_USE_MATRIX_FILL)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMATRIX_FILL ")
+endif()
+
+if (MORIS_USE_CHECK_MEMORY)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DCHECK_MEMORY ")
 endif()
 
 
@@ -683,7 +690,7 @@ if(BUILD_GEN)
 endif()
 
 if(BUILD_HMR)
-	include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 endif()
 
 if(BUILD_INT)
@@ -761,27 +768,27 @@ endif()
 ##### Include LINALG Implementation
 
 if(MORIS_USE_ARMA)
-	#include(${MORIS_TPL_DIR}/armadillo_new.cmake)
+    #include(${MORIS_TPL_DIR}/armadillo_new.cmake)
 endif()
 
 if(MORIS_USE_EIGEN)
-	#include(${MORIS_TPL_DIR}/eigen.cmake)
+    #include(${MORIS_TPL_DIR}/eigen.cmake)
 endif()
 
 # -------------------------------------------------------------------------
 # MORIS unit tests --------------------------------------------------------
 # -------------------------------------------------------------------------
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(MORIS_TEST_PROCS 1 2 4)
-	set(MORIS_TEST_PROCS_HMR 1 2 4 12)
+    set(MORIS_TEST_PROCS 1 2 4)
+    set(MORIS_TEST_PROCS_HMR 1 2 4 12)
 endif()
 
 if (MORIS_USE_VALGRIND)
-   set(VALGRIND "valgrind")
-   set(VALGRIND_OPTIONS "")
+    set(VALGRIND "valgrind")
+    set(VALGRIND_OPTIONS "")
 else()
-   set(VALGRIND "")
-   set(VALGRIND_OPTIONS "")
+    set(VALGRIND "")
+    set(VALGRIND_OPTIONS "")
 endif()
 
 # -------------------------------------------------------------------------
@@ -852,11 +859,11 @@ install(FILES ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}Config.cmake
 
 # Install general moris target
 install(TARGETS ${MORIS}_general
-	DESTINATION ${LIB_INSTALL_DIR}/${MORIS}
-	EXPORT ${MORIS}Targets )
+    DESTINATION ${LIB_INSTALL_DIR}/${MORIS}
+    EXPORT ${MORIS}Targets )
 
 install(EXPORT ${MORIS}Targets
-	DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
+    DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
 
 install(FILES "include/catch.hpp"
-	DESTINATION ${HEADER_INSTALL_DIR}/${MORIS} )
+    DESTINATION ${HEADER_INSTALL_DIR}/${MORIS} )

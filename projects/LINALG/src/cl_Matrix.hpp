@@ -12,7 +12,6 @@
 #include "assert.hpp"
 #include "typedefs.hpp"
 
-
 namespace moris
 {
 
@@ -52,7 +51,6 @@ namespace moris
 
             // Constructor with fill value
 
-
             /* Constructor for std::initializer_list<std::initializer_list>,
              * allows for {{1,2,3},{4,5,6},{7,8,9}} to be passed as input
              * and receive,
@@ -83,7 +81,6 @@ namespace moris
                 MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
                 return mMatrix;
             }
-
 
             // -------------------------------------------------------------------------
 
@@ -127,7 +124,6 @@ namespace moris
                 MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
             }
 
-
             void set_size(
                     const size_t      & aNumRows,
                     const size_t      & aNumCols,
@@ -135,7 +131,6 @@ namespace moris
             {
                 MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
             }
-
 
             // -------------------------------------------------------------------------
 
@@ -154,7 +149,6 @@ namespace moris
             //    }
 
             // -------------------------------------------------------------------------
-
 
             void
             set_row(
@@ -253,7 +247,6 @@ namespace moris
                 MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
                 return mMatrix;
             }
-
 
             // -------------------------------------------------------------------------
 
@@ -535,6 +528,5 @@ namespace moris
 #include "op_plus.hpp"
 #include "op_div.hpp"
 #include "op_times.hpp"
-
 
 #endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */

@@ -364,10 +364,6 @@ namespace moris
                 void finalize_equation_sets(
                         MSI::Model_Solver_Interface * aModelSolverInterface );
 
-                void finalize_equation_sets(
-                        MSI::Model_Solver_Interface    * aModelSolverInterface,
-                        MSI::Design_Variable_Interface * aDesignVariableInterface );
-
                 //------------------------------------------------------------------------------
                 /**
                  * create a list of property pointers

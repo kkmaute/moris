@@ -119,7 +119,7 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
         Linear_Problem * aLinearSystem,
         const moris::sint aIter )
 {
-    Tracer tTracer(EntityBase::LinearSolver, EntityType::Amesos, EntityAction::Solve);
+    Tracer tTracer( "LinearSolver", "Amesos", "Solve" );
 
     mLinearSystem = aLinearSystem;
 

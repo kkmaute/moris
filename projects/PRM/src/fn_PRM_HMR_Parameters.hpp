@@ -39,7 +39,7 @@ namespace moris
         //! Processor Decomposition Method (0=user defined; 1=min proc interface; 2=min mesh interface)
         tParameterList.insert( "processor_decomposition_method", 1 );
 
-        //! User defined processor grid.  Decomp method must = 3.  Product of array must match number of processors used
+        //! User defined processor grid.  Decomp method must = 0.  Product of array must match number of processors used
         tParameterList.insert( "processor_dimensions", std::string( "2, 2" ) );
 
         //! width, height and depth of domain (without aura)
