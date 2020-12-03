@@ -15,15 +15,15 @@ using namespace moris;
 //----------------------------------------------------------------------------------------------------------------------
 
 OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
-        : mRestartIndex(aParameterList.get< moris::sint >( "restart_index" )),
-          mMaxIterations(aParameterList.get< moris::sint >( "max_its" )),
-          mMaxInnerIterations(aParameterList.get< moris::sint >( "max_inner_its" )),
-          mNormDrop(aParameterList.get< moris::real >( "norm_drop" )),
-          mAsympAdapt0(aParameterList.get< moris::real >( "asymp_adapt0" )),
-          mAsympShrink(aParameterList.get< moris::real >( "asymp_adaptb" )),
-          mAsympExpand(aParameterList.get< moris::real >( "asymp_adaptc" )),
-          mStepSize(aParameterList.get< moris::real >( "step_size" )),
-          mPenalty(aParameterList.get< moris::real >( "penalty" ))
+: mRestartIndex(aParameterList.get< moris::sint >( "restart_index" )),
+  mMaxIterations(aParameterList.get< moris::sint >( "max_its" )),
+  mMaxInnerIterations(aParameterList.get< moris::sint >( "max_inner_its" )),
+  mNormDrop(aParameterList.get< moris::real >( "norm_drop" )),
+  mAsympAdapt0(aParameterList.get< moris::real >( "asymp_adapt0" )),
+  mAsympShrink(aParameterList.get< moris::real >( "asymp_adaptb" )),
+  mAsympExpand(aParameterList.get< moris::real >( "asymp_adaptc" )),
+  mStepSize(aParameterList.get< moris::real >( "step_size" )),
+  mPenalty(aParameterList.get< moris::real >( "penalty" ))
 {
 }
 
@@ -49,46 +49,24 @@ void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Pro
         gLogger.set_opt_iteration( mRestartIndex );
     }
 
+    // Solve optimization problem
     if (par_rank() == 0)
     {
-        mPrint = false; // FIXME parameter list
-
-        // Note that these pointers are deleted by the the Arma and Eigen
-        // libraries themselves.
-        auto tAdv         = mProblem->get_advs().data();
-        auto tUpperBounds = mProblem->get_upper_bounds().data();
-        auto tLowerBounds = mProblem->get_lower_bounds().data();
-
-        // create an object of type MMAgc solver
-        MMAgc mmaAlg(this, tAdv, tUpperBounds, tLowerBounds, mProblem->get_num_advs(), mProblem->get_num_constraints(),
-                     mMaxIterations, mMaxInnerIterations, mNormDrop, mAsympAdapt0, mAsympShrink, mAsympExpand,
-                     mStepSize, mPenalty, NULL, mPrint);
-
-        mResFlag = mmaAlg.solve(); // call the the gcmma solve
-
-        mmaAlg.cleanup(); // free the memory created by GCMMA
+        // Run gcmma algorithm
+        this->gcmma_solve();
 
         // Communicate that optimization has finished
         mRunning = false;
         this->communicate_running_status();
+
     }
     else
     {
         // Don't print from these processors
         mPrint = false;
 
-        // Communicate that these procs need to start running
-        this->communicate_running_status();
-
-        // Keep looping over func/grad calls
-        while(mRunning)
-        {
-            // Call to help out with criteria solve
-            this->criteria_solve();
-
-            // Communicate running status so these processors know when to exit
-            this->communicate_running_status();
-        }
+        // Run dummy solve
+        this->dummy_solve();
     }
 
     this->printresult(); // print the result of the optimization algorithm
@@ -98,46 +76,25 @@ void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Pro
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void OptAlgGCMMA::criteria_solve(Matrix<DDRMat> aADVs)
+void OptAlgGCMMA::gcmma_solve()
 {
-    // Log iteration of optimization
-    MORIS_LOG_ITERATION();
 
-    // Set ADVs and get criteria
-    this->mProblem->set_advs(aADVs);
-}
+    mPrint = false; // FIXME parameter list
 
-//----------------------------------------------------------------------------------------------------------------------
+    // Note that these pointers are deleted by the the Arma and Eigen
+    // libraries themselves.
+    auto tAdv         = mProblem->get_advs().data();
+    auto tUpperBounds = mProblem->get_upper_bounds().data();
+    auto tLowerBounds = mProblem->get_lower_bounds().data();
 
-void OptAlgGCMMA::communicate_running_status()
-{
-    // Sending/receiving status
-    Matrix<DDSMat> tSendingStatus = {{mRunning}};
-    Matrix<DDSMat> tReceivingStatus(0, 0);
+    // create an object of type MMAgc solver
+    MMAgc mmaAlg(this, tAdv, tUpperBounds, tLowerBounds, mProblem->get_num_advs(), mProblem->get_num_constraints(),
+            mMaxIterations, mMaxInnerIterations, mNormDrop, mAsympAdapt0, mAsympShrink, mAsympExpand,
+            mStepSize, mPenalty, NULL, mPrint);
 
-    // Communication list
-    Matrix<DDUMat> tCommunicationList(1, 1, 0);
-    if (par_rank() == 0)
-    {
-        // Resize communication list and sending mat
-        tCommunicationList.resize(par_size() - 1, 1);
-        tSendingStatus.set_size(par_size() - 1, 1, mRunning);
+    mResFlag = mmaAlg.solve(); // call the the gcmma solve
 
-        // Assign communication list
-        for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
-        {
-            tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
-        }
-    }
-
-    // Perform communication
-    communicate_scalars(tCommunicationList, tSendingStatus, tReceivingStatus);
-
-    // Assign new status
-    if (par_rank() != 0)
-    {
-        mRunning = tReceivingStatus(0);
-    }
+    mmaAlg.cleanup(); // free the memory created by GCMMA
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -178,7 +135,7 @@ void opt_alg_gcmma_func_wrap(
     aOptAlgGCMMA->communicate_running_status();
 
     // Update the ADV matrix
-    Matrix<DDRMat> tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+    const Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
 
     // Write restart file
     aOptAlgGCMMA->write_advs_to_file(aIter,tADVs);
@@ -187,7 +144,7 @@ void opt_alg_gcmma_func_wrap(
     aOptAlgGCMMA->criteria_solve(tADVs);
 
     // Set update for objectives and constraints
-    aOptAlgGCMMA->mProblem->mUpdateObjectives = true;
+    aOptAlgGCMMA->mProblem->mUpdateObjectives  = true;
     aOptAlgGCMMA->mProblem->mUpdateConstraints = true;
 
     // Convert outputs from type MORIS
@@ -195,6 +152,7 @@ void opt_alg_gcmma_func_wrap(
 
     // Update the pointer of constraints
     auto tConval = aOptAlgGCMMA->mProblem->get_constraints().data();
+
     std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
 }
 
@@ -208,14 +166,15 @@ void opt_alg_gcmma_grad_wrap(
         int*         aActive )
 {
     // Update the vector of active constraints flag
-    aOptAlgGCMMA->mActive = Matrix< DDSMat >  (*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
+    aOptAlgGCMMA->mActive = Matrix< DDSMat >(*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
 
     // Set an update for the gradients
-    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients = true;
+    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients  = true;
     aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
 
     // copy objective gradient
     auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
+
     std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
 
     // Get the constraint gradient as a MORIS Matrix
