@@ -47,6 +47,11 @@ namespace moris
         // multigrid
         tParameterList.insert( "multigrid", false );
 
+        // contact sandbox
+        tParameterList.insert( "contact_sandbox", false );
+        tParameterList.insert( "potential_phases_in_contact", "" );
+        tParameterList.insert( "bb_epsilon", 0.1 );
+
         // verbose - should be replaced by the severity level of the logger
         tParameterList.insert( "verbose", false );
 
