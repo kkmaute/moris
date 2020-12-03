@@ -186,10 +186,6 @@ namespace moris
                 // Run dummy solve
                 this->dummy_solve();
             }
-
-            barrier();
-            std::cout << "Proc " << par_rank() << "done with SQP\n.";
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
