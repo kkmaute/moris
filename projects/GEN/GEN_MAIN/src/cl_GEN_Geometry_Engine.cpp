@@ -138,7 +138,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
+        void Geometry_Engine::set_advs(const Matrix<DDRMat> & aNewADVs)
         {
             // Set new ADVs
             mOwnedADVs->vec_put_scalar(0);
