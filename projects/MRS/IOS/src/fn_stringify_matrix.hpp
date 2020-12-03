@@ -1,10 +1,10 @@
 /*
- * fn_stringify.hpp
+ * fn_stringify_matrix.hpp
  *
- *  Created on: Apr 8, 2020
+ *  Created on: Dec 1, 2020
  *      Author: wunsch
  *
- *  Function that converts various number types to strings, formated as needed by the logging and query functions
+ *  Function that converts various matrix types to a string format compatible with the logger
  */
 
 #ifndef PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_MATRIX_HPP_
@@ -45,7 +45,115 @@ namespace moris
             return out.str();
         }
 
-        //
+        template < typename Matrix_Type >
+        inline std::string stringify_log( const Matrix< Matrix_Type > & aMatrix )
+        {
+            // check matrix size being printed
+            if ( aMatrix.numel() > LOGGER_MAX_NUMEL_MATRIX_PRINT )
+                return "[Matrix has too many elements to print.]";
+
+            // initialize string stream
+            std::ostringstream out;
+            out << "[" ;
+
+            for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
+            {
+                if (iRow > 0)
+                {
+                    out << " ; ";
+                }
+
+                for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+                {
+                    if (iCol > 0)
+                    {
+                        out << ", ";
+                    }
+
+                    out << aMatrix(iRow, iCol);
+                }
+            }
+
+            // end matrix with square bracket
+            out << "]" ;
+
+            // return string stream as string
+            return out.str();
+        }
+
+        template<>
+        inline std::string stringify_log( const Matrix< DDRMat > & aMatrix )
+        {
+            // check matrix size being printed
+            if ( aMatrix.numel() > LOGGER_MAX_NUMEL_MATRIX_PRINT )
+                return "[Matrix has too many elements to print.]";
+
+            // initialize string stream
+            std::ostringstream out;
+            out << "[" << std::setprecision(LOGGER_FLOAT_PRECISION) << std::scientific;
+
+            for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
+            {
+                if (iRow > 0)
+                {
+                    out << " ; ";
+                }
+
+                for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+                {
+                    if (iCol > 0)
+                    {
+                        out << ", ";
+                    }
+
+                    out << aMatrix(iRow, iCol);
+                }
+            }
+
+            // end matrix with square bracket
+            out << "]" ;
+
+            // return string stream as string
+            return out.str();
+        }
+
+        template<>
+        inline std::string stringify_log( const Matrix< DDBMat > & aMatrix )
+        {
+            // check matrix size being printed
+            if ( aMatrix.numel() > LOGGER_MAX_NUMEL_MATRIX_PRINT )
+                return "[Matrix has too many elements to print.]";
+
+            // initialize string stream
+            std::ostringstream out;
+            out << "[" << std::boolalpha;
+
+            for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
+            {
+                if (iRow > 0)
+                {
+                    out << " ; ";
+                }
+
+                for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+                {
+                    if (iCol > 0)
+                    {
+                        out << ", ";
+                    }
+
+                    out << aMatrix(iRow, iCol);
+                }
+            }
+
+            // end matrix with square bracket
+            out << "]" ;
+
+            // return string stream as string
+            return out.str();
+        }
+
+
         //template<>
         //inline std::string stringify< Matrix< Matrix_Type > >(Matrix<Matrix_Type> aMatrix)
         //{
