@@ -227,14 +227,13 @@ namespace moris
         bool tInstanceFound = false;
 
         // go through global clock stack from bottom and look for requested instance
-        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        while( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or
-                            aEntityType == "Arbitrary" ) and
-                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or
-                            aEntityAction == "Arbitrary" ) )
+            if(
+                    aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType   == mGlobalClock.mCurrentType[ tIndentLevel ]   or aEntityType == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }
@@ -265,14 +264,13 @@ namespace moris
         bool tInstanceFound = false;
 
         // go through global clock stack from bottom and look for requested instance
-        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        while( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or
-                            aEntityType == "Arbitrary" ) and
-                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or
-                            aEntityAction == "Arbitrary" ) )
+            if(
+                    aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType   == mGlobalClock.mCurrentType  [ tIndentLevel ] or aEntityType   == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }

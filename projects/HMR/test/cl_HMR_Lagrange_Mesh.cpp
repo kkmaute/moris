@@ -759,7 +759,7 @@ moris::real tPlane_Bench( const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_mesh]")
 {
-    //    if(par_size() == 1)
+    if(par_size() == 1 or par_size() == 2 or par_size() == 4)
     {
         std::cout<<"I am proc: "<<par_rank()<<std::endl;
 
@@ -923,10 +923,10 @@ TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_bo
 }
 
 
-// this test checks if t-matrices with weigts of 1 as a trivial case are created
+// this test checks if t-matrices with weights of 1 as a trivial case are created
 TEST_CASE("Lagrange_Mesh_trivial","[moris],[hmr],[Lagrange_Mesh_trivial],[lagrange_mesh]")
 {
-    //    if(par_size() == 1)
+    if(par_size() == 1 or par_size() == 2 or par_size() == 4)
     {
         std::cout<<"I am proc: "<<par_rank()<<std::endl;
 
