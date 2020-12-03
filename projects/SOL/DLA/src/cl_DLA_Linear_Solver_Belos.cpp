@@ -12,6 +12,8 @@
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 #include "fn_PRM_SOL_Parameters.hpp"
 
+#include "cl_Tracer.hpp"
+
 #include <Epetra_MultiVector.h>
 #include <Epetra_Operator.h>
 
@@ -82,6 +84,8 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
         Linear_Problem *  aLinearSystem,
         const moris::sint aIter )
 {
+    Tracer tTracer( "LinearSolver", "Belos", "Solve" );
+
     this->set_solver_internal_parameters();
     mLinearSystem = aLinearSystem;
 

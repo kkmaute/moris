@@ -84,7 +84,6 @@ namespace moris
 
             ~Logger()
             {
-
                 // report error if prematurely stopped
                 if (mGlobalClock.mIndentationLevel != 0)
                 {
@@ -102,15 +101,20 @@ namespace moris
 
                 }
 
+                // Stop Global Clock Timer
+                real tElapsedTime = ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+
                 if( mWriteToAscii )
                 {
                     // log runtime of clock
-                    this->log_to_file( "ElapsedTime" ,
-                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC );
+                    this->log_to_file( "ElapsedTime" , tElapsedTime );
 
                     //close file
                     mStream.close();
                 }
+
+                // log end of Global Clock to console - only processor mOutputRank prints message
+                std::cout << "Global Clock Stopped. ElapsedTime = " << tElapsedTime << " \n" << std::flush;
             };
 
             //------------------------------------------------------------------------------
@@ -130,6 +134,11 @@ namespace moris
             {
                 mSeverityLevel = aSeverityLevel;
 
+                // log start of Global Clock to console - only processor mOutputRank prints message
+                if ( logger_par_rank() == mOutputRank )
+                {
+                    std::cout << "Global Clock Initialized ... \n" << std::flush;
+                }
             };
 
             //------------------------------------------------------------------------------
@@ -158,6 +167,12 @@ namespace moris
                 {
                     // formated output to log file
                     this->log_to_file( "SignIn" , 1.0 );
+                }
+
+                // log start of Global Clock to console - only processor mOutputRank prints message
+                if ( logger_par_rank() == mOutputRank )
+                {
+                    std::cout << "Global Clock Initialized ... \n" << std::flush;
                 }
             };
 
@@ -252,7 +267,8 @@ namespace moris
                     // switch based on OutputFormat provided
                     if (mDirectOutputFormat == 3)
                     {
-                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Info: " << tString << " \n" << std::flush;
+                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
+                                mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n" << std::flush;
                     }
                     else if (mDirectOutputFormat == 1)
                     {
@@ -370,6 +386,7 @@ namespace moris
                         if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                         {
                             std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
+                                    << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - "
                                     << aOutputSpecifier << ": "
                                     << ios::stringify(aOutputValue) << " \n" << std::flush;
                         }

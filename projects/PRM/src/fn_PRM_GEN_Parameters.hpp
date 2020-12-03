@@ -114,6 +114,8 @@ namespace moris
 
             tParameterList.set("type", "voxel");             // User-defined geometry
             tParameterList.insert("voxel_field_file", "");       // voxel file
+            tParameterList.insert("domain_dimensions", "");       // domain size
+            tParameterList.insert("domain_offset", "");
 
             return tParameterList;
         }

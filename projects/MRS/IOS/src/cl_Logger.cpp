@@ -77,6 +77,13 @@ namespace moris
             // formated output to log file
             this->log_to_file( "SignIn" , 1.0);
         }
+
+        // log start of Global Clock to console - only processor mOutputRank prints message
+        if ( logger_par_rank() == mOutputRank )
+        {
+            std::cout << "Global Clock Initialized ... \n" << std::flush;
+        }
+
     }
 
     // -----------------------------------------------------------------------------
@@ -106,12 +113,12 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
+                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1)
-                            << "__Start: " << aEntityBase
+                            << "__" << aEntityBase
                             << " - " << aEntityType
                             << " - " << aEntityAction
                             << " \n";
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << " \n";
                 }
                 else
                 {
@@ -151,8 +158,8 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) <<
-                            "_ElapsedTime (max/min) = " <<
+                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
+                            "ElapsedTime (max/min) = " <<
                             tElapsedTimeMax <<
                             " / " <<
                             tElapsedTimeMin <<
@@ -190,6 +197,8 @@ namespace moris
             // switch based on OutputFormat provided
             if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
             {
+                std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) <<
+                        "===================================================================\n" << std::flush;
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
                         mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
                         "Iteration" << ": " <<
@@ -227,14 +236,13 @@ namespace moris
         bool tInstanceFound = false;
 
         // go through global clock stack from bottom and look for requested instance
-        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        while( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or
-                            aEntityType == "Arbitrary" ) and
-                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or
-                            aEntityAction == "Arbitrary" ) )
+            if(
+                    aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType   == mGlobalClock.mCurrentType[ tIndentLevel ]   or aEntityType == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }
@@ -265,14 +273,13 @@ namespace moris
         bool tInstanceFound = false;
 
         // go through global clock stack from bottom and look for requested instance
-        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        while( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
         {
             // check if Instance matches the instance searched for
-            if( aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or
-                            aEntityType == "Arbitrary" ) and
-                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or
-                            aEntityAction == "Arbitrary" ) )
+            if(
+                    aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
+                    ( aEntityType   == mGlobalClock.mCurrentType  [ tIndentLevel ] or aEntityType   == "Arbitrary" ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
             {
                 tInstanceFound = true;
             }

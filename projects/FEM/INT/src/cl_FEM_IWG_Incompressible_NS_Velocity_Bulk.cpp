@@ -25,6 +25,7 @@ namespace moris
             mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IWG_Property_Type::REF_TEMP );
             mPropertyMap[ "InvPermeability" ]  = static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY );
             mPropertyMap[ "MassSource" ]       = static_cast< uint >( IWG_Property_Type::MASS_SOURCE );
+            mPropertyMap[ "Homotopy" ]         = static_cast< uint >( IWG_Property_Type::HOMOTOPY );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -120,8 +121,8 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex }) +=
                      aWStar * (
-                            trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
-                            trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
+                            tVelocityFI->N_trans() * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
+                            tVelocityFI->N_trans() * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
                             trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
                             trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
                             trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
@@ -132,7 +133,7 @@ namespace moris
                 // add gravity to residual weak form
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex } ) += 
-                        aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
+                        aWStar * ( tVelocityFI->N_trans() * tDensity * tGravityProp->val() );
             }
 
             // if thermal expansion and reference temperature
@@ -147,7 +148,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex } ) -= 
                         aWStar * (
-                                trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
+                                tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
             }
 
@@ -158,7 +159,18 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex } ) +=
                         aWStar * (
-                                trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
+                                tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
+            }
+
+            // get the homotopy property
+            std::shared_ptr< Property > & tHomotopyProp    =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+            if( tHomotopyProp )
+            {
+                // compute the residual contribution
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
+                                tDensity * tVelocityFI->N_trans() * tVelocityFI->val() / tHomotopyProp->val()( 0 ) );
             }
 
             // check for nan, infinity
@@ -270,9 +282,9 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tVelocityFI->N() ) * tDensity * tdnNdtn +
-                                    trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
-                                    trans( tVelocityFI->N() ) * tDensity * tujvij +
+                                    tVelocityFI->N_trans() * tDensity * tdnNdtn +
+                                    tVelocityFI->N_trans() * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
+                                    tVelocityFI->N_trans() * tDensity * tujvij +
                                     tujvijrM * tDensity * tSPSUPSPSPG->val()( 0 ) );
 
                     // if permeability
@@ -282,9 +294,20 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
+                                        tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
                     }
 
+                    // get the homotopy property
+                    std::shared_ptr< Property > & tHomotopyProp    =
+                            mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+                    if( tHomotopyProp )
+                    {
+                        // compute the jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        tDensity * tVelocityFI->N_trans() * tVelocityFI->N() / tHomotopyProp->val()( 0 ) );
+                    }
                 }
 
                 // compute the jacobian strong form
@@ -306,8 +329,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tVelocityFI->N() ) * trans( tVelocityFI->gradt( 1 ) ) +
-                                    trans( tVelocityFI->N() ) * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
+                                    tVelocityFI->N_trans() * trans( tVelocityFI->gradt( 1 ) ) +
+                                    tVelocityFI->N_trans() * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
                                     trans( tujvij ) * tSPSUPSPSPG->val()( 0 ) * tRM ) *
                                     tDensityProp->dPropdDOF( tDofType );
                 }
@@ -342,7 +365,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tVelocityFI->N() ) *
+                                        tVelocityFI->N_trans() *
                                         tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->val() );
                     }
                 }
@@ -357,7 +380,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tVelocityFI->N() ) * tGravityProp->val() *
+                                        tVelocityFI->N_trans() * tGravityProp->val() *
                                         tDensityProp->dPropdDOF( tDofType ) );
                     }
 
@@ -368,7 +391,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tVelocityFI->N() ) * tDensity *
+                                        tVelocityFI->N_trans() * tDensity *
                                         tGravityProp->dPropdDOF( tDofType ) );
                     }
                 }
@@ -388,7 +411,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
+                                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                         tThermalExpProp->val() * tTempFI->N() );
                     }
 
@@ -399,7 +422,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tVelocityFI->N() ) * tGravityProp->val() *
+                                        tVelocityFI->N_trans() * tGravityProp->val() *
                                         tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                         tDensityProp->dPropdDOF( tDofType ) );
                     }
@@ -411,7 +434,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
+                                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                         ( tTempFI->val() - tRefTempProp->val() ) *
                                         tThermalExpProp->dPropdDOF( tDofType ) );
                     }
@@ -423,7 +446,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
+                                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                         tThermalExpProp->val() *
                                         tRefTempProp->dPropdDOF( tDofType ) );
                     }
@@ -435,7 +458,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tVelocityFI->N() ) * tDensity *
+                                        tVelocityFI->N_trans() * tDensity *
                                         tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
                                         * tGravityProp->dPropdDOF( tDofType ) );
                     }

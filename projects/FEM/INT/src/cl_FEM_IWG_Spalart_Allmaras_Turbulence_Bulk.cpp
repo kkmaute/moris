@@ -76,10 +76,10 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                            trans( tFIViscosity->N() ) * tFIViscosity->gradt( 1 ) +
-                            trans( tFIViscosity->N() ) * trans( tModVelocity ) * tFIViscosity->gradx( 1 ) -
-                            trans( tFIViscosity->N() ) * tProductionTerm +
-                            trans( tFIViscosity->N() ) * tWallDestructionTerm +
+                            tFIViscosity->N_trans() * tFIViscosity->gradt( 1 ) +
+                            tFIViscosity->N_trans() * trans( tModVelocity ) * tFIViscosity->gradx( 1 ) -
+                            tFIViscosity->N_trans() * tProductionTerm +
+                            tFIViscosity->N_trans() * tWallDestructionTerm +
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tDiffusionCoeff * tFIViscosity->gradx( 1 ) +
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) );
 
@@ -150,8 +150,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIViscosity->N() ) * tFIViscosity->dnNdtn( 1 ) +
-                                    trans( tFIViscosity->N() ) * trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 ) +
+                                    tFIViscosity->N_trans() * tFIViscosity->dnNdtn( 1 ) +
+                                    tFIViscosity->N_trans() * trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 ) +
                                     trans( tFIViscosity->dnNdxn( 1 ) ) * tDiffusionCoeff * tFIViscosity->dnNdxn( 1 ) +
                                     trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) );
                 }
@@ -167,7 +167,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIViscosity->N() ) * trans( tFIViscosity->gradx( 1 ) ) * tModVelocityDer +
+                                    tFIViscosity->N_trans() * trans( tFIViscosity->gradx( 1 ) ) * tModVelocityDer +
                                     trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) );
                 }
 
@@ -201,8 +201,8 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                - trans( tFIViscosity->N() ) * tdProductiondu +
-                                trans( tFIViscosity->N() ) * tdWallDestructiondu +
+                                - tFIViscosity->N_trans() * tdProductiondu +
+                                tFIViscosity->N_trans() * tdWallDestructiondu +
                                 trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tdDiffdu +
                                 trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tJ );
             }

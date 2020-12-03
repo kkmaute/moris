@@ -23,7 +23,7 @@ int main( int argc, char * argv[] )
     // Kokkos::initialize(argc, argv);
 
     // set severity level 0 - all outputs
-    gLogger.initialize( 2 );
+    gLogger.initialize( argc, argv );
 
     // print banner
     moris::print_banner( argc, argv );
