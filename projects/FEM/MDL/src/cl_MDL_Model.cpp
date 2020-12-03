@@ -36,6 +36,10 @@
 
 #include "fn_PRM_MSI_Parameters.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 #include "fn_Exec_load_user_library.hpp"
 
 namespace moris
@@ -507,6 +511,8 @@ namespace moris
                 const real aTime,
                 const bool aCloseFile )
         {
+            Tracer tTracer( "FemModel", "PostProcessing", "OutputSolution" );
+
             // create vis mesh and setup output
             mOutputManager->setup_vis_mesh_for_output(
                     aVisMeshIndex,
@@ -514,32 +520,17 @@ namespace moris
                     mMeshPairIndex,
                     mEquationModel );
 
-            // start timer
-            tic tTimer;
-
             // write requested fields
             mOutputManager->write_field(
                     aVisMeshIndex,
                     aTime,
                     mEquationModel );
 
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-            moris::real tElapsedTimeMax = max_all( tElapsedTime );
-
-            if ( par_rank() == 0 )
-            {
-                MORIS_LOG_INFO( "VIS: Write Field to Vis Mesh took %5.3f seconds.",
-                        ( double ) tElapsedTimeMax / 1000);
-            }
-
             if( aCloseFile )
             {
                 // end writing and delete vis mesh
                 mOutputManager->end_writing( aVisMeshIndex );
             }
-
-
         }
 
     } /* namespace mdl */
