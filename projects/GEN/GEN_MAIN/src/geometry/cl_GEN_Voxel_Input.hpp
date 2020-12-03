@@ -14,6 +14,9 @@ namespace moris
 
         private:
 
+                moris::Matrix< DDRMat > mDomainDimensions;
+                moris::Matrix< DDRMat > mDomainOffset;
+
                 moris::Matrix< DDUMat > mVoxelField;
                 moris::uint             mVoxelsInX;
                 moris::uint             mVoxelsInY;
@@ -42,6 +45,8 @@ namespace moris
                     Matrix<DDUMat>                 aADVIndices,
                     Matrix<DDRMat>                 aConstantParameters,
                     std::string                    aVoxelFieldName,
+                    Matrix<DDRMat>                 aDomainDimensions,
+                    Matrix<DDRMat>                 aDomainOffset,
                     std::string                    aName = "",
                     Matrix<DDSMat>                 aNumRefinements = {{}},
                     Matrix<DDSMat>                 aRefinementMeshIndices = {{}},
@@ -67,6 +72,8 @@ namespace moris
                     Matrix<DDUMat>                 aADVIndices,
                     Matrix<DDRMat>                 aConstantParameters,
                     std::string                    aVoxelFieldName,
+                    Matrix<DDRMat>                 aDomainDimensions,
+                    Matrix<DDRMat>                 aDomainOffset,
                     std::string                    aName = "",
                     Matrix<DDSMat>                 aNumRefinements = {{}},
                     Matrix<DDSMat>                 aRefinementMeshIndices = {{}},
@@ -86,6 +93,8 @@ namespace moris
             Voxel_Input(
                     Matrix<DDRMat>           aConstantParameters,
                     std::string              aVoxelFieldName,
+                    Matrix<DDRMat>           aDomainDimensions,
+                    Matrix<DDRMat>           aDomainOffset,
                     std::string              aName = "",
                     Matrix<DDSMat>           aNumRefinements = {{}},
                     Matrix<DDSMat>           aRefinementMeshIndices = {{}},

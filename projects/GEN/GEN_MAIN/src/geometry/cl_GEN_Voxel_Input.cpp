@@ -15,6 +15,8 @@ namespace moris
                 Matrix<DDUMat>                 aADVIndices,
                 Matrix<DDRMat>                 aConstantParameters,
                 std::string                    aVoxelFieldName,
+                Matrix<DDRMat>                 aDomainDimensions,
+                Matrix<DDRMat>                 aDomainOffset,
                 std::string                    aName,
                 Matrix<DDSMat>                 aNumRefinements,
                 Matrix<DDSMat>                 aRefinementMeshIndices,
@@ -30,7 +32,9 @@ namespace moris
                 aRefinementFunctionIndex,
                 aBSplineMeshIndex,
                 0.0,
-                0.0)
+                0.0),
+           mDomainDimensions( aDomainDimensions ),
+           mDomainOffset( aDomainOffset )
         {
             this->read_voxel_data( aVoxelFieldName );
         }
@@ -43,6 +47,8 @@ namespace moris
                 Matrix<DDUMat>                 aADVIndices,
                 Matrix<DDRMat>                 aConstantParameters,
                 std::string                    aVoxelFieldName,
+                Matrix<DDRMat>                 aDomainDimensions,
+                Matrix<DDRMat>                 aDomainOffset,
                 std::string                    aName,
                 Matrix<DDSMat>                 aNumRefinements,
                 Matrix<DDSMat>                 aRefinementMeshIndices,
@@ -58,7 +64,9 @@ namespace moris
                 aRefinementFunctionIndex,
                 aBSplineMeshIndex,
                 0.0,
-                0.0)
+                0.0),
+           mDomainDimensions( aDomainDimensions ),
+           mDomainOffset( aDomainOffset )
         {
             this->read_voxel_data( aVoxelFieldName );
         }
@@ -68,6 +76,8 @@ namespace moris
         Voxel_Input::Voxel_Input(
                 Matrix<DDRMat>           aConstantParameters,
                 std::string                    aVoxelFieldName,
+                Matrix<DDRMat>                 aDomainDimensions,
+                Matrix<DDRMat>                 aDomainOffset,
                 std::string              aName,
                 Matrix<DDSMat>           aNumRefinements,
                 Matrix<DDSMat>           aRefinementMeshIndices,
@@ -80,7 +90,9 @@ namespace moris
                 aRefinementFunctionIndex,
                 aBSplineMeshIndex,
                 0.0,
-                0.0)
+                0.0),
+           mDomainDimensions( aDomainDimensions ),
+           mDomainOffset( aDomainOffset )
         {
             this->read_voxel_data( aVoxelFieldName );
         }
@@ -89,26 +101,23 @@ namespace moris
 
         real Voxel_Input::get_field_value( const Matrix<DDRMat>& aCoordinates )
         {
-            moris::Matrix< DDRMat > tDomainDimensions = { {4.0}, {4.0}, {4.0} };
-            moris::Matrix< DDRMat > tDomainOffset = { {-2.0}, {-2.0}, {-2.0} };
+            moris::real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
+            moris::real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
+            moris::real tVoxelSizeZ = mDomainDimensions( 2 ) / mVoxelsInZ;
 
-            moris::real tVoxelSizeX = tDomainDimensions( 0 ) / mVoxelsInX;
-            moris::real tVoxelSizeY = tDomainDimensions( 1 ) / mVoxelsInY;
-            moris::real tVoxelSizeZ = tDomainDimensions( 2 ) / mVoxelsInZ;
+            moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );
+            moris::uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
+            moris::uint tK = std::floor( ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / tVoxelSizeZ );
 
-            moris::uint tI = std::floor( ( aCoordinates( 0 ) - tDomainOffset( 0 ) ) / tVoxelSizeX );
-            moris::uint tJ = std::floor( ( aCoordinates( 1 ) - tDomainOffset( 1 ) ) / tVoxelSizeY );
-            moris::uint tK = std::floor( ( aCoordinates( 2 ) - tDomainOffset( 2 ) ) / tVoxelSizeZ );
-
-            if( aCoordinates( 0 ) >=  tDomainDimensions( 0 ) + tDomainOffset( 0  ) )
+            if( aCoordinates( 0 ) >=  mDomainDimensions( 0 ) + mDomainOffset( 0  ) )
             {
                 tI = mVoxelsInX-1;
             }
-            if( aCoordinates( 1 ) >=  tDomainDimensions( 1 ) + tDomainOffset( 1 ) )
+            if( aCoordinates( 1 ) >=  mDomainDimensions( 1 ) + mDomainOffset( 1 ) )
             {
                 tJ = mVoxelsInY-1;
             }
-            if( aCoordinates( 2 ) >=  tDomainDimensions( 2 ) + tDomainOffset( 2 ) )
+            if( aCoordinates( 2 ) >=  mDomainDimensions( 2 ) + mDomainOffset( 2 ) )
             {
                 tK = mVoxelsInZ-1;
             }
