@@ -306,6 +306,8 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(
         Linear_Problem *       aLinearSystem,
         const moris::sint      aIter )
 {
+    Tracer tTracer( "LinearSolver", "Aztec", "Solve" );
+
     // Set matrix in linear system
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
 

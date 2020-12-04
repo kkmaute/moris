@@ -100,9 +100,9 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                            - trans( tFIViscosity->N() ) * tM * tTraction -
+                            - tFIViscosity->N_trans() * tM * tTraction -
                             mBeta * trans( tTestTraction ) * tM * tJump +
-                            tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump );
+                            tSPNitsche->val()( 0 ) * tFIViscosity->N_trans() * tM * tJump );
 
             // get the upwind property
             std::shared_ptr< Property > tPropUpwind =
@@ -119,7 +119,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) -= aWStar * (
-                                tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
+                                tPropUpwind->val()( 0 ) * tFIViscosity->N_trans() *
                                 dot( tModVelocity, mNormal ) * tM * tJump );
             }
 
@@ -206,7 +206,7 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     - mBeta * trans( tTestTraction ) * tM * tFIViscosity->N() +
-                                    tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tFIViscosity->N() );
+                                    tSPNitsche->val()( 0 ) * tFIViscosity->N_trans() * tM * tFIViscosity->N() );
                 }
 
                 // if imposed viscosity depends on dof type
@@ -217,7 +217,7 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     + mBeta * trans( tTestTraction ) * tM * tPropDirichlet->dPropdDOF( tDofType )
-                                    - tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                                    - tSPNitsche->val()( 0 ) * tFIViscosity->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if Nitsche SP depends on dof type
@@ -227,7 +227,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIViscosity->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    tFIViscosity->N_trans() * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
 
                 // compute dtractiondu
@@ -242,7 +242,7 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                - trans( tFIViscosity->N() ) * tM * tdtractiondu
+                                - tFIViscosity->N_trans() * tM * tdtractiondu
                                 - mBeta * tM( 0 ) * tJump( 0 ) * tdtesttractiondu );
 
                 // get the upwind property
@@ -265,8 +265,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) * dot( tModVelocity, mNormal ) * tM * tFIViscosity->N() +
-                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump * trans( mNormal ) * tModVelocityDer );
+                                        tPropUpwind->val()( 0 ) * tFIViscosity->N_trans() * dot( tModVelocity, mNormal ) * tM * tFIViscosity->N() +
+                                        tPropUpwind->val()( 0 ) * tFIViscosity->N_trans() * tM * tJump * trans( mNormal ) * tModVelocityDer );
                     }
 
                     // if dof type is residual dof type
@@ -275,7 +275,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
+                                        tPropUpwind->val()( 0 ) * tFIViscosity->N_trans() *
                                         tM * tJump * trans( mNormal ) * tFIVelocity->N() );
                     }
 
@@ -285,7 +285,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
+                                        tPropUpwind->val()( 0 ) * tFIViscosity->N_trans() *
                                         dot( tModVelocity, mNormal ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                     }
 
@@ -296,7 +296,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFIViscosity->N() ) * dot( tModVelocity, mNormal ) * tM * tJump *
+                                        tFIViscosity->N_trans() * dot( tModVelocity, mNormal ) * tM * tJump *
                                         tPropUpwind->dPropdDOF( tDofType ) );
                     }
                 }

@@ -151,13 +151,13 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the properties
-            std::shared_ptr< Property > & tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-            std::shared_ptr< Property > & tPropDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > & tPropHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
-            std::shared_ptr< Property > & tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
-            std::shared_ptr< Property > & tPropMeltTemp     = mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
-            std::shared_ptr< Property > & tPropPCconst      = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
-            std::shared_ptr< Property > & tPropPSfunc       = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+            const std::shared_ptr< Property > & tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+            const std::shared_ptr< Property > & tPropDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > & tPropHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+            const std::shared_ptr< Property > & tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            const std::shared_ptr< Property > & tPropMeltTemp     = mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+            const std::shared_ptr< Property > & tPropPCconst      = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+            const std::shared_ptr< Property > & tPropPSfunc       = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
 
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
