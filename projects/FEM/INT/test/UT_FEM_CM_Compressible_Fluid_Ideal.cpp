@@ -501,31 +501,33 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
                         bool tCheckThermalTestTraction = fem::check( tdThermalTestTractiondDOF, tdThermalTestTractiondDofFD, tEpsilon );
                         REQUIRE( tCheckThermalTestTraction );
 
-//                        //------------------------------------------------------------------------------
-//                        //  Mechanical Test Traction
-//                        //------------------------------------------------------------------------------
-//                        // evaluate dTestTractiondDOF
-//                        Matrix< DDRMat > tdMechanicalTestTractiondDOF =
-//                                tCMMasterFluid->dTestTractiondDOF(
-//                                        tDofDerivative,
-//                                        tNormal,
-//                                        tVelocityJump,
-//                                        tTestDof,
-//                                        CM_Function_Type::MECHANICAL );
-//
-//                        //  evaluate dTestTractiondDOF by FD
-//                        Matrix< DDRMat > tdMechanicalTestTractiondDofFD;
-//                        tCMMasterFluid->eval_dTestTractiondDOF_FD(
-//                                tDofDerivative,
-//                                tTestDof,
-//                                tdMechanicalTestTractiondDofFD,
-//                                tPerturbation,
-//                                FDScheme_Type::POINT_5,
-//                                CM_Function_Type::MECHANICAL );
-//
-//                        // check that analytical and FD match
-//                        bool tCheckMechanicalTestTraction = fem::check( tdMechanicalTestTractiondDOF, tdMechanicalTestTractiondDofFD, tEpsilon );
-//                        REQUIRE( tCheckMechanicalTestTraction );
+                        //------------------------------------------------------------------------------
+                        //  Mechanical Test Traction
+                        //------------------------------------------------------------------------------
+                        // evaluate dTestTractiondDOF
+                        Matrix< DDRMat > tdMechanicalTestTractiondDOF =
+                                tCMMasterFluid->dTestTractiondDOF(
+                                        tDofDerivative,
+                                        tNormal,
+                                        tVelocityJump,
+                                        tTestDof,
+                                        CM_Function_Type::MECHANICAL );
+
+                        //  evaluate dTestTractiondDOF by FD
+                        Matrix< DDRMat > tdMechanicalTestTractiondDofFD;
+                        tCMMasterFluid->eval_dtesttractiondu_FD(
+                                tDofDerivative,
+                                tTestDof,
+                                tdMechanicalTestTractiondDofFD,
+                                tPerturbation,
+                                tNormal,
+                                tVelocityJump,
+                                FDScheme_Type::POINT_5,
+                                CM_Function_Type::MECHANICAL );
+
+                        // check that analytical and FD match
+                        bool tCheckMechanicalTestTraction = fem::check( tdMechanicalTestTractiondDOF, tdMechanicalTestTractiondDofFD, tEpsilon );
+                        REQUIRE( tCheckMechanicalTestTraction );
                     }
 
                 }

@@ -9,6 +9,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
+#include "fn_dot.hpp"
 #include "op_minus.hpp"
 
 namespace moris
@@ -82,7 +83,15 @@ namespace moris
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
-            MORIS_ERROR( false , "CM_Fluid_Compressible_Ideal::eval_mechanical_testTraction - not implemented, yet." );
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // test traction is transpose of the traction dof derivative
+            mMechanicalTestTraction( tTestDofIndex ) = tFlatNormal * this->dFluxdDOF( aTestDofTypes, CM_Function_Type::MECHANICAL );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -155,7 +164,7 @@ namespace moris
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the conductivity property
-            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
+            const std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // get temperature FI
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
@@ -226,7 +235,173 @@ namespace moris
                 const Matrix< DDRMat >             & aJump,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
-            MORIS_ERROR( false , "CM_Fluid_Compressible_Ideal::eval_mechanical_dTestTractiondDOF - not implemented, yet." );
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // initialize the dTestTractiondDof
+            mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size(
+                    mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the viscosity
+            const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
+            real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
+
+            // get FIs
+            Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
+            //Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            //-------------------------------------------------------------------------------
+            // RIGHT DOF: Density
+            if( aDofTypes( 0 ) == mDofDensity)
+            {
+                // LEFT DOF: Density
+                if ( aTestDofTypes( 0 ) == mDofDensity )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Velocity
+                if ( aTestDofTypes( 0 ) == mDofVelocity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                                2.0 * aJump *
+                                tPropDynamicViscosity->dPropdDOF( aDofTypes );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Temperature
+                if ( aTestDofTypes( 0 ) == mDofTemperature )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) -=
+                            tFITemp->N_trans() *
+                            tSpecificGasConstant * dot( aJump, aNormal ) *
+                            tFIDensity->N();
+                }
+            }
+
+            //-------------------------------------------------------------------------------
+            // RIGHT DOF: Velocity
+            if( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // LEFT DOF: Density
+                if ( aTestDofTypes( 0 ) == mDofDensity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tPropDynamicViscosity->dPropdDOF( aTestDofTypes ) ) *
+                                2.0 * trans( aJump ) *
+                                tFlatNormal * this->dStraindDOF( aDofTypes );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Velocity
+                if ( aTestDofTypes( 0 ) == mDofVelocity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                                2.0 * aJump *
+                                tFlatNormal * this->dStraindDOF( aDofTypes ) +
+                                trans( tPropDynamicViscosity->dPropdDOF( aTestDofTypes ) ) *
+                                2.0 * trans( aJump ) *
+                                tFlatNormal * this->dStraindDOF( aDofTypes );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Temperature
+                if ( aTestDofTypes( 0 ) == mDofTemperature )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tPropDynamicViscosity->dPropdDOF( tTestDofIndex ) ) *
+                                2.0 * trans( aJump ) *
+                                tFlatNormal * this->dStraindDOF( tDofIndex );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+                }
+            }
+
+            //-------------------------------------------------------------------------------
+            // RIGHT DOF: Temperature
+            if( aDofTypes( 0 ) == mDofTemperature )
+            {
+                // LEFT DOF: Density
+                if ( aTestDofTypes( 0 ) == mDofDensity )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) -=
+                            tFIDensity->N_trans() *
+                            tSpecificGasConstant * dot( aJump, aNormal ) *
+                            tFITemp->N();
+                }
+
+                // LEFT DOF: Velocity
+                if ( aTestDofTypes( 0 ) == mDofVelocity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) =
+                                trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                                2.0 * aJump *
+                                tPropDynamicViscosity->dPropdDOF( tTestDofIndex );
+                    }
+
+                    // Pressure
+                    // nothing for now
+                }
+
+                // LEFT DOF: Temperature
+                if ( aTestDofTypes( 0 ) == mDofTemperature )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    // nothing for now
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
