@@ -1,4 +1,3 @@
-
 #include "assert.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mapper.hpp"
@@ -41,6 +40,10 @@
 #include "fn_sum.hpp"
 
 #include "cl_MDL_Model.hpp"
+
+// Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris
 {
@@ -130,6 +133,9 @@ namespace moris
                 const std::string      & aTargetLabel,
                 const enum EntityRank    aTargetEntityRank )
         {
+            // Tracer
+              Tracer tTracer("MTK", "Mapper","Map");
+
             // get index of source
             moris_index tSourceIndex = mSourceMesh->get_field_ind(
                     aSourceLabel,
@@ -215,16 +221,19 @@ namespace moris
                 Matrix<DDRMat>&       aTargetField,
                 const enum EntityRank aTargetEntityRank )
         {
+            // Tracer
+             Tracer tTracer("MTK", "Mapper","Map");
+
             switch( aSourceEntityRank )
             {
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                case( EntityRank::NODE ) :
-                    {
+                case EntityRank::NODE :
+                {
                     switch( aTargetEntityRank )
                     {
-                        case( EntityRank::BSPLINE ) :
-                        case( EntityRank::BSPLINE_2 ) :
-                        case( EntityRank::BSPLINE_3 ) :
+                        case EntityRank::BSPLINE:
+                        case EntityRank::BSPLINE_2:
+                        case EntityRank::BSPLINE_3:
                         {
                             this->map_node_to_bspline_from_field( aSourceField,
                                     aTargetField,
@@ -238,10 +247,10 @@ namespace moris
                         }
                     }
                     break;
-                    }
-                case( EntityRank::BSPLINE ) :
-                case( EntityRank::BSPLINE_2 ) :
-                case( EntityRank::BSPLINE_3 ) :
+                }
+                case EntityRank::BSPLINE:
+                case EntityRank::BSPLINE_2:
+                case EntityRank::BSPLINE_3:
                 {
                     switch( aTargetEntityRank )
                     {
@@ -268,6 +277,9 @@ namespace moris
                 const enum EntityRank   aBSplineRank,
                 Matrix<DDRMat>        & aSolution )
         {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper","Map Node-to-Bspline");
+
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::L2 );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -283,14 +295,14 @@ namespace moris
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create nonlinear solver and algortihm
+            // STEP 2: create nonlinear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
             std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm =
                     tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-            tNonlinearSolverAlgorithm->set_param("NLA_max_iter")                = 10;
+            tNonlinearSolverAlgorithm->set_param("NLA_max_iter")                = 2;
             tNonlinearSolverAlgorithm->set_param("NLA_hard_break")              = false;
             tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
             tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian")        = true;
@@ -339,6 +351,9 @@ namespace moris
                 const moris_index     aTargetIndex,
                 const enum EntityRank aBSplineRank )
         {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper","Map Node-to-Bspline");
+
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
@@ -387,10 +402,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline_from_field( const Matrix<DDRMat>& aSourceField,
+        void Mapper::map_node_to_bspline_from_field(
+                const Matrix<DDRMat>& aSourceField,
                 Matrix<DDRMat>&       aTargetField,
                 const enum EntityRank aBSplineRank )
         {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper","Map Node-to-Bspline");
+
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
@@ -408,6 +427,9 @@ namespace moris
                 const enum EntityRank aBSplineRank,
                 const moris_index     aTargetIndex )
         {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper","Map Bspline-to-Node");
+
             // get number of nodes
             moris_index tNumberOfNodes = mTargetMesh->get_num_nodes();
 

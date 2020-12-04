@@ -191,10 +191,6 @@ namespace moris
                 this->write_mesh( aVisMeshIndex );
 
                 mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
-
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-                moris::real tElapsedTimeMax = max_all( tElapsedTime );
             }
         }
 
