@@ -34,37 +34,33 @@ namespace moris
                 Matrix<DDRMat>& aUpperBounds)
         {
             // Stage 1: HMR refinement -------------------------------------------------------------------
-
-            // start timer
-            tic tTimer;
-
-            // uniform initial refinement
-            mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
-
-            // HMR refined by GE
-            perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
-
-            // HMR finalize
-            mPerformerManager->mHMRPerformer( 0 )->perform();
-
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-            moris::real tElapsedTimeMax = max_all( tElapsedTime );
-
-            if ( par_rank() == 0 )
             {
-                MORIS_LOG_INFO( "HMR: Total time for refinement and mesh creation is %5.3f seconds.",
-                        ( double ) tElapsedTimeMax / 1000);
+                // Trace HMR
+                Tracer tTracer( "HMR", "HMRmesh", "Create" );
+
+                // uniform initial refinement
+                mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
+
+                // HMR refined by GE
+                perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
+
+                // HMR finalize
+                mPerformerManager->mHMRPerformer( 0 )->perform();
             }
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+            {
+                // Trace GEN
+                Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
-            // Get ADVs
-            aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
-            aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-            aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
+                mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
+                        mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+
+                // Get ADVs
+                aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
+                aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
+                aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

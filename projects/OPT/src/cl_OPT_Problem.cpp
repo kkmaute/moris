@@ -6,9 +6,11 @@
 #include "cl_Communication_Tools.hpp"
 #include "HDF5_Tools.hpp"
 
+// Logger package
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 #include "fn_stringify_matrix.hpp"
-extern moris::Logger gLogger;
 
 namespace moris
 {
@@ -44,10 +46,17 @@ namespace moris
 
         void Problem::initialize()
         {
+            // Trace optimization problem
+            Tracer tTracer( "OPT", "OptProblem", "Initialize" );
+
             // Initialize ADVs
             mInterface->initialize(mADVs, mLowerBounds, mUpperBounds);
 
-            this->override_advs(); // user can override the interface ADVs
+            // Override interface ADVs
+            this->override_advs();
+
+            // Log number of optimization variables
+            MORIS_LOG_SPEC("Number of optimization variables",mADVs.numel());
 
             // Check to make sure ADVs are a column vector
             if (mADVs.n_rows() == 1)
@@ -72,6 +81,10 @@ namespace moris
             // Set number of objectives and constraints
             mNumObjectives  = 1;
             mNumConstraints = mConstraintTypes.numel();
+
+            // Log number of objectives and constraints
+            MORIS_LOG_SPEC("Number of objectives",mNumObjectives);
+            MORIS_LOG_SPEC("Number of objectives",mNumConstraints);
         }
 
         // -------------------------------------------------------------------------------------------------------------
