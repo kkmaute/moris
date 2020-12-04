@@ -131,6 +131,16 @@ namespace moris
                 MORIS_ERROR( false, "Solver_Interface::set_time: not set.");
             };
 
+            virtual void set_residual_norm( const real & aResNorm )
+            {
+                //MORIS_ERROR( false, "Solver_Interface::set_residual_norm: not set.");
+            };
+
+            virtual void set_first_residual_norm( const real & aFirstResNorm )
+            {
+                //MORIS_ERROR( false, "Solver_Interface::set_first_residual_norm: not set.");
+            };
+
             virtual void set_previous_time( const Matrix< DDRMat> & aTime )
             {
                 MORIS_ERROR( false, "Solver_Interface::set_previous_time: not set.");
