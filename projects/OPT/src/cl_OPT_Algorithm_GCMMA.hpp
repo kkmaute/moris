@@ -12,7 +12,6 @@ class OptAlgGCMMA : public moris::opt::Algorithm
 {
 
 private:
-    bool mRunning = true;
     bool mPrint;
 
     moris::uint mResFlag = 0;         // flag from GCMMA describing result of optimization algorithm
@@ -68,19 +67,14 @@ public:
      * @param[in] aOptProb Object of type Problem containing relevant
      *            data regarding ADVs, the objective and constraints
      */
-    void solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Problem> aOptProb );
+    void solve(
+            uint                                 aCurrentOptAlgInd,
+            std::shared_ptr<moris::opt::Problem> aOptProb );
 
     /**
-     * Sets the new ADVs to the problem and performs a new forward and sensitivity criteria solve in parallel.
-     *
-     * @param aADVs ADVs, empty if not on proc 0
+     *@brief Run GCMMA algorithm
      */
-    void criteria_solve(Matrix<DDRMat> aADVs = {{}});
-
-    /**
-     * Communicates proc 0's running status to other procs so they know when to end.
-     */
-    void communicate_running_status();
+    void gcmma_solve();
 
     /**
      *@brief Prints result of the GCMMA algorithm based on mStopFlag

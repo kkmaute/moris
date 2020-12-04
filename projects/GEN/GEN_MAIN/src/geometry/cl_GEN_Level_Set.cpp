@@ -7,6 +7,10 @@
 #include "cl_SOL_Dist_Map.hpp"
 #include "fn_trans.hpp"
 
+// Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 namespace moris
 {
     namespace ge
@@ -202,6 +206,9 @@ namespace moris
 
         Matrix<DDRMat> Level_Set::map_to_bsplines(std::shared_ptr<Geometry> aGeometry)
         {
+            // Tracer
+             Tracer tTracer("GEN", "Levelset","L2Mapping");
+
             // Create source field
             Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
             for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)

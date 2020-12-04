@@ -4,9 +4,6 @@
 #include <gperftools/profiler.h>
 #endif
 
-#include "cl_Stopwatch.hpp" //CHR/src
-
-// fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
@@ -36,6 +33,10 @@
 
 #include "fn_PRM_MSI_Parameters.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 #include "fn_Exec_load_user_library.hpp"
 
 namespace moris
@@ -54,6 +55,8 @@ namespace moris
           mBSplineIndex ( aBSplineIndex ),
           mUseMultigrid( aUseMultigrid )
         {
+            Tracer tTracer( "FEM", "Model", "Create" );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: initialize
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,74 +66,58 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer1;
-
-            // build the FEM model from FEM parameter list
-            mEquationModel = std::make_shared< fem::FEM_Model >(
-                    mMeshManager,
-                    mMeshPairIndex,
-                    aSetInfo );
-
-            if( par_rank() == 0)
             {
-                // stop timer
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+                Tracer tTracer( "FEM", "Model", "CreateEquationModel" );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
+                // build the FEM model from FEM parameter list
+                mEquationModel = std::make_shared< fem::FEM_Model >(
+                        mMeshManager,
+                        mMeshPairIndex,
+                        aSetInfo );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create the model solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer2;
-
-            // create the MSI parameter list
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
-            tMSIParameters.set( "multigrid", mUseMultigrid );
-
-            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
-                tMSIParameters.set( "L2", (sint)mBSplineIndex );
-                tMSIParameters.set( "TEMP", (sint)mBSplineIndex );
-            }
+                Tracer tTracer( "FEM", "Model", "CreateMSI" );
 
-            // build the model solver interface from the MSI parameter list
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
-                    tMSIParameters,
-                    mEquationModel,
-                    tInterpolationMesh );
+                // create the MSI parameter list
+                moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+                tMSIParameters.set( "multigrid", mUseMultigrid );
 
-            // finalize the model solver interface
-            mModelSolverInterface->finalize();
+                if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+                {
+                    tMSIParameters.set( "L2", (sint)mBSplineIndex );
+                    tMSIParameters.set( "TEMP", (sint)mBSplineIndex );
+                }
 
-            // finalize the fem sets
-            mEquationModel->finalize_equation_sets( mModelSolverInterface );
+                // build the model solver interface from the MSI parameter list
+                mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
+                        tMSIParameters,
+                        mEquationModel,
+                        tInterpolationMesh );
 
-            // calculate AdofMap
-            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+                // finalize the model solver interface
+                mModelSolverInterface->finalize();
 
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+                // finalize the fem sets
+                mEquationModel->finalize_equation_sets( mModelSolverInterface );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
+                // calculate AdofMap
+                mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 4: create the solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            mSolverInterface = new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+            {
+                Tracer tTracer( "FEM", "Model", "CreateSolverInterface" );
 
-            mSolverInterface->set_model( this );
+                mSolverInterface = new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+
+                mSolverInterface->set_model( this );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -141,8 +128,7 @@ namespace moris
           mBSplineIndex( aBSplineIndex ),
           mLibrary( aLibrary )
         {
-            // start timer
-            tic tTimer0;
+            Tracer tTracer( "FEM", "Model", "Create" );
 
             // load the MSI parameter list
             std::string tMSIString = "MSIParameterList";
@@ -163,17 +149,6 @@ namespace moris
             std::string tVISString = "VISParameterList";
             MORIS_PARAMETER_FUNCTION tVISParameterListFunc = mLibrary->load_parameter_file( tVISString );
             tVISParameterListFunc( mVISParameterList );
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: unpack of the inputs in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
-            }
         }
 
         //------------------------------------------------------------------------------
@@ -189,80 +164,68 @@ namespace moris
           mBSplineIndex( aBSplineIndex ),
           mUseMultigrid( aUseMultigrid )
         {
+            Tracer tTracer( "FEM", "Model", "Create" );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer1;
-
-            // build the FEM model from FEM parameter list
-            mEquationModel = std::make_shared< fem::FEM_Model >(
-                    mMeshManager,
-                    mMeshPairIndex,
-                    aSetInfo,
-                    aDesignVariableInterface );
-
-            if( par_rank() == 0)
             {
-                // stop timer
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+                Tracer tTracer( "FEM", "Model", "CreateEquationModel" );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
+                // build the FEM model from FEM parameter list
+                mEquationModel = std::make_shared< fem::FEM_Model >(
+                        mMeshManager,
+                        mMeshPairIndex,
+                        aSetInfo,
+                        aDesignVariableInterface );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create the model solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
-            tic tTimer2;
-
-            // Get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
-
-            // create the MSI parameter list
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
-            tMSIParameters.set( "multigrid", mUseMultigrid );
-
-            // create the model solver interface from the MSI parameter list
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
-                    tMSIParameters,
-                    mEquationModel,
-                    tInterpolationMesh );
-
-            // finalize the model solver interface
-            mModelSolverInterface->finalize();
-
-            // finalize the fem sets
-            // FIXME pass in the interface
-            mEquationModel->finalize_equation_sets( mModelSolverInterface );
-
-            // calculate AdofMap
-            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
-
-            if( par_rank() == 0)
             {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+                Tracer tTracer( "FEM", "Model", "CreateMSI" );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
+                // Get pointers to interpolation and integration mesh
+                mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
+
+                // create the MSI parameter list
+                moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+                tMSIParameters.set( "multigrid", mUseMultigrid );
+
+                // create the model solver interface from the MSI parameter list
+                mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
+                        tMSIParameters,
+                        mEquationModel,
+                        tInterpolationMesh );
+
+                // finalize the model solver interface
+                mModelSolverInterface->finalize();
+
+                // finalize the fem sets
+                // FIXME pass in the interface
+                mEquationModel->finalize_equation_sets( mModelSolverInterface );
+
+                // calculate AdofMap
+                mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // create the solver interface
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+            {
+                Tracer tTracer( "FEM", "Model", "CreateSolverInterface" );
 
-            mSolverInterface->set_model( this );
+                mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+
+                mSolverInterface->set_model( this );
+            }
         }
 
         //------------------------------------------------------------------------------
+
         Model::~Model()
         {
             // delete SI
@@ -290,6 +253,8 @@ namespace moris
 
         void Model::initialize()
         {
+            Tracer tTracer( "FEM", "Model", "Initialize" );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: delete model and interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -300,94 +265,71 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer1;
-
-            // build the FEM model from FEM parameter list
-            mEquationModel = std::make_shared< fem::FEM_Model >(
-                    mMeshManager,
-                    mMeshPairIndex,
-                    mFEMParameterList,
-                    mLibrary,
-                    mDesignVariableInterface );
-
-            //mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-
-            mDesignVariableInterface->set_equation_model( mEquationModel );
-
-            if( par_rank() == 0)
             {
-                // stop timer
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+                Tracer tTracer( "FEM", "Model", "CreateEquationModel" );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
+                // build the FEM model from FEM parameter list
+                mEquationModel = std::make_shared< fem::FEM_Model >(
+                        mMeshManager,
+                        mMeshPairIndex,
+                        mFEMParameterList,
+                        mLibrary,
+                        mDesignVariableInterface );
+
+                //mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+
+                mDesignVariableInterface->set_equation_model( mEquationModel );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create the model solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer2;
+            {
+                Tracer tTracer( "FEM", "Model", "CreateMSI" );
 
-            // get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
+                // get pointers to interpolation and integration mesh
+                mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
-            // Does not work with STK
-            MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
+                // Does not work with STK
+                MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
 
-            // build the model solver interface
+                // build the model solver interface
 
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
-                    mMSIParameterList( 0 )( 0 ),
-                    mEquationModel,
-                    tInterpolationMesh );
+                mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
+                        mMSIParameterList( 0 )( 0 ),
+                        mEquationModel,
+                        tInterpolationMesh );
+            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create the solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
-
-            mSolverInterface->set_model( this );
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 4: create the solver
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimerSolver;
-            mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
-
-            mSolverWarehouse->set_parameterlist( mSOLParameterList );
-
-            mSolverWarehouse->initialize();
-
-            if( par_rank() == 0)
             {
-                // stop timer
-                real tElapsedTime = tTimerSolver.toc<moris::chronos::milliseconds>().wall;
+                Tracer tTracer( "FEM", "Model", "CreateSolverInterface" );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created Solver Warehouse in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-            }
+                mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
-            // finalize the model solver interface
-            mModelSolverInterface->finalize();
+                mSolverInterface->set_model( this );
 
-            // calculate AdofMap
-            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                // STEP 4: create the solver
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                // start timer
+                {
+                    Tracer tTracer( "FEM", "Model", "CreateSolver" );
 
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+                    mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
 
-                // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
+                    mSolverWarehouse->set_parameterlist( mSOLParameterList );
+
+                    mSolverWarehouse->initialize();
+                }
+
+                // finalize the model solver interface
+                mModelSolverInterface->finalize();
+
+                // calculate AdofMap
+                mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
             }
 
             // finalize the fem sets
@@ -407,10 +349,14 @@ namespace moris
         {
             if( aIndex == 0 )
             {
+                Tracer tTracer( "FEM", "Model", "PerformForwardAnalysis" );
+
                 this->perform_forward_analysis();
             }
             else if( aIndex == 1 )
             {
+                Tracer tTracer( "FEM", "Model", "PerformSensitivityAnalysis" );
+
                 this->perform_sensitivity_analysis();
             }
         }
@@ -507,6 +453,8 @@ namespace moris
                 const real aTime,
                 const bool aCloseFile )
         {
+            Tracer tTracer( "FemModel", "PostProcessing", "OutputSolution" );
+
             // create vis mesh and setup output
             mOutputManager->setup_vis_mesh_for_output(
                     aVisMeshIndex,
@@ -514,32 +462,17 @@ namespace moris
                     mMeshPairIndex,
                     mEquationModel );
 
-            // start timer
-            tic tTimer;
-
             // write requested fields
             mOutputManager->write_field(
                     aVisMeshIndex,
                     aTime,
                     mEquationModel );
 
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-            moris::real tElapsedTimeMax = max_all( tElapsedTime );
-
-            if ( par_rank() == 0 )
-            {
-                MORIS_LOG_INFO( "VIS: Write Field to Vis Mesh took %5.3f seconds.",
-                        ( double ) tElapsedTimeMax / 1000);
-            }
-
             if( aCloseFile )
             {
                 // end writing and delete vis mesh
                 mOutputManager->end_writing( aVisMeshIndex );
             }
-
-
         }
 
     } /* namespace mdl */

@@ -1,4 +1,5 @@
 #include "cl_OPT_Algorithm_SQP.hpp"
+#include "cl_Communication_Tools.hpp"
 
 // Logger package
 #include "cl_Logger.hpp"
@@ -90,9 +91,12 @@ namespace moris
             // loop over all entries in the parameter list
             for ( auto it = aParameterList.begin(); it != aParameterList.end(); ++it )
             {
+                // skip over non-SQP specific parameters
+                if ( it->first == "restart_index") continue;
+
                 sint tParamType = aParameterList.which( it->first ); // get the underlying parameter type
 
-                // call Fortran rubroutine based on parameter type
+                // call Fortran subroutine based on parameter type
                 switch ( tParamType )
                 {
                     case 1: // set integer parameters
@@ -102,7 +106,7 @@ namespace moris
                         short paramlen  = strlen( paramname );
 
                         snseti_( paramname, &tParamVal, &tPrint, &tSumm, &tExit,
-                                 mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
+                                mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
 
                         break;
                     }
@@ -114,7 +118,7 @@ namespace moris
                         short paramlen   = strlen( paramname );
 
                         snsetr_( paramname, &tParamVal, &tPrint, &tSumm, &tExit,
-                                 mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
+                                mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
                         break;
                     }
 
@@ -155,10 +159,39 @@ namespace moris
             // Trace optimization
             Tracer tTracer( "OptimizationAlgorithm", "SQP", "Solve" );
 
-
             mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
             mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 
+            // Set optimization iteration index for restart
+            if ( mRestartIndex > 0)
+            {
+                gLogger.set_opt_iteration( mRestartIndex );
+            }
+
+            // Solve optimization problem
+            if (par_rank() == 0)
+            {
+                // Run sqp algorithm
+                this->sqp_solve();
+
+                // update aOptProb FIXME: Why is this needed
+                aOptProb = mProblem;
+
+                // Communicate that optimization has finished
+                mRunning = false;
+                this->communicate_running_status();
+            }
+            else
+            {
+                // Run dummy solve
+                this->dummy_solve();
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Algorithm_SQP::sqp_solve()
+        {
             int tInform = 0;
             int tPrint = 0;
             int tSumm  = 0;
@@ -261,8 +294,7 @@ namespace moris
             // calculate required memory
             double rmem = sizeof(double)*(mLenRW+2*n+4*nF) + sizeof(int)*(nF+n+mLenIW+lenG) + sizeof(char)*(mLenCW*8);
 
-            if( tPrint > 0 )
-                fprintf(stderr," ... Allocating memory for SNOPT: %8.2f Mb.\n",rmem/1024.0/1024.0);
+            MORIS_LOG_INFO("Allocating memory for SNOPT: %8.2f Mb.\n",rmem/1024.0/1024.0);
 
             // initialize with resized work arrays
             sninit_(&tPrint, &tSumm, mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW);
@@ -288,8 +320,6 @@ namespace moris
                     mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW,
                     strlen(mProb));
 
-            aOptProb = mProblem; // update aOptProb
-
             // delete temporary arrays
             free(F);
             free(Fstate);
@@ -309,19 +339,23 @@ namespace moris
 
         void Algorithm_SQP::func_grad(int n, double* x, int needG )
         {
-            // Log iteration of optimization
-            MORIS_LOG_ITERATION();
-
+            // get ADVs from problem
             auto tAdvVec = mProblem->get_advs().data();
 
-            if( !std::equal(x, x+n, tAdvVec) )
+            // check whether criteria need to be evaluated
+            if( mOptIter == 0 or !std::equal(x, x+n, tAdvVec) )
             {
+                // Proc 0 needs to communicate that it is still running
+                this->communicate_running_status();
+
                 // update the vector of design variables
                 Matrix<DDRMat> tADVs(x, mProblem->get_num_advs(), 1);
-                mProblem->set_advs(tADVs);
 
                 // Write restart file
                 this->write_advs_to_file(mOptIter,tADVs);
+
+                // Recruit help from other procs and solve for criteria
+                this->criteria_solve(tADVs);
 
                 // set update for objectives and constraints
                 mProblem->mUpdateObjectives = true;
@@ -344,7 +378,9 @@ namespace moris
                 char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru )
         {
             moris::opt::Algorithm_SQP* tOptAlgSQP = reinterpret_cast< moris::opt::Algorithm_SQP* >(cu);
+
             tOptAlgSQP->func_grad(*n, x, *needG);
+
             *Status = 0;
 
             if(*needf)
