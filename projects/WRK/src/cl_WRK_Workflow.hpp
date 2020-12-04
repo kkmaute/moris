@@ -76,7 +76,10 @@ namespace moris
                 /**
                  * Initializes the vectors of ADV values, lower bounds, and upper bounds
                  */
-                void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
+                void initialize(
+                        Matrix<DDRMat>& aADVs,
+                        Matrix<DDRMat>& aLowerBounds,
+                        Matrix<DDRMat>& aUpperBounds);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -84,7 +87,7 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
+                Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs);
 
                 //------------------------------------------------------------------------------
                 /**

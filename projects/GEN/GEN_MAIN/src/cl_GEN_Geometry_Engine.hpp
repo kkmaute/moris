@@ -148,7 +148,7 @@ namespace moris
              *
              * @param aNewADVs vector of new advs to use
              */
-            void set_advs(Matrix<DDRMat> aNewADVs);
+            void set_advs(const Matrix<DDRMat> & aNewADVs);
 
             /**
              * Gets the advs from the geometry engine

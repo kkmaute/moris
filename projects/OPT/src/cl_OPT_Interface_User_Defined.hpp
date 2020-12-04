@@ -31,9 +31,10 @@ namespace moris
              * @param aCriteriaEvaluationFunction Function for evaluating the criteria vector.
              * @param aCriteriaGradientFunction Function for evaluating the gradient of the criteria vector wrt ADVs.
              */
-            Interface_User_Defined(MORIS_CRITERIA_INITIALIZE_FUNCTION aInitializationFunction,
-                                   MORIS_CRITERIA_FUNCTION aCriteriaEvaluationFunction,
-                                   MORIS_CRITERIA_FUNCTION aCriteriaGradientFunction);
+            Interface_User_Defined(
+                    MORIS_CRITERIA_INITIALIZE_FUNCTION aInitializationFunction,
+                    MORIS_CRITERIA_FUNCTION aCriteriaEvaluationFunction,
+                    MORIS_CRITERIA_FUNCTION aCriteriaGradientFunction);
 
             /**
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
@@ -42,16 +43,17 @@ namespace moris
              * @param aLowerBounds Lower ADV bounds to be filled.
              * @param aUpperBounds Upper ADV bounds to be filled.
              */
-            void initialize(Matrix<DDRMat>& aADVs,
-                            Matrix<DDRMat>& aLowerBounds,
-                            Matrix<DDRMat>& aUpperBounds);
+            void initialize(
+                    Matrix<DDRMat>& aADVs,
+                    Matrix<DDRMat>& aLowerBounds,
+                    Matrix<DDRMat>& aUpperBounds);
 
             /**
              * Gets the criteria values.
              *
              * @return vector of criteria
              */
-            Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
+            Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs);
 
             /**
              * Gets the derivative of the criteria with respect to the advs.

@@ -76,6 +76,7 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "algorithm", "lbfgs"); // Algorithm name, don't change
+            tParameterList.insert( "restart_index", 0  ); // Restart iteration index
             tParameterList.insert( "max_its"  , 100    ); // maximum optimization iterations allowed
             tParameterList.insert( "num_corr" , 5      ); // number of limited memory corrections used in the BFGS update
             tParameterList.insert( "norm_drop", 1.0e+7 ); // LBFGS convergence criteria (this is internally multiplied with machine precision)
@@ -91,6 +92,8 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "algorithm", "sqp"); // Algorithm name, don't change
+
+            tParameterList.insert( "restart_index", 0    );   // Restart iteration index
 
             // Printing
             tParameterList.insert( "Major print level", 1 );   // Controls the amount of output to print each major iteration.
@@ -168,21 +171,21 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("algorithm", "sweep"); // Algorithm name, don't change
-            tParameterList.insert("num_evaluations_per_adv", "10"); // Uniformly sweep each adv with this many evaluation points per adv
-                                                                    // Can specify different number per adv, or one value (applies to all advs)
-            tParameterList.insert("custom_adv_evaluations", ""); // Evaluate with ADVs at specified values, overrides num_evaluations_per_adv
-            tParameterList.insert("include_bounds", true); // Allow evaluations with ADVs at the lower and upper bounds
-            tParameterList.insert("evaluate_objectives", true); // Calculate and output the objective at each point
-            tParameterList.insert("evaluate_constraints", true); // Calculate and output the constraints at each point
-            tParameterList.insert("evaluate_objective_gradients", true); // Calculate and output the objective gradients at each point
+            tParameterList.insert("algorithm", "sweep");                  // Algorithm name, don't change
+            tParameterList.insert("num_evaluations_per_adv", "10");       // Uniformly sweep each adv with this many evaluation points per adv
+                                                                          // Can specify different number per adv, or one value (applies to all advs)
+            tParameterList.insert("custom_adv_evaluations", "");          // Evaluate with ADVs at specified values, overrides num_evaluations_per_adv
+            tParameterList.insert("include_bounds", true);                // Allow evaluations with ADVs at the lower and upper bounds
+            tParameterList.insert("evaluate_objectives", true);           // Calculate and output the objective at each point
+            tParameterList.insert("evaluate_constraints", true);          // Calculate and output the constraints at each point
+            tParameterList.insert("evaluate_objective_gradients", true);  // Calculate and output the objective gradients at each point
             tParameterList.insert("evaluate_constraint_gradients", true); // Calculate and output the constraint gradients at each point
-            tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
-                                                                                // central, forward, backward, all, or none
-            tParameterList.insert("finite_difference_epsilons", "1E-8"); // Use finite differencing to obtain gradients with these epsilons
-            tParameterList.insert("save", true); // Save the sweep evaluations in "hdf5_path"
-            tParameterList.insert("print", false); // Print the sweep evaluations to the screen with moris::print
-            tParameterList.insert("hdf5_path", ""); // Path and file name for saving if "save" is set to true
+            tParameterList.insert("finite_difference_type", "none");      // Type of finite differencing for gradients;
+                                                                          // central, forward, backward, all, or none
+            tParameterList.insert("finite_difference_epsilons", "1E-8");  // Use finite differencing to obtain gradients with these epsilons
+            tParameterList.insert("save", true);                          // Save the sweep evaluations in "hdf5_path"
+            tParameterList.insert("print", false);                        // Print the sweep evaluations to the screen with moris::print
+            tParameterList.insert("hdf5_path", "");                       // Path and file name for saving if "save" is set to true
 
             return tParameterList;
         }

@@ -98,6 +98,9 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProbl
             tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
         }
 
+        mMyNonLinSolverManager->get_solver_interface()->set_first_residual_norm( mMyNonLinSolverManager->get_ref_norm() );
+        mMyNonLinSolverManager->get_solver_interface()->set_residual_norm( mMyNonLinSolverManager->get_residual_norm() );
+
         if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )
         {
             sint tRestart = mParameterListNonlinearSolver.get< sint >( "NLA_restart" );

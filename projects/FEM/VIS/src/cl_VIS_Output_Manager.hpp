@@ -169,8 +169,6 @@ namespace moris
                     }
 
                     this->delete_pointers( aVisMeshIndex );
-
-                    MORIS_LOG( " Finished writing output. ");
                 }
 
                 //-----------------------------------------------------------------------------------------------------------

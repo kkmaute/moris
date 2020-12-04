@@ -65,6 +65,9 @@ namespace moris
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
 
+            real mResNorm;
+            real mFirstResNorm;
+
             MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
             bool mIsForwardAnalysis = true;
@@ -249,6 +252,20 @@ namespace moris
             {
                 mTime = aTime;
             }
+
+            //------------------------------------------------------------------------------
+
+            void set_residual_norm( const real & aResNorm )
+            {
+                mResNorm = aResNorm;
+            };
+
+            //------------------------------------------------------------------------------
+
+            void set_first_residual_norm( const real & aFirstResNorm )
+            {
+                mFirstResNorm = aFirstResNorm;
+            };
 
             //------------------------------------------------------------------------------
             /**

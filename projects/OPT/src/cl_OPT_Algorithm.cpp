@@ -18,6 +18,71 @@ namespace moris
         {
         }
 
+        //----------------------------------------------------------------------------------------------------------------------
+
+        void Algorithm::criteria_solve(const Matrix<DDRMat> & aADVs)
+        {
+            // Log iteration of optimization
+            MORIS_LOG_ITERATION();
+
+            // Set ADVs and get criteria
+            this->mProblem->set_advs(aADVs);
+        }
+
+        //----------------------------------------------------------------------------------------------------------------------
+
+        void Algorithm::communicate_running_status()
+        {
+            // Sending/receiving status
+            Matrix<DDSMat> tSendingStatus = {{mRunning}};
+            Matrix<DDSMat> tReceivingStatus(0, 0);
+
+            // Communication list
+            Matrix<DDUMat> tCommunicationList(1, 1, 0);
+            if (par_rank() == 0)
+            {
+                // Resize communication list and sending mat
+                tCommunicationList.resize(par_size() - 1, 1);
+                tSendingStatus.set_size(par_size() - 1, 1, mRunning);
+
+                // Assign communication list
+                for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+                {
+                    tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
+                }
+            }
+
+            // Perform communication
+            communicate_scalars(tCommunicationList, tSendingStatus, tReceivingStatus);
+
+            // Assign new status
+            if (par_rank() != 0)
+            {
+                mRunning = tReceivingStatus(0);
+            }
+        }
+
+        //----------------------------------------------------------------------------------------------------------------------
+
+        void Algorithm::dummy_solve()
+        {
+            // Communicate that these procs need to start running
+            this->communicate_running_status();
+
+            // Create dummy ADVs
+            Matrix<DDRMat> tDummyADVs;
+
+            // Keep looping over func/grad calls
+            while(mRunning)
+            {
+                // Call to help out with criteria solve
+                this->criteria_solve(tDummyADVs);
+
+                // Communicate running status so these processors know when to exit
+                this->communicate_running_status();
+            }
+        }
+
         // -------------------------------------------------------------------------------------------------------------
         
         void Algorithm::write_advs_to_file( uint aIterationIndex, const Matrix<DDRMat> aADVs )

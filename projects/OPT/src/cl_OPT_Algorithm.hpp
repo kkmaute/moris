@@ -12,11 +12,13 @@ namespace moris
         {
         protected:
 
-            uint mCurrentOptAlgInd;    // stores index of current optimization solver
+            uint mCurrentOptAlgInd;                         // stores index of current optimization solver
 
-            std::shared_ptr<moris::opt::Problem> mProblem;
+            std::shared_ptr<moris::opt::Problem> mProblem;  // pointer to problem algorithm operates on
 
-            Matrix< DDSMat > mActive; // flag for active/inactive constraints
+            Matrix< DDSMat > mActive;                       // flag for active/inactive constraints
+
+            bool mRunning = true;
 
         public:
 
@@ -37,6 +39,23 @@ namespace moris
              *            data regarding ADVs, the objective and constraints
              */
             virtual void solve(uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb) = 0;
+
+            /**
+              * Sets the new ADVs to the problem and performs a new forward and sensitivity criteria solve in parallel.
+              *
+              * @param aADVs ADVs, empty if not on proc 0
+              */
+             void criteria_solve( const Matrix<DDRMat> & aADVs );
+
+             /**
+              * Communicates proc 0's running status to other processors so they know when to end.
+              */
+             void communicate_running_status();
+
+             /**
+              * Dummy solve on processors not running optimization algorithm.
+              */
+             void dummy_solve();
 
             /**
              * @brief write restart file with advs as well as upper and lower bounds
