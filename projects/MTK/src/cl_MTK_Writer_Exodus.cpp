@@ -212,7 +212,7 @@ namespace moris
 
         void Writer_Exodus::set_nodal_fields(moris::Cell<std::string> aFieldNames)
         {
-            if (aFieldNames.size() > 0)
+            if ( aFieldNames.size() > 0 && mNumNodes > 0 )
             {
                 // Write the number of nodal fields
                 ex_put_variable_param(mExoid, EX_NODAL, aFieldNames.size());
@@ -230,7 +230,7 @@ namespace moris
 
         void Writer_Exodus::set_elemental_fields(moris::Cell<std::string> aFieldNames)
         {
-            if (aFieldNames.size() > 0)
+            if ( aFieldNames.size() > 0 && mNumElements > 0 )
             {
                 // Write the number of elemental fields
                 ex_put_variable_param(mExoid, EX_ELEM_BLOCK, aFieldNames.size());
@@ -334,6 +334,9 @@ namespace moris
             // skip if no nodal values exist
             if ( aFieldValues.numel() == 0 )
             {
+                MORIS_ASSERT( mNumNodes == 0,
+                        "Number of field values is zero but not number of nodes.\n");
+
                 return;
             }
 
@@ -368,6 +371,9 @@ namespace moris
             // skip if no elemental values exist
             if ( aFieldValues.numel() == 0 )
             {
+                MORIS_ASSERT( mNumElements == 0,
+                        "Number of field values is zero but not number of elements.\n");
+
                 return;
             }
 
