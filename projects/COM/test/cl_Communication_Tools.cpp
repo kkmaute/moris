@@ -17,7 +17,7 @@ namespace moris
 {
     TEST_CASE( "moris::send_mat_to_proc",
             "[comm]" )
-        {
+                {
 
         /*SECTION( "moris::Mat send and receive test" )
     {
@@ -102,10 +102,35 @@ namespace moris
         }
 
     } */
-        }
+                }
 
+    TEST_CASE( "moris::sum_min_max",
+            "[comm],[allreduce]" )
+    {
+        // check min, max, sum of real value
+        real tLocalReal  = (real) par_rank();
 
-     TEST_CASE( "moris::proc_cart",
+        real tGlobalRealMax = max_all(tLocalReal);
+        real tGlobalRealMin = min_all(tLocalReal);
+        real tGlobalRealSum = sum_all(tLocalReal);
+
+        real tCheckRealSum = 0.0;
+        for (uint i=0;i<(uint)par_size();++i) tCheckRealSum += (real)i;
+
+        REQUIRE( tGlobalRealMax == (real)(par_size()-1) );
+        REQUIRE( tGlobalRealMin == 0.0 );
+        REQUIRE( tGlobalRealSum == tCheckRealSum );
+
+        // check sum of real matrix
+        Matrix<DDRMat> tLocalRealMat(10,5,(real) par_rank());
+        Matrix<DDRMat> tCheckRealMat(10,5,tCheckRealSum);
+
+        Matrix<DDRMat> tGlobalRealMatSum = sum_all_matrix(tLocalRealMat);
+
+        REQUIRE( norm(tGlobalRealMatSum - tCheckRealMat) < 1e-12 );
+    }
+
+    TEST_CASE( "moris::proc_cart",
             "[comm],[proc_cart]" )
     {
 
