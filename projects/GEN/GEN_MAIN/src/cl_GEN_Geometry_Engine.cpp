@@ -71,6 +71,9 @@ namespace moris
                 // Phase table
                 mPhaseTable(mGeometries.size(), string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")))
         {
+            // Tracer
+             Tracer tTracer("GEN", "Geometry_Engine","Create");
+
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
             map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
@@ -126,6 +129,9 @@ namespace moris
                   mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
+            // Tracer
+            Tracer tTracer("GEN", "Geometry_Engine","Create");
+
             this->compute_level_set_data(aMesh);
         }
 
@@ -138,7 +144,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
+        void Geometry_Engine::set_advs(const Matrix<DDRMat> & aNewADVs)
         {
             // Set new ADVs
             mOwnedADVs->vec_put_scalar(0);
@@ -597,7 +603,7 @@ namespace moris
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             // Tracer
-            Tracer tTracer( "GeometryEngine", "CreatePDVs" );
+            Tracer tTracer( "GeometryEngine", "PDVs", "Create" );
 
             // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
@@ -722,7 +728,7 @@ namespace moris
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "SetUpGeometries");
+            Tracer tTracer("GeometryEngine", "Levelset", "SetUpGeometries");
 
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
@@ -994,7 +1000,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "FieldOutput");
+            Tracer tTracer("GEN", "Fields","Output");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);

@@ -12,12 +12,13 @@ namespace moris
         {
         private:
 
-            uint mOptIter = 0; // optimization iteration counter
-            uint mResFlag; // Flag from L-BFGS describing result of optimization algorithm
-            sint mMaxIt; // Maximum number of optimization iterations
-            int mNumCorrections; // Number of limited memory corrections
-            double mNormDrop; // Convergence criteria based on norm
-            double mGradTolerance; // Convergence criteria based on projected gradients
+            uint mOptIter = 0;         // optimization iteration counter
+            uint mRestartIndex = 0;    // iteration index to be set when restarting
+            uint mResFlag;             // Flag from L-BFGS describing result of optimization algorithm
+            sint mMaxIt;               // Maximum number of optimization iterations
+            int mNumCorrections;       // Number of limited memory corrections
+            double mNormDrop;          // Convergence criteria based on norm
+            double mGradTolerance;      // Convergence criteria based on projected gradients
 
         public:
 
@@ -39,7 +40,9 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
+            void solve(
+                    uint aCurrentOptAlgInd,
+                    std::shared_ptr<Problem> aOptProb );
 
             /**
              * @brief MORIS-GCMMA interface for evaluation of objectives and

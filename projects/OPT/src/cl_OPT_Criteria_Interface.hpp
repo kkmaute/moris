@@ -10,66 +10,68 @@ namespace moris
     {
         class Criteria_Interface
         {
-        private:
-            bool mEvaluated = false;
-            Matrix<DDRMat> mSensitivities;
+            private:
 
-        public:
+                bool mEvaluated = false;
+                Matrix<DDRMat> mSensitivities;
 
-            /**
-             * Constructor
-             */
-            Criteria_Interface()
-            {
-            }
+            public:
 
-            /**
-             * Destructor
-             */
-            virtual ~Criteria_Interface()
-            {
-            }
+                /**
+                 * Constructor
+                 */
+                Criteria_Interface()
+                {
+                }
 
-            /**
-             * Initializes the vectors of ADV values, lower bounds, and upper bounds
-             *
-             * @param aADVs Initial ADVs to be filled.
-             * @param aLowerBounds Lower ADV bounds to be filled.
-             * @param aUpperBounds Upper ADV bounds to be filled.
-             */
-            virtual void initialize(Matrix<DDRMat>& aADVs,
-                                    Matrix<DDRMat>& aLowerBounds,
-                                    Matrix<DDRMat>& aUpperBounds) = 0;
+                /**
+                 * Destructor
+                 */
+                virtual ~Criteria_Interface()
+                {
+                }
 
-            /**
-             * Gets the criteria values given a new set of ADVs
-             *
-             * @return vector of criteria
-             */
-            Matrix<DDRMat> get_criteria(Matrix<DDRMat> aNewADVs);
+                /**
+                 * Initializes the vectors of ADV values, lower bounds, and upper bounds
+                 *
+                 * @param aADVs Initial ADVs to be filled.
+                 * @param aLowerBounds Lower ADV bounds to be filled.
+                 * @param aUpperBounds Upper ADV bounds to be filled.
+                 */
+                virtual void initialize(
+                        Matrix<DDRMat>& aADVs,
+                        Matrix<DDRMat>& aLowerBounds,
+                        Matrix<DDRMat>& aUpperBounds) = 0;
 
-            /**
-             * Gets the derivatives of the criteria with respect to the advs, and computes if not already done
-             *
-             * @return matrix d(criteria)_i/d(adv)_j
-             */
-            Matrix<DDRMat> get_dcriteria_dadv();
+                /**
+                 * Gets the criteria values given a new set of ADVs
+                 *
+                 * @return vector of criteria
+                 */
+                Matrix<DDRMat> get_criteria(const Matrix<DDRMat> & aNewADVs);
 
-        private:
+                /**
+                 * Gets the derivatives of the criteria with respect to the advs, and computes if not already done
+                 *
+                 * @return matrix d(criteria)_i/d(adv)_j
+                 */
+                Matrix<DDRMat> get_dcriteria_dadv();
 
-            /**
-             * Gets the criteria values given a new set of ADVs
-             *
-             * @return vector of criteria
-             */
-            virtual Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs) = 0;
+            private:
 
-            /**
-             * Computes the derivatives of the criteria with respect to the advs
-             *
-             * @return matrix d(criteria)_i/d(adv)_j
-             */
-            virtual Matrix<DDRMat> compute_dcriteria_dadv() = 0;
+                /**
+                 * Gets the criteria values given a new set of ADVs
+                 *
+                 * @return vector of criteria
+                 */
+                virtual Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs) = 0;
+
+                /**
+                 * Computes the derivatives of the criteria with respect to the advs
+                 *
+                 * @return matrix d(criteria)_i/d(adv)_j
+                 */
+                virtual Matrix<DDRMat> compute_dcriteria_dadv() = 0;
 
         };
     }

@@ -10,63 +10,68 @@ namespace moris
     {
         class Interface_Manager : public Criteria_Interface
         {
-        private:
-            Cell<std::shared_ptr<Criteria_Interface>> mInterfaces;
-            Matrix<DDUMat> mNumADVsPerInterface;
-            Matrix<DDUMat> mNumCriteriaPerInterface;
-            Matrix<DDSMat> mProcessorBoundaries;
+            private:
 
-            bool mSharedADVs;
-            bool mParallel;
+                Cell<std::shared_ptr<Criteria_Interface>> mInterfaces;
 
-            uint mNumInterfaces;
+                Matrix<DDUMat> mNumADVsPerInterface;
+                Matrix<DDUMat> mNumCriteriaPerInterface;
+                Matrix<DDSMat> mProcessorBoundaries;
 
-        public:
+                uint mNumInterfaces;
 
-            /**
-             * Constructor
-             */
-            Interface_Manager(ParameterList aParameterList,
-                              Cell<std::shared_ptr<Criteria_Interface>> aInterfaces);
+                bool mSharedADVs;
+                bool mParallel;
 
-            /**
-             * Destructor
-             */
-            ~Interface_Manager()
-            {
-            }
+            public:
 
-            /**
-             * Sets the individual interfaces based on a cell of parameter lists
-             */
-            void set_interfaces();
+                /**
+                 * Constructor
+                 */
+                Interface_Manager(
+                        ParameterList                             aParameterList,
+                        Cell<std::shared_ptr<Criteria_Interface>> aInterfaces);
 
-            /**
-             * Initializes the vectors of ADV values, lower bounds, and upper bounds
-             */
-            void initialize(Matrix<DDRMat>& aADVs,
-                            Matrix<DDRMat>& aLowerBounds,
-                            Matrix<DDRMat>& aUpperBounds);
+                /**
+                 * Destructor
+                 */
+                ~Interface_Manager()
+                {
+                }
 
-            /**
-             * Gets the criteria values
-             *
-             * @return vector of criteria
-             */
-            Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
+                /**
+                 * Sets the individual interfaces based on a cell of parameter lists
+                 */
+                void set_interfaces();
 
-            /**
-             * Gets the derivative of the criteria with respect to the advs
-             *
-             * @return matrix d(criteria)_i/d(adv)_j
-             */
-            Matrix<DDRMat> compute_dcriteria_dadv();
+                /**
+                 * Initializes the vectors of ADV values, lower bounds, and upper bounds
+                 */
+                void initialize(
+                        Matrix<DDRMat>& aADVs,
+                        Matrix<DDRMat>& aLowerBounds,
+                        Matrix<DDRMat>& aUpperBounds);
 
-            /**
-             * Gets the local advs based on whether or not they are shared
-             */
-            Matrix<DDRMat> get_local_advs(Matrix<DDRMat> aGlobalADVs,
-                                          uint tInterfaceIndex);
+                /**
+                 * Gets the criteria values
+                 *
+                 * @return vector of criteria
+                 */
+                Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs);
+
+                /**
+                 * Gets the derivative of the criteria with respect to the advs
+                 *
+                 * @return matrix d(criteria)_i/d(adv)_j
+                 */
+                Matrix<DDRMat> compute_dcriteria_dadv();
+
+                /**
+                 * Gets the local advs based on whether or not they are shared
+                 */
+                Matrix<DDRMat> get_local_advs(
+                        Matrix<DDRMat> aGlobalADVs,
+                        uint           tInterfaceIndex);
 
         };
     }

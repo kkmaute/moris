@@ -18,7 +18,9 @@ namespace moris
                     char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru );
 
         private:
-            uint mOptIter = 0; // optimization iteration counter
+
+            uint mOptIter = 0;         // optimization iteration counter
+            uint mRestartIndex = 0;    // iteration index to be set when restarting
 
             const int    MAXINT    = std::numeric_limits<int>::max();     // (int) (std::pow( 2, 63 )) - 1;
             const double MAXDOUBLE = std::numeric_limits<double>::max();  //        std::pow( 2, 63 )  - 1;
@@ -77,6 +79,12 @@ namespace moris
              *            need to be computed
              */
             void func_grad( int n, double* x, int needG );
+
+            /**
+             *@brief Run GCMMA algorithm
+             */
+            void sqp_solve();
+
         };
 
         /**

@@ -55,6 +55,12 @@ namespace moris
             mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
             mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 
+            // Set optimization iteration index for restart
+            if ( mRestartIndex > 0)
+            {
+                gLogger.set_opt_iteration( mRestartIndex );
+            }
+
             int n = mProblem->get_num_advs(); // number of design variables
 
             // Note that these pointers are deleted by the the Arma and Eigen
@@ -136,10 +142,12 @@ namespace moris
         {
             // Update the ADV matrix
             Matrix<DDRMat> tADVs(aAdv, mProblem->get_num_advs(), 1);
-            mProblem->set_advs(tADVs);
 
             // Write restart file
             this->write_advs_to_file(aIter,tADVs);
+
+            // Recruit help from other procs and solve for criteria
+            this->criteria_solve(tADVs);
 
             // Call to update objectives and constraints
             mProblem->mUpdateObjectives = true;

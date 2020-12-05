@@ -117,10 +117,7 @@ namespace moris
     moris::size_t
     scatter(std::vector<moris::size_t>  & aMessage);
 
-
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
-
-
 
     /*
      * Prints communication header to log
@@ -324,6 +321,35 @@ namespace moris
         return tGlobalSum;
     }
 
+
+    //------------------------------------------------------------------------------
+
+    /*
+     * @brief Determines sum of all components of a matrix on all processors
+     *
+     * @param[in] aLocalInput     local matrix
+     *
+     * returns matrix with global sums
+     */
+
+    template <typename E>
+    E
+    sum_all_matrix( const E & aLocalMatrix )
+    {
+        E tGlobalMatrix(aLocalMatrix.n_rows(),aLocalMatrix.n_cols());
+
+        void* aLocalPtr  = (void*)aLocalMatrix.data();
+        void* aGlobalPtr = (void*)tGlobalMatrix.data();
+
+        int tNumElems = aLocalMatrix.numel();
+
+        MPI_Datatype tType = get_comm_datatype ( ( typename E::Data_Type ) 0 );
+
+        MPI_Allreduce(aLocalPtr,aGlobalPtr,tNumElems,tType,MPI_SUM,MPI_COMM_WORLD);
+
+        return tGlobalMatrix;
+    }
+
     //------------------------------------------------------------------------------
 
     /*
@@ -380,8 +406,7 @@ namespace moris
      * @brief                 sends a value to each proc and receives values
      *                        from each proc
      *
-     *
-     * @param[in] aSend       values to send to each individyal proc
+     * @param[in] aSend       values to send to each individual proc
      * @param[in] aReceive    values to receive from each individual proc
      */
     template <typename T> void
@@ -703,8 +728,8 @@ namespace moris
         {
             return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
                     + "." + std::to_string( par_size() ) // rank of this processor
-            + "." + std::to_string( par_rank() ) // number of procs
-            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
+                    + "." + std::to_string( par_rank() ) // number of procs
+                    +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
         }
     }
 
@@ -756,11 +781,10 @@ namespace moris
     all_gather_vector(
             Matrix<MatrixType> const & aMatToGather,
             Cell<Matrix<MatrixType>> & aGatheredMats,
-            moris_index aTag,
-            moris_index aFixedDim,
-            moris_index aBaseProc = 0)
+            moris_index                aTag,
+            moris_index                aFixedDim,
+            moris_index                aBaseProc = 0)
     {
-
         // if rows are fixed
         moris_index tNumRow = 0;
         moris_index tNumCol = 0;
@@ -773,8 +797,8 @@ namespace moris
             tNumCol = aMatToGather.n_cols();
         }
 
-
         MPI_Request tRequest;
+
         // send the matrix
         MPI_Isend(
                 aMatToGather.data(),
@@ -791,6 +815,7 @@ namespace moris
         if(par_rank() == aBaseProc)
         {
             aGatheredMats.resize(par_size());
+
             for(int i = 0; i < par_size(); i++)
             {
                 MPI_Status tStatus;
@@ -874,7 +899,6 @@ namespace moris
 
         return tParOffset;
     }
-
 }
 
 #endif /* SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_ */
