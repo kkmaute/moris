@@ -546,6 +546,7 @@ namespace moris
             // Determine number of non-empty node sets
             moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(EntityRank::NODE);
             mNumNodeSets = 0;
+
             for (uint tNodeSetIndex = 0; tNodeSetIndex < tNodeSetNames.size(); tNodeSetIndex++)
             {
                 // FIXME: should be replaced by call to MTK to just get number of nodes in node set (local or global?)
@@ -553,10 +554,10 @@ namespace moris
                         EntityRank::NODE,
                         tNodeSetNames(tNodeSetIndex));
 
-                if ( tNodeIndices.numel() > 0 )
-                {
+//                if ( tNodeIndices.numel() > 0 )
+//                {
                     mNumNodeSets++;
-                }
+//                }
             }
 
             // Determine number of non-empty side sets
@@ -573,10 +574,10 @@ namespace moris
                         tSideSetElements,
                         tSideSetOrdinals);
 
-                if (tSideSetOrdinals.numel() > 0 )
-                {
+//                if (tSideSetOrdinals.numel() > 0 )
+//                {
                     mNumSideSets++;
-                }
+//                }
             }
 
             // Determine number of non-empty blocks and elements
@@ -589,11 +590,11 @@ namespace moris
             {
                 uint tNumElementsInBlock = mMesh->get_element_indices_in_block_set(tBlockIndex).length();
 
-                if ( mMesh->get_element_indices_in_block_set(tBlockIndex).length() >0 )
-                {
+//                if ( mMesh->get_element_indices_in_block_set(tBlockIndex).length() > 0 )
+//                {
                     mNumElementBlocks ++;
                     tNumElements += tNumElementsInBlock;
-                }
+//                }
             }
 
             // Initialize database
@@ -631,11 +632,27 @@ namespace moris
                 tNodeMap(tNodeIndex) = mMesh->get_glb_entity_id_from_entity_loc_index(tNodeIndex, EntityRank::NODE);
             }
 
+            // Write coordinate names
+            const char *tmp[3] = {"x", "y", "z"};
+            char *coord_names[3];
+            memcpy(coord_names, tmp, sizeof coord_names);
+
+            ex_put_coord_names(
+                    mExoid,
+                    coord_names);
+
             // Write coordinates
-            ex_put_coord(mExoid, tXCoordinates.data(), tYCoordinates.data(), tZCoordinates.data());
+            ex_put_coord(
+                    mExoid,
+                    tXCoordinates.data(),
+                    tYCoordinates.data(),
+                    tZCoordinates.data());
 
             // Write node id map
-            ex_put_id_map(mExoid, EX_NODE_MAP, tNodeMap.data());
+            ex_put_id_map(
+                    mExoid,
+                    EX_NODE_MAP,
+                    tNodeMap.data());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -658,15 +675,14 @@ namespace moris
                 {
                     ex_put_set_param(mExoid, EX_NODE_SET, tNumNodeSets + 1, tNodeIndices.numel(), 0);
                     ex_put_set      (mExoid, EX_NODE_SET, tNumNodeSets + 1, tNodeIndices.data(), nullptr);
-
-                    // Increase counter for non-empty node sets
-                    tNumNodeSets++;
                 }
+
+                // Increase counter for non-empty node sets
+                tNumNodeSets++;
             }
 
             // Check for correct non-empty node set count
             MORIS_ERROR(tNumNodeSets == mNumNodeSets, "Incorrect number of non-empty node sets written to file." );
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -696,8 +712,8 @@ namespace moris
                 // Number of elements in the block
                 uint tNumElementsInBlock = tElementIndices.length();
 
-                // Ignore empty blocks
-                if (tNumElementsInBlock > 0)
+//                // Ignore empty blocks
+//                if (tNumElementsInBlock > 0)
                 {
                     // Add name to map
                     mBlockNamesMap[tBlockNames(tBlockIndex)] = tNumElementBlocks;
@@ -778,8 +794,8 @@ namespace moris
 
                 mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetIndex), tSideSetElements, tSideSetOrdinals);
 
-                // Skip if side set is empty
-                if (tSideSetElements.numel() > 0 )
+//                // Ignore empty side sets
+//                if (tSideSetElements.numel() > 0 )
                 {
                     // Change element and ordinal to what Exodus wants
                     for (uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
