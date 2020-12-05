@@ -28,20 +28,19 @@ namespace moris
         private:
             Communicator_Epetra      mEpetraComm;
 
-            Epetra_Map * mEpetraMap = nullptr;
-//            Epetra_BlockMap * mEpetraMap = nullptr;
-            Epetra_Map * mEpetraPointMap = nullptr;
+            Epetra_Map * mEpetraMap             = nullptr;
+            Epetra_Map * mEpetraPointMap        = nullptr;
+            Epetra_Map * mFullOverlappigMap     = nullptr;   //FIXME move this map to the solver warehouse
 
-            Epetra_Map * mFullOverlappigMap = nullptr;               //FIXME move this map to the solver warehouse
-
-            Epetra_MultiVector      *mFullToFreePoint = nullptr;
+            Epetra_MultiVector *mFullToFreePoint = nullptr;
 
             void build_point_map();
 
-            void translator( const moris::uint      & aNumMaxDofs,
+            void translator(
+                    const moris::uint      & aNumMaxDofs,
                     const moris::uint      & aNumMyDofs,
                     const Matrix< DDSMat > & aMyLocaltoGlobalMap,
-                    Matrix< DDSMat > & aMyGlobalConstraintDofs,
+                    Matrix< DDSMat >       & aMyGlobalConstraintDofs,
                     const Matrix< DDUMat > & aMyConstraintDofs );
 
         protected:
@@ -50,7 +49,8 @@ namespace moris
 
             //-------------------------------------------------------------------------------------------------------------
 
-            Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds,
+            Map_Epetra(
+                    const Matrix< DDSMat > & aMyGlobalIds,
                     const Matrix< DDUMat > & aMyConstraintDofs );
 
             //-------------------------------------------------------------------------------------------------------------
