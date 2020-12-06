@@ -1998,11 +1998,12 @@ namespace xtk
                                     }
                                     else
                                     {
-                                        moris::print(this->get_face_to_node(),"this->get_face_to_node()");
+                                        moris::print(this->get_edge_to_node(),"this->get_face_to_node()");
                                         moris::print(this->get_element_to_node(),"this->get_element_to_node()");
+                                        std::cout<<"Cell Index = "<<this->get_parent_element_index()<<std::endl;
                                         std::cout<<"Broken Facet cm index = "<<tFacetCmIndex<<std::endl;
                                         std::cout<<"Wrt Geom index: "<<mGeometryIndex(iG)<<std::endl;
-                                        moris::Matrix< moris::IndexMat > tFacetNodes = this->get_face_to_node_local();
+                                        moris::Matrix< moris::IndexMat > tFacetNodes = this->get_edge_to_node_local();
                                         std::cout<<"Nodes: ";
                                         for(moris::uint iT = 0; iT < tFacetNodes.n_cols(); iT++ )
                                         {
@@ -3045,6 +3046,7 @@ namespace xtk
 
             for(moris::size_t iE = 0; iE<tNumExistElem; iE++)
             {
+
                 if(mIntersectConnectivity(iE,0) == 2)
                 {
                     auto tIntersectConnRow =  mIntersectConnectivity.get_row(iE);

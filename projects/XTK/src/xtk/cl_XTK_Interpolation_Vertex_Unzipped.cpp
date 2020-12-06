@@ -14,17 +14,18 @@ namespace xtk
 {
 //------------------------------------------------------------------------------
 
-Interpolation_Vertex_Unzipped::Interpolation_Vertex_Unzipped(mtk::Vertex*               aBaseInterpVertex,
-                                                             moris_id                   aVertexId,
-                                                             moris_index                aVertexIndex,
-                                                             moris_index                aVertexOwner,
-                                                             uint                       aInterpolationOrder,
-                                                             Vertex_Enrichment* aVertexInterp):
+Interpolation_Vertex_Unzipped::Interpolation_Vertex_Unzipped(mtk::Vertex*       aBaseInterpVertex,
+                                                             moris_id           aVertexId,
+                                                             moris_index        aVertexIndex,
+                                                             moris_index        aVertexOwner,
+                                                             uint               aInterpolationOrder,
+                                                             Vertex_Enrichment* aVertexInterp,
+                                                             uint               aMaxIpOrder):
                                                                      mBaseInterpVertex(aBaseInterpVertex),
                                                                      mVertexId(aVertexId),
                                                                      mVertexIndex(aVertexIndex),
                                                                      mVertexOwner(aVertexOwner),
-                                                                     mInterpolation(aInterpolationOrder+1,nullptr)
+                                                                     mInterpolation(aMaxIpOrder+1,nullptr)
 {
     mInterpolation(aInterpolationOrder) = aVertexInterp;
 }
@@ -71,6 +72,12 @@ Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder ) const
 bool
 Interpolation_Vertex_Unzipped::has_interpolation( const uint aBSplineMeshIndex )
 {
+
+    // if( mInterpolation(aBSplineMeshIndex) == nullptr)
+    // {
+    //     return false;
+    // }
+
     if( mInterpolation(aBSplineMeshIndex)->has_interpolation())
     {
         return true;
@@ -117,7 +124,6 @@ Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
     }
 
     MORIS_ASSERT(mInterpolation(aOrder) == nullptr,"Vertex interpolation for this order already set");
-
     mInterpolation(aOrder) = aVertexInterp;
 }
 
