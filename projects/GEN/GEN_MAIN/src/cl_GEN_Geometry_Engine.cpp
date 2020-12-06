@@ -36,41 +36,68 @@ namespace moris
 
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
-                std::shared_ptr<Library_IO> aLibrary):
-
-                // Level set options
-                mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
-                mIsocontourTolerance(aParameterLists(0)(0).get<real>("isocontour_tolerance")),
-
-                // ADVs/IQIs
-                mADVs(aParameterLists(0)(0).get<sint>("advs_size")
-                        ? Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"))
-                        : string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
-                mLowerBounds(aParameterLists(0)(0).get<sint>("advs_size")
-                        ? Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"))
-                        : string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
-                mUpperBounds(aParameterLists(0)(0).get<sint>("advs_size")
-                        ? Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"))
-                        : string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
-                mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
-
-                // Library
-                mLibrary(aLibrary),
-
-                // Geometries
-                mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
-                mGeometryParameterLists(aParameterLists(1)),
-                mGeometryFieldFile(aParameterLists(0)(0).get<std::string>("geometry_field_file")),
-                mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
-                mTimeOffset(aParameterLists(0)(0).get<real>("time_offset")),
-
-                // Properties
-                mProperties(create_properties(aParameterLists(2), mADVs, mGeometries, mLibrary)),
-                mPropertyParameterLists(aParameterLists(2)),
-                
-                // Phase table
-                mPhaseTable(mGeometries.size(), string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")))
+                std::shared_ptr<Library_IO> aLibrary)
+      : mLibrary(aLibrary)
         {
+            // Tracer
+            Tracer tTracer("GEN", "Geometry_Engine","Create");
+
+            // Read ADVs
+            if ( aParameterLists(0)(0).get<sint>("advs_size") )
+            {
+                mADVs        = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
+                mLowerBounds = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
+                mUpperBounds = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
+            }
+            else
+            {
+                mADVs        = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
+                mLowerBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"));
+                mUpperBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"));
+
+                // check that advs and bounds are vectors
+                MORIS_ERROR ( isvector(mADVs),        "ADVs need to be of type vector.\n");
+                MORIS_ERROR ( isvector(mLowerBounds), "ADV lower bounds need to be of type vector.\n");
+                MORIS_ERROR ( isvector(mUpperBounds), "ADV upper bounds need to be of type vector.\n");
+
+                // ensure that advs and bounds are column vectors
+                mADVs        = mADVs.n_rows()        == 1 ? trans(mADVs) : mADVs;
+                mLowerBounds = mLowerBounds.n_rows() == 1 ? trans(mLowerBounds) : mLowerBounds;
+                mUpperBounds = mUpperBounds.n_rows() == 1 ? trans(mUpperBounds) : mUpperBounds;
+            }
+
+            // Read IQIs
+            mRequestedIQIs = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"));
+
+            // Level set options
+            mIsocontourThreshold=aParameterLists(0)(0).get<real>("isocontour_threshold");
+            mIsocontourTolerance=aParameterLists(0)(0).get<real>("isocontour_tolerance");
+
+            // Geometries
+            mGeometries = create_geometries(
+                    aParameterLists(1),
+                    mADVs,
+                    mLibrary);
+
+            mGeometryParameterLists = aParameterLists(1);
+            mGeometryFieldFile      = aParameterLists(0)(0).get<std::string>("geometry_field_file");
+            mOutputMeshFile         = aParameterLists(0)(0).get<std::string>("output_mesh_file");
+            mTimeOffset             = aParameterLists(0)(0).get<real>("time_offset");
+
+            // Properties
+            mProperties = create_properties(
+                    aParameterLists(2),
+                    mADVs,
+                    mGeometries,
+                    mLibrary);
+
+            mPropertyParameterLists = aParameterLists(2);
+
+            // Phase table
+            mPhaseTable.initialize(
+                    mGeometries.size(),
+                    string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")));
+
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
             map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
@@ -126,6 +153,9 @@ namespace moris
                   mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
+            // Tracer
+            Tracer tTracer("GEN", "Geometry_Engine","Create");
+
             this->compute_level_set_data(aMesh);
         }
 
@@ -138,7 +168,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
+        void Geometry_Engine::set_advs(const Matrix<DDRMat> & aNewADVs)
         {
             // Set new ADVs
             mOwnedADVs->vec_put_scalar(0);
@@ -162,7 +192,8 @@ namespace moris
         {
             // Create full ADVs
             sol::Matrix_Vector_Factory tDistributedFactory;
-            sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
+
+            sol::Dist_Map* tFullMap       = tDistributedFactory.create_map(mFullADVIds);
             sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap, 1, false, true);
 
             // Import ADVs
@@ -435,7 +466,6 @@ namespace moris
                 std::shared_ptr<Child_Node> tChildNode = std::make_shared<Child_Node>(
                         tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode));
 
-
                 mVertexGeometricProximity(aNewNodeIndices(tNode)).mAssociatedVertexIndex = aNewNodeIndices(tNode);
 
                 Matrix<DDRMat> tCoord = aGlobalNodeCoord.get_row(aNewNodeIndices(tNode));
@@ -443,8 +473,8 @@ namespace moris
                 // Assign to geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
-                    
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
+
                     real tVertGeomVal = this->get_geometry_field_value(aNewNodeIndices(tNode), tCoord, tGeometryIndex);
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
@@ -597,7 +627,7 @@ namespace moris
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             // Tracer
-            Tracer tTracer( "GeometryEngine", "CreatePDVs" );
+            Tracer tTracer( "GeometryEngine", "PDVs", "Create" );
 
             // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
@@ -722,7 +752,7 @@ namespace moris
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "SetUpGeometries");
+            Tracer tTracer("GeometryEngine", "Levelset", "SetUpGeometries");
 
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
@@ -784,6 +814,13 @@ namespace moris
                 {
                     tOwnedADVIds = tPrimitiveADVIds;
                 }
+
+                // Check for proper dimensions
+                MORIS_ASSERT( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
+                        "ADV lower bound vector needs to be column vectors.\n");
+
+                MORIS_ASSERT( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
+                        "ADV upper bound vector needs to be column vectors.\n");
 
                 // Resize owned IDs and bounds
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);
@@ -994,7 +1031,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "FieldOutput");
+            Tracer tTracer("GEN", "Fields","Output");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);

@@ -62,6 +62,7 @@ namespace moris
         Matrix<DDRMat> get_criteria_rosenbrock(const Matrix<DDRMat>& aADVs)
         {
             Matrix<DDRMat> tCriteria(2, 1);
+
             tCriteria(0) = 1 - aADVs(0);
             tCriteria(1) = aADVs(1) - pow(aADVs(0), 2);
 
@@ -73,12 +74,15 @@ namespace moris
         Matrix<DDRMat> get_criteria_rosenbrock_1(const Matrix<DDRMat>& aADVs)
         {
             barrier("criteria");
+
             Matrix<DDRMat> tCriteria(2, 1);
+
             if (par_rank() == 0)
             {
                 tCriteria(0) = 1 - aADVs(0);
                 tCriteria(1) = aADVs(1) - pow(aADVs(0), 2);
             }
+
             return tCriteria;
         }
 
@@ -87,11 +91,16 @@ namespace moris
         Matrix<DDRMat> get_dcriteria_dadv_rosenbrock(const Matrix<DDRMat>& aADVs)
         {
             barrier("dcriteria");
+
             Matrix<DDRMat> tDCriteria(2, 2, 0.0);
-            tDCriteria(0, 0) = -1;
-            tDCriteria(0, 1) = 0;
-            tDCriteria(1, 0) = -2 * aADVs(0);
-            tDCriteria(1, 1) = 1;
+
+            if (par_rank() == 0)
+            {
+                tDCriteria(0, 0) = -1;
+                tDCriteria(0, 1) = 0;
+                tDCriteria(1, 0) = -2 * aADVs(0);
+                tDCriteria(1, 1) = 1;
+            }
 
             return tDCriteria;
         }
@@ -100,7 +109,10 @@ namespace moris
 
         Matrix<DDRMat> get_dcriteria_dadv_rosenbrock_1(const Matrix<DDRMat>& aADVs)
         {
+            barrier("dcriteria");
+
             Matrix<DDRMat> tDCriteria(2, 2, 0.0);
+
             if (par_rank() == 0)
             {
                 tDCriteria(0, 0) = -1;
@@ -108,6 +120,7 @@ namespace moris
                 tDCriteria(1, 0) = -2 * aADVs(0);
                 tDCriteria(1, 1) = 1;
             }
+
             return tDCriteria;
         }
 
@@ -127,6 +140,7 @@ namespace moris
                 const Matrix<DDRMat>& aCriteria)
         {
             Matrix<DDRMat> tObjectives(1, 1);
+
             tObjectives(0) = (1 - aADVs(0)) * aCriteria(0) + 100 * (aADVs(1) - pow(aADVs(0), 2)) * aCriteria(1);
 
             return tObjectives;
@@ -139,6 +153,7 @@ namespace moris
                 const Matrix<DDRMat>& aCriteria)
         {
             Matrix<DDRMat> tConstraints(2, 1);
+
             tConstraints(0) = pow(aCriteria(0), 2) * (aADVs(0) - 1) - aADVs(1) + 1;
             tConstraints(1) = aADVs(0) + aADVs(1) - 2;
 
@@ -152,6 +167,7 @@ namespace moris
                 const Matrix<DDRMat>& aCriteria)
         {
             Matrix<DDRMat> tDObjectiveDADV(1, 2);
+
             tDObjectiveDADV(0) = -aCriteria(0) - 200 * aADVs(0) * aCriteria(1);
             tDObjectiveDADV(1) = 100 * aCriteria(1);
 
@@ -165,6 +181,7 @@ namespace moris
                 const Matrix<DDRMat>& aCriteria)
         {
             Matrix<DDRMat> tDObjectiveDCriteria(1, 2);
+
             tDObjectiveDCriteria(0) = 1 - aADVs(0);
             tDObjectiveDCriteria(1) = 100 * (aADVs(1) - pow(aADVs(0), 2));
 
@@ -178,6 +195,7 @@ namespace moris
                 const Matrix<DDRMat>& aCriteria)
         {
             Matrix<DDRMat> tDConstraintDADV(2, 2);
+
             tDConstraintDADV(0, 0) = pow(aCriteria(0), 2);
             tDConstraintDADV(0, 1) = -1;
             tDConstraintDADV(1, 0) = 1;
@@ -193,6 +211,7 @@ namespace moris
                 const Matrix<DDRMat>& aCriteria)
         {
             Matrix<DDRMat> tDConstraintDCriteria(2, 2);
+
             tDConstraintDCriteria(0, 0) = -2 * aCriteria(0) * (aADVs(0) - 1);
             tDConstraintDCriteria(0, 1) = 0;
             tDConstraintDCriteria(1, 0) = 0;

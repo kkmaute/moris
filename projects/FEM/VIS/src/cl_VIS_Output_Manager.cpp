@@ -13,7 +13,7 @@
 
 // Logging package
 #include "cl_Logger.hpp"
-#include "cl_Stopwatch.hpp"
+#include "cl_Tracer.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 extern moris::Logger       gLogger;
@@ -182,8 +182,7 @@ namespace moris
         {
             if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
             {
-                // start timer
-                tic tTimer;
+                Tracer tTracer( "Output_Manager", "VisMesh", "CreateFile" );
 
                 this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
 
@@ -192,16 +191,6 @@ namespace moris
                 this->write_mesh( aVisMeshIndex );
 
                 mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
-
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-                moris::real tElapsedTimeMax = max_all( tElapsedTime );
-
-                if ( par_rank() == 0 )
-                {
-                    MORIS_LOG_INFO( "VIS: Created Vis Mesh took %5.3f seconds.",
-                            ( double ) tElapsedTimeMax / 1000);
-                }
             }
         }
 
@@ -227,38 +216,8 @@ namespace moris
             // resize list of writers to list of outputs. memory allocation stays intact
             mWriter.resize( mOutputData.size(), nullptr );
 
-            // create writer for this mesh if mesh is not empty
-            // skip if mesh is empty
-            int tVisMeshIsNotEmpty = 1;
-             if ( mVisMesh( aVisMeshIndex )->get_num_nodes() > 0 )
-             {
-                 mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
-             }
-             else
-             {
-                 tVisMeshIsNotEmpty = 0;
-                 mWriter( aVisMeshIndex ) = nullptr;
-             }
-
-             // communicate information whether meshes are empty
-             Cell<int> tVisMeshList(par_size(),0);
-             MPI_Allgather(&tVisMeshIsNotEmpty, 1, MPI_INT, tVisMeshList.memptr(), 1, MPI_INT, moris::get_comm() );
-
-             // count number to non-empty meshes and determine rank of this processor
-             mParSize=0;
-             mParRank=0;
-             for (int iproc=0;iproc<par_size();++iproc)
-             {
-                 if (tVisMeshList(iproc)>0)
-                 {
-                     mParSize++;
-
-                     if ( iproc<par_rank() )
-                     {
-                         mParRank++;
-                     }
-                 }
-             }
+            // create writer for this mesh
+            mWriter( aVisMeshIndex ) = new moris::mtk::Writer_Exodus( mVisMesh( aVisMeshIndex ) );
         }
 
         //-----------------------------------------------------------------------------------------------------------
@@ -308,11 +267,7 @@ namespace moris
 
         void Output_Manager::write_mesh( const uint aVisMeshIndex )
         {
-            // skip writing mesh if mesh is empty
-            if ( mWriter( aVisMeshIndex ) == nullptr )
-            {
-                return;
-            }
+            Tracer tTracer( "Output_Manager", "VisMesh", "WriteFile" );
 
             // specify file path
             std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
@@ -349,9 +304,7 @@ namespace moris
                     tMeshFilePath,
                     tMeshFileName,
                     tMeshTempPath,
-                    tMeshTempName,
-                    mParSize,
-                    mParRank);
+                    tMeshTempName);
 
             // add nodal elemental and global fields to mesh
             this->add_nodal_fields( aVisMeshIndex );
@@ -567,32 +520,6 @@ namespace moris
                 const real                             aTime,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
-            // skip writing fields if mesh is empty
-            if ( mWriter( aVisMeshIndex ) == nullptr )
-            {
-                // number of fields in vis mesh
-                uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
-
-                // dummy global values
-                real tGlobalValue = 0.0;
-
-                // loop over all fields of this output object
-                for( uint Ik = 0; Ik < tNumFields; Ik++ )
-                {
-                    switch ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) )
-                    {
-                        case Field_Type::GLOBAL:
-                        {
-                            sum_all(tGlobalValue);
-                            break;
-                        }
-                        default:
-                        {}
-                    }
-                }
-                return;
-            }
-
             // number of fields in vis mesh
             uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
 

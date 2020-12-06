@@ -42,6 +42,10 @@ namespace moris
             // Assign ADV dependencies
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
+            // check that index lists have same lenght
+            MORIS_ASSERT( aFieldVariableIndices.length() == aADVIndices.length(),
+                    "FieldVariableIndices and ADVIndices need to have same length.\n");
+
             // Fill with pointers to ADVs
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
             {

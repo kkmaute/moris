@@ -103,6 +103,20 @@ namespace moris
         mMSI->mEquationModel->set_time( mTime );
     }
 
+    //------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_residual_norm( const real & aResNorm )
+    {
+        mMSI->mEquationModel->set_residual_norm( aResNorm );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::set_first_residual_norm( const real & aFirstResNorm )
+    {
+        mMSI->mEquationModel->set_first_residual_norm( aFirstResNorm );
+    }
+
 //------------------------------------------------------------------------------
 
     void MSI_Solver_Interface::set_previous_time( const Matrix< DDRMat> & aTime )

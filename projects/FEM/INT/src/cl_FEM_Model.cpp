@@ -4,8 +4,6 @@
 #include <gperftools/profiler.h>
 #endif
 
-//CHR/src
-#include "cl_Stopwatch.hpp"
 //LINALG/src
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
@@ -36,6 +34,9 @@
 #include "cl_VIS_Output_Enums.hpp"
 //GEN/src
 #include "cl_GEN_Pdv_Enums.hpp"
+// Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris
 {
@@ -50,6 +51,8 @@ namespace moris
         : mMeshManager( aMeshManager ),
           mMeshPairIndex( aMeshPairIndex )
         {
+            Tracer tTracer( "FEM", "FemModel", "Create" );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: unpack mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -83,6 +86,8 @@ namespace moris
         : mMeshManager( aMeshManager ),
           mMeshPairIndex( aMeshPairIndex )
         {
+            Tracer tTracer( "FEM", "FemModel", "Create" );
+
             this->set_design_variable_interface( aDesignVariableInterface );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -124,11 +129,11 @@ namespace moris
           mMeshPairIndex( aMeshPairIndex ),
           mParameterList( aParameterList )
         {
+            Tracer tTracer( "FEM", "FemModel", "Create" );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: unpack fem input and mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer0;
 
             // get pointers to interpolation and integration meshes
             mtk::Interpolation_Mesh* tIPMesh = nullptr;
@@ -140,16 +145,6 @@ namespace moris
 
             // unpack the FEM inputs
             this->initialize( aLibrary );
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "FEM_Model - unpack FEM input in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create IP nodes
@@ -174,13 +169,13 @@ namespace moris
           mMeshPairIndex( aMeshPairIndex ),
           mParameterList( aParameterList )
         {
+            Tracer tTracer( "FEM", "FemModel", "Create" );
+
             this->set_design_variable_interface( aDesignVariableInterface );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: unpack fem input and mesh
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // start timer
-            tic tTimer0;
 
             // get pointers to interpolation and integration meshes
             mtk::Interpolation_Mesh* tIPMesh = nullptr;
@@ -192,16 +187,6 @@ namespace moris
 
             // unpack the FEM inputs
             this->initialize( aLibrary );
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer0.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "FEM_Model - unpack FEM input in %5.3f seconds.",
-                        ( double ) tElapsedTime / 1000 );
-            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create interpolation nodes
@@ -223,9 +208,6 @@ namespace moris
 
         void FEM_Model::create_interpolation_nodes( mtk::Interpolation_Mesh* aIPMesh )
         {
-            // start timer
-            tic tTimer;
-
             // ask mesh about number of IP nodes on proc
             luint tNumIPNodes = aIPMesh->get_num_nodes();
 
@@ -237,25 +219,14 @@ namespace moris
                 mIPNodes( iNode ) = new fem::Node( &aIPMesh->get_mtk_vertex( iNode ) );
             }
 
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-            uint tGlobalNumNodes = sum_all(tNumIPNodes);
-
             // print output
-            MORIS_LOG_INFO(
-                    "FEM_Model::create_interpolation_nodes - created %u FEM IP nodes    in %5.3f seconds.",
-                    tGlobalNumNodes,
-                    ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_SPEC("IP nodes",sum_all(tNumIPNodes));
         }
 
         //------------------------------------------------------------------------------
 
         void FEM_Model::create_integration_nodes( mtk::Integration_Mesh * aIGMesh )
         {
-            // start timer
-            tic tTimer;
-
             // ask IG mesh about number of IG vertices on proc
             luint tNumIGNodes = aIGMesh->get_num_nodes();
 
@@ -328,17 +299,8 @@ namespace moris
                 mIGNodes( iNode )->set_vertex_xyz_pdv_ids( tPdvIds );
             }
 
-            if( par_rank() == 0 )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO(
-                        "FEM_Model::create_integration_nodes   - created %u FEM IG nodes    in %5.3f seconds.",
-                        ( unsigned int ) tNumIGNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_SPEC("IG nodes",tNumIGNodes);
         }
 
         //------------------------------------------------------------------------------
@@ -348,9 +310,6 @@ namespace moris
                 mtk::Integration_Mesh             * aIGMesh,
                 moris::Cell< fem::Set_User_Info > & aSetInfo )
         {
-            // start timer
-            tic tTimer;
-
             // get the number of sets
             uint tNumFemSets = aSetInfo.size();
 
@@ -410,17 +369,11 @@ namespace moris
             // shrink list to fit size
             mFemClusters.shrink_to_fit();
 
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
             uint tNumElements       = mFemClusters.size();
             uint tGlobalNumElements = sum_all(tNumElements);
 
             // print output
-            MORIS_LOG_INFO(
-                    "FEM_Model::create_fem_sets            - created %u FEM IP elements in %5.3f seconds.",
-                    tGlobalNumElements ,
-                    (real) tElapsedTime / 1000.0 );
+            MORIS_LOG_SPEC("IP elements",tGlobalNumElements);
         }
 
         //------------------------------------------------------------------------------
@@ -429,9 +382,6 @@ namespace moris
                 mtk::Interpolation_Mesh * aIPMesh,
                 mtk::Integration_Mesh   * aIGMesh )
         {
-            // start timer
-            tic tTimer;
-
             // get number of fem sets
             uint tNumFemSets = mSetInfo.size();
 
@@ -486,17 +436,11 @@ namespace moris
             // shrink to fit
             mFemClusters.shrink_to_fit();
 
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
             uint tNumElements       = mFemClusters.size();
             uint tGlobalNumElements = sum_all(tNumElements);
 
             // print output
-            MORIS_LOG_INFO(
-                    "FEM_Model::create_fem_sets            - created %u FEM IP elements in %5.3f seconds.",
-                    tGlobalNumElements,
-                    ( double ) tElapsedTime / 1000.0 );
+            MORIS_LOG_SPEC("IP elements",tGlobalNumElements);
         }
 
         //------------------------------------------------------------------------------

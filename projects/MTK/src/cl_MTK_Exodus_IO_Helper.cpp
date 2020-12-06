@@ -607,16 +607,19 @@ namespace moris
                                 par_rank(),mNodeSetIds[i],mNodeSetNamePtrs[i],mNodeSetNEntries[i],mNodeSetIds[i]);
                     }
 
-                    mNodeSetNodeIds[i] = Matrix<IndexMat>(1,mNodeSetNEntries[i]);
+                    if ( mNodeSetNEntries[i] > 0 )
+                    {
+                        mNodeSetNodeIds[i] = Matrix<IndexMat>(1,mNodeSetNEntries[i]);
 
-                    mErrFlag = ex_get_set(
-                            mExoFileId,
-                            EX_NODE_SET,
-                            mNodeSetIds[i],
-                            mNodeSetNodeIds[i].data(),
-                            nullptr);
+                        mErrFlag = ex_get_set(
+                                mExoFileId,
+                                EX_NODE_SET,
+                                mNodeSetIds[i],
+                                mNodeSetNodeIds[i].data(),
+                                nullptr);
 
-                    MORIS_ASSERT(!mErrFlag,"ex_get_set for node sets failed");
+                        MORIS_ASSERT(!mErrFlag,"ex_get_set for node sets failed");
+                    }
                 }
             }
 
@@ -668,17 +671,20 @@ namespace moris
                                 par_rank(),mSideSetIds[i],mSideSetNamePtrs[i],mSideSetNEntries[i],mSideSetIds[i]);
                     }
 
-                    mSideSetElemIds[i] = Matrix<IndexMat> (1,mSideSetNEntries[i]);
-                    mSideSetSideOrd[i] = Matrix<IndexMat> (1,mSideSetNEntries[i]);
+                    if ( mSideSetNEntries[i] )
+                    {
+                        mSideSetElemIds[i] = Matrix<IndexMat> (1,mSideSetNEntries[i]);
+                        mSideSetSideOrd[i] = Matrix<IndexMat> (1,mSideSetNEntries[i]);
 
-                    mErrFlag = ex_get_set(
-                            mExoFileId,
-                            EX_SIDE_SET,
-                            mSideSetIds[i],
-                            mSideSetElemIds[i].data(),
-                            mSideSetSideOrd[i].data());
+                        mErrFlag = ex_get_set(
+                                mExoFileId,
+                                EX_SIDE_SET,
+                                mSideSetIds[i],
+                                mSideSetElemIds[i].data(),
+                                mSideSetSideOrd[i].data());
 
-                    MORIS_ASSERT(!mErrFlag,"ex_get_set for side sets failed");
+                        MORIS_ASSERT(!mErrFlag,"ex_get_set for side sets failed");
+                    }
                 }
             }
 
@@ -740,19 +746,22 @@ namespace moris
                                 par_rank(),mBlockIds[i],mBlockNamesPtrs[i],mBlockSetNEntries[i],mBlockElemTypeNamesPtrs[i]);
                     }
 
-                    mBlockSetNodeConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNNodesPerEntry[i]);
-                    mBlockSetEdgeConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNedgesPerEntry[i]);
-                    mBlockSetFaceConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNfacesPerEntry[i]);
+                    if ( mBlockSetNEntries[i] > 0 )
+                    {
+                        mBlockSetNodeConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNNodesPerEntry[i]);
+                        mBlockSetEdgeConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNedgesPerEntry[i]);
+                        mBlockSetFaceConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNfacesPerEntry[i]);
 
-                    mErrFlag = ex_get_conn(
-                            mExoFileId,
-                            EX_ELEM_BLOCK,
-                            mBlockIds[i],
-                            mBlockSetNodeConn[i].data(),
-                            mBlockSetEdgeConn[i].data(),
-                            mBlockSetFaceConn[i].data());
+                        mErrFlag = ex_get_conn(
+                                mExoFileId,
+                                EX_ELEM_BLOCK,
+                                mBlockIds[i],
+                                mBlockSetNodeConn[i].data(),
+                                mBlockSetEdgeConn[i].data(),
+                                mBlockSetFaceConn[i].data());
 
-                    MORIS_ASSERT(!mErrFlag,"ex_get_conn failed");
+                        MORIS_ASSERT(!mErrFlag,"ex_get_conn failed");
+                    }
                 }
             }
         }

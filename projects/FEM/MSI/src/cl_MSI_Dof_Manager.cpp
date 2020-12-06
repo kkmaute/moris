@@ -404,7 +404,7 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
         moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
         {
-            MORIS_LOG_INFO( "System has a total of %-5i dofs.", sum_all(aNumOwnedAdofs) );
+            MORIS_LOG_SPEC("Total number of DOFs", sum_all(aNumOwnedAdofs) );
 
             // Get list containing the number of owned adofs of each processor
             Matrix< DDUMat > tNumOwnedAdofsList;

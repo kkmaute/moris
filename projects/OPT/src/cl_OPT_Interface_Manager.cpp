@@ -98,12 +98,14 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_Manager::perform(Matrix<DDRMat> aNewADVs)
+        Matrix<DDRMat> Interface_Manager::perform(const Matrix<DDRMat> & aNewADVs)
         {
             // Set up global criteria
             Matrix<DDRMat> tGlobalCriteria(1, 1);
             Matrix<DDRMat> tLocalCriteria;
+
             uint tCurrentGlobalCriteria = 0;
+
             mNumCriteriaPerInterface.set_size(mNumInterfaces, 1);
 
             // Local ADVs
@@ -123,8 +125,11 @@ namespace moris
 
                 // Split and get local criteria
                 comm_split(tColor, tKey, "criteria_communicator");
+
                 tLocalADVs = get_local_advs(aNewADVs, tColor);
+
                 tLocalCriteria = mInterfaces(tColor)->get_criteria(tLocalADVs);
+
                 barrier("criteria_evaluation");
                 comm_join();
 

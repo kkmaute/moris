@@ -6,9 +6,11 @@
 #include "cl_Communication_Tools.hpp"
 #include "HDF5_Tools.hpp"
 
+// Logger package
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 #include "fn_stringify_matrix.hpp"
-extern moris::Logger gLogger;
 
 namespace moris
 {
@@ -19,7 +21,9 @@ namespace moris
         // Public functions
         // -------------------------------------------------------------------------------------------------------------
 
-        Problem::Problem(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface)
+        Problem::Problem(
+                ParameterList                       & aParameterList,
+                std::shared_ptr<Criteria_Interface> & aInterface)
         {
             // Set interface
             mInterface = aInterface;
@@ -42,65 +46,50 @@ namespace moris
 
         void Problem::initialize()
         {
+            // Trace optimization problem
+            Tracer tTracer( "OPT", "OptProblem", "Initialize" );
+
             // Initialize ADVs
             mInterface->initialize(mADVs, mLowerBounds, mUpperBounds);
-            this->override_advs(); // user can override the interface ADVs
 
-            // Check to make sure ADVs are a column vector
-            if (mADVs.n_rows() == 1)
-            {
-                mADVs = trans(mADVs);
-            }
+            // Override interface ADVs
+            this->override_advs();
+
+            // Log number of optimization variables
+            MORIS_LOG_SPEC("Number of optimization variables",mADVs.numel());
+
+            // Check for proper dimensions of ADV vector and its upper and lower bound vectors
+            MORIS_ERROR( mADVs.numel() > 0       ? mADVs.n_cols() == 1        : true,
+                    "ADVs vector needs to be column vector.\n");
+            MORIS_ERROR( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
+                    "ADV lower bound vector needs to be column vector.\n");
+            MORIS_ERROR( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
+                    "ADV lower bound vector needs to be column vector.\n");
+
+            MORIS_ERROR( mADVs.n_rows() == mLowerBounds.n_rows() and mADVs.n_rows() == mUpperBounds.n_rows(),
+                    "ADVs and its lower and upper bound vectors need to have same length.\n");
 
             // Set finite difference epsilons knowing number of advs
             this->set_finite_differencing(mFiniteDifferenceType, mFiniteDifferenceEpsilons);
 
-            // Read advs from restart file
+            // Read ADVs from restart file
             if ( par_rank() == 0 && ! mRestartFile.empty() )
             {
-                MORIS_LOG_INFO("Reading ADVs from restart file: %s",mRestartFile.c_str() );
-
-                // Open open restart file
-                hid_t tFileID  = open_hdf5_file( mRestartFile );
-
-                // Define matrix in which to read restart ADVs
-                Matrix<DDRMat> tRestartADVs;
-                Matrix<DDRMat> tRestartUpperBounds;
-                Matrix<DDRMat> tRestartLowerBounds;
-
-                // Read ADVS from restart file
-                herr_t tStatus = 0;
-                load_matrix_from_hdf5_file( tFileID, "ADVs",        tRestartADVs,        tStatus);
-                load_matrix_from_hdf5_file( tFileID, "UpperBounds", tRestartUpperBounds, tStatus);
-                load_matrix_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds, tStatus);
-
-                // Close restart file
-                close_hdf5_file(tFileID);
-
-                // Check for matching sizes
-                MORIS_ERROR( tRestartADVs.numel() == mADVs.numel(),
-                        "Number of restart ADVS does not match.\n");
-                MORIS_ERROR( tRestartUpperBounds.numel() == mUpperBounds.numel(),
-                        "Number of restart upper bounds of ADVs does not match.\n");
-                MORIS_ERROR( tRestartLowerBounds.numel() == mLowerBounds.numel(),
-                        "Number of restart lower bounds of ADVs does not match.\n");
-
-                MORIS_LOG_INFO("Norm of ADV vector - before loading restart %e   after %d.\n",
-                        norm(mADVs), norm(tRestartADVs) );
-
-                // Copy restart vectors on member variables
-                mADVs        = tRestartADVs;
-                mUpperBounds = tRestartUpperBounds;
-                mLowerBounds = tRestartLowerBounds;
+                this->read_restart_file();
             }
 
-            // Get the criteria at the first step
-            mCriteria = mInterface->get_criteria(mADVs);
-            gLogger.mIteration = 1;
-
-            // Initialize constraints
+            // Initialize constraint types
             mConstraintTypes = this->get_constraint_types();
+
             MORIS_ERROR(this->check_constraint_order(), "The constraints are not ordered properly (Eq, Ineq)"); //TODO move call to alg
+
+            // Set number of objectives and constraints
+            mNumObjectives  = 1;
+            mNumConstraints = mConstraintTypes.numel();
+
+            // Log number of objectives and constraints
+            MORIS_LOG_SPEC("Number of objectives ",mNumObjectives);
+            MORIS_LOG_SPEC("Number of constraints",mNumConstraints);
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -129,6 +118,9 @@ namespace moris
             {
                 mObjectives = this->compute_objectives();
 
+                MORIS_ASSERT(mObjectives.numel() == mNumObjectives,
+                        "Number of objectives is incorrect.\n");
+
                 // log objective
                 MORIS_LOG_SPEC( "Objective", ios::stringify_log( mObjectives ) );
             }
@@ -143,6 +135,9 @@ namespace moris
             {
                 mConstraints = this->compute_constraints();
 
+                MORIS_ASSERT(mConstraints.numel() == mNumConstraints,
+                        "Number of objectives is incorrect.\n");
+               
                 // log constraints
                 MORIS_LOG_SPEC( "Constraints", ios::stringify_log( mConstraints ) );
             }
@@ -169,16 +164,24 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::set_advs(Matrix<DDRMat> aNewADVs)
+        void Problem::set_advs( const Matrix<DDRMat> & aNewADVs)
         {
             mADVs = aNewADVs;
+
+            MORIS_ASSERT( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
+                    "Problem::set_advs - size of ADV vectors does not match.\n");
+
             mCriteria = mInterface->get_criteria(aNewADVs);
+
             mInterface->get_dcriteria_dadv();
 
             // log criteria and ADVs
             MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
-            MORIS_LOG_SPEC( "MinADV", mADVs.min() );
-            MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
+            if ( mADVs.numel() > 0 )
+            {
+                MORIS_LOG_SPEC( "MinADV", mADVs.min() );
+                MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
+            }
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -243,19 +246,19 @@ namespace moris
                 }
                 case 'f':
                 {
-                    compute_objective_gradient = &Problem::compute_objective_gradient_fd_bias;
+                    compute_objective_gradient  = &Problem::compute_objective_gradient_fd_bias;
                     compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_bias;
                     break;
                 }
                 case 'c':
                 {
-                    compute_objective_gradient = &Problem::compute_objective_gradient_fd_central;
+                    compute_objective_gradient  = &Problem::compute_objective_gradient_fd_central;
                     compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_central;
                     break;
                 }
                 default:
                 {
-                    compute_objective_gradient = &Problem::compute_objective_gradient_analytical;
+                    compute_objective_gradient  = &Problem::compute_objective_gradient_analytical;
                     compute_constraint_gradient = &Problem::compute_constraint_gradient_analytical;
                 }
             }
@@ -281,26 +284,18 @@ namespace moris
 
         void Problem::compute_objective_gradient_analytical()
         {
-            // log objective gradients
-            Matrix< DDRMat> tdObjectivedCriteria = this->compute_dobjective_dcriteria();
-            MORIS_LOG_SPEC( "dObjective_dCriteria", ios::stringify_log( tdObjectivedCriteria ) );
-
             mObjectiveGradient =
                     this->compute_dobjective_dadv() +
-                    tdObjectivedCriteria * mInterface->get_dcriteria_dadv();
+                    this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
         void Problem::compute_constraint_gradient_analytical()
         {
-            // log objective gradients
-            Matrix< DDRMat> tdConstraintdCriteria = this->compute_dconstraint_dcriteria();
-            MORIS_LOG_SPEC( "dConstraint_dCriteria", ios::stringify_log( tdConstraintdCriteria ) );
-
             mConstraintGradient =
                     this->compute_dconstraint_dadv() +
-                    tdConstraintdCriteria * mInterface->get_dcriteria_dadv();
+                    this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -427,5 +422,43 @@ namespace moris
         }
 
         // -------------------------------------------------------------------------------------------------------------
+
+        void Problem::read_restart_file()
+        {
+            MORIS_LOG_INFO("Reading ADVs from restart file: %s",mRestartFile.c_str() );
+
+            // Open open restart file
+            hid_t tFileID  = open_hdf5_file( mRestartFile );
+
+            // Define matrix in which to read restart ADVs
+            Matrix<DDRMat> tRestartADVs;
+            Matrix<DDRMat> tRestartUpperBounds;
+            Matrix<DDRMat> tRestartLowerBounds;
+
+            // Read ADVS from restart file
+            herr_t tStatus = 0;
+            load_matrix_from_hdf5_file( tFileID, "ADVs",        tRestartADVs,        tStatus);
+            load_matrix_from_hdf5_file( tFileID, "UpperBounds", tRestartUpperBounds, tStatus);
+            load_matrix_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds, tStatus);
+
+            // Close restart file
+            close_hdf5_file(tFileID);
+
+            // Check for matching sizes
+            MORIS_ERROR( tRestartADVs.numel() == mADVs.numel(),
+                    "Number of restart ADVS does not match.\n");
+            MORIS_ERROR( tRestartUpperBounds.numel() == mUpperBounds.numel(),
+                    "Number of restart upper bounds of ADVs does not match.\n");
+            MORIS_ERROR( tRestartLowerBounds.numel() == mLowerBounds.numel(),
+                    "Number of restart lower bounds of ADVs does not match.\n");
+
+            MORIS_LOG_INFO("Norm of ADV vector - before loading restart %e   after %e.\n",
+                    norm(mADVs), norm(tRestartADVs) );
+
+            // Copy restart vectors on member variables
+            mADVs        = tRestartADVs;
+            mUpperBounds = tRestartUpperBounds;
+            mLowerBounds = tRestartLowerBounds;
+        }
     }
 }

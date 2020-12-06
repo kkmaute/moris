@@ -21,8 +21,9 @@ namespace moris
              * @param aParameterList parameter list for this problem specifying the needed library
              * @param aInterface Interface class written for other module
              */
-            Problem_User_Defined(ParameterList aParameterList,
-                                 std::shared_ptr<Criteria_Interface> aInterface);
+            Problem_User_Defined(
+                    ParameterList                       & aParameterList,
+                    std::shared_ptr<Criteria_Interface> & aInterface);
 
             /**
              * Alternate constructor where the user-defined functions are provided directly. Used for OPT tests.
@@ -37,15 +38,16 @@ namespace moris
              * @param aConstraintADVGradientFunction
              * @param aConstraintCriteriaGradientFunction
              */
-            Problem_User_Defined(ParameterList                       aParameterList,
-                                 std::shared_ptr<Criteria_Interface> aInterface,
-                                 MORIS_CONSTRAINT_TYPES_FUNCTION     aConstraintTypesFunction,
-                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveFunction,
-                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintFunction,
-                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveADVGradientFunction,
-                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveCriteriaGradientFunction,
-                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintADVGradientFunction,
-                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintCriteriaGradientFunction);
+            Problem_User_Defined(
+                    ParameterList                       aParameterList,
+                    std::shared_ptr<Criteria_Interface> aInterface,
+                    MORIS_CONSTRAINT_TYPES_FUNCTION     aConstraintTypesFunction,
+                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveFunction,
+                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintFunction,
+                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveADVGradientFunction,
+                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveCriteriaGradientFunction,
+                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintADVGradientFunction,
+                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintCriteriaGradientFunction);
 
             /**
              * Gets the constraint types

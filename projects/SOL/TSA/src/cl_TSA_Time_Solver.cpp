@@ -273,8 +273,6 @@ void Time_Solver::check_for_outputs(
 
             if( tIsOutput )
             {
-                MORIS_LOG_INFO(" Initiate output for output index %-5i", mOutputIndices( tCounter ) );
-
                 mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
             }
 

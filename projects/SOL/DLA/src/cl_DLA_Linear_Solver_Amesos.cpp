@@ -68,6 +68,8 @@ void Linear_Solver_Amesos::set_solver_parameters()
 
 moris::sint Linear_Solver_Amesos::solve_linear_system()
 {
+    Tracer tTracer( "LinearSolver", "Amesos", "Solve" );
+
     sint error = 0;
     moris::real startSolTime     = 0.0;
     moris::real startSymFactTime = 0.0;

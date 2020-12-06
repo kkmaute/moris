@@ -32,9 +32,5 @@ main(
     // finalize moris global communication manager
     gMorisComm.finalize();
 
-
     return result;
-
 }
-
-

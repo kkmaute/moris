@@ -139,7 +139,7 @@ void Map_Epetra::translator(
 
 void Map_Epetra::build_dof_translator(
         const Matrix< IdMat > & aFullMap,
-        const bool aFlag )
+        const bool              aFlag )
 {
     mFullOverlappigMap = new Epetra_Map(
             -1,
@@ -229,13 +229,14 @@ void Map_Epetra::build_dof_translator(
 
 void Map_Epetra::translate_ids_to_free_point_ids(
         const moris::Matrix< IdMat > & tIdsIn,
-        moris::Matrix< IdMat > & tIdsOut )
+        moris::Matrix< IdMat >       & tIdsOut )
 {
     uint tNumIds = tIdsIn.numel();
 
     tIdsOut.set_size( tNumIds, 1, MORIS_ID_MAX );
 
-    MORIS_ASSERT( mFullOverlappigMap != nullptr, "Map_Epetra::translate_ids_to_free_point_ids(), mFullOverlappigMap not set ");
+    MORIS_ASSERT( mFullOverlappigMap != nullptr,
+            "Map_Epetra::translate_ids_to_free_point_ids(), mFullOverlappigMap not set.\n");
 
     // Loop over all DoFs of the current element
     for( uint Ik = 0; Ik < tNumIds ; Ik++ )
@@ -248,8 +249,23 @@ void Map_Epetra::translate_ids_to_free_point_ids(
         // Get local index
         moris_index tLocalIndex = mFullOverlappigMap->LID( tIdsIn( Ik ) );
 
-        // Get the free DoF ID of the current DoF
-        tIdsOut( Ik ) = mFullToFreePoint->Values()[ tLocalIndex ];
+        MORIS_ASSERT( mFullToFreePoint->MyLength () > tLocalIndex,
+                "Map_Epetra::translate_ids_to_free_point_ids(), tLocalIndex out of bounds.\n");
+
+        // FIXME: tLocalIndex might be -1; this case needs to handled properly
+        //std::cout << " MyLength () " <<  mFullToFreePoint->MyLength () << std::endl;
+        //std::cout << "tIdsOut( " << Ik << ") = mFullToFreePoint (" << tLocalIndex << " ) = " << mFullToFreePoint->Values()[ tLocalIndex ] << std::endl;
+
+        if (tLocalIndex >= 0 )
+        {
+            // Get the free DoF ID of the current DoF
+            tIdsOut( Ik ) = mFullToFreePoint->Values()[ tLocalIndex ];
+        }
+        else
+        {
+            // FIXME likely does not make any sense
+            tIdsOut( Ik ) = -1;
+        }
     }
 
     //moris::print( tIdsIn, "tIdsIn");
