@@ -816,8 +816,11 @@ namespace moris
                 }
 
                 // Check for proper dimensions
-                MORIS_ASSERT( mLowerBounds.n_cols() == 1 and mUpperBounds.n_cols() == 1,
-                        "ADV lower and upper bound vectors need to be column vectors.\n");
+                MORIS_ASSERT( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
+                        "ADV lower bound vector needs to be column vectors.\n");
+
+                MORIS_ASSERT( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
+                        "ADV upper bound vector needs to be column vectors.\n");
 
                 // Resize owned IDs and bounds
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);

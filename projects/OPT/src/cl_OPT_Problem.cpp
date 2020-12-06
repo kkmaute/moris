@@ -59,10 +59,14 @@ namespace moris
             MORIS_LOG_SPEC("Number of optimization variables",mADVs.numel());
 
             // Check for proper dimensions of ADV vector and its upper and lower bound vectors
-            MORIS_ERROR( (mADVs.n_cols() == 1) and (mLowerBounds.n_cols() == 1) and (mUpperBounds.n_cols() == 1),
-                    "ADVs and its lower and upper bound vectors need to be column vectors.\n");
+            MORIS_ERROR( mADVs.numel() > 0       ? mADVs.n_cols() == 1        : true,
+                    "ADVs vector needs to be column vector.\n");
+            MORIS_ERROR( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
+                    "ADV lower bound vector needs to be column vector.\n");
+            MORIS_ERROR( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
+                    "ADV lower bound vector needs to be column vector.\n");
 
-            MORIS_ERROR( mADVs.n_rows() == mLowerBounds.n_rows() and mADVs.n_rows() == mLowerBounds.n_rows(),
+            MORIS_ERROR( mADVs.n_rows() == mLowerBounds.n_rows() and mADVs.n_rows() == mUpperBounds.n_rows(),
                     "ADVs and its lower and upper bound vectors need to have same length.\n");
 
             // Set finite difference epsilons knowing number of advs
