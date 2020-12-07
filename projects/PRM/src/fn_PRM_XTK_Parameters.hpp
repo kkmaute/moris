@@ -58,6 +58,9 @@ namespace moris
         // if to deactivate empty sets - used only if outputting ig mesh as well, set to true only for debugging
         tParameterList.insert( "deactivate_empty_sets", false );
 
+        // Write enrichement fields on mesh (only recommended on very small meshes)
+        tParameterList.insert( "write_enrichment_fields", false );
+
         // print enriched integration mesh
         tParameterList.insert( "print_enriched_ig_mesh", false );
 

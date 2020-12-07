@@ -73,11 +73,6 @@ bool
 Interpolation_Vertex_Unzipped::has_interpolation( const uint aBSplineMeshIndex )
 {
 
-    // if( mInterpolation(aBSplineMeshIndex) == nullptr)
-    // {
-    //     return false;
-    // }
-
     if( mInterpolation(aBSplineMeshIndex)->has_interpolation())
     {
         return true;
@@ -122,7 +117,11 @@ Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
     {
         mInterpolation.resize(aOrder+1,nullptr);
     }
-
+    if(mInterpolation(aOrder) != nullptr)
+    {
+        std::cout<<"Old = "<<*mInterpolation(aOrder)<<std::endl;
+        std::cout<<"New = "<<*aVertexInterp<<std::endl;
+    }
     MORIS_ASSERT(mInterpolation(aOrder) == nullptr,"Vertex interpolation for this order already set");
     mInterpolation(aOrder) = aVertexInterp;
 }
