@@ -1060,6 +1060,9 @@ namespace xtk
         moris_index tVertId      = 1;
         uint        tVertexCount = 0;
 
+        // Max mesh index
+        uint tMaxMeshIndex = mMeshIndices.max();
+
         // iterate through children meshes and create the unzipped interpolation cells
         uint tNumChildMeshes = mCutMeshPtr->get_num_child_meshes();
 
@@ -1157,7 +1160,8 @@ namespace xtk
                                                 tVertEnrichIndex,
                                                 tVertices(iEV)->get_owner(),
                                                 mMeshIndices(0),
-                                                tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex));
+                                                tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex),
+                                                tMaxMeshIndex);
 
                                 tVertId++;
                                 tVertexCount++;
@@ -1221,6 +1225,7 @@ namespace xtk
 
             // number of vertices
             uint tNumVertices = tParentCell.get_number_of_vertices();
+
 
             for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
             {
@@ -1287,7 +1292,8 @@ namespace xtk
                                                 tVertEnrichIndex,
                                                 tVertices(iEV)->get_owner(),
                                                 tMeshIndex,
-                                                tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex));
+                                                tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex),
+                                                tMaxMeshIndex);
 
                                 tVertId++;
                                 tVertexCount++;

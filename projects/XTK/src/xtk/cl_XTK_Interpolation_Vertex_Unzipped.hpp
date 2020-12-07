@@ -34,7 +34,8 @@ public:
                                   moris_index        aVertexIndex,
                                   moris_index        aVertexOwner,
                                   uint               aInterpolationOrder,
-                                  Vertex_Enrichment* aVertexInterp);
+                                  Vertex_Enrichment* aVertexInterp,
+                                  uint               aMaxIpOrder);
     //------------------------------------------------------------------------------
     Matrix< DDRMat >                  get_coords() const;
     moris_id                          get_id() const;
