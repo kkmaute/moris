@@ -99,12 +99,6 @@ namespace moris
 
                 moris::Cell< moris::mtk::Writer_Exodus * >  mWriter;
 
-                //! Number of processors writing meshes
-                uint                            mParSize = 0;
-
-                //! Rank of this processor for writing meshes
-                uint                            mParRank = 0;
-
                 mtk::Mesh_Manager *             mMTKMesh = nullptr;
 
                 moris::uint                     mMTKMeshPairIndex = MORIS_UINT_MAX;

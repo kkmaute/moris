@@ -1128,7 +1128,7 @@ namespace moris
                         }
                         else
                         {
-                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ) * tR;
+                            tR = tR* this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                         }
 
                         // jump to parent

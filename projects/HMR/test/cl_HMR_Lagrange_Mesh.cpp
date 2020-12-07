@@ -1091,4 +1091,110 @@ TEST_CASE("Lagrange_Mesh_initial_refinement","[moris],[hmr],[Lagrange_Mesh_Initi
 }
 
 
+TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_refinements],[lagrange_mesh]")
+{
+    if(  moris::par_size() == 1 )
+    {
+        moris::uint tBplineMeshIndex = 0;
+        moris::uint tLagrangeMeshInex = 0;
+
+        // The parameter object controls the behavior of HMR.
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {4}, {4} } );
+        tParameters.set_domain_dimensions({ {3}, {3} });
+        tParameters.set_domain_offset({ {-1.5}, {-1.5} });
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {1} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 3 );
+        tParameters.set_staircase_buffer( 1 );
+
+        tParameters.set_initial_refinement( { {2} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        HMR tHMR( tParameters );
+
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
+
+        // manually select output pattern
+        tDatabase->get_background_mesh()->set_activation_pattern( 0 );
+
+        tHMR.perform_initial_refinement();
+
+        //        // update database etc
+        //        tDatabase->perform_refinement( 0, false );
+
+        tHMR.finalize();
+
+        //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
+        //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
+
+        auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
+
+        for( uint k=0; k<tNumCoeffs; ++k )
+        {
+            std::string tLabel = "BSPline_" + std::to_string( k );
+
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineMeshIndex );
+
+            Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
+
+            tCoeffs( k ) = 1.0;
+
+            tField->evaluate_node_values();
+
+            Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
+
+            //tField->save_field_to_hdf5( "BSpline_Field_Values.hdf5", false );
+            //tField->save_node_values_to_hdf5( "Node_Field_Values_lin.hdf5", false );
+            Matrix< DDRMat > tNodalRefFieldValues;
+
+            std::string tPrefix = moris::get_base_moris_dir();
+            std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/Node_Field_Values_lin_2_ref.hdf5";
+
+            hid_t tFile    = open_hdf5_file( tMeshFileName );
+            herr_t tStatus = 0;
+            load_matrix_from_hdf5_file(
+                    tFile,
+                    tLabel,
+                    tNodalRefFieldValues,
+                    tStatus );
+
+            tStatus = close_hdf5_file( tFile );
+
+            MORIS_ERROR( tStatus == 0, "HMR_T_Matrix_Perturb: Status returned != 0, Error in reading reference values");
+
+            for( uint Ik = 0; Ik<tNodalRefFieldValues.numel(); Ik++ )
+            {
+                CHECK( tNodalFieldValues( Ik ) - tNodalRefFieldValues( Ik ) < 1e-12 );
+            }
+        }
+
+                //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
+        //
+        //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
+        //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
+        //        tHMR.save_faces_to_vtk( "Faces.vtk" );
+    }
+}
+
+
 
