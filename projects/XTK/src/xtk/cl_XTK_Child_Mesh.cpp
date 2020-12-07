@@ -3144,6 +3144,7 @@ namespace xtk
                 }
                 else
                 {
+                    std::cout<<"mIntersectConnectivity(iE,0) = "<<mIntersectConnectivity(iE,0)<<std::endl;
                     MORIS_ERROR(0,"Unsupported case in 2D conformal tet template");
                 }
             }
