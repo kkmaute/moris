@@ -18,232 +18,194 @@
 
 #include "cl_Communication_Tools.hpp"
 
-
 namespace moris
 {
-
-inline
-void gather(moris::Cell<uint> & aBuffer, moris::Cell<uint> & aResult)
-{
-    int tProcRank = 0;
-    int tProcSize = 0;
-    int tRoot = 0;
-    MPI_Comm_rank(moris::get_comm(), &tProcRank);
-    MPI_Comm_size(moris::get_comm(), &tProcSize);
-
-    int tSizeofBuffer = aBuffer.size();
-    if (tProcRank == 0)
+    /* ---------------------------------------------------------------------
+     * Gather cells of type T of all processors on root processor (default: 0)
+     * Note: cells need to have same size
+     *
+     * @param aBuffer input cell
+     * @param aResult output cell (only valid on root processor)
+     */
+    template <typename T>
+    inline
+    void gather(
+            moris::Cell<T> & aBuffer,
+            moris::Cell<T> & aResult,
+            int              aRootProc = 0)
     {
-        aResult.resize(tProcSize * tSizeofBuffer, 0);
-    }
+        // get processor rank and size
+        int tProcRank = 0;
+        int tProcSize = 0;
 
-    MPI_Gather(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED, tRoot, moris::get_comm());
-}
+        MPI_Comm_rank(moris::get_comm(), &tProcRank);
+        MPI_Comm_size(moris::get_comm(), &tProcSize);
 
-inline
-void gather(moris::Cell<moris::moris_id> & aBuffer,
-            moris::Cell<moris::moris_id> & aResult)
-{
-    int tProcRank = 0;
-    int tProcSize = 0;
-    int tRoot = 0;
-    MPI_Comm_rank(moris::get_comm(), &tProcRank);
-    MPI_Comm_size(moris::get_comm(), &tProcSize);
+        // get data type of cell
+        MPI_Datatype tType = get_comm_datatype ( ( T ) 0 );
 
-    int tSizeofBuffer = aBuffer.size();
-    if (tProcRank == 0)
-    {
-        aResult.resize(tProcSize * tSizeofBuffer, 0);
-    }
-
-    MPI_Datatype tDataType = moris::get_comm_datatype(aBuffer(0));
-
-    MPI_Gather(aBuffer.data().data(), tSizeofBuffer, tDataType, aResult.data().data(), tSizeofBuffer, tDataType, tRoot, moris::get_comm());
-}
-
-/**
- * Require the result to be sized appropriately
- */
-inline
-void scatter(moris::Cell<uint> & aBuffer, moris::Cell<uint> & aResult)
-{
-    int tProcRank = 0;
-    int tProcSize = 0;
-    int tRoot = 0;
-    MPI_Comm_rank(moris::get_comm(), &tProcRank);
-    MPI_Comm_size(moris::get_comm(), &tProcSize);
-
-//    MORIS_ASSERT(aResult.size() != 0, "aResult Buffer needs to externally allocate size");
-
-    int tSizeofBuffer = aResult.size();
-
-    MPI_Scatter(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED, tRoot, moris::get_comm());
-}
-
-inline
-void scatter(moris::Cell<moris::moris_id> & aBuffer,
-             moris::Cell<moris::moris_id> & aResult)
-{
-    int tProcRank = 0;
-    int tProcSize = 0;
-    int tRoot = 0;
-    MPI_Comm_rank(moris::get_comm(), &tProcRank);
-    MPI_Comm_size(moris::get_comm(), &tProcSize);
-
-//    MORIS_ASSERT(aResult.size() != 0, "aResult Buffer needs to externally allocate size");
-
-    int tSizeofBuffer = aResult.size();
-
-    MPI_Datatype tDataType = moris::get_comm_datatype(aBuffer(0));
-
-    MPI_Scatter(aBuffer.data().data(), tSizeofBuffer, tDataType, aResult.data().data(), tSizeofBuffer, tDataType, tRoot, moris::get_comm());
-}
-
-
-
-/**
- * Requirement: Column major matrix
- */
-template <typename Size_T_Matrix>
-MPI_Request nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
-                      size_t aNumRows,
-                      size_t aNumColumns,
-                      int aReceivingProc,
-                      int aTag)
-{
-    int tNumToSend = aSendingMatrix.numel();
-    MPI_Request tRequest;
-
-//    std::cout<<"NONBLOCKING SEND FROM "<<par_rank()<<" TO "<<aReceivingProc<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<aNumColumns<<std::endl;
-
-    MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, moris::get_comm(),&tRequest);
-
-    return tRequest;
-
-}
-
-inline
-bool
-sent_message_exists(int aOtherProc,
-                    int aTag,
-                    MPI_Status & aStatus)
-{
-
-    int flag = 1000;
-    MPI_Iprobe(aOtherProc, aTag, moris::get_comm(), &flag, &aStatus);
-
-//    std::cout<<"Flag = "<<flag<< " | aOtherProc = "<<aOtherProc<<"| my rank = "<<moris::par_rank()<<" | Tag = "<<aTag<<std::endl;
-
-    if(flag)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-template <typename Size_T_Matrix>
-inline
-void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
-             size_t aNumRows,
-             int aSendingProc,
-             int aTag)
-{
-
-    MPI_Status tStatus;
-    MPI_Probe(aSendingProc, aTag, moris::get_comm(), &tStatus);
-
-
-//    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
-
-    int tNumSent = 0;
-    MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
-
-
-    size_t tNumColumns = tNumSent / aNumRows;
-
-//    std::cout<<"RECEIVE FROM FROM "<<aSendingProc<<" ON "<<par_rank()<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<tNumColumns<<std::endl;
-
-    // Resize the matrix
-    aReceivingMatrix.resize(aNumRows, tNumColumns);
-
-    MPI_Recv(aReceivingMatrix.data(), tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, moris::get_comm(), &tStatus);
-
-}
-
-template <typename Size_T_Matrix>
-inline
-void receive_col_known(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
-             size_t aNumCols,
-             int aSendingProc,
-             int aTag)
-{
-    MPI_Status tStatus;
-    bool tExists = sent_message_exists(aSendingProc,aTag,tStatus);
-
-    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
-
-    int tNumSent = 0;
-    MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
-
-    size_t tNumRows = tNumSent / aNumCols;
-
-
-    // Resize the matrix
-    aReceivingMatrix.resize(tNumRows, aNumCols);
-
-    MPI_Recv(aReceivingMatrix.data(), tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, moris::get_comm(), &tStatus);
-
-}
-
-inline
-moris::moris_id
-allocate_ids(moris::size_t aNumIdstoAllocate,
-             moris::size_t tStart = 1)
-{
-    int tProcRank = moris::par_rank();
-    int tProcSize = moris::par_size();
-
-    // size_t is defined as uint here because of aNumRequested
-    //Initialize gathered information outputs (information which will be scattered across processors)
-    moris::Cell<moris::moris_id> aGatheredInfo;
-    moris::Cell<moris::moris_id> tFirstId(1);
-    moris::Cell<moris::moris_id> tNumIdsRequested(1);
-
-    tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
-
-    gather(tNumIdsRequested,aGatheredInfo);
-
-    moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
-
-    moris::moris_id tFirstAvailableId = tStart;
-
-    if(tProcRank == 0)
-    {
-        // Loop over entities print the number of entities requested by each processor
-        for (int iProc = 0; iProc < tProcSize; ++iProc)
+        // allocate proper size for root processor
+        int tSizeofBuffer = aBuffer.size();
+        if (tProcRank == aRootProc)
         {
-            // Give each processor their desired amount of IDs
-            tProcFirstID(iProc) = tFirstAvailableId;
-
-            // Increment the first available node ID
-            tFirstAvailableId = tFirstAvailableId+aGatheredInfo(iProc);
+            aResult.resize(tProcSize * tSizeofBuffer, 0);
         }
 
+        // check for equal size of cells across all processors
+        MORIS_ASSERT( max_all( tSizeofBuffer ) == tSizeofBuffer,
+                "gather - cell size differs across processors.\n");
+
+        // mpi call
+        MPI_Gather(
+                aBuffer.data().data(),
+                tSizeofBuffer,
+                tType,
+                aResult.data().data(),
+                tSizeofBuffer,
+                tType,
+                aRootProc,
+                moris::get_comm());
     }
 
-    scatter(tProcFirstID,tFirstId);
+    /* ---------------------------------------------------------------------
+     * Scatter cells of type T form root processor  (default: 0) to all processors
+     * Note: cells need to have same size
+     *
+     * @param aBuffer input cell (only valid on root processor)
+     * @param aResult output cell (needs to be size correctly externally)
+     */
+    template <typename T>
+    inline
+    void scatter(
+            moris::Cell<T> & aBuffer,
+            moris::Cell<T> & aResult,
+            int              aRootProc = 0)
+    {
+        // get processor rank and size
+        int tProcRank = 0;
+        int tProcSize = 0;
+
+        MPI_Comm_rank(moris::get_comm(), &tProcRank);
+        MPI_Comm_size(moris::get_comm(), &tProcSize);
+
+        // get data type of cell
+        MPI_Datatype tType = get_comm_datatype ( ( T ) 0 );
+
+        // get size of receive buffer (needs to be set externally)
+        int tSizeofBuffer = aResult.size();
+
+        // check for equal size of cells across all processors
+        MORIS_ASSERT( max_all( tSizeofBuffer ) == tSizeofBuffer,
+                "scatter - cell size differs across processors.\n");
+
+        MPI_Scatter(
+                aBuffer.data().data(),
+                tSizeofBuffer,
+                tType,
+                aResult.data().data(),
+                tSizeofBuffer,
+                tType,
+                aRootProc,
+                moris::get_comm());
+    }
+
+    // ---------------------------------------------------------------------
+    // FIXME: the following routine need proper commenting and error checking
+    // ---------------------------------------------------------------------
+
+    /**
+     * Requirement: Column major matrix
+     */
+    template <typename Size_T_Matrix>
+    MPI_Request nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
+            size_t aNumRows,
+            size_t aNumColumns,
+            int aReceivingProc,
+            int aTag)
+    {
+        int tNumToSend = aSendingMatrix.numel();
+        MPI_Request tRequest;
+
+        //    std::cout<<"NONBLOCKING SEND FROM "<<par_rank()<<" TO "<<aReceivingProc<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<aNumColumns<<std::endl;
+
+        MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, moris::get_comm(),&tRequest);
+
+        return tRequest;
+
+    }
+
+    inline
+    bool
+    sent_message_exists(int aOtherProc,
+            int aTag,
+            MPI_Status & aStatus)
+    {
+
+        int flag = 1000;
+        MPI_Iprobe(aOtherProc, aTag, moris::get_comm(), &flag, &aStatus);
+
+        //    std::cout<<"Flag = "<<flag<< " | aOtherProc = "<<aOtherProc<<"| my rank = "<<moris::par_rank()<<" | Tag = "<<aTag<<std::endl;
+
+        if(flag)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    template <typename Size_T_Matrix>
+    inline
+    void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
+            size_t aNumRows,
+            int aSendingProc,
+            int aTag)
+    {
+
+        MPI_Status tStatus;
+        MPI_Probe(aSendingProc, aTag, moris::get_comm(), &tStatus);
+
+        //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
+        int tNumSent = 0;
+        MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
 
 
-    return tFirstId(0);
+        size_t tNumColumns = tNumSent / aNumRows;
+
+        //    std::cout<<"RECEIVE FROM FROM "<<aSendingProc<<" ON "<<par_rank()<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<tNumColumns<<std::endl;
+
+        // Resize the matrix
+        aReceivingMatrix.resize(aNumRows, tNumColumns);
+
+        MPI_Recv(aReceivingMatrix.data(), tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, moris::get_comm(), &tStatus);
+
+    }
+
+    template <typename Size_T_Matrix>
+    inline
+    void receive_col_known(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
+            size_t aNumCols,
+            int aSendingProc,
+            int aTag)
+    {
+        MPI_Status tStatus;
+        bool tExists = sent_message_exists(aSendingProc,aTag,tStatus);
+
+        MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
+        int tNumSent = 0;
+        MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
+
+        size_t tNumRows = tNumSent / aNumCols;
+
+        // Resize the matrix
+        aReceivingMatrix.resize(tNumRows, aNumCols);
+
+        MPI_Recv(aReceivingMatrix.data(), tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, moris::get_comm(), &tStatus);
+    }
 }
-
-
-
-
-}
-
 
 #endif /* SRC_TOOLS_CL_MPI_TOOLS_HPP_ */

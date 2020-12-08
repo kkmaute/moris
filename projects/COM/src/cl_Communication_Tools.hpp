@@ -321,7 +321,6 @@ namespace moris
         return tGlobalSum;
     }
 
-
     //------------------------------------------------------------------------------
 
     /*
@@ -652,6 +651,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
+    // FIXME: the following rountine needs to be simplified using all_gather
     /**
      * This function collects the value aValue from all procs and puts
      * the result in a moris::Mat
@@ -770,6 +770,7 @@ namespace moris
 
         return tString;
     }
+
     //------------------------------------------------------------------------------
 
     /*!
@@ -855,6 +856,8 @@ namespace moris
         barrier();
     }
 
+    //------------------------------------------------------------------------------
+
     /*!
      * Gather cell of strings
      */
@@ -865,39 +868,42 @@ namespace moris
             moris_index aTag,
             moris_index aBaseProc = 0);
 
-    moris::sint
-    gather_value_and_scatter_offset(const sint & aLocalInput)
+    //------------------------------------------------------------------------------
+
+    /* computes offset for each processor given a local value
+     *
+     * @param aLocalInput  local value
+     *
+     * @ return            offset value (same type as input value)
+     */
+    template< typename T>
+    T
+    get_processor_offset(const T & aLocalInput)
     {
-        sint tParOffset=0;
+        // get number of processors
+        moris_id tNumProcs = par_size();
 
-        sint tMyPID = par_rank();
+        // get local rank
+        moris_id tMyPID = par_rank();
 
-        sint tNumProcs = par_size();
+        // create matrix of reals of size tNumProcs
+        Matrix<DDRMat> tInputMatrix(tNumProcs,1,0.0);
 
-        sint *tAllNumMaster = nullptr, *tAllMasterOffsets = nullptr;
-        // All processes send number of master dof sets to PID=0
-        if ( tMyPID == 0 )
+        // fill in local value
+        tInputMatrix(tMyPID) = (real)aLocalInput;
+
+        // sum matrices across all procs
+        Matrix<DDRMat> tOutputMtrax = sum_all_matrix(tInputMatrix);
+
+        // compute local offset
+        T tOffset=0;
+
+        for (moris_id ip=0;ip<tMyPID;++ip)
         {
-            tAllNumMaster    = (int*) alloca(sizeof(int)*tNumProcs);
-            tAllMasterOffsets = (int*) alloca(sizeof(int)*tNumProcs);
-            std::fill(tAllNumMaster, tAllNumMaster + tNumProcs, 0);
-            std::fill(tAllMasterOffsets, tAllMasterOffsets + tNumProcs, 0);
+            tOffset += (T) tOutputMtrax(ip);
         }
 
-        sint tNumMyMaster = aLocalInput;
-
-        // All send number of master dof sets to processor 0
-        MPI_Gather( &tNumMyMaster, 1, MPI_INT, tAllNumMaster, 1, MPI_INT, 0, MPI_COMM_WORLD );
-
-        if (tMyPID == 0)
-        {
-            for ( sint Ik = 1; Ik < tNumProcs; ++Ik)
-                tAllMasterOffsets[Ik] = tAllMasterOffsets[Ik-1] + tAllNumMaster[Ik-1];
-        }
-
-        MPI_Scatter( tAllMasterOffsets, 1, MPI_INT, &tParOffset , 1, MPI_INT, 0, MPI_COMM_WORLD );
-
-        return tParOffset;
+        return tOffset;
     }
 }
 

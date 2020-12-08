@@ -22,6 +22,7 @@ namespace moris
             mPropertyMap[ "ThermalExpansion" ] = static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION );
             mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IWG_Property_Type::REF_TEMP );
             mPropertyMap[ "MassSource" ]       = static_cast< uint >( IWG_Property_Type::MASS_SOURCE );
+            mPropertyMap[ "PressureSpring" ]   = static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -55,38 +56,50 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
 
             // get the source property
-            std::shared_ptr< Property > & tPropSource =
+            const std::shared_ptr< Property > & tPropSource =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the pressure spring property
+            const std::shared_ptr< Property > & tPropPressureSpring =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
+
+            // get the incompressible flow stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // get the density
             real tDensity = tIncFluidCM->get_property( "Density" )->val()(0);
-
-            // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // compute residual strong form
             Matrix< DDRMat > tRM;
             this->compute_residual_strong_form( tRM );
 
+            // get residual vector
+            auto tRes = mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex } );
+
             // compute the residual weak form
-            mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } ) += 
-                    aWStar * (
-                            tPressureFI->N_trans() * tVelocityFI->div() +
-                            trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tRM );
+            tRes += aWStar * (
+                    tPressureFI->N_trans() * tVelocityFI->div() +
+                    trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tRM );
 
             // if source term is defined
             if ( tPropSource != nullptr )
             {
                 // add contribution of source term
-                mSet->get_residual()( 0 )(
-                       { tMasterResStartIndex, tMasterResStopIndex } ) += 
-                       aWStar * ( tPressureFI->N_trans() * tPropSource->val()( 0 ) / tDensity );
+                tRes += aWStar * ( tPressureFI->N_trans() * tPropSource->val()( 0 ) / tDensity );
+            }
+
+            // if pressure spring is defined
+            if ( tPropPressureSpring != nullptr )
+            {
+                // add contribution of source term
+                tRes += aWStar * (
+                        tPropPressureSpring->val()( 0 ) * tPressureFI->N_trans() * tPressureFI->val() );
             }
 
             // check for nan, infinity
@@ -113,35 +126,44 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the source property
-            std::shared_ptr< Property > & tPropSource =
+            const std::shared_ptr< Property > & tPropSource =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
+            // get the pressure spring property
+            const std::shared_ptr< Property > & tPropPressureSpring =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
+
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the incompressible flow stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // get the density
             real tDensity = tIncFluidCM->get_property( "Density" )->val()( 0 );
-
-            // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // compute the residual strong form
             Matrix< DDRMat > tRM;
             compute_residual_strong_form( tRM );
 
-            // compute the jacobian for dof dependencies
+            // compute the Jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+
+                // get sub-matrix
+                auto tJac = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
 
                 // if dof type is velocity
                 // FIXME protect velocity dof type
@@ -149,22 +171,18 @@ namespace moris
                 {
                     Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
-                    // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tPressureFI->N_trans() * tVelocityFI->div_operator() );
+                    // compute the Jacobian
+                    tJac += aWStar * (
+                            tPressureFI->N_trans() * tVelocityFI->div_operator() );
                 }
 
-                // compute the jacobian strong form
+                // compute the Jacobian strong form
                 Matrix< DDRMat > tJM;
                 compute_jacobian_strong_form( tDofType, tJM );
 
-                // compute the jacobian contribution from strong form
-                mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tJM );
+                // compute the Jacobian contribution from strong form
+                tJac += aWStar * (
+                        trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tJM );
 
                 // if source term has dependency on the dof type
                 if ( tPropSource != nullptr )
@@ -172,22 +190,38 @@ namespace moris
                     // if source property depends on dof type
                     if ( tPropSource->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tPressureFI->N_trans() * 1/tDensity * tPropSource->dPropdDOF( tDofType ) );
+                        // add contribution to Jacobian
+                        tJac += aWStar * (
+                                tPressureFI->N_trans() * 1.0/tDensity * tPropSource->dPropdDOF( tDofType ) );
+                    }
+                }
+
+                // if pressure spring property has dependency on the dof type
+                if ( tPropPressureSpring != nullptr )
+                {
+                    // if dof type is pressure
+                    if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    {
+                        // add contribution of pressure spring
+                        tJac += aWStar * (
+                                tPropPressureSpring->val()( 0 ) * tPressureFI->N_trans() * tPressureFI->N() );
+                    }
+
+                    // if pressure spring property depends on dof type
+                    if ( tPropPressureSpring->check_dof_dependency( tDofType ) )
+                    {
+                        // add contribution of pressure spring
+                        tJac += aWStar * (
+                                tPressureFI->N_trans() * tPressureFI->val() * tPropPressureSpring->dPropdDOF( tDofType ) );
                     }
                 }
 
                 // if stabilization parameter has dependency on the dof type
                 if ( tIncFlowSP->check_dof_dependency( tDofType ) )
                 {
-                    // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tPressureFI->dnNdxn( 1 ) ) * tRM * tIncFlowSP->dSPdMasterDOF( tDofType ).get_row( 0 ) );
+                    // compute the Jacobian
+                    tJac += aWStar * (
+                            trans( tPressureFI->dnNdxn( 1 ) ) * tRM * tIncFlowSP->dSPdMasterDOF( tDofType ).get_row( 0 ) );
                 }
             }
 
@@ -229,19 +263,21 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
 
             // get the density and gravity properties
-            std::shared_ptr< Property > & tGravityProp    =
+            const std::shared_ptr< Property > & tGravityProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
-            std::shared_ptr< Property > & tThermalExpProp =
+
+            const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > & tRefTempProp    =
+
+            const std::shared_ptr< Property > & tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
-            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
+            const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
@@ -276,8 +312,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian_strong_form(
-                moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >             & aJM )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aJM )
         {
             // get the velocity dof and the derivative dof FIs
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
@@ -289,16 +325,19 @@ namespace moris
                     tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the gravity properties
-            std::shared_ptr< Property > & tGravityProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
-            std::shared_ptr< Property > & tThermalExpProp = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > & tRefTempProp    = mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property > & tGravityProp       =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property > & tThermalExpProp    =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property > & tRefTempProp       =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
-            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
+            const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the density value
             real tDensity = tDensityProp->val()( 0 );

@@ -352,7 +352,7 @@ namespace moris
                 Matrix<DDRMat> tADVs(x, mProblem->get_num_advs(), 1);
 
                 // Write restart file
-                this->write_advs_to_file(mOptIter,tADVs);
+                this->write_advs_to_file(tADVs);
 
                 // Recruit help from other procs and solve for criteria
                 this->criteria_solve(tADVs);

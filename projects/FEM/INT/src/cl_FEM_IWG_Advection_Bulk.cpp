@@ -52,11 +52,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
+            const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form

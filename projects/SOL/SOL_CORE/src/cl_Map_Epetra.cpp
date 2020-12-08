@@ -83,7 +83,7 @@ void Map_Epetra::build_point_map()
     // build point map
     sint tNumMyPoints = mEpetraMap->NumMyPoints();
 
-    moris::uint tGlobID = gather_value_and_scatter_offset( tNumMyPoints );
+    moris::uint tGlobID = get_processor_offset( tNumMyPoints );
 
     //    int* myDofIds = (int*) alloca (sizeof(int)*numMyPoints);
     moris::Matrix< IdMat > tMyDofIds( tNumMyPoints, 1 );
