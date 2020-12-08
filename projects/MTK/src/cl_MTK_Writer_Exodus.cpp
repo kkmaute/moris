@@ -21,7 +21,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Writer_Exodus::Writer_Exodus(mtk::Mesh* aMeshPointer)
-        : mMesh(aMeshPointer)
+                        : mMesh(aMeshPointer)
         {
             this->set_error_options(true, true, true);
         }
@@ -230,7 +230,7 @@ namespace moris
 
         void Writer_Exodus::set_elemental_fields(moris::Cell<std::string> aFieldNames)
         {
-            if ( aFieldNames.size() > 0 && mNumElements > 0 )
+            if ( aFieldNames.size() > 0 && mNumUniqueExodusElements > 0 )
             {
                 // Write the number of elemental fields
                 ex_put_variable_param(mExoid, EX_ELEM_BLOCK, aFieldNames.size());
@@ -371,7 +371,7 @@ namespace moris
             // skip if no elemental values exist
             if ( aFieldValues.numel() == 0 )
             {
-                MORIS_ASSERT( mNumElements == 0,
+                MORIS_ASSERT( mNumUniqueExodusElements == 0,
                         "Number of field values is zero but not number of elements.\n");
 
                 return;
@@ -531,13 +531,16 @@ namespace moris
             // Number of nodes
             mNumNodes = mMesh->get_num_nodes();
 
+            // Number of elements in mesh (may be different from number of elements in blocks)
+            mNumMtkElements = mMesh->get_num_elems();
+
             // Determine number of non-empty sets
             this->get_node_sets();
             this->get_side_sets();
             this->get_block_sets();
 
             // Initialize database
-            ex_put_init(mExoid, "MTK", tNumDimensions, mNumNodes, mNumElements,
+            ex_put_init(mExoid, "MTK", tNumDimensions, mNumNodes, mNumUniqueExodusElements,
                     (int)mElementBlockIndices.size(), (int)mNodeSetIndices.size(), (int)mSideSetIndices.size());
         }
 
@@ -616,19 +619,46 @@ namespace moris
         {
             moris::Cell<std::string> tBlockNames = mMesh->get_set_names(EntityRank::ELEMENT);
 
-            // Initialize local number of elements
-            mNumElements = 0;
+            // Initialize map from mesh indices to exodus indices
+            mMtkExodusElementIndexMap.set_size(mNumMtkElements, 1, MORIS_INDEX_MAX);
 
             // Determine number of sides in each local side set
             Matrix<DDUMat> tNumLocalElemsInBlockSets( tBlockNames.size(), 1);
 
+            // Initialize exodus index
+            mNumUniqueExodusElements = 0;
+
+            // Initialize total number of elements in blocks
+            mNumTotalExodusElements = 0;
+
             for (uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
             {
-                uint tNumElementsInBlock = mMesh->get_element_indices_in_block_set(tBlockIndex).length();
+                Matrix<IndexMat> tElementIndices = mMesh->get_element_indices_in_block_set(tBlockIndex);
 
+                uint tNumElementsInBlock = tElementIndices.length();
+
+                // create exodus index
+                for (uint tInd=0;tInd<tNumElementsInBlock;tInd++)
+                {
+                    // mesh-based element index
+                    moris_index tElementIndex = tElementIndices( tInd );
+
+                    // Check that index is not larger than local number of elements
+                    MORIS_ASSERT( tElementIndex < (moris_index) mNumMtkElements,
+                            "Element index larger or equal than number of elements in MTK mesh: index = %d (%d).\n",
+                            tElementIndex,mNumMtkElements);
+
+                    // create exodus index
+                    if ( mMtkExodusElementIndexMap( tElementIndex) == MORIS_INDEX_MAX )
+                    {
+                        mMtkExodusElementIndexMap( tElementIndex ) = mNumUniqueExodusElements++;
+                    }
+                }
+                // add number of elements in this block to total number of elements in exodus mesh
+                mNumTotalExodusElements += tNumElementsInBlock;
+
+                // save number of elements in block
                 tNumLocalElemsInBlockSets(tBlockIndex) = tNumElementsInBlock;
-
-                mNumElements += tNumElementsInBlock;
             }
 
             // Sum number of elements in block sets across all procs
@@ -642,6 +672,11 @@ namespace moris
                     mElementBlockIndices.push_back(tBlockIndex);
                 }
             }
+
+            // Check that number of elements in blocks is not larger than number of elements in mesh
+            MORIS_ASSERT( mNumUniqueExodusElements <= mNumMtkElements,
+                    "Writer_Exodus::get_block_sets - Number of unique elements in blocks larger than number of elements in mesh: %d vs %d\n",
+                    mNumUniqueExodusElements,mNumMtkElements);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -655,6 +690,13 @@ namespace moris
 
             // Set up coordinate and node map arrays based on the number of vertices
             Matrix<IdMat> tNodeMap(mNumNodes, 1, 0);
+
+            // when using ad-hoc index map, get processor offset and add 1 as exodus used 1 based indices
+            uint tProcOffset;
+            if ( ! mMtkIndexMap )
+            {
+                tProcOffset = get_processor_offset(mNumNodes) + 1;
+            }
 
             // Coordinate arrays
             Matrix<DDRMat> tXCoordinates(mNumNodes, 1, 0.0);
@@ -671,8 +713,15 @@ namespace moris
                 tYCoordinates(tNodeIndex) = tNodeCoordinates(1 * tYDim) * tYDim;
                 tZCoordinates(tNodeIndex) = tNodeCoordinates(2 * tZDim) * tZDim;
 
-                // Get global ids for id map
-                tNodeMap(tNodeIndex) = mMesh->get_glb_entity_id_from_entity_loc_index(tNodeIndex, EntityRank::NODE);
+                // Get global ids for id map using either MTK or ad-hoc node ID map
+                if ( mMtkIndexMap )
+                {
+                    tNodeMap(tNodeIndex) = mMesh->get_glb_entity_id_from_entity_loc_index(tNodeIndex, EntityRank::NODE);
+                }
+                else
+                {
+                    tNodeMap(tNodeIndex) = tProcOffset + tNodeIndex;
+                }
             }
 
             // Write coordinate names
@@ -727,37 +776,54 @@ namespace moris
 
         void Writer_Exodus::write_blocks()
         {
-            // Start the element maps
-            mMtkExodusElementIndexMap.set_size(mMesh->get_num_elems()+1, 1, 0);
+            // create ad-hoc element IDs FIXME: should be handled by MTK
+            uint tProcOffset = get_processor_offset(mNumUniqueExodusElements) + 1;
 
-            Matrix<IdMat> tElementIdMap(0, 1, 0);
+            // ids of exodus elements
+            Matrix<IdMat> tExodusElementIds;
 
-            uint tElementIdMapStartIndex = 0;
+            // generate ad-hoc element ID map when not using MTK map
+            if ( ! mMtkIndexMap )
+            {
+                // set size of exodus element map and fill it
+                tExodusElementIds.set_size(mNumUniqueExodusElements, 1);
+                tExodusElementIds.fill(MORIS_ID_MAX);
+
+                for (uint tInd=0;tInd<mNumUniqueExodusElements;++tInd)
+                {
+                    tExodusElementIds(tInd) = tProcOffset + tInd;
+                }
+            }
+            // position of exodus element in file (only last position stored)
+            mExodusElementIndexOrderMap.set_size(mNumUniqueExodusElements, 1, MORIS_ID_MAX);
+
+            // ids for each element in blocks; note: an element might be in multiple blocks
+            Matrix<IdMat>  tExodusTotalElementIds(mNumTotalExodusElements, 1);
 
             // All of the block names
             moris::Cell<std::string> tBlockNames = mMesh->get_set_names(EntityRank::ELEMENT);
 
+            // Initialize element counter: order in which elements are written to exodus file
+            uint tElemCounter = 0;
+
             // Loop through all non-empty blocks
             for (uint tIndex = 0; tIndex < mElementBlockIndices.size(); tIndex++)
             {
-                // get global index
+                // Get global index
                 uint tBlockIndex = mElementBlockIndices(tIndex);
 
-                // Get the block element identifiers
+                // Get local indices and IDs of elements in current block
                 Matrix<IndexMat> tElementIndices = mMesh->get_element_indices_in_block_set(tBlockIndex);
                 Matrix<IdMat> tElementIDs        = mMesh->get_element_ids_in_block_set(tBlockIndex);
 
                 MORIS_ASSERT(tElementIndices.length() == tElementIDs.length(),
-                        "Vector of element IDs must match vector of element indices for Exodus file writing.");
+                        "Writer_Exodus::write_blocks - Vector of element IDs must match vector of element indices for Exodus file writing.");
 
                 // Number of elements in the block
                 uint tNumElementsInBlock = tElementIndices.length();
 
                 // Add name to map
                 mBlockNamesMap[tBlockNames(tBlockIndex)] = tIndex;
-
-                // Resize element map
-                tElementIdMap.resize(tElementIdMapStartIndex + tNumElementsInBlock, 1);
 
                 // Get the CellTopology of this block
                 enum CellTopology tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
@@ -779,32 +845,49 @@ namespace moris
 
                 // Loop through the elements in this block
                 uint tConnectivityIndex = 0;
+
                 for (uint tElementNumber = 0; tElementNumber < tNumElementsInBlock; tElementNumber++)
                 {
-                    // Get the vertex indices of this element
-                    Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementIndices(tElementNumber));
+                    // Local element index
+                    moris_index tElementIndex = tElementIndices( tElementNumber );
 
-                    // Assign each vertex individually
+                    // Get the vertex indices of this element
+                    Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementIndex);
+
+                    // Build connectivity vector, add 1 since exodus uses 1-based indices
                     for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)
                     {
-                        tConnectivityArray(tConnectivityIndex) = tNodeIndices(tNodeNum) + 1;
+                        tConnectivityArray(tConnectivityIndex) = tNodeIndices( tNodeNum ) + 1;
                         tConnectivityIndex++;
                     }
 
-                    // Get the global id and index of this element and add to maps
-                    tElementIdMap(tElementIdMapStartIndex + tElementNumber) = tElementIDs(tElementNumber);
-                    mMtkExodusElementIndexMap(tElementIndices(tElementNumber)) = tElementIdMapStartIndex + tElementNumber;
-                }
+                    // Check that mesh-based index an exodus index has been assigned
+                    MORIS_ASSERT( mMtkExodusElementIndexMap ( tElementIndex ) != MORIS_INDEX_MAX,
+                            "Writer_Exodus::write_blocks - Mesh based element index has not been assigned an exodus index.\n");
 
-                // Update location in element map
-                tElementIdMapStartIndex += tNumElementsInBlock;
+                    // Get exodus index
+                    moris_index tExodusIndex = mMtkExodusElementIndexMap ( tElementIndex );
+
+                    // Assign tElemCounter to exodus index
+                    mExodusElementIndexOrderMap( tExodusIndex ) = tElemCounter;
+
+                    // Assign exodus element id using either MTK or ad-hoc map
+                    if ( mMtkIndexMap )
+                    {
+                        tExodusTotalElementIds(tElemCounter++) = tElementIDs( tElementNumber );
+                    }
+                    else
+                    {
+                        tExodusTotalElementIds(tElemCounter++) = tExodusElementIds ( tExodusIndex );
+                    }
+                }
 
                 // Write connectivity
                 ex_put_conn(mExoid, EX_ELEM_BLOCK, tIndex + 1, tConnectivityArray.data(), nullptr, nullptr);
             }
 
             // Write the element map
-            ex_put_id_map(mExoid, EX_ELEM_MAP, tElementIdMap.data());
+            ex_put_id_map(mExoid, EX_ELEM_MAP, tExodusTotalElementIds.data());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -826,15 +909,37 @@ namespace moris
 
                 mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetIndex), tSideSetElements, tSideSetOrdinals);
 
-                // Change element and ordinal to what Exodus wants
+                // Side counter
+                uint tSideCounter = 0;
+
+                // Loop over all sides in set
                 for (uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
                 {
-                    tSideSetElements(tElementNum) = mMtkExodusElementIndexMap(tSideSetElements(tElementNum)) + 1;
-                    tSideSetOrdinals(tElementNum)++;
+                    // Get mesh-based index
+                    moris_index tElementIndex =  tSideSetElements(tElementNum);
+
+                    // Check that mesh-based index an exodus index has been assigned; if  not it is not part of a block
+                    // on this processor and will be skipped
+                    if ( mMtkExodusElementIndexMap ( tElementIndex ) != MORIS_INDEX_MAX )
+                    {
+                        // Get exodus index
+                        moris_index tExodusIndex = mMtkExodusElementIndexMap ( tElementIndex );
+
+                        // Check that position has been assigned
+                        MORIS_ASSERT( mExodusElementIndexOrderMap(tExodusIndex) != MORIS_INDEX_MAX,
+                                "Writer_Exodus::write_side_sets - Exodus element index has not been assigned a position in exodus file.\n");
+
+                        // Get position in exodus file this element has been written
+                        moris_index tExoPos = mExodusElementIndexOrderMap(tExodusIndex);
+
+                        tSideSetElements(tSideCounter) = tExoPos + 1;  // add 1 to side ordinal to match exodus definition
+                        tSideSetOrdinals(tSideCounter)++;              // add 1 to side ordinal to match exodus definition
+                        tSideCounter++;
+                    }
                 }
 
-                // Write the side set
-                ex_put_set_param(mExoid, EX_SIDE_SET, tIndex + 1, tSideSetElements.numel(), 0);
+                // Write the side set with actual number of sides in set
+                ex_put_set_param(mExoid, EX_SIDE_SET, tIndex + 1, tSideCounter, 0);
                 ex_put_set      (mExoid, EX_SIDE_SET, tIndex + 1, tSideSetElements.data(), tSideSetOrdinals.data());
                 ex_put_name     (mExoid, EX_SIDE_SET, tIndex + 1, tSideSetNames(tSideSetIndex).c_str());
             }
