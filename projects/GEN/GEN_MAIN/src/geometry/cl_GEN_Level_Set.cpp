@@ -19,40 +19,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Level_Set::Level_Set(
-                Matrix<DDRMat>&          aADVs,
-                Matrix<DDUMat>           aGeometryVariableIndices,
-                Matrix<DDUMat>           aADVIndices,
-                Matrix<DDRMat>           aConstantParameters,
-                mtk::Interpolation_Mesh* aMesh,
-                std::string              aName,
-                Matrix<DDSMat>           aNumRefinements,
-                Matrix<DDSMat>           aRefinementMeshIndices,
-                sint                     aRefinementFunctionIndex,
-                uint                     aBSplineMeshIndex,
-                real                     aBSplineLowerBound,
-                real                     aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Field_Discrete_Integration(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
-        {
-            // Check that number of variables equals the number of B-spline coefficients
-            MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
-                    "There must be a field variable for each B-spline coefficient in a level set geometry.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Level_Set::Level_Set(
                 sol::Dist_Vector*         aOwnedADVs,
                 const Matrix<DDSMat>&     aOwnedADVIds,
                 const Matrix<DDSMat>&     aSharedADVIds,

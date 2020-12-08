@@ -20,33 +20,6 @@ namespace moris
             sol::Dist_Vector* mSharedNodalValues = nullptr;
 
         public:
-            /**
-             * Constructor where ADVs are given directly.
-             *
-             * @param aADVs Reference to the full advs
-             * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aName Name of this field for identification
-             * @param aMesh The mesh pointer where the B-spline information can be obtained
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
-             */
-            Level_Set(Matrix<DDRMat>&          aADVs,
-                      Matrix<DDUMat>           aGeometryVariableIndices,
-                      Matrix<DDUMat>           aADVIndices,
-                      Matrix<DDRMat>           aConstantParameters,
-                      mtk::Interpolation_Mesh* aMesh,
-                      std::string              aName = "",
-                      Matrix<DDSMat>           aNumRefinements = {{}},
-                      Matrix<DDSMat>           aRefinementMeshIndices = {{}},
-                      sint                     aRefinementFunctionIndex = -1,
-                      uint                     aBSplineMeshIndex = 0,
-                      real                     aBSplineLowerBound = -1.0,
-                      real                     aBSplineUpperBound = 1.0);
 
             /**
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
