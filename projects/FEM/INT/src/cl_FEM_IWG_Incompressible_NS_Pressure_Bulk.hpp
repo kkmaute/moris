@@ -111,7 +111,7 @@ namespace moris
                  */
                 void compute_jacobian_strong_form(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                  & aJM );
+                        Matrix< DDRMat >                   & aJM );
 
                 //------------------------------------------------------------------------------
                 /**
