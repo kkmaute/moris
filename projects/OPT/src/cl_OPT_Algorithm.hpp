@@ -60,7 +60,7 @@ namespace moris
             /**
              * @brief write restart file with advs as well as upper and lower bounds
              */
-            void write_advs_to_file( uint aIterationIndex, const Matrix<DDRMat> aADVs );
+            void write_advs_to_file( const Matrix<DDRMat> aADVs );
         };
     }
 }
