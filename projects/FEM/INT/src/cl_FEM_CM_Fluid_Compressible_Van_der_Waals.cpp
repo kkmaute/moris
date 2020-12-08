@@ -325,7 +325,7 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
+            const std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // compute thermal flux q = - k * grad(T)
             mThermalFlux =  -1.0 * tPropThermalConductivity->val()( 0 ) * tFITemp->gradx( 1 );
@@ -354,7 +354,7 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
+            const std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -416,7 +416,7 @@ namespace moris
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the properties
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
 
             // compute contribution
             mWorkFlux = this->velocityMatrix() * this->flux( CM_Function_Type::MECHANICAL ) -
@@ -450,7 +450,7 @@ namespace moris
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the properties
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
 
             // unfold the flattened stress tensor
             Matrix< DDRMat > tStressTensor;
@@ -630,8 +630,8 @@ namespace moris
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the properties
-            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
 
             // compute Stress
             mStress = 2.0 * tPropDynamicViscosity->val()( 0 ) *
@@ -657,8 +657,8 @@ namespace moris
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the properties
-            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
 
             // initialize the matrix
             mdStressdDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3,
@@ -726,9 +726,9 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-            std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+            const std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
 
             // compute energy
             mEnergy = tPropIsochoricHeatCapacity->val()( 0 ) * tFIDensity->val()( 0 ) * tFITemp->val() -
@@ -753,9 +753,9 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-            std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+            const std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
 
             // initialize the matrix
             mEnergyDof( tDofIndex ).set_size( 1,
@@ -810,9 +810,9 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-            std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+            const std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
 
             // compute total energy density
             mEnergyDot =
@@ -840,9 +840,9 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-            std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+            const std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            const std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
 
             // initialize the matrix
             mEnergyDotDof( tDofIndex ).set_size( 1,
@@ -1213,9 +1213,9 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropSpecificGasConstant = get_property( "SpecificGasConstant" );
-            std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
-            std::shared_ptr< Property > tPropSecondVdWconstant = get_property( "SecondVdWconstant" );
+            const std::shared_ptr< Property > tPropSpecificGasConstant = get_property( "SpecificGasConstant" );
+            const std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+            const std::shared_ptr< Property > tPropSecondVdWconstant = get_property( "SecondVdWconstant" );
 
             // return the pressure
             mPressure =
@@ -1250,9 +1250,9 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
-            std::shared_ptr< Property > tPropSpecificGasConstant = get_property( "SpecificGasConstant" );
-            std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
-            std::shared_ptr< Property > tPropSecondVdWconstant = get_property( "SecondVdWconstant" );
+            const std::shared_ptr< Property > tPropSpecificGasConstant = get_property( "SpecificGasConstant" );
+            const std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+            const std::shared_ptr< Property > tPropSecondVdWconstant = get_property( "SecondVdWconstant" );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

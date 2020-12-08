@@ -138,7 +138,7 @@ void opt_alg_gcmma_func_wrap(
     const Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
 
     // Write restart file
-    aOptAlgGCMMA->write_advs_to_file(aIter,tADVs);
+    aOptAlgGCMMA->write_advs_to_file(tADVs);
 
     // Recruit help from other procs and solve for criteria
     aOptAlgGCMMA->criteria_solve(tADVs);

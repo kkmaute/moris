@@ -117,10 +117,7 @@ namespace moris
     moris::size_t
     scatter(std::vector<moris::size_t>  & aMessage);
 
-
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
-
-
 
     /*
      * Prints communication header to log
@@ -327,6 +324,34 @@ namespace moris
     //------------------------------------------------------------------------------
 
     /*
+     * @brief Determines sum of all components of a matrix on all processors
+     *
+     * @param[in] aLocalInput     local matrix
+     *
+     * returns matrix with global sums
+     */
+
+    template <typename E>
+    E
+    sum_all_matrix( const E & aLocalMatrix )
+    {
+        E tGlobalMatrix(aLocalMatrix.n_rows(),aLocalMatrix.n_cols());
+
+        void* aLocalPtr  = (void*)aLocalMatrix.data();
+        void* aGlobalPtr = (void*)tGlobalMatrix.data();
+
+        int tNumElems = aLocalMatrix.numel();
+
+        MPI_Datatype tType = get_comm_datatype ( ( typename E::Data_Type ) 0 );
+
+        MPI_Allreduce(aLocalPtr,aGlobalPtr,tNumElems,tType,MPI_SUM,MPI_COMM_WORLD);
+
+        return tGlobalMatrix;
+    }
+
+    //------------------------------------------------------------------------------
+
+    /*
      * @brief Determines maximal value of all local values
      *
      * @param[in] aLocalInput     local value
@@ -380,8 +405,7 @@ namespace moris
      * @brief                 sends a value to each proc and receives values
      *                        from each proc
      *
-     *
-     * @param[in] aSend       values to send to each individyal proc
+     * @param[in] aSend       values to send to each individual proc
      * @param[in] aReceive    values to receive from each individual proc
      */
     template <typename T> void
@@ -627,6 +651,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
+    // FIXME: the following rountine needs to be simplified using all_gather
     /**
      * This function collects the value aValue from all procs and puts
      * the result in a moris::Mat
@@ -703,8 +728,8 @@ namespace moris
         {
             return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
                     + "." + std::to_string( par_size() ) // rank of this processor
-            + "." + std::to_string( par_rank() ) // number of procs
-            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
+                    + "." + std::to_string( par_rank() ) // number of procs
+                    +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
         }
     }
 
@@ -745,6 +770,7 @@ namespace moris
 
         return tString;
     }
+
     //------------------------------------------------------------------------------
 
     /*!
@@ -756,11 +782,10 @@ namespace moris
     all_gather_vector(
             Matrix<MatrixType> const & aMatToGather,
             Cell<Matrix<MatrixType>> & aGatheredMats,
-            moris_index aTag,
-            moris_index aFixedDim,
-            moris_index aBaseProc = 0)
+            moris_index                aTag,
+            moris_index                aFixedDim,
+            moris_index                aBaseProc = 0)
     {
-
         // if rows are fixed
         moris_index tNumRow = 0;
         moris_index tNumCol = 0;
@@ -773,8 +798,8 @@ namespace moris
             tNumCol = aMatToGather.n_cols();
         }
 
-
         MPI_Request tRequest;
+
         // send the matrix
         MPI_Isend(
                 aMatToGather.data(),
@@ -791,6 +816,7 @@ namespace moris
         if(par_rank() == aBaseProc)
         {
             aGatheredMats.resize(par_size());
+
             for(int i = 0; i < par_size(); i++)
             {
                 MPI_Status tStatus;
@@ -830,6 +856,8 @@ namespace moris
         barrier();
     }
 
+    //------------------------------------------------------------------------------
+
     /*!
      * Gather cell of strings
      */
@@ -840,41 +868,43 @@ namespace moris
             moris_index aTag,
             moris_index aBaseProc = 0);
 
-    moris::sint
-    gather_value_and_scatter_offset(const sint & aLocalInput)
+    //------------------------------------------------------------------------------
+
+    /* computes offset for each processor given a local value
+     *
+     * @param aLocalInput  local value
+     *
+     * @ return            offset value (same type as input value)
+     */
+    template< typename T>
+    T
+    get_processor_offset(const T & aLocalInput)
     {
-        sint tParOffset=0;
+        // get number of processors
+        moris_id tNumProcs = par_size();
 
-        sint tMyPID = par_rank();
+        // get local rank
+        moris_id tMyPID = par_rank();
 
-        sint tNumProcs = par_size();
+        // create matrix of reals of size tNumProcs
+        Matrix<DDRMat> tInputMatrix(tNumProcs,1,0.0);
 
-        sint *tAllNumMaster = nullptr, *tAllMasterOffsets = nullptr;
-        // All processes send number of master dof sets to PID=0
-        if ( tMyPID == 0 )
+        // fill in local value
+        tInputMatrix(tMyPID) = (real)aLocalInput;
+
+        // sum matrices across all procs
+        Matrix<DDRMat> tOutputMtrax = sum_all_matrix(tInputMatrix);
+
+        // compute local offset
+        T tOffset=0;
+
+        for (moris_id ip=0;ip<tMyPID;++ip)
         {
-            tAllNumMaster    = (int*) alloca(sizeof(int)*tNumProcs);
-            tAllMasterOffsets = (int*) alloca(sizeof(int)*tNumProcs);
-            std::fill(tAllNumMaster, tAllNumMaster + tNumProcs, 0);
-            std::fill(tAllMasterOffsets, tAllMasterOffsets + tNumProcs, 0);
+            tOffset += (T) tOutputMtrax(ip);
         }
 
-        sint tNumMyMaster = aLocalInput;
-
-        // All send number of master dof sets to processor 0
-        MPI_Gather( &tNumMyMaster, 1, MPI_INT, tAllNumMaster, 1, MPI_INT, 0, MPI_COMM_WORLD );
-
-        if (tMyPID == 0)
-        {
-            for ( sint Ik = 1; Ik < tNumProcs; ++Ik)
-                tAllMasterOffsets[Ik] = tAllMasterOffsets[Ik-1] + tAllNumMaster[Ik-1];
-        }
-
-        MPI_Scatter( tAllMasterOffsets, 1, MPI_INT, &tParOffset , 1, MPI_INT, 0, MPI_COMM_WORLD );
-
-        return tParOffset;
+        return tOffset;
     }
-
 }
 
 #endif /* SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_ */

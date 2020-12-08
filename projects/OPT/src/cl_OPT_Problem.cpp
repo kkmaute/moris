@@ -58,16 +58,21 @@ namespace moris
             // Log number of optimization variables
             MORIS_LOG_SPEC("Number of optimization variables",mADVs.numel());
 
-            // Check to make sure ADVs are a column vector
-            if (mADVs.n_rows() == 1)
-            {
-                mADVs = trans(mADVs);
-            }
+            // Check for proper dimensions of ADV vector and its upper and lower bound vectors
+            MORIS_ERROR( mADVs.numel() > 0       ? mADVs.n_cols() == 1        : true,
+                    "ADVs vector needs to be column vector.\n");
+            MORIS_ERROR( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
+                    "ADV lower bound vector needs to be column vector.\n");
+            MORIS_ERROR( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
+                    "ADV lower bound vector needs to be column vector.\n");
+
+            MORIS_ERROR( mADVs.n_rows() == mLowerBounds.n_rows() and mADVs.n_rows() == mUpperBounds.n_rows(),
+                    "ADVs and its lower and upper bound vectors need to have same length.\n");
 
             // Set finite difference epsilons knowing number of advs
             this->set_finite_differencing(mFiniteDifferenceType, mFiniteDifferenceEpsilons);
 
-            // Read advs from restart file
+            // Read ADVs from restart file
             if ( par_rank() == 0 && ! mRestartFile.empty() )
             {
                 this->read_restart_file();
@@ -83,8 +88,8 @@ namespace moris
             mNumConstraints = mConstraintTypes.numel();
 
             // Log number of objectives and constraints
-            MORIS_LOG_SPEC("Number of objectives",mNumObjectives);
-            MORIS_LOG_SPEC("Number of objectives",mNumConstraints);
+            MORIS_LOG_SPEC("Number of objectives ",mNumObjectives);
+            MORIS_LOG_SPEC("Number of constraints",mNumConstraints);
         }
 
         // -------------------------------------------------------------------------------------------------------------

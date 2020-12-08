@@ -201,6 +201,7 @@ set(XTK_EXE_DEPENDENCIES
     ${INT}-lib
     ${GEN_MAIN}-lib
 	${MORIS_BASE_LIBS}
+# Add back with arborx   ${MORIS_ArborX_LIBRARIES}
     )    
 
 add_executable(XTK_EXE ${XTK_EXE_SOURCES})

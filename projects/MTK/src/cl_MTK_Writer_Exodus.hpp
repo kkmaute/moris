@@ -27,21 +27,43 @@ namespace moris
 
                 moris::mtk::Mesh*               mMesh;
 
-                // number of non-empty sets
-                int                             mNumElementBlocks = MORIS_UINT_MAX;
-                int                             mNumSideSets      = MORIS_UINT_MAX;
-                int                             mNumNodeSets      = MORIS_UINT_MAX;
-
-                std::string                     mTempFileName;
-
-                moris::uint                     mTimeStep = 0;
-
-                moris::Matrix<moris::IndexMat>  mMtkExodusElementIndexMap;
-
+                // name maps
                 moris::map<std::string, int>    mBlockNamesMap;
                 moris::map<std::string, int>    mNodalFieldNamesMap;
                 moris::map<std::string, int>    mElementalFieldNamesMap;
                 moris::map<std::string, int>    mGlobalVariableNamesMap;
+
+                // indices of non-empty sets across all procs
+                moris::Cell<uint>               mElementBlockIndices;
+                moris::Cell<uint>               mSideSetIndices;
+                moris::Cell<uint>               mNodeSetIndices;
+
+                // map mtk element indices to exodus element indices
+                moris::Matrix<moris::IndexMat>  mMtkExodusElementIndexMap;
+
+                // map exodus element indices to position in exodus file
+                moris::Matrix<moris::IndexMat>  mExodusElementIndexOrderMap;
+
+                // name of temporary file
+                std::string                     mTempFileName;
+
+                // time step used for writing exodus data
+                moris::uint                     mTimeStep = 0;
+
+                // number of nodes (same in MTK and exodus mesh)
+                moris::uint                     mNumNodes;
+
+                // number of elements in MTK mesh
+                moris::uint                     mNumMtkElements;
+
+                // number of unique elements in exodus mesh
+                moris::uint                     mNumUniqueExodusElements;
+
+                // number of total elements in exodus mesh
+                moris::uint                     mNumTotalExodusElements;
+
+                // flag for using MTK node and element ID maps versus ad-hod maps
+                bool                            mMtkIndexMap = true;
 
             public:
                 /**
@@ -100,9 +122,7 @@ namespace moris
                         std::string         aFilePath,
                         const std::string & aFileName,
                         std::string         aTempPath,
-                        const std::string & aTempName,
-                        const uint          aParSize=0,
-                        const uint          aParRank=0);
+                        const std::string & aTempName);
 
                 /**
                  * Save temporary to permanent Exodus file.
@@ -123,9 +143,7 @@ namespace moris
                         const std::string & aFileName,
                         std::string         aTempPath,
                         const std::string & aTempName,
-                        Matrix<DDRMat>      aCoordinates,
-                        const uint          aParSize=0,
-                        const uint          aParRank=0);
+                        Matrix<DDRMat>      aCoordinates);
 
                 /**
                  * Sets the number of variables to be written for point data (no mesh)
@@ -218,9 +236,7 @@ namespace moris
                         std::string         aFilePath,
                         const std::string & aFileName,
                         std::string         aTempPath,
-                        const std::string & aTempName,
-                        const uint          aParSize=0,
-                        const uint          aParRank=0);
+                        const std::string & aTempName);
 
                 /**
                  * Creates an Exodus database and initializes it at the given file path and string using an MTK mesh
@@ -234,9 +250,22 @@ namespace moris
                         std::string         aFilePath,
                         const std::string & aFileName,
                         std::string         aTempPath,
-                        const std::string & aTempName,
-                        const uint          aParSize=0,
-                        const uint          aParRank=0);
+                        const std::string & aTempName);
+
+                /**
+                 * Determine number of non-empty node sets across all procs.
+                 */
+                void get_node_sets();
+
+                /**
+                 *  Determine number of non-empty side sets across all procs.
+                 */
+                void get_side_sets();
+
+                /**
+                 * Determine number of non-empty blocks across all procs and number of local elements.
+                 */
+                void get_block_sets();
 
                 /**
                  * Writes the coordinates of the nodes in the MTK mesh to Exodus.

@@ -47,11 +47,19 @@ namespace moris
         // multigrid
         tParameterList.insert( "multigrid", false );
 
+        // contact sandbox
+        tParameterList.insert( "contact_sandbox", false );
+        tParameterList.insert( "potential_phases_in_contact", "" );
+        tParameterList.insert( "bb_epsilon", 0.1 );
+
         // verbose - should be replaced by the severity level of the logger
         tParameterList.insert( "verbose", false );
 
         // if to deactivate empty sets - used only if outputting ig mesh as well, set to true only for debugging
         tParameterList.insert( "deactivate_empty_sets", false );
+
+        // Write enrichement fields on mesh (only recommended on very small meshes)
+        tParameterList.insert( "write_enrichment_fields", false );
 
         // print enriched integration mesh
         tParameterList.insert( "print_enriched_ig_mesh", false );
