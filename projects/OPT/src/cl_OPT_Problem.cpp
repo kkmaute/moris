@@ -428,7 +428,8 @@ namespace moris
             MORIS_LOG_INFO("Reading ADVs from restart file: %s",mRestartFile.c_str() );
 
             // Open open restart file
-            hid_t tFileID  = open_hdf5_file( mRestartFile );
+            // Note: only processor 0 reads this file; therefore no parallel file name extension is used
+            hid_t tFileID  = open_hdf5_file( mRestartFile, false );
 
             // Define matrix in which to read restart ADVs
             Matrix<DDRMat> tRestartADVs;
