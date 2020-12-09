@@ -42,7 +42,7 @@ namespace moris
         Matrix<DDSMat> Intersection_Node::get_ancestor_coordinate_determining_adv_ids(uint aAncestorIndex)
         {
             return mInterfaceGeometry->get_determining_adv_ids(
-                    mParentNodeIndices(aAncestorIndex), mParentNodeCoordinates(aAncestorIndex));
+                    mAncestorNodeIndices(aAncestorIndex), mAncestorNodeCoordinates(aAncestorIndex));
         }
 
         //--------------------------------------------------------------------------------------------------------------

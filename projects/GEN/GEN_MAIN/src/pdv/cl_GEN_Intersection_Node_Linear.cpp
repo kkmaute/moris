@@ -45,18 +45,18 @@ namespace moris
         Matrix<DDRMat> Intersection_Node_Linear::get_ancestor_coordinate_sensitivities(uint aAncestorIndex)
         {
             // Get geometry field values
-            real tPhi0 = mInterfaceGeometry->get_field_value( mParentNodeIndices(0), mParentNodeCoordinates(0) );
-            real tPhi1 = mInterfaceGeometry->get_field_value( mParentNodeIndices(1), mParentNodeCoordinates(1) );
+            real tPhi0 = mInterfaceGeometry->get_field_value( mAncestorNodeIndices(0), mAncestorNodeCoordinates(0) );
+            real tPhi1 = mInterfaceGeometry->get_field_value( mAncestorNodeIndices(1), mAncestorNodeCoordinates(1) );
 
             // Get geometry field sensitivity with respect to ADVs
             const Matrix<DDRMat>& tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
-                    mParentNodeIndices(aAncestorIndex),
-                    mParentNodeCoordinates(aAncestorIndex));
+                    mAncestorNodeIndices(aAncestorIndex),
+                    mAncestorNodeCoordinates(aAncestorIndex));
 
             // Compute sensitivity of the global coordinate with respect to the field value
             Matrix<DDRMat> tCoordinateSensitivity =
                     (tPhi0 * (aAncestorIndex == 1) - tPhi1 * (aAncestorIndex == 0)) / std::pow((tPhi0 - tPhi1), 2)
-                    * (mParentNodeCoordinates(1) - mParentNodeCoordinates(0));
+                    * (mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0));
 
             // Compute full sensitivity of global coordinates with respect to ADVs
             return trans(tCoordinateSensitivity) * tFieldSensitivity;

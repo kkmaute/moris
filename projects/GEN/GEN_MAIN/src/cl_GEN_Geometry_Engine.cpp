@@ -1415,8 +1415,8 @@ namespace moris
         Geometry_Engine::get_queued_intersection_geometric_proximity_index(moris_index const & aGeomIndex)
         {
             // parent vertex
-            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->mParentNodeIndices(0);
-            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->mParentNodeIndices(1);
+            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->mAncestorNodeIndices(0);
+            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->mAncestorNodeIndices(1);
 
             // parent vertex proximity wrt aGeomIndex
             moris_index tParentProx0 = mVertexGeometricProximity(tParentVertexIndex0).get_geometric_proximity(aGeomIndex);
