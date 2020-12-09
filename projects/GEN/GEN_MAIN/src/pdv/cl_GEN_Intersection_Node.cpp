@@ -1,8 +1,5 @@
 #include "cl_GEN_Intersection_Node.hpp"
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Interpolation.hpp"
-#include "cl_XTK_Linear_Basis_Functions.hpp"
-#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -12,49 +9,40 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node::Intersection_Node(
-                uint                      aFirstNodeIndex,
-                uint                      aSecondNodeIndex,
-                const Matrix<DDRMat>&     aFirstNodeCoordinates,
-                const Matrix<DDRMat>&     aSecondNodeCoordinates,
-                std::shared_ptr<Geometry> aInterfaceGeometry,
-                real                      aIsocontourThreshold,
-                real                      aTolerance)
-                : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
-                             {aFirstNodeCoordinates, aSecondNodeCoordinates},
-                             xtk::Linear_Basis_Function(),
-                             Interpolation::linear_interpolation_value(
-                                     Matrix<DDRMat>(
-                                             {{aInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
-                                              {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
-                                     aIsocontourThreshold))
+                uint                       aFirstParentNodeIndex,
+                uint                       aSecondParentNodeIndex,
+                const Matrix<DDRMat>&      aFirstParentNodeCoordinates,
+                const Matrix<DDRMat>&      aSecondParentNodeCoordinates,
+                Matrix<DDUMat>             aAncestorNodeIndices,
+                Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
+                const xtk::Basis_Function& aAncestorBasisFunction,
+                Matrix<DDRMat>             aAncestorLocalCoordinates,
+                std::shared_ptr<Geometry>  aInterfaceGeometry,
+                real                       aIsocontourThreshold,
+                real                       aIsocontourTolerance)
+                : Child_Node(
+                        aAncestorNodeIndices,
+                        aAncestorNodeCoordinates,
+                        aAncestorBasisFunction,
+                        aAncestorLocalCoordinates),
+                  mInterfaceGeometry(aInterfaceGeometry),
+                  mFirstParentOnInterface( std::abs(
+                          mInterfaceGeometry->get_field_value(aFirstParentNodeIndex, aFirstParentNodeCoordinates) -
+                          aIsocontourThreshold) < aIsocontourTolerance ),
+                  mSecondParentOnInterface( std::abs(
+                          mInterfaceGeometry->get_field_value(aSecondParentNodeIndex, aSecondParentNodeCoordinates) -
+                          aIsocontourThreshold) < aIsocontourTolerance ),
+                  mGlobalCoordinates(
+                          mBasisValues(0) * aFirstParentNodeCoordinates + mBasisValues(1) * aSecondParentNodeCoordinates)
         {
-            mInterfaceGeometry = aInterfaceGeometry;
-
-            mFirstParentOnInterface  = std::abs( mInterfaceGeometry->get_field_value(aFirstNodeIndex,  aFirstNodeCoordinates) )  < aTolerance;
-            mSecondParentOnInterface = std::abs( mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) ) < aTolerance;
-
-            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates  + mBasisValues(1) * aSecondNodeCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Intersection_Node::Intersection_Node(
-                uint                      aFirstNodeIndex,
-                uint                      aSecondNodeIndex,
-                const Matrix<DDRMat>&     aFirstNodeCoordinates,
-                const Matrix<DDRMat>&     aSecondNodeCoordinates,
-                std::shared_ptr<Geometry> aInterfaceGeometry)
-                : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
-                             {aFirstNodeCoordinates, aSecondNodeCoordinates},
-                             xtk::Linear_Basis_Function(),
-                             Matrix<DDRMat>( { {0.0} } ) )
+        Matrix<DDSMat> Intersection_Node::get_ancestor_coordinate_determining_adv_ids(uint aAncestorIndex)
         {
-            mInterfaceGeometry = aInterfaceGeometry;
-
-            mFirstParentOnInterface  = false;
-            mSecondParentOnInterface = false;
-
-            mGlobalCoordinates = mBasisValues(0) * aFirstNodeCoordinates + mBasisValues(1) * aSecondNodeCoordinates;
+            return mInterfaceGeometry->get_determining_adv_ids(
+                    mParentNodeIndices(aAncestorIndex), mParentNodeCoordinates(aAncestorIndex));
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -80,18 +68,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Intersection_Node::set_starting_pdv_id(uint aStartingPdvIndex)
+        void Intersection_Node::set_starting_pdv_id(moris_id aPDVStartingID)
         {
-            mStartingPdvIndex = aStartingPdvIndex;
-            mPdvIndexSet = true;
+            mPDVStartingID = aPDVStartingID;
+            mPDVStartingIDSet = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Intersection_Node::get_starting_pdv_id()
+        moris_id Intersection_Node::get_starting_pdv_id()
         {
-            MORIS_ASSERT(mPdvIndexSet, "Starting PDV index must be set for an intersection.");
-            return mStartingPdvIndex;
+            MORIS_ASSERT(mPDVStartingIDSet, "PDV Starting ID must be set for an intersection.");
+            return mPDVStartingID;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -110,60 +98,33 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Intersection_Node::get_first_parent_sensitivities()
+        void Intersection_Node::set_id(moris_id aNodeID)
         {
-            // Get geometry field values
-            real tPhi1 = mInterfaceGeometry->get_field_value(mParentNodeIndices(0), mParentNodeCoordinates(0));
-            real tPhi2 = mInterfaceGeometry->get_field_value(mParentNodeIndices(1), mParentNodeCoordinates(1));
-
-            // Get geometry field sensitivity with respect to ADVs
-            const Matrix<DDRMat>& tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
-                    mParentNodeIndices(0),
-                    mParentNodeCoordinates(0));
-
-            // Compute sensitivity of the global coordinate with respect to the field value
-            Matrix<DDRMat> tCoordinateSensitivity = -tPhi2 / std::pow((tPhi1 - tPhi2), 2)
-                    * (mParentNodeCoordinates(1) - mParentNodeCoordinates(0));
-
-            // Compute full sensitivity of global coordinates with respect to ADVs
-            return (trans(tCoordinateSensitivity) * tFieldSensitivity);
+            mNodeID = aNodeID;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Intersection_Node::get_second_parent_sensitivities()
+        void Intersection_Node::set_owner(moris_index aNodeOwner)
         {
-            // Get geometry field values
-            real tPhi1 = mInterfaceGeometry->get_field_value(mParentNodeIndices(0), mParentNodeCoordinates(0));
-            real tPhi2 = mInterfaceGeometry->get_field_value(mParentNodeIndices(1), mParentNodeCoordinates(1));
-
-            // Get geometry field sensitivity with respect to ADVs
-            const Matrix<DDRMat>& tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
-                    mParentNodeIndices(1),
-                    mParentNodeCoordinates(1));
-
-            // Compute sensitivity of the global coordinate with respect to the field value
-            Matrix<DDRMat> tCoordinateSensitivity = tPhi1 / std::pow((tPhi1 - tPhi2), 2)
-                    * (mParentNodeCoordinates(1) - mParentNodeCoordinates(0));
-
-            // Compute full sensitivity of global coordinates with respect to ADVs
-            return (trans(tCoordinateSensitivity) * tFieldSensitivity);
+            mNodeOwner = aNodeOwner;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Intersection_Node::get_first_parent_determining_adv_ids()
+        moris_id Intersection_Node::get_id()
         {
-            return mInterfaceGeometry->get_determining_adv_ids(mParentNodeIndices(0), mParentNodeCoordinates(0));
+            return mNodeID;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Intersection_Node::get_second_parent_determining_adv_ids()
+        moris_index Intersection_Node::get_owner()
         {
-            return mInterfaceGeometry->get_determining_adv_ids(mParentNodeIndices(1), mParentNodeCoordinates(1));
+            return mNodeOwner;
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
     }
 }

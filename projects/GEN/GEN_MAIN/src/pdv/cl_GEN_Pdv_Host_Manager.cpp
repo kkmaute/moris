@@ -457,8 +457,8 @@ namespace moris
             }
             if( mIntersectionNodes(aNodeIndex)!= nullptr )
             {
-                mIntersectionNodes(aNodeIndex)->set_vertex_id(aNodeId);
-                mIntersectionNodes(aNodeIndex)->set_vertex_owner(aNodeOwner);
+                mIntersectionNodes(aNodeIndex)->set_id(aNodeId);
+                mIntersectionNodes(aNodeIndex)->set_owner(aNodeOwner);
             }
         }
 
@@ -551,15 +551,17 @@ namespace moris
             // Loop over intersection nodes for inserting
             for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
             {
-                if (mIntersectionNodes(tIntersectionIndex) and mIntersectionNodes(tIntersectionIndex)->get_vertex_owner() == par_rank())
+                if (mIntersectionNodes(tIntersectionIndex) and mIntersectionNodes(tIntersectionIndex)->get_owner() == par_rank())
                 {
                     // Get starting ID and number of coordinates
                     uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
                     uint tNumCoordinates = mIntersectionNodes(tIntersectionIndex)->get_num_pdvs();
 
                     // Get first parent sensitivities and ADV IDs
-                    Matrix<DDRMat> tHostADVSensitivities = mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities();
-                    Matrix<DDSMat> tADVIds = mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids();
+                    Matrix<DDRMat> tHostADVSensitivities =
+                            mIntersectionNodes(tIntersectionIndex)->get_ancestor_coordinate_sensitivities(0);
+                    Matrix<DDSMat> tADVIds =
+                            mIntersectionNodes(tIntersectionIndex)->get_ancestor_coordinate_determining_adv_ids(0);
 
                     // Assemble second parent
                     for (uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++)
@@ -578,8 +580,10 @@ namespace moris
                     }
 
                     // Get second parent sensitivities and ADV IDs
-                    tHostADVSensitivities = mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities();
-                    tADVIds = mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids();
+                    tHostADVSensitivities =
+                            mIntersectionNodes(tIntersectionIndex)->get_ancestor_coordinate_sensitivities(1);
+                    tADVIds =
+                            mIntersectionNodes(tIntersectionIndex)->get_ancestor_coordinate_determining_adv_ids(1);
 
                     // Assemble first parent
                     for (uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++)
@@ -810,7 +814,7 @@ namespace moris
 
                             // Add owning processor id to moris::Mat
                             tSharedPdvPosGlobal( tProcIdPos )( tShredPdvPosPerProc( tProcIdPos, 0 ), 0 ) =
-                                    mIpPdvHosts( Ia )->get_pdv_vertex_id();
+                                    mIpPdvHosts( Ia )->get_pdv_id();
 
                             tShredPdvPosPerProc( tProcIdPos, 0 ) = tShredPdvPosPerProc( tProcIdPos, 0 ) + 1;
                         }
@@ -879,7 +883,7 @@ namespace moris
                 {
                     uint tNumPdvsOnIntersectionNode = mIntersectionNodes( Ij )->get_num_pdvs();
 
-                    if( mIntersectionNodes( Ij )->get_vertex_owner() == par_rank() )
+                    if( mIntersectionNodes( Ij )->get_owner() == par_rank() )
                     {
                         mNumOwnedPdvs = mNumOwnedPdvs + tNumPdvsOnIntersectionNode;
                     }
@@ -956,7 +960,7 @@ namespace moris
             {
                 if( mIntersectionNodes( Ij ) != nullptr )
                 {
-                    if( mIntersectionNodes( Ij )->get_vertex_owner() == par_rank() )
+                    if( mIntersectionNodes( Ij )->get_owner() == par_rank() )
                     {
                         mIntersectionNodes( Ij )->set_starting_pdv_id( aOwnedIdCounter );
 
@@ -1055,7 +1059,7 @@ namespace moris
 
                             // Add owning processor id to moris::Mat
                             tSharedPdvPosGlobal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) =
-                                    mIpPdvHosts( Ib )->get_pdv_vertex_id();
+                                    mIpPdvHosts( Ib )->get_pdv_id();
 
                             // Add pdv position to Mat
                             tSharedPdvPosLocal( tProcIdPos ) ( tSharedPdvPosPerProc( tProcIdPos ) ) = tCounter;
@@ -1181,10 +1185,10 @@ namespace moris
                 if ( mIntersectionNodes( Ij ) != nullptr )
                 {
                     // Check if owning processor is this processor
-                    if ( mIntersectionNodes( Ij )->get_vertex_owner() != par_rank() )
+                    if ( mIntersectionNodes( Ij )->get_owner() != par_rank() )
                     {
                         // get owning procssor
-                        moris::moris_id tProcID = mIntersectionNodes( Ij )->get_vertex_owner();
+                        moris::moris_id tProcID = mIntersectionNodes( Ij )->get_owner();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID );
 
@@ -1216,16 +1220,16 @@ namespace moris
                 if ( mIntersectionNodes( Ij ) != nullptr )
                 {
                     // Check if owning processor is this processor
-                    if ( mIntersectionNodes( Ij )->get_vertex_owner() != par_rank() )
+                    if ( mIntersectionNodes( Ij )->get_owner() != par_rank() )
                     {
                         // Get owning processor
-                        moris::moris_id tProcID = mIntersectionNodes( Ij )->get_vertex_owner();
+                        moris::moris_id tProcID = mIntersectionNodes( Ij )->get_owner();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID );
 
                         // Add owning processor id to moris::Mat
                         tSharedPdvPosGlobal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) =
-                                mIntersectionNodes( Ij )->get_vertex_id();
+                                mIntersectionNodes( Ij )->get_id();
 
                         // Add pdv position to Mat
                         tSharedPdvPosLocal( tProcIdPos ) ( tSharedPdvPosPerProc( tProcIdPos ) ) = tCounter;
@@ -1266,7 +1270,7 @@ namespace moris
 
                     moris::uint tLocalPdvInd = tIter->second;
 
-                    MORIS_ASSERT( ( mIntersectionNodes( tLocalPdvInd )->get_vertex_owner() ) == par_rank(),
+                    MORIS_ASSERT( ( mIntersectionNodes( tLocalPdvInd )->get_owner() ) == par_rank(),
                             "Pdv_Host_Manager::communicate_shared_pdv_ids(): Pdv not owned by this processor");
 
                     tSharedPdvIdList( Ik )( Ii ) = mIntersectionNodes( tLocalPdvInd )->get_starting_pdv_id();
@@ -1359,7 +1363,7 @@ namespace moris
 
                     for( moris::uint Ik = 0; Ik < tNumPdvsOnIntersectionNode; Ik++)
                     {
-                        if( mIntersectionNodes( Ij )->get_vertex_owner() == par_rank() )
+                        if( mIntersectionNodes( Ij )->get_owner() == par_rank() )
                         {
                             mOwnedPdvLocalToGlobalMap( tCounter ++) = mIntersectionNodes( Ij )->get_starting_pdv_id() + Ik;
                         }

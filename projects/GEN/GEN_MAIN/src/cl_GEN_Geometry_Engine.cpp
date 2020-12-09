@@ -11,7 +11,7 @@
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Intersection_Node_Linear.hpp"
 
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -366,7 +366,7 @@ namespace moris
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
             {
-                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
                         aFirstNodeIndex,
                         aSecondNodeIndex,
                         aFirstNodeCoordinates,
