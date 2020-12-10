@@ -55,10 +55,10 @@ namespace moris
              */
             Dist_Vector( sol::Dist_Map* aMapClass, bool aManageMap );
 
-                /**
-                 * Destructor (deletes map if desired)
-                 */
-                virtual ~Dist_Vector();
+            /**
+             * Destructor (deletes map if desired)
+             */
+            virtual ~Dist_Vector();
 
             /**
              * Get distributed vector map

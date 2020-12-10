@@ -33,154 +33,154 @@ namespace moris
 {
     namespace dla
     {
-        TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
+        TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg],[Linear Solver test]")
         {
             if ( par_size() == 4 )
             {
-//                /*!
-//                 * Create solver interface with Solver_Interface_Proxy
-//                 *
-//                 * \code{.cpp}
-//                 * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
-//                 * \endcode
-//                 */
-//                Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
-//
-//                /*!
-//                 * Create solver factory
-//                 *
-//                 * \code{.cpp}
-//                 * Solver_Factory tSolFactory;
-//                 * \endcode
-//                 */
-//                Solver_Factory tSolFactory;
-//
-//                // create solver object
-//                Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
-//
-//                tLinProblem->assemble_residual_and_jacobian();
-//
-//                // call solve
-//                tLinProblem->solve_linear_system();
-//
-//                // Set solution vector
-//                moris::Matrix< DDRMat > tSol;
-//                tLinProblem->get_solution( tSol );
-//
-//                print(tSol, "tSol");
-//
-//                // Check if solution corresponds to given solution
-//                if ( par_rank() == 0 )
-//                {
-//                    CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
-//                    CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
-//                }
-//                if ( par_rank() == 3 )
-//                {
-//                    CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
-//                }
-//
-//                //delete tEpetraComm;
-//                delete ( tSolverInterface );
-//                delete ( tLinProblem );
+                /*!
+                 * Create solver interface with Solver_Interface_Proxy
+                 *
+                 * \code{.cpp}
+                 * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+                 * \endcode
+                 */
+                Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+
+                /*!
+                 * Create solver factory
+                 *
+                 * \code{.cpp}
+                 * Solver_Factory tSolFactory;
+                 * \endcode
+                 */
+                Solver_Factory tSolFactory;
+
+                // create solver object
+                Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+
+                tLinProblem->assemble_residual_and_jacobian();
+
+                // call solve
+                tLinProblem->solve_linear_system();
+
+                // Set solution vector
+                moris::Matrix< DDRMat > tSol;
+                tLinProblem->get_solution( tSol );
+
+                print(tSol, "tSol");
+
+                // Check if solution corresponds to given solution
+                if ( par_rank() == 0 )
+                {
+                    CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
+                    CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
+                }
+                if ( par_rank() == 3 )
+                {
+                    CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
+                }
+
+                //delete tEpetraComm;
+                delete ( tSolverInterface );
+                delete ( tLinProblem );
             }
         }
 
-        TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
+        TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[Linear Solver],[DistLinAlg]")
         {
             if ( par_size() == 4)
             {
-//                /*!
-//                 * Create solver interface with Solver_Interface_Proxy
-//                 *
-//                 * \code{.cpp}
-//                 * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
-//                 * \endcode
-//                 */
-//                Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
-//
-//                /*!
-//                 * Create solver factory
-//                 *
-//                 * \code{.cpp}
-//                 * Solver_Factory tSolFactory;
-//                 * \endcode
-//                 */
-//                Solver_Factory  tSolFactory;
-//
-//                /*!
-//                 * Create linear problem and linear solver
-//                 *
-//                 * \code{.cpp}
-//                 * Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
-//                 * std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-//                 * \endcode
-//                 */
-//                Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
-//                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-//
-//                /*!
-//                 * Assemble linear problem.
-//                 *
-//                 * \code{.cpp}
-//                 * tLinProblem->assemble_residual_and_jacobian();
-//                 * \endcode
-//                 */
-//                tLinProblem->assemble_residual_and_jacobian();
-//
-//                /*!
-//                 * Set linear solver parameters.
-//                 *
-//                 * \code{.cpp}
-//                 * tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
-//                 * tLinSolver->set_param("AZ_max_iter") = 200;
-//                 * tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-//                 * tLinSolver->set_param("AZ_output") = AZ_none;
-//                 * \endcode
-//                 */
-//                tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
-//                tLinSolver->set_param("AZ_max_iter") = 200;
-//                tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-//                tLinSolver->set_param("AZ_output") = AZ_none;
-//
-//                /*!
-//                 * Solver linear system
-//                 *
-//                 * \code{.cpp}
-//                 * tLinSolver->solve_linear_system();
-//                 * \endcode
-//                 */
-//                tLinSolver->solve_linear_system( tLinProblem );
-//
-//                /*!
-//                 * extract solution
-//                 *
-//                 * \code{.cpp}
-//                 * moris::Matrix< DDRMat > tSol;
-//                 * tLinSystem->get_solution( tSol );
-//                 * \endcode
-//                 */
-//                moris::Matrix< DDRMat > tSol;
-//                tLinProblem->get_solution( tSol );
-//
-//                // Check if solution corresponds to given solution
-//                if ( par_rank() == 0 )
-//                {
-//                    CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
-//                    CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
-//                }
-//                if ( par_rank() == 3 )
-//                {
-//                    CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
-//                }
-//
-//                //delete tEpetraComm;
-//                delete ( tSolverInterface );
-//                delete ( tLinProblem );
+                /*!
+                 * Create solver interface with Solver_Interface_Proxy
+                 *
+                 * \code{.cpp}
+                 * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+                 * \endcode
+                 */
+                Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+
+                /*!
+                 * Create solver factory
+                 *
+                 * \code{.cpp}
+                 * Solver_Factory tSolFactory;
+                 * \endcode
+                 */
+                Solver_Factory  tSolFactory;
+
+                /*!
+                 * Create linear problem and linear solver
+                 *
+                 * \code{.cpp}
+                 * Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+                 * std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+                 * \endcode
+                 */
+                Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
+                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+
+                /*!
+                 * Assemble linear problem.
+                 *
+                 * \code{.cpp}
+                 * tLinProblem->assemble_residual_and_jacobian();
+                 * \endcode
+                 */
+                tLinProblem->assemble_residual_and_jacobian();
+
+                /*!
+                 * Set linear solver parameters.
+                 *
+                 * \code{.cpp}
+                 * tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
+                 * tLinSolver->set_param("AZ_max_iter") = 200;
+                 * tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+                 * tLinSolver->set_param("AZ_output") = AZ_none;
+                 * \endcode
+                 */
+                tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
+                tLinSolver->set_param("AZ_max_iter") = 200;
+                tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+                tLinSolver->set_param("AZ_output") = AZ_none;
+
+                /*!
+                 * Solver linear system
+                 *
+                 * \code{.cpp}
+                 * tLinSolver->solve_linear_system();
+                 * \endcode
+                 */
+                tLinSolver->solve_linear_system( tLinProblem );
+
+                /*!
+                 * extract solution
+                 *
+                 * \code{.cpp}
+                 * moris::Matrix< DDRMat > tSol;
+                 * tLinSystem->get_solution( tSol );
+                 * \endcode
+                 */
+                moris::Matrix< DDRMat > tSol;
+                tLinProblem->get_solution( tSol );
+
+                // Check if solution corresponds to given solution
+                if ( par_rank() == 0 )
+                {
+                    CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
+                    CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
+                }
+                if ( par_rank() == 3 )
+                {
+                    CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
+                }
+
+                //delete tEpetraComm;
+                delete ( tSolverInterface );
+                delete ( tLinProblem );
             }
         }
 
-        TEST_CASE("Linear Solver Belos multiple RHS","[Linear Solver multiple RHS],[DistLinAlg]")
+        TEST_CASE("Linear Solver Belos multiple RHS","[Linear Solver multiple RHS],[Linear Solver],[DistLinAlg]")
         {
             if ( par_size() == 1)
             {
@@ -267,7 +267,7 @@ namespace moris
             }
         }
 
-        TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
+        TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[Linear Solver],[DistLinAlg]")
         {
             if ( par_size() == 4 )
             {

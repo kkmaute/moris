@@ -69,7 +69,7 @@ void Sparse_Matrix_EpetraFECrs::dirichlet_BC_vector(
     //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
     for (moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++)
     {
-        aDirichletBCVec( aMyConstraintDofs( Ik,0)     ,0 )  = 1;
+        aDirichletBCVec( aMyConstraintDofs( Ik ) )  = 1;
     }
 }
 
@@ -83,7 +83,7 @@ void Sparse_Matrix_EpetraFECrs::fill_matrix(
     if( mMatBuildWithPointMap )
     {
         Matrix< IdMat > tPointFreeIds;
-        mMap->translate_ids_to_free_point_ids( aEleDofConectivity, tPointFreeIds );
+        mMap->translate_ids_to_free_point_ids( aEleDofConectivity, tPointFreeIds, false );
 
         // insert values to matrix
         //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
@@ -159,55 +159,52 @@ void Sparse_Matrix_EpetraFECrs::build_graph(
 
     // Build Zero matrix and matrix for element free dof id
     moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
-    moris::Matrix< DDSMat > tFreeDofIds (aNumMyDof, 1, -1.0);
+    //moris::Matrix< DDSMat > tFreeDofIds (aNumMyDof, 1, -1.0);
 
     //loop over elemental dofs
-    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
-    {
-        //set constrDof to neg value
-        //       if ( mMap->return_local_ind_of_global_Id( aElementTopology(Ij,0) ) == -1 )
-        //       {
-        //           TempElemDofs( Ij, 0) = -1;
-        //       }
-        if ( aElementTopology(Ij,0) < 0)
-        {
-            TempElemDofs( Ij, 0) = -1;
-        }
-        else if ( aElementTopology(Ij,0) > (sint)(mDirichletBCVec.length()-1) )
-        {
-            TempElemDofs( Ij, 0) = -1;
-        }
-        else if ( mDirichletBCVec( aElementTopology(Ij,0), 0) == 1)          //FIXME
-        {
-            TempElemDofs( Ij, 0) = -1;
-        }
-    }
-
-    // Set counter of number free dofs to 0
-    moris::uint tNumFreeDofs = 0;
-
-    for(moris::uint Ik=0 ; Ik< aNumMyDof ; Ik++)
-    {
-        //if (!GMultigrid==true)
-        //{
-        if ( TempElemDofs(Ik,0) < 0 ) continue;                   //elemDofs
-        //}
-        tFreeDofIds(tNumFreeDofs,0) = TempElemDofs(Ik,0);
-        tNumFreeDofs++;
-    }
+//    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
+//    {
+//        if ( aElementTopology( Ij ) < 0)
+//        {
+//            TempElemDofs( Ij ) = -1;
+//        }
+//        else if ( aElementTopology( Ij ) > (sint)(mDirichletBCVec.numel()-1) )
+//        {
+//            TempElemDofs( Ij ) = -1;
+//        }
+//        else if ( mDirichletBCVec( aElementTopology( Ij ) ) == 1)          //FIXME
+//        {
+//            TempElemDofs( Ij ) = -1;
+//        }
+//    }
 
     if( mMatBuildWithPointMap )
     {
+        moris::Matrix< DDSMat > tFreeDofIds (aNumMyDof, 1, -1.0);
+
         Matrix< IdMat > tPointFreeIds;
-        mMap->translate_ids_to_free_point_ids( tFreeDofIds, tPointFreeIds );
+        mMap->translate_ids_to_free_point_ids( aElementTopology, tPointFreeIds );
+
+        // Set counter of number free dofs to 0
+        moris::uint tNumFreeDofs = 0;
+
+        for(moris::uint Ik=0 ; Ik< aNumMyDof ; Ik++)
+        {
+            if ( tPointFreeIds( Ik ) < 0 ) continue;                   //elemDofs
+
+            tFreeDofIds( tNumFreeDofs ) = tPointFreeIds( Ik );
+            tNumFreeDofs++;
+        }
 
         // Fill matrix with zeros to initialize
-        mEpetraMat->InsertGlobalValues(tNumFreeDofs, tPointFreeIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+        mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
     }
     else
     {
+        moris::uint tNumFreeDofs = aElementTopology.numel();
+
         // Fill matrix with zeros to initialize
-        mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+        mEpetraMat->InsertGlobalValues(tNumFreeDofs, aElementTopology.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
     }
 }
 

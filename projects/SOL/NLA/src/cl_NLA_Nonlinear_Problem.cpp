@@ -142,6 +142,12 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
+    
+    delete mMap;
+    mMap=nullptr;
+    
+    delete mMapFull;
+    mMapFull=nullptr;
 
     if( mIsMasterSystem )
     {
@@ -152,9 +158,6 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc)
         {
-            delete mMap;
-            delete mMapFull;
-
             PetscFinalize();
         }
     }

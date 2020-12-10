@@ -99,7 +99,8 @@ namespace moris
                     ".hdf5";
 
             // Create file
-            hid_t tFileID = create_hdf5_file(tRestartFileName);
+            // Note: only processor 0 creates this file; therefore no parallel name extension is used
+            hid_t tFileID = create_hdf5_file( tRestartFileName, false );
 
             // Write advs and upper/lower bounds to file
             herr_t tStatus = 0;
