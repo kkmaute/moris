@@ -7,15 +7,38 @@ namespace moris
 {
     namespace ge
     {
+        enum class Intersection_Interpolation
+        {
+            LINEAR,
+            MULTILINEAR
+        };
+
         class Geometry : virtual public Field
         {
+
+        private:
+            Intersection_Interpolation mIntersectionInterpolation;
 
         public:
 
             /**
-             * Constructor for a geometry, neeeded for inheritance
+             * Constructor
              */
-            Geometry();
+            Geometry(Intersection_Interpolation aInterpolation = Intersection_Interpolation::LINEAR);
+
+            /**
+             * Sets the intersection interpolation type for this geometry.
+             *
+             * @param aInterpolationName Intersection interpolation name
+             */
+            void set_intersection_interpolation(std::string aInterpolationName);
+
+            /**
+             * Gets the intersection interpolation type for this geometry.
+             *
+             * @return Intersection interpolation
+             */
+            Intersection_Interpolation get_intersection_interpolation();
 
         };
     }

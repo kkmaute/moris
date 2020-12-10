@@ -583,13 +583,27 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tChildMesh.get_edge_parent_inds();
                     moris::Matrix< moris::DDSTMat >  const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
 
+                    Cell<mtk::Vertex*> tBackgroundNodes = mBackgroundMesh.get_mtk_cell(tChildMesh.get_parent_element_index()).get_vertex_pointers();
+
                     for (moris::size_t tEdgeInd = 0; tEdgeInd < tEdgeToNode.n_rows(); tEdgeInd++)
                     {
+                        Matrix<DDUMat> tElementNodeIndices(tBackgroundNodes.size(), 1);
+                        Cell<Matrix<DDRMat>> tElementNodeCoordinates(tBackgroundNodes.size());
+                        for (uint tNode = 0; tNode < tBackgroundNodes.size(); tNode++)
+                        {
+                            tElementNodeIndices(tNode) = tBackgroundNodes(tNode)->get_index();
+                            tElementNodeCoordinates(tNode) = tBackgroundNodes(tNode)->get_coords();
+                        }
+
                         if (mGeometryEngine->queue_intersection(
                                 tEdgeToNode(tEdgeInd, 0),
                                 tEdgeToNode(tEdgeInd, 1),
+                                tChildMesh.get_parametric_coordinates(tEdgeToNode(tEdgeInd, 0)),
+                                tChildMesh.get_parametric_coordinates(tEdgeToNode(tEdgeInd, 1)),
                                 tNodeCoords.get_row(tEdgeToNode(tEdgeInd, 0)),
-                                tNodeCoords.get_row(tEdgeToNode(tEdgeInd, 1))))
+                                tNodeCoords.get_row(tEdgeToNode(tEdgeInd, 1)),
+                                tElementNodeIndices,
+                                tElementNodeCoordinates))
                         {
                             // Determine which parent nodes, if any, are on the interface
                             bool tFirstParentOnInterface = mGeometryEngine->queued_intersection_first_parent_on_interface();
@@ -826,13 +840,27 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tChildMesh.get_edge_parent_inds();
                     moris::Matrix< moris::DDSTMat >  const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
 
+                    Cell<mtk::Vertex*> tBackgroundNodes = mBackgroundMesh.get_mtk_cell(tChildMesh.get_parent_element_index()).get_vertex_pointers();
+
                     for (moris::size_t tEdgeInd = 0; tEdgeInd < tEdgeToNode.n_rows(); tEdgeInd++)
                     {
+                        Matrix<DDUMat> tElementNodeIndices(tBackgroundNodes.size(), 1);
+                        Cell<Matrix<DDRMat>> tElementNodeCoordinates(tBackgroundNodes.size());
+                        for (uint tNode = 0; tNode < tBackgroundNodes.size(); tNode++)
+                        {
+                            tElementNodeIndices(tNode) = tBackgroundNodes(tNode)->get_index();
+                            tElementNodeCoordinates(tNode) = tBackgroundNodes(tNode)->get_coords();
+                        }
+
                         if (mGeometryEngine->queue_intersection(
                                 tEdgeToNode(tEdgeInd, 0),
                                 tEdgeToNode(tEdgeInd, 1),
+                                tChildMesh.get_parametric_coordinates(tEdgeToNode(tEdgeInd, 0)),
+                                tChildMesh.get_parametric_coordinates(tEdgeToNode(tEdgeInd, 1)),
                                 tNodeCoords.get_row(tEdgeToNode(tEdgeInd, 0)),
-                                tNodeCoords.get_row(tEdgeToNode(tEdgeInd, 1))))
+                                tNodeCoords.get_row(tEdgeToNode(tEdgeInd, 1)),
+                                tElementNodeIndices,
+                                tElementNodeCoordinates))
                         {
                             // Determine which parent nodes, if any, are on the interface
                             bool tFirstParentOnInterface = mGeometryEngine->queued_intersection_first_parent_on_interface();

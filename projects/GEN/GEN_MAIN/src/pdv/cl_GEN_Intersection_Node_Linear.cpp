@@ -72,11 +72,18 @@ namespace moris
                 std::shared_ptr<Geometry> aInterfaceGeometry,
                 real                      aIsocontourThreshold)
         {
+            // Interface geometry values
             Matrix<DDRMat> tInterfaceGeometryValues = 
                     {{aInterfaceGeometry->get_field_value( aFirstNodeIndex, aFirstNodeCoordinates )},
                     { aInterfaceGeometry->get_field_value( aSecondNodeIndex, aSecondNodeCoordinates )}};
+
+            // Interpolate
+            Matrix<DDRMat> tLocalCoordinates = Interpolation::linear_interpolation_value(tInterfaceGeometryValues, aIsocontourThreshold);
+
+            // Must store local coordinate in parent edge
+            mLocalCoordinate = tLocalCoordinates(0);
             
-            return Interpolation::linear_interpolation_value(tInterfaceGeometryValues, aIsocontourThreshold);
+            return tLocalCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------

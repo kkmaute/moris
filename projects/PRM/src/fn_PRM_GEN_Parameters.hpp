@@ -82,6 +82,7 @@ namespace moris
         ParameterList create_geometry_parameter_list()
         {
             ParameterList tParameterList = create_field_parameter_list();
+            tParameterList.insert("multilinear_intersections", false);
 
             return tParameterList;
         }

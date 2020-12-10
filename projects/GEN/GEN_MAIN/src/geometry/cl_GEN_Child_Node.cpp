@@ -12,13 +12,12 @@ namespace moris
                 Matrix<DDUMat>             aAncestorNodeIndices,
                 Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
                 const xtk::Basis_Function& aBasisFunction,
-                Matrix<DDRMat>             aLocalCoordinates)
+                Matrix<DDRMat>             aLocalCoordinatesInAncestor)
                 : mAncestorNodeIndices(aAncestorNodeIndices),
-                  mAncestorNodeCoordinates(aAncestorNodeCoordinates),
-                  mLocalCoordinates(aLocalCoordinates)
+                  mAncestorNodeCoordinates(aAncestorNodeCoordinates)
         {
             // Evaluate basis function
-            aBasisFunction.evaluate_basis_function(mLocalCoordinates, mBasisValues);
+            aBasisFunction.evaluate_basis_function(aLocalCoordinatesInAncestor, mBasisValues);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -26,13 +25,6 @@ namespace moris
         uint Child_Node::get_num_ancestors()
         {
             return mAncestorNodeIndices.length();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> Child_Node::get_local_coordinates()
-        {
-            return mLocalCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------

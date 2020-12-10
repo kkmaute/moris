@@ -61,6 +61,27 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        real Intersection_Node::get_local_coordinate()
+        {
+            return mLocalCoordinate;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node::get_global_coordinates()
+        {
+            return mGlobalCoordinates;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Intersection_Node::get_coordinate_value(uint aCoordinateIndex)
+        {
+            return mGlobalCoordinates(aCoordinateIndex);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         uint Intersection_Node::get_num_pdvs()
         {
             return mGlobalCoordinates.numel();
@@ -80,20 +101,6 @@ namespace moris
         {
             MORIS_ASSERT(mPDVStartingIDSet, "PDV Starting ID must be set for an intersection.");
             return mPDVStartingID;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real Intersection_Node::get_coordinate_value(uint aCoordinateIndex)
-        {
-            return mGlobalCoordinates(aCoordinateIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> Intersection_Node::get_global_coordinates()
-        {
-            return mGlobalCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------

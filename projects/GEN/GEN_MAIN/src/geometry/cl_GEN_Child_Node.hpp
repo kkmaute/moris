@@ -20,7 +20,7 @@ namespace moris
             Matrix<DDRMat>       mBasisValues;
 
         private:
-            Matrix<DDRMat>       mLocalCoordinates;
+            Matrix<DDRMat>       mLocalCoordinatesInAncestor;
             Matrix<DDRMat>       mJoinedSensitivities;
 
         public:
@@ -31,13 +31,13 @@ namespace moris
              * @param aAncestorNodeIndices Node indices of the ancestors of this child node
              * @param aAncestorNodeCoordinates Coordinates of the ancestors of this child node
              * @param aBasisFunction Basis function of the ancestor topology
-             * @param aLocalCoordinates Local coordinate of this child inside of the ancestor element
+             * @param aLocalCoordinatesInAncestor Local coordinate of this child inside of the ancestor element
              */
             Child_Node(
                     Matrix<DDUMat>             aAncestorNodeIndices,
                     Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
                     const xtk::Basis_Function& aBasisFunction,
-                    Matrix<DDRMat>             aLocalCoordinates);
+                    Matrix<DDRMat>             aLocalCoordinatesInAncestor);
 
             /**
              * Gets the number of ancestor nodes of this child node.
@@ -45,13 +45,6 @@ namespace moris
              * @return Number of ancestors
              */
             uint get_num_ancestors();
-
-            /**
-             * Gets the local coordinates of this child node.
-             *
-             * @return Local coordinates
-             */
-            Matrix<DDRMat> get_local_coordinates();
 
             /**
              * Get the field value on the child node based on values from its ancestors.

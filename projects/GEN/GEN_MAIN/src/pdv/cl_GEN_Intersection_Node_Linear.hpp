@@ -55,7 +55,7 @@ namespace moris
              * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @return Local coordinates
              */
-            static Matrix<DDRMat> interpolate_local_coordinates(
+            Matrix<DDRMat> interpolate_local_coordinates(
                     uint                      aFirstNodeIndex,
                     uint                      aSecondNodeIndex,
                     const Matrix<DDRMat>&     aFirstNodeCoordinates,

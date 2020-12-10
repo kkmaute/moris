@@ -14,6 +14,7 @@ namespace moris
 
         protected:
             std::shared_ptr<Geometry> mInterfaceGeometry;
+            real mLocalCoordinate;
 
         private:
             bool mFirstParentOnInterface;
@@ -87,6 +88,28 @@ namespace moris
             bool second_parent_on_interface();
 
             /**
+             * Gets the local coordinate of this intersection node inside of the parent edge.
+             *
+             * @return Local coordinate
+             */
+            real get_local_coordinate();
+
+            /**
+             * Gets all global coordinate values for this intersection node.
+             *
+             * @return Global coordinates
+             */
+            Matrix<DDRMat> get_global_coordinates();
+
+            /**
+             * Get the value of a coordinate of this node
+             *
+             * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
+             * @return Coordinate value
+             */
+            real get_coordinate_value(uint aCoordinateIndex);
+
+            /**
              * Gets the number of PDVs on this intersection node.
              *
              * @return Number of PDVs
@@ -106,21 +129,6 @@ namespace moris
              * @return The global index of the first PDV on the host
              */
             moris_id get_starting_pdv_id();
-
-            /**
-             * Get the value of a coordinate of this node
-             *
-             * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
-             * @return Coordinate value
-             */
-            real get_coordinate_value(uint aCoordinateIndex);
-
-            /**
-             * Gets all global coordinate values for this intersection node.
-             *
-             * @return Global coordinates
-             */
-            Matrix<DDRMat> get_global_coordinates();
 
             /**
              * Set the node ID for this node.
