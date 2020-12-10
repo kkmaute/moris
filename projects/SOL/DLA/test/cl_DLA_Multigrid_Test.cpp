@@ -203,25 +203,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         Cell< MSI::Equation_Set * > & tEquationSet = tEquationModel->get_equation_sets();
         tEquationSet = tElementBlocks;
 
-//        // ask mesh about number of elements on proc
-//        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
-//
-//        moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
-//
-//        for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
-//        {
-//            Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
-//
-//            for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
-//            {
-//                tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
-//            }
-//
-//        }
-//        tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
-//
-//        tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
-
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
         tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
         tMSIParameters.set( "multigrid", true );
@@ -275,42 +256,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tSolverWarehouse.initialize();
 
         tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
-
-          //-------------------------------------------------------------------------------------//
-//
-//        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, sol::MapType::Petsc );
-//
-//        // create factory for nonlinear solver
-//        NLA::Nonlinear_Solver_Factory tNonlinFactory;
-//
-//        // create nonlinear solver
-//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-//
-//        // create factory for linear solver
-//        dla::Solver_Factory  tSolFactory;
-//
-//        // create linear solver
-//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
-//
-//        tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
-//        tLinearSolver->set_param("PCType")  = std::string( PCMG );
-////        tLinearSolver->set_param("PCType")  = std::string( PCILU );
-//
-//        tLinearSolver->set_param("ILUFill")  = 3;
-//
-//        // create solver manager
-//        dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
-//        Nonlinear_Solver  tNonLinSolManager;
-//
-//        // set manager and settings
-//        tNonlinearSolver->set_linear_solver( mLinSolver );
-//
-//        // set first solver
-//        mLinSolver->set_linear_algorithm( 0, tLinearSolver );
-//
-//        tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
-
-          //-------------------------------------------------------------------------------------
 
          for( auto tElement : tElements )
          {
