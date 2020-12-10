@@ -24,6 +24,11 @@
 
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 namespace moris
 {
@@ -38,7 +43,22 @@ namespace moris
                 // Create solver interface
                 Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
 
+                dla::Solver_Factory  tSolFactory;
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+                tLinSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+                tLinSolverAlgorithm->set_param("AZ_output") = AZ_none;
+                tLinSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
+                tLinSolverAlgorithm->set_param("AZ_precond") = AZ_dom_decomp;
+
+                dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+                tLinSolManager->set_linear_algorithm( 0, tLinSolverAlgorithm );
+
+                NLA::Nonlinear_Solver_Factory tNonlinFactory;
+                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+                tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
+
                 NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
+                tNonlinearSolverManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
                 moris::Cell< enum MSI::Dof_Type > tDofTypes( 1 );
                 tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
@@ -66,6 +86,9 @@ namespace moris
                 tTimeSolver.get_full_solution( tSol );
 
                 CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
+
+                delete( tLinSolManager );
+                delete( tSolverInput );
             }
             }
     }
