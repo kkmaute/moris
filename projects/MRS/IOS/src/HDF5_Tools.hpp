@@ -61,8 +61,7 @@ namespace moris
         {
             // check that only processor 0 writes file
             MORIS_ASSERT( par_rank() == 0,
-                    "Not using parallel extension should only be done " +
-                    "when only processor 0 reads or writes file");
+                    "Not using parallel extension should only be done when only processor 0 reads or writes file");
 
             // do not modify path
             return aPath;
