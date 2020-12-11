@@ -23,7 +23,6 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
     mNumMyDofs = 0;
     mNumDofsPerElement = 8;                              // dofs per element
 
-    mEleDofConectivity.resize( 8, 1 );
     mElementMatrixValues.resize( 64, 1 );
     mMyRHSValues.resize( 1 );
     mMyRHSValues(0).resize( 8, 1 );
@@ -33,59 +32,50 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
         {
         case 0:
           mNumMyDofs = 8;
-          mMyGlobalElements.resize( mNumMyDofs, 1 );
-          mMyConstraintDofs.resize( 2, 1 );
-          mMyGlobalElements(0,0) = 0;    mMyGlobalElements(1,0) = 1;
-          mMyGlobalElements(2,0) = 8;    mMyGlobalElements(3,0) = 9;
-          mMyGlobalElements(4,0) = 16;    mMyGlobalElements(5,0) = 17;
-          mMyGlobalElements(6,0) = 14;    mMyGlobalElements(7,0) = 15;
+
+          mMyGlobalElements            = { {0},{1},{8},{9},{16},{17},{14},{15} };
+          mMyGlobalElementsOverlapping = { {0},{1},{8},{9},{16},{17},{14},{15} };
 
           mNumElements = 1;
-          mMyConstraintDofs(0,0) = 0;    mMyConstraintDofs(1,0) = 1;
-
-          mEleDofConectivity( 0, 0) = 0;   mEleDofConectivity( 1, 0) = 1;
-          mEleDofConectivity( 2, 0) = 8; mEleDofConectivity( 3, 0) = 9;
-          mEleDofConectivity( 4, 0) = 16; mEleDofConectivity( 5, 0) = 17;
-          mEleDofConectivity( 6, 0) = 14; mEleDofConectivity( 7, 0) = 15;
+          mMyConstraintDofs = { {0},{1} };
+          
+          mEleDofConectivity = { {0},{1},{8},{9},{16},{17},{14},{15} };
 
           mMyRHSValues(0).fill( 0.0 );
           break;
         case 1:
           mNumMyDofs = 4;
-          mMyGlobalElements.resize( mNumMyDofs, 1 );
-          mMyConstraintDofs.resize( 1, 1 );
-          mMyGlobalElements(0,0) = 2;   mMyGlobalElements(1,0) = 3;
-          mMyGlobalElements(2,0) = 10;    mMyGlobalElements(3,0) = 11;
+          
+          mMyGlobalElements = { {2},{3},{10},{11} };
+          mMyGlobalElementsOverlapping = { {8},{9},{2},{3},{10},{11},{16},{17} };
+
           mNumElements = 1;
-          mMyConstraintDofs(0,0) = 3;
-          mEleDofConectivity( 0, 0) = 8;        mEleDofConectivity( 1, 0) = 9;
-          mEleDofConectivity( 2, 0) = 2; mEleDofConectivity( 3, 0) = 3;
-          mEleDofConectivity( 4, 0) = 10; mEleDofConectivity( 5, 0) = 11;
-          mEleDofConectivity( 6, 0) = 16; mEleDofConectivity( 7, 0) = 17;
+          mMyConstraintDofs = { {3} };
+          
+          mEleDofConectivity = { {8},{9},{2},{3},{10},{11},{16},{17} };
+
           mMyRHSValues(0).fill( 0.0 );
           break;
         case 2:
           mNumMyDofs = 2;
-          mMyGlobalElements.resize( mNumMyDofs, 1 );
-          mMyGlobalElements(0,0) = 4;    mMyGlobalElements(1,0) = 5;
+          
+          mMyGlobalElements = { {4},{5} };
+          mMyGlobalElementsOverlapping = { {16},{17},{10},{11},{4},{5},{12},{13} };
+
           mNumElements = 1;
-          mEleDofConectivity( 0, 0) = 16;        mEleDofConectivity( 1, 0) = 17;
-          mEleDofConectivity( 2, 0) = 10;    mEleDofConectivity( 3, 0) = 11;
-          mEleDofConectivity( 4, 0) = 4;    mEleDofConectivity( 5, 0) = 5;
-          mEleDofConectivity( 6, 0) = 12;    mEleDofConectivity( 7, 0) = 13;
-          mMyRHSValues(0)( 0, 0 )= 0.0;      mMyRHSValues(0)( 1, 0 )= 0.0;    mMyRHSValues(0)( 2, 0 )= 0.0;    mMyRHSValues(0)( 3, 0 )= 0.0;   mMyRHSValues(0)( 4, 0 )= 0.0;
-          mMyRHSValues(0)( 5, 0 )= 1.0;      mMyRHSValues(0)( 6, 0 )= 0.0;    mMyRHSValues(0)( 7, 0 )= 0.0;
+          mEleDofConectivity = { {16},{17},{10},{11},{4},{5},{12},{13} };
+
+          mMyRHSValues(0) = { {0.0},{0.0},{0.0},{0.0},{0.0},{1.0},{0.0},{0.0} };
           break;
         case 3:
           mNumMyDofs = 4;
-          mMyGlobalElements.resize( mNumMyDofs, 1 );
-          mMyGlobalElements(0,0) = 12;    mMyGlobalElements(1,0) = 13;
-          mMyGlobalElements(2,0) = 6;    mMyGlobalElements(3,0) = 7;
+
+          mMyGlobalElements = { {12},{13},{6},{7}};
+          mMyGlobalElementsOverlapping = { {14},{15},{16},{17},{12},{13},{6},{7} };
+
           mNumElements = 1;
-          mEleDofConectivity( 0, 0) = 14;    mEleDofConectivity( 1, 0) = 15;
-          mEleDofConectivity( 2, 0) = 16;    mEleDofConectivity( 3, 0) = 17;
-          mEleDofConectivity( 4, 0) = 12;    mEleDofConectivity( 5, 0) = 13;
-          mEleDofConectivity( 6, 0) = 6;        mEleDofConectivity( 7, 0) = 7;
+          mEleDofConectivity = { {14},{15},{16},{17},{12},{13},{6},{7} };
+
           mMyRHSValues(0).fill( 0.0 );
           break;
         }
@@ -120,17 +110,12 @@ Solver_Interface_Proxy::Solver_Interface_Proxy( uint aNumRHS )
       mMyRHSValues.resize( mNumRHS );
 
       mNumMyDofs = 18;
-      mMyGlobalElements = { {0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17} };
+      mMyGlobalElements            = { {0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17} };
+      mMyGlobalElementsOverlapping = mMyGlobalElements;
 
       mNumElements = 4;
 
-
       mMyConstraintDofs = { {0},{1},{3} };
-
-//      mEleDofConectivity = { { 0,  1,  8,  9, 16, 17, 14, 15},
-//                             { 8,  9,  2,  3, 10, 11, 16, 17},
-//                             {16, 17, 10, 11,  4,  5, 12, 13},
-//                             {14, 15, 16, 17, 12, 13,  6,  7} };
 
       mEleDofConectivity = { { 0,  8, 16, 14},
                              { 1,  9, 17, 15},
@@ -158,8 +143,6 @@ Solver_Interface_Proxy::Solver_Interface_Proxy( uint aNumRHS )
                           {0, 0, 1, 0},
                           {0, 0, 0, 0},
                           {0, 0, 0, 0} };
-
-
 
       // Define elemental matrix values
       mElementMatrixValues( 0, 0 ) = 12;    mElementMatrixValues( 1, 0 ) = 3;     mElementMatrixValues( 2, 0 ) = -6;    mElementMatrixValues( 3, 0 ) = -3;    mElementMatrixValues( 4, 0 ) = -6;    mElementMatrixValues( 5, 0 ) = -3;    mElementMatrixValues( 6, 0 ) = 0;     mElementMatrixValues( 7, 0 ) = 3;

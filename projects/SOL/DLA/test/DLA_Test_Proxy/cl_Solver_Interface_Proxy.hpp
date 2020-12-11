@@ -22,6 +22,7 @@ namespace moris
         private:
             moris::uint                     mNumMyDofs;            // local dimension of the problem
             moris::Matrix< DDSMat >         mMyGlobalElements;     // local-to-global map
+            moris::Matrix< DDSMat >         mMyGlobalElementsOverlapping;     // local-to-global map
             moris::uint                     mNumElements;          // number local elements
             moris::Matrix< DDSMat >         mEleDofConectivity;    // element - dof connectivities
             moris::Matrix< DDRMat >         mElementMatrixValues;  // dense element matrix entries
@@ -93,7 +94,7 @@ namespace moris
 
             moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
             {
-                return mMyGlobalElements;
+                return mMyGlobalElementsOverlapping;
             };
 
             // ----------------------------------------------------------------------------------------------
