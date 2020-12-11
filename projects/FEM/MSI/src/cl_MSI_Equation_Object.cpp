@@ -536,8 +536,6 @@ namespace moris
                 }
             }
 
-            MORIS_ASSERT( aEqnObjAdofId.min() != -1, "Equation_Onject::get_equation_obj_dof_ids(), Error while returning adof ids for type" );
-
             //        print (aEqnObjAdofId,"aEqnObjAdofId");
         }
 
