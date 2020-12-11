@@ -729,6 +729,13 @@ namespace moris
             }
             mIPNodes.clear();
 
+            // delete fem nodes
+            for( auto tIGNodes : mIGNodes )
+            {
+                delete tIGNodes;
+            }
+            mIGNodes.clear();
+
             // delete the fem sets
             for( auto tFemSet : mFemSets )
             {
