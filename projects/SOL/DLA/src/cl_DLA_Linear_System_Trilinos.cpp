@@ -147,8 +147,8 @@ moris::sint Linear_System_Trilinos::solve_linear_system()
 
     Epetra_LinearProblem      tEpetraProblem;
     tEpetraProblem.SetOperator( mMat->get_matrix() );
-    tEpetraProblem.SetRHS( static_cast<Vector_Epetra*>(mVectorRHS)->get_epetra_vector() );
-    tEpetraProblem.SetLHS( static_cast<Vector_Epetra*>(mFreeVectorLHS)->get_epetra_vector() );
+    tEpetraProblem.SetRHS( static_cast<Vector_Epetra*>(mPointVectorRHS)->get_epetra_vector() );
+    tEpetraProblem.SetLHS( static_cast<Vector_Epetra*>(mPointVectorLHS)->get_epetra_vector() );
 
     AztecOO Solver( tEpetraProblem );
 
