@@ -34,6 +34,9 @@ namespace moris
         mCurrentIteration.resize( 1 , 0 );
 
         // record starting time
+        mIterationTimeStamps.resize( 1 , (real) std::clock() );
+
+        // record starting time
         mTimeStamps.resize( 1 , (real) std::clock() );
     }
 
@@ -65,6 +68,9 @@ namespace moris
         // initiate iteration counter with zero
         mCurrentIteration.push_back( 0 );
 
+        // create time stamp for entity
+        mIterationTimeStamps.push_back( (real) std::clock() );
+
         // create time stamp for new entity
         mTimeStamps.push_back( (real) std::clock() );
         
@@ -84,6 +90,9 @@ namespace moris
     {
         // remove time stamp from list of active entities
         mTimeStamps.pop_back();
+
+        // remove iteration time stamp from list of active entities
+        mIterationTimeStamps.pop_back();
 
         // remove function ID
         mCurrentFunctionID.pop_back();
@@ -119,6 +128,9 @@ namespace moris
     {
         // increment iteration counter of currently active action
         mCurrentIteration[ mIndentationLevel ] ++;
+
+        // renew time stamp at beginning of an iteration
+        mIterationTimeStamps[ mIndentationLevel ] = (real) std::clock();
     }
 
     // --------------------------------------------------------------------------------
