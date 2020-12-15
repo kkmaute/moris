@@ -55,7 +55,7 @@ set(HEADERS
     cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp
     cl_FEM_IWG_Compressible_NS_Traction_Neumann.hpp
     cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
-    #cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
     #cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
     
     cl_FEM_IWG_FS_Struc_Interface.hpp
@@ -257,7 +257,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.cpp
     cl_FEM_IWG_Compressible_NS_Traction_Neumann.cpp
     cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
-    #cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
+    cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
     #cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
     
     cl_FEM_IWG_FS_Struc_Interface.cpp

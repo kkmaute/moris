@@ -51,6 +51,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Traction_Neumann.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 //Fluid structure interface
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 //Time continuity
@@ -235,12 +236,12 @@ namespace moris
                 case IWG_Type::COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN :
                     return std::make_shared< IWG_Compressible_NS_Heat_Flux_Neumann >();
 
-//                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE :
-//                    return std::make_shared< IWG_Compressible_NS_Velocity_Dirichlet_Nitsche >( 1 );
-//
-//                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE :
-//                    return std::make_shared< IWG_Compressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
-//
+                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Compressible_NS_Velocity_Dirichlet_Nitsche >( 1 );
+
+                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Compressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
+
 //                case IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE :
 //                    return std::make_shared< IWG_Compressible_NS_Temperature_Dirichlet_Nitsche >( 1 );
 //
