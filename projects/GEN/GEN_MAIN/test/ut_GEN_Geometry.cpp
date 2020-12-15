@@ -210,6 +210,9 @@ namespace moris
                 check_equal(tCircle1->get_field_sensitivities(0, tCoordinates2), {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), -1.0}});
                 check_equal(tCircle2->get_field_sensitivities(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
             }
+
+            // Clean up
+            delete tDistributedADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -553,7 +556,7 @@ namespace moris
                     CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
                 }
 
-                // Clean up
+                // Delete mesh pointer
                 delete tMesh;
             }
         }
@@ -624,6 +627,9 @@ namespace moris
                         tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                         tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
             }
+
+            // Delete mesh pointer
+            delete tMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------
