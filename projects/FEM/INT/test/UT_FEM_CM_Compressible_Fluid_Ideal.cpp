@@ -32,7 +32,7 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 1.4E-4;
+    real tPerturbationCubic = 2.4E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -124,9 +124,9 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+//        std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+//        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // create normal for IWG
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
@@ -231,9 +231,9 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
             }
 
             // output for debugging
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+//            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // integration points
             //------------------------------------------------------------------------------
@@ -331,8 +331,8 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
                 for( uint jRequestedDof = 0; jRequestedDof < tRequestedMasterGlobalDofTypes.size(); jRequestedDof++ )
                 {
                     // output for debugging
-                    //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                    //std::cout << "Performing test for jacobian DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
+//                    std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//                    std::cout << "Performing test for jacobian DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
                     Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( jRequestedDof );
@@ -427,8 +427,8 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
                             CM_Function_Type::ENERGY );
 
                     // check that analytical and FD match
-                    // bool tCheckEnergyFlux = fem::check( tdEnergyFluxdu, tdEnergyFluxduFD, tEpsilon );
-                    //REQUIRE( tCheckEnergyFlux );
+                    bool tCheckEnergyFlux = fem::check( tdEnergyFluxdu, tdEnergyFluxduFD, tEpsilon );
+                    REQUIRE( tCheckEnergyFlux );
 
                     //------------------------------------------------------------------------------
                     //  Work Flux
