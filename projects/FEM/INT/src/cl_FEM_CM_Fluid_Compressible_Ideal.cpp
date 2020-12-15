@@ -1044,7 +1044,7 @@ namespace moris
             if( mMechanicalTractionEval )
             {
                 // evaluate the test strain
-                this->eval_work_traction( aNormal );
+                this->eval_mechanical_traction( aNormal );
 
                 // set bool for evaluation
                 mMechanicalTractionEval = false;
