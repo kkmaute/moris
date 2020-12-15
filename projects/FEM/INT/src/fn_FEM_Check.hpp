@@ -50,10 +50,10 @@ namespace moris
                     tRelative = std::abs( ( aMatrixRef( ii, jj ) - aMatrixCheck( ii, jj ) ) / aMatrixRef( ii, jj ) );
 
                     // update check value
-                    tCheckBool = tCheckBool && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+                    tCheckBool = tCheckBool and ( ( tAbsolute < aEpsilon ) or ( tRelative < aEpsilon ) );
 
                     // for debug
-                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    if ( ( tAbsolute > aEpsilon ) and ( tRelative > aEpsilon ) )
                     {
                         std::cout<<"ii "<<ii<<" - jj "<<jj<<"\n"<<std::flush;
                         std::cout<<"aMatrixCheck( ii, jj ) "<<aMatrixCheck( ii, jj )<<"\n"<<std::flush;
