@@ -600,6 +600,11 @@ namespace moris
             Matrix<DDRMat> tFullSensitivity(0, 0);
             tFulldIQIdADV->extract_copy(tFullSensitivity);
             tFullSensitivity = trans(tFullSensitivity);
+
+            // Clean up
+            delete tdIQIdPDV;
+            delete tdIQIdADV;
+            delete tFulldIQIdADV;
             
             return tFullSensitivity;
         }

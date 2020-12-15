@@ -165,7 +165,6 @@ namespace moris
         Geometry_Engine::~Geometry_Engine()
         {
             delete mOwnedADVs;
-
             delete mPrimitiveADVs;
         }
 
