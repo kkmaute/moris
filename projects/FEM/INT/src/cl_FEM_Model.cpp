@@ -300,7 +300,7 @@ namespace moris
             }
 
             // print output
-            MORIS_LOG_SPEC("IG nodes",tNumIGNodes);
+            MORIS_LOG_SPEC("IG nodes",sum_all(tNumIGNodes));
         }
 
         //------------------------------------------------------------------------------
