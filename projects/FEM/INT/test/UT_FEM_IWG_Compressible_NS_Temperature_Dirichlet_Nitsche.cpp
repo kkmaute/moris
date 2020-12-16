@@ -31,8 +31,8 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
-        "[IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal]" )
+TEST_CASE( "IWG_Compressible_NS_Temperature_Dirichlet_Nitsche_Symmetric_Ideal",
+        "[IWG_Compressible_NS_Temperature_Dirichlet_Nitsche_Symmetric_Ideal]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
@@ -91,9 +91,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
     tPropConductivity->set_parameters( { {{ 3.7 }} } );
     tPropConductivity->set_val_function( tConstValFunc );
 
-    // prescribed velocity
-    std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
-    tPropVelocity->set_val_function( tConstValFunc );
+    // prescribed temperature
+    std::shared_ptr< fem::Property > tPropTemperature = std::make_shared< fem::Property >();
+    tPropTemperature->set_val_function( tConstValFunc );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -110,9 +110,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
-            tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE );
-    tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_parameters( { {{ 1.0 }} } );
 
     // loop over different Nitsche types
     for( uint iNitsche = 0; iNitsche < 2; iNitsche++ )
@@ -127,12 +127,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
         // create the two different
         std::shared_ptr< fem::IWG > tIWG;
         if ( iNitsche == 0 )
-            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE );
         else // iNitsche == 1
-            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
 
         tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-        tIWG->set_property( tPropVelocity, "PrescribedValue" );
+        tIWG->set_property( tPropTemperature, "PrescribedValue" );
         tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
         tIWG->set_stabilization_parameter( tSPNitsche, "NitschePenaltyParameter" );
 
@@ -178,8 +178,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
                 // create normal for IWG
                 Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
 
-                // prescribed velocity
-                Matrix< DDRMat > tVelocity( iSpaceDim, 1, 2.7 );
+                // prescribed temperature
+                Matrix< DDRMat > tTemperature = {{ 2.7 }};
 
                 // switch on space dimension
                 switch( iSpaceDim )
@@ -195,9 +195,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
                         // set normal
                         tNormal( 1 ) = -2.6;
 
-                        // set prescribed velocity
-                        tVelocity( 1 ) = 5.6;
-
                         break;
                     }
                     case 3 :
@@ -211,10 +208,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
                         // set normal
                         tNormal( 1 ) = -2.6;
                         tNormal( 2 ) =  9.4;
-
-                        // set prescribed velocity
-                        tVelocity( 1 ) = 5.6;
-                        tVelocity( 2 ) = 7.4;
 
                         break;
                     }
@@ -230,7 +223,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
                 tIWG->set_normal( tNormal );
 
                 // set space dimension to CM
-                tPropVelocity->set_parameters( { tVelocity } );
+                tPropTemperature->set_parameters( { tTemperature } );
                 tCMMasterFluid->set_space_dim( iSpaceDim );
                 tSPNitsche->set_space_dim( iSpaceDim );
 
@@ -459,8 +452,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
 
 //------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
-        "[IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW]" )
+TEST_CASE( "IWG_Compressible_NS_Temperature_Dirichlet_Nitsche_Symmetric_VdW",
+        "[IWG_Compressible_NS_Temperature_Dirichlet_Nitsche_Symmetric_VdW]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
@@ -534,9 +527,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
     tPropSecondVdWconst->set_parameters( { {{ 6.9 }} } );
     tPropSecondVdWconst->set_val_function( tConstValFunc );
 
-    // prescribed velocity
-    std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
-    tPropVelocity->set_val_function( tConstValFunc );
+    // prescribed temperature
+    std::shared_ptr< fem::Property > tPropTemperature = std::make_shared< fem::Property >();
+    tPropTemperature->set_val_function( tConstValFunc );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -556,9 +549,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
-            tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE );
-    tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_parameters( { {{ 1.0 }} } );
 
     // loop over different Nitsche types
     for( uint iNitsche = 0; iNitsche < 2; iNitsche++ )
@@ -573,12 +566,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
         // create the two different
         std::shared_ptr< fem::IWG > tIWG;
         if ( iNitsche == 0 )
-            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE );
         else // iNitsche == 1
-            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
 
         tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-        tIWG->set_property( tPropVelocity, "PrescribedValue" );
+        tIWG->set_property( tPropTemperature, "PrescribedValue" );
         tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
         tIWG->set_stabilization_parameter( tSPNitsche, "NitschePenaltyParameter" );
 
@@ -624,8 +617,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
                 // create normal for IWG
                 Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
 
-                // prescribed velocity
-                Matrix< DDRMat > tVelocity( iSpaceDim, 1, 2.7 );
+                // prescribed temperature
+                Matrix< DDRMat > tTemperature = {{ 2.7 }};
 
                 // switch on space dimension
                 switch( iSpaceDim )
@@ -641,9 +634,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
                         // set normal
                         tNormal( 1 ) = -2.6;
 
-                        // set prescribed velocity
-                        tVelocity( 1 ) = 5.6;
-
                         break;
                     }
                     case 3 :
@@ -657,10 +647,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
                         // set normal
                         tNormal( 1 ) = -2.6;
                         tNormal( 2 ) =  9.4;
-
-                        // set prescribed velocity
-                        tVelocity( 1 ) = 5.6;
-                        tVelocity( 2 ) = 7.4;
 
                         break;
                     }
@@ -676,7 +662,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
                 tIWG->set_normal( tNormal );
 
                 // set space dimension to CM
-                tPropVelocity->set_parameters( { tVelocity } );
+                tPropTemperature->set_parameters( { tTemperature } );
                 tCMMasterFluid->set_space_dim( iSpaceDim );
                 tSPNitsche->set_space_dim( iSpaceDim );
 

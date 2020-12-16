@@ -48,6 +48,9 @@ class GlobalClock
     // list of current iteration for each instance
     std::vector< uint > mCurrentIteration;
 
+    // list of starting times for each iteration
+    std::vector< real > mIterationTimeStamps;
+
     // list of starting times for each active entity
     std::vector< real > mTimeStamps;
 
