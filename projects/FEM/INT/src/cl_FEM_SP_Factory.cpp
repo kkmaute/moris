@@ -12,6 +12,7 @@
 #include "cl_FEM_SP_Pressure_Ghost.hpp"
 #include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
 #include "cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_SUPG_Advection.hpp"
 #include "cl_FEM_SP_GGLS_Diffusion.hpp"
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
@@ -66,6 +67,9 @@ namespace moris
 
                 case fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Velocity_Dirichlet_Nitsche >();
+
+                case fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE :
+                    return std::make_shared< SP_Compressible_Velocity_Dirichlet_Nitsche >();
 
                 case fem::Stabilization_Type::SUPG_ADVECTION :
                     return std::make_shared< SP_SUPG_Advection >();

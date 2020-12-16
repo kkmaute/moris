@@ -190,6 +190,7 @@ set(HEADERS
     cl_FEM_SP_Pressure_Ghost.hpp
     cl_FEM_SP_Time_Velocity_Ghost.hpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_SP_SUPG_Advection.hpp
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
@@ -315,6 +316,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Pressure_Ghost.cpp
     cl_FEM_SP_Time_Velocity_Ghost.cpp
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
+    cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp
