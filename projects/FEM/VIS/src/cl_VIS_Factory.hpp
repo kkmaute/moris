@@ -12,7 +12,7 @@
 #include "cl_Communication_Manager.hpp"
 
 #include "cl_VIS_Vertex_Visualization.hpp"
-#include "cl_VSI_Cell_Visualization.hpp"
+#include "cl_VIS_Cell_Visualization.hpp"
 #include "cl_VIS_Cell_Cluster_Visualization.hpp"
 #include "cl_VIS_Visualization_Mesh.hpp"
 #include "cl_VIS_Factory.hpp"

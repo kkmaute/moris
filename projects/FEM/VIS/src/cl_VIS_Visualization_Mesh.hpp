@@ -16,7 +16,7 @@
 #include "../../../MTK/src/cl_MTK_Vertex.hpp"
 
 #include "cl_VIS_Vertex_Visualization.hpp"
-#include "cl_VSI_Cell_Visualization.hpp"
+#include "cl_VIS_Cell_Visualization.hpp"
 #include "cl_VIS_Cell_Cluster_Visualization.hpp"
 
 namespace moris
