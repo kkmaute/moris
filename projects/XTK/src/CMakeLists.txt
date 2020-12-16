@@ -12,7 +12,6 @@ set(HEADERS
     linalg/cl_XTK_Matrix_Base_Utilities.hpp
     tools/fn_verify_tet_topology.hpp
     tools/cl_Interpolaton.hpp
-    tools/cl_MPI_Tools.hpp
     tools/fn_approximate.hpp
     tools/fn_bubble_sort.hpp
     tools/fn_hex_8_volume.hpp
@@ -29,7 +28,6 @@ set(HEADERS
     topology/cl_XTK_Quad_4_Topology.hpp
     xtk/cl_XTK_Cell_CM.hpp
    	xtk/cl_XTK_Cell_No_CM.hpp
-    xtk/cl_MTK_Mesh_XTK_Impl.hpp
     xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
     xtk/cl_MTK_Vertex_XTK_Impl.hpp
     xtk/cl_XTK_Background_Mesh.hpp
@@ -52,17 +50,11 @@ set(HEADERS
     xtk/cl_XTK_Interpolation_Cell_Unzipped.hpp
     xtk/cl_XTK_Enriched_Integration_Mesh.hpp
     xtk/cl_XTK_Enriched_Interpolation_Mesh.hpp
-    xtk/cl_XTK_Mesh.hpp
     xtk/cl_XTK_Multigrid.hpp
     xtk/cl_XTK_Model.hpp
-#    xtk/cl_XTK_Node.hpp
     xtk/cl_XTK_Output_Options.hpp
-    xtk/cl_XTK_Parallel_Mesh_Data.hpp
     xtk/cl_XTK_Paramfile.hpp
     xtk/cl_XTK_Pending_Node.hpp
-    xtk/cl_XTK_Phase_Table.hpp
-    xtk/cl_XTK_Request_Handler.hpp
-    xtk/cl_XTK_Sensitivity.hpp
     xtk/cl_XTK_Side_Cluster.hpp
     xtk/fn_compute_interface_surface_area.hpp
     xtk/fn_compute_xtk_model_areas.hpp

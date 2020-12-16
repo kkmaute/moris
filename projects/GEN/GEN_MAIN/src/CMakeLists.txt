@@ -13,9 +13,6 @@ set(HEADERS
 	cl_GEN_Field_Analytic.hpp
 	cl_GEN_Field_Discrete_Integration.hpp
 	cl_GEN_Field_Discrete_Interpolation.hpp
-	fn_GEN_Matrix_Base_Utilities.hpp
-	fn_GEN_bubble_sort.hpp
-	fn_GEN_approximate.hpp
 	fn_GEN_Triangle_Geometry.hpp
 
 #	topology/cl_GEN_Basis_Function.hpp
