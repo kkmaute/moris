@@ -95,11 +95,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
 
-    // unit density for stabilization parameter
-    std::shared_ptr< fem::Property > tPropUnitDensity = std::make_shared< fem::Property >();
-    tPropUnitDensity->set_parameters( { {{ 1.0 }} } );
-    tPropUnitDensity->set_val_function( tConstValFunc );
-
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
 
@@ -115,9 +110,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_Ideal",
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
-            tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    tSPNitsche->set_property( tPropUnitDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE );
+    tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
     tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
 
     // loop over different Nitsche types
@@ -540,11 +534,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
     tPropSecondVdWconst->set_parameters( { {{ 6.9 }} } );
     tPropSecondVdWconst->set_val_function( tConstValFunc );
 
-    // unit density for stabilization parameter
-    std::shared_ptr< fem::Property > tPropUnitDensity = std::make_shared< fem::Property >();
-    tPropUnitDensity->set_parameters( { {{ 1.0 }} } );
-    tPropUnitDensity->set_val_function( tConstValFunc );
-
     // prescribed velocity
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
@@ -567,9 +556,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Symmetric_VdW",
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
-            tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    tSPNitsche->set_property( tPropUnitDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE );
+    tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
     tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
 
     // loop over different Nitsche types
