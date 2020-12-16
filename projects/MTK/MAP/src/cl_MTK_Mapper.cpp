@@ -134,7 +134,7 @@ namespace moris
                 const enum EntityRank    aTargetEntityRank )
         {
             // Tracer
-              Tracer tTracer("MTK", "Mapper","Map");
+              TracertTracer("MTK", "Mapper", "Map");
 
             // get index of source
             moris_index tSourceIndex = mSourceMesh->get_field_ind(
@@ -222,7 +222,7 @@ namespace moris
                 const enum EntityRank aTargetEntityRank )
         {
             // Tracer
-             Tracer tTracer("MTK", "Mapper","Map");
+             TracertTracer("MTK", "Mapper", "Map");
 
             switch( aSourceEntityRank )
             {
@@ -278,7 +278,7 @@ namespace moris
                 Matrix<DDRMat>        & aSolution )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper","Map Node-to-Bspline");
+            TracertTracer("MTK", "Mapper", "Map Node-to-Bspline");
 
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::L2 );
 
@@ -352,7 +352,7 @@ namespace moris
                 const enum EntityRank aBSplineRank )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper","Map Node-to-Bspline");
+            TracertTracer("MTK", "Mapper", "Map Node-to-Bspline");
 
             // create the model if it has not been created yet
             this->create_iwg_and_model();
@@ -408,7 +408,7 @@ namespace moris
                 const enum EntityRank aBSplineRank )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper","Map Node-to-Bspline");
+            TracertTracer("MTK", "Mapper", "Map Node-to-Bspline");
 
             // create the model if it has not been created yet
             this->create_iwg_and_model();
@@ -428,7 +428,7 @@ namespace moris
                 const moris_index     aTargetIndex )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper","Map Bspline-to-Node");
+            TracertTracer("MTK", "Mapper", "Map Bspline-to-Node");
 
             // get number of nodes
             moris_index tNumberOfNodes = mTargetMesh->get_num_nodes();

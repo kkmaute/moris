@@ -41,7 +41,7 @@ namespace moris
                 : mLibrary(aLibrary)
         {
             // Tracer
-            Tracer tTracer("GEN", "Geometry_Engine","Create");
+            TracertTracer("GEN", "Geometry_Engine", "Create");
 
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
@@ -155,7 +155,7 @@ namespace moris
                   mPhaseTable(aPhaseTable)
         {
             // Tracer
-            Tracer tTracer("GEN", "Geometry_Engine","Create");
+            TracertTracer("GEN", "Geometry_Engine", "Create");
 
             this->compute_level_set_data(aMesh);
         }
@@ -1073,7 +1073,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GEN", "Fields","Output");
+            TracertTracer("GEN", "Fields", "Output");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);
