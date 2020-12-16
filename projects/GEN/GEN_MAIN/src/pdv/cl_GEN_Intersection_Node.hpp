@@ -13,7 +13,7 @@ namespace moris
         {
 
         protected:
-            std::shared_ptr<Geometry> mInterfaceGeometry;
+            std::weak_ptr<Geometry> mInterfaceGeometry;
             real mLocalCoordinate;
 
         private:

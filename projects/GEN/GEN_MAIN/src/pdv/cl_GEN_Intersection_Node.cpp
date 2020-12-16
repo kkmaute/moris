@@ -27,10 +27,10 @@ namespace moris
                         aAncestorLocalCoordinates),
                   mInterfaceGeometry(aInterfaceGeometry),
                   mFirstParentOnInterface( std::abs(
-                          mInterfaceGeometry->get_field_value(aFirstParentNodeIndex, aFirstParentNodeCoordinates) -
+                          mInterfaceGeometry.lock()->get_field_value(aFirstParentNodeIndex, aFirstParentNodeCoordinates) -
                           aIsocontourThreshold) < aIsocontourTolerance ),
                   mSecondParentOnInterface( std::abs(
-                          mInterfaceGeometry->get_field_value(aSecondParentNodeIndex, aSecondParentNodeCoordinates) -
+                          mInterfaceGeometry.lock()->get_field_value(aSecondParentNodeIndex, aSecondParentNodeCoordinates) -
                           aIsocontourThreshold) < aIsocontourTolerance ),
                   mGlobalCoordinates(
                           mBasisValues(0) * aFirstParentNodeCoordinates + mBasisValues(1) * aSecondParentNodeCoordinates)
@@ -41,7 +41,7 @@ namespace moris
 
         Matrix<DDSMat> Intersection_Node::get_ancestor_coordinate_determining_adv_ids(uint aAncestorIndex)
         {
-            return mInterfaceGeometry->get_determining_adv_ids(
+            return mInterfaceGeometry.lock()->get_determining_adv_ids(
                     mAncestorNodeIndices(aAncestorIndex), mAncestorNodeCoordinates(aAncestorIndex));
         }
 
