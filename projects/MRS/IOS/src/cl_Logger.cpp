@@ -150,8 +150,7 @@ namespace moris
             if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
             {
                 // compute iteration time on each proc
-                real tIndividualIterationTime =
-                        ( (moris::real) std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+                real tIndividualIterationTime = ( (moris::real) std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
                 // log iteration time to file
                 this->log_to_file( "IterationTime", tIndividualIterationTime );
@@ -175,17 +174,9 @@ namespace moris
                         // stop timer
                         real tIterationTime = ( (moris::real) std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
-                        // compute maximum and minimum time used by processors
-                        real tIterationTimeMin = logger_max_all(tIterationTime);
-                        real tIterationTimeMax = logger_min_all(tIterationTime);
-
                         std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
                                 mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
-                                "IterationTime (max/min) = " <<
-                                tIterationTimeMax <<
-                                " / " <<
-                                tIterationTimeMin <<
-                                " \n" << std::flush;
+                                "IterationTime: " << tIterationTime << " \n" << std::flush;
                     }
 
                     // print elapsed time for whole entity
@@ -231,17 +222,9 @@ namespace moris
                     // stop timer
                     real tIterationTime = ( (moris::real) std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
-                    // compute maximum and minimum time used by processors
-                    real tIterationTimeMin = logger_max_all(tIterationTime);
-                    real tIterationTimeMax = logger_min_all(tIterationTime);
-
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
                             mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
-                            "IterationTime (max/min) = " <<
-                            tIterationTimeMax <<
-                            " / " <<
-                            tIterationTimeMin <<
-                            " \n" << std::flush;
+                            "IterationTime: " << tIterationTime << " \n" << std::flush;
                 }
 
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) <<
