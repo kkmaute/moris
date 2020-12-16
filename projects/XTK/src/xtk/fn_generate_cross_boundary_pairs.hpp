@@ -16,7 +16,6 @@
 
 // XTK includes
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Mesh.hpp"
 
 namespace xtk
 {

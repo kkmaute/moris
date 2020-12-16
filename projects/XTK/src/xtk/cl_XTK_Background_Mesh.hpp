@@ -1,5 +1,5 @@
 /*
- * cl_XTK_Mesh.hpp
+ * cl_XTK_Background_Mesh.hpp
  *
  *  Created on: Aug 10, 2017
  *      Author: ktdoble
@@ -549,4 +549,4 @@ namespace xtk
     };
 }
 
-#endif /* SRC_XTK_CL_XTK_MESH_HPP_ */
+#endif /* SRC_XTK_CL_XTK_BACKGROUND_MESH_HPP_ */

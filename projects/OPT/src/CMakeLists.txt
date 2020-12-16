@@ -15,7 +15,7 @@ set(HEADERS
 	cl_OPT_Problem.hpp
     cl_OPT_Criteria_Interface.hpp
 	cl_OPT_Interface_Manager.hpp
-	cl_OPT_Problem_user_Defined.hpp
+	cl_OPT_Problem_User_Defined.hpp
 	cl_OPT_Interface_User_Defined.hpp
 	fn_OPT_create_problem.hpp
 	fn_OPT_create_interface.hpp

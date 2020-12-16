@@ -20,7 +20,6 @@
 // XTKL: Matrix headers
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "containers/cl_XTK_Cell.hpp"
-#include "xtk/cl_XTK_Sensitivity.hpp"
 
 using namespace xtk;
 
