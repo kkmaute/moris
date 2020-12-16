@@ -468,6 +468,11 @@ namespace moris
                 {
                     mBackgroundMesh->create_facets();
                 }
+
+                if( not mParameters->get_write_background_mesh().empty() )
+                {
+                    mBackgroundMesh->save_to_vtk(  mParameters->get_write_background_mesh() );
+                }
             }
 
             for( Lagrange_Mesh_Base * tMesh: mLagrangeMeshes )
@@ -493,6 +498,11 @@ namespace moris
                     if( mParameters->get_number_of_dimensions() == 3 )
                     {
                         tMesh->create_edges();
+                    }
+
+                    if( not mParameters->get_write_output_lagrange_mesh().empty() )
+                    {
+                        tMesh->save_to_vtk( mParameters->get_write_output_lagrange_mesh() );
                     }
                 }
             }
@@ -1185,7 +1195,8 @@ namespace moris
                     {
                         moris_id tID = tMesh->get_node_by_index( k )->get_id();
 
-                        MORIS_ERROR( 0 < tID && tID <= tMaxID, "Database::check_entity_ids(), Invalid Node ID" );
+                        MORIS_ERROR( 0 < tID && tID <= tMaxID,
+                                "Database::check_entity_ids(), Invalid Node ID %-5i for node with index %-5i", tID, k );
                     }
 
                     ++tCount;
