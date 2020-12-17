@@ -63,8 +63,7 @@ TEST_CASE("Tet background mesh analytic sphere","[TET_START_SPHERE]")
     tYCenter = 0.0;
     tZCenter = 1.0;
     Sphere tLevelSetSphere2(tRadius,tXCenter,tYCenter,tZCenter);
-    Phase_Table tPhaseTable (2);
-    Geometry_Engine tGeometryEngine({&tLevelSetSphere,&tLevelSetSphere2},tPhaseTable);
+    Geometry_Engine tGeometryEngine({&tLevelSetSphere,&tLevelSetSphere2});
     tGeometryEngine.mComputeDxDp = false;
     // Load the mesh
     std::string tPrefix = moris::get_base_moris_dir();
@@ -131,8 +130,7 @@ TEST_CASE("Tet background mesh analytic cylinder","[TET_START_CYLINDER]")
     Cell<Cell<real>> tAxis   = {{1,0,0}};
 
     Multi_Cylinder<real, size_t, moris::DDRMat, moris::DDSTMat> tMultiCylinder(tCenter,tRadius,tLength, tAxis);
-    Phase_Table tPhaseTable (1);
-    Geometry_Engine tGeometryEngine(tMultiCylinder,tPhaseTable);
+    Geometry_Engine tGeometryEngine(tMultiCylinder);
 
     // Load the mesh
     std::string tPrefix = moris::get_base_moris_dir();
@@ -211,11 +209,8 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
     Cell<xtk::Geometry<real, size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tMultiCylinder};
     Mesh_Field_Geometry tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
 
-
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    Phase_Table tPhaseTable (1);
-    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
-
+    Geometry_Engine tGeometryEngine(tLevelSetMesh);
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;

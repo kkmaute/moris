@@ -414,8 +414,7 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
             size_t tModelDimension = 3;
-            moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size() );
-            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tInterpMesh );
 
             xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
             tXTKModel.mVerbose = false;
@@ -732,8 +731,7 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
             size_t tModelDimension = 3;
-            moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
-            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tInterpMesh );
 
             xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
             tXTKModel.mVerbose = false;
@@ -1313,8 +1311,7 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
             size_t tModelDimension = 3;
-            moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
-            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tInterpMesh );
 
             xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
@@ -1646,8 +1643,7 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
             size_t tModelDimension = 3;
-            moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
-            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
+            moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tInterpMesh );
 
             xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;

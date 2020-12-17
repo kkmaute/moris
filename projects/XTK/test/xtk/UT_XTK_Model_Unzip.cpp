@@ -113,8 +113,7 @@ TEST_CASE("XTK Model Unzip Interface","[unzip_xtk]")
 //        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
         Plane tLevelsetSphere(tXCenter,tYCenter,tZCenter,0.0,1.0,0.0);
-        Phase_Table tPhaseTable (1);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        Geometry_Engine tGeometryEngine(tLevelsetSphere);
 
         // Create Mesh --------------------------------------------------------------------
         std::string tMeshFileName = "generated:1x1x2";

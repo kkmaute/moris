@@ -148,8 +148,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
@@ -284,8 +283,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 
@@ -393,8 +391,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose  =  false;
 

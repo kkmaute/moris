@@ -143,8 +143,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
             tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 1.1);
 
             size_t tModelDimension = 2;
-            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
             tXTKModel.mVerbose  =  false;
 
@@ -246,8 +245,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
 
          size_t tModelDimension = 2;
-         moris::ge::Phase_Table tPhaseTable (tGeometry.size());
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpMesh);
          Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
@@ -349,8 +347,7 @@ TEST_CASE("2D Conformal Coincident Subdivision","[CM_2D_LIN_COIN]")
          tGeometry(3) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(0)); // center horizontal
 
          size_t tModelDimension = 2;
-         moris::ge::Phase_Table tPhaseTable (tGeometry.size());
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh, {{}}, 0.0, 1E-12);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpMesh, {{}}, 0.0, 1E-12);
          Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose  =  true;
 

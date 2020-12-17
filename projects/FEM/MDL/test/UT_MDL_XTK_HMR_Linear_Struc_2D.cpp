@@ -226,8 +226,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.2501);
 
-        moris::ge::Phase_Table tPhaseTable (1);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpolationMesh);
 
          xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
@@ -806,8 +805,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::Phase_Table tPhaseTable (1);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpolationMesh);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 
@@ -1122,8 +1120,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::Phase_Table tPhaseTable (1);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpolationMesh);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 

@@ -234,8 +234,7 @@ TEST_CASE("Flood Fill on Child Mesh","[FLOOD_FILL]")
         real tYCenter = 1.0;
         real tZCenter = 0;
         Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        Geometry_Engine tGeometryEngine(tLevelsetSphere);
 
         // Create Mesh --------------------------------------------------------------------
         std::string tMeshFileName = "generated:1x1x1";
@@ -334,11 +333,7 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
 
         Mesh_Field_Geometry tDiscreteMesh(tMeshData,tScalarFields);
 
-
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tDiscreteMesh,tPhaseTable);
-
-
+        Geometry_Engine tGeometryEngine(tDiscreteMesh);
 
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;

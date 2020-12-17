@@ -174,11 +174,8 @@ TEST_CASE("Phase Table Scratch","[XTK_PHASE_TABLE]")
             // moris::ge::Phase_Table tPhaseTable( tNumGeom ); 
             //moris_index tNumBulkPhase = 3;
             Matrix<DDUMat> tGeomIndexToBulkPhase = {{0,0,2,2,0,0,2,1}};
-            moris::ge::Phase_Table tPhaseTable( tNumGeom, tGeomIndexToBulkPhase );
 
-            tPhaseTable.print();
-
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh, {{}}, 0.0, 0.0, tGeomIndexToBulkPhase);
             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
             tXTKModel.mVerbose  =  true;
 
@@ -188,18 +185,16 @@ TEST_CASE("Phase Table Scratch","[XTK_PHASE_TABLE]")
 
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
-
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-
             // output to exodus file ----------------------------------------------------------
-           // Write mesh
-           moris::mtk::Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh(0));
-           writer.write_mesh("", "./xtk_exo/phase_table_2n.exo", "", "temp.exo");
-           // Write the fields
-           writer.set_time(0.0);
-           writer.close_file();
+            // Write mesh
+            moris::mtk::Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh(0));
+            writer.write_mesh("", "./xtk_exo/phase_table_2n.exo", "", "temp.exo");
 
+            // Write the fields
+            writer.set_time(0.0);
+            writer.close_file();
 
             delete tInterpMesh;
 

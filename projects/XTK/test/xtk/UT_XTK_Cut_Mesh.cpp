@@ -161,8 +161,7 @@ namespace xtk
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-        moris::ge::Phase_Table tPhaseTable (1);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tMeshData);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tMeshData);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -218,8 +217,7 @@ namespace xtk
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tMeshData);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tMeshData);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -279,9 +277,7 @@ namespace xtk
             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tMeshData);
-
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tMeshData);
 
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;

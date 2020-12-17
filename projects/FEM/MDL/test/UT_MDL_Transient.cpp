@@ -423,8 +423,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tGeometry0( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 
       size_t tModelDimension = 2;
-      moris::ge::Phase_Table         tPhaseTable0( 2 );
-      moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
+      moris::ge::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );
 
       // --------------------------------------------------------------------------------------
       xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);

@@ -41,9 +41,8 @@ namespace moris
 
             Geometry_Engine_Test(
                     Cell< std::shared_ptr<Geometry> > aGeometry,
-                    Phase_Table                       aPhaseTable,
                     mtk::Interpolation_Mesh*          aMesh)
-                    : Geometry_Engine(aGeometry, aPhaseTable, aMesh)
+                    : Geometry_Engine(aGeometry, aMesh)
             {
             }
 
@@ -100,7 +99,7 @@ namespace moris
             CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(7)) == 3);
 
             // Create phase custom phase table
-            Phase_Table tPhaseTableFunction(4, &user_defined_phase_function);
+            Phase_Table tPhaseTableFunction(&user_defined_phase_function, 4);
 
             // Check number of phases
             CHECK(tPhaseTableFunction.get_num_phases() == 4);
@@ -470,8 +469,7 @@ namespace moris
                 std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
 
                 // Create geometry engine
-                Phase_Table tPhaseTable(1);
-                Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tPhaseTable, tMesh);
+                Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tMesh);
 
                 // Get ADVs and upper/lower bounds
                 tADVs = tGeometryEngine.get_advs();
@@ -580,8 +578,7 @@ namespace moris
             std::shared_ptr<Geometry> tCircle = create_geometry(tCircleParameterList, tADVs);
 
             // Create geometry engine
-            Phase_Table tPhaseTable(1);
-            Geometry_Engine_Test tGeometryEngine({tCircle}, tPhaseTable, tMesh);
+            Geometry_Engine_Test tGeometryEngine({tCircle}, tMesh);
 
             // Get geometry back
             std::shared_ptr<Geometry> tStoredCircle = tGeometryEngine.get_geometry(0);

@@ -203,8 +203,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                                                             &evaluate_sensitivity);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (1);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
         xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 

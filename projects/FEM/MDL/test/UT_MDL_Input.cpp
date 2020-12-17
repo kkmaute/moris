@@ -173,8 +173,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(1.0, 1.0, 1.4, 0.0, 0.0, 1.0);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        ge::Phase_Table tPhaseTable (1);
-        ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;

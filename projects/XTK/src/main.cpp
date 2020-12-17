@@ -184,10 +184,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
     tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
     // setup the geometry engine
-    //TODO: support multiple geometries, and different phase tables
-    //          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::Phase_Table tPhaseTable (1);
-    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tMeshData);
 
     // setup the XTK model
     Model tXTKModel(3,tMeshData,&tGeometryEngine);

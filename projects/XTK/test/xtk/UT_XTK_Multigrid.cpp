@@ -147,9 +147,7 @@ namespace xtk
             xtk::Mesh_Field_Geometry tLevelSetMesh(tMeshData,{tLSFName});
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            Phase_Table tPhaseTable (1);
-            Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
-
+            Geometry_Engine tGeometryEngine(tLevelSetMesh);
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t tModelDimension = 3;

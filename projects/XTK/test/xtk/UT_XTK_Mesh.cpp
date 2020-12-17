@@ -108,8 +108,7 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
             real tYCenter = 1.0;
             real tZCenter = 1;
             Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-            Phase_Table tPhaseTable (1);
-            Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+            Geometry_Engine tGeometryEngine(tLevelsetSphere, tPhaseTable);
 
             /*
              * Setup Mesh

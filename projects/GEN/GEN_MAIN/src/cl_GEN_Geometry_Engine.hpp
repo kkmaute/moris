@@ -51,7 +51,6 @@ namespace moris
         {
 
         private:
-
             // Level set
             enum Intersection_Mode mIntersectionMode = Intersection_Mode::LEVEL_SET;
             real mIsocontourThreshold;
@@ -76,13 +75,11 @@ namespace moris
             // Library
             std::shared_ptr<Library_IO> mLibrary;
 
-            // Geometry
+            // Geometries
         protected:
-
             Cell<std::shared_ptr<Geometry>> mGeometries;
 
         private:
-
             size_t mActiveGeometryIndex = 0;
             Cell<ParameterList> mGeometryParameterLists;
             std::string mGeometryFieldFile = "";
@@ -90,7 +87,7 @@ namespace moris
             bool mShapeSensitivities = false;
             real mTimeOffset = 0.0;
 
-            // Property
+            // Properties
             Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
@@ -124,7 +121,6 @@ namespace moris
              * Constructor using externally-created geometry and phase table
              *
              * @param aGeometry Geometry instances to use
-             * @param aPhaseTable Phase table for determining bulk phases
              * @param aMesh Mesh for computing level-set values
              * @param aADVs ADV vector
              * @param aIsocontourThreshold Threshold for setting the level-set isocontour
@@ -132,11 +128,11 @@ namespace moris
              */
             Geometry_Engine(
                     Cell< std::shared_ptr<Geometry> > aGeometry,
-                    Phase_Table                       aPhaseTable,
                     mtk::Interpolation_Mesh*          aMesh,
                     Matrix<DDRMat>                    aADVs = {{}},
                     real                              aIsocontourThreshold = 0.0,
-                    real                              aIsocontourTolerance = 0.0);
+                    real                              aIsocontourTolerance = 0.0,
+                    Matrix<DDUMat>                    aBulkPhases = {{}});
 
             /**
              * Destructor
@@ -473,6 +469,20 @@ namespace moris
              */
             void
             admit_queued_intersection_geometric_proximity(uint aNodeIndex);
+
+            /**
+             * Decides how to construct the phase table based on given arguments.
+             *
+             * @param aNumGeometries Number of geometries
+             * @param aBulkPhases Phase table vector
+             * @param aPhaseFunction Custom phase function
+             * @return Phase table
+             */
+            static Phase_Table create_phase_table(
+                    uint                     aNumGeometries,
+                    Matrix<DDUMat>           aBulkPhases,
+                    MORIS_GEN_PHASE_FUNCTION aPhaseFunction = nullptr,
+                    uint                     aNumPhases = 1);
         };
     }
 }

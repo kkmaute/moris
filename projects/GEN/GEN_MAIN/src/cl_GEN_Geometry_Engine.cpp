@@ -41,7 +41,7 @@ namespace moris
                 : mLibrary(aLibrary)
         {
             // Tracer
-            TracertTracer("GEN", "Geometry_Engine", "Create");
+            Tracer tTracer("GEN", "Geometry_Engine", "Create");
 
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
@@ -123,8 +123,8 @@ namespace moris
             {
                 // User-defined phase function
                 mPhaseTable = Phase_Table(
-                        aParameterLists(0)(0).get<sint>("number_of_phases"),
-                        aLibrary->load_gen_phase_function(tPhaseFunctionName));
+                        aLibrary->load_gen_phase_function(tPhaseFunctionName),
+                        aParameterLists(0)(0).get<sint>("number_of_phases"));
             }
             else if (aParameterLists(0)(0).get<std::string>("phase_table") == "")
             {
@@ -142,20 +142,20 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< std::shared_ptr<Geometry> > aGeometry,
-                Phase_Table                       aPhaseTable,
+                Cell< std::shared_ptr<Geometry> > aGeometries,
                 mtk::Interpolation_Mesh*          aMesh,
                 Matrix<DDRMat>                    aADVs,
                 real                              aIsocontourThreshold,
-                real                              aIsocontourTolerance)
+                real                              aIsocontourTolerance,
+                Matrix<DDUMat>                    aBulkPhases)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mIsocontourTolerance(aIsocontourTolerance),
                   mADVs(aADVs),
-                  mGeometries(aGeometry),
-                  mPhaseTable(aPhaseTable)
+                  mGeometries(aGeometries),
+                  mPhaseTable( create_phase_table(aGeometries.size(), aBulkPhases) )
         {
             // Tracer
-            TracertTracer("GEN", "Geometry_Engine", "Create");
+            Tracer tTracer("GEN", "Geometry_Engine", "Create");
 
             this->compute_level_set_data(aMesh);
         }
@@ -1073,7 +1073,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            TracertTracer("GEN", "Fields", "Output");
+            Tracer tTracer("GEN", "Fields", "Output");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);
@@ -1545,6 +1545,28 @@ namespace moris
                 }
             }
 
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Phase_Table Geometry_Engine::create_phase_table(
+                uint                     aNumGeometries,
+                Matrix<DDUMat>           aBulkPhases,
+                MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                uint                     aNumPhases)
+        {
+            if (aPhaseFunction)
+            {
+                return Phase_Table(aPhaseFunction, aNumPhases);
+            }
+            else if (aBulkPhases.length() > 0)
+            {
+                return Phase_Table(aNumGeometries, aBulkPhases);
+            }
+            else
+            {
+                return Phase_Table(aNumGeometries);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -107,8 +107,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
-        moris::ge::Phase_Table tPhaseTable (tGeometry.size());
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tMeshData);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;

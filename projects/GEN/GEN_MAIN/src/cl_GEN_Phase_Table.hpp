@@ -54,12 +54,13 @@ namespace moris
                 /**
                  * Create a phase table where the phase indices are decided by a user-defined function.
                  *
-                 * @param aNumPhases Number of bulk phases
                  * @param aPhaseFunction User-defined phase function
+                 * @param aNumPhases Number of different bulk phases that the phase function can return
+                 * @param aPhaseNames (optional) Phase names
                  */
                 Phase_Table(
-                        uint                     aNumPhases,
                         MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                        uint                     aNumPhases,
                         Cell<std::string>        aPhaseNames = {});
 
                 /**

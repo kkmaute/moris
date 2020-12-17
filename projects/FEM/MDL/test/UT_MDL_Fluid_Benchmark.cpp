@@ -209,8 +209,7 @@ namespace moris
             tHMR->finalize();
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-            moris::ge::Phase_Table tPhaseTable (4);
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tInterpolationMesh);
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
@@ -577,8 +576,7 @@ namespace moris
             tHMR->finalize();
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-            moris::ge::Phase_Table tPhaseTable (4);
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tInterpolationMesh);
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
@@ -2271,8 +2269,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
                     tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-            moris::ge::Phase_Table tPhaseTable (2);
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tInterpolationMesh);
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGENGeometryEngine );

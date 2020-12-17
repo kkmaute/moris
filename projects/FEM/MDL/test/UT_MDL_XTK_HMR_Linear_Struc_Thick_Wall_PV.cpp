@@ -362,8 +362,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
 
                 size_t tModelDimension = 2;
-                moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size());
-                moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+                moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
                 xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 

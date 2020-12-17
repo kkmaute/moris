@@ -175,23 +175,6 @@ main( int    argc,
     {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
-     * \subsection phase_table_setup  3.) Phase Table Setup
-     * The phase table is used to interpret if an element inside or outside with respect
-     * to a given geometry. The collection of inside/outside information is then
-     * condensed into a single index indicated the elemental phase index. A more detailed
-     * discussion can be found [here](doc/multi_phase.pdf).
-     * TODO: LINK TO DISCUSSION ON PHASE TABLE
-     *
-     * For this example a \f$2^n\f$ material phase table.
-     * \code{.cpp}
-     *  Phase_Table tPhaseTable (tNumGeometries);
-     * \endcode
-     *
-     */
-
-    Phase_Table tPhaseTable (tNumGeometries);
-
-    /*!
      * \subsection geom_eng_setup  4.) Geometry Engine Setup
      *
      * The geometry engine receives the geometry vector and phase table which have already been created.
@@ -200,7 +183,7 @@ main( int    argc,
      *  Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
      * \endcode
      */
-    Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+    Geometry_Engine tGeometryEngine(tGeometryVector);
 
     /*!
      * Specify the isocontour, \f$\phi_0\f$ of the level set field.

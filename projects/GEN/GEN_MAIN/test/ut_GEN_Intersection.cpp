@@ -41,8 +41,7 @@ namespace moris
                 tGeometries(1) = create_geometry(tPlaneParameterList, tADVs);
 
                 // Create geometry engine
-                Phase_Table tPhaseTable (1);
-                Geometry_Engine tGeometryEngine(tGeometries, tPhaseTable, tMesh);
+                Geometry_Engine tGeometryEngine(tGeometries, tMesh);
 
                 // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
                 tGeometryEngine.output_fields_on_mesh(tMesh, "intersection_test.exo");

@@ -270,8 +270,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tGeometryVector(3) = tBottomPlane;
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpolationMesh);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpolationMesh);
         xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 
@@ -291,7 +290,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             // access ghost
             xtk::Ghost_Stabilization & tGhostStab = tXTKModel.get_ghost_stabilization();
 
-            for(moris_index iG = 0; iG < (moris_index)tPhaseTable.get_num_phases(); iG++)
+            for(moris_index iG = 0; iG < 16; iG++)
             {
                 tGhostStab.visualize_ghost_on_mesh(iG);
             }

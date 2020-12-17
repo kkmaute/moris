@@ -174,7 +174,7 @@ namespace moris
         Matrix<DDRMat> Level_Set::map_to_bsplines(std::shared_ptr<Geometry> aGeometry)
         {
             // Tracer
-             TracertTracer("GEN", "Levelset", "L2Mapping");
+            Tracer tTracer("GEN", "Levelset", "L2Mapping");
 
             // Create source field
             Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);

@@ -23,8 +23,7 @@ TEST_CASE("Extract a surface mesh from XTK","[Extract_Surf]")
         //
         //            Plane tLevelsetSphere(tXCenter,tYCenter,tZCenter,1.0,1.0,1.0);
         Gyroid tGyroid;
-        Phase_Table tPhaseTable (1);
-        Geometry_Engine tGeometryEngine(tGyroid,tPhaseTable);
+        Geometry_Engine tGeometryEngine(tGyroid);
 
         // Create Mesh --------------------------------------------------------------------
         std::string tMeshFileName = "generated:4x4x4|sideset:xXyYzZ";

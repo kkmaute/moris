@@ -53,8 +53,7 @@ TEST_CASE("Generating Tet10s from Tet4s Nonconformal","[TET_10S_NC]")
         real tZCenter = 1.0;
         Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-        Phase_Table tPhaseTable (1);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        Geometry_Engine tGeometryEngine(tLevelsetSphere);
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:2x2x2";
@@ -108,8 +107,7 @@ TEST_CASE("Generating Tet10s from Tet4s Conformal","[TET_10S_C]")
     real tZCenter = 0;
     Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-    Phase_Table tPhaseTable (1);
-    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Geometry_Engine tGeometryEngine(tLevelsetSphere);
     tGeometryEngine.mComputeDxDp = false;
 
     // Create Mesh ---------------------------------

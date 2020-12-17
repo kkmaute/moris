@@ -30,8 +30,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Phase_Table::Phase_Table(
-                uint                     aNumPhases,
                 MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                uint                     aNumPhases,
                 Cell<std::string>        aPhaseNames)
         {
             this->initialize(

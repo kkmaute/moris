@@ -57,10 +57,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         real tZn3 = 1.0;
 
         Plane<3> tPlane3(tXc3,tYc3,tZc3,tXn3,tYn3,tZn3);
-
-
-        Phase_Table tPhaseTable (3);
-        Geometry_Engine tGeometryEngine({&tPlane1, &tPlane2,&tPlane3},tPhaseTable);
+        Geometry_Engine tGeometryEngine({&tPlane1, &tPlane2,&tPlane3});
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:2x2x2";
