@@ -5,54 +5,17 @@ namespace moris
 {
     namespace ge
     {
+
         //--------------------------------------------------------------------------------------------------------------
 
         Phase_Table::Phase_Table(
                 uint              aNumGeometries,
                 Matrix<DDUMat>    aBulkPhases,
                 Cell<std::string> aPhaseNames)
+                : mNumGeometries(aNumGeometries),
+                  mBulkPhases(aBulkPhases),
+                  mPhaseNames(aPhaseNames)
         {
-            this->initialize(aNumGeometries,aBulkPhases,aPhaseNames);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Phase_Table::Phase_Table(
-                uint              aNumGeometries,
-                Cell<std::string> aPhaseNames)
-        {
-            this->initialize(
-                    aNumGeometries,
-                    linspace<uint>(0, std::pow(2, aNumGeometries) - 1,std::pow(2, aNumGeometries)),
-                    aPhaseNames);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Phase_Table::Phase_Table(
-                MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
-                uint                     aNumPhases,
-                Cell<std::string>        aPhaseNames)
-        {
-            this->initialize(
-                    0,
-                    {{aNumPhases - 1}},
-                    aPhaseNames);
-
-            mPhaseFunction = aPhaseFunction;
-        }
-
-       //--------------------------------------------------------------------------------------------------------------
-
-        void Phase_Table::initialize(
-                uint              aNumGeometries,
-                Matrix<DDUMat>    aBulkPhases,
-                Cell<std::string> aPhaseNames)
-        {
-            mNumGeometries= aNumGeometries;
-            mBulkPhases   = aBulkPhases;
-            mPhaseNames   = aPhaseNames;
-
             if (mBulkPhases.numel() > 0)
             {
                 // Number of phases
@@ -66,35 +29,31 @@ namespace moris
 
                 // Check for phase table size
                 MORIS_ERROR(mBulkPhases.length() == std::pow(2, mNumGeometries),
-                        "Must provide bulk phase information for each of the 2^n geometry combinations.");
+                            "Must provide bulk phase information for each of the 2^n geometry combinations.");
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Phase_Table::initialize(
+        Phase_Table::Phase_Table(
                 uint              aNumGeometries,
                 Cell<std::string> aPhaseNames)
+                : Phase_Table(
+                        aNumGeometries,
+                        linspace<uint>(0, std::pow(2, aNumGeometries) - 1, std::pow(2, aNumGeometries)),
+                        aPhaseNames)
         {
-            this->initialize(
-                    aNumGeometries,
-                    linspace<uint>(0, std::pow(2, aNumGeometries) - 1,std::pow(2, aNumGeometries)),
-                    aPhaseNames);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Phase_Table::initialize(
-                uint                     aNumPhases,
+        Phase_Table::Phase_Table(
                 MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                uint                     aNumPhases,
                 Cell<std::string>        aPhaseNames)
+                : Phase_Table(0, {{aNumPhases - 1}}, aPhaseNames)
         {
             mPhaseFunction = aPhaseFunction;
-
-            this->initialize(
-                    0,
-                    {{aNumPhases - 1}},
-                    aPhaseNames);
         }
 
         //--------------------------------------------------------------------------------------------------------------

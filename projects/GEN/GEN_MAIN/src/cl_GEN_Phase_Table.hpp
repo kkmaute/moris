@@ -24,12 +24,6 @@ namespace moris
             public:
 
                 /**
-                 * Default Constructor.
-                 *
-                 */
-                Phase_Table(){};
-
-                /**
                  * Constructor for using a given phase table with the standard 2^n structure.
                  *
                  * @param aNumGeometries Number of geometries
@@ -61,40 +55,6 @@ namespace moris
                 Phase_Table(
                         MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
                         uint                     aNumPhases,
-                        Cell<std::string>        aPhaseNames = {});
-
-                /**
-                 * Initialize using a given phase table with the standard 2^n structure
-                 *
-                 * @param aNumGeometries Number of geometries
-                 * @param aBulkPhases Geometric index to bulk phase map
-                 * @param aPhaseNames (optional) Phase names
-                 *
-                 */
-                void initialize(
-                        uint              aNumGeometries,
-                        Matrix<DDUMat>    aBulkPhases,
-                        Cell<std::string> aPhaseNames = {});
-
-                /**
-                 * Initialize a phase table with 2^n structure using a number of bulk phases.
-                 *
-                 * @param aNumGeometries Number of geometries
-                 * @param aPhaseNames (optional) Phase names
-                 */
-                void initialize(
-                        uint              aNumGeometries,
-                        Cell<std::string> aPhaseNames = {});
-
-                /**
-                 * Initialize a phase table where the phase indices are decided by a user-defined function.
-                 *
-                 * @param aNumPhases Number of bulk phases
-                 * @param aPhaseFunction User-defined phase function
-                 */
-                void initialize(
-                        uint                     aNumPhases,
-                        MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
                         Cell<std::string>        aPhaseNames = {});
 
                 /**

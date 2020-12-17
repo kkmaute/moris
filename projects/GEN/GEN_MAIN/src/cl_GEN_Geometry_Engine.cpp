@@ -37,8 +37,29 @@ namespace moris
 
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
-                std::shared_ptr<Library_IO> aLibrary)
-                : mLibrary(aLibrary)
+                std::shared_ptr<Library_IO> aLibrary) :
+
+                // Level set options
+                mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") ),
+                mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") ),
+
+                // Requested IQIs
+                mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) ),
+
+                // Library
+                mLibrary(aLibrary),
+
+                // Geometries
+                mGeometryParameterLists( aParameterLists(1) ),
+                mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") ),
+                mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") ),
+                mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") ),
+
+                // Properties
+                mPropertyParameterLists( aParameterLists(2) ),
+
+                // Phase table
+                mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine", "Create");
@@ -67,23 +88,11 @@ namespace moris
                 mUpperBounds = mUpperBounds.n_rows() == 1 ? trans(mUpperBounds) : mUpperBounds;
             }
 
-            // Read IQIs
-            mRequestedIQIs = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"));
-
-            // Level set options
-            mIsocontourThreshold=aParameterLists(0)(0).get<real>("isocontour_threshold");
-            mIsocontourTolerance=aParameterLists(0)(0).get<real>("isocontour_tolerance");
-
             // Geometries
             mGeometries = create_geometries(
                     aParameterLists(1),
                     mADVs,
                     mLibrary);
-
-            mGeometryParameterLists = aParameterLists(1);
-            mGeometryFieldFile      = aParameterLists(0)(0).get<std::string>("geometry_field_file");
-            mOutputMeshFile         = aParameterLists(0)(0).get<std::string>("output_mesh_file");
-            mTimeOffset             = aParameterLists(0)(0).get<real>("time_offset");
 
             // Properties
             mProperties = create_properties(
@@ -91,13 +100,6 @@ namespace moris
                     mADVs,
                     mGeometries,
                     mLibrary);
-
-            mPropertyParameterLists = aParameterLists(2);
-
-            // Phase table
-            mPhaseTable.initialize(
-                    mGeometries.size(),
-                    string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")));
 
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
@@ -116,21 +118,6 @@ namespace moris
 
             // Initialize PDV type list
             this->initialize_pdv_type_list();
-
-            // Recreate phase table via different methods if needed
-            std::string tPhaseFunctionName = aParameterLists(0)(0).get<std::string>("phase_function_name");
-            if (tPhaseFunctionName != "")
-            {
-                // User-defined phase function
-                mPhaseTable = Phase_Table(
-                        aLibrary->load_gen_phase_function(tPhaseFunctionName),
-                        aParameterLists(0)(0).get<sint>("number_of_phases"));
-            }
-            else if (aParameterLists(0)(0).get<std::string>("phase_table") == "")
-            {
-                // Unique phase per geometry combination
-                mPhaseTable = Phase_Table(mGeometries.size());
-            }
 
             // Print the phase table if requested
             if (aParameterLists(0)(0).get<bool>("print_phase_table") and par_rank() == 0)
@@ -1545,6 +1532,36 @@ namespace moris
                 }
             }
 
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Phase_Table Geometry_Engine::create_phase_table(
+                Cell<Cell<ParameterList>> aParameterLists,
+                std::shared_ptr<Library_IO> aLibrary)
+        {
+            // Get number of geometries
+            uint tNumGeometries = aParameterLists(1).size();
+
+            // Recreate phase table via different methods if needed
+            std::string tPhaseFunctionName = aParameterLists(0)(0).get<std::string>("phase_function_name");
+            if (tPhaseFunctionName != "")
+            {
+                // User-defined phase function
+                return Phase_Table(
+                        aLibrary->load_gen_phase_function(tPhaseFunctionName),
+                        aParameterLists(0)(0).get<sint>("number_of_phases"));
+            }
+            else if (aParameterLists(0)(0).get<std::string>("phase_table") != "")
+            {
+                // User-defined bulk phases
+                return Phase_Table(tNumGeometries, string_to_mat<DDUMat>(aParameterLists(0)(0).get<std::string>("phase_table")));
+            }
+            else
+            {
+                // Unique phase per geometry combination
+                return Phase_Table(tNumGeometries);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

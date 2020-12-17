@@ -471,7 +471,17 @@ namespace moris
             admit_queued_intersection_geometric_proximity(uint aNodeIndex);
 
             /**
-             * Decides how to construct the phase table based on given arguments.
+             * Decides how to construct the phase table based on the given arguments.
+             *
+             * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
+             * @return Phase table
+             */
+            static Phase_Table create_phase_table(
+                    Cell<Cell<ParameterList>> aParameterLists,
+                    std::shared_ptr<Library_IO> aLibrary);
+
+            /**
+             * Decides how to construct the phase table based on the given parameter lists
              *
              * @param aNumGeometries Number of geometries
              * @param aBulkPhases Phase table vector
