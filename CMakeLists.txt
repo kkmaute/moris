@@ -320,15 +320,84 @@ message(STATUS "MORIS recognized the C++ compiler type MORIS_CXX_COMPILER=${MORI
 # Check for compiler flags.
 include(CheckCXXCompilerFlag)
 
+# Allow for mutliple defintions for the same routine
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
+# set libaries to be linked for all targets
+# note: should be done similar to find_modules find_library
 if (MORIS_USE_TACC)
-    # openmp should be taken out when we can figure this out
-    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt  -lgfortran -lrt -ldl -lssl -lcrypto")
-#     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
-else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto -lz -lsz")
-endif()
+   find_library(MORIS_IfcoreLib NAMES ifcore  HINTS /usr/lib64)
+   message(STATUS "MORIS_IfcoreLib = ${MORIS_IfcoreLib}")
+   #link_libraries(${MORIS_IfcoreLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_IfcoreLib})
+   
+   find_library(MORIS_IfcoremtLib NAMES ifcoremt  HINTS /usr/lib64)
+   message(STATUS "MORIS_IfcoremtLib = ${MORIS_IfcoremtLib}")
+   #link_libraries(${MORIS_IfcoremtLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_IfcoremtLib})
+   
+   find_library(MORIS_GFortranLib NAMES gfortran  HINTS /usr/lib64/gcc/x86_64-suse-linux/7)
+   message(STATUS "MORIS_GFortranLib = ${MORIS_GFortranLib}")
+   #link_libraries(${MORIS_GFortranLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_GFortranLib})
+
+   find_library(MORIS_RtLib NAMES rt HINTS /usr/lib64 )
+   message(STATUS "MORIS_RtLib = ${MORIS_RtLib}")
+   #link_libraries(${MORIS_RtLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_RtLib})
+    
+    find_library(MORIS_DLLib NAMES dl HINTS /usr/lib64 )
+   message(STATUS "MORIS_DLLib = ${MORIS_DLLib}")
+   #link_libraries(${MORIS_DLLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_DLLib})
+
+   find_library(MORIS_SslLibNAMES ssl HINTS /usr/lib64 )
+   message(STATUS "MORIS_SslLib = ${MORIS_SslLib}")
+   #link_libraries(${MORIS_SslLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_SslLib})
+
+   find_library(MORIS_CryptoLib NAMES crypto HINTS /usr/lib64 )
+   message(STATUS "MORIS_CryptoLib = ${MORIS_CryptoLib}")
+   #link_libraries(${MORIS_CryptoLib})
+   list(APPEND MORIS_BASE_LIBS ${MORIS_CryptoLib})
+   
+else(MORIS_USE_TACC)
+   
+   find_library(MORIS_MpiLib NAMES mpi_mpifh HINTS /usr/lib64/mpi/gcc/openmpi3/lib64/ )
+   message(STATUS "MORIS_MpiLib = ${MORIS_MpiLib}")
+   link_libraries(${MORIS_MpiLib})
+   #list(APPEND MORIS_BASE_LIBS "${MORIS_MpiLib}")
+   
+   find_library(MORIS_GFortranLib NAMES gfortran  HINTS /usr/lib64/gcc/x86_64-suse-linux/7)
+   message(STATUS "MORIS_GFortranLib = ${MORIS_GFortranLib}")
+   link_libraries(${MORIS_GFortranLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_GFortranLib})
+
+   find_library(MORIS_DLLib NAMES dl HINTS /usr/lib64 )
+   message(STATUS "MORIS_DLLib = ${MORIS_DLLib}")
+   link_libraries(${MORIS_DLLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_DLLib})
+
+   find_library(MORIS_SslLib NAMES ssl HINTS /usr/lib64 )
+   message(STATUS "MORIS_SslLib = ${MORIS_SslLib}")
+   link_libraries(${MORIS_SslLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_SslLib})
+
+   find_library(MORIS_CryptoLib       NAMES crypto HINTS /usr/lib64 )
+   message(STATUS "MORIS_CryptoLib = ${MORIS_CryptoLib}")
+   link_libraries(${MORIS_CryptoLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_CryptoLib})
+
+   find_library(MORIS_ZLib NAMES z HINTS /usr/lib64 )
+   message(STATUS "MORIS_ZLib = ${MORIS_ZLib}")
+   link_libraries(${MORIS_ZLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_ZLib})
+
+   find_library(MORIS_SzLib NAMES sz HINTS /usr/lib64 )
+   message(STATUS "MORIS_SzLib = ${MORIS_SzLib}")
+   link_libraries(${MORIS_SzLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_SzLib})
+endif(MORIS_USE_TACC)
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
 
@@ -487,10 +556,19 @@ find_package(Threads)
 # GPERFTOOLS : Make sure that paths are set correctly.
 # -------------------------------------------------------------------------
 option(MORIS_USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
-if (USE_GPERFTOOLS)
+if (MORIS_USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/usr/include/gperftools/ -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free" )
 
-    list(APPEND MORIS_BASE_LIBS "-Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
+    link_libraries("-Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc")
+endif()
+
+option(MORIS_USE_MEMORY_DEBUG "Use memkind library for memory debugging)." OFF)
+if (MORIS_USE_MEMORY_DEBUG)
+
+   find_library(MORIS_MemKindLib NAMES memkind  HINTS /usr/lib64)
+   message(STATUS "MORIS_MemKindLib = ${MORIS_MemKindLib}")
+   link_libraries(${MORIS_MemKindLib})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_MemKindLib})
 endif()
 
 # -------------------------------------------------------------------------
@@ -501,8 +579,6 @@ if (USE_SACADO)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/mpl" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/parameter" )
-    #list(APPEND MORIS_BASE_LIBS "-L$.../lib64/" )
-
 endif() #> clean this up eventually
 
 # -------------------------------------------------------------------------
