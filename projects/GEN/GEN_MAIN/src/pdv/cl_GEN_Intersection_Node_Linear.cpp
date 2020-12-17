@@ -44,12 +44,15 @@ namespace moris
 
         Matrix<DDRMat> Intersection_Node_Linear::get_ancestor_coordinate_sensitivities(uint aAncestorIndex)
         {
+            // Locked interface geometry
+            std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
             // Get geometry field values
-            real tPhi0 = mInterfaceGeometry->get_field_value( mAncestorNodeIndices(0), mAncestorNodeCoordinates(0) );
-            real tPhi1 = mInterfaceGeometry->get_field_value( mAncestorNodeIndices(1), mAncestorNodeCoordinates(1) );
+            real tPhi0 = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices(0), mAncestorNodeCoordinates(0) );
+            real tPhi1 = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices(1), mAncestorNodeCoordinates(1) );
 
             // Get geometry field sensitivity with respect to ADVs
-            const Matrix<DDRMat>& tFieldSensitivity = mInterfaceGeometry->get_field_sensitivities(
+            const Matrix<DDRMat>& tFieldSensitivity = tLockedInterfaceGeometry->get_field_sensitivities(
                     mAncestorNodeIndices(aAncestorIndex),
                     mAncestorNodeCoordinates(aAncestorIndex));
 
