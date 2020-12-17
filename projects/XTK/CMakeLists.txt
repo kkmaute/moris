@@ -12,12 +12,6 @@ SET(XTK_DEFINITIONS)
 #endif()
 
 
-if(MORIS_USE_32BIT)
-    LIST(APPEND XTK_DEFINITIONS "-DXTK_USE_32BIT")
-else()
-    list(APPEND XTK_DEFINITIONS "-DXTK_USE_64BIT")
-endif()
-
 ADD_DEFINITIONS(${XTK_DEFINITIONS})
 
 # Third party library dependencies

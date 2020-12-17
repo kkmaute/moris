@@ -29,7 +29,8 @@ foreach(XTK_INCLUDE ${XTK_INCLUDES})
 endforeach()   
     
 # List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
+set(GEN_MAIN_INCLUDES         
+    "pdv"                                                                                                                                                                                                                                                      
     "additional"
     "geomeng"
     "geometry"

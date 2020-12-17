@@ -9,7 +9,7 @@ set(HEADERS
     cl_VIS_Output_Manager.hpp
     cl_VIS_Visualization_Mesh.hpp
     cl_VIS_Vertex_Visualization.hpp
-    cl_VIS_Cell_Visualization.hpp
+    cl_VSI_Cell_Visualization.hpp
     cl_VIS_Cell_Cluster_Visualization.hpp
     cl_VIS_Factory.hpp
     )
@@ -33,6 +33,19 @@ set(LIB_DEPENDENCIES
     ${MTK}-lib
     #${MDL}-lib
    )
+
+set(GEN_INCLUDES  
+    "pdv"                                                                                                                                                                                                                                                             
+    "additional"
+    "geomeng"
+    "geometry"
+    "property"
+    )
+
+# Include depedency directories
+foreach(GEN_INCLUDES ${GEN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+endforeach()
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

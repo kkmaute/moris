@@ -13,10 +13,9 @@ set(HEADERS
 	cl_GEN_Field_Analytic.hpp
 	cl_GEN_Field_Discrete_Integration.hpp
 	cl_GEN_Field_Discrete_Interpolation.hpp
-	fn_GEN_Matrix_Base_Utilities.hpp
-	fn_GEN_bubble_sort.hpp
-	fn_GEN_approximate.hpp
+    cl_GEN_Geometric_Proximity.hpp
 	fn_GEN_Triangle_Geometry.hpp
+
 
 #	topology/cl_GEN_Basis_Function.hpp
 #	topology/cl_GEN_Edge_Topology.hpp
@@ -77,25 +76,6 @@ foreach(GEN_INCLUDES ${GEN_INCLUDES})
     list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GEN_INCLUDES}")
 endforeach()
 
-#FIXME: Remove this once xtk has removed subdirectories from its package
-set(XTK_INCLUDES
-    "assert"
-    "containers"
-    "core"
-    "pdv"
-    "geometry"
-    "ios"
-    "linalg"
-    "mesh"
-    "tools"
-    "topology"
-    "xtk"
-    )
-
-# Include depedency directories
-foreach(XTK_INCLUDE ${XTK_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
-endforeach()
 
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
@@ -153,7 +133,14 @@ set(LIB_DEPENDENCIES
 	${MAP}-lib
 	${SDF}-lib
 	${XTK}-lib
+    ${WRK}-lib
     )
+
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/pdv) 
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/geometry) 
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/property) 
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/topology) 
+
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

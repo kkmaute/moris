@@ -164,6 +164,10 @@ namespace moris
 
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
+            
+            //FIXME: KEENAN DEBUG
+            std::cout<<"tLagrangeMeshIndex = "<<tLagrangeMeshIndex<<std::endl;
+            this->save_bsplines_to_vtk( "bspline_vtk_11.vtk",tLagrangeMeshIndex,1);
 
             // register HMR interpolation and integration meshes
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );

@@ -6,109 +6,81 @@ set(${XTK}_VERSION ${MORIS_VERSION})
 
 # List header files                                                                                                                                                                                                                                                            
 set(HEADERS
-    algorithms/fn_num_digits.hpp
-    core/xtk_typedefs.hpp
-    ios/cl_Logger.hpp
-    linalg/cl_XTK_Matrix_Base_Utilities.hpp
-    tools/fn_verify_tet_topology.hpp
-    tools/cl_Interpolaton.hpp
-    tools/cl_MPI_Tools.hpp
-    tools/fn_approximate.hpp
-    tools/fn_bubble_sort.hpp
-    tools/fn_hex_8_volume.hpp
-    tools/fn_matrix_to_offset.hpp
-    tools/fn_Pairing.hpp
-    tools/fn_tet_volume.hpp
-    topology/cl_XTK_Basis_Function.hpp
-    topology/cl_XTK_Topology.hpp
-    topology/cl_XTK_Edge_Topology.hpp
-    topology/cl_XTK_Hexahedron_8_Basis_Function.hpp
-    topology/cl_XTK_Hexahedron_8_Topology.hpp
-    topology/cl_XTK_Linear_Basis_Functions.hpp
-    topology/cl_XTK_Quad_4_Basis_Function.hpp
-    topology/cl_XTK_Quad_4_Topology.hpp
-    xtk/cl_XTK_Cell_CM.hpp
-   	xtk/cl_XTK_Cell_No_CM.hpp
-    xtk/cl_MTK_Mesh_XTK_Impl.hpp
-    xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
-    xtk/cl_MTK_Vertex_XTK_Impl.hpp
-    xtk/cl_XTK_Background_Mesh.hpp
-    xtk/cl_XTK_Cell_Cluster.hpp
-    xtk/cl_XTK_Child_Mesh_Modification_Template.hpp
-    xtk/cl_XTK_Child_Mesh.hpp
-    xtk/cl_XTK_Cut_Mesh.hpp
-    xtk/cl_XTK_Decomposition_Data.hpp
-    xtk/cl_XTK_Downward_Inheritance.hpp
-    xtk/cl_XTK_Enrichment.hpp
-    xtk/cl_XTK_Entity.hpp
-    xtk/cl_XTK_Enums.hpp
-    xtk/cl_XTK_External_Mesh_Data.hpp
-    xtk/cl_XTK_Face_Registry.hpp
-    xtk/cl_XTK_Ghost_Stabilization.hpp
-    xtk/cl_XTK_Hole_Seeder.hpp
-    xtk/cl_XTK_Input_Generator.hpp
-    xtk/cl_XTK_Interface_Element.hpp
-    xtk/cl_XTK_Interpolation_Cell.hpp
-    xtk/cl_XTK_Interpolation_Cell_Unzipped.hpp
-    xtk/cl_XTK_Enriched_Integration_Mesh.hpp
-    xtk/cl_XTK_Enriched_Interpolation_Mesh.hpp
-    xtk/cl_XTK_Mesh.hpp
-    xtk/cl_XTK_Multigrid.hpp
-    xtk/cl_XTK_Model.hpp
-#    xtk/cl_XTK_Node.hpp
-    xtk/cl_XTK_Output_Options.hpp
-    xtk/cl_XTK_Parallel_Mesh_Data.hpp
-    xtk/cl_XTK_Paramfile.hpp
-    xtk/cl_XTK_Pending_Node.hpp
-    xtk/cl_XTK_Phase_Table.hpp
-    xtk/cl_XTK_Request_Handler.hpp
-    xtk/cl_XTK_Sensitivity.hpp
-    xtk/cl_XTK_Side_Cluster.hpp
-    xtk/fn_compute_interface_surface_area.hpp
-    xtk/fn_compute_xtk_model_areas.hpp
-    xtk/fn_compute_xtk_model_volumes.hpp
-    xtk/fn_create_edges_from_element_to_node.hpp
-    xtk/fn_create_faces_from_element_to_node.hpp
-    xtk/fn_generate_cross_boundary_pairs.hpp
-    xtk/fn_generate_element_to_element.hpp
-    xtk/fn_generate_shared_face_element_graph.hpp
-    xtk/fn_local_child_mesh_flood_fill.hpp
-    xtk/fn_mesh_flood_fill.hpp
-    xtk/fn_prune_element_to_element.hpp
-    xtk/fn_write_element_ownership_as_field.hpp
+    fn_num_digits.hpp
+    cl_XTK_Matrix_Base_Utilities.hpp
+    fn_verify_tet_topology.hpp
+    cl_Interpolaton.hpp
+    fn_approximate.hpp
+    fn_bubble_sort.hpp
+    fn_hex_8_volume.hpp
+    fn_matrix_to_offset.hpp
+    fn_Pairing.hpp
+    fn_tet_volume.hpp
+    cl_XTK_Basis_Function.hpp
+    cl_XTK_Topology.hpp
+    cl_XTK_Edge_Topology.hpp
+    cl_XTK_Hexahedron_8_Basis_Function.hpp
+    cl_XTK_Hexahedron_8_Topology.hpp
+    cl_XTK_Linear_Basis_Functions.hpp
+    cl_XTK_Quad_4_Basis_Function.hpp
+    cl_XTK_Quad_4_Topology.hpp
+    cl_XTK_Cell_CM.hpp
+   	cl_XTK_Cell_No_CM.hpp
+    cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
+    cl_MTK_Vertex_XTK_Impl.hpp
+    cl_XTK_Background_Mesh.hpp
+    cl_XTK_Cell_Cluster.hpp
+    cl_XTK_Child_Mesh_Modification_Template.hpp
+    cl_XTK_Child_Mesh.hpp
+    cl_XTK_Cut_Mesh.hpp
+    cl_XTK_Decomposition_Data.hpp
+    cl_XTK_Downward_Inheritance.hpp
+    cl_XTK_Enrichment.hpp
+    cl_XTK_Entity.hpp
+    cl_XTK_Enums.hpp
+    cl_XTK_External_Mesh_Data.hpp
+    cl_XTK_Face_Registry.hpp
+    cl_XTK_Ghost_Stabilization.hpp
+    cl_XTK_Hole_Seeder.hpp
+    cl_XTK_Input_Generator.hpp
+    cl_XTK_Interface_Element.hpp
+    cl_XTK_Interpolation_Cell.hpp
+    cl_XTK_Interpolation_Cell_Unzipped.hpp
+    cl_XTK_Interpolation_Vertex_Unzipped.hpp
+    cl_XTK_Enriched_Integration_Mesh.hpp
+    cl_XTK_Enriched_Interpolation_Mesh.hpp
+    cl_XTK_Multigrid.hpp
+    cl_XTK_Model.hpp
+#    cl_XTK_Node.hpp
+    cl_XTK_Output_Options.hpp
+    cl_XTK_Paramfile.hpp
+    cl_XTK_Pending_Node.hpp
+    cl_XTK_Side_Cluster.hpp
+    cl_XTK_Vertex_Enrichment.hpp
+    
+    fn_compute_interface_surface_area.hpp
+    fn_compute_xtk_model_areas.hpp
+    fn_compute_xtk_model_volumes.hpp
+    fn_create_edges_from_element_to_node.hpp
+    fn_create_faces_from_element_to_node.hpp
+    fn_generate_cross_boundary_pairs.hpp
+    fn_generate_element_to_element.hpp
+    fn_generate_shared_face_element_graph.hpp
+    fn_local_child_mesh_flood_fill.hpp
+    fn_mesh_flood_fill.hpp
+    fn_prune_element_to_element.hpp
+    fn_write_element_ownership_as_field.hpp
+    fn_generate_element_to_element_2D.hpp
     )                                                                                                                                                                                                                                                                   
 
-# List header dependencies                                                                                                                                                                                                                                                     
-set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"
-    "containers"
-    "core"
-    "geomeng"
-    "geometry"
-    "ios"
-    "linalg"
-    "mesh"
-    "tools"
-    "topology"
-    "xtk"
-    )
 
-# Include depedency directories
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
-endforeach()
-
-include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
+include_directories(${MORIS_PACKAGE_DIR}/include)
 
 # GEN directories
 include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/geometry
 		${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/pdv
 		${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/property)
 
-# Include depedency directories
-foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
-endforeach()
 
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
@@ -118,28 +90,28 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 
 # List source files
 set(LIB_SOURCES
-xtk/cl_XTK_Cell_CM.cpp
-xtk/cl_XTK_Cell_No_CM.cpp
-xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
-xtk/cl_MTK_Vertex_XTK_Impl.cpp
-xtk/cl_XTK_Background_Mesh.cpp
-xtk/cl_XTK_Child_Mesh.cpp
-xtk/cl_XTK_Cut_Mesh.cpp
-xtk/cl_XTK_Enrichment.cpp
-xtk/cl_XTK_Field.cpp
-xtk/cl_XTK_Ghost_Stabilization.cpp
-xtk/cl_XTK_Hole_Seeder.cpp
-xtk/cl_XTK_Model.cpp
-xtk/cl_XTK_Multigrid.cpp
-xtk/cl_XTK_Paramfile.cpp
-xtk/cl_XTK_Interpolation_Vertex_Unzipped.cpp
-xtk/cl_XTK_Interpolation_Cell_Unzipped.cpp
-xtk/cl_XTK_Enriched_Interpolation_Mesh.cpp
-xtk/cl_XTK_Vertex_Enrichment.cpp
-xtk/cl_XTK_Enriched_Integration_Mesh.cpp
-xtk/cl_XTK_Cell_Cluster.cpp
-xtk/cl_XTK_Side_Cluster.cpp
-xtk/cl_XTK_Interpolation_Cell.cpp)
+cl_XTK_Cell_CM.cpp
+cl_XTK_Cell_No_CM.cpp
+cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
+cl_MTK_Vertex_XTK_Impl.cpp
+cl_XTK_Background_Mesh.cpp
+cl_XTK_Child_Mesh.cpp
+cl_XTK_Cut_Mesh.cpp
+cl_XTK_Enrichment.cpp
+cl_XTK_Field.cpp
+cl_XTK_Ghost_Stabilization.cpp
+cl_XTK_Hole_Seeder.cpp
+cl_XTK_Model.cpp
+cl_XTK_Multigrid.cpp
+cl_XTK_Paramfile.cpp
+cl_XTK_Interpolation_Vertex_Unzipped.cpp
+cl_XTK_Interpolation_Cell_Unzipped.cpp
+cl_XTK_Enriched_Interpolation_Mesh.cpp
+cl_XTK_Vertex_Enrichment.cpp
+cl_XTK_Enriched_Integration_Mesh.cpp
+cl_XTK_Cell_Cluster.cpp
+cl_XTK_Side_Cluster.cpp
+cl_XTK_Interpolation_Cell.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

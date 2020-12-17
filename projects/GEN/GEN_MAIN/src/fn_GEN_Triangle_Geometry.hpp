@@ -5,8 +5,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_comp_abs.hpp"
-#include "tools/fn_tet_volume.hpp"
-#include "tools/fn_tri_area.hpp"
+#include "fn_tet_volume.hpp"
+#include "fn_tri_area.hpp"
 
 namespace moris
 {

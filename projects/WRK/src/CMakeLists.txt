@@ -11,28 +11,10 @@ set(HEADERS
     cl_WRK_Workflow.hpp
     fn_WRK_perform_refinement.hpp
     )
-     
-set(XTK_INCLUDES
-    "assert"
-    "containers"
-    "core"
-    "geomeng"
-    "geometry"
-    "ios"
-    "linalg"
-    "mesh"
-    "tools"
-    "topology"
-	"xtk"
-	)    
-    
-# Include depedency directories                                    
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE}) 
-endforeach()
-
+ 
 set(GEN_INCLUDES
     "additional"
+    "pdv"
     "geomeng"
     "geometry"
     "property"
@@ -42,6 +24,8 @@ set(GEN_INCLUDES
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
 endforeach()
+
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Parameters Library

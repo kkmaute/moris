@@ -23,27 +23,10 @@ set(TEST_DEPENDENCIES
     ${XTK}-lib
     ${HMR}-lib
     )
-    
-    set(XTK_INCLUDES
-    "assert"
-    "containers"
-    "core"
-    "geomeng"
-    "geometry"
-    "ios"
-    "linalg"
-    "mesh"
-    "tools"
-    "topology"
-    "xtk"                                                                                                                                                                                                                                                                      
-    )  
-    
-    # Include depedency directories                                                                                                                                                                                                                                                
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
-endforeach()  
 
-set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+
+set(GEN_INCLUDES  
+    "pdv"                                                                                                                                                                                                                                                             
     "additional"
     "geomeng"
     "geometry"

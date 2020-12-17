@@ -15,6 +15,7 @@ cl_MTK_Cell_Cluster_Proxy.hpp
 cl_MTK_Cell_Cluster.hpp
 cl_MTK_Cell_Proxy.hpp
 cl_MTK_Cell.hpp
+cl_MTK_Cell_Info_Factory.hpp
 cl_MTK_Cluster.hpp
 cl_MTK_Double_Side_Cluster_Input.hpp
 cl_MTK_Double_Side_Cluster.hpp
