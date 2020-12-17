@@ -325,18 +325,24 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 # set libaries to be linked for all targets
 # note: should be done similar to find_modules find_library
+
+# generate search path from LD_LIBRARY_PATH
+string(REPLACE ":" ";" LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}")
+list(REMOVE_DUPLICATES LIB_SEARCH_PATH)
+message(STATUS "Library search path: ${LIB_SEARCH_PATH}")
+
 if (MORIS_USE_TACC)
-   find_library(MORIS_IfcoreLib NAMES ifcore  HINTS /usr/lib64)
+   find_library(MORIS_IfcoreLib NAMES ifcore HINTS ${LIB_SEARCH_PATH})
    message(STATUS "MORIS_IfcoreLib = ${MORIS_IfcoreLib}")
    #link_libraries(${MORIS_IfcoreLib})
    list(APPEND MORIS_BASE_LIBS ${MORIS_IfcoreLib})
    
-   find_library(MORIS_IfcoremtLib NAMES ifcoremt  HINTS /usr/lib64)
+   find_library(MORIS_IfcoremtLib NAMES ifcoremt HINTS ${LIB_SEARCH_PATH})
    message(STATUS "MORIS_IfcoremtLib = ${MORIS_IfcoremtLib}")
    #link_libraries(${MORIS_IfcoremtLib})
    list(APPEND MORIS_BASE_LIBS ${MORIS_IfcoremtLib})
    
-   find_library(MORIS_GFortranLib NAMES gfortran  HINTS /usr/lib64/gcc/x86_64-suse-linux/7)
+   find_library(MORIS_GFortranLib NAMES libgfortran.so.3  HINTS /usr/lib64)
    message(STATUS "MORIS_GFortranLib = ${MORIS_GFortranLib}")
    #link_libraries(${MORIS_GFortranLib})
    list(APPEND MORIS_BASE_LIBS ${MORIS_GFortranLib})
@@ -351,7 +357,7 @@ if (MORIS_USE_TACC)
    #link_libraries(${MORIS_DLLib})
    list(APPEND MORIS_BASE_LIBS ${MORIS_DLLib})
 
-   find_library(MORIS_SslLibNAMES ssl HINTS /usr/lib64 )
+   find_library(MORIS_SslLib NAMES ssl HINTS /usr/lib64 )
    message(STATUS "MORIS_SslLib = ${MORIS_SslLib}")
    #link_libraries(${MORIS_SslLib})
    list(APPEND MORIS_BASE_LIBS ${MORIS_SslLib})
