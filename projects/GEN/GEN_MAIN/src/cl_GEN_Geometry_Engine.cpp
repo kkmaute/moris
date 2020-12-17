@@ -11,7 +11,8 @@
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Intersection_Node_Linear.hpp"
+#include "cl_GEN_Intersection_Node_Bilinear.hpp"
 
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -37,7 +38,7 @@ namespace moris
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary)
-      : mLibrary(aLibrary)
+                : mLibrary(aLibrary)
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine","Create");
@@ -164,6 +165,7 @@ namespace moris
         Geometry_Engine::~Geometry_Engine()
         {
             delete mOwnedADVs;
+            delete mPrimitiveADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -273,7 +275,7 @@ namespace moris
 
             bool tIsIntersected = false;
 
-            switch(mIntersectionMode)
+            switch (mIntersectionMode)
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
@@ -329,28 +331,32 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         bool Geometry_Engine::queue_intersection(
-                uint aFirstNodeIndex,
-                uint aSecondNodeIndex,
-                const Matrix<DDRMat>& aFirstNodeCoordinates,
-                const Matrix<DDRMat>& aSecondNodeCoordinates)
+                uint                        aFirstNodeIndex,
+                uint                        aSecondNodeIndex,
+                const Matrix<DDRMat>&       aFirstNodeLocalCoordinates,
+                const Matrix<DDRMat>&       aSecondNodeLocalCoordinates,
+                const Matrix<DDRMat>&       aFirstNodeGlobalCoordinates,
+                const Matrix<DDRMat>&       aSecondNodeGlobalCoordinates,
+                const Matrix<DDUMat>&       aBackgroundElementNodeIndices,
+                const Cell<Matrix<DDRMat>>& aBackgroundElementNodeCoordinates)
         {
             bool tEdgeIsIntersected = false;
 
-            switch(mIntersectionMode)
+            switch (mIntersectionMode)
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
                     // Determine if edge is intersected
-                    tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
-                            * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+                    tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeGlobalCoordinates)
+                            * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates) <= 0;
 
                     break;
                 }
                 case Intersection_Mode::COLORING:
                 {
                     // Determine if edge is intersected
-                    if( mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeCoordinates ) !=
-                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) )
+                    if( mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeGlobalCoordinates ) !=
+                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates) )
                     {
                         tEdgeIsIntersected = true;
                     }
@@ -366,14 +372,50 @@ namespace moris
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
             {
-                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                        aFirstNodeIndex,
-                        aSecondNodeIndex,
-                        aFirstNodeCoordinates,
-                        aSecondNodeCoordinates,
-                        mGeometries(mActiveGeometryIndex),
-                        mIsocontourThreshold,
-                        mIsocontourTolerance);
+                switch (mGeometries(mActiveGeometryIndex)->get_intersection_interpolation())
+                {
+                    case Intersection_Interpolation::LINEAR:
+                    {
+                        mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
+                                aFirstNodeIndex,
+                                aSecondNodeIndex,
+                                aFirstNodeGlobalCoordinates,
+                                aSecondNodeGlobalCoordinates,
+                                mGeometries(mActiveGeometryIndex),
+                                mIsocontourThreshold,
+                                mIsocontourTolerance);
+                        break;
+                    }
+                    case Intersection_Interpolation::MULTILINEAR:
+                    {
+                        if (mNumSpatialDimensions == 2)
+                        {
+                            mQueuedIntersectionNode = std::make_shared<Intersection_Node_Bilinear>(
+                                    aFirstNodeIndex,
+                                    aSecondNodeIndex,
+                                    aFirstNodeLocalCoordinates,
+                                    aSecondNodeLocalCoordinates,
+                                    aFirstNodeGlobalCoordinates,
+                                    aSecondNodeGlobalCoordinates,
+                                    aBackgroundElementNodeIndices,
+                                    aBackgroundElementNodeCoordinates,
+                                    mGeometries(mActiveGeometryIndex),
+                                    mIsocontourThreshold,
+                                    mIsocontourTolerance);
+                        }
+                        else
+                        {
+                            MORIS_ERROR(false, "Only bilinear intersections have been implemented.");
+                        }
+
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR(false, "Intersection interpolation type not implemented yet.");
+                    }
+                }
+
             }
 
             return tEdgeIsIntersected;
@@ -397,7 +439,7 @@ namespace moris
 
         real Geometry_Engine::get_queued_intersection_local_coordinate()
         {
-            return mQueuedIntersectionNode->get_local_coordinates()(0);
+            return mQueuedIntersectionNode->get_local_coordinate();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -755,7 +797,7 @@ namespace moris
             Tracer tTracer("GeometryEngine", "Levelset", "SetUpGeometries");
 
             // Register spatial dimension
-            mSpatialDim = aMesh->get_spatial_dim();
+            mNumSpatialDimensions = aMesh->get_spatial_dim();
 
             // Set number of background nodes
             mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
@@ -1169,13 +1211,13 @@ namespace moris
                     for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
                     {
                         // Coordinates
-                        for (uint tDimension = 0; tDimension < mSpatialDim; tDimension++)
+                        for (uint tDimension = 0; tDimension < mNumSpatialDimensions; tDimension++)
                         {
                             tOutFile << tNodeCoordinates(tNodeIndex)(tDimension) << ", ";
                         }
 
                         // Fill unused dimensions with zeros
-                        for (uint tDimension = mSpatialDim; tDimension < 3; tDimension++)
+                        for (uint tDimension = mNumSpatialDimensions; tDimension < 3; tDimension++)
                         {
                             tOutFile << 0.0 << ", ";
                         }
@@ -1278,9 +1320,9 @@ namespace moris
             uint tNumSets = aIntegrationMesh->get_num_sets();
 
             // Cell of IG PDV_Type types
-            Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);
+            Cell<PDV_Type> tCoordinatePdvs(mNumSpatialDimensions);
 
-            switch(mSpatialDim)
+            switch(mNumSpatialDimensions)
             {
                 case 2:
                 {
@@ -1415,8 +1457,8 @@ namespace moris
         Geometry_Engine::get_queued_intersection_geometric_proximity_index(moris_index const & aGeomIndex)
         {
             // parent vertex
-            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->mParentNodeIndices(0);
-            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->mParentNodeIndices(1);
+            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->mAncestorNodeIndices(0);
+            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->mAncestorNodeIndices(1);
 
             // parent vertex proximity wrt aGeomIndex
             moris_index tParentProx0 = mVertexGeometricProximity(tParentVertexIndex0).get_geometric_proximity(aGeomIndex);

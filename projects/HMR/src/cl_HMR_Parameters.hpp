@@ -141,6 +141,10 @@ namespace moris
 
            bool mNumberAura = false;
 
+           std::string mWriteBackgroundMesh = "";
+           std::string mWriteOutputLagrangeMesh = "";
+
+
            //! maximum level for refinement. Default value is specified
            //! by global constant
            uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
@@ -1012,6 +1016,34 @@ namespace moris
            void set_number_aura( const bool aSwitch )
            {
                mNumberAura = aSwitch;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void set_write_background_mesh( const std::string & aWriteBackgroundMesh )
+           {
+               mWriteBackgroundMesh = aWriteBackgroundMesh;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void set_write_output_lagrange_mesh( const std::string & aWriteOutputLagrangeMesh )
+           {
+               mWriteOutputLagrangeMesh = aWriteOutputLagrangeMesh;
+           }
+
+//-------------------------------------------------------------------------------
+
+           const std::string & get_write_background_mesh()
+           {
+               return mWriteBackgroundMesh;
+           }
+
+//-------------------------------------------------------------------------------
+
+           const std::string & get_write_output_lagrange_mesh()
+           {
+               return mWriteOutputLagrangeMesh;
            }
 
 //-------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 #include "cl_Matrix.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_Exec_load_user_library.hpp"
+#include "fn_trans.hpp"
 
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
@@ -209,6 +210,9 @@ namespace moris
                 check_equal(tCircle1->get_field_sensitivities(0, tCoordinates2), {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), -1.0}});
                 check_equal(tCircle2->get_field_sensitivities(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
             }
+
+            // Clean up
+            delete tDistributedADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -414,7 +418,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Nonlinear B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]")
+        TEST_CASE("B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]")
         {
             // Loop over possible cases
             for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
@@ -524,9 +528,8 @@ namespace moris
                     // Check sensitivities
                     if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
                     {
-                        check_equal(
-                                tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
-                                tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
+                        Matrix<DDRMat> tMatrix = trans(tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
+                        check_equal(tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
                         check_equal(
                                 tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                                 tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
@@ -553,7 +556,7 @@ namespace moris
                     CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
                 }
 
-                // Clean up
+                // Delete mesh pointer
                 delete tMesh;
             }
         }
@@ -624,6 +627,9 @@ namespace moris
                         tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                         tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
             }
+
+            // Delete mesh pointer
+            delete tMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -143,9 +143,9 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+//        std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+//        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // create normal for IWG
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
@@ -250,9 +250,9 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
             }
 
             // output for debugging
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+//            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // integration points
             //------------------------------------------------------------------------------
@@ -350,8 +350,8 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
                 for( uint jRequestedDof = 0; jRequestedDof < tRequestedMasterGlobalDofTypes.size(); jRequestedDof++ )
                 {
                     // output for debugging
-                    //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                    //std::cout << "Performing test for jacobian DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
+//                    std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//                    std::cout << "Performing test for jacobian DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
                     Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( jRequestedDof );
@@ -505,8 +505,8 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
                     for( uint iTestDof = 0; iTestDof < tRequestedMasterGlobalDofTypes.size(); iTestDof++ )
                     {
                         // output for debugging
-                        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                        //std::cout << "Checking test-tractions for test DOF type (0-RHO, 1-VX, 2-TEMP): " << iTestDof << "\n\n" << std::flush;
+//                        std::cout << "-------------------------------------------------------------------\n" << std::flush;
+//                        std::cout << "Checking test-tractions for test DOF type (0-RHO, 1-VX, 2-TEMP): " << iTestDof << "\n\n" << std::flush;
 
                         // derivative dof type
                         Cell< MSI::Dof_Type > tTestDof = tRequestedMasterGlobalDofTypes( iTestDof );
@@ -539,31 +539,33 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
                         bool tCheckThermalTestTraction = fem::check( tdThermalTestTractiondDOF, tdThermalTestTractiondDofFD, tEpsilon );
                         REQUIRE( tCheckThermalTestTraction );
 
-//                        //------------------------------------------------------------------------------
-//                        //  Mechanical Test Traction
-//                        //------------------------------------------------------------------------------
-//                        // evaluate dTestTractiondDOF
-//                        Matrix< DDRMat > tdMechanicalTestTractiondDOF =
-//                                tCMMasterFluid->dTestTractiondDOF(
-//                                        tDofDerivative,
-//                                        tNormal,
-//                                        tVelocityJump,
-//                                        tTestDof,
-//                                        CM_Function_Type::MECHANICAL );
-//
-//                        //  evaluate dTestTractiondDOF by FD
-//                        Matrix< DDRMat > tdMechanicalTestTractiondDofFD;
-//                        tCMMasterFluid->eval_dTestTractiondDOF_FD(
-//                                tDofDerivative,
-//                                tTestDof,
-//                                tdMechanicalTestTractiondDofFD,
-//                                tPerturbation,
-//                                FDScheme_Type::POINT_5,
-//                                CM_Function_Type::MECHANICAL );
-//
-//                        // check that analytical and FD match
-//                        bool tCheckMechanicalTestTraction = fem::check( tdMechanicalTestTractiondDOF, tdMechanicalTestTractiondDofFD, tEpsilon );
-//                        REQUIRE( tCheckMechanicalTestTraction );
+                        //------------------------------------------------------------------------------
+                        //  Mechanical Test Traction
+                        //------------------------------------------------------------------------------
+                        // evaluate dTestTractiondDOF
+                        Matrix< DDRMat > tdMechanicalTestTractiondDOF =
+                                tCMMasterFluid->dTestTractiondDOF(
+                                        tDofDerivative,
+                                        tNormal,
+                                        tVelocityJump,
+                                        tTestDof,
+                                        CM_Function_Type::MECHANICAL );
+
+                        //  evaluate dTestTractiondDOF by FD
+                        Matrix< DDRMat > tdMechanicalTestTractiondDofFD;
+                        tCMMasterFluid->eval_dtesttractiondu_FD(
+                                tDofDerivative,
+                                tTestDof,
+                                tdMechanicalTestTractiondDofFD,
+                                tPerturbation,
+                                tNormal,
+                                tVelocityJump,
+                                FDScheme_Type::POINT_5,
+                                CM_Function_Type::MECHANICAL );
+
+                        // check that analytical and FD match
+                        bool tCheckMechanicalTestTraction = fem::check( tdMechanicalTestTractiondDOF, tdMechanicalTestTractiondDofFD, tEpsilon );
+                        REQUIRE( tCheckMechanicalTestTraction );
                     }
                 }
             }

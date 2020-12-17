@@ -93,11 +93,15 @@ namespace moris
                         for (uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++)
                         {
                             // Queue intersection
-                            bool tIntersectionQueued = tGeometryEngine.queue_intersection(
+                            bool tIntersectionQueued = tGeometryEngine.queue_intersection( // TODO
                                     tNodeIndices(tNodeNumber),
                                     tNodeIndices((tNodeNumber + 1) % 4),
+                                    {{}},
+                                    {{}},
                                     tMesh->get_node_coordinate(tNodeIndices(tNodeNumber)),
-                                    tMesh->get_node_coordinate(tNodeIndices((tNodeNumber + 1) % 4)));
+                                    tMesh->get_node_coordinate(tNodeIndices((tNodeNumber + 1) % 4)),
+                                    {{}},
+                                    {});
                             CHECK(tIntersectionQueued == tIsEdgeIntersected(tGeometryIndex)(tElementIndex)(tNodeNumber));
 
                             // Check queued intersection
@@ -252,8 +256,12 @@ namespace moris
                             bool tIntersectionQueued = tGeometryEngine.queue_intersection(
                                     tNodeIndices(tNodeNumber),
                                     tNodeIndices((tNodeNumber + 1) % 4),
+                                    {{}},
+                                    {{}},
                                     tMesh->get_node_coordinate(tNodeIndices(tNodeNumber)),
-                                    tMesh->get_node_coordinate(tNodeIndices((tNodeNumber + 1) % 4)));
+                                    tMesh->get_node_coordinate(tNodeIndices((tNodeNumber + 1) % 4)),
+                                    {{}},
+                                    {});
                             CHECK(tIntersectionQueued == tIsEdgeIntersected(tGeometryIndex)(tElementIndex)(tNodeNumber));
 
                             // Check queued intersection

@@ -12,7 +12,7 @@
 #define private   public
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Intersection_Node_Linear.hpp"
 #undef protected
 #undef private
 
@@ -341,7 +341,7 @@ namespace moris
                     Matrix<DDRMat> tSecondParentCoordinates = {{1.5 * cos(tRadians), 1.5 * sin(tRadians)}};
 
                     // Create intersection node
-                    std::shared_ptr<Intersection_Node> tIntersectionNode = std::make_shared<Intersection_Node>(
+                    std::shared_ptr<Intersection_Node> tIntersectionNode = std::make_shared<Intersection_Node_Linear>(
                             0, 0, tFirstParentCoordinates, tSecondParentCoordinates, tCircle, 0.0, 0.0);
 
                     // Add intersection node to PDV host manager

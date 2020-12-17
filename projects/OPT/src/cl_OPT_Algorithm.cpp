@@ -85,18 +85,22 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
         
-        void Algorithm::write_advs_to_file( uint aIterationIndex, const Matrix<DDRMat> aADVs )
+        void Algorithm::write_advs_to_file( const Matrix<DDRMat> aADVs )
         {
+            // Get iteration from global clock
+            uint tOptIter = gLogger.get_opt_iteration();
+
             // Create file name
             std::string tRestartFileName =
                     "ADV_Alg_" +
                     std::to_string(mCurrentOptAlgInd) +
                     "_Iter_" +
-                    std::to_string(aIterationIndex) +
+                    std::to_string(tOptIter) +
                     ".hdf5";
 
             // Create file
-            hid_t tFileID = create_hdf5_file(tRestartFileName);
+            // Note: only processor 0 creates this file; therefore no parallel name extension is used
+            hid_t tFileID = create_hdf5_file( tRestartFileName, false );
 
             // Write advs and upper/lower bounds to file
             herr_t tStatus = 0;

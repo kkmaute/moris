@@ -291,7 +291,7 @@ namespace moris
             Field_Interpolator * tTempFI =  mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the thermal conductivity property
-            std::shared_ptr< Property > tThermalConductivity = get_property( "ThermalConductivity" );
+            const std::shared_ptr< Property > tThermalConductivity = get_property( "ThermalConductivity" );
 
             // compute thermal flux q = - k * grad(T)
             mThermalFlux = -1.0 * tThermalConductivity->val()( 0 ) * tTempFI->gradx( 1 );
@@ -317,7 +317,7 @@ namespace moris
         void CM_Fluid_Compressible_Ideal::eval_thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the conductivity property
-            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
+            const std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -717,7 +717,7 @@ namespace moris
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
+            const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
 
             // compute Stress
             mStress = 2.0 * tPropDynamicViscosity->val()( 0 ) *
@@ -739,7 +739,7 @@ namespace moris
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
+            const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
 
             // initialize the matrix
             mdStressdDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3,
@@ -1044,7 +1044,7 @@ namespace moris
             if( mMechanicalTractionEval )
             {
                 // evaluate the test strain
-                this->eval_work_traction( aNormal );
+                this->eval_mechanical_traction( aNormal );
 
                 // set bool for evaluation
                 mMechanicalTractionEval = false;

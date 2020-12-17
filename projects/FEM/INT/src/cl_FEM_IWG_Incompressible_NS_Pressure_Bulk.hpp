@@ -36,6 +36,7 @@ namespace moris
                     THERMAL_EXPANSION,
                     REF_TEMP,
                     MASS_SOURCE,
+                    PRESSURE_SPRING,
                     MAX_ENUM
                 };
 
@@ -109,8 +110,8 @@ namespace moris
                  * @param[ in ] aJM       a matrix to fill with dRMdDof
                  */
                 void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & aJM );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aJM );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -39,6 +39,9 @@ Vector_Epetra::Vector_Epetra(
 Vector_Epetra::~Vector_Epetra()
 {
     delete mEpetraVector;
+
+    delete mImporter;
+    mImporter = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -78,7 +81,7 @@ void Vector_Epetra::sum_into_global_values(
     if( mVecBuildWithPointMap )
     {
         Matrix< IdMat > tPointFreeIds;
-        mMap->translate_ids_to_free_point_ids( aGlobalIds, tPointFreeIds );
+        mMap->translate_ids_to_free_point_ids( aGlobalIds, tPointFreeIds, false );
 
         // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
         reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues(
@@ -162,7 +165,7 @@ void Vector_Epetra::vec_plus_vec(
             }
 
             Matrix< IdMat > tPointIds;
-            mMap->translate_ids_to_free_point_ids( tIdMat, tPointIds );
+            mMap->translate_ids_to_free_point_ids( tIdMat, tPointIds, false );
 
             //FIXME adjust for multivector
             Matrix< DDRMat > tValues;

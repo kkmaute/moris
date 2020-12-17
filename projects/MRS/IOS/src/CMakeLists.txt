@@ -57,6 +57,7 @@ message( STATUS "done with GetGitRevisionDescription " ${MORIS_GIT_BRANCH} "  " 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cl_Git_info.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp" @ONLY)
 
 list(APPEND LIB_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp")
+#list(APPEND HEADERS moris_git_info.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target

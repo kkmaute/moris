@@ -5,6 +5,7 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
+#include "fn_trans.hpp"
 
 // Logging package
 #include "cl_Logger.hpp"
@@ -14,40 +15,6 @@ namespace moris
 {
     namespace ge
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Level_Set::Level_Set(
-                Matrix<DDRMat>&          aADVs,
-                Matrix<DDUMat>           aGeometryVariableIndices,
-                Matrix<DDUMat>           aADVIndices,
-                Matrix<DDRMat>           aConstantParameters,
-                mtk::Interpolation_Mesh* aMesh,
-                std::string              aName,
-                Matrix<DDSMat>           aNumRefinements,
-                Matrix<DDSMat>           aRefinementMeshIndices,
-                sint                     aRefinementFunctionIndex,
-                uint                     aBSplineMeshIndex,
-                real                     aBSplineLowerBound,
-                real                     aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Field_Discrete_Integration(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
-        {
-            // Check that number of variables equals the number of B-spline coefficients
-            MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
-                    "There must be a field variable for each B-spline coefficient in a level set geometry.");
-        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -66,6 +33,7 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
+                  Geometry(aGeometry->get_intersection_interpolation()),
                   Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mMesh(aMesh)
         {
@@ -148,7 +116,8 @@ namespace moris
 
         const Matrix<DDRMat>& Level_Set::get_field_sensitivities(uint aNodeIndex)
         {
-            return mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index());
+            mSensitivities = trans(mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index()));
+            return mSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -219,7 +188,7 @@ namespace moris
             Matrix<DDRMat> tTargetField(0, 0);
 
             // Create integration mesh
-            mtk::Integration_Mesh * tIntegrationMesh =
+            mtk::Integration_Mesh* tIntegrationMesh =
                     create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
 
             // Create mesh manager
@@ -231,6 +200,9 @@ namespace moris
             // Use mapper
             mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
             tMapper.perform_mapping(tSourceField, EntityRank::NODE, tTargetField, EntityRank::BSPLINE);
+
+            // Delete integration mesh
+            delete tIntegrationMesh;
 
             // Return mapped field
             return tTargetField;

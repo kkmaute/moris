@@ -82,6 +82,7 @@ namespace moris
         ParameterList create_geometry_parameter_list()
         {
             ParameterList tParameterList = create_field_parameter_list();
+            tParameterList.insert("multilinear_intersections", false);
 
             return tParameterList;
         }
@@ -161,6 +162,7 @@ namespace moris
             tParameterList.insert("bspline_mesh_index", -1);            // Index of B-spline mesh to create level set field on (-1 = none)
             tParameterList.insert("bspline_lower_bound", -1.0);         // Lower bound of level set field (if bspline_mesh_index >= 0)
             tParameterList.insert("bspline_upper_bound", 1.0);          // Upper bound of level set field (if bspline_mesh_index >= 0)
+            tParameterList.insert("multilinear_intersections", false);
 
             return tParameterList;
         }

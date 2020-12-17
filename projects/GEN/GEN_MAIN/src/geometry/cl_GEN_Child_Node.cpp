@@ -8,42 +8,34 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Child_Node::Child_Node(Matrix<DDUMat>             aParentNodeIndices,
-                               Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
-                               const xtk::Basis_Function& aBasisFunction,
-                               Matrix<DDRMat>             aLocalCoordinates)
-                : mParentNodeIndices(aParentNodeIndices),
-                  mParentNodeCoordinates(aParentNodeCoordinates),
-                  mLocalCoordinates(aLocalCoordinates)
+        Child_Node::Child_Node(
+                Matrix<DDUMat>             aAncestorNodeIndices,
+                Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
+                const xtk::Basis_Function& aBasisFunction,
+                Matrix<DDRMat>             aLocalCoordinatesInAncestor)
+                : mAncestorNodeIndices(aAncestorNodeIndices),
+                  mAncestorNodeCoordinates(aAncestorNodeCoordinates)
         {
-            // Shift local coordinates
-            real tEpsilon = 1E-12;
-            for (uint tDimension = 0; tDimension < mLocalCoordinates.length(); tDimension++)
-            {
-                mLocalCoordinates(tDimension) = std::min(mLocalCoordinates(tDimension), 1.0 - tEpsilon);
-                mLocalCoordinates(tDimension) = std::max(mLocalCoordinates(tDimension), tEpsilon - 1.0);
-            }
-
             // Evaluate basis function
-            aBasisFunction.evaluate_basis_function(mLocalCoordinates, mBasisValues);
+            aBasisFunction.evaluate_basis_function(aLocalCoordinatesInAncestor, mBasisValues);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Child_Node::get_local_coordinates()
+        uint Child_Node::get_num_ancestors()
         {
-            return mLocalCoordinates;
+            return mAncestorNodeIndices.length();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         real Child_Node::interpolate_field_value(Field* aField)
         {
-            // Get field values from parents
-            Matrix<DDRMat> tGeometryFieldValues(mParentNodeIndices.length(), 1);
-            for (uint tParentNode = 0; tParentNode < mParentNodeIndices.length(); tParentNode++)
+            // Get field values from ancestors
+            Matrix<DDRMat> tGeometryFieldValues(mAncestorNodeIndices.length(), 1);
+            for (uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
-                tGeometryFieldValues(tParentNode) = aField->get_field_value(mParentNodeIndices(tParentNode), mParentNodeCoordinates(tParentNode));
+                tGeometryFieldValues(tAncestorNode) = aField->get_field_value(mAncestorNodeIndices(tAncestorNode), mAncestorNodeCoordinates(tAncestorNode));
             }
 
             // Return interpolated value
@@ -54,26 +46,26 @@ namespace moris
 
         const Matrix<DDRMat>& Child_Node::join_field_sensitivities(Field* aField)
         {
-            // Initialize using first parent
+            // Initialize using first ancestor
             mJoinedSensitivities = aField->get_field_sensitivities(
-                    mParentNodeIndices(0),
-                    mParentNodeCoordinates(0));
+                    mAncestorNodeIndices(0),
+                    mAncestorNodeCoordinates(0));
             mJoinedSensitivities = mJoinedSensitivities * mBasisValues(0);
 
-            // Get sensitivity values from other parents
-            for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
+            // Get sensitivity values from other ancestors
+            for (uint tAncestorNode = 1; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
                 // Get scaled sensitivities
-                const Matrix<DDRMat>& tParentSensitivities = mBasisValues(tParentNode) * aField->get_field_sensitivities(
-                        mParentNodeIndices(tParentNode),
-                        mParentNodeCoordinates(tParentNode));
+                const Matrix<DDRMat>& tAncestorSensitivities = mBasisValues(tAncestorNode) * aField->get_field_sensitivities(
+                        mAncestorNodeIndices(tAncestorNode),
+                        mAncestorNodeCoordinates(tAncestorNode));
                 
                 // Join sensitivities
                 uint tJoinedSensitivityLength = mJoinedSensitivities.n_cols();
-                mJoinedSensitivities.resize(1, tJoinedSensitivityLength + tParentSensitivities.n_cols());
-                for (uint tParentSensitivity = 0; tParentSensitivity < tParentSensitivities.n_cols(); tParentSensitivity++)
+                mJoinedSensitivities.resize(1, tJoinedSensitivityLength + tAncestorSensitivities.n_cols());
+                for (uint tAncestorSensitivity = 0; tAncestorSensitivity < tAncestorSensitivities.n_cols(); tAncestorSensitivity++)
                 {
-                    mJoinedSensitivities(tJoinedSensitivityLength + tParentSensitivity) = tParentSensitivities(tParentSensitivity);
+                    mJoinedSensitivities(tJoinedSensitivityLength + tAncestorSensitivity) = tAncestorSensitivities(tAncestorSensitivity);
                 }
             }
 
@@ -84,25 +76,25 @@ namespace moris
 
         Matrix<DDSMat> Child_Node::join_determining_adv_ids(Field* aField)
         {
-            // Initialize using first parent
+            // Initialize using first ancestor
             Matrix<DDSMat> tJoinedDeterminingADVs = aField->get_determining_adv_ids(
-                    mParentNodeIndices(0),
-                    mParentNodeCoordinates(0));
+                    mAncestorNodeIndices(0),
+                    mAncestorNodeCoordinates(0));
 
-            // Get sensitivity values from other parents
-            for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
+            // Get sensitivity values from other ancestors
+            for (uint tAncestorNode = 1; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
                 // Get scaled sensitivities
-                Matrix<DDSMat> tParentDependingADVs = aField->get_determining_adv_ids(
-                        mParentNodeIndices(tParentNode),
-                        mParentNodeCoordinates(tParentNode));
+                Matrix<DDSMat> tAncestorDependingADVs = aField->get_determining_adv_ids(
+                        mAncestorNodeIndices(tAncestorNode),
+                        mAncestorNodeCoordinates(tAncestorNode));
 
                 // Join sensitivities
                 uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
-                tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tParentDependingADVs.n_cols());
-                for (uint tParentADV = 0; tParentADV < tParentDependingADVs.n_cols(); tParentADV++)
+                tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tAncestorDependingADVs.n_cols());
+                for (uint tAncestorADV = 0; tAncestorADV < tAncestorDependingADVs.n_cols(); tAncestorADV++)
                 {
-                    tJoinedDeterminingADVs(tJoinedADVLength + tParentADV) = tParentDependingADVs(tParentADV);
+                    tJoinedDeterminingADVs(tJoinedADVLength + tAncestorADV) = tAncestorDependingADVs(tAncestorADV);
                 }
             }
 

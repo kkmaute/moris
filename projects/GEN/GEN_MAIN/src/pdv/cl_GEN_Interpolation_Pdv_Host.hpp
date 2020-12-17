@@ -54,7 +54,7 @@ namespace moris
              */
             uint get_num_pdvs();
             
-            moris_id get_pdv_vertex_id()
+            moris_id get_pdv_id()
             {
                 return mNodeId;
             };

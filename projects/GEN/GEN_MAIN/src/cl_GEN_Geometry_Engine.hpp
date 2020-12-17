@@ -58,7 +58,7 @@ namespace moris
             real mIsocontourTolerance;
 
             // Spatial dimensions
-            uint mSpatialDim;
+            uint mNumSpatialDimensions;
 
             // ADVs
             Matrix<DDRMat> mADVs;
@@ -208,15 +208,23 @@ namespace moris
              *
              * @param aNodeIndex1 First node index
              * @param aNodeIndex2 Second node index
-             * @param aNodeCoordinates1 First node coordinate
-             * @param aNodeCoordinates2 Second node coordinate
+             * @param aFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
+             * @param aSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
+             * @param aFirstNodeGlobalCoordinates Global coordinates of the first node
+             * @param aSecondNodeLocalCoordinates Global coordinates of the second node
+             * @param aBackgroundElementNodeIndices Node indices of the background element
+             * @param aBackgroundElementNodeCoordinates Node coordinates of the background element
              * @return If the edge is intersected and a node has been queued
              */
             bool queue_intersection(
-                    uint                  aNodeIndex1,
-                    uint                  aNodeIndex2,
-                    const Matrix<DDRMat>& aNodeCoordinates1,
-                    const Matrix<DDRMat>& aNodeCoordinates2);
+                    uint                        aFirstNodeIndex,
+                    uint                        aSecondNodeIndex,
+                    const Matrix<DDRMat>&       aFirstNodeLocalCoordinates,
+                    const Matrix<DDRMat>&       aSecondNodeLocalCoordinates,
+                    const Matrix<DDRMat>&       aFirstNodeGlobalCoordinates,
+                    const Matrix<DDRMat>&       aSecondNodeGlobalCoordinates,
+                    const Matrix<DDUMat>&       aBackgroundElementNodeIndices,
+                    const Cell<Matrix<DDRMat>>& aBackgroundElementNodeCoordinates);
 
             /**
              * Returns if the queued intersection has the first parent node on the active geometry interface.

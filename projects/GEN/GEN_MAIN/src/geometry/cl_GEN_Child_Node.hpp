@@ -15,12 +15,12 @@ namespace moris
         {
 
         protected:
-            Matrix<DDUMat>       mParentNodeIndices;
-            Cell<Matrix<DDRMat>> mParentNodeCoordinates;
+            Matrix<DDUMat>       mAncestorNodeIndices;
+            Cell<Matrix<DDRMat>> mAncestorNodeCoordinates;
             Matrix<DDRMat>       mBasisValues;
 
         private:
-            Matrix<DDRMat>       mLocalCoordinates;
+            Matrix<DDRMat>       mLocalCoordinatesInAncestor;
             Matrix<DDRMat>       mJoinedSensitivities;
 
         public:
@@ -28,25 +28,26 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aParentNodeIndices Node indices of the parent of this child node
-             * @param aParentNodeCoordinates Coordinates of the parent of this child node
-             * @param aBasisFunction Basis function of the parent topology
-             * @param aLocalCoordinates Local coordinate of this child inside of the parent element
+             * @param aAncestorNodeIndices Node indices of the ancestors of this child node
+             * @param aAncestorNodeCoordinates Coordinates of the ancestors of this child node
+             * @param aBasisFunction Basis function of the ancestor topology
+             * @param aLocalCoordinatesInAncestor Local coordinate of this child inside of the ancestor element
              */
-            Child_Node(Matrix<DDUMat>             aParentNodeIndices,
-                       Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
-                       const xtk::Basis_Function& aBasisFunction,
-                       Matrix<DDRMat>             aLocalCoordinates);
+            Child_Node(
+                    Matrix<DDUMat>             aAncestorNodeIndices,
+                    Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
+                    const xtk::Basis_Function& aBasisFunction,
+                    Matrix<DDRMat>             aLocalCoordinatesInAncestor);
 
             /**
-             * Gets the local coordinates of this child node.
+             * Gets the number of ancestor nodes of this child node.
              *
-             * @return Local coordinates
+             * @return Number of ancestors
              */
-            Matrix<DDRMat> get_local_coordinates();
+            uint get_num_ancestors();
 
             /**
-             * Get the field value on the child node based on values from its parents.
+             * Get the field value on the child node based on values from its ancestors.
              *
              * @param aField Field pointer, referenced during call from field class
              * @return Field value
@@ -54,7 +55,7 @@ namespace moris
             virtual real interpolate_field_value(Field* aField);
 
             /**
-             * Joins the field sensitivities on the child node based on its parents.
+             * Joins the field sensitivities on the child node based on its ancestors.
              *
              * @param aField Field pointer, referenced during call from field class
              * @return Field sensitivities
@@ -62,7 +63,7 @@ namespace moris
             virtual const Matrix<DDRMat>& join_field_sensitivities(Field* aField);
 
             /**
-             * Joins the depending ADV IDs on the child node based on its parents.
+             * Joins the depending ADV IDs on the child node based on its ancestors.
              *
              * @param aField Field pointer, referenced during call from field class
              * @return Field ADV IDs

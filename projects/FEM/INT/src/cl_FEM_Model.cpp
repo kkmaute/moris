@@ -300,7 +300,7 @@ namespace moris
             }
 
             // print output
-            MORIS_LOG_SPEC("IG nodes",tNumIGNodes);
+            MORIS_LOG_SPEC("IG nodes",sum_all(tNumIGNodes));
         }
 
         //------------------------------------------------------------------------------
@@ -728,6 +728,13 @@ namespace moris
                 delete tIPNodes;
             }
             mIPNodes.clear();
+
+            // delete fem nodes
+            for( auto tIGNodes : mIGNodes )
+            {
+                delete tIGNodes;
+            }
+            mIGNodes.clear();
 
             // delete the fem sets
             for( auto tFemSet : mFemSets )

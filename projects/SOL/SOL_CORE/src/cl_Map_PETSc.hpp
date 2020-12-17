@@ -72,8 +72,9 @@ public:
     // ---------------------------------------------------------------------------------------------------------------
 
     virtual void translate_ids_to_free_point_ids(
-            const moris::Matrix< IdMat > & tIdsIn,
-                  moris::Matrix< IdMat > & tIdsOut )
+            const moris::Matrix< IdMat > & aIdsIn,
+            moris::Matrix< IdMat >       & aIdsOut,
+            const bool                   & aIsBuildGraph = true )
     {
         MORIS_ERROR( false, "not implemented for petsc yet");
     };

@@ -27,24 +27,43 @@ namespace moris
 
                 moris::mtk::Mesh*               mMesh;
 
+                // name maps
+                moris::map<std::string, int>    mBlockNamesMap;
+                moris::map<std::string, int>    mNodalFieldNamesMap;
+                moris::map<std::string, int>    mElementalFieldNamesMap;
+                moris::map<std::string, int>    mGlobalVariableNamesMap;
+
                 // indices of non-empty sets across all procs
                 moris::Cell<uint>               mElementBlockIndices;
                 moris::Cell<uint>               mSideSetIndices;
                 moris::Cell<uint>               mNodeSetIndices;
 
-                moris::uint                     mNumNodes;
-                moris::uint                     mNumElements;
-
-                std::string                     mTempFileName;
-
-                moris::uint                     mTimeStep = 0;
-
+                // map mtk element indices to exodus element indices
                 moris::Matrix<moris::IndexMat>  mMtkExodusElementIndexMap;
 
-                moris::map<std::string, int>    mBlockNamesMap;
-                moris::map<std::string, int>    mNodalFieldNamesMap;
-                moris::map<std::string, int>    mElementalFieldNamesMap;
-                moris::map<std::string, int>    mGlobalVariableNamesMap;
+                // map exodus element indices to position in exodus file
+                moris::Matrix<moris::IndexMat>  mExodusElementIndexOrderMap;
+
+                // name of temporary file
+                std::string                     mTempFileName;
+
+                // time step used for writing exodus data
+                moris::uint                     mTimeStep = 0;
+
+                // number of nodes (same in MTK and exodus mesh)
+                moris::uint                     mNumNodes;
+
+                // number of elements in MTK mesh
+                moris::uint                     mNumMtkElements;
+
+                // number of unique elements in exodus mesh
+                moris::uint                     mNumUniqueExodusElements;
+
+                // number of total elements in exodus mesh
+                moris::uint                     mNumTotalExodusElements;
+
+                // flag for using MTK node and element ID maps versus ad-hod maps
+                bool                            mMtkIndexMap = true;
 
             public:
                 /**

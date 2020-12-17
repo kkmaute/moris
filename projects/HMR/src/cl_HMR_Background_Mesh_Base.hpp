@@ -392,9 +392,9 @@ namespace moris
                  *
                  */
                 Matrix< DDLUMat > get_subdomain_ids_of_coarsest_aura( const uint & aNeighborProc ) const
-                {
+                        {
                     return mCoarsestAura( aNeighborProc );
-                }
+                        }
 
                 //--------------------------------------------------------------------------------
                 /**
@@ -408,9 +408,9 @@ namespace moris
                  *
                  */
                 Matrix< DDLUMat > get_subdomain_ids_of_coarsest_inverse_aura( const uint & aNeighborProc ) const
-                {
+                        {
                     return mCoarsestInverseAura( aNeighborProc );
-                }
+                        }
                 //--------------------------------------------------------------------------------
 
                 /**
@@ -608,10 +608,10 @@ namespace moris
                  * @return Matrix< DDUMat >
                  */
                 const Matrix< DDUMat > & get_proc_coords() const
-                {
+                        {
 
                     return mMyProcCoords;
-                }
+                        }
                 //--------------------------------------------------------------------------------
 
                 /**
@@ -620,9 +620,9 @@ namespace moris
                  * @return Matrix< DDUMat >
                  */
                 const Matrix< DDUMat > & get_proc_dims() const
-                {
+                        {
                     return mProcDims;
-                }
+                        }
 
                 //--------------------------------------------------------------------------------
 
@@ -651,9 +651,9 @@ namespace moris
                  * @return uint   max level of mesh on local proc
                  */
                 auto get_max_level() const -> decltype( mMaxLevel )
-                    {
+                        {
                     return mMaxLevel;
-                    }
+                        }
 
                 //--------------------------------------------------------------------------------
 
@@ -666,7 +666,8 @@ namespace moris
                  *
                  * @return       void
                  */
-                void collect_elements_on_level_including_aura( const uint                             & aLevel,
+                void collect_elements_on_level_including_aura(
+                        const uint                       & aLevel,
                         Cell< Background_Element_Base* > & aElementList );
 
                 //--------------------------------------------------------------------------------
@@ -680,7 +681,8 @@ namespace moris
                  *
                  * @return       void
                  */
-                void collect_elements_on_level_within_proc_domain( const uint                             & aLevel,
+                void collect_elements_on_level_within_proc_domain(
+                        const uint                       & aLevel,
                         Cell< Background_Element_Base* > & aElementList );
 
                 //--------------------------------------------------------------------------------
@@ -696,8 +698,9 @@ namespace moris
                  *
                  *  @param[out]  aElementList     cell with element pointers on aura
                  */
-                void collect_active_elements_from_aura( const uint                             & aProcNeighbor,
-                        const uint                             & aMode,
+                void collect_active_elements_from_aura(
+                        const uint                       & aProcNeighbor,
+                        const uint                       & aMode,
                         Cell< Background_Element_Base* > & aElementList );
 
                 //--------------------------------------------------------------------------------
@@ -720,9 +723,9 @@ namespace moris
                  * @return Matrix< DDUMat >
                  */
                 const Matrix< IdMat > & get_proc_neigbors() const
-                {
+                        {
                     return mMyProcNeighbors;
-                }
+                        }
 
                 //--------------------------------------------------------------------------------
 
@@ -733,8 +736,9 @@ namespace moris
                  * @param[out]  aNodeCoords Matrix containing the node coordinates
                  *                          ( 3 x 2^n )
                  */
-                virtual void calc_corner_nodes_of_element( const Background_Element_Base * aElement,
-                        Matrix< DDRMat >        & aNodeCoords ) = 0;
+                virtual void calc_corner_nodes_of_element(
+                        const Background_Element_Base * aElement,
+                        Matrix< DDRMat >              & aNodeCoords ) = 0;
 
                 //--------------------------------------------------------------------------------
 
@@ -745,8 +749,9 @@ namespace moris
                  * @param[out]  aNodeCoords Matrix containing the node coordinates
                  *                          ( 3 x 1 )
                  */
-                virtual void calc_center_of_element( const Background_Element_Base * aElement,
-                        Matrix< DDRMat >        & aNodeCoords ) = 0;
+                virtual void calc_center_of_element(
+                        const Background_Element_Base * aElement,
+                        Matrix< DDRMat >              & aNodeCoords ) = 0;
 
                 //--------------------------------------------------------------------------------
 
@@ -768,9 +773,10 @@ namespace moris
                     const luint       & aAncestorID
                     const Matrix< DDUMat > & aPedigreeList,
                     luint             & aCounter ); */
-                Background_Element_Base * decode_pedigree_path( const luint            & aAncestorID,
+                Background_Element_Base * decode_pedigree_path(
+                        const luint            & aAncestorID,
                         const Matrix< DDUMat > & aPedigreeList,
-                        luint            & aCounter );
+                        luint                  & aCounter );
 
                 //--------------------------------------------------------------------------------
 
@@ -987,9 +993,9 @@ namespace moris
                  * exposes the refinement queue
                  */
                 Cell< Background_Element_Base *  > & get_refinement_queue()
-                    {
+                        {
                     return mRefinementQueue;
-                    }
+                        }
 
                 //------------------------------------------------------------------------------
 

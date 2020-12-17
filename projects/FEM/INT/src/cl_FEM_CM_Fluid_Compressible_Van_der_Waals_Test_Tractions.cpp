@@ -9,6 +9,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
+#include "fn_dot.hpp"
 #include "op_minus.hpp"
 
 namespace moris
@@ -82,7 +83,15 @@ namespace moris
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
-            MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::eval_mechanical_testTraction - not implemented, yet." );
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // test traction is transpose of the traction dof derivative
+            mMechanicalTestTraction( tTestDofIndex ) = tFlatNormal * this->dFluxdDOF( aTestDofTypes, CM_Function_Type::MECHANICAL );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -226,7 +235,290 @@ namespace moris
                 const Matrix< DDRMat >             & aJump,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
-            MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::eval_mechanical_dTestTractiondDOF - not implemented, yet." );
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // initialize the dTestTractiondDof
+            mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size(
+                    mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the viscosity
+            const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
+            const std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+            real tCapillarityCoefficient = tPropCapillarityCoefficient->val()( 0 );
+            real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
+            real tFirstVdWconstant = get_property( "FirstVdWconstant" )->val()( 0 );
+            real tSecondVdWconstant = get_property( "SecondVdWconstant" )->val()( 0 );
+
+            // get FIs
+            Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
+            //Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            //-------------------------------------------------------------------------------
+            // RIGHT DOF: Density
+            if( aDofTypes( 0 ) == mDofDensity)
+            {
+                // LEFT DOF: Density
+                if ( aTestDofTypes( 0 ) == mDofDensity )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    real tFraction = 2.0 * std::pow( tSecondVdWconstant, 2.0 ) * tSpecificGasConstant * tFITemp->val()( 0 ) /
+                            std::pow( tSecondVdWconstant - tFIDensity->val()( 0 ), 3.0 );
+
+                    mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) -=
+                            tFIDensity->N_trans() *
+                            dot( aJump, aNormal ) * ( tFraction - 2.0 * tFirstVdWconstant ) *
+                            tFIDensity->N();
+
+                    // Korteweg stress
+                    mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                            tCapillarityCoefficient * dot( aJump, aNormal ) * (
+                                    trans( tFIDensity->dnNdxn( 1 ) ) * tFIDensity->dnNdxn( 1 ) +
+                                    trans( this->laplaceDensityDof() ) * tFIDensity->N() +
+                                    tFIDensity->N_trans() * this->laplaceDensityDof() )  -
+                                    trans( tFIDensity->dnNdxn( 1 ) ) *
+                                    tCapillarityCoefficient * ( aNormal * trans( aJump ) + aJump * trans( aNormal ) ) *
+                                    tFIDensity->dnNdxn( 1 ) ;
+
+                    // indirect contribution
+                    if( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
+                    {
+                        // compute density derivative of korteweg stress
+                        Matrix<DDRMat> tdKortewegStressdDensity =
+                                tCapillarityCoefficient * mFlatIdentity * tFIDensity->val() * this->laplaceDensityDof() +
+                                tCapillarityCoefficient * mFlatIdentity * this->laplaceDensity() * tFIDensity->N() +
+                                tCapillarityCoefficient * mFlatIdentity * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->dnNdxn( 1 ) +
+                                ( -1.0 ) * tCapillarityCoefficient * this->densityStrainDof() +
+                                mFlatIdentity  * ( tFIDensity->val()( 0 ) * this->laplaceDensity() +
+                                        0.5 * ( trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) ) *
+                                tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) -
+                                this->densityStrain() * tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) ;
+
+                        // add contribution
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tPropDynamicViscosity->dPropdDOF( aTestDofTypes ) ) *
+                                ( 1 / tCapillarityCoefficient ) * trans( aJump ) * tFlatNormal *
+                                tdKortewegStressdDensity;
+                    }
+                }
+
+                // LEFT DOF: Velocity
+                if ( aTestDofTypes( 0 ) == mDofVelocity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                                2.0 * aJump *
+                                tPropDynamicViscosity->dPropdDOF( aDofTypes );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+
+                    // Korteweg stress
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Temperature
+                if ( aTestDofTypes( 0 ) == mDofTemperature )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    real tFraction = std::pow( tSecondVdWconstant, 2.0 ) * tSpecificGasConstant /
+                            std::pow( tSecondVdWconstant - tFIDensity->val()( 0 ), 2.0 );
+
+                    mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) -=
+                            tFITemp->N_trans() *
+                            tFraction * dot( aJump, aNormal ) *
+                            tFIDensity->N();
+
+                    // Korteweg stress
+                    if( tPropCapillarityCoefficient->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        // compute density derivative of korteweg stress
+                        Matrix<DDRMat> tdKortewegStressdDensity =
+                                tCapillarityCoefficient * mFlatIdentity * tFIDensity->val() * this->laplaceDensityDof() +
+                                tCapillarityCoefficient * mFlatIdentity * this->laplaceDensity() * tFIDensity->N() +
+                                tCapillarityCoefficient * mFlatIdentity * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->dnNdxn( 1 ) +
+                                ( -1.0 ) * tCapillarityCoefficient * this->densityStrainDof() ;
+
+                        if( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
+                        {
+                            tdKortewegStressdDensity +=
+                                    mFlatIdentity  * ( tFIDensity->val()( 0 ) * this->laplaceDensity() +
+                                            0.5 * ( trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) ) *
+                                            tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) -
+                                            this->densityStrain() * tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) ;
+                        }
+
+                        // add contribution
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tPropDynamicViscosity->dPropdDOF( aTestDofTypes ) ) *
+                                ( 1 / tCapillarityCoefficient ) * trans( aJump ) * tFlatNormal *
+                                tdKortewegStressdDensity;
+                    }
+                }
+            }
+
+            //-------------------------------------------------------------------------------
+            // RIGHT DOF: Velocity
+            if( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // LEFT DOF: Density
+                if ( aTestDofTypes( 0 ) == mDofDensity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tPropDynamicViscosity->dPropdDOF( aTestDofTypes ) ) *
+                                2.0 * trans( aJump ) *
+                                tFlatNormal * this->dStraindDOF( aDofTypes );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+
+                    // Korteweg stress
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Velocity
+                if ( aTestDofTypes( 0 ) == mDofVelocity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                                2.0 * aJump *
+                                tFlatNormal * this->dStraindDOF( aDofTypes ) +
+                                trans( tPropDynamicViscosity->dPropdDOF( aTestDofTypes ) ) *
+                                2.0 * trans( aJump ) *
+                                tFlatNormal * this->dStraindDOF( aDofTypes );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+
+                    // Korteweg stress
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Temperature
+                if ( aTestDofTypes( 0 ) == mDofTemperature )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tPropDynamicViscosity->dPropdDOF( tTestDofIndex ) ) *
+                                2.0 * trans( aJump ) *
+                                tFlatNormal * this->dStraindDOF( tDofIndex );
+                    }
+
+                    // Pressure
+                    // NOTHING!
+
+                    // Korteweg stress
+                    // NOTHING!
+                }
+            }
+
+            //-------------------------------------------------------------------------------
+            // RIGHT DOF: Temperature
+            if( aDofTypes( 0 ) == mDofTemperature )
+            {
+                // LEFT DOF: Density
+                if ( aTestDofTypes( 0 ) == mDofDensity )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    real tFraction = std::pow( tSecondVdWconstant, 2.0 ) * tSpecificGasConstant /
+                            std::pow( tSecondVdWconstant - tFIDensity->val()( 0 ), 2.0 );
+
+                    mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) -=
+                            tFIDensity->N_trans() *
+                            tFraction * dot( aJump, aNormal ) *
+                            tFITemp->N();
+
+                    // Korteweg stress
+                    if( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
+                    {
+                        // compute density derivative of korteweg stress
+                        Matrix<DDRMat> tdKortewegStressdDensity =
+                                tCapillarityCoefficient * mFlatIdentity * tFIDensity->val() * this->laplaceDensityDof() +
+                                tCapillarityCoefficient * mFlatIdentity * this->laplaceDensity() * tFIDensity->N() +
+                                tCapillarityCoefficient * mFlatIdentity * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->dnNdxn( 1 ) +
+                                ( -1.0 ) * tCapillarityCoefficient * this->densityStrainDof() ;
+
+                        if( tPropCapillarityCoefficient->check_dof_dependency( aTestDofTypes ) )
+                        {
+                            tdKortewegStressdDensity +=
+                                    mFlatIdentity  * ( tFIDensity->val()( 0 ) * this->laplaceDensity() +
+                                            0.5 * ( trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) ) *
+                                            tPropCapillarityCoefficient->dPropdDOF( aTestDofTypes ) -
+                                            this->densityStrain() * tPropCapillarityCoefficient->dPropdDOF( aTestDofTypes ) ;
+                        }
+
+                        // add contribution
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                                trans( tdKortewegStressdDensity ) *
+                                trans( tFlatNormal ) * aJump * ( 1 / tCapillarityCoefficient ) *
+                                tPropDynamicViscosity->dPropdDOF( aDofTypes );
+                    }
+                }
+
+                // LEFT DOF: Velocity
+                if ( aTestDofTypes( 0 ) == mDofVelocity )
+                {
+                    // Viscous stress
+                    if( tPropDynamicViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        mdMechanicalTestTractiondDof( tTestDofIndex )( tDofIndex ) =
+                                trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                                2.0 * aJump *
+                                tPropDynamicViscosity->dPropdDOF( tTestDofIndex );
+                    }
+
+                    // Pressure
+                    // nothing for now
+
+                    // Korteweg stress
+                    // NOTHING!
+                }
+
+                // LEFT DOF: Temperature
+                if ( aTestDofTypes( 0 ) == mDofTemperature )
+                {
+                    // Viscous stress
+                    // NOTHING!
+
+                    // Pressure
+                    // nothing for now
+
+                    // Korteweg stress
+                    // NOTHING!
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

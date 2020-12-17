@@ -195,6 +195,10 @@ namespace moris
         // get multigrid parameter
         this->set_number_aura( aParameterList.get< sint >("use_number_aura") == 1 );
 
+        this->set_write_background_mesh( aParameterList.get< std::string >("write_background_mesh") );
+
+        this->set_write_output_lagrange_mesh( aParameterList.get< std::string >("write_lagrange_output_mesh") );
+
         // get user-defined refinement functions
         Cell<std::string> tFunctionNames = string_to_cell<std::string>(aParameterList.get<std::string>("refinement_function_names"));
         MORIS_ERROR((aLibrary != nullptr) or (tFunctionNames.size() == 0),

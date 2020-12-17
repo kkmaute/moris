@@ -16,6 +16,7 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
+                  Geometry(aGeometry->get_intersection_interpolation()),
                   Field_Discrete_Integration(aMesh->get_num_nodes()),
                   mGeometry(aGeometry),
                   mMesh(aMesh),

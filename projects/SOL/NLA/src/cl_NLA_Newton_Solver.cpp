@@ -33,7 +33,7 @@ using namespace dla;
 
 Newton_Solver::Newton_Solver()
 {
-    mLinSolverManager = new dla::Linear_Solver();
+    //mLinSolverManager = new dla::Linear_Solver();
 
     // Set default parameters in parameter list for nonlinear solver
     this->set_nonlinear_solver_parameters();

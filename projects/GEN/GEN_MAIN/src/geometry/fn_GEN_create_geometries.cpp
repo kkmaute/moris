@@ -34,6 +34,10 @@ namespace moris
             {
                 // Create geometry
                 std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary);
+                if (aGeometryParameterLists(tGeometryIndex).get<bool>("multilinear_intersections"))
+                {
+                    tGeometry->set_intersection_interpolation("multilinear");
+                }
 
                 // Determine if to add to multigeometry
                 bool tMultigeometryFound = false;
@@ -114,6 +118,10 @@ namespace moris
             {
                 // Create geometry
                 std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aOwnedADVs, aLibrary);
+                if (aGeometryParameterLists(tGeometryIndex).get<bool>("multilinear_intersections"))
+                {
+                    tGeometry->set_intersection_interpolation("multilinear");
+                }
 
                 // Determine if to add to multigeometry
                 bool tMultigeometryFound = false;
