@@ -20,7 +20,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     // Dummy user-defined functions
-    uint user_defined_phase_function(const Bitset<512>& aGeometrySigns);
+    uint user_defined_phase_function(const ge::Geometry_Bitset& aGeometrySigns);
 
     real user_defined_geometry_field(const Matrix<DDRMat>& aCoordinates,
                                      const Cell<real*>&    aParameters);
@@ -73,14 +73,14 @@ namespace moris
             CHECK(tPhaseTable.get_num_phases() == 8);
 
             // Check individual phases
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(0)) == 0);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(4)) == 1);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(2)) == 2);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(6)) == 3);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(1)) == 4);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(5)) == 5);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(3)) == 6);
-            CHECK(tPhaseTable.get_phase_index(Bitset<512>(7)) == 7);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(0)) == 0);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(4)) == 1);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(2)) == 2);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(6)) == 3);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(1)) == 4);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(5)) == 5);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(3)) == 6);
+            CHECK(tPhaseTable.get_phase_index(Geometry_Bitset(7)) == 7);
 
             // Create phase custom phase table
             Phase_Table tPhaseTableCustom(3, Matrix<DDUMat>({{3, 2, 1, 0, 0, 1, 2, 3}}));
@@ -89,14 +89,14 @@ namespace moris
             CHECK(tPhaseTableCustom.get_num_phases() == 4);
 
             // Check individual phases
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(0)) == 3);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(4)) == 2);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(2)) == 1);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(6)) == 0);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(1)) == 0);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(5)) == 1);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(3)) == 2);
-            CHECK(tPhaseTableCustom.get_phase_index(Bitset<512>(7)) == 3);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(0)) == 3);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(4)) == 2);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(2)) == 1);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(6)) == 0);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(1)) == 0);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(5)) == 1);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(3)) == 2);
+            CHECK(tPhaseTableCustom.get_phase_index(Geometry_Bitset(7)) == 3);
 
             // Create phase custom phase table
             Phase_Table tPhaseTableFunction(&user_defined_phase_function, 4);
@@ -105,14 +105,14 @@ namespace moris
             CHECK(tPhaseTableFunction.get_num_phases() == 4);
 
             // Check individual phases
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(0)) == 3);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(4)) == 2);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(2)) == 1);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(6)) == 2);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(1)) == 0);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(5)) == 2);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(3)) == 1);
-            CHECK(tPhaseTableFunction.get_phase_index(Bitset<512>(7)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(0)) == 3);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(4)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(2)) == 1);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(6)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(1)) == 0);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(5)) == 2);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(3)) == 1);
+            CHECK(tPhaseTableFunction.get_phase_index(Geometry_Bitset(7)) == 2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -850,7 +850,7 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    uint user_defined_phase_function(const Bitset<512>& aGeometrySigns)
+    uint user_defined_phase_function(const ge::Geometry_Bitset& aGeometrySigns)
     {
         uint tPhaseIndex = 3;
         for (uint tGeometryIndex = 0; tGeometryIndex < 8; tGeometryIndex++)

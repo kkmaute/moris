@@ -5,7 +5,7 @@
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Bitset.hpp"
+#include "GEN_typedefs.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"
@@ -173,7 +173,7 @@ extern "C"
             return true;
         }
 
-        uint get_phase_index( const Bitset<512>& aGeometrySigns )
+        uint get_phase_index( const moris::ge::Geometry_Bitset& aGeometrySigns )
         {
             uint tPhaseIndex = 0;
 

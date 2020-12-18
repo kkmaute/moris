@@ -21,6 +21,7 @@
 #include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Param_List.hpp"
+#include "GEN_typedefs.hpp"
 
 namespace moris
 {
@@ -63,7 +64,7 @@ namespace moris
 
     typedef void ( *MORIS_PARAMETER_FUNCTION ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
-    typedef uint ( *MORIS_GEN_PHASE_FUNCTION )( const Bitset<512>& aGeometrySigns );
+    typedef uint ( *MORIS_GEN_PHASE_FUNCTION )( const ge::Geometry_Bitset& aGeometrySigns );
 
     typedef real ( *MORIS_GEN_FIELD_FUNCTION ) (
             const moris::Matrix< DDRMat >     & aCoordinates,

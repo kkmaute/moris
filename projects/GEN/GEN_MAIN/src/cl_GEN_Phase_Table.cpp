@@ -65,7 +65,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Phase_Table::get_phase_index(const Bitset<512>& aGeometrySigns)
+        uint Phase_Table::get_phase_index(const Geometry_Bitset& aGeometrySigns)
         {
             if (mPhaseFunction)
             {
@@ -121,7 +121,7 @@ namespace moris
                         << std::setw(8) << mPhaseNames(mBulkPhases(tPhaseEntry)).substr(0, 8) << " | ";
 
                 // Geometry signs (reversed)
-                Bitset<512> tGeometrySigns(tPhaseEntry);
+                Geometry_Bitset tGeometrySigns(tPhaseEntry);
 
                 // Print geometry signs
                 for (uint tGeometryIndex = mNumGeometries; tGeometryIndex-- > 0;)

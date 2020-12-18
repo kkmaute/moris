@@ -1,10 +1,10 @@
 // MRS
 #include "fn_Parsing_Tools.hpp"
-#include "cl_Bitset.hpp"
 #include "cl_Tracer.hpp"
 
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
+#include "GEN_typedefs.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "cl_GEN_Level_Set.hpp"
 #include "cl_GEN_Stored_Geometry.hpp"
@@ -93,6 +93,9 @@ namespace moris
                     aParameterLists(1),
                     mADVs,
                     mLibrary);
+
+            MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
+                    "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
 
             // Properties
             mProperties = create_properties(
@@ -533,7 +536,7 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates)
         {
             // Initialize bitset of geometry signs
-            Bitset<512> tGeometrySigns(0);
+            Geometry_Bitset tGeometrySigns(0);
 
             // Flip bits as needed
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
@@ -550,7 +553,7 @@ namespace moris
         moris_index Geometry_Engine::get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff)
         {
             // FIXME
-            Bitset<512> tGeometrySigns(0);
+            Geometry_Bitset tGeometrySigns(0);
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 tGeometrySigns.set(tGeometryIndex, aElemOnOff(tGeometryIndex));

@@ -2,7 +2,7 @@
 #define MORIS_CL_GEN_PHASE_TABLE_HPP_
 
 #include "cl_Matrix.hpp"
-#include "cl_Bitset.hpp"
+#include "GEN_typedefs.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
 namespace moris
@@ -70,7 +70,7 @@ namespace moris
                  * @param aGeometrySigns Geometry sign info
                  * @return Phase index
                  */
-                uint get_phase_index(const Bitset<512>& aGeometrySigns);
+                uint get_phase_index(const Geometry_Bitset& aGeometrySigns);
 
                 /**
                  * Gets the name of a requested phase

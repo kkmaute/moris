@@ -7,6 +7,7 @@ set(${GEN_CORE}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
         cl_GEN_Pdv_Enums.hpp
+		GEN_typedefs.hpp
  )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
