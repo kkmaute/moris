@@ -692,7 +692,7 @@ namespace moris
             Matrix<IdMat> tNodeMap(mNumNodes, 1, 0);
 
             // when using ad-hoc index map, get processor offset and add 1 as exodus used 1 based indices
-            uint tProcOffset;
+            uint tProcOffset = 1;
             if ( ! mMtkIndexMap )
             {
                 tProcOffset = get_processor_offset(mNumNodes) + 1;
