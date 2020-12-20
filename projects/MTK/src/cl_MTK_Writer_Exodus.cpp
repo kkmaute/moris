@@ -611,6 +611,12 @@ namespace moris
                     mSideSetIndices.push_back(tSideSetIndex);
                 }
             }
+
+            // resize to EXODUS_MAX_NUM_SIDESET
+            if ( mSideSetIndices.size() > EXODUS_MAX_NUM_SIDESET)
+            {
+                mSideSetIndices.resize(EXODUS_MAX_NUM_SIDESET);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -692,7 +698,7 @@ namespace moris
             Matrix<IdMat> tNodeMap(mNumNodes, 1, 0);
 
             // when using ad-hoc index map, get processor offset and add 1 as exodus used 1 based indices
-            uint tProcOffset;
+            uint tProcOffset = 0;
             if ( ! mMtkIndexMap )
             {
                 tProcOffset = get_processor_offset(mNumNodes) + 1;
