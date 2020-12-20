@@ -218,7 +218,7 @@ void Map_Epetra::translate_ids_to_free_point_ids(
         // Get local index
         moris_index tLocalIndex = mFullOverlappigMap->LID( aIdsIn( Ik ) );
 
-        MORIS_ASSERT( mFullToFreePoint->MyLength () > tLocalIndex,
+        MORIS_ASSERT( tLocalIndex >= 0 && mFullToFreePoint->MyLength () > tLocalIndex,
                 "Map_Epetra::translate_ids_to_free_point_ids(), tLocalIndex out of bounds.\n");
 
         moris::real tIdOut = mFullToFreePoint->Values()[ tLocalIndex ];
