@@ -320,15 +320,90 @@ message(STATUS "MORIS recognized the C++ compiler type MORIS_CXX_COMPILER=${MORI
 # Check for compiler flags.
 include(CheckCXXCompilerFlag)
 
+# Allow for mutliple defintions for the same routine
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
+# set libaries to be linked for all targets
+# note: should be done similar to find_modules find_library
+
+# generate search path from LD_LIBRARY_PATH
+string(REPLACE ":" ";" LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}")
+list(REMOVE_DUPLICATES LIB_SEARCH_PATH)
+message(STATUS "Library search path: ${LIB_SEARCH_PATH}")
+
 if (MORIS_USE_TACC)
-    # openmp should be taken out when we can figure this out
-    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt  -lgfortran -lrt -ldl -lssl -lcrypto")
-#     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
-else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto -lz -lsz")
-endif()
+   find_library(MORIS_LIB_Ifcore NAMES ifcore HINTS ${LIB_SEARCH_PATH})
+   message(STATUS "MORIS_LIB_Ifcore = ${MORIS_LIB_Ifcore}")
+   link_libraries(${MORIS_LIB_Ifcore})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ifcore})
+   
+   find_library(MORIS_LIB_Ifcoremt NAMES ifcoremt HINTS ${LIB_SEARCH_PATH})
+   message(STATUS "MORIS_LIB_Ifcoremt = ${MORIS_LIB_Ifcoremt}")
+   link_libraries(${MORIS_LIB_Ifcoremt})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ifcoremt})
+   
+   find_library(MORIS_LIB_GFortran NAMES libgfortran.so.3 HINTS ${LIB_SEARCH_PATH})
+   message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
+   link_libraries(${MORIS_LIB_GFortran})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_GFortran})
+
+   find_library(MORIS_LIB_Rt NAMES rt HINTS ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Rt = ${MORIS_LIB_Rt}")
+   link_libraries(${MORIS_LIB_Rt})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Rt})
+    
+   find_library(MORIS_LIB_Dl NAMES dl HINTS ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Dl = ${MORIS_LIB_Dl}")
+   link_libraries(${MORIS_LIB_Dl})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Dl})
+
+   find_library(MORIS_LIB_Ssl NAMES ssl HINTS ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Ssl = ${MORIS_LIB_Ssl}")
+   link_libraries(${MORIS_LIB_Ssl})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ssl})
+
+   find_library(MORIS_LIB_Crypto NAMES crypto HINTS ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Crypto = ${MORIS_LIB_Crypto}")
+   link_libraries(${MORIS_LIB_Crypto})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Crypto})
+   
+else(MORIS_USE_TACC)
+   
+   find_library(MORIS_LIB_Mpi NAMES mpi_mpifh HINTS ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Mpi = ${MORIS_LIB_Mpi}")
+   link_libraries(${MORIS_LIB_Mpi})
+   #list(APPEND MORIS_BASE_LIBS "${MORIS_LIB_Mpi}")
+   
+   find_library(MORIS_LIB_GFortran NAMES libgfortran.so.4 HINTS${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
+   link_libraries(${MORIS_LIB_GFortran})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_GFortran})
+
+   find_library(MORIS_LIB_Dl NAMES dl HINTS  ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Dl = ${MORIS_LIB_Dl}")
+   link_libraries(${MORIS_LIB_Dl})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Dl})
+
+   find_library(MORIS_LIB_Ssl NAMES ssl HINTS  ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Ssl = ${MORIS_LIB_Ssl}")
+   link_libraries(${MORIS_LIB_Ssl})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ssl})
+
+   find_library(MORIS_Lib_Crypto NAMES crypto HINTS${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_Lib_Crypto = ${MORIS_Lib_Crypto}")
+   link_libraries(${MORIS_Lib_Crypto})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_Lib_Crypto})
+
+   find_library(MORIS_LIB_Z NAMES z HINTS  ${LIB_SEARCH_PATH} )
+   message(STATUS "MORIS_LIB_Z = ${MORIS_LIB_Z}")
+   link_libraries(${MORIS_LIB_Z})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Z})
+
+   find_library(MORIS_LIB_Sz NAMES sz HINTS  ${LIB_SEARCH_PATH})
+   message(STATUS "MORIS_LIB_Sz = ${MORIS_LIB_Sz}")
+   link_libraries(${MORIS_LIB_Sz})
+   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Sz})
+endif(MORIS_USE_TACC)
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
 
@@ -487,10 +562,27 @@ find_package(Threads)
 # GPERFTOOLS : Make sure that paths are set correctly.
 # -------------------------------------------------------------------------
 option(MORIS_USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
-if (USE_GPERFTOOLS)
+
+if (MORIS_USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/usr/include/gperftools/ -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free" )
 
-    list(APPEND MORIS_BASE_LIBS "-Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
+    link_libraries("-Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc")
+endif()
+
+# -------------------------------------------------------------------------
+# MEMKIND : for memory profiling.
+# -------------------------------------------------------------------------
+option(MORIS_USE_MEMORY_DEBUG "Use memkind library for memory debugging)." OFF)
+
+if (MORIS_USE_MEMORY_DEBUG)
+    find_library(MORIS_LIB_MemKind NAMES memkind  HINTS /usr/lib64)
+    if ( NOT MORIS_LIB_MemKind )
+        message( FATAL_ERROR "memkind lib not found - do not use MORIS_USE_MEMORY_DEBUG}")
+    endif()
+
+    message(STATUS "MORIS_LIB_MemKind = ${MORIS_LIB_MemKind}")
+    link_libraries(${MORIS_LIB_MemKind})
+    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_MemKind})
 endif()
 
 # -------------------------------------------------------------------------
@@ -501,8 +593,6 @@ if (USE_SACADO)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/mpl" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/parameter" )
-    #list(APPEND MORIS_BASE_LIBS "-L$.../lib64/" )
-
 endif() #> clean this up eventually
 
 # -------------------------------------------------------------------------

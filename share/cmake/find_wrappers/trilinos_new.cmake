@@ -14,6 +14,7 @@
 
 
 if(NOT TRILINOS_FOUND_ONCE) 
+    include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 # - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - -
     set(TRILINOS_FILE "TrilinosConfig.cmake")
 

@@ -8,7 +8,8 @@ set(${COM}_VERSION ${MORIS_VERSION})
 set(HEADERS
     cl_Communication_Enums.hpp
     cl_Communication_Manager.hpp
-    cl_Communication_Tools.hpp )
+    cl_Communication_Tools.hpp
+    cl_MPI_Tools.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Communications Library

@@ -308,19 +308,7 @@ namespace xtk
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
             Tracer tTracer( "XTK", "Overall", "Visualize" );
-
-            if (mParameterList.get<bool>("deactivate_empty_sets"))
-            {
-                tEnrIntegMesh.deactivate_empty_sets();
-            }
-
-            // Write mesh
-            moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
-            writer.write_mesh("", "./xtk_temp.exo", "", "./xtk_temp2.exo");
-
-            // Write the fields
-            writer.set_time(0.0);
-            writer.close_file();
+            tEnrIntegMesh.write_mesh(&mParameterList);
         }
         
         // print the memory usage of XTK
@@ -1286,6 +1274,7 @@ namespace xtk
         MORIS_ASSERT(aFirstSubdivision, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be the first subdivision routine for each geometry.");
         MORIS_ASSERT(mModelDimension == 2, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be done on a 2D mesh.");
 
+        
         // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones don't
         moris::Matrix< moris::IndexMat > tNewPairBool;
         run_first_cut_routine(aGeomIndex, aActiveChildMeshIndices, tNewPairBool);
@@ -2538,6 +2527,7 @@ namespace xtk
         Matrix<IndexMat> tIntersectedElementIndices(0, 0);
         Cell<std::pair<moris::moris_index, moris::moris_index>> tNewChildElementPair(0);
         Matrix<IndexMat> tElementNodeIndices(tNumElements, tNumNodesPerElement);
+
 
         // Loop over elements to check for intersections
         for (size_t tParentElementIndex = 0; tParentElementIndex < tNumElements; tParentElementIndex++)

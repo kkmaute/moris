@@ -32,28 +32,10 @@ set(TEST_SOURCES
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
     )
 
-#FIXME: Remove this once xtk has removed subdirectories from its package
-set(XTK_INCLUDES
-    "assert"
-    "containers"
-    "core"
-    "geomeng"
-    "geometry"
-    "ios"
-    "linalg"
-    "mesh"
-    "tools"
-    "topology"
-    "xtk"
-)
-
-# Include depedency directories
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})             
-endforeach()   
 
 # List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_MAIN_INCLUDES                                                                
+set(GEN_MAIN_INCLUDES     
+    "pdv"                                                           
     "additional"
     "geomeng"
     "geometry"

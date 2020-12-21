@@ -233,10 +233,17 @@ operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
     moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
     moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
     moris::Matrix< moris::DDRMat >   const & tBasisWeights = dt.get_basis_weights();
-
+    
+    // base vertex
+    mtk::Vertex_Interpolation const * tBaseVertIp = dt.get_base_vertex_interpolation();
+    moris::Matrix< moris::IndexMat > tBackBasisIndices = tBaseVertIp->get_indices();
     for(moris::uint i = 0; i < tBasisIndices.numel(); i++)
     {
-        os<<"Basis Index: "<<std::setw(9)<<tBasisIndices(i)<<" | Basis Weight: "<<std::setw(9)<<tBasisWeights(i)<<" | Basis Owner: "<<std::setw(9)<<tBasisOwner(i)<<std::endl;
+        os<<"Basis Index: "       <<std::setw(9)<<tBasisIndices(i);
+        os<<" | Basis Weight: "   <<std::setw(9)<<tBasisWeights(i);
+        os<<" | Basis Owner: "    <<std::setw(9)<<tBasisOwner(i);
+        os<<" | Back Basis Index:"<<std::setw(9)<<tBackBasisIndices(i)<<std::endl;
+        os<<std::endl;
     }
 
     return os;

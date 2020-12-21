@@ -16,17 +16,17 @@
 #include "op_minus.hpp"
 #include "fn_print.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Child_Mesh.hpp"
-#include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
-#include "xtk/cl_XTK_Output_Options.hpp"
+#include "cl_XTK_Child_Mesh.hpp"
+#include "cl_XTK_Child_Mesh_Modification_Template.hpp"
+#include "cl_XTK_Output_Options.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_generate_element_to_element.hpp"
-#include "xtk/cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Enrichment.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
-#include "topology/cl_XTK_Hexahedron_8_Topology.hpp"
+#include "cl_XTK_Hexahedron_8_Topology.hpp"
 
 // DEBUGGING UTILITY INCLUDES
-#include "tools/fn_tet_volume.hpp"
+#include "fn_tet_volume.hpp"
 #include "fn_verify_tet_topology.hpp"
 #include "fn_GEN_Triangle_Geometry.hpp"
 

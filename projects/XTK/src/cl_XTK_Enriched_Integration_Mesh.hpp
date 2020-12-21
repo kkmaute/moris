@@ -8,6 +8,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_ENRICHED_INTEGRATION_MESH_HPP_
 
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_Param_List.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -25,6 +26,7 @@ class Cell_Cluster;
 class Side_Cluster;
 class Interpolation_Cell_Unzipped;
 class Ghost_Stabilization;
+class Enrichment;
 
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
@@ -174,6 +176,15 @@ public:
      */
     moris::Cell<std::string>
     create_basis_support_fields();
+
+    //------------------------------------------------------------------------------
+
+    /*!
+     * @brief Write mesh
+     */
+    void
+    write_mesh(moris::ParameterList* aParamList);
+
 
     //------------------------------------------------------------------------------
     // Memory Map
