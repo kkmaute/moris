@@ -387,6 +387,21 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
+                /**
+                 * when creating a 3D mesh with the number_aura_flag = true,
+                 * some few node Ids at a junction of 4 procs and with a rare special refinement around this junction
+                 * some of the node Ids are not communicated to the diagonal processor.
+                 * This function will communicate these few missed node ids.
+                 * This node Ids are node Ids if a a hanging node on the edge of the aura which are missing in the actual aura
+                 * because the aura element misses the refinement.
+                 * The test [Lagrange_Mesh_4_proc_problem] is producing exactly this scenario and shall serve as an example.
+                 *
+                 * @return void
+                 */
+                void communicate_missed_node_indices();
+
+                // ----------------------------------------------------------------------------
+
                 /**!
                  * Calculates symmetric node sharing information. Symmetric in this context
                  * means that all processors know all the processors a node is shared with.
