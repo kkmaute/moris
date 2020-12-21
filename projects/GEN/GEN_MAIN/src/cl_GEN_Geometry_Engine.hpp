@@ -55,6 +55,7 @@ namespace moris
             enum Intersection_Mode mIntersectionMode = Intersection_Mode::LEVEL_SET;
             real mIsocontourThreshold;
             real mIsocontourTolerance;
+            real mIntersectionTolerance;
 
             // Spatial dimensions
             uint mNumSpatialDimensions;
@@ -132,6 +133,7 @@ namespace moris
                     Matrix<DDRMat>                    aADVs = {{}},
                     real                              aIsocontourThreshold = 0.0,
                     real                              aIsocontourTolerance = 0.0,
+                    real                              aIntersectionTolerance = 0.0,
                     Matrix<DDUMat>                    aBulkPhases = {{}});
 
             /**

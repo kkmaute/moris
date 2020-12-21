@@ -340,14 +340,12 @@ TEST_CASE("2D Conformal Coincident Subdivision","[CM_2D_LIN_COIN]")
          // create a plane which intentionally intersects from fine to coarse
          moris::Matrix<moris::DDRMat> tCenters = {{ 0.0,0.0 }};
          moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
+         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
          tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
          tGeometry(1) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
-         tGeometry(2) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(0)); // center horizontal
-         tGeometry(3) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(0)); // center horizontal
 
          size_t tModelDimension = 2;
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpMesh, {{}}, 0.0, 1E-12);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpMesh, {{}}, 0.0, 1E-8);
          Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose  =  true;
 

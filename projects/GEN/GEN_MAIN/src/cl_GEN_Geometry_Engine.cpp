@@ -42,6 +42,7 @@ namespace moris
                 // Level set options
                 mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") ),
                 mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") ),
+                mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") ),
 
                 // Requested IQIs
                 mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) ),
@@ -137,9 +138,11 @@ namespace moris
                 Matrix<DDRMat>                    aADVs,
                 real                              aIsocontourThreshold,
                 real                              aIsocontourTolerance,
+                real                              aIntersectionTolerance,
                 Matrix<DDUMat>                    aBulkPhases)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mIsocontourTolerance(aIsocontourTolerance),
+                  mIntersectionTolerance(aIntersectionTolerance),
                   mADVs(aADVs),
                   mGeometries(aGeometries),
                   mPhaseTable( create_phase_table(aGeometries.size(), aBulkPhases) )
@@ -330,25 +333,72 @@ namespace moris
                 const Matrix<DDUMat>&       aBackgroundElementNodeIndices,
                 const Cell<Matrix<DDRMat>>& aBackgroundElementNodeCoordinates)
         {
-            bool tEdgeIsIntersected = false;
-
+            // Queue an intersection node
             switch (mIntersectionMode)
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
-                    // Determine if edge is intersected
-                    tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeGlobalCoordinates)
-                            * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates) <= 0;
+                    switch (mGeometries(mActiveGeometryIndex)->get_intersection_interpolation())
+                    {
+                        case Intersection_Interpolation::LINEAR:
+                        {
+                            mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
+                                    aFirstNodeIndex,
+                                    aSecondNodeIndex,
+                                    aFirstNodeGlobalCoordinates,
+                                    aSecondNodeGlobalCoordinates,
+                                    mGeometries(mActiveGeometryIndex),
+                                    mIsocontourThreshold,
+                                    mIsocontourTolerance,
+                                    mIntersectionTolerance);
+                            break;
+                        }
+                        case Intersection_Interpolation::MULTILINEAR:
+                        {
+                            if (mNumSpatialDimensions == 2)
+                            {
+                                mQueuedIntersectionNode = std::make_shared<Intersection_Node_Bilinear>(
+                                        aFirstNodeLocalCoordinates,
+                                        aSecondNodeLocalCoordinates,
+                                        aBackgroundElementNodeIndices,
+                                        aBackgroundElementNodeCoordinates,
+                                        mGeometries(mActiveGeometryIndex),
+                                        mIsocontourThreshold,
+                                        mIsocontourTolerance,
+                                        mIntersectionTolerance);
+                            }
+                            else
+                            {
+                                MORIS_ERROR(false, "Only bilinear intersections have been implemented.");
+                            }
 
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "Intersection interpolation type not implemented yet.");
+                        }
+                    }
                     break;
                 }
                 case Intersection_Mode::COLORING:
                 {
                     // Determine if edge is intersected
-                    if( mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeGlobalCoordinates ) !=
-                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates) )
+                    if (mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeGlobalCoordinates ) !=
+                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates))
                     {
-                        tEdgeIsIntersected = true;
+                        mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
+                                aFirstNodeIndex,
+                                aSecondNodeIndex,
+                                aFirstNodeGlobalCoordinates,
+                                aSecondNodeGlobalCoordinates,
+                                mGeometries(mActiveGeometryIndex),
+                                mIsocontourThreshold,
+                                mIsocontourTolerance);
+                    }
+                    else
+                    {
+                        return false;
                     }
 
                     break;
@@ -359,56 +409,7 @@ namespace moris
                 }
             }
 
-            // If edge is intersected, queue intersection node
-            if (tEdgeIsIntersected)
-            {
-                switch (mGeometries(mActiveGeometryIndex)->get_intersection_interpolation())
-                {
-                    case Intersection_Interpolation::LINEAR:
-                    {
-                        mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeGlobalCoordinates,
-                                aSecondNodeGlobalCoordinates,
-                                mGeometries(mActiveGeometryIndex),
-                                mIsocontourThreshold,
-                                mIsocontourTolerance);
-                        break;
-                    }
-                    case Intersection_Interpolation::MULTILINEAR:
-                    {
-                        if (mNumSpatialDimensions == 2)
-                        {
-                            mQueuedIntersectionNode = std::make_shared<Intersection_Node_Bilinear>(
-                                    aFirstNodeIndex,
-                                    aSecondNodeIndex,
-                                    aFirstNodeLocalCoordinates,
-                                    aSecondNodeLocalCoordinates,
-                                    aFirstNodeGlobalCoordinates,
-                                    aSecondNodeGlobalCoordinates,
-                                    aBackgroundElementNodeIndices,
-                                    aBackgroundElementNodeCoordinates,
-                                    mGeometries(mActiveGeometryIndex),
-                                    mIsocontourThreshold,
-                                    mIsocontourTolerance);
-                        }
-                        else
-                        {
-                            MORIS_ERROR(false, "Only bilinear intersections have been implemented.");
-                        }
-
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR(false, "Intersection interpolation type not implemented yet.");
-                    }
-                }
-
-            }
-
-            return tEdgeIsIntersected;
+            return mQueuedIntersectionNode->parent_edge_is_intersected();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -784,7 +785,7 @@ namespace moris
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GeometryEngine", "Levelset", "SetUpGeometries");
+            Tracer tTracer("GEN", "N/A", "Set up parallel ADVs");
 
             // Register spatial dimension
             mNumSpatialDimensions = aMesh->get_spatial_dim();
@@ -1063,7 +1064,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GEN", "Fields", "Output");
+            Tracer tTracer("GEN", "N/A", "Output fields");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);

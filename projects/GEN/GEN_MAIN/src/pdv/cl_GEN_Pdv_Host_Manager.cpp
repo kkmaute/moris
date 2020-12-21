@@ -567,7 +567,7 @@ namespace moris
                     {
                         // Get ancestor sensitivities and ADV IDs
                         tHostADVSensitivities = mIntersectionNodes(tIntersectionIndex)
-                                ->get_ancestor_coordinate_sensitivities(tAncestorIndex);
+                                ->get_dcoordinate_dadv_from_ancestor(tAncestorIndex);
                         tADVIds = mIntersectionNodes(tIntersectionIndex)
                                 ->get_ancestor_coordinate_determining_adv_ids(tAncestorIndex);
 

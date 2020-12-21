@@ -175,7 +175,7 @@ TEST_CASE("Phase Table Scratch","[XTK_PHASE_TABLE]")
             //moris_index tNumBulkPhase = 3;
             Matrix<DDUMat> tGeomIndexToBulkPhase = {{0,0,2,2,0,0,2,1}};
 
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh, {{}}, 0.0, 0.0, tGeomIndexToBulkPhase);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh, {{}}, 0.0, 0.0, 0.0, tGeomIndexToBulkPhase);
             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
             tXTKModel.mVerbose  =  true;
 

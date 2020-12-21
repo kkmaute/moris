@@ -16,6 +16,10 @@ namespace moris
                 : mAncestorNodeIndices(aAncestorNodeIndices),
                   mAncestorNodeCoordinates(aAncestorNodeCoordinates)
         {
+            // Check that ancestor info is consistent
+            MORIS_ASSERT(aAncestorNodeIndices.length() == aAncestorNodeCoordinates.size(),
+                    "Number of ancestor node indices must be consistent with the number of sets of node coordinates");
+
             // Evaluate basis function
             aBasisFunction.evaluate_basis_function(aLocalCoordinatesInAncestor, mBasisValues);
         }
