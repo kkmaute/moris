@@ -270,7 +270,7 @@ namespace moris
                 uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
                 // get proc neighbors from background mesh
-                auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+                const Matrix< IdMat > & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
                 // create cell of matrices to send
                 Matrix< DDLUMat > tEmptyLuint;
