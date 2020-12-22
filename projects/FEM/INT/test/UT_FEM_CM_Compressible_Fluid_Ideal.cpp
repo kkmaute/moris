@@ -32,7 +32,7 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 2.4E-4;
+    real tPerturbationCubic = 3.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------

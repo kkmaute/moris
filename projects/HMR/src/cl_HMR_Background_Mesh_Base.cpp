@@ -1320,8 +1320,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Background_Mesh_Base::collect_active_elements_from_aura( const uint                             & aProcNeighbor,
-                const uint                             & aMode,
+        void Background_Mesh_Base::collect_active_elements_from_aura(
+                const uint                       & aProcNeighbor,
+                const uint                       & aMode,
                 Cell< Background_Element_Base* > & aElementList )
         {
             // clear element list

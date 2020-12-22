@@ -221,8 +221,20 @@ void Map_Epetra::translate_ids_to_free_point_ids(
         MORIS_ASSERT( mFullToFreePoint->MyLength () > tLocalIndex,
                 "Map_Epetra::translate_ids_to_free_point_ids(), tLocalIndex out of bounds.\n");
 
-        moris::real tIdOut = mFullToFreePoint->Values()[ tLocalIndex ];
 
+        // FIXME temporary workaround for tLocalIndex < 0
+        moris::real tIdOut;
+
+        if ( tLocalIndex >= 0 )
+        {
+            tIdOut = mFullToFreePoint->Values()[ tLocalIndex ];
+        }
+        else
+        {
+            tIdOut = -1;
+        }
+
+        // FIXME: comment needed
         if( !aIsBuildGraph and tIdOut == -1 )
         {
             aIdsOut( Ik ) = MORIS_ID_MAX;

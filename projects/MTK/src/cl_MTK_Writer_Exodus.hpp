@@ -12,6 +12,10 @@
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 
+// define maximum number of entities that can be written
+// note: not clear why there are issues when exceeding these limits
+#define EXODUS_MAX_NUM_SIDESET 1000
+
 namespace moris
 {
     namespace mtk
