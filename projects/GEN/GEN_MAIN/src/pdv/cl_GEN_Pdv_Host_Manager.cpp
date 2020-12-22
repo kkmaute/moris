@@ -344,8 +344,19 @@ namespace moris
             mIpPdvTypes = aPdvTypes;
             mUniqueIpPdvTypes.resize(tNumSets);
 
+            // maximum used for sizing the pdv hosts
+            moris_index tMax = 0;
+            for( moris::uint iSet = 0; iSet< aNodeIndicesPerSet.size(); iSet++)
+            {   
+                if(aNodeIndicesPerSet(iSet).numel() > 0)
+                {
+                    tMax = std::max(aNodeIndicesPerSet(iSet).max(),tMax);
+                }
+            }
+
+
             // Initialize PDV hosts
-            mIpPdvHosts.resize(aNodeCoordinates.size(), nullptr);
+            mIpPdvHosts.resize(tMax+1, nullptr);
 
             // Create PDV hosts
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)

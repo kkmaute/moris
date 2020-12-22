@@ -229,6 +229,14 @@ namespace xtk
 
         return tVertex.get_coords();
     }
+    
+    // ----------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Enriched_Interpolation_Mesh::get_base_node_coordinate( moris_index aBaseNodeIndex ) const
+    {
+        return mXTKModel->get_background_mesh().get_mtk_vertex(aBaseNodeIndex).get_coords();
+    }
 
     // ----------------------------------------------------------------------------
 

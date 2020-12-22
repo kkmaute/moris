@@ -576,6 +576,16 @@ namespace moris
                  return Matrix<DDRMat>(0,0);
              }
 
+             /*
+              * Get coordinate of a node
+              */
+             virtual
+             Matrix< DDRMat >
+             get_base_node_coordinate( moris_index aBaseNodeIndex ) const
+             {
+                 return this->get_node_coordinate(aBaseNodeIndex);
+             }
+
              //------------------------------------------------------------------------------
              //##############################################
              // Entity Ownership Functions
