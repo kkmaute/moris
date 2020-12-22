@@ -1269,8 +1269,31 @@ TEST_CASE("Lagrange_Mesh_4_proc_problem","[moris],[hmr],[Lagrange_Mesh_4_proc_pr
 
         tHMR.finalize();
 
-//        REQUIRE( tMesh01->get_num_coeffs( 0 )  == 225 );
-//        REQUIRE( tMesh01->get_num_coeffs( 1 )  == 45 );
+        if( par_rank() == 0 )
+        {
+            REQUIRE( tMesh01->get_num_nodes()  == 137 );
+            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 66 );
+            REQUIRE( tMesh01->get_mtk_vertex( 48 ).get_id()  == 43 );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 2 ), 1.666666666666667e-01, 1.0e+08 ) );
+        }
+        if( par_rank() == 1 )
+        {
+            REQUIRE( tMesh01->get_mtk_vertex( 23 ).get_id()  == 43 );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 23 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 23 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 23 ).get_coords()( 2 ), 1.666666666666667e-01, 1.0e+08 ) );
+        }
+        if( par_rank() == 2 )
+        {
+            REQUIRE( tMesh01->get_num_nodes()  == 119 );
+            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 64 );
+            REQUIRE( tMesh01->get_mtk_vertex( 43 ).get_id()  == 43 );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 2 ), 1.666666666666667e-01, 1.0e+08 ) );
+        }
     }
 }
 
