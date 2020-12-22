@@ -14,10 +14,10 @@
 #include "op_minus.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
 
-#include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
-#include "xtk/cl_XTK_Child_Mesh.hpp"
+#include "cl_XTK_Child_Mesh_Modification_Template.hpp"
+#include "cl_XTK_Child_Mesh.hpp"
 #include "fn_GEN_Triangle_Geometry.hpp"
-#include "topology/cl_XTK_Quad_4_Topology.hpp"
+#include "cl_XTK_Quad_4_Topology.hpp"
 
 #include "fn_verify_tri_topology.hpp"
 

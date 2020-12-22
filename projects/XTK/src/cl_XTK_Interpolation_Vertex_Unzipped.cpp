@@ -119,6 +119,7 @@ Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
     }
     if(mInterpolation(aOrder) != nullptr)
     {
+        std::cout<<"aOrder = "<<aOrder<<std::endl;
         std::cout<<"Old = "<<*mInterpolation(aOrder)<<std::endl;
         std::cout<<"New = "<<*aVertexInterp<<std::endl;
     }

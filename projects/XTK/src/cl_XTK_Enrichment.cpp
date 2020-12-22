@@ -123,10 +123,11 @@ namespace xtk
     void
     Enrichment::perform_basis_cluster_enrichment()
     {
-        // Get underlying matrix data to access function
-        moris::mtk::Interpolation_Mesh & tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
 
-        MORIS_ASSERT(tXTKMeshData.get_num_elems() > 0,"0 cell interpolation mesh passed");
+        // Get underlying matrix data to access function
+        moris::mtk::Interpolation_Mesh &tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
+
+        MORIS_ASSERT(tXTKMeshData.get_num_elems() > 0, "0 cell interpolation mesh passed");
 
         // construct cell in xtk conformal model neighborhood connectivity
         this->construct_neighborhoods();
@@ -162,9 +163,13 @@ namespace xtk
                         i,
                         tParentElementsInSupport);
 
+
+
+
                 // get subphase clusters in support (separated by phase)
                 tSubphaseClusterIndicesInSupport(i) =
                         this->get_subphase_clusters_in_support(tParentElementsInSupport);
+
 
                 // construct subphase in support map
                 IndexMap  tSubPhaseIndexToSupportIndex;
@@ -1053,6 +1058,7 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells()
     {
+        
         // allocate indices and ids
         moris_index tCellIndex = 0;
 
@@ -1078,6 +1084,8 @@ namespace xtk
                 tEnrInterpMesh->mNumVertsPerInterpCell);
 
         // construct a connectivity for the enriched interpolation cells
+
+
         if(tMesh.get_num_elems() > 0)
         {
             mtk::Cell const & tDummyCell = tMesh.get_mtk_cell(0);
@@ -1116,7 +1124,7 @@ namespace xtk
                     // vertex interpolations of the parent cell
                     moris::Cell<mtk::Vertex_Interpolation*> tVertexInterpolations = this->get_vertex_interpolations(tParentCell, tMeshIndex );
 
-                    // basis interpolating into the cell
+                    // basis interpolating into the subphase
                     Cell<moris_index> const & tBasisInCell = mEnrichmentData(tMeshIndex).mSubphaseBGBasisIndices((moris_index)iEl);
 
                     // construct a map between basis index and index relative to the subphase cluster
@@ -1247,16 +1255,21 @@ namespace xtk
                 // create a interpolation cell per subphase
                 for(moris::uint iSP = 0; iSP<tCM.get_num_subphase_bins(); iSP++)
                 {
+                    // std::cout<<"iSP = "<<iSP<<std::endl;
+                    // std::cout<<"tCM.get_num_subphase_bins() = "<<tCM.get_num_subphase_bins()<<std::endl;
                     // Subphase basis of the current subphase in child mesh
                     //            Cell<moris_index> const & tSubPhaseBasis = tCM.get_subphase_basis_indices((moris_index)iSP);
                     Cell<moris_index> const & tSubPhaseBasis = mEnrichmentData(tMeshIndex).mSubphaseBGBasisIndices(tSubphaseIndices(iSP));
 
                     // construct a map between basis index and index relative to the subphase cluster
                     std::unordered_map<moris_id,moris_id> tSubPhaseBasisMap = construct_subphase_basis_to_basis_map(tSubPhaseBasis);
+                    // moris::print(tSubPhaseBasis,"tSubPhaseBasis");
 
                     // Subphase basis enrichment level of the current subphase in child mesh
                     //            Cell<moris_index> const & tSubPhaseBasisEnrLev = tCM.get_subphase_basis_enrichment_levels((moris_index)iSP);
                     Cell<moris_index> const & tSubPhaseBasisEnrLev = mEnrichmentData(tMeshIndex).mSubphaseBGBasisEnrLev(tSubphaseIndices(iSP));
+
+                    // moris::print(tSubPhaseBasisEnrLev,"tSubPhaseBasisEnrLev");
 
                     // construct unzipped enriched vertices
                     for(uint iEV = 0; iEV < tNumVertices; iEV++)
@@ -1297,16 +1310,31 @@ namespace xtk
 
                                 tVertId++;
                                 tVertexCount++;
+
+                                if(tVertEnrichIndex == 23050)
+                                {
+                                    std::cout<<"CM If statement"<<std::endl;
+                                    std::cout<<"Vert Id = "<<tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex).get_id()<<" | iMT: "<<iMT<<std::endl;
+                                 }
                             }
 
                             tEnrInterpCellToVertex(tCellIndex,iEV) = tVertEnrichIndex;
+
+      
                         }
                         else
                         {
                             // first time around what was the vertex index
                             moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-tCM.get_num_subphase_bins()+iSP,iEV);
+                            if(tVertexIndexInIp == 23050)
+                            {
+                                std::cout<<"CM else statement"<<std::endl;
+                                std::cout<<"Vert Id = "<<tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).get_id()<<" | iMT: "<<iMT<<std::endl;
+                                moris::print(tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).get_coords(),"coords");
+                            }
                             if(tNewVertFlag)
                             {
+
                                 tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(
                                         tMeshIndex,
                                         tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex));

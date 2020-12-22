@@ -611,6 +611,12 @@ namespace moris
                     mSideSetIndices.push_back(tSideSetIndex);
                 }
             }
+
+            // resize to EXODUS_MAX_NUM_SIDESET
+            if ( mSideSetIndices.size() > EXODUS_MAX_NUM_SIDESET)
+            {
+                mSideSetIndices.resize(EXODUS_MAX_NUM_SIDESET);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

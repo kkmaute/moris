@@ -17,7 +17,8 @@ set(HEADERS
     cl_MatrixPETSc.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
     cl_Vector_Epetra.hpp
-        cl_Vector_PETSc.hpp)
+        cl_Vector_PETSc.hpp
+        cl_SOL_Enums.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sol Core Library

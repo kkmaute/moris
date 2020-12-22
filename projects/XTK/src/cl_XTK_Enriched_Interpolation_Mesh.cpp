@@ -564,6 +564,7 @@ namespace xtk
             // iterate through the enriched vertices related to the base vertex and see if any are equal
             for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
             {
+                // std::cout<<" i = "<<i<<" | Base basis ind = "<<<<std::endl;
                 moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex)(i);
 
                 if(aVertexEnrichment == *mInterpVertEnrichment(tLocalMeshIndex)(tVertEnrIndex))

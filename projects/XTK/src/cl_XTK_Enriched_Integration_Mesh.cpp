@@ -7,6 +7,7 @@
 
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Side_Cluster.hpp"
@@ -767,6 +768,39 @@ namespace xtk
         return tOutputFieldNames;
     }
 
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Integration_Mesh::write_mesh(moris::ParameterList* aParamList)
+    {
+            if (aParamList->get<bool>("deactivate_empty_sets"))
+            {
+                this->deactivate_empty_sets();
+            }
+
+            // Write mesh
+            moris::mtk::Writer_Exodus writer( this );
+            writer.write_mesh("", "./xtk_temp.exo", "", "./xtk_temp2.exo");
+
+            if(aParamList->get<bool>("write_enrichment_fields"))
+            {
+                // set up the nodal fields for basis support
+                moris::Cell<std::string> tNodeFields = this->create_basis_support_fields();
+
+                writer.set_nodal_fields(tNodeFields);
+
+                for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
+                {    
+                    moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
+                    
+                    writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
+                }
+            }          
+
+            // Write the fields
+            writer.set_time(0.0);
+            writer.close_file();
+    }
     //------------------------------------------------------------------------------
  
     moris::Memory_Map

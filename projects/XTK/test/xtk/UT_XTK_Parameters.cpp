@@ -10,10 +10,10 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
-#include "xtk/cl_XTK_Enrichment.hpp"
-#include "xtk/fn_write_element_ownership_as_field.hpp"
+#include "cl_XTK_Enrichment.hpp"
+#include "fn_write_element_ownership_as_field.hpp"
 
-#include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
+#include "cl_XTK_Hexahedron_8_Basis_Function.hpp"
 
 #include "cl_MTK_Visualization_STK.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"

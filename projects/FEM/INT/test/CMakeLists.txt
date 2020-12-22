@@ -98,6 +98,12 @@ set(TEST_DEPENDENCIES
     ${MORIS_BASE_LIBS}
     )
 
+    
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/pdv) 
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/geometry) 
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/property) 
+include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/topology) 
+
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 

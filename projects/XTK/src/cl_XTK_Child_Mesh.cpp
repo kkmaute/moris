@@ -2019,7 +2019,7 @@ namespace xtk
 
                                         moris::print(mGeometryIndex,"mGeometryIndex");
 
-                                        throw;
+                                        // throw;
                                         
                                     }
                                 }
@@ -3145,6 +3145,10 @@ namespace xtk
                 else
                 {
                     std::cout<<"mIntersectConnectivity(iE,0) = "<<mIntersectConnectivity(iE,0)<<std::endl;
+                    std::cout<<"Parent Cell Index = "<<this->get_parent_element_index()<<std::endl;
+                    
+                    Matrix<IndexMat> tNodeIds = this->get_node_ids();
+                    moris::print(tNodeIds,"Node Ids");
                     MORIS_ERROR(0,"Unsupported case in 2D conformal tet template");
                 }
             }

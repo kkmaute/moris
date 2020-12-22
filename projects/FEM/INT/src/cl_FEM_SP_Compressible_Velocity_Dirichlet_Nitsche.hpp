@@ -29,8 +29,6 @@ namespace moris
         /*
          * Stabilization parameter for Dirichlet BC on velocity for fluid problem
          * applied with Nitsche's formulation
-         * gamma_N = alpha_N * ( viscosity / h + density * norm_inf( u ) / 6.0 )
-         * from Schott et al. (2015)
          */
         class SP_Compressible_Velocity_Dirichlet_Nitsche : public Stabilization_Parameter
         {
