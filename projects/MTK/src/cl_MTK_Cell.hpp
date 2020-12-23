@@ -229,6 +229,23 @@ namespace moris
                  */
                 virtual Interpolation_Order
                 get_interpolation_order() const = 0;
+                
+                //------------------------------------------------------------------------------
+                virtual
+                moris::mtk::Cell const*
+                get_base_cell() const
+                {
+                    return this;
+                }
+
+                //------------------------------------------------------------------------------
+
+                virtual
+                moris::mtk::Cell*
+                get_base_cell()
+                {
+                    return this;
+                }
 
                 //------------------------------------------------------------------------------
 

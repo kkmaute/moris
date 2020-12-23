@@ -729,7 +729,10 @@ namespace xtk
                 moris_index tVertexIndex = this->get_enriched_interpolation_vertex(aRequestedBgVertexIds(iP)(iV), aRequestedIpCellIds(iP)(iV));
 
                 // get the vertex interpolation
-                Vertex_Enrichment* tVertexInterp = tEnrInterpMesh.get_vertex_enrichment(aMeshIndex,tVertexIndex);
+                Interpolation_Vertex_Unzipped* tVertex = tEnrInterpMesh.get_unzipped_vertex_pointer(tVertexIndex);
+
+                // get the vertex interpolation
+                Vertex_Enrichment* tVertexInterp = tVertex->get_xtk_interpolation(0);
 
                 MORIS_ASSERT(tVertexInterp->get_base_vertex_interpolation() != nullptr,"Owning proc has a nullptr for the vertex interpolation.");
 

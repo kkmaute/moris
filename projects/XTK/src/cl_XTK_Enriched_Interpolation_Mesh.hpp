@@ -43,6 +43,7 @@ public:
     Cell<mtk::Vertex const *> get_all_vertices() const;
     Matrix<IdMat>             get_entity_connected_to_entity_glob_ids( moris_id aEntityId, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank, const moris_index aIndex = 0) const;
     Matrix< DDRMat >          get_node_coordinate( moris_index aNodeIndex ) const;
+    Matrix< DDRMat >          get_base_node_coordinate( moris_index aBaseNodeIndex ) const;
     mtk::Vertex &             get_mtk_vertex( moris_index aVertexIndex );
     mtk::Vertex const &       get_mtk_vertex( moris_index aVertexIndex ) const;
     mtk::Cell   const &       get_mtk_cell( moris_index aElementIndex ) const;
