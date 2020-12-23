@@ -51,6 +51,7 @@ namespace moris
         mMSIParameterList.insert( "VY"         , 0 );
         mMSIParameterList.insert( "VZ"         , 0 );
         mMSIParameterList.insert( "P"          , 0 );
+        mMSIParameterList.insert( "RHO"        , 0 );
         mMSIParameterList.insert( "VISCOSITY"  , 0 );
 
         // General MSI parameters
