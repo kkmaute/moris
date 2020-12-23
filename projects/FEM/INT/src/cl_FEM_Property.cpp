@@ -86,6 +86,9 @@ namespace moris
         bool Property::check_dof_dependency(
                 const moris::Cell< MSI::Dof_Type > & aDofType )
         {
+            // throw error if property hasn't been initialized
+            MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_dof_dependency(): Property is nullptr." );
+
             // get the dof type index
             uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
 
