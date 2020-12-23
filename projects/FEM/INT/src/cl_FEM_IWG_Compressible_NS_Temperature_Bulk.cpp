@@ -189,14 +189,18 @@ namespace moris
                     }
                 }
 
-                // if the body heat load depends on the dof type -> indirect dependency
-                if ( tPropBodyHeatLoad->check_dof_dependency( tDofType ) )
+                // if there is a body heat load
+                if ( tPropBodyHeatLoad != nullptr )
                 {
-                    // compute the jacobian contribution
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFITemp->N() ) * tPropBodyHeatLoad->dPropdDOF( tDofType ) );
+                    // if the body heat load depends on the dof type -> indirect dependency
+                    if ( tPropBodyHeatLoad->check_dof_dependency( tDofType ) )
+                    {
+                        // compute the jacobian contribution
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        trans( tFITemp->N() ) * tPropBodyHeatLoad->dPropdDOF( tDofType ) );
+                    }
                 }
             }
 
