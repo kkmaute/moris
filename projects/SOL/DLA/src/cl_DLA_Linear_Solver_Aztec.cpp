@@ -294,6 +294,9 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     mSolScaledResidual = mAztecSolver->ScaledResidual();
     mSolTime           = mAztecSolver->SolveTime();
 
+    // log linear solver iterations
+    MORIS_LOG_SPEC( "LinearSolverIterations", mSolNumIters );
+
     delete mAztecSolver;
     mAztecSolver = nullptr;
 

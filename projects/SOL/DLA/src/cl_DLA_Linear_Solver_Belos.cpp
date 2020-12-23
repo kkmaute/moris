@@ -13,6 +13,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_Tracer.hpp"
+#include "cl_Logger.hpp"
 
 #include <Epetra_MultiVector.h>
 #include <Epetra_Operator.h>
@@ -238,10 +239,9 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
 
     //Belos::ReturnType result = solver->solve();
     solver->solve();
+
     // Ask the solver how many iterations the last solve() took.
-    //const int numIters = solver->getNumIters();
-    //
-    //std::cout<<"iter : "<<numIters<<std::endl;
+    MORIS_LOG_SPEC( "LinearSolverIterations", solver->getNumIters() );
 
     return 0;
 }
