@@ -25,12 +25,11 @@ set(TEST_DEPENDENCIES
     )
 
 
-set(GEN_INCLUDES  
-    "pdv"                                                                                                                                                                                                                                                             
-    "additional"
-    "geomeng"
-    "geometry"
-    "property"
+set(GEN_INCLUDES
+	"field"
+	"field/geometry"
+	"field/property"
+	"pdv"
     )
 
 # Include depedency directories

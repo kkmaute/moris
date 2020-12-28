@@ -33,18 +33,15 @@ set(TEST_SOURCES
     )
 
 
-# List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_MAIN_INCLUDES     
-    "pdv"                                                           
-    "additional"
-    "geomeng"
-    "geometry"
-    "property"
+set(GEN_INCLUDES
+    "field"
+    "field/geometry"
+    "field/property"
+    "pdv"
     )
 
-# Include depedency directories
-foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
 endforeach()
 
 # Include WRK directory

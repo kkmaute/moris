@@ -13,22 +13,21 @@ set(HEADERS
 	cl_GEN_Field_Analytic.hpp
 	cl_GEN_Field_Discrete_Integration.hpp
 	cl_GEN_Field_Discrete_Interpolation.hpp
-    cl_GEN_Geometric_Proximity.hpp
+	cl_GEN_Geometric_Proximity.hpp
 	fn_GEN_Triangle_Geometry.hpp
 
-
-#	topology/cl_GEN_Basis_Function.hpp
-#	topology/cl_GEN_Edge_Topology.hpp
-#	topology/cl_GEN_Hexahedron_8_Topology.hpp
-#	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
+	#	topology/cl_GEN_Basis_Function.hpp
+	#	topology/cl_GEN_Edge_Topology.hpp
+	#	topology/cl_GEN_Hexahedron_8_Topology.hpp
+	#	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
 	topology/cl_GEN_Interpolation.hpp
-#	topology/cl_GEN_Linear_Basis_Functions.hpp
-#
-#	topology/cl_GEN_Pending_Node.hpp
-#	topology/cl_GEN_Quad_4_Basis_Function.hpp
-#	topology/cl_GEN_Quad_4_Topology.hpp
-#	topology/cl_GEN_Topology.hpp
-#	topology/cl_GEN_Edge_Topology.hpp
+	#	topology/cl_GEN_Linear_Basis_Functions.hpp
+	#
+	#	topology/cl_GEN_Pending_Node.hpp
+	#	topology/cl_GEN_Quad_4_Basis_Function.hpp
+	#	topology/cl_GEN_Quad_4_Topology.hpp
+	#	topology/cl_GEN_Topology.hpp
+	#	topology/cl_GEN_Edge_Topology.hpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.hpp
 	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
@@ -39,45 +38,44 @@ set(HEADERS
 	pdv/cl_GEN_Intersection_Node_Linear.hpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.hpp
 
-	geometry/cl_GEN_Geometry.hpp
-	geometry/cl_GEN_Circle.hpp
-	geometry/cl_GEN_Superellipse.hpp
-	geometry/cl_GEN_Sphere.hpp
-	geometry/cl_GEN_Superellipsoid.hpp
-	geometry/cl_GEN_Plane.hpp
-	geometry/cl_GEN_Mesh_Field_Geometry.hpp
-	geometry/cl_GEN_User_Defined_Geometry.hpp
-	geometry/cl_GEN_Voxel_Input.hpp
-	geometry/cl_GEN_Single_Grain.hpp
-	geometry/cl_GEN_Level_Set.hpp
-	geometry/cl_GEN_Stored_Geometry.hpp
-	geometry/cl_GEN_Multigeometry.hpp
-	geometry/cl_GEN_Swiss_Cheese_Slice.hpp
-	geometry/fn_GEN_create_geometries.hpp
-	geometry/cl_GEN_Child_Node.hpp
-	
-	property/cl_GEN_Property.hpp
-	property/cl_GEN_Scaled_Field.hpp
-	property/cl_GEN_Discrete_Property.hpp
-	property/cl_GEN_User_Defined_Property.hpp
-	property/fn_GEN_create_properties.hpp
-	
-    )
-    
+	field/geometry/cl_GEN_Geometry.hpp
+	field/geometry/cl_GEN_Circle.hpp
+	field/geometry/cl_GEN_Superellipse.hpp
+	field/geometry/cl_GEN_Sphere.hpp
+	field/geometry/cl_GEN_Superellipsoid.hpp
+	field/geometry/cl_GEN_Plane.hpp
+	field/geometry/cl_GEN_Mesh_Field_Geometry.hpp
+	field/geometry/cl_GEN_User_Defined_Geometry.hpp
+	field/geometry/cl_GEN_Voxel_Input.hpp
+	field/geometry/cl_GEN_Single_Grain.hpp
+	field/geometry/cl_GEN_Level_Set.hpp
+	field/geometry/cl_GEN_Stored_Geometry.hpp
+	field/geometry/cl_GEN_Multigeometry.hpp
+	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
+	field/geometry/fn_GEN_create_geometries.hpp
+	field/geometry/cl_GEN_Child_Node.hpp
+
+	field/property/cl_GEN_Property.hpp
+	field/property/cl_GEN_Scaled_Field.hpp
+	field/property/cl_GEN_Discrete_Property.hpp
+	field/property/cl_GEN_User_Defined_Property.hpp
+	field/property/fn_GEN_create_properties.hpp
+	)
+
 # List header dependencies                                                                                                                                                                                                                                                     
 set(GEN_INCLUDES
-    "topology"
-    "pdv"
-    "geometry"
-    "property"
-    )
+	"field"
+	"field/geometry"
+	"field/property"
+	"pdv"
+	"topology"
+	)
 
 # Include depedency directories
-foreach(GEN_INCLUDES ${GEN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
-    list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GEN_INCLUDES}")
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+	list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GEN_INCLUDES}")
 endforeach()
-
 
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
@@ -90,11 +88,11 @@ set(LIB_SOURCES
 
 	cl_GEN_Geometry_Engine.cpp
 	cl_GEN_Phase_Table.cpp
-	cl_GEN_Field.cpp
-	cl_GEN_Field_Analytic.cpp
-	cl_GEN_Field_Discrete_Integration.cpp
-	cl_GEN_Field_Discrete_Interpolation.cpp
-    cl_GEN_Geometric_Proximity.cpp
+	field/cl_GEN_Field.cpp
+	field/cl_GEN_Field_Analytic.cpp
+	field/cl_GEN_Field_Discrete_Integration.cpp
+	field/cl_GEN_Field_Discrete_Interpolation.cpp
+	cl_GEN_Geometric_Proximity.cpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.cpp
 	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
@@ -105,28 +103,28 @@ set(LIB_SOURCES
 	pdv/cl_GEN_Intersection_Node_Linear.cpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.cpp
 
-	geometry/cl_GEN_Geometry.cpp
-	geometry/cl_GEN_Circle.cpp
-	geometry/cl_GEN_Superellipse.cpp
-	geometry/cl_GEN_Sphere.cpp
-	geometry/cl_GEN_Superellipsoid.cpp
-	geometry/cl_GEN_Plane.cpp
-	geometry/cl_GEN_Mesh_Field_Geometry.cpp
-	geometry/cl_GEN_User_Defined_Geometry.cpp
-	geometry/cl_GEN_Voxel_Input.cpp
-	geometry/cl_GEN_Single_Grain.cpp
-	geometry/cl_GEN_Level_Set.cpp
-	geometry/cl_GEN_Stored_Geometry.cpp
-	geometry/cl_GEN_Multigeometry.cpp
-	geometry/cl_GEN_Swiss_Cheese_Slice.cpp
-	geometry/fn_GEN_create_geometries.cpp
-	geometry/cl_GEN_Child_Node.cpp
-	
-	property/cl_GEN_Property.cpp
-	property/cl_GEN_Scaled_Field.cpp
-	property/cl_GEN_Discrete_Property.cpp
-	property/cl_GEN_User_Defined_Property.cpp
-	property/fn_GEN_create_properties.cpp
+	field/geometry/cl_GEN_Geometry.cpp
+	field/geometry/cl_GEN_Circle.cpp
+	field/geometry/cl_GEN_Superellipse.cpp
+	field/geometry/cl_GEN_Sphere.cpp
+	field/geometry/cl_GEN_Superellipsoid.cpp
+	field/geometry/cl_GEN_Plane.cpp
+	field/geometry/cl_GEN_Mesh_Field_Geometry.cpp
+	field/geometry/cl_GEN_User_Defined_Geometry.cpp
+	field/geometry/cl_GEN_Voxel_Input.cpp
+	field/geometry/cl_GEN_Single_Grain.cpp
+	field/geometry/cl_GEN_Level_Set.cpp
+	field/geometry/cl_GEN_Stored_Geometry.cpp
+	field/geometry/cl_GEN_Multigeometry.cpp
+	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
+	field/geometry/fn_GEN_create_geometries.cpp
+	field/geometry/cl_GEN_Child_Node.cpp
+
+	field/property/cl_GEN_Property.cpp
+	field/property/cl_GEN_Scaled_Field.cpp
+	field/property/cl_GEN_Discrete_Property.cpp
+	field/property/cl_GEN_User_Defined_Property.cpp
+	field/property/fn_GEN_create_properties.cpp
 	
     )
 
@@ -139,12 +137,6 @@ set(LIB_DEPENDENCIES
 	${XTK}-lib
     ${WRK}-lib
     )
-
-include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/pdv) 
-include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/geometry) 
-include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/property) 
-include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/topology) 
-
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

@@ -76,11 +76,17 @@ set(HEADERS
 
 include_directories(${MORIS_PACKAGE_DIR}/include)
 
-# GEN directories
-include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/geometry
-		${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/pdv
-		${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/property)
+set(GEN_INCLUDES
+	"field"
+	"field/geometry"
+	"field/property"
+	"pdv"
+	)
 
+# Include depedency directories
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+endforeach()
 
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
