@@ -37,30 +37,30 @@ namespace moris
 
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
-                std::shared_ptr<Library_IO> aLibrary) :
+                std::shared_ptr<Library_IO> aLibrary)
 
                 // Level set options
-                mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") ),
-                mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") ),
-                mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") ),
+                : mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") )
+                , mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") )
+                , mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") )
 
                 // Requested IQIs
-                mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) ),
+                , mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) )
 
                 // Library
-                mLibrary(aLibrary),
+                , mLibrary(aLibrary)
 
                 // Geometries
-                mGeometryParameterLists( aParameterLists(1) ),
-                mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") ),
-                mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") ),
-                mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") ),
+                , mGeometryParameterLists( aParameterLists(1) )
+                , mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") )
+                , mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") )
+                , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
 
                 // Properties
-                mPropertyParameterLists( aParameterLists(2) ),
+                , mPropertyParameterLists( aParameterLists(2) )
 
                 // Phase table
-                mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
+                , mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine", "Create");
@@ -68,9 +68,9 @@ namespace moris
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
             {
-                mADVs        = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
-                mLowerBounds = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
-                mUpperBounds = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
+                mADVs        = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
+                mLowerBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
+                mUpperBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
             }
             else
             {

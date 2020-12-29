@@ -25,17 +25,10 @@ namespace moris
                 uint                      aOwnedADVIdsOffset,
                 mtk::Interpolation_Mesh*  aMesh,
                 std::shared_ptr<Geometry> aGeometry)
-                : Field(aSharedADVIds,
-                        aGeometry->get_name(),
-                        aGeometry->get_num_refinements(),
-                        aGeometry->get_refinement_mesh_indices(),
-                        aGeometry->get_refinement_function_index(),
-                        aGeometry->get_bspline_mesh_index(),
-                        aGeometry->get_bspline_lower_bound(),
-                        aGeometry->get_bspline_upper_bound()),
-                  Geometry(aGeometry->get_intersection_interpolation()),
-                  Field_Discrete_Integration(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
+                : Field(aSharedADVIds, aGeometry)
+                , Geometry(aGeometry->get_intersection_interpolation())
+                , Field_Discrete_Integration(aMesh->get_num_nodes())
+                , mMesh(aMesh)
         {
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);

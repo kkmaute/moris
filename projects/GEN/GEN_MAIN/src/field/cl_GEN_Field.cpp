@@ -10,41 +10,24 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field::Field(Matrix<DDRMat>& aADVs,
-                     Matrix<DDUMat>  aFieldVariableIndices,
-                     Matrix<DDUMat>  aADVIndices,
-                     Matrix<DDRMat>  aConstantParameters,
-                     std::string     aName,
-                     Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aRefinementMeshIndices,
-                     sint            aRefinementFunctionIndex,
-                     sint            aBSplineMeshIndex,
-                     real            aBSplineLowerBound,
-                     real            aBSplineUpperBound)
-                : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
-                  mSensitivities(1, aFieldVariableIndices.length() + aConstantParameters.length()),
-                  mConstantParameters(aConstantParameters),
-                  mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
-                  mName(aName),
-                  mDependsOnADVs(aADVIndices.length()),
-                  mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aRefinementMeshIndices),
-                  mRefinementFunctionIndex(aRefinementFunctionIndex),
-                  mBSplineMeshIndex(aBSplineMeshIndex),
-                  mBSplineLowerBound(aBSplineLowerBound),
-                  mBSplineUpperBound(aBSplineUpperBound)
-
+        Field::Field(Matrix<DDRMat>&  aADVs,
+                     Matrix<DDUMat>   aFieldVariableIndices,
+                     Matrix<DDUMat>   aADVIndices,
+                     Matrix<DDRMat>   aConstants,
+                     Field_Parameters aParameters)
+                : mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
+                , mSensitivities(1, aFieldVariableIndices.length() + aConstants.length())
+                , mConstants(aConstants)
+                , mParameters(aParameters)
+                , mDeterminingADVIds(aFieldVariableIndices.length() + aConstants.length(), 1, -1)
+                , mDependsOnADVs(aADVIndices.length())
         {
             // Check that refinement information is correct
-            MORIS_ERROR(aNumRefinements.length() == aRefinementMeshIndices.length(),
+            MORIS_ERROR(mParameters.mNumRefinements.length() == mParameters.mRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
-            // Assign ADV dependencies
+            // Check and assign ADV dependencies
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
-
-            // check that index lists have same lenght
-            MORIS_ASSERT( aFieldVariableIndices.length() == aADVIndices.length(),
-                    "FieldVariableIndices and ADVIndices need to have same length.\n");
 
             // Fill with pointers to ADVs
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
@@ -61,33 +44,20 @@ namespace moris
         Field::Field(sol::Dist_Vector* aOwnedADVs,
                      Matrix<DDUMat>    aFieldVariableIndices,
                      Matrix<DDUMat>    aADVIndices,
-                     Matrix<DDRMat>    aConstantParameters,
-                     std::string       aName,
-                     Matrix<DDSMat>    aNumRefinements,
-                     Matrix<DDSMat>    aRefinementMeshIndices,
-                     sint              aRefinementFunctionIndex,
-                     sint              aBSplineMeshIndex,
-                     real              aBSplineLowerBound,
-                     real              aBSplineUpperBound)
-                : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
-                  mSensitivities(1, aFieldVariableIndices.length() + aConstantParameters.length()),
-                  mConstantParameters(aConstantParameters),
-                  mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
-                  mName(aName),
-                  mDependsOnADVs(aADVIndices.length()),
-                  mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aRefinementMeshIndices),
-                  mRefinementFunctionIndex(aRefinementFunctionIndex),
-                  mBSplineMeshIndex(aBSplineMeshIndex),
-                  mBSplineLowerBound(aBSplineLowerBound),
-                  mBSplineUpperBound(aBSplineUpperBound)
-
+                     Matrix<DDRMat>    aConstants,
+                     Field_Parameters  aParameters)
+                : mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
+                , mSensitivities(1, aFieldVariableIndices.length() + aConstants.length())
+                , mConstants(aConstants)
+                , mParameters(aParameters)
+                , mDeterminingADVIds(aFieldVariableIndices.length() + aConstants.length(), 1, -1)
+                , mDependsOnADVs(aADVIndices.length())
         {
             // Check that refinement information is correct
-            MORIS_ERROR(aNumRefinements.length() == aRefinementMeshIndices.length(),
+            MORIS_ERROR(mParameters.mNumRefinements.length() == mParameters.mRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
-            // Assign ADV dependencies
+            // Check and assign ADV dependencies
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
             // Fill with pointers to ADVs
@@ -103,28 +73,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
 
-        Field::Field(const Matrix<DDSMat>& aSharedADVIds,
-                     std::string           aName,
-                     Matrix<DDSMat>        aNumRefinements,
-                     Matrix<DDSMat>        aRefinementMeshIndices,
-                     sint                  aRefinementFunctionIndex,
-                     sint                  aBSplineMeshIndex,
-                     real                  aBSplineLowerBound,
-                     real                  aBSplineUpperBound)
-                : mFieldVariables(aSharedADVIds.length()),
-                  mSensitivities(1, aSharedADVIds.length()),
-                  mDeterminingADVIds(aSharedADVIds),
-                  mName(aName),
-                  mDependsOnADVs(true),
-                  mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aRefinementMeshIndices),
-                  mRefinementFunctionIndex(aRefinementFunctionIndex),
-                  mBSplineMeshIndex(aBSplineMeshIndex),
-                  mBSplineLowerBound(aBSplineLowerBound),
-                  mBSplineUpperBound(aBSplineUpperBound)
+        Field::Field(const Matrix<DDSMat>&  aSharedADVIds,
+                     std::shared_ptr<Field> aField)
+                : mFieldVariables(aSharedADVIds.length())
+                , mSensitivities(1, aSharedADVIds.length())
+                , mParameters(aField->mParameters)
+                , mDeterminingADVIds(aSharedADVIds)
+                , mDependsOnADVs(true)
         {
             // Check that refinement information is correct
-            MORIS_ERROR(aNumRefinements.length() == aRefinementMeshIndices.length(),
+            MORIS_ERROR(mParameters.mNumRefinements.length() == mParameters.mRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
             // Create shared distributed vector
@@ -142,26 +100,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field::Field(Matrix<DDRMat> aConstantParameters,
-                     std::string    aName,
-                     Matrix<DDSMat> aNumRefinements,
-                     Matrix<DDSMat> aRefinementMeshIndices,
-                     sint           aRefinementFunctionIndex,
-                     sint           aBSplineMeshIndex,
-                     real           aBSplineLowerBound,
-                     real           aBSplineUpperBound)
-                : mFieldVariables(aConstantParameters.length()),
-                  mSensitivities(1, aConstantParameters.length()),
-                  mConstantParameters(aConstantParameters),
-                  mDeterminingADVIds(aConstantParameters.length(), 1, -1),
-                  mName(aName),
-                  mDependsOnADVs(false),
-                  mNumRefinements(aNumRefinements),
-                  mRefinementMeshIndices(aRefinementMeshIndices),
-                  mRefinementFunctionIndex(aRefinementFunctionIndex),
-                  mBSplineMeshIndex(aBSplineMeshIndex),
-                  mBSplineLowerBound(aBSplineLowerBound),
-                  mBSplineUpperBound(aBSplineUpperBound)
+        Field::Field(Matrix<DDRMat>   aConstants,
+                     Field_Parameters aParameters)
+                : mFieldVariables(aConstants.length())
+                , mSensitivities(1, aConstants.length())
+                , mConstants(aConstants)
+                , mParameters(aParameters)
+                , mDeterminingADVIds(aConstants.length(), 1, -1)
+                , mDependsOnADVs(false)
         {
             // Fill constant parameters
             this->fill_constant_parameters();
@@ -169,10 +115,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Field::Field(std::shared_ptr<Field> aField)
+                : mParameters(aField->mParameters)
+                , mDependsOnADVs(aField->mDependsOnADVs)
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Field::Field()
         {
             MORIS_ERROR(false, "The default constructor of a GEN Field should never be used. It only exists because "
-                               "the compiler on Blanca is stupid.");
+                               "the compiler on Blanca can't figure out that this constructor is not needed.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -208,14 +162,14 @@ namespace moris
 
         bool Field::store_field_values()
         {
-            return (mBSplineMeshIndex > -2);
+            return (mParameters.mBSplineMeshIndex > -2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         bool Field::conversion_to_bsplines()
         {
-            return (mBSplineMeshIndex > -1);
+            return (mParameters.mBSplineMeshIndex > -1);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -236,60 +190,60 @@ namespace moris
 
         std::string Field::get_name()
         {
-            return mName;
+            return mParameters.mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDSMat > & Field::get_num_refinements()
         {
-            return mNumRefinements;
+            return mParameters.mNumRefinements;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDSMat > & Field::get_refinement_mesh_indices()
         {
-            return mRefinementMeshIndices;
+            return mParameters.mRefinementMeshIndices;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         sint Field::get_refinement_function_index()
         {
-            return mRefinementFunctionIndex;
+            return mParameters.mRefinementFunctionIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sint Field::get_bspline_mesh_index()
+        uint Field::get_bspline_mesh_index()
         {
-            return mBSplineMeshIndex;
+            return (uint)mParameters.mBSplineMeshIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         real Field::get_bspline_lower_bound()
         {
-            return mBSplineLowerBound;
+            return mParameters.mBSplineLowerBound;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         real Field::get_bspline_upper_bound()
         {
-            return mBSplineUpperBound;
+            return mParameters.mBSplineUpperBound;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Field::assign_adv_dependencies(
-                Matrix<DDUMat>& aFieldVariableIndices,
-                Matrix<DDUMat>& aADVIndices)
+                Matrix<DDUMat> aFieldVariableIndices,
+                Matrix<DDUMat> aADVIndices)
         {
             // Check that the number of field variables indices equals the number of ADV indices
             MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
-                        "Number of field variables indices must equal the number of ADV indices in a GEN field.");
+                    "Number of field variables indices must equal the number of ADV indices in a GEN field.");
 
             // Set ADV dependencies
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
@@ -307,7 +261,7 @@ namespace moris
             {
                 if (mFieldVariables(tVariableIndex) == nullptr)
                 {
-                    mFieldVariables(tVariableIndex) = &(mConstantParameters(tParameterIndex++));
+                    mFieldVariables(tVariableIndex) = &(mConstants(tParameterIndex++));
                 }
             }
         }

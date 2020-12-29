@@ -10,31 +10,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Voxel_Input::Voxel_Input(
-                Matrix<DDRMat>&                aADVs,
-                Matrix<DDUMat>                 aGeometryVariableIndices,
-                Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
-                std::string                    aVoxelFieldName,
-                Matrix<DDRMat>                 aDomainDimensions,
-                Matrix<DDRMat>                 aDomainOffset,
-                std::string                    aName,
-                Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex)
-        : Field(aADVs,
-                aGeometryVariableIndices,
-                aADVIndices,
-                aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                0.0,
-                0.0),
-           mDomainDimensions( aDomainDimensions ),
-           mDomainOffset( aDomainOffset )
+                Matrix<DDRMat>&  aADVs,
+                Matrix<DDUMat>   aGeometryVariableIndices,
+                Matrix<DDUMat>   aADVIndices,
+                Matrix<DDRMat>   aConstants,
+                std::string      aVoxelFieldName,
+                Matrix<DDRMat>   aDomainDimensions,
+                Matrix<DDRMat>   aDomainOffset,
+                Field_Parameters aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                , mDomainDimensions( aDomainDimensions )
+                , mDomainOffset( aDomainOffset )
         {
             this->read_voxel_data( aVoxelFieldName );
         }
@@ -42,31 +28,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Voxel_Input::Voxel_Input(
-                sol::Dist_Vector*              aOwnedADVs,
-                Matrix<DDUMat>                 aGeometryVariableIndices,
-                Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
-                std::string                    aVoxelFieldName,
-                Matrix<DDRMat>                 aDomainDimensions,
-                Matrix<DDRMat>                 aDomainOffset,
-                std::string                    aName,
-                Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex)
-        : Field(aOwnedADVs,
-                aGeometryVariableIndices,
-                aADVIndices,
-                aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                0.0,
-                0.0),
-           mDomainDimensions( aDomainDimensions ),
-           mDomainOffset( aDomainOffset )
+                sol::Dist_Vector* aOwnedADVs,
+                Matrix<DDUMat>    aGeometryVariableIndices,
+                Matrix<DDUMat>    aADVIndices,
+                Matrix<DDRMat>    aConstants,
+                std::string       aVoxelFieldName,
+                Matrix<DDRMat>    aDomainDimensions,
+                Matrix<DDRMat>    aDomainOffset,
+                Field_Parameters  aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                , mDomainDimensions( aDomainDimensions )
+                , mDomainOffset( aDomainOffset )
         {
             this->read_voxel_data( aVoxelFieldName );
         }
@@ -74,25 +46,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Voxel_Input::Voxel_Input(
-                Matrix<DDRMat>           aConstantParameters,
-                std::string                    aVoxelFieldName,
-                Matrix<DDRMat>                 aDomainDimensions,
-                Matrix<DDRMat>                 aDomainOffset,
-                std::string              aName,
-                Matrix<DDSMat>           aNumRefinements,
-                Matrix<DDSMat>           aRefinementMeshIndices,
-                sint                     aRefinementFunctionIndex,
-                sint                     aBSplineMeshIndex)
-        : Field(aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                0.0,
-                0.0),
-           mDomainDimensions( aDomainDimensions ),
-           mDomainOffset( aDomainOffset )
+                Matrix<DDRMat>   aConstants,
+                std::string      aVoxelFieldName,
+                Matrix<DDRMat>   aDomainDimensions,
+                Matrix<DDRMat>   aDomainOffset,
+                Field_Parameters aParameters)
+                : Field(aConstants, aParameters)
+                , mDomainDimensions( aDomainDimensions )
+                , mDomainOffset( aDomainOffset )
         {
             this->read_voxel_data( aVoxelFieldName );
         }

@@ -4,64 +4,6 @@
 # Set version
 set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 
-# List header files
-set(HEADERS
-
-	cl_GEN_Geometry_Engine.hpp
-	cl_GEN_Phase_Table.hpp
-	cl_GEN_Field.hpp
-	cl_GEN_Field_Analytic.hpp
-	cl_GEN_Field_Discrete_Integration.hpp
-	cl_GEN_Field_Discrete_Interpolation.hpp
-	cl_GEN_Geometric_Proximity.hpp
-	fn_GEN_Triangle_Geometry.hpp
-
-	#	topology/cl_GEN_Basis_Function.hpp
-	#	topology/cl_GEN_Edge_Topology.hpp
-	#	topology/cl_GEN_Hexahedron_8_Topology.hpp
-	#	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
-	topology/cl_GEN_Interpolation.hpp
-	#	topology/cl_GEN_Linear_Basis_Functions.hpp
-	#
-	#	topology/cl_GEN_Pending_Node.hpp
-	#	topology/cl_GEN_Quad_4_Basis_Function.hpp
-	#	topology/cl_GEN_Quad_4_Topology.hpp
-	#	topology/cl_GEN_Topology.hpp
-	#	topology/cl_GEN_Edge_Topology.hpp
-
-	pdv/cl_GEN_Pdv_Host_Manager.hpp
-	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
-	pdv/cl_GEN_Pdv.hpp
-	pdv/cl_GEN_Pdv_Value.hpp
-	pdv/cl_GEN_Pdv_Property.hpp
-	pdv/cl_GEN_Intersection_Node.hpp
-	pdv/cl_GEN_Intersection_Node_Linear.hpp
-	pdv/cl_GEN_Intersection_Node_Bilinear.hpp
-
-	field/geometry/cl_GEN_Geometry.hpp
-	field/geometry/cl_GEN_Circle.hpp
-	field/geometry/cl_GEN_Superellipse.hpp
-	field/geometry/cl_GEN_Sphere.hpp
-	field/geometry/cl_GEN_Superellipsoid.hpp
-	field/geometry/cl_GEN_Plane.hpp
-	field/geometry/cl_GEN_Mesh_Field_Geometry.hpp
-	field/geometry/cl_GEN_User_Defined_Geometry.hpp
-	field/geometry/cl_GEN_Voxel_Input.hpp
-	field/geometry/cl_GEN_Single_Grain.hpp
-	field/geometry/cl_GEN_Level_Set.hpp
-	field/geometry/cl_GEN_Stored_Geometry.hpp
-	field/geometry/cl_GEN_Multigeometry.hpp
-	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
-	field/geometry/fn_GEN_create_geometries.hpp
-	field/geometry/cl_GEN_Child_Node.hpp
-
-	field/property/cl_GEN_Property.hpp
-	field/property/cl_GEN_Scaled_Field.hpp
-	field/property/cl_GEN_Discrete_Property.hpp
-	field/property/cl_GEN_User_Defined_Property.hpp
-	field/property/fn_GEN_create_properties.hpp
-	)
-
 # List header dependencies                                                                                                                                                                                                                                                     
 set(GEN_INCLUDES
 	"field"

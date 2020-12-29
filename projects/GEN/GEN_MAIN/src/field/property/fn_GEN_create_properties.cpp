@@ -1,11 +1,11 @@
 #include "fn_GEN_create_properties.hpp"
+#include "st_GEN_Field_Parameters.hpp"
+#include "fn_Parsing_Tools.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 
 #include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Discrete_Property.hpp"
 #include "cl_GEN_User_Defined_Property.hpp"
-
-#include "cl_MTK_Mesh_Core.hpp"
-#include "fn_Parsing_Tools.hpp"
 
 namespace moris
 {
@@ -222,16 +222,24 @@ namespace moris
         {
             // Property type/name
             std::string tPropertyType = aPropertyParameterList.get<std::string>("type");
-            std::string tPropertyName = aPropertyParameterList.get<std::string>("name");
 
             // Property inputs
             Matrix<DDUMat> tPropertyVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
             set_property_variable_inputs(aPropertyParameterList, aADVs.length(), tPropertyVariableIndices, tADVIndices);
-            Matrix<DDRMat> tConstantParameters(0, 0);
 
             // Get constant parameters
-            string_to_mat(aPropertyParameterList.get<std::string>("constant_parameters"), tConstantParameters);
+            Matrix<DDRMat> tConstants = string_to_mat<DDRMat>(aPropertyParameterList.get<std::string>("constant_parameters"));
+
+            // Property parameters
+            Field_Parameters tParameters;
+            tParameters.mName = aPropertyParameterList.get<std::string>("name");
+            tParameters.mNumRefinements = aPropertyParameterList.get<std::string>("number_of_refinements");
+            tParameters.mRefinementMeshIndices = aPropertyParameterList.get<std::string>("refinement_mesh_index");
+            tParameters.mRefinementFunctionIndex = aPropertyParameterList.get<sint>("refinement_function_index");
+            tParameters.mBSplineMeshIndex = aPropertyParameterList.get<sint>("bspline_mesh_index");
+            tParameters.mBSplineLowerBound = aPropertyParameterList.get<real>("bspline_lower_bound");
+            tParameters.mBSplineUpperBound = aPropertyParameterList.get<real>("bspline_upper_bound");
 
             // Build Property
             if (tPropertyType == "scaled_field")
@@ -240,9 +248,9 @@ namespace moris
                         aADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
-                        tConstantParameters,
+                        tConstants,
                         aFieldDependencies,
-                        tPropertyName);
+                        tParameters);
             }
             else if (tPropertyType == "discrete")
             {
@@ -250,8 +258,8 @@ namespace moris
                         aADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
-                        tConstantParameters,
-                        tPropertyName);
+                        tConstants,
+                        tParameters);
             }
             else if (tPropertyType == "user_defined")
             {
@@ -267,11 +275,11 @@ namespace moris
                         aADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
-                        tConstantParameters,
+                        tConstants,
                         aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
-                        tPropertyName);
+                        tParameters);
             }
             else
             {
@@ -291,37 +299,39 @@ namespace moris
         {
             // Property type/name
             std::string tPropertyType = aPropertyParameterList.get<std::string>("type");
-            std::string tPropertyName = aPropertyParameterList.get<std::string>("name");
 
             // Property inputs
             Matrix<DDUMat> tPropertyVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
-            Matrix<DDRMat> tConstantParameters(0, 0);
-
-            // Get constant/variable parameters
             set_property_variable_inputs(aPropertyParameterList, aOwnedADVs->vec_local_length(), tPropertyVariableIndices, tADVIndices);
-            string_to_mat(aPropertyParameterList.get<std::string>("constant_parameters"), tConstantParameters);
+
+            // Get constant parameters
+            Matrix<DDRMat> tConstants = string_to_mat<DDRMat>(aPropertyParameterList.get<std::string>("constant_parameters"));
+
+            // Property parameters
+            Field_Parameters tParameters;
+            tParameters.mName = aPropertyParameterList.get<std::string>("name");
+            tParameters.mNumRefinements = aPropertyParameterList.get<std::string>("number_of_refinements");
+            tParameters.mRefinementMeshIndices = aPropertyParameterList.get<std::string>("refinement_mesh_index");
+            tParameters.mRefinementFunctionIndex = aPropertyParameterList.get<sint>("refinement_function_index");
+            tParameters.mBSplineMeshIndex = aPropertyParameterList.get<sint>("bspline_mesh_index");
+            tParameters.mBSplineLowerBound = aPropertyParameterList.get<real>("bspline_lower_bound");
+            tParameters.mBSplineUpperBound = aPropertyParameterList.get<real>("bspline_upper_bound");
 
             // Build Property
             if (tPropertyType == "scaled_field")
             {
-                return std::make_shared<Scaled_Field>(
-                        aOwnedADVs,
+                return std::make_shared<Scaled_Field>(aOwnedADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
-                        tConstantParameters,
+                        tConstants,
                         aFieldDependencies,
                         aMesh,
-                        tPropertyName);
+                        tParameters);
             }
             else if (tPropertyType == "discrete")
             {
-                return std::make_shared<Discrete_Property>(
-                        aOwnedADVs,
-                        tPropertyVariableIndices,
-                        tADVIndices,
-                        tConstantParameters,
-                        tPropertyName);
+                return std::make_shared<Discrete_Property>(aOwnedADVs, tPropertyVariableIndices, tADVIndices, tConstants, tParameters);
             }
             else if (tPropertyType == "user_defined")
             {
@@ -337,11 +347,11 @@ namespace moris
                         aOwnedADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
-                        tConstantParameters,
+                        tConstants,
                         aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
-                        tPropertyName);
+                        tParameters);
             }
             else
             {

@@ -11,27 +11,11 @@ namespace moris
                 Matrix<DDRMat>&              aADVs,
                 Matrix<DDUMat>               aPropertyVariableIndices,
                 Matrix<DDUMat>               aADVIndices,
-                Matrix<DDRMat>               aConstantParameters,
+                Matrix<DDRMat>               aConstants,
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
-                std::string                  aName,
-                Matrix<DDSMat>               aNumRefinements,
-                Matrix<DDSMat>               aRefinementMeshIndices,
-                sint                         aRefinementFunctionIndex,
-                sint                         aBSplineMeshIndex,
-                real                         aBSplineLowerBound,
-                real                         aBSplineUpperBound)
-                : Field(aADVs,
-                        aPropertyVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Property(aFieldDependencies)
+                Field_Parameters             aParameters)
+                : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
+                , Property(aFieldDependencies)
         {
             MORIS_ERROR(mFieldDependencies.size() == 1, "A scaled field property must depend on one field.");
             MORIS_ERROR(mFieldVariables.size() == 1, "A scaled field property must have one scaling factor.");
@@ -45,29 +29,13 @@ namespace moris
                 sol::Dist_Vector*            aOwnedADVs,
                 Matrix<DDUMat>               aPropertyVariableIndices,
                 Matrix<DDUMat>               aADVIndices,
-                Matrix<DDRMat>               aConstantParameters,
+                Matrix<DDRMat>               aConstants,
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
                 mtk::Mesh*                   aMesh,
-                std::string                  aName,
-                Matrix<DDSMat>               aNumRefinements,
-                Matrix<DDSMat>               aRefinementMeshIndices,
-                sint                         aRefinementFunctionIndex,
-                sint                         aBSplineMeshIndex,
-                real                         aBSplineLowerBound,
-                real                         aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aPropertyVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Property(aFieldDependencies),
-                  mMesh(aMesh)
+                Field_Parameters             aParameters)
+                : Field(aOwnedADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
+                , Property(aFieldDependencies)
+                , mMesh(aMesh)
         {
             MORIS_ERROR(mFieldDependencies.size() == 1, "A scaled field property must depend on one field.");
             MORIS_ERROR(mFieldVariables.size() == 1, "A scaled field property must have one scaling factor.");

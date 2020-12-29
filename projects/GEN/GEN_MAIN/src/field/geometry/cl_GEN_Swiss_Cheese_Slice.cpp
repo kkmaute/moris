@@ -9,35 +9,22 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Swiss_Cheese_Slice::Swiss_Cheese_Slice(
-                real           aLeftBound,
-                real           aRightBound,
-                real           aBottomBound,
-                real           aTopBound,
-                uint           aNumXHoles,
-                uint           aNumYHoles,
-                real           aXSemidiameter,
-                real           aYSemidiameter,
-                real           aExponent,
-                real           aScaling,
-                real           aRegularization,
-                real           aShift,
-                real           aOffset,
-                std::string    aName,
-                Matrix<DDSMat> aNumRefinements,
-                Matrix<DDSMat> aRefinementMeshIndices,
-                sint           aRefinementFunctionIndex,
-                sint           aBSplineMeshIndex,
-                real           aBSplineLowerBound,
-                real           aBSplineUpperBound)
-                : Field(Matrix<DDRMat>(0, 0),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
+                real             aLeftBound,
+                real             aRightBound,
+                real             aBottomBound,
+                real             aTopBound,
+                uint             aNumXHoles,
+                uint             aNumYHoles,
+                real             aXSemidiameter,
+                real             aYSemidiameter,
+                real             aExponent,
+                real             aScaling,
+                real             aRegularization,
+                real             aShift,
+                real             aOffset,
+                Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>(0, 0), aParameters)
+                , Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                           aLeftBound,
                           aBottomBound,
                           aXSemidiameter,
@@ -46,14 +33,7 @@ namespace moris
                           aScaling,
                           aRegularization,
                           aShift,
-                          "",
-                          aNumRefinements,
-                          aRefinementMeshIndices,
-                          aRefinementFunctionIndex,
-                          aBSplineMeshIndex,
-                          aBSplineLowerBound,
-                          aBSplineUpperBound)),
-                                aName)
+                          aParameters)))
         {
             this->create_holes(
                     aLeftBound,
@@ -69,46 +49,28 @@ namespace moris
                     aScaling,
                     aRegularization,
                     aShift,
-                    aNumRefinements,
-                    aRefinementMeshIndices,
-                    aRefinementFunctionIndex,
-                    aBSplineMeshIndex,
-                    aBSplineLowerBound,
-                    aBSplineUpperBound);
+                    aParameters);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Swiss_Cheese_Slice::Swiss_Cheese_Slice(real aLeftBound,
-                real           aRightBound,
-                real           aBottomBound,
-                real           aTopBound,
-                real           aTargetXSpacing,
-                real           aTargetYSpacing,
-                real           aXSemidiameter,
-                real           aYSemidiameter,
-                real           aExponent,
-                real           aScaling,
-                real           aRegularization,
-                real           aShift,
-                real           aOffset,
-                bool           aAllowLessThanTargetSpacing,
-                std::string    aName,
-                Matrix<DDSMat> aNumRefinements,
-                Matrix<DDSMat> aRefinementMeshIndices,
-                sint           aRefinementFunctionIndex,
-                sint           aBSplineMeshIndex,
-                real           aBSplineLowerBound,
-                real           aBSplineUpperBound)
-                : Field(Matrix<DDRMat>(0, 0),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
+                real             aRightBound,
+                real             aBottomBound,
+                real             aTopBound,
+                real             aTargetXSpacing,
+                real             aTargetYSpacing,
+                real             aXSemidiameter,
+                real             aYSemidiameter,
+                real             aExponent,
+                real             aScaling,
+                real             aRegularization,
+                real             aShift,
+                real             aOffset,
+                bool             aAllowLessThanTargetSpacing,
+                Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>(0, 0), aParameters)
+                , Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                           aLeftBound,
                           aBottomBound,
                           aXSemidiameter,
@@ -117,14 +79,7 @@ namespace moris
                           aScaling,
                           aRegularization,
                           aShift,
-                          "",
-                          aNumRefinements,
-                          aRefinementMeshIndices,
-                          aRefinementFunctionIndex,
-                          aBSplineMeshIndex,
-                          aBSplineLowerBound,
-                          aBSplineUpperBound)),
-                                aName)
+                          aParameters)))
         {
             real tNumXHoles = ((aRightBound - aLeftBound) / aTargetXSpacing) + 1.0;
             real tNumYHoles = ((aTopBound - aBottomBound) / aTargetYSpacing) + 1.0;
@@ -147,36 +102,26 @@ namespace moris
                     aScaling,
                     aRegularization,
                     aShift,
-                    aNumRefinements,
-                    aRefinementMeshIndices,
-                    aRefinementFunctionIndex,
-                    aBSplineMeshIndex,
-                    aBSplineLowerBound,
-                    aBSplineUpperBound);
+                    aParameters);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Swiss_Cheese_Slice::create_holes(
-                real           aXOrigin,
-                real           aYOrigin,
-                uint           aNumXHoles,
-                uint           aNumYHoles,
-                real           aXDelta,
-                real           aYDelta,
-                real           aOffset,
-                real           aXSemidiameter,
-                real           aYSemidiameter,
-                real           aExponent,
-                real           aScaling,
-                real           aRegularization,
-                real           aShift,
-                Matrix<DDSMat> aNumRefinements,
-                Matrix<DDSMat> aRefinementMeshIndices,
-                sint           aRefinementFunctionIndex,
-                sint           aBSplineMeshIndex,
-                real           aBSplineLowerBound,
-                real           aBSplineUpperBound)
+                real             aXOrigin,
+                real             aYOrigin,
+                uint             aNumXHoles,
+                uint             aNumYHoles,
+                real             aXDelta,
+                real             aYDelta,
+                real             aOffset,
+                real             aXSemidiameter,
+                real             aYSemidiameter,
+                real             aExponent,
+                real             aScaling,
+                real             aRegularization,
+                real             aShift,
+                Field_Parameters aParameters)
         {
             for (uint tYHoleIndex = 0; tYHoleIndex < aNumYHoles; tYHoleIndex++)
             {
@@ -193,13 +138,7 @@ namespace moris
                                 aScaling,
                                 aRegularization,
                                 aShift,
-                                "",
-                                aNumRefinements,
-                                aRefinementMeshIndices,
-                                aRefinementFunctionIndex,
-                                aBSplineMeshIndex,
-                                aBSplineLowerBound,
-                                aBSplineUpperBound));
+                                aParameters));
                     }
                 }
             }

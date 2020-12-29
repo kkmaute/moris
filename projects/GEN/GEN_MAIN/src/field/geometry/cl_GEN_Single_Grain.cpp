@@ -11,84 +11,45 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Single_Grain::Single_Grain(
-                Matrix<DDRMat>&                aADVs,
-                Matrix<DDUMat>                 aGeometryVariableIndices,
-                Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
-                std::shared_ptr<Geometry>      aVoxelGeometrie,
-                uint                           aIndex,
-                std::string                    aName,
-                Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex)
-        : Field(aADVs,
-                aGeometryVariableIndices,
-                aADVIndices,
-                aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                0.0,
-                0.0)
+                Matrix<DDRMat>&           aADVs,
+                Matrix<DDUMat>            aGeometryVariableIndices,
+                Matrix<DDUMat>            aADVIndices,
+                Matrix<DDRMat>            aConstants,
+                std::shared_ptr<Geometry> aVoxelGeometry,
+                uint                      aIndex,
+                Field_Parameters          aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            mVoxelGeometrie = aVoxelGeometrie;
+            mVoxelGeometry = aVoxelGeometry;
             mIndex = aIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Single_Grain::Single_Grain(
-                sol::Dist_Vector*              aOwnedADVs,
-                Matrix<DDUMat>                 aGeometryVariableIndices,
-                Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
-                std::shared_ptr<Geometry>      aVoxelGeometrie,
-                uint                           aIndex,
-                std::string                    aName,
-                Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex)
-        : Field(aOwnedADVs,
-                aGeometryVariableIndices,
-                aADVIndices,
-                aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                0.0,
-                0.0)
+                sol::Dist_Vector*         aOwnedADVs,
+                Matrix<DDUMat>            aGeometryVariableIndices,
+                Matrix<DDUMat>            aADVIndices,
+                Matrix<DDRMat>            aConstants,
+                std::shared_ptr<Geometry> aVoxelGeometry,
+                uint                      aIndex,
+                Field_Parameters          aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            mVoxelGeometrie = aVoxelGeometrie;
+            mVoxelGeometry = aVoxelGeometry;
             mIndex = aIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Single_Grain::Single_Grain(
-                Matrix<DDRMat>           aConstantParameters,
-                std::shared_ptr<Geometry>      aVoxelGeometrie,
-                uint                           aIndex,
-                std::string              aName,
-                Matrix<DDSMat>           aNumRefinements,
-                Matrix<DDSMat>           aRefinementMeshIndices,
-                sint                     aRefinementFunctionIndex,
-                sint                     aBSplineMeshIndex)
-        : Field(aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                0.0,
-                0.0)
+                Matrix<DDRMat>            aConstants,
+                std::shared_ptr<Geometry> aVoxelGeometry,
+                uint                      aIndex,
+                Field_Parameters          aParameters)
+                : Field(aConstants, aParameters)
         {
-            mVoxelGeometrie = aVoxelGeometrie;
+            mVoxelGeometry = aVoxelGeometry;
             mIndex = aIndex;
         }
 
@@ -96,7 +57,7 @@ namespace moris
 
         real Single_Grain::get_field_value( const Matrix<DDRMat>& aCoordinates )
         {
-            moris::real tGeoValue = reinterpret_cast< Voxel_Input* >(mVoxelGeometrie.get())->get_field_value(aCoordinates);
+            moris::real tGeoValue = reinterpret_cast< Voxel_Input* >(mVoxelGeometry.get())->get_field_value(aCoordinates);
 
             moris::real tValue = -1.0;
 

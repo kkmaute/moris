@@ -18,26 +18,14 @@ namespace moris
              * @param aADVs Reference to the full advs
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             * @param aConstants The constant field variables not filled by ADVs
+             * @param aParameters Additional parameters
              */
-            Circle(Matrix<DDRMat>& aADVs,
-                   Matrix<DDUMat>  aGeometryVariableIndices,
-                   Matrix<DDUMat>  aADVIndices,
-                   Matrix<DDRMat>  aConstantParameters,
-                   std::string     aName = "",
-                   Matrix<DDSMat>  aNumRefinements = {{}},
-                   Matrix<DDSMat>  aRefinementMeshIndices = {{}},
-                   sint            aRefinementFunctionIndex = -1,
-                   sint            aBSplineMeshIndex = -2,
-                   real            aBSplineLowerBound = -1.0,
-                   real            aBSplineUpperBound = 1.0);
+            Circle(Matrix<DDRMat>&  aADVs,
+                   Matrix<DDUMat>   aGeometryVariableIndices,
+                   Matrix<DDUMat>   aADVIndices,
+                   Matrix<DDRMat>   aConstants,
+                   Field_Parameters aParameters = {});
 
             /**
              * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
@@ -45,26 +33,14 @@ namespace moris
              * @param aOwnedADVs Pointer to the owned distributed ADVs
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             * @param aConstants The constant field variables not filled by ADVs
+             * @param aParameters Additional parameters
              */
             Circle(sol::Dist_Vector* aOwnedADVs,
                    Matrix<DDUMat>    aGeometryVariableIndices,
                    Matrix<DDUMat>    aADVIndices,
-                   Matrix<DDRMat>    aConstantParameters,
-                   std::string       aName = "",
-                   Matrix<DDSMat>    aNumRefinements = {{}},
-                   Matrix<DDSMat>    aRefinementMeshIndices = {{}},
-                   sint              aRefinementFunctionIndex = -1,
-                   sint              aBSplineMeshIndex = -2,
-                   real              aBSplineLowerBound = -1.0,
-                   real              aBSplineUpperBound = 1.0);
+                   Matrix<DDRMat>    aConstants,
+                   Field_Parameters  aParameters = {});
 
             /**
              * Constructor with only constant parameters
@@ -72,24 +48,9 @@ namespace moris
              * @param aXCenter x-coordinate of the center of the circle
              * @param aYCenter y-coordiante of the center of the circle
              * @param aRadius radius of the circle
-             * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             * @param aParameters Additional parameters
              */
-            Circle(real           aXCenter,
-                   real           aYCenter,
-                   real           aRadius,
-                   std::string    aName = "",
-                   Matrix<DDSMat> aNumRefinements = {{}},
-                   Matrix<DDSMat> aRefinementMeshIndices = {{}},
-                   sint           aRefinementFunctionIndex = -1,
-                   sint           aBSplineMeshIndex = -2,
-                   real           aBSplineLowerBound = -1.0,
-                   real           aBSplineUpperBound = 1.0);
+            Circle(real aXCenter, real aYCenter, real aRadius, Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

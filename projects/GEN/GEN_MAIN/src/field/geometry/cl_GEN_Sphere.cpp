@@ -7,83 +7,36 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(Matrix<DDRMat>& aADVs,
-                       Matrix<DDUMat>  aGeometryVariableIndices,
-                       Matrix<DDUMat>  aADVIndices,
-                       Matrix<DDRMat>  aConstantParameters,
-                       std::string     aName,
-                       Matrix<DDSMat>  aNumRefinements,
-                       Matrix<DDSMat>  aRefinementMeshIndices,
-                       sint            aRefinementFunctionIndex,
-                       sint            aBSplineMeshIndex,
-                       real            aBSplineLowerBound,
-                       real            aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Sphere::Sphere(
+                Matrix<DDRMat>&  aADVs,
+                Matrix<DDUMat>   aGeometryVariableIndices,
+                Matrix<DDUMat>   aADVIndices,
+                Matrix<DDRMat>   aConstants,
+                Field_Parameters aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 4,
                         "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(sol::Dist_Vector* aOwnedADVs,
-                       Matrix<DDUMat>    aGeometryVariableIndices,
-                       Matrix<DDUMat>    aADVIndices,
-                       Matrix<DDRMat>    aConstantParameters,
-                       std::string       aName,
-                       Matrix<DDSMat>    aNumRefinements,
-                       Matrix<DDSMat>    aRefinementMeshIndices,
-                       sint              aRefinementFunctionIndex,
-                       sint              aBSplineMeshIndex,
-                       real              aBSplineLowerBound,
-                       real              aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Sphere::Sphere(
+                sol::Dist_Vector* aOwnedADVs,
+                Matrix<DDUMat>    aGeometryVariableIndices,
+                Matrix<DDUMat>    aADVIndices,
+                Matrix<DDRMat>    aConstants,
+                Field_Parameters  aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 4,
                         "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(real           aXCenter,
-                       real           aYCenter,
-                       real           aZCenter,
-                       real           aRadius,
-                       std::string    aName,
-                       Matrix<DDSMat> aNumRefinements,
-                       Matrix<DDSMat> aRefinementMeshIndices,
-                       sint           aRefinementFunctionIndex,
-                       sint           aBSplineMeshIndex,
-                       real           aBSplineLowerBound,
-                       real           aBSplineUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Sphere::Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius, Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}), aParameters)
         {
         }
 

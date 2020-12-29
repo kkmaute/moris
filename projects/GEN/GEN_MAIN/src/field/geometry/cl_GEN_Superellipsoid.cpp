@@ -8,30 +8,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipsoid::Superellipsoid(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDUMat>  aGeometryVariableIndices,
-                Matrix<DDUMat>  aADVIndices,
-                Matrix<DDRMat>  aConstantParameters,
-                std::string     aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndices,
-                sint            aRefinementFunctionIndex,
-                sint            aBSplineMeshIndex,
-                real            aBSplineLowerBound,
-                real            aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Matrix<DDRMat>&  aADVs,
+                Matrix<DDUMat>   aGeometryVariableIndices,
+                Matrix<DDUMat>   aADVIndices,
+                Matrix<DDRMat>   aConstants,
+                Field_Parameters aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 7,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
                         "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constant parameters).");
             MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
                         "A GEN Superellipsoid must be created with positive semidiameters.");
@@ -43,27 +27,11 @@ namespace moris
                 sol::Dist_Vector* aOwnedADVs,
                 Matrix<DDUMat>    aGeometryVariableIndices,
                 Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstantParameters,
-                std::string       aName,
-                Matrix<DDSMat>    aNumRefinements,
-                Matrix<DDSMat>    aRefinementMeshIndices,
-                sint              aRefinementFunctionIndex,
-                sint              aBSplineMeshIndex,
-                real              aBSplineLowerBound,
-                real              aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Matrix<DDRMat>    aConstants,
+                Field_Parameters  aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 7,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
                         "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constant parameters).");
             MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
                         "A GEN Superellipsoid must be created with positive semidiameters.");
@@ -72,28 +40,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipsoid::Superellipsoid(
-                real           aXCenter,
-                real           aYCenter,
-                real           aZCenter,
-                real           aXSemidiameter,
-                real           aYSemidiameter,
-                real           aZSemidiameter,
-                real           aExponent,
-                std::string    aName,
-                Matrix<DDSMat> aNumRefinements,
-                Matrix<DDSMat> aRefinementMeshIndices,
-                sint           aRefinementFunctionIndex,
-                sint           aBSplineMeshIndex,
-                real           aBSplineLowerBound,
-                real           aBSplineUpperBound)
+                real             aXCenter,
+                real             aYCenter,
+                real             aZCenter,
+                real             aXSemidiameter,
+                real             aYSemidiameter,
+                real             aZSemidiameter,
+                real             aExponent,
+                Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent}}),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                        aParameters)
         {
             MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
                         "A GEN Superellipsoid must be created with positive semidiameters.");

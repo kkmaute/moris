@@ -11,27 +11,11 @@ namespace moris
                 Matrix<DDRMat>&                aADVs,
                 Matrix<DDUMat>                 aGeometryVariableIndices,
                 Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
+                Matrix<DDRMat>                 aConstants,
                 MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                std::string                    aName,
-                Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex,
-                real                           aBSplineLowerBound,
-                real                           aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Field_Parameters               aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
             this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
         }
@@ -42,27 +26,11 @@ namespace moris
                 sol::Dist_Vector*              aOwnedADVs,
                 Matrix<DDUMat>                 aGeometryVariableIndices,
                 Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
+                Matrix<DDRMat>                 aConstants,
                 MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                std::string                    aName,
-                Matrix<DDSMat>                 aNumRefinements,
-                Matrix<DDSMat>                 aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex,
-                real                           aBSplineLowerBound,
-                real                           aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Field_Parameters               aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
             this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
         }
@@ -70,23 +38,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         User_Defined_Geometry::User_Defined_Geometry(
-                Matrix<DDRMat>           aConstantParameters,
+                Matrix<DDRMat>           aConstants,
                 MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                std::string              aName,
-                Matrix<DDSMat>           aNumRefinements,
-                Matrix<DDSMat>           aRefinementMeshIndices,
-                sint                     aRefinementFunctionIndex,
-                sint                     aBSplineMeshIndex,
-                real                     aBSplineLowerBound,
-                real                     aBSplineUpperBound)
-                : Field(aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Field_Parameters         aParameters)
+                : Field(aConstants, aParameters)
         {
             this->set_user_defined_functions(aFieldEvaluationFunction, nullptr);
         }

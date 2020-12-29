@@ -10,14 +10,12 @@ namespace moris
         Mesh_Field_Geometry::Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                                  std::string aFieldName,
                                                  EntityRank  aEntityRank,
-                                                 Matrix<DDSMat>  aNumRefinements,
-                                                 Matrix<DDSMat>  aRefinementMeshIndices,
-                                                 sint        aRefinementFunctionIndex)
-                : Field(Matrix<DDRMat>(1, 1, 0.0), "", aNumRefinements, aRefinementMeshIndices, aRefinementFunctionIndex, -1, -1.0, 1.0),
-                  Field_Discrete_Integration(aMesh->get_num_nodes()),
-                  mMesh(aMesh),
-                  mFieldName(aFieldName),
-                  mEntityRank(aEntityRank)
+                                                 Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>(1, 1, 0.0), aParameters)
+                , Field_Discrete_Integration(aMesh->get_num_nodes())
+                , mMesh(aMesh)
+                , mFieldName(aFieldName)
+                , mEntityRank(aEntityRank)
         {
         }
 

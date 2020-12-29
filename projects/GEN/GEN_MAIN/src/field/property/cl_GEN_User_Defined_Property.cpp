@@ -11,28 +11,12 @@ namespace moris
                 Matrix<DDRMat>&                aADVs,
                 Matrix<DDUMat>                 aPropertyVariableIndices,
                 Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
+                Matrix<DDRMat>                 aConstants,
                 Cell<std::shared_ptr<Field>>   aFieldDependencies,
                 MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                std::string                    aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex,
-                real                           aBSplineLowerBound,
-                real                           aBSplineUpperBound)
-                : Field(aADVs,
-                        aPropertyVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Field_Parameters               aParameters)
+                : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
         {
             get_field_value_user_defined = aFieldEvaluationFunction;
             get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
@@ -44,28 +28,12 @@ namespace moris
                 sol::Dist_Vector*              aOwnedADVs,
                 Matrix<DDUMat>                 aPropertyVariableIndices,
                 Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstantParameters,
+                Matrix<DDRMat>                 aConstants,
                 Cell<std::shared_ptr<Field>>   aFieldDependencies,
                 MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                std::string                    aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndices,
-                sint                           aRefinementFunctionIndex,
-                sint                           aBSplineMeshIndex,
-                real                           aBSplineLowerBound,
-                real                           aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aPropertyVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Field_Parameters               aParameters)
+                : Field(aOwnedADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
         {
             get_field_value_user_defined = aFieldEvaluationFunction;
             get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;

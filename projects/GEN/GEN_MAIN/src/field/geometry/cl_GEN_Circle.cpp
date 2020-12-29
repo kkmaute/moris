@@ -7,82 +7,36 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(Matrix<DDRMat>& aADVs,
-                       Matrix<DDUMat>  aGeometryVariableIndices,
-                       Matrix<DDUMat>  aADVIndices,
-                       Matrix<DDRMat>  aConstantParameters,
-                       std::string     aName,
-                       Matrix<DDSMat>  aNumRefinements,
-                       Matrix<DDSMat>  aRefinementMeshIndices,
-                       sint            aRefinementFunctionIndex,
-                       sint            aBSplineMeshIndex,
-                       real            aBSplineLowerBound,
-                       real            aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Circle::Circle(
+                Matrix<DDRMat>&  aADVs,
+                Matrix<DDUMat>   aGeometryVariableIndices,
+                Matrix<DDUMat>   aADVIndices,
+                Matrix<DDRMat>   aConstants,
+                Field_Parameters aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 3,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 3,
                         "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constant parameters)");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(sol::Dist_Vector* aOwnedADVs,
-                       Matrix<DDUMat>    aGeometryVariableIndices,
-                       Matrix<DDUMat>    aADVIndices,
-                       Matrix<DDRMat>    aConstantParameters,
-                       std::string       aName,
-                       Matrix<DDSMat>    aNumRefinements,
-                       Matrix<DDSMat>    aRefinementMeshIndices,
-                       sint              aRefinementFunctionIndex,
-                       sint              aBSplineMeshIndex,
-                       real              aBSplineLowerBound,
-                       real              aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Circle::Circle(
+                sol::Dist_Vector* aOwnedADVs,
+                Matrix<DDUMat>    aGeometryVariableIndices,
+                Matrix<DDUMat>    aADVIndices,
+                Matrix<DDRMat>    aConstants,
+                Field_Parameters  aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 3,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 3,
                         "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constant parameters)");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real           aXCenter,
-                       real           aYCenter,
-                       real           aRadius,
-                       std::string    aName,
-                       Matrix<DDSMat> aNumRefinements,
-                       Matrix<DDSMat> aRefinementMeshIndices,
-                       sint           aRefinementFunctionIndex,
-                       sint           aBSplineMeshIndex,
-                       real           aBSplineLowerBound,
-                       real           aBSplineUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Circle::Circle(real aXCenter, real aYCenter, real aRadius, Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}), aParameters)
         {
         }
 

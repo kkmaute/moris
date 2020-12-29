@@ -8,19 +8,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Stored_Geometry::Stored_Geometry(mtk::Mesh* aMesh, std::shared_ptr<Geometry> aGeometry)
-                : Field(Matrix<DDRMat>(0, 0),
-                        aGeometry->get_name(),
-                        aGeometry->get_num_refinements(),
-                        aGeometry->get_refinement_mesh_indices(),
-                        aGeometry->get_refinement_function_index(),
-                        aGeometry->get_bspline_mesh_index(),
-                        aGeometry->get_bspline_lower_bound(),
-                        aGeometry->get_bspline_upper_bound()),
-                  Geometry(aGeometry->get_intersection_interpolation()),
-                  Field_Discrete_Integration(aMesh->get_num_nodes()),
-                  mGeometry(aGeometry),
-                  mMesh(aMesh),
-                  mFieldValues(aMesh->get_num_nodes(), 1)
+                : Field(aGeometry)
+                , Geometry(aGeometry->get_intersection_interpolation())
+                , Field_Discrete_Integration(aMesh->get_num_nodes())
+                , mGeometry(aGeometry)
+                , mMesh(aMesh)
+                , mFieldValues(aMesh->get_num_nodes(), 1)
         {
             this->evaluate_nodal_values();
         }

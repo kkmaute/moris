@@ -8,30 +8,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDUMat>  aGeometryVariableIndices,
-                Matrix<DDUMat>  aADVIndices,
-                Matrix<DDRMat>  aConstantParameters,
-                std::string     aName,
-                Matrix<DDSMat>  aNumRefinements,
-                Matrix<DDSMat>  aRefinementMeshIndices,
-                sint            aRefinementFunctionIndex,
-                sint            aBSplineMeshIndex,
-                real            aBSplineLowerBound,
-                real            aBSplineUpperBound)
-        : Field(aADVs,
-                aGeometryVariableIndices,
-                aADVIndices,
-                aConstantParameters,
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                aBSplineLowerBound,
-                aBSplineUpperBound)
+                Matrix<DDRMat>&  aADVs,
+                Matrix<DDUMat>   aGeometryVariableIndices,
+                Matrix<DDUMat>   aADVIndices,
+                Matrix<DDRMat>   aConstants,
+                Field_Parameters aParameters)
+        : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 8,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
                     "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constant parameters).");
 
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
@@ -47,27 +31,11 @@ namespace moris
                 sol::Dist_Vector* aOwnedADVs,
                 Matrix<DDUMat>    aGeometryVariableIndices,
                 Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstantParameters,
-                std::string       aName,
-                Matrix<DDSMat>    aNumRefinements,
-                Matrix<DDSMat>    aRefinementMeshIndices,
-                sint              aRefinementFunctionIndex,
-                sint              aBSplineMeshIndex,
-                real              aBSplineLowerBound,
-                real              aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Matrix<DDRMat>    aConstants,
+                Field_Parameters  aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 8,
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
                         "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constant parameters).");
 
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
@@ -80,29 +48,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(
-                real           aXCenter,
-                real           aYCenter,
-                real           aXSemidiameter,
-                real           aYSemidiameter,
-                real           aExponent,
-                real           aScaling,
-                real           aRegularization,
-                real           aShift,
-                std::string    aName,
-                Matrix<DDSMat> aNumRefinements,
-                Matrix<DDSMat> aRefinementMeshIndices,
-                sint           aRefinementFunctionIndex,
-                sint           aBSplineMeshIndex,
-                real           aBSplineLowerBound,
-                real           aBSplineUpperBound)
+                real             aXCenter,
+                real             aYCenter,
+                real             aXSemidiameter,
+                real             aYSemidiameter,
+                real             aExponent,
+                real             aScaling,
+                real             aRegularization,
+                real             aShift,
+                Field_Parameters aParameters)
         : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}),
-                aName,
-                aNumRefinements,
-                aRefinementMeshIndices,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                aBSplineLowerBound,
-                aBSplineUpperBound)
+                aParameters)
         {
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
                     "A GEN Super-ellipse must be created with positive semi-diameters.");

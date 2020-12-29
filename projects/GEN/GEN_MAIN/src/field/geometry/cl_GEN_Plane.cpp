@@ -7,28 +7,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(Matrix<DDRMat>& aADVs,
-                     Matrix<DDUMat>  aGeometryVariableIndices,
-                     Matrix<DDUMat>  aADVIndices,
-                     Matrix<DDRMat>  aConstantParameters,
-                     std::string     aName,
-                     Matrix<DDSMat>  aNumRefinements,
-                     Matrix<DDSMat>  aRefinementMeshIndices,
-                     sint            aRefinementFunctionIndex,
-                     sint            aBSplineMeshIndex,
-                     real            aBSplineLowerBound,
-                     real            aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Plane::Plane(Matrix<DDRMat>&  aADVs,
+                     Matrix<DDUMat>   aGeometryVariableIndices,
+                     Matrix<DDUMat>   aADVIndices,
+                     Matrix<DDRMat>   aConstants,
+                     Field_Parameters aParameters)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
             if (mFieldVariables.size() == 4)
             {
@@ -51,25 +35,9 @@ namespace moris
         Plane::Plane(sol::Dist_Vector* aOwnedADVs,
                      Matrix<DDUMat>    aGeometryVariableIndices,
                      Matrix<DDUMat>    aADVIndices,
-                     Matrix<DDRMat>    aConstantParameters,
-                     std::string       aName,
-                     Matrix<DDSMat>    aNumRefinements,
-                     Matrix<DDSMat>    aRefinementMeshIndices,
-                     sint              aRefinementFunctionIndex,
-                     sint              aBSplineMeshIndex,
-                     real              aBSplineLowerBound,
-                     real              aBSplineUpperBound)
-                : Field(aOwnedADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                     Matrix<DDRMat>    aConstants,
+                     Field_Parameters  aParameters)
+                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
         {
             if (mFieldVariables.size() == 4)
             {
@@ -89,27 +57,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(real           aXCenter,
-                     real           aYCenter,
-                     real           aZCenter,
-                     real           aXNormal,
-                     real           aYNormal,
-                     real           aZNormal,
-                     std::string    aName,
-                     Matrix<DDSMat> aNumRefinements,
-                     Matrix<DDSMat> aRefinementMeshIndices,
-                     sint           aRefinementFunctionIndex,
-                     sint           aBSplineMeshIndex,
-                     real           aBSplineLowerBound,
-                     real           aBSplineUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Plane::Plane(real             aXCenter,
+                     real             aYCenter,
+                     real             aZCenter,
+                     real             aXNormal,
+                     real             aYNormal,
+                     real             aZNormal,
+                     Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}), aParameters)
         {
             m_eval_field = &Plane::eval_field_3d;
             m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -117,25 +72,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
     
-        Plane::Plane(real           aXCenter,
-                     real           aYCenter,
-                     real           aXNormal,
-                     real           aYNormal,
-                     std::string    aName,
-                     Matrix<DDSMat> aNumRefinements,
-                     Matrix<DDSMat> aRefinementMeshIndices,
-                     sint           aRefinementFunctionIndex,
-                     sint           aBSplineMeshIndex,
-                     real           aBSplineLowerBound,
-                     real           aBSplineUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}),
-                        aName,
-                        aNumRefinements,
-                        aRefinementMeshIndices,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Plane::Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal, Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}), aParameters)
         {
             m_eval_field = &Plane::eval_field_2d;
             m_eval_sensitivity = &Plane::eval_sensitivity_2d;

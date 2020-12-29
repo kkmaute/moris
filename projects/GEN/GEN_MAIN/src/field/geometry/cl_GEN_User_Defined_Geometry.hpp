@@ -24,31 +24,19 @@ namespace moris
              * @param aADVs Reference to the full advs
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aConstants The constant field variables not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
-             * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             * @param aParameters Additional parameters
              */
             User_Defined_Geometry(
                     Matrix<DDRMat>&                aADVs,
                     Matrix<DDUMat>                 aGeometryVariableIndices,
                     Matrix<DDUMat>                 aADVIndices,
-                    Matrix<DDRMat>                 aConstantParameters,
+                    Matrix<DDRMat>                 aConstants,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
-                    std::string                    aName = "",
-                    Matrix<DDSMat>                 aNumRefinements = {{}},
-                    Matrix<DDSMat>                 aRefinementMeshIndices = {{}},
-                    sint                           aRefinementFunctionIndex = -1,
-                    sint                           aBSplineMeshIndex = -2,
-                    real                           aBSplineLowerBound = -1.0,
-                    real                           aBSplineUpperBound = 1.0);
+                    Field_Parameters               aParameters = {});
 
             /**
              * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
@@ -56,55 +44,31 @@ namespace moris
              * @param aOwnedADVs Pointer to the owned distributed ADVs
              * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aConstants The constant field variables not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
-             * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             * @param aParameters Additional parameters
              */
             User_Defined_Geometry(
-                    sol::Dist_Vector* aOwnedADVs,
+                    sol::Dist_Vector*              aOwnedADVs,
                     Matrix<DDUMat>                 aGeometryVariableIndices,
                     Matrix<DDUMat>                 aADVIndices,
-                    Matrix<DDRMat>                 aConstantParameters,
+                    Matrix<DDRMat>                 aConstants,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
-                    std::string                    aName = "",
-                    Matrix<DDSMat>                 aNumRefinements = {{}},
-                    Matrix<DDSMat>                 aRefinementMeshIndices = {{}},
-                    sint                           aRefinementFunctionIndex = -1,
-                    sint                           aBSplineMeshIndex = -2,
-                    real                           aBSplineLowerBound = -1.0,
-                    real                           aBSplineUpperBound = 1.0);
+                    Field_Parameters               aParameters = {});
 
             /**
              * Constructor with only constant parameters
              *
-             * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aConstants The constant field variables not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
-             * @param aName Name of this field for identification
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementMeshIndices Indices of meshes to perform refinement on
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             * @param aParameters Additional parameters
              */
             User_Defined_Geometry(
-                    Matrix<DDRMat>           aConstantParameters,
+                    Matrix<DDRMat>           aConstants,
                     MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                    std::string              aName = "",
-                    Matrix<DDSMat>           aNumRefinements = {{}},
-                    Matrix<DDSMat>           aRefinementMeshIndices = {{}},
-                    sint                     aRefinementFunctionIndex = -1,
-                    sint                     aBSplineMeshIndex = -2,
-                    real                     aBSplineLowerBound = -1.0,
-                    real                     aBSplineUpperBound = 1.0);
+                    Field_Parameters         aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.
