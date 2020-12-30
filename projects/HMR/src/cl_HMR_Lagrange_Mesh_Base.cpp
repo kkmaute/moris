@@ -217,7 +217,8 @@ namespace moris
 
             if( mParameters->use_number_aura() and
                     mParameters->get_number_of_dimensions() == 3 and
-                    par_size() >= 4 )
+                    par_size() >= 4 and
+                    mParameters->is_output_mesh( mMeshIndex ) )
             {
                 this->communicate_missed_node_indices();
             }
@@ -514,7 +515,7 @@ namespace moris
                 // get my rank
                 moris_id tMyRank = par_rank();
 
-                if( mParameters->use_number_aura() )
+                if( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
                 {
                     for( auto tNode : mAllBasisOnProc )
                     {
@@ -624,7 +625,7 @@ namespace moris
                         for( Basis* tNode : tNodes )
                         {
                             // test if node belongs to neighbor
-                            if( mParameters->use_number_aura() )
+                            if( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
                             {
                                 if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
                                 {
@@ -652,7 +653,7 @@ namespace moris
                         for( Basis * tNode : tNodes )
                         {
                             // test if node belongs to neighbor
-                            if( mParameters->use_number_aura() )
+                            if( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
                             {
                                 if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
                                 {
@@ -750,7 +751,7 @@ namespace moris
 
                         for( Basis* tNode : tNodes )
                         {
-                            if( mParameters->use_number_aura() )
+                            if( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
                             {
                                 if( tNode->get_owner() == tNeighbor && tNode->is_use_owned_and_shared() )
                                 {
@@ -766,18 +767,6 @@ namespace moris
                             }
                         }
                     }
-                }
-            }
-
-            for( auto tNode : mAllBasisOnProc )
-            {
-                if( tNode->get_hmr_id() == 4632 )
-                {
-                    std::cout<<" Id for basis: "<<4632<<" is: "<<tNode->get_id()<<std::endl;
-                }
-                if( tNode->get_hmr_id() == 4628 )
-                {
-                    std::cout<<" Id for basis: "<<4628<<" is: "<<tNode->get_id()<<std::endl;
                 }
             }
         }
@@ -1480,6 +1469,7 @@ namespace moris
             // start timer
             tic tTimer;
 
+
             // modify filename
             std::string tFilePath = parallelize_path( aFilePath );
 
@@ -1833,7 +1823,7 @@ namespace moris
             // reset max level
             mMaxLevel = 0;
 
-            if( mParameters->use_number_aura() )
+            if( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
             {
                 for( auto tNode : mAllBasisOnProc )
                 {

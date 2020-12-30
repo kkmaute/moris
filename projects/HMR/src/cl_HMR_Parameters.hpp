@@ -500,6 +500,13 @@ namespace moris
                mOutputMeshes = aOutputMeshes;
            };
 
+           //--------------------------------------------------------------------------------
+
+           /**
+            * checks if this mesh index belongs to an output mesh
+            */
+           bool is_output_mesh( const uint aMeshIndex ) const;
+
 //--------------------------------------------------------------------------------
 
            /**
