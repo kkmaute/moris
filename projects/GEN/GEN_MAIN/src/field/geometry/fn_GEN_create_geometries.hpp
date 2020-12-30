@@ -13,73 +13,34 @@ namespace moris
         /**
          * Higher-level call for creating a cell of geometries, which also creates multigeometries.
          *
+         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aGeometryParameterLists Parameter lists for creating geometry classes
-         * @param aADVs Reference to the initial ADV vector
+         * @param aADVs ADV Vector
          * @param aLibrary Pointer to library for loading user-defined functions
          * @return Pointers to created Geometry classes
          */
+        template <typename Vector_Type>
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
-                Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr);
-
-        /**
-         * Higher-level call for creating a cell of geometries, which also creates multigeometries.
-         *
-         * @param aGeometryParameterLists Parameter lists for creating geometry classes
-         * @param aOwnedADVs Distributed owned ADVs
-         * @param aLibrary Pointer to library for loading user-defined functions
-         * @return Pointers to created Geometry classes
-         */
-        Cell<std::shared_ptr<Geometry>> create_geometries(
-                Cell<ParameterList>         aGeometryParameterLists,
-                sol::Dist_Vector*           aOwnedADVs,
+                Vector_Type&                aADVs,
                 std::shared_ptr<Library_IO> aLibrary = nullptr);
 
         /**
          * Creates an instance of the specified Geometry class and returns a shared pointer to it.
          *
+         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aGeometryParameterList Parameter list for creating a geometry class
-         * @param aADVs Reference to the initial ADV vector
+         * @param aADVs ADV Vector
          * @param aLibrary Pointer to library for loading user-defined functions
          * @return Pointer to specific Geometry class
          */
+        template <typename Vector_Type>
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
-                Matrix<DDRMat>&             aADVs,
+                Vector_Type&                aADVs,
                 std::shared_ptr<Library_IO> aLibrary = nullptr,
                 std::shared_ptr<Geometry>   aGeometry = nullptr,
                 uint                        aIndex = 0);
-
-        /**
-         * Creates an instance of the specified Geometry class and returns a shared pointer to it.
-         *
-         * @param aGeometryParameterList Parameter list for creating a geometry class
-         * @param aADVs Reference to the initial ADV vector
-         * @param aLibrary Pointer to library for loading user-defined functions
-         * @return Pointer to specific Geometry class
-         */
-        std::shared_ptr<Geometry> create_geometry(
-                ParameterList               aGeometryParameterList,
-                sol::Dist_Vector*           aOwnedADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr,
-                std::shared_ptr<Geometry>   aGeometry = nullptr,
-                uint                        aIndex = 0);
-
-        /**
-         * Sets the geometry variables which depend on ADVs. Used by create_geometry().
-         *
-         * @param aGeometryParameterList Parameter list for creating a geometry class
-         * @param aNumADVs The number of total ADVs
-         * @param aGeometryVariableIndices Indices of geometry variables to fill with ADVs
-         * @param aADVIndices Indices of ADVs for filling the geometry variables
-         */
-        void set_geometry_variable_inputs(
-                ParameterList  aGeometryParameterList,
-                uint           aNumADVs,
-                Matrix<DDUMat>& aGeometryVariableIndices,
-                Matrix<DDUMat>& aADVIndices);
-
     }
 }
 

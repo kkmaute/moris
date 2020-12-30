@@ -11,11 +11,7 @@ namespace moris
         class Scaled_Field : public Property
         {
 
-        private:
-            mtk::Mesh* mMesh = nullptr;
-
         public:
-
             /**
              * Constructor
              *
@@ -42,7 +38,6 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstants The constant field variables not filled by ADVs
              * @param aFieldDependencies Other created fields that this property depends on
-             * @param aMesh Mesh for determining base node information
              * @param aParameters Additional parameters
              */
             Scaled_Field(
@@ -51,7 +46,6 @@ namespace moris
                     Matrix<DDUMat>               aADVIndices,
                     Matrix<DDRMat>               aConstants,
                     Cell<std::shared_ptr<Field>> aFieldDependencies,
-                    mtk::Mesh*                   aMesh,
                     Field_Parameters             aParameters = {});
 
             /**
@@ -87,16 +81,6 @@ namespace moris
             Matrix<DDSMat> get_determining_adv_ids(
                     uint aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
-
-        private:
-            /**
-             * Function to either return information from the mesh about the base node index, or just return the node
-             * index back if the mesh hasn't been provided yet (in which case all nodes are base nodes anyways).
-             *
-             * @param aNodeIndex Node index
-             * @return Base node index
-             */
-            uint get_base_node_index(uint aNodeIndex);
         };
     }
 }

@@ -667,7 +667,7 @@ namespace moris
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
 
             // Build properties from parameter lists using distributed vector
-            mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, tInterpolationMesh, mLibrary);
+            mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
 
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
