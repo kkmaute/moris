@@ -18,34 +18,31 @@ namespace moris
             /**
              * Constructor, sets the pointers to advs and constant parameters for evaluations.
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstants The constant field variables not filled by ADVs
              * @param aParameters Additional parameters
              */
+            template <typename Vector_Type>
             Superellipse(
-                    Matrix<DDRMat>&  aADVs,
+                    Vector_Type&     aADVs,
                     Matrix<DDUMat>   aGeometryVariableIndices,
                     Matrix<DDUMat>   aADVIndices,
                     Matrix<DDRMat>   aConstants,
-                    Field_Parameters aParameters = {});
+                    Field_Parameters aParameters = {})
+                    : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+            {
+                MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
+                            "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constants).");
 
-            /**
-             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aParameters Additional parameters
-             */
-            Superellipse(
-                    sol::Dist_Vector* aOwnedADVs,
-                    Matrix<DDUMat>    aGeometryVariableIndices,
-                    Matrix<DDUMat>    aADVIndices,
-                    Matrix<DDRMat>    aConstants,
-                    Field_Parameters  aParameters = {});
+                MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
+                            "A GEN Super-ellipse must be created with positive semi-diameters.");
+
+                MORIS_ERROR(std::abs(std::fmod(*(mFieldVariables(4)),2.0)) < 1e-12,
+                            "A GEN Super-ellipse must be created with an even exponent.");
+            }
 
             /**
              * Constructor with only constant parameters

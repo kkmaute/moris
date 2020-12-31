@@ -15,38 +15,30 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstants The constant field variables not filled by ADVs
              * @param aFieldDependencies Other created fields that this property depends on
              * @param aParameters Additional parameters
              */
+            template <typename Vector_Type>
             Scaled_Field(
-                    Matrix<DDRMat>&              aADVs,
+                    Vector_Type&                 aADVs,
                     Matrix<DDUMat>               aPropertyVariableIndices,
                     Matrix<DDUMat>               aADVIndices,
                     Matrix<DDRMat>               aConstants,
                     Cell<std::shared_ptr<Field>> aFieldDependencies,
-                    Field_Parameters             aParameters = {});
-
-            /**
-             * Constructor
-             *
-             * @param aOwnedADVs Distributed owned ADVs
-             * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the property variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aFieldDependencies Other created fields that this property depends on
-             * @param aParameters Additional parameters
-             */
-            Scaled_Field(
-                    sol::Dist_Vector*            aOwnedADVs,
-                    Matrix<DDUMat>               aPropertyVariableIndices,
-                    Matrix<DDUMat>               aADVIndices,
-                    Matrix<DDRMat>               aConstants,
-                    Cell<std::shared_ptr<Field>> aFieldDependencies,
-                    Field_Parameters             aParameters = {});
+                    Field_Parameters             aParameters = {})
+                    : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Property(aFieldDependencies)
+            {
+                MORIS_ERROR(mFieldDependencies.size() == 1, "A scaled field property must depend on one field.");
+                MORIS_ERROR(mFieldVariables.size() == 1, "A scaled field property must have one scaling factor.");
+                MORIS_ERROR(aPropertyVariableIndices.length() == 0,
+                            "A scaled field property must have a constant scaling factor for now.");
+            }
 
             /**
              * Given a node index, returns the field value.

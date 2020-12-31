@@ -20,7 +20,8 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstants The constant field variables not filled by ADVs
@@ -29,37 +30,21 @@ namespace moris
              * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
              * @param aParameters Additional parameters
              */
+            template <typename Vector_Type>
             User_Defined_Property(
-                    Matrix<DDRMat>&                aADVs,
+                    Vector_Type&                   aADVs,
                     Matrix<DDUMat>                 aPropertyVariableIndices,
                     Matrix<DDUMat>                 aADVIndices,
                     Matrix<DDRMat>                 aConstants,
                     Cell<std::shared_ptr<Field>>   aFieldDependencies,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                    Field_Parameters               aParameters = {});
-
-            /**
-             * Constructor
-             *
-             * @param aOwnedADVs Owned distributed ADVs
-             * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the property variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aFieldDependencies Other created fields that this property depends on
-             * @param aFieldEvaluationFunction User-defined function for evaluating the property field
-             * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
-             * @param aParameters Additional parameters
-             */
-            User_Defined_Property(
-                    sol::Dist_Vector*              aOwnedADVs,
-                    Matrix<DDUMat>                 aPropertyVariableIndices,
-                    Matrix<DDUMat>                 aADVIndices,
-                    Matrix<DDRMat>                 aConstants,
-                    Cell<std::shared_ptr<Field>>   aFieldDependencies,
-                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                    Field_Parameters               aParameters = {});
+                    Field_Parameters               aParameters = {})
+                    : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
+            {
+                get_field_value_user_defined = aFieldEvaluationFunction;
+                get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
+            }
 
             /**
              * Given a node coordinate, returns the field value.

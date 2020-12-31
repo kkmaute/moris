@@ -18,34 +18,27 @@ namespace moris
             /**
              * Constructor, sets the pointers to advs and constant parameters for evaluations
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstants The constant field variables not filled by ADVs
              * @param aParameters Additional parameters
              */
+            template <typename Vector_Type>
             Superellipsoid(
-                    Matrix<DDRMat>&  aADVs,
+                    Vector_Type&     aADVs,
                     Matrix<DDUMat>   aGeometryVariableIndices,
                     Matrix<DDUMat>   aADVIndices,
                     Matrix<DDRMat>   aConstants,
-                    Field_Parameters aParameters = {});
-
-            /**
-             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aParameters Additional parameters
-             */
-            Superellipsoid(
-                    sol::Dist_Vector* aOwnedADVs,
-                    Matrix<DDUMat>    aGeometryVariableIndices,
-                    Matrix<DDUMat>    aADVIndices,
-                    Matrix<DDRMat>    aConstants,
-                    Field_Parameters  aParameters = {});
+                    Field_Parameters aParameters = {})
+                    : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+            {
+                MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
+                            "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constants).");
+                MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
+                            "A GEN Superellipsoid must be created with positive semidiameters.");
+            }
 
             /**
              * Constructor with only constant parameters

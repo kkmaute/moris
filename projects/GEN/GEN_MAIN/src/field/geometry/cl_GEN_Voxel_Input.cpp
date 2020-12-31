@@ -10,42 +10,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Voxel_Input::Voxel_Input(
-                Matrix<DDRMat>&  aADVs,
-                Matrix<DDUMat>   aGeometryVariableIndices,
-                Matrix<DDUMat>   aADVIndices,
-                Matrix<DDRMat>   aConstants,
-                std::string      aVoxelFieldName,
-                Matrix<DDRMat>   aDomainDimensions,
-                Matrix<DDRMat>   aDomainOffset,
-                Field_Parameters aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-                , mDomainDimensions( aDomainDimensions )
-                , mDomainOffset( aDomainOffset )
-        {
-            this->read_voxel_data( aVoxelFieldName );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Voxel_Input::Voxel_Input(
-                sol::Dist_Vector* aOwnedADVs,
-                Matrix<DDUMat>    aGeometryVariableIndices,
-                Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstants,
-                std::string       aVoxelFieldName,
-                Matrix<DDRMat>    aDomainDimensions,
-                Matrix<DDRMat>    aDomainOffset,
-                Field_Parameters  aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-                , mDomainDimensions( aDomainDimensions )
-                , mDomainOffset( aDomainOffset )
-        {
-            this->read_voxel_data( aVoxelFieldName );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Voxel_Input::Voxel_Input(
                 Matrix<DDRMat>   aConstants,
                 std::string      aVoxelFieldName,
                 Matrix<DDRMat>   aDomainDimensions,

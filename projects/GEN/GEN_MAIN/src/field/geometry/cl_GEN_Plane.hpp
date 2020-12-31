@@ -18,32 +18,36 @@ namespace moris
             /**
              * Constructor, sets the pointers to advs and constant parameters for evaluations.
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstants The constant field variables not filled by ADVs
              * @param aParameters Additional parameters
              */
-            Plane(Matrix<DDRMat>&  aADVs,
+            template <typename Vector_Type>
+            Plane(Vector_Type&     aADVs,
                   Matrix<DDUMat>   aGeometryVariableIndices,
                   Matrix<DDUMat>   aADVIndices,
                   Matrix<DDRMat>   aConstants,
-                  Field_Parameters aParameters = {});
-
-            /**
-             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aParameters Additional parameters
-             */
-            Plane(sol::Dist_Vector* aOwnedADVs,
-                  Matrix<DDUMat>    aGeometryVariableIndices,
-                  Matrix<DDUMat>    aADVIndices,
-                  Matrix<DDRMat>    aConstants,
-                  Field_Parameters  aParameters = {});
+                  Field_Parameters aParameters = {})
+                    : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+            {
+                if (mFieldVariables.size() == 4)
+                {
+                    m_eval_field = &Plane::eval_field_2d;
+                    m_eval_sensitivity = &Plane::eval_sensitivity_2d;
+                }
+                else if (mFieldVariables.size() == 6)
+                {
+                    m_eval_field = &Plane::eval_field_3d;
+                    m_eval_sensitivity = &Plane::eval_sensitivity_3d;
+                }
+                else
+                {
+                    MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane.");
+                }
+            }
 
             /**
              * Constructor with only constant parameters, 3D

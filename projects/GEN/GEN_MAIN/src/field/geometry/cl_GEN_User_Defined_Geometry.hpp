@@ -21,7 +21,8 @@ namespace moris
             /**
              * Constructor, sets the pointers to advs and constant parameters for evaluations.
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstants The constant field variables not filled by ADVs
@@ -29,34 +30,19 @@ namespace moris
              * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
              * @param aParameters Additional parameters
              */
+            template <typename Vector_Type>
             User_Defined_Geometry(
-                    Matrix<DDRMat>&                aADVs,
+                    Vector_Type&                   aADVs,
                     Matrix<DDUMat>                 aGeometryVariableIndices,
                     Matrix<DDUMat>                 aADVIndices,
                     Matrix<DDRMat>                 aConstants,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
-                    Field_Parameters               aParameters = {});
-
-            /**
-             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
-             * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
-             * @param aParameters Additional parameters
-             */
-            User_Defined_Geometry(
-                    sol::Dist_Vector*              aOwnedADVs,
-                    Matrix<DDUMat>                 aGeometryVariableIndices,
-                    Matrix<DDUMat>                 aADVIndices,
-                    Matrix<DDRMat>                 aConstants,
-                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
-                    Field_Parameters               aParameters = {});
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    Field_Parameters               aParameters = {})
+                    : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+            {
+                this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
+            }
 
             /**
              * Constructor with only constant parameters

@@ -7,34 +7,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(
-                Matrix<DDRMat>&  aADVs,
-                Matrix<DDUMat>   aGeometryVariableIndices,
-                Matrix<DDUMat>   aADVIndices,
-                Matrix<DDRMat>   aConstants,
-                Field_Parameters aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 4,
-                        "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Sphere::Sphere(
-                sol::Dist_Vector* aOwnedADVs,
-                Matrix<DDUMat>    aGeometryVariableIndices,
-                Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstants,
-                Field_Parameters  aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 4,
-                        "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Sphere::Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius, Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}), aParameters)
         {

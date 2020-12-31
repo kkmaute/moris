@@ -7,56 +7,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(Matrix<DDRMat>&  aADVs,
-                     Matrix<DDUMat>   aGeometryVariableIndices,
-                     Matrix<DDUMat>   aADVIndices,
-                     Matrix<DDRMat>   aConstants,
-                     Field_Parameters aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            if (mFieldVariables.size() == 4)
-            {
-                m_eval_field = &Plane::eval_field_2d;
-                m_eval_sensitivity = &Plane::eval_sensitivity_2d;
-            }
-            else if (mFieldVariables.size() == 6)
-            {
-                m_eval_field = &Plane::eval_field_3d;
-                m_eval_sensitivity = &Plane::eval_sensitivity_3d;
-            }
-            else
-            {
-                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane.");
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Plane::Plane(sol::Dist_Vector* aOwnedADVs,
-                     Matrix<DDUMat>    aGeometryVariableIndices,
-                     Matrix<DDUMat>    aADVIndices,
-                     Matrix<DDRMat>    aConstants,
-                     Field_Parameters  aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            if (mFieldVariables.size() == 4)
-            {
-                m_eval_field = &Plane::eval_field_2d;
-                m_eval_sensitivity = &Plane::eval_sensitivity_2d;
-            }
-            else if (mFieldVariables.size() == 6)
-            {
-                m_eval_field = &Plane::eval_field_3d;
-                m_eval_sensitivity = &Plane::eval_sensitivity_3d;
-            }
-            else
-            {
-                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane.");
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Plane::Plane(real             aXCenter,
                      real             aYCenter,
                      real             aZCenter,

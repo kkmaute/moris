@@ -28,32 +28,19 @@ namespace moris
             /**
              * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
              *
-             * @param aADVs Reference to the full ADVs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the field variables
              * @param aConstants The constant field variables not filled by ADVs
              * @param aParameters Additional parameters
              */
-            Field(Matrix<DDRMat>&  aADVs,
+            template <typename Vector_Type>
+            Field(Vector_Type&     aADVs,
                   Matrix<DDUMat>   aFieldVariableIndices,
                   Matrix<DDUMat>   aADVIndices,
                   Matrix<DDRMat>   aConstants,
                   Field_Parameters aParameters);
-
-            /**
-             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the field variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aParameters Additional parameters
-             */
-            Field(sol::Dist_Vector* aOwnedADVs,
-                  Matrix<DDUMat>    aFieldVariableIndices,
-                  Matrix<DDUMat>    aADVIndices,
-                  Matrix<DDRMat>    aConstants,
-                  Field_Parameters  aParameters);
 
             /**
              * Constructor, sets all field variables as consecutive ADVs. A reference field is given for parameters.
@@ -61,7 +48,6 @@ namespace moris
              * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aField Reference field
              */
-
             Field(const Matrix<DDSMat>&  aSharedADVIds,
                   std::shared_ptr<Field> aField);
 

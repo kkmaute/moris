@@ -8,36 +8,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         User_Defined_Geometry::User_Defined_Geometry(
-                Matrix<DDRMat>&                aADVs,
-                Matrix<DDUMat>                 aGeometryVariableIndices,
-                Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstants,
-                MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                Field_Parameters               aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        User_Defined_Geometry::User_Defined_Geometry(
-                sol::Dist_Vector*              aOwnedADVs,
-                Matrix<DDUMat>                 aGeometryVariableIndices,
-                Matrix<DDUMat>                 aADVIndices,
-                Matrix<DDRMat>                 aConstants,
-                MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                Field_Parameters               aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        User_Defined_Geometry::User_Defined_Geometry(
                 Matrix<DDRMat>           aConstants,
                 MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                 Field_Parameters         aParameters)
@@ -95,7 +65,7 @@ namespace moris
                 // Check for size
                 MORIS_ERROR(mSensitivities.n_cols() == mFieldVariables.size(),
                         "A user-defined geometry must have a sensitivity vector with a length equal to the total "
-                        "number of geometry variables (ADVs + constant parameters).");
+                        "number of geometry variables (ADVs + constants).");
 
                 // Check for values not nan/infinity
                 for (uint tSensitivityIndex = 0; tSensitivityIndex < mSensitivities.n_cols(); tSensitivityIndex++)

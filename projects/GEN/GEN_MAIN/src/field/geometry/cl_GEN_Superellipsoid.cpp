@@ -8,38 +8,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipsoid::Superellipsoid(
-                Matrix<DDRMat>&  aADVs,
-                Matrix<DDUMat>   aGeometryVariableIndices,
-                Matrix<DDUMat>   aADVIndices,
-                Matrix<DDRMat>   aConstants,
-                Field_Parameters aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
-                        "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constant parameters).");
-            MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
-                        "A GEN Superellipsoid must be created with positive semidiameters.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Superellipsoid::Superellipsoid(
-                sol::Dist_Vector* aOwnedADVs,
-                Matrix<DDUMat>    aGeometryVariableIndices,
-                Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstants,
-                Field_Parameters  aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
-                        "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constant parameters).");
-            MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
-                        "A GEN Superellipsoid must be created with positive semidiameters.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Superellipsoid::Superellipsoid(
                 real             aXCenter,
                 real             aYCenter,
                 real             aZCenter,

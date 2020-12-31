@@ -11,23 +11,6 @@ namespace moris
     namespace ge
     {
         //--------------------------------------------------------------------------------------------------------------
-        // Explicit template instantiation
-        //--------------------------------------------------------------------------------------------------------------
-
-        template
-        Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>             aPropertyParameterLists,
-                Matrix<DDRMat>&                 aADVs,
-                Cell<std::shared_ptr<Geometry>> aGeometries,
-                std::shared_ptr<Library_IO>     aLibrary);
-        template
-        Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>             aPropertyParameterLists,
-                sol::Dist_Vector*&              aADVs,
-                Cell<std::shared_ptr<Geometry>> aGeometries,
-                std::shared_ptr<Library_IO>     aLibrary);
-
-        //--------------------------------------------------------------------------------------------------------------
         // Get the length of different vector types
         //--------------------------------------------------------------------------------------------------------------
 
@@ -267,6 +250,23 @@ namespace moris
                 return nullptr;
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Explicit template instantiation
+        //--------------------------------------------------------------------------------------------------------------
+
+        template
+        Cell<std::shared_ptr<Property>> create_properties(
+                Cell<ParameterList>             aPropertyParameterLists,
+                Matrix<DDRMat>&                 aADVs,
+                Cell<std::shared_ptr<Geometry>> aGeometries,
+                std::shared_ptr<Library_IO>     aLibrary);
+        template
+        Cell<std::shared_ptr<Property>> create_properties(
+                Cell<ParameterList>             aPropertyParameterLists,
+                sol::Dist_Vector*&              aADVs,
+                Cell<std::shared_ptr<Geometry>> aGeometries,
+                std::shared_ptr<Library_IO>     aLibrary);
         
         //--------------------------------------------------------------------------------------------------------------
 

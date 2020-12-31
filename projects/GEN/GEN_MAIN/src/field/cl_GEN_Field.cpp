@@ -7,10 +7,26 @@ namespace moris
 {
     namespace ge
     {
-
+        //--------------------------------------------------------------------------------------------------------------
+        // Get addresses inside of different vector types
         //--------------------------------------------------------------------------------------------------------------
 
-        Field::Field(Matrix<DDRMat>&  aADVs,
+        real* get_address(Matrix<DDRMat>& aVector, uint aIndex)
+        {
+            return &aVector(aIndex);
+        }
+
+        real* get_address(sol::Dist_Vector* aVector, uint aIndex)
+        {
+            return &(*aVector)(aIndex);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Definitions
+        //--------------------------------------------------------------------------------------------------------------
+
+        template <typename Vector_Type>
+        Field::Field(Vector_Type&     aADVs,
                      Matrix<DDUMat>   aFieldVariableIndices,
                      Matrix<DDUMat>   aADVIndices,
                      Matrix<DDRMat>   aConstants,
@@ -32,7 +48,7 @@ namespace moris
             // Fill with pointers to ADVs
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
             {
-                mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = &(aADVs(aADVIndices(tADVFillIndex)));
+                mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = get_address(aADVs, aADVIndices(tADVFillIndex));
             }
             
             // Fill constant parameters
@@ -40,38 +56,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
-        Field::Field(sol::Dist_Vector* aOwnedADVs,
-                     Matrix<DDUMat>    aFieldVariableIndices,
-                     Matrix<DDUMat>    aADVIndices,
-                     Matrix<DDRMat>    aConstants,
-                     Field_Parameters  aParameters)
-                : mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
-                , mSensitivities(1, aFieldVariableIndices.length() + aConstants.length())
-                , mConstants(aConstants)
-                , mParameters(aParameters)
-                , mDeterminingADVIds(aFieldVariableIndices.length() + aConstants.length(), 1, -1)
-                , mDependsOnADVs(aADVIndices.length())
-        {
-            // Check that refinement information is correct
-            MORIS_ERROR(mParameters.mNumRefinements.length() == mParameters.mRefinementMeshIndices.length(),
-                    "The entries given for number of refinements must line up with the number of refinement patterns.");
-
-            // Check and assign ADV dependencies
-            this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
-
-            // Fill with pointers to ADVs
-            for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
-            {
-                mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = &(*aOwnedADVs)(aADVIndices(tADVFillIndex));
-            }
-
-            // Fill constant parameters
-            this->fill_constant_parameters();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
 
         Field::Field(const Matrix<DDSMat>&  aSharedADVIds,
                      std::shared_ptr<Field> aField)
@@ -265,6 +249,24 @@ namespace moris
                 }
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Explicit template instantiation
+        //--------------------------------------------------------------------------------------------------------------
+
+        template
+        Field::Field(Matrix<DDRMat>&  aADVs,
+                     Matrix<DDUMat>   aFieldVariableIndices,
+                     Matrix<DDUMat>   aADVIndices,
+                     Matrix<DDRMat>   aConstants,
+                     Field_Parameters aParameters);
+
+        template
+        Field::Field(sol::Dist_Vector*& aADVs,
+                     Matrix<DDUMat>     aFieldVariableIndices,
+                     Matrix<DDUMat>     aADVIndices,
+                     Matrix<DDRMat>     aConstants,
+                     Field_Parameters   aParameters);
 
         //--------------------------------------------------------------------------------------------------------------
 

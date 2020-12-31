@@ -22,7 +22,8 @@ namespace moris
             /**
              * Constructor, sets the pointers to advs and constant parameters for evaluations.
              *
-             * @param aADVs Reference to the full advs
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADV vector
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstants The constant field variables not filled by ADVs
@@ -31,32 +32,20 @@ namespace moris
              * @param aRefinementMeshIndices Indices of meshes to perform refinement on
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = {} refinement)
              */
-                Single_Grain(
-                    Matrix<DDRMat>&           aADVs,
+            template <typename Vector_Type>
+            Single_Grain(
+                    Vector_Type&              aADVs,
                     Matrix<DDUMat>            aGeometryVariableIndices,
                     Matrix<DDUMat>            aADVIndices,
                     Matrix<DDRMat>            aConstants,
                     std::shared_ptr<Geometry> aVoxelGeometry,
                     uint                      aIndex,
-                    Field_Parameters          aParameters = {});
-
-            /**
-             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-             * @param aConstants The constant field variables not filled by ADVs
-             * @param aParameters Additional parameters
-             */
-                Single_Grain(
-                    sol::Dist_Vector*         aOwnedADVs,
-                    Matrix<DDUMat>            aGeometryVariableIndices,
-                    Matrix<DDUMat>            aADVIndices,
-                    Matrix<DDRMat>            aConstants,
-                    std::shared_ptr<Geometry> aVoxelGeometry,
-                    uint                      aIndex,
-                    Field_Parameters          aParameters = {});
+                    Field_Parameters          aParameters = {})
+                    : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , mVoxelGeometry(aVoxelGeometry)
+                    , mIndex(aIndex)
+            {
+            }
 
             /**
              * Constructor with only constant parameters
@@ -64,7 +53,7 @@ namespace moris
              * @param aConstants The constant field variables not filled by ADVs
              * @param aParameters Additional parameters
              */
-                Single_Grain(
+            Single_Grain(
                     Matrix<DDRMat>            aConstants,
                     std::shared_ptr<Geometry> aVoxelGeometry,
                     uint                      aIndex,
@@ -86,9 +75,6 @@ namespace moris
              * @return Vector of sensitivities
              */
             const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
-
-        private:
-
 
         };
     }

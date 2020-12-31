@@ -19,21 +19,6 @@ namespace moris
     namespace ge
     {
         //--------------------------------------------------------------------------------------------------------------
-        // Explicit template instantiation
-        //--------------------------------------------------------------------------------------------------------------
-
-        template
-        Cell<std::shared_ptr<Geometry>> create_geometries(
-                Cell<ParameterList>         aGeometryParameterLists,
-                Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary);
-        template
-        Cell<std::shared_ptr<Geometry>> create_geometries(
-                Cell<ParameterList>         aGeometryParameterLists,
-                sol::Dist_Vector*&          aADVs,
-                std::shared_ptr<Library_IO> aLibrary);
-
-        //--------------------------------------------------------------------------------------------------------------
         // Get the length of different vector types
         //--------------------------------------------------------------------------------------------------------------
 
@@ -345,6 +330,21 @@ namespace moris
                 return nullptr;
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Explicit template instantiation
+        //--------------------------------------------------------------------------------------------------------------
+
+        template
+        Cell<std::shared_ptr<Geometry>> create_geometries(
+                Cell<ParameterList>         aGeometryParameterLists,
+                Matrix<DDRMat>&             aADVs,
+                std::shared_ptr<Library_IO> aLibrary);
+        template
+        Cell<std::shared_ptr<Geometry>> create_geometries(
+                Cell<ParameterList>         aGeometryParameterLists,
+                sol::Dist_Vector*&          aADVs,
+                std::shared_ptr<Library_IO> aLibrary);
 
         //--------------------------------------------------------------------------------------------------------------
 

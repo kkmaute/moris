@@ -8,46 +8,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(
-                Matrix<DDRMat>&  aADVs,
-                Matrix<DDUMat>   aGeometryVariableIndices,
-                Matrix<DDUMat>   aADVIndices,
-                Matrix<DDRMat>   aConstants,
-                Field_Parameters aParameters)
-        : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
-                    "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constant parameters).");
-
-            MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
-                    "A GEN Super-ellipse must be created with positive semi-diameters.");
-
-            MORIS_ERROR(std::abs(std::fmod(*(mFieldVariables(4)),2.0)) < 1e-12,
-                    "A GEN Super-ellipse must be created with an even exponent.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Superellipse::Superellipse(
-                sol::Dist_Vector* aOwnedADVs,
-                Matrix<DDUMat>    aGeometryVariableIndices,
-                Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstants,
-                Field_Parameters  aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
-                        "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constant parameters).");
-
-            MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
-                        "A GEN Super-ellipse must be created with positive semi-diameters.");
-
-            MORIS_ERROR(std::abs(std::fmod(*(mFieldVariables(4)),2.0)) < 1e-12,
-                        "A GEN Super-ellipse must be created with an even exponent.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Superellipse::Superellipse(
                 real             aXCenter,
                 real             aYCenter,
                 real             aXSemidiameter,

@@ -7,34 +7,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(
-                Matrix<DDRMat>&  aADVs,
-                Matrix<DDUMat>   aGeometryVariableIndices,
-                Matrix<DDUMat>   aADVIndices,
-                Matrix<DDRMat>   aConstants,
-                Field_Parameters aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 3,
-                        "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constant parameters)");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Circle::Circle(
-                sol::Dist_Vector* aOwnedADVs,
-                Matrix<DDUMat>    aGeometryVariableIndices,
-                Matrix<DDUMat>    aADVIndices,
-                Matrix<DDRMat>    aConstants,
-                Field_Parameters  aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 3,
-                        "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constant parameters)");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Circle::Circle(real aXCenter, real aYCenter, real aRadius, Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}), aParameters)
         {

@@ -11,46 +11,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Single_Grain::Single_Grain(
-                Matrix<DDRMat>&           aADVs,
-                Matrix<DDUMat>            aGeometryVariableIndices,
-                Matrix<DDUMat>            aADVIndices,
-                Matrix<DDRMat>            aConstants,
-                std::shared_ptr<Geometry> aVoxelGeometry,
-                uint                      aIndex,
-                Field_Parameters          aParameters)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            mVoxelGeometry = aVoxelGeometry;
-            mIndex = aIndex;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Single_Grain::Single_Grain(
-                sol::Dist_Vector*         aOwnedADVs,
-                Matrix<DDUMat>            aGeometryVariableIndices,
-                Matrix<DDUMat>            aADVIndices,
-                Matrix<DDRMat>            aConstants,
-                std::shared_ptr<Geometry> aVoxelGeometry,
-                uint                      aIndex,
-                Field_Parameters          aParameters)
-                : Field(aOwnedADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
-        {
-            mVoxelGeometry = aVoxelGeometry;
-            mIndex = aIndex;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Single_Grain::Single_Grain(
                 Matrix<DDRMat>            aConstants,
                 std::shared_ptr<Geometry> aVoxelGeometry,
                 uint                      aIndex,
                 Field_Parameters          aParameters)
                 : Field(aConstants, aParameters)
+                , mVoxelGeometry(aVoxelGeometry)
+                , mIndex(aIndex)
         {
-            mVoxelGeometry = aVoxelGeometry;
-            mIndex = aIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -76,8 +44,6 @@ namespace moris
             MORIS_ERROR( false, "Voxel_Input::get_field_sensitivities(), Sensitivities cannot be calculated for Voxel field.");
             return mSensitivities;
         }
-
-        //--------------------------------------------------------------------------------------------------------------
 
         //--------------------------------------------------------------------------------------------------------------
 
