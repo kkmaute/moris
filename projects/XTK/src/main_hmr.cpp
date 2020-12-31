@@ -38,7 +38,7 @@
 #include "xtk_typedefs.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
@@ -138,7 +138,7 @@ main(
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
 
     moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(1);
-    tGeometryVector(0) = std::make_shared<ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetFunctionGeometry));
+    tGeometryVector(0) = std::make_shared<ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(LevelSetFunctionGeometry));
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
     moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);

@@ -1,4 +1,4 @@
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 namespace moris
 {
@@ -7,7 +7,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        User_Defined_Geometry::User_Defined_Geometry(
+        User_Defined_Field::User_Defined_Field(
                 Matrix<DDRMat>           aConstants,
                 MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                 Field_Parameters         aParameters)
@@ -18,14 +18,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real User_Defined_Geometry::get_field_value(const Matrix<DDRMat>& aCoordinates)
+        real User_Defined_Field::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_value_user_defined(aCoordinates, mFieldVariables);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& User_Defined_Geometry::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& User_Defined_Field::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, mSensitivities);
             return mSensitivities;
@@ -33,7 +33,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void User_Defined_Geometry::set_user_defined_functions(
+        void User_Defined_Field::set_user_defined_functions(
                 MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
         {
@@ -48,7 +48,7 @@ namespace moris
             if (aSensitivityEvaluationFunction == nullptr)
             {
                 // Sensitivity function was not provided
-                get_field_sensitivities_user_defined = &(User_Defined_Geometry::no_sensitivities);
+                get_field_sensitivities_user_defined = &(User_Defined_Field::no_sensitivities);
             }
             else
             {
@@ -78,7 +78,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void User_Defined_Geometry::no_sensitivities(
+        void User_Defined_Field::no_sensitivities(
                 const Matrix<DDRMat>& aCoordinates,
                 const Cell<real*>&    aParameters,
                 Matrix<DDRMat>&       aSensitivities)

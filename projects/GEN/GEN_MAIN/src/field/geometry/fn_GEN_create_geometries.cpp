@@ -7,7 +7,7 @@
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_Level_Set.hpp"
@@ -236,7 +236,7 @@ namespace moris
                         (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
 
                 // Create user-defined geometry
-                return std::make_shared<User_Defined_Geometry>(
+                return std::make_shared<User_Defined_Field>(
                         aADVs,
                         tGeometryVariableIndices,
                         tADVIndices,

@@ -4,7 +4,7 @@
 
 #include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Discrete_Property.hpp"
-#include "cl_GEN_User_Defined_Property.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 namespace moris
 {
@@ -234,12 +234,11 @@ namespace moris
                 MORIS_GEN_SENSITIVITY_FUNCTION tSensitivityFunction =
                         (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
 
-                return std::make_shared<User_Defined_Property>(
+                return std::make_shared<User_Defined_Field>(
                         aADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
                         tConstants,
-                        aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
                         tParameters);

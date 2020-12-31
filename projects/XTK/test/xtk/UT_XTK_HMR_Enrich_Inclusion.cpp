@@ -39,7 +39,7 @@
 
 // #include "cl_GEN_Circle.hpp"
 // #include "cl_GEN_Plane.hpp"
-// #include "cl_GEN_User_Defined_Geometry.hpp"
+// #include "cl_GEN_User_Defined_Field.hpp"
 // #include "fn_norm.hpp"
 
 // namespace UT_Setup

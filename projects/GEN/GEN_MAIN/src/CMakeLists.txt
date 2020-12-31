@@ -30,20 +30,13 @@ set(LIB_SOURCES
 
 	cl_GEN_Geometry_Engine.cpp
 	cl_GEN_Phase_Table.cpp
+	cl_GEN_Geometric_Proximity.cpp
+
 	field/cl_GEN_Field.cpp
 	field/cl_GEN_Field_Analytic.cpp
 	field/cl_GEN_Field_Discrete_Integration.cpp
 	field/cl_GEN_Field_Discrete_Interpolation.cpp
-	cl_GEN_Geometric_Proximity.cpp
-
-	pdv/cl_GEN_Pdv_Host_Manager.cpp
-	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
-	pdv/cl_GEN_Pdv.cpp
-	pdv/cl_GEN_Pdv_Value.cpp
-	pdv/cl_GEN_Pdv_Property.cpp
-	pdv/cl_GEN_Intersection_Node.cpp
-	pdv/cl_GEN_Intersection_Node_Linear.cpp
-	pdv/cl_GEN_Intersection_Node_Bilinear.cpp
+	field/cl_GEN_User_Defined_Field.cpp
 
 	field/geometry/cl_GEN_Geometry.cpp
 	field/geometry/cl_GEN_Circle.cpp
@@ -52,7 +45,6 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_Superellipsoid.cpp
 	field/geometry/cl_GEN_Plane.cpp
 	field/geometry/cl_GEN_Mesh_Field_Geometry.cpp
-	field/geometry/cl_GEN_User_Defined_Geometry.cpp
 	field/geometry/cl_GEN_Voxel_Input.cpp
 	field/geometry/cl_GEN_Single_Grain.cpp
 	field/geometry/cl_GEN_Level_Set.cpp
@@ -65,9 +57,16 @@ set(LIB_SOURCES
 	field/property/cl_GEN_Property.cpp
 	field/property/cl_GEN_Scaled_Field.cpp
 	field/property/cl_GEN_Discrete_Property.cpp
-	field/property/cl_GEN_User_Defined_Property.cpp
 	field/property/fn_GEN_create_properties.cpp
-	
+
+	pdv/cl_GEN_Pdv_Host_Manager.cpp
+	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
+	pdv/cl_GEN_Pdv.cpp
+	pdv/cl_GEN_Pdv_Value.cpp
+	pdv/cl_GEN_Pdv_Property.cpp
+	pdv/cl_GEN_Intersection_Node.cpp
+	pdv/cl_GEN_Intersection_Node_Linear.cpp
+	pdv/cl_GEN_Intersection_Node_Bilinear.cpp
     )
 
 # List library dependencies
