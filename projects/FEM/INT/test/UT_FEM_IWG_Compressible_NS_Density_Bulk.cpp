@@ -778,6 +778,8 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
     }
 }/*END_TEST_CASE*/
 
+//------------------------------------------------------------------------------
+
 TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
         "[IWG_Compressible_NS_Density_Bulk_Ideal_Analytic]" )
 {
