@@ -1069,8 +1069,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
     for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
     {
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
         // reset CM evaluation flags
         tCMMasterFluid->reset_eval_flags();
@@ -1106,7 +1106,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
         }
 
         // debug: print matrices
-        print( trans( tResidual ), "tResidual" );
+        //print( trans( tResidual ), "tResidual" );
         //print( tJacobian, "tJacobian" );
     }
 
