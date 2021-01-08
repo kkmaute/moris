@@ -106,21 +106,15 @@ namespace moris
                 /**
                  * compute quantity of interest in a global way
                  * @param[ in ] aMeshIndex mesh index for used IG mesh
-                 * @param[ in ] aQINames   list of IQI names to compute
                  */
-                void compute_quantity_of_interest_global(
-                        const uint                         aMeshIndex,
-                        const moris::Cell< std::string > & aQINames );
+                void compute_quantity_of_interest_global( const uint aMeshIndex );
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute quantity of interest in a elemental way
                  * @param[ in ] aMeshIndex mesh index for used IG mesh
-                 * @param[ in ] aQINames   list of IQI names to compute
                  */
-                void compute_quantity_of_interest_elemental(
-                        const uint                         aMeshIndex,
-                        const moris::Cell< std::string > & aQINames );
+                void compute_quantity_of_interest_elemental( const uint aMeshIndex );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -410,14 +410,13 @@ namespace moris
 
         void Cluster::compute_quantity_of_interest(
                 const uint                         aMeshIndex,
-                const moris::Cell< std::string > & aQINames,
                 enum vis::Field_Type               aFieldType )
         {
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
                 // compute the quantity of interest for the IG element
-                mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aQINames, aFieldType );
+                mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aFieldType );
             }
         }
 

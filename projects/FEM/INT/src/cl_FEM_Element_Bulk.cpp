@@ -288,16 +288,21 @@ namespace moris
                     tReqIWG->compute_jacobian( tWStar );
                 }
 
+                // if sensitivity analysis and requested IQIs
                 if( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
                 {
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                     {
-                        // reset IWG
-                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                        // get requested IQI
+                        const std::shared_ptr< IQI > & tReqIQI =
+                                mSet->get_requested_IQIs()( iIQI );
+
+                        // reset IQI
+                        tReqIQI->reset_eval_flags();
 
                         // compute dQIdu at evaluation point
-                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                        tReqIQI->compute_dQIdu( tWStar );
                     }
                 }
             }
@@ -781,48 +786,28 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-                    // // check if IQI has dof dependencies
-                    // moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypeList =
-                    // mSet->get_requested_IQIs()( iIQI )->get_global_dof_type_list();
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
 
-                    // if there are dof dependencies
-                    //if( aDofTypeList.size() > 0 )
-                    //{
-                    // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
 
                     // compute dQIdu at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
-                    //}
+                    tReqIQI->add_dQIdu_on_set( tWStar );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void Element_Bulk::compute_quantity_of_interest_global(
-                const uint                         aMeshIndex,
-                const moris::Cell< std::string > & aQINames )
+        void Element_Bulk::compute_quantity_of_interest_global( const uint aMeshIndex )
         {
-            // determine active IQIs - FIXME: this needs to be done on a cluster level
-            Cell<moris_index> tIQISetLocalIndex;
-            Cell<moris_index> tIQISetGlobalIndex;
+            // get number of active local IQIs
+            uint tNumLocalIQIs = mSet->get_number_of_requested_global_IQIs_for_visualization();
 
-            for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )
-            {
-                // if IQI defined
-                if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
-                {
-                    // get the set local index
-                    tIQISetLocalIndex.push_back( mSet->mIQINameToIndexMap.find( aQINames( iIQI ) ) );
-                    tIQISetGlobalIndex.push_back(iIQI);
-                }
-            }
-
-            // number of active local IQIs
-            uint tNumLocalIQIs = tIQISetLocalIndex.size();
-
-            if ( tNumLocalIQIs == 0)
+            // check that some IQIs need to be evaluated
+            if ( tNumLocalIQIs == 0 )
             {
                 return;
             }
@@ -855,46 +840,37 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over IQI
-                for( uint iLocIQI = 0; iLocIQI < tNumLocalIQIs; iLocIQI++ )
+                for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
                 {
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_global_IQIs_for_visualization()( iIQI );
+
+                    // get IQI global index
+                    moris_index tGlobalIndex =
+                            mSet->get_requested_global_IQIs_global_indices_for_visualization()( iIQI );
+
                     // reset the requested IQI
-                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->reset_eval_flags();
+                    tReqIQI->reset_eval_flags();
 
                     // compute quantity of interest at evaluation point
-                    Matrix< DDRMat > tQIValue;
-                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->compute_QI( tQIValue );
+                    Matrix< DDRMat > tQIGlobal( 1, 1, 0.0 );
+                    tReqIQI->compute_QI( tQIGlobal );
 
                     // assemble the global QI value on the set
-                    ( *( mSet->mSetGlobalValues ) )( tIQISetGlobalIndex(iLocIQI) ) +=
-                            tQIValue( 0 ) * tWStar;
+                    ( *( mSet->mSetGlobalValues ) )( tGlobalIndex ) += tWStar * tQIGlobal( 0 );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void Element_Bulk::compute_quantity_of_interest_elemental(
-                const uint                         aMeshIndex,
-                const moris::Cell< std::string > & aQINames )
+        void Element_Bulk::compute_quantity_of_interest_elemental( const uint aMeshIndex )
         {
-            // determine active IQIs - FIXME: this needs to be done on a cluster level
-            Cell<moris_index> tIQISetLocalIndex;
-            Cell<moris_index> tIQISetGlobalIndex;
+            // get number of active local IQIs
+            uint tNumLocalIQIs = mSet->get_number_of_requested_elemental_IQIs_for_visualization();
 
-            for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )
-            {
-                // if IQI defined
-                if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
-                {
-                    // get the set local index
-                    tIQISetLocalIndex.push_back( mSet->mIQINameToIndexMap.find( aQINames( iIQI ) ) );
-                    tIQISetGlobalIndex.push_back(iIQI);
-                }
-            }
-
-            // number of active local IQIs
-            uint tNumLocalIQIs = tIQISetLocalIndex.size();
-
+            // check that some IQIs need to be evaluated
             if ( tNumLocalIQIs == 0)
             {
                 return;
@@ -928,19 +904,27 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // loop over IQI
-                for( uint iLocIQI = 0; iLocIQI < tNumLocalIQIs; iLocIQI++ )
+                for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
                 {
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_elemental_IQIs_for_visualization()( iIQI );
+
+                    // get IQI global index
+                    moris_index tGlobalIndex =
+                            mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
                     // reset the requested IQI
-                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->reset_eval_flags();
+                    tReqIQI->reset_eval_flags();
 
                     // compute quantity of interest at evaluation point
-                    Matrix< DDRMat > tQIValue;
-                    mSet->mIQIs( tIQISetLocalIndex(iLocIQI) )->compute_QI( tQIValue );
+                    Matrix< DDRMat > tQIElemental( 1, 1, 0.0 );
+                    tReqIQI->compute_QI( tQIElemental );
 
                     // assemble the nodal QI value on the set
                     ( *mSet->mSetElementalValues )(
-                            mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tIQISetGlobalIndex(iLocIQI) ) +=
-                                    tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                            mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) +=
+                                    tWStar * tQIElemental( 0 ) / tNumIntegPoints;
                 }
             }
         }

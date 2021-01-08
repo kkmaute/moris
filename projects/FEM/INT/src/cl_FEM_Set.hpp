@@ -103,6 +103,13 @@ namespace moris
 
             moris::map< std::string, moris_index > mIQINameToIndexMap;
 
+            // cell of pointer to IQI objects for vis
+            moris::Cell< std::shared_ptr< IQI > > mRequestedGlobalIQIs;
+            moris::Cell< moris_index > mRequestedGlobalIQIsGlobalIndices;
+            moris::Cell< std::shared_ptr< IQI > > mRequestedElementalIQIs;
+            moris::Cell< moris_index > mRequestedElementalIQIsGlobalIndices;
+            moris::Cell< std::shared_ptr< IQI > > mRequestedNodalIQIs;
+
             // enum for element type
             enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
 
@@ -701,6 +708,18 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get list of requested IQIs for nodal evaluation for visualization
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_nodal_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for nodal evaluation for visualization
+             */
+            uint get_number_of_requested_nodal_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
              * compute a quantity of interest global
              * @param[ in ] aMeshIndex         vis mesh index to define mesh
              *                                 on which values are evaluated
@@ -714,6 +733,25 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get list of requested IQIs for global evaluation for visualization
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_global_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for global evaluation for visualization
+             */
+            uint get_number_of_requested_global_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for global evaluation for visualization
+             */
+            const moris::Cell< moris_index > & get_requested_global_IQIs_global_indices_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
              * compute a quantity of interest elemental
              * @param[ in ] aMeshIndex            vis mesh index to define mesh
              *                                    on which values are evaluated
@@ -724,6 +762,25 @@ namespace moris
                     const uint                         aMeshIndex,
                     Matrix< DDRMat >                 * aElementalFieldValues,
                     const moris::Cell< std::string > & aQINames );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get list of requested IQIs for elemental evaluation for visualization
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_elemental_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for elemental evaluation for visualization
+             */
+            uint get_number_of_requested_elemental_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for elemental evaluation for visualization
+             */
+            const moris::Cell< moris_index > & get_requested_elemental_IQIs_global_indices_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
