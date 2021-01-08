@@ -29,7 +29,7 @@ namespace moris
             // populate the constitutive map
             mStabilizationMap[ "Reciprocal_total_vol" ] = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
         }
-
+        
         //------------------------------------------------------------------------------
 
         void IQI_Volume_Fraction::compute_QI( Matrix< DDRMat > & aQI )
@@ -40,14 +40,16 @@ namespace moris
             // evaluate the QI
             aQI( 0 ) = mStabilizationParam( 0 )->val()( 0 );
         }
-
+        
         //------------------------------------------------------------------------------
 
-        void IQI_Volume_Fraction::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+        void IQI_Volume_Fraction::compute_QI( real aWStar )
         {
-            MORIS_ERROR(false, "compute_dQIdu not implemented for a volume fraction IQI.");
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ) += aWStar * ( mStabilizationParam( 0 )->val() );
         }
 
         //------------------------------------------------------------------------------

@@ -18,6 +18,31 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IQI_Dof::compute_QI( real aWStar )
+        {
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get field interpolator for a given dof type
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+
+            // check if dof index was set (for the case of vector field)
+            if( mQuantityDofType.size() > 1 )
+            {
+                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Dof::compute_QI - mIQITypeIndex not set." );
+            }
+            else
+            {
+                mIQITypeIndex = 0;
+            }
+
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ) += aWStar * ( tFI->val()( mIQITypeIndex ) );
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI_Dof::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get field interpolator for a given dof type
@@ -36,15 +61,6 @@ namespace moris
 
             // evaluate the QI
             aQI = { tFI->val()( mIQITypeIndex ) };
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Dof::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
-        {
-            MORIS_ERROR( false, "IQI_Dof::compute_dQIdu - not implemented." );
         }
 
         //------------------------------------------------------------------------------

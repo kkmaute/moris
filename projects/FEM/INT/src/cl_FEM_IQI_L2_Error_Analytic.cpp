@@ -28,7 +28,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "L2Check" ] = static_cast< uint >( IQI_Property_Type::L2_CHECK );
         }
-
+        
         //------------------------------------------------------------------------------
 
         void IQI_L2_Error_Analytic::compute_QI( Matrix< DDRMat > & aQI )
@@ -47,14 +47,27 @@ namespace moris
             // evaluate the QI
             aQI = tJumpNorm * tJumpNorm;
         }
-
+        
         //------------------------------------------------------------------------------
 
-        void IQI_L2_Error_Analytic::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+        void IQI_L2_Error_Analytic::compute_QI( real aWStar )
         {
-            MORIS_ERROR( false, "IQI_L2_Error_Analytic::compute_dQIdu - Not implemented." );
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get field interpolator
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+
+            // get analytical solution property
+            std::shared_ptr< Property > & tPropL2Check =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+
+            // compute jump
+            real tJumpNorm = norm( tFI->val() - tPropL2Check->val());
+
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ) += aWStar * ( tJumpNorm * tJumpNorm );
         }
 
         //------------------------------------------------------------------------------

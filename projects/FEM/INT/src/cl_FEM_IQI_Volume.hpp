@@ -54,12 +54,28 @@ namespace moris
 
         private:
 
+            //------------------------------------------------------------------------------
             /**
              * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_QI( real aWStar );
+
+            //------------------------------------------------------------------------------
+            /**
+             * Evaluate the quantity of interest and fill aQI with value
+             * @param[ in ] aQI IQI value at evaluation point
              */
             void compute_QI( Matrix< DDRMat > & aQI );
 
+            //------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantity of interest wrt dof types
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_dQIdu( real aWStar );
+
+            //------------------------------------------------------------------------------
             /**
              * compute the derivative of the quantity of interest wrt dof types
              * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated

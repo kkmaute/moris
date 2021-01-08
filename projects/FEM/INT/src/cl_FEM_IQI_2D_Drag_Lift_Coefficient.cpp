@@ -69,11 +69,40 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Drag_Lift_Coefficient::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+        void IQI_Drag_Lift_Coefficient::compute_QI( real aWStar )
         {
-            MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Velocity"] );
+
+            // get the pressure FI
+            Field_Interpolator * tFIPressure =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Pressure"] );
+
+            // get the density property value
+            real tDensity = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+
+            // get the viscosity property value
+            real tViscosity = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) )->val()( 0 );
+
+            // get the maximum velocity property value
+            real tUMax = mMasterProp( static_cast< uint >( Property_Type::VELOCITY_MAX ) )->val()( 0 );
+
+            // get the diameter property value
+            real tDiameter = mMasterProp( static_cast< uint >( Property_Type::DIAMETER ) )->val()( 0 );
+
+            // compute dvxdy - dvydx
+            real tVorticity = tFIVelocity->gradx( 1 )( 1, 0 ) - tFIVelocity->gradx( 1 )( 0, 1 );
+
+            // compute deno = 0.5 rho U² D
+            real tDeno = 0.5 * tDensity * std::pow( tUMax, 2.0 ) * tDiameter;
+
+            // compute QI
+            mSet->get_QI()( tQIIndex ) += aWStar * (
+                    ( mBeta * tViscosity * tVorticity * mNormal( 1 ) - tFIPressure->val()( 0 ) * mNormal( 0 ) ) / tDeno );
         }
 
         //------------------------------------------------------------------------------

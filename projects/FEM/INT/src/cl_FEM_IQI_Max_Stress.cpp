@@ -37,7 +37,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
-
+        
         //------------------------------------------------------------------------------
 
         void IQI_Max_Stress::compute_QI( Matrix< DDRMat > & aQI )
@@ -99,11 +99,64 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Stress::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+        void IQI_Max_Stress::compute_QI( real aWStar )
         {
-            MORIS_ERROR( false,"IQI_Max_Von_Mises_Stress::compute_dQIdu - Derivatives of stress wrt dof not implemented");
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // check if dof index was set
+            if( ( mMasterDofTypes( 0 ).size() > 1 ) &&
+                    ( mStressType != Stress_Type::VON_MISES_STRESS ) )
+            {
+                MORIS_ERROR( mIQITypeIndex != -1,
+                        "IQI_Max_Stress::compute_QI - mIQITypeIndex not set, but is needed for principal, normal and shear stresses." );
+
+                MORIS_ERROR( mIQITypeIndex > 2,
+                        "IQI_Max_Stress::compute_QI - mIQITypeIndex out of bounds, must be 0, 1, or 2 for the three spatial dimensions." );
+            }
+
+            // initialize stress value
+            real tStressValue;
+
+            // switch for different stress types
+            switch (mStressType)
+            {
+            case Stress_Type::VON_MISES_STRESS:
+                tStressValue = this->eval_Von_Mises_stress();
+                break;
+
+            case Stress_Type::PRINCIPAL_STRESS:
+                tStressValue = this->eval_principal_stress( mIQITypeIndex + 1);
+                break;
+
+            case Stress_Type::NORMAL_STRESS:
+                tStressValue = this->eval_normal_stress( mIQITypeIndex + 1);
+                break;
+
+            case Stress_Type::SHEAR_STRESS:
+                tStressValue = this->eval_shear_stress( mIQITypeIndex + 1);
+                break;
+
+            default:
+                MORIS_ERROR( false, "IQI_Max_Stress::compute_QI - Unknown Stress Type." );
+            }
+
+            // check if properties set
+            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
+                    "IQI_Max_Stress - no reference value set");
+
+            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
+                    "IQI_Max_Stress - no exponent set");
+
+            // get property values
+            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
+            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            real tShift = 1.0;
+            if ( mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
+                tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
+
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ) += aWStar * ( std::pow( 1/tRefValue * tStressValue - tShift, tExponent ) );
         }
 
         //------------------------------------------------------------------------------
