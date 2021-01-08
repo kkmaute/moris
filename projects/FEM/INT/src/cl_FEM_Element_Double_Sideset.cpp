@@ -250,7 +250,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -339,7 +340,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -422,7 +424,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -523,7 +526,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -626,7 +630,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -745,7 +750,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();

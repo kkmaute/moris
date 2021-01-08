@@ -207,7 +207,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -353,7 +354,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -495,11 +497,15 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
                     // reset IQI
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                    tReqIQI->reset_eval_flags();
 
                     // compute QI at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->add_QI_on_set( tWStar );
+                    tReqIQI->add_QI_on_set( tWStar );
                 }
             }
         }
@@ -548,11 +554,15 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
                     // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                    tReqIQI->reset_eval_flags();
 
                     // compute dQIdpMat at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp( tWStar );
+                    tReqIQI->compute_dQIdp( tWStar );
                 }
             }
         }
@@ -611,11 +621,15 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-                    // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
 
                     // compute dQIdpMat at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
+                    tReqIQI->compute_dQIdp_FD_material(
                             tWStar,
                             tFDPerturbation,
                             tFDScheme );
@@ -623,7 +637,7 @@ namespace moris
                     // compute dQIdpGeo at evaluation point
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
-                        mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
+                        tReqIQI->compute_dQIdp_FD_geometry(
                                 tWStar,
                                 tFDPerturbation,
                                 tGeoLocalAssembly,
@@ -692,7 +706,8 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // get requested IWG
-                    const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                    const std::shared_ptr< IWG > & tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
                     // reset IWG
                     tReqIWG->reset_eval_flags();
@@ -721,11 +736,15 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-                    // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                    // get requested IQI
+                    const std::shared_ptr< IQI > & tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
 
                     // compute dQIdpMat at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
+                    tReqIQI->compute_dQIdp_FD_material(
                             tWStar,
                             tFDPerturbation,
                             tFDScheme );
@@ -733,7 +752,7 @@ namespace moris
                     // compute dQIdpGeo at evaluation point
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
-                        mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
+                        tReqIQI->compute_dQIdp_FD_geometry(
                                 tWStar,
                                 tFDPerturbation,
                                 tGeoLocalAssembly,
@@ -794,7 +813,7 @@ namespace moris
                     tReqIQI->reset_eval_flags();
 
                     // compute dQIdu at evaluation point
-                    tReqIQI->add_dQIdu_on_set( tWStar );
+                    tReqIQI->compute_dQIdu( tWStar );
                 }
             }
         }
