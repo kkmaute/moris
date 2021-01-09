@@ -158,7 +158,8 @@ namespace moris
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
                         // get requested IWG
-                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                        const std::shared_ptr< IWG > & tReqIWG =
+                                mSet->get_requested_IWGs()( iIWG );
 
                         // reset IWG
                         tReqIWG->reset_eval_flags();
@@ -168,7 +169,7 @@ namespace moris
 
                         // compute Jacobian at evaluation point
                         // compute off-diagonal Jacobian for staggered solve
-                        tReqIWG->compute_jacobian( tWStar );
+                        ( this->*m_compute_jacobian )( tReqIWG, tWStar );
                     }
                 }
             }
@@ -226,13 +227,14 @@ namespace moris
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
                         // get requested IWG
-                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                        const std::shared_ptr< IWG > & tReqIWG =
+                                mSet->get_requested_IWGs()( iIWG );
 
                         // reset IWG
                         tReqIWG->reset_eval_flags();
 
                         // compute Jacobian at evaluation point
-                        tReqIWG->compute_jacobian( tWStar );
+                        ( this->*m_compute_jacobian )( tReqIWG, tWStar );
                     }
                 }
             }
@@ -290,7 +292,8 @@ namespace moris
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
                         // get requested IWG
-                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                        const std::shared_ptr< IWG > & tReqIWG =
+                                mSet->get_requested_IWGs()( iIWG );
 
                         // reset IWG
                         tReqIWG->reset_eval_flags();
@@ -302,7 +305,7 @@ namespace moris
                         }
 
                         // compute Jacobian at evaluation point
-                        tReqIWG->compute_jacobian( tWStar );
+                        ( this->*m_compute_jacobian )( tReqIWG, tWStar );
                     }
                 }
             }
@@ -361,98 +364,15 @@ namespace moris
                     for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                     {
                         // get requested IWG
-                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
+                        const std::shared_ptr< IWG > & tReqIWG =
+                                mSet->get_requested_IWGs()( iIWG );
 
                         // reset IWG
                         tReqIWG->reset_eval_flags();
 
-                        // compute dRdpMat at evaluation point
-                        tReqIWG->compute_dRdp( tWStar );
-                    }
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void Element_Time_Boundary::compute_dRdp_FD()
-        {
-            // get number of IWGs
-            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
-            // check for active IWGs
-            if (tNumIWGs == 0)
-            {
-                return;
-            }
-
-            // get finite difference scheme type
-            fem::FDScheme_Type tFDScheme =
-                    mSet->get_finite_difference_scheme_for_sensitivity_analysis();
-
-            // get the finite difference perturbation size
-            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
-
-            // get number of integration points
-            uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
-            // loop over time boundaries
-            for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
-            {
-                // get param space time
-                real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
-
-                // set physical and parametric space and time coefficients for IG element
-                Matrix< DDSMat > tGeoLocalAssembly;
-                this->init_ig_geometry_interpolator( iTimeBoundary, tGeoLocalAssembly );
-
-                // loop over integration points
-                for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
-                {
-                    // get integration point location in the reference surface
-                    const Matrix< DDRMat > & tLocalIntegPoint =
-                        mSet->get_integration_points().get_column( iGP );
-
-                    // set evaluation point for interpolators (FIs and GIs)
-                    mSet->get_field_interpolator_manager()->
-                            set_space_time_from_local_IG_point( tLocalIntegPoint );
-
-                    // compute detJ of integration domain
-                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
-
-                    // skip if detJ smaller than threshold
-                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-                    {
-                        continue;
-                    }
-
-                    // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
-
-                    // loop over the IWGs
-                    for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
-                    {
-                        // get requested IWG
-                        const std::shared_ptr< IWG > & tReqIWG = mSet->get_requested_IWGs()( iIWG );
-
-                        // reset IWG
-                        tReqIWG->reset_eval_flags();
-
-                        // compute dRdpMat at evaluation point
-                        tReqIWG->compute_dRdp_FD_material(
-                                tWStar,
-                                tFDPerturbation,
-                                tFDScheme );
-
-                        // compute dRdpGeo at evaluation point
-                        if( mSet->get_geo_pdv_assembly_flag() )
-                        {
-                            tReqIWG->compute_dRdp_FD_geometry(
-                                    tWStar,
-                                    tFDPerturbation,
-                                    tGeoLocalAssembly,
-                                    tFDScheme );
-                        }
+                        // compute dRdp at evaluation point
+                        moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                        ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                     }
                 }
             }
@@ -508,11 +428,15 @@ namespace moris
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                     {
+                        // get requested IQI
+                        const std::shared_ptr< IQI > & tReqIQI =
+                                mSet->get_requested_IQIs()( iIQI );
+
                         // reset IQI
-                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                        tReqIQI->reset_eval_flags();
 
                         // compute QI at evaluation point
-                        mSet->get_requested_IQIs()( iIQI )->add_QI_on_set( tWStar );
+                        tReqIQI->compute_QI( tWStar );
                     }
                 }
             }
@@ -568,11 +492,15 @@ namespace moris
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                     {
-                        // reset IWG
-                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                        // get requested IQI
+                        const std::shared_ptr< IQI > & tReqIQI =
+                                mSet->get_requested_IQIs()( iIQI );
+
+                        // reset IQI
+                        tReqIQI->reset_eval_flags();
 
                         // compute dQIdu at evaluation point
-                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                        ( this->*m_compute_dQIdu )( tReqIQI, tWStar );
                     }
                 }
             }
@@ -590,73 +518,6 @@ namespace moris
             {
                 return;
             }
-
-            // loop over integration points
-            uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
-            // loop over time boundaries
-            for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
-            {
-                // get param space time
-                real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
-
-                // set physical and parametric space and time coefficients for IG element
-                this->init_ig_geometry_interpolator( iTimeBoundary );
-
-                // loop over integration points
-                for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
-                {
-                    // get the ith integration point in the IG param space
-                    const Matrix< DDRMat > & tLocalIntegPoint =
-                        mSet->get_integration_points().get_column( iGP );
-
-                    // set evaluation point for interpolators (FIs and GIs)
-                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
-
-                    // compute detJ of integration domain
-                    real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
-
-                    // skip if detJ smaller than threshold
-                    if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-                    {
-                        continue;
-                    }
-
-                    // compute integration point weight
-                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) * tDetJ;
-
-                    // loop over the IQIs
-                    for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
-                    {
-                        // reset IWG
-                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
-
-                        // compute dQIdpMat at evaluation point
-                        mSet->get_requested_IQIs()( iIQI )->compute_dQIdp( tWStar );
-                    }
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void Element_Time_Boundary::compute_dQIdp_explicit_FD()
-        {
-            // get number of IQIs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
-            // check for active IQIs
-            if (tNumIQIs == 0)
-            {
-                return;
-            }
-
-            // get finite difference scheme type
-            fem::FDScheme_Type tFDScheme =
-                    mSet->get_finite_difference_scheme_for_sensitivity_analysis();
-
-            // get the finite difference perturbation size
-            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -696,24 +557,15 @@ namespace moris
                     // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                     {
-                        // reset IWG
-                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+                        // get requested IQI
+                        const std::shared_ptr< IQI > & tReqIQI =
+                                mSet->get_requested_IQIs()( iIQI );
 
-                        // compute dQIdpMat at evaluation point
-                        mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
-                                tWStar,
-                                tFDPerturbation,
-                                tFDScheme );
+                        // reset IQI
+                        tReqIQI->reset_eval_flags();
 
-                        // compute dQIdpGeo at evaluation point
-                        if( mSet->get_geo_pdv_assembly_flag() )
-                        {
-                            mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
-                                    tWStar,
-                                    tFDPerturbation,
-                                    tGeoLocalAssembly,
-                                    tFDScheme );
-                        }
+                        // compute dQIdp at evaluation point
+                        ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly );
                     }
                 }
             }

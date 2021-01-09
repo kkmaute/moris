@@ -47,9 +47,26 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * compute the quantity of interest
-                 * @param[ in ] aQI quantity of interest matrix to fill
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_QI( real aWStar );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * Evaluate the quantity of interest and fill aQI with value
+                 * @param[ in ] aQI IQI value at evaluation point
                  */
                 void compute_QI( Matrix< DDRMat > & aQI );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_dQIdu( real aWStar )
+                {
+                    MORIS_ERROR( false, "IQI_Dof::compute_dQIdu - not implemented." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -59,7 +76,10 @@ namespace moris
                  */
                 void compute_dQIdu(
                         moris::Cell< MSI::Dof_Type > & aDofType,
-                        Matrix< DDRMat >             & adQIdu );
+                        Matrix< DDRMat >             & adQIdu )
+                {
+                    MORIS_ERROR( false, "IQI_Dof::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");
+                }
 
                 //------------------------------------------------------------------------------
         };

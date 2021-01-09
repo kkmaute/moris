@@ -67,18 +67,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp by analytical formulation
+                 * compute dRdp
                  */
                 void compute_dRdp();
 
-                /**
-                 * compute dRdp by finite difference
-                 */
-                void compute_dRdp_FD();
-
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dQIdu
+                 * compute QI
                  */
                 void compute_QI()
                 {
@@ -96,26 +91,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dQIdp by analytical formulation
+                 * compute dQIdp
                  */
                 void compute_dQIdp_explicit()
                 {
                     MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit - not implemented.");
                 }
 
-                /**
-                 * compute dQIdp by finite difference
-                 */
-                void compute_dQIdp_explicit_FD()
-                {
-                    MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit_FD - not implemented.");
-                }
-
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp and dQIdp by finite difference
+                 * compute dRdp and dQIdp
                  */
-                void compute_dRdp_and_dQIdp_FD();
+                void compute_dRdp_and_dQIdp();
 
                 //------------------------------------------------------------------------------
                 /**

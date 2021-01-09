@@ -54,7 +54,7 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonli
     // trace this solve
     Tracer tTracer( "NonLinearSolver", "NLBGS", "Solve" );
 
-    moris::sint tMaxIts = 10;
+    moris::sint tMaxIts = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
     moris::uint tNonLinSysStartIt = 0;
     moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
     bool tIsConverged             = false;

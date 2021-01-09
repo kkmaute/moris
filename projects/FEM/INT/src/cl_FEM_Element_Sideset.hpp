@@ -64,14 +64,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp by analytical formulation
+                 * compute dRdp
                  */
                 void compute_dRdp();
-
-                /**
-                 * compute dRdp by finite difference
-                 */
-                void compute_dRdp_FD();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -87,40 +82,29 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dQIdp by analytical formulation
+                 * compute dQIdp
                  */
                 void compute_dQIdp_explicit();
 
-                /**
-                 * compute dQIdp by finite difference
-                 */
-                void compute_dQIdp_explicit_FD();
-
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp and dQIdp by finite difference
+                 * compute dRdp and dQIdp
                  */
-                void compute_dRdp_and_dQIdp_FD();
+                void compute_dRdp_and_dQIdp();
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute quantity of interest in a global way
                  * @param[ in ] aMeshIndex mesh index for used IG mesh
-                 * @param[ in ] aQINames   list of IQI names to compute
                  */
-                void compute_quantity_of_interest_global(
-                        const uint                         aMeshIndex,
-                        const moris::Cell< std::string > & aQINames );
+                void compute_quantity_of_interest_global( const uint aMeshIndex );
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute quantity of interest in a elemental way
                  * @param[ in ] aMeshIndex mesh index for used IG mesh
-                 * @param[ in ] aQINames   list of IQI names to compute
                  */
-                void compute_quantity_of_interest_elemental(
-                        const uint                         aMeshIndex,
-                        const moris::Cell< std::string > & aQINames );
+                void compute_quantity_of_interest_elemental( const uint aMeshIndex );
 
                 //------------------------------------------------------------------------------
                 /**

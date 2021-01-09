@@ -1273,7 +1273,7 @@ namespace moris
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tQIIndex );
@@ -1354,7 +1354,7 @@ namespace moris
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->add_QI_on_set( aWStar );
+                            this->compute_QI( aWStar );
 
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )(
@@ -1448,7 +1448,7 @@ namespace moris
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->add_QI_on_set( aWStar );
+                            this->compute_QI( aWStar );
 
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )(
@@ -1481,7 +1481,8 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // compute dQIdu with IQI
-            this->add_dQIdu_on_set( aWStar );
+            //this->add_dQIdu_on_set( aWStar );
+            this->compute_dQIdu( aWStar );
             adQIdu = mSet->get_residual()( tQIIndex );
 
             // reset dQIdu
@@ -1539,7 +1540,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1613,7 +1614,7 @@ namespace moris
                             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->add_QI_on_set( aWStar );
+                            this->compute_QI( aWStar );
 
                             // assemble the jacobian
                             mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1695,7 +1696,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1784,7 +1785,7 @@ namespace moris
 
                             // compute the QI
                             real tWStarPert = tGPWeight * tIGGI->det_J();
-                            this->add_QI_on_set( tWStarPert );
+                            this->compute_QI( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1847,7 +1848,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1945,7 +1946,7 @@ namespace moris
 
                             // compute the QI
                             real tWStarPert = tGPWeight * tIGGI->det_J();
-                            this->add_QI_on_set( tWStarPert );
+                            this->compute_QI( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1971,82 +1972,6 @@ namespace moris
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::get_QI( Matrix< DDRMat > & aQIVal )
-        {
-            // Compute QI
-            this->compute_QI(aQIVal);
-
-            // Perform scaling
-            aQIVal = aQIVal / mReferenceValue;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::get_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
-        {
-            // Compute dQIdu
-            this->compute_dQIdu( aDofType, adQIdu );
-
-            // Perform scaling
-            adQIdu = adQIdu / mReferenceValue;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::add_QI_on_set( moris::real aWStar )
-        {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // compute QI
-            Matrix< DDRMat > tQIVal( 1, 1, 0.0 );
-            this->get_QI( tQIVal );
-
-            // put on the set
-            mSet->get_QI()( tQIIndex ) += aWStar * tQIVal;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::add_dQIdu_on_set( real aWStar )
-        {
-            // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // get the number of master dof type dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
-
-            // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
-            {
-                // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
-
-                // get master index for residual dof type, indices for assembly
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-                // compute dQIdu
-                Matrix<DDRMat> tdQIdu( tMasterDepStopIndex - tMasterDepStartIndex + 1, 1, 0.0 );
-                this->get_dQIdu( tDofType, tdQIdu );
-
-                // add dQIdu contribution
-                mSet->get_residual()( tQIIndex )(
-                        { tMasterDepStartIndex, tMasterDepStopIndex },
-                        { 0, 0 } ) += aWStar * tdQIdu;
-            }
-
-            // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_residual()( tQIIndex ) ) ,
-                    "IQI::add_dQIdu_on_set - dQIdu contains NAN or INF, exiting!");
-
         }
 
         //------------------------------------------------------------------------------

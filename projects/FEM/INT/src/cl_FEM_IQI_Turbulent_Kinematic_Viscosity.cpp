@@ -80,7 +80,7 @@ namespace moris
                     MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown master slave type." );
             }
         }
-
+        
         //------------------------------------------------------------------------------
 
         void IQI_Turbulent_Kinematic_Viscosity::compute_QI( Matrix< DDRMat > & aQI )
@@ -99,14 +99,28 @@ namespace moris
             // compute turbulent kinematic viscosity
             aQI = tPropDensity->val() * tFIModViscosity->val() * tFv1;
         }
+        
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+        void IQI_Turbulent_Kinematic_Viscosity::compute_QI( real aWStar )
         {
-            MORIS_ERROR( false, "compute_dQIdu() not implemented for turbulent kinematic viscosity IQI." );
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get field interpolator for modified viscosity
+            Field_Interpolator * tFIModViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
+
+            // get the density property
+            std::shared_ptr< Property > & tPropDensity =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
+            // compute fv1
+            real tFv1 = this->compute_fv1();
+
+            // compute turbulent kinematic viscosity
+            mSet->get_QI()( tQIIndex ) += aWStar * ( tPropDensity->val() * tFIModViscosity->val() * tFv1 );
         }
 
         //------------------------------------------------------------------------------

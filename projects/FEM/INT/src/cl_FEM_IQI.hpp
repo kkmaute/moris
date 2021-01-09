@@ -518,36 +518,6 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-
-            /**
-             * Gets the quantity of interest, including scaling.
-             * @param[ in ] aQIVal quantity of interest matrix to fill
-             */
-            void get_QI( Matrix< DDRMat > & aQIVal );
-
-            /**
-             * Gets the derivative of the quantities of interest wrt requested dof types, including scaling.
-             * @param[ in ]  aDofType group of dof type for derivative
-             * @param[ out ] adQIdu   derivative of quantity of interest
-             */
-            void get_dQIdu(
-                    moris::Cell< MSI::Dof_Type > & aDofType,
-                    Matrix< DDRMat >             & adQIdu );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the quantities of interest, and add to the cell contained on the set
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void add_QI_on_set( real aWStar );
-
-            /**
-             * compute the derivatives of the quantities of interest, and add to the cell contained on the set
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void add_dQIdu_on_set( real aWStar );
-
-            //------------------------------------------------------------------------------
             /**
              * build requested dof type list
              */
@@ -663,6 +633,13 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * Evaluate the quantity of interest.
+             * @param[ in ] aWStar            weight associated to evaluation point
+             */
+            virtual void compute_QI( real aWStar ) = 0;
+
+            //------------------------------------------------------------------------------
+            /**
              * Compute the derivative of the quantities of interest wrt requested dof types.
              * @param[ in ]  aDofType Dof type being evaluated
              * @param[ out ] adQIdu derivative of quantity of interest
@@ -670,6 +647,13 @@ namespace moris
             virtual void compute_dQIdu(
                     moris::Cell< MSI::Dof_Type > & aDofType,
                     Matrix< DDRMat >             & adQIdu ) = 0;
+
+            //------------------------------------------------------------------------------
+            /**
+             * Compute the derivative of the quantities of interest
+             * @param[ in ] aWStar weight associated to evaluation point
+             */
+            virtual void compute_dQIdu( real aWstar ) = 0;
 
         };
         //------------------------------------------------------------------------------
