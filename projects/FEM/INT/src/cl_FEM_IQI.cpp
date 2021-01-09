@@ -1273,7 +1273,7 @@ namespace moris
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tQIIndex );
@@ -1354,7 +1354,7 @@ namespace moris
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->add_QI_on_set( aWStar );
+                            this->compute_QI( aWStar );
 
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )(
@@ -1448,7 +1448,7 @@ namespace moris
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->add_QI_on_set( aWStar );
+                            this->compute_QI( aWStar );
 
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )(
@@ -1540,7 +1540,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1614,7 +1614,7 @@ namespace moris
                             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->add_QI_on_set( aWStar );
+                            this->compute_QI( aWStar );
 
                             // assemble the jacobian
                             mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1696,7 +1696,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1785,7 +1785,7 @@ namespace moris
 
                             // compute the QI
                             real tWStarPert = tGPWeight * tIGGI->det_J();
-                            this->add_QI_on_set( tWStarPert );
+                            this->compute_QI( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1848,7 +1848,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
             // compute the QI
-            this->add_QI_on_set( aWStar );
+            this->compute_QI( aWStar );
 
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1946,7 +1946,7 @@ namespace moris
 
                             // compute the QI
                             real tWStarPert = tGPWeight * tIGGI->det_J();
-                            this->add_QI_on_set( tWStarPert );
+                            this->compute_QI( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1972,32 +1972,6 @@ namespace moris
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::get_QI( Matrix< DDRMat > & aQIVal )
-        {
-            // Compute QI
-            this->compute_QI(aQIVal);
-
-            // Perform scaling
-            aQIVal = aQIVal / mReferenceValue;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::add_QI_on_set( moris::real aWStar )
-        {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // compute QI
-            Matrix< DDRMat > tQIVal( 1, 1, 0.0 );
-            this->get_QI( tQIVal );
-
-            // put on the set
-            mSet->get_QI()( tQIIndex ) += aWStar * tQIVal;
         }
 
         //------------------------------------------------------------------------------

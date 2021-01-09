@@ -518,21 +518,6 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-
-            /**
-             * Gets the quantity of interest, including scaling.
-             * @param[ in ] aQIVal quantity of interest matrix to fill
-             */
-            void get_QI( Matrix< DDRMat > & aQIVal );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the quantities of interest, and add to the cell contained on the set
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void add_QI_on_set( real aWStar );
-
-            //------------------------------------------------------------------------------
             /**
              * build requested dof type list
              */
