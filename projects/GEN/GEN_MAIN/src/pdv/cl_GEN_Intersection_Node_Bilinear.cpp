@@ -11,6 +11,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node_Bilinear::Intersection_Node_Bilinear(
+                uint                      aFirstNodeIndex,
+                uint                      aSecondNodeIndex,
                 const Matrix<DDRMat>&       aFirstParentNodeLocalCoordinates,
                 const Matrix<DDRMat>&       aSecondParentNodeLocalCoordinates,
                 const Matrix<DDUMat>&       aAncestorNodeIndices,
@@ -27,8 +29,8 @@ namespace moris
                                 aAncestorNodeCoordinates,
                                 aInterfaceGeometry,
                                 aIsocontourThreshold),
-                        -1.0,
-                        1.0,
+                        aInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstParentNodeLocalCoordinates),
+                        aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondParentNodeLocalCoordinates),
                         aFirstParentNodeLocalCoordinates,
                         aSecondParentNodeLocalCoordinates,
                         aAncestorNodeIndices,

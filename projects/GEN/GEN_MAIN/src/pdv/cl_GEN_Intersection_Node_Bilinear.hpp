@@ -36,6 +36,8 @@ namespace moris
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Bilinear(
+                    uint                      aFirstNodeIndex,
+                    uint                      aSecondNodeIndex,
                     const Matrix<DDRMat>&       aFirstParentNodeLocalCoordinates,
                     const Matrix<DDRMat>&       aSecondParentNodeLocalCoordinates,
                     const Matrix<DDUMat>&       aAncestorNodeIndices,
