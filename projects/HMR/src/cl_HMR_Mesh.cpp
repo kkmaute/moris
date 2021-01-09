@@ -261,7 +261,8 @@ namespace moris
 
         uint Mesh::get_num_elems() const
         {
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 return this->get_num_elemens_including_aura();
             }
@@ -641,7 +642,8 @@ namespace moris
             Element * tElement;
 
             // get pointer to element
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura()and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 tElement = mMesh->get_element_including_aura( aElementIndex );
             }
@@ -694,7 +696,8 @@ namespace moris
             Element * tElement;
 
             // get pointer to element
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 tElement = mMesh->get_element_including_aura( aElementIndex );
             }
@@ -747,7 +750,8 @@ namespace moris
             Element * tElement;
 
             // get pointer to element
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 tElement = mMesh->get_element_including_aura( aElementIndex );
             }
@@ -887,7 +891,8 @@ namespace moris
 
             // my cell
             Element * tMyCell = nullptr;
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 tMyCell = mMesh->get_element_including_aura( aElementIndex );
             }
@@ -991,7 +996,8 @@ namespace moris
             Element * tElement;
 
             // get pointer to element
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 tElement = mMesh->get_element_including_aura( aElementIndex );
             }
@@ -1195,7 +1201,8 @@ namespace moris
                 }
                 case EntityRank::ELEMENT:
                 {
-                    if( mDatabase->get_parameters()->use_number_aura() )
+                    if( mDatabase->get_parameters()->use_number_aura() and
+                            mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
                     {
                         return mMesh->get_element_including_aura( aEntityIndex )->get_id();
                     }
@@ -1312,7 +1319,8 @@ namespace moris
 
         uint Mesh::get_element_owner(moris_index aElementIndex) const
         {
-            if ( mDatabase->get_parameters()->use_number_aura() )
+            if ( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 return mMesh->get_element_including_aura(aElementIndex)->get_owner();
             }
@@ -1355,7 +1363,8 @@ namespace moris
                 }
                 case EntityRank::ELEMENT:
                 {
-                    if( mDatabase->get_parameters()->use_number_aura() )
+                    if( mDatabase->get_parameters()->use_number_aura() and
+                            mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
                     {
                         return mMesh->get_element_including_aura( aEntityIndex )->get_owner();
                     }
@@ -1772,7 +1781,8 @@ namespace moris
 
         mtk::Cell & Mesh::get_mtk_cell( moris_index aElementIndex )
         {
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 return *mMesh->get_element_including_aura( aElementIndex );
             }
@@ -1786,7 +1796,8 @@ namespace moris
 
         mtk::Cell const & Mesh::get_mtk_cell( moris_index aElementIndex ) const
         {
-            if( mDatabase->get_parameters()->use_number_aura() )
+            if( mDatabase->get_parameters()->use_number_aura() and
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 return *mMesh->get_element_including_aura( aElementIndex );
             }

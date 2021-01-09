@@ -476,11 +476,6 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
-                /**
-                 * checks if this mesh index belongs to an output mesh
-                 */
-                bool is_output_mesh( const uint aMeshIndex );
-
                 bool is_lagrange_input_mesh( const uint aMeshIndex );
 
                 bool is_bspline_input_mesh( const uint aMeshIndex );

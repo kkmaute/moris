@@ -267,7 +267,7 @@ namespace moris
                 mLagrangeMeshes( k )->set_index( k );
 
                 // link to sideset if this is an output mesh
-                if ( this->is_output_mesh( k ) )
+                if ( mParameters->is_output_mesh( k ) )
                 {
                     //FIXME make mOutputSideSets more general. Set with mesh
                     mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
@@ -296,26 +296,6 @@ namespace moris
             }
 
             mLagrangeMeshes.clear();
-        }
-
-        // -----------------------------------------------------------------------------
-
-        bool Database::is_output_mesh( const uint aMeshIndex )
-        {
-            const Matrix< DDUMat > & tOutputMeshes = mParameters->get_output_mesh();
-
-            bool tIsOutputMesh = false;
-
-            for( uint k=0; k<tOutputMeshes.numel(); ++k )
-            {
-                if( aMeshIndex == tOutputMeshes( k ) )
-                {
-                    tIsOutputMesh = true;
-                    break;
-                }
-            }
-
-            return tIsOutputMesh;
         }
 
         // -----------------------------------------------------------------------------
@@ -486,7 +466,7 @@ namespace moris
                 //}
 
                 // only needed for output mesh
-                if( this->is_output_mesh( tMesh->get_index() ) )
+                if( mParameters->is_output_mesh( tMesh->get_index() ) )
                 {
                     // create facets
                     tMesh->create_facets();
@@ -1159,7 +1139,7 @@ namespace moris
                         MORIS_ERROR( 0 < tID && tID <=tMaxID, "Invalid Element ID" );
                     }
 
-                    if( this->is_output_mesh( tMesh->get_index() ) )
+                    if( mParameters->is_output_mesh( tMesh->get_index() ) )
                     {
                         // check facets
                         tNumberOfEntities = tMesh->get_number_of_facets();

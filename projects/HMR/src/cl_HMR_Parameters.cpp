@@ -19,288 +19,288 @@ namespace moris
     namespace hmr
     {
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
-    // creates a parameter list with default inputs
-    void load_hmr_parameter_list_from_xml( const std::string & aFilePath, ParameterList & aParameterList )
-    {
-        // create temporary Parser object
-        XML_Parser tParser( aFilePath );
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
-
-        tParser.get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
-
-        for( uint k=0; k<tFirst.size(); ++k )
+        // creates a parameter list with default inputs
+        void load_hmr_parameter_list_from_xml( const std::string & aFilePath, ParameterList & aParameterList )
         {
-            std::string tKey = tFirst( k );
+            // create temporary Parser object
+            XML_Parser tParser( aFilePath );
+            Cell< std::string > tFirst;
+            Cell< std::string > tSecond;
 
-            if( tKey == "number_of_elements_per_dimension" )
+            tParser.get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
+
+            for( uint k=0; k<tFirst.size(); ++k )
             {
-                aParameterList.set("number_of_elements_per_dimension", tSecond( k ) );
-            }
-            else if( tKey == "processor_decomposition_method" )
-            {
-                aParameterList.set( "processor_decomposition_method", ( sint ) std::stoi( tSecond( k ) ) );
-            }
-            if( tKey == "processor_dimensions" )
-            {
-                aParameterList.set("processor_dimensions", tSecond( k ) );
-            }
-            else if( tKey == "domain_dimensions" )
-            {
-                aParameterList.set( "domain_dimensions", tSecond( k )  );
-            }
-            else if( tKey == "domain_offset" )
-            {
-                aParameterList.set("domain_offset", tSecond( k ) );
-            }
-            else if( tKey == "domain_sidesets" )
-            {
-                aParameterList.set("domain_sidesets", tSecond( k ) );
-            }
-            else if( tKey == "refinement_buffer" )
-            {
-                aParameterList.set( "refinement_buffer", ( sint ) std::stoi( tSecond( k ) ) );
-            }
-            else if( tKey == "staircase_buffer" )
-            {
-                aParameterList.set( "staircase_buffer", ( sint ) std::stoi( tSecond( k ) ) );
-            }
-            else if( tKey == "bspline_orders" )
-            {
-                aParameterList.set( "bspline_orders", tSecond( k ) );
-            }
-            else if( tKey == "lagrange_orders" )
-            {
-                aParameterList.set( "lagrange_orders", tSecond( k ) );
-            }
-//            else if( tKey == "initial_refinement" )
-//            {
-//                aParameterList.set( "initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
-//            }
-            else if ( tKey == "severity_level" )
-            {
-                aParameterList.set( "severity_level", ( sint ) std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "truncate_bsplines" )
-            {
-                aParameterList.set( "truncate_bsplines", ( sint ) string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "additional_lagrange_refinement" )
-            {
-                aParameterList.set(  "additional_lagrange_refinement", ( sint ) std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "max_refinement_level" )
-            {
-                aParameterList.set(  "max_refinement_level", ( sint ) std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "use_multigrid" )
-            {
-                aParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "use_refinement_interrelation" )
-            {
-                aParameterList.set(  "use_refinement_interrelation", ( sint ) string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "renumber_lagrange_nodes" )
-            {
-                aParameterList.set(  "renumber_lagrange_nodes", ( sint ) string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "use_number_aura" )
-            {
-                aParameterList.set(  "use_number_aura", ( sint ) string_to_bool( tSecond( k ) ) );
+                std::string tKey = tFirst( k );
+
+                if( tKey == "number_of_elements_per_dimension" )
+                {
+                    aParameterList.set("number_of_elements_per_dimension", tSecond( k ) );
+                }
+                else if( tKey == "processor_decomposition_method" )
+                {
+                    aParameterList.set( "processor_decomposition_method", ( sint ) std::stoi( tSecond( k ) ) );
+                }
+                if( tKey == "processor_dimensions" )
+                {
+                    aParameterList.set("processor_dimensions", tSecond( k ) );
+                }
+                else if( tKey == "domain_dimensions" )
+                {
+                    aParameterList.set( "domain_dimensions", tSecond( k )  );
+                }
+                else if( tKey == "domain_offset" )
+                {
+                    aParameterList.set("domain_offset", tSecond( k ) );
+                }
+                else if( tKey == "domain_sidesets" )
+                {
+                    aParameterList.set("domain_sidesets", tSecond( k ) );
+                }
+                else if( tKey == "refinement_buffer" )
+                {
+                    aParameterList.set( "refinement_buffer", ( sint ) std::stoi( tSecond( k ) ) );
+                }
+                else if( tKey == "staircase_buffer" )
+                {
+                    aParameterList.set( "staircase_buffer", ( sint ) std::stoi( tSecond( k ) ) );
+                }
+                else if( tKey == "bspline_orders" )
+                {
+                    aParameterList.set( "bspline_orders", tSecond( k ) );
+                }
+                else if( tKey == "lagrange_orders" )
+                {
+                    aParameterList.set( "lagrange_orders", tSecond( k ) );
+                }
+                //            else if( tKey == "initial_refinement" )
+                //            {
+                //                aParameterList.set( "initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+                //            }
+                else if ( tKey == "severity_level" )
+                {
+                    aParameterList.set( "severity_level", ( sint ) std::stoi( tSecond( k ) ) );
+                }
+                else if ( tKey == "truncate_bsplines" )
+                {
+                    aParameterList.set( "truncate_bsplines", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
+                else if ( tKey == "additional_lagrange_refinement" )
+                {
+                    aParameterList.set(  "additional_lagrange_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+                }
+                else if ( tKey == "max_refinement_level" )
+                {
+                    aParameterList.set(  "max_refinement_level", ( sint ) std::stoi( tSecond( k ) ) );
+                }
+                else if ( tKey == "use_multigrid" )
+                {
+                    aParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
+                else if ( tKey == "use_refinement_interrelation" )
+                {
+                    aParameterList.set(  "use_refinement_interrelation", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
+                else if ( tKey == "renumber_lagrange_nodes" )
+                {
+                    aParameterList.set(  "renumber_lagrange_nodes", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
+                else if ( tKey == "use_number_aura" )
+                {
+                    aParameterList.set(  "use_number_aura", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
             }
         }
-    }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
-    /*
-     * parameter list constructor
-     */
-    Parameters::Parameters( ParameterList & aParameterList,
-                            std::shared_ptr<moris::Library_IO> aLibrary )
-    {
-        string_to_mat( aParameterList.get< std::string >("number_of_elements_per_dimension"), mNumberOfElementsPerDimension );
+        /*
+         * parameter list constructor
+         */
+        Parameters::Parameters( ParameterList & aParameterList,
+                std::shared_ptr<moris::Library_IO> aLibrary )
+        {
+            string_to_mat( aParameterList.get< std::string >("number_of_elements_per_dimension"), mNumberOfElementsPerDimension );
 
-        // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.length() == 2 || mNumberOfElementsPerDimension.length() == 3,
-                     "Number of elements must be a matrix of length 2 or 3.");
+            // check sanity of input
+            MORIS_ERROR( mNumberOfElementsPerDimension.length() == 2 || mNumberOfElementsPerDimension.length() == 3,
+                    "Number of elements must be a matrix of length 2 or 3.");
 
-        // get processor decomposition method
-        this->set_processor_decomp_method( aParameterList.get< sint >("processor_decomposition_method") );
+            // get processor decomposition method
+            this->set_processor_decomp_method( aParameterList.get< sint >("processor_decomposition_method") );
 
-        // get user defined processor dimensions. Only matters if decomp method == 3.
-        string_to_mat( aParameterList.get< std::string >("processor_dimensions"), mProcessorDimensions );
+            // get user defined processor dimensions. Only matters if decomp method == 3.
+            string_to_mat( aParameterList.get< std::string >("processor_dimensions"), mProcessorDimensions );
 
-        // get domain dimensions
-        string_to_mat( aParameterList.get< std::string >("domain_dimensions"), mDomainDimensions );
+            // get domain dimensions
+            string_to_mat( aParameterList.get< std::string >("domain_dimensions"), mDomainDimensions );
 
-        // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainDimensions.length(),
-                     "length of domain_dimensions must be equal to number_of_elements_per_dimension.");
+            // check sanity of input
+            MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainDimensions.length(),
+                    "length of domain_dimensions must be equal to number_of_elements_per_dimension.");
 
-        // get domain offset
-        string_to_mat( aParameterList.get< std::string >("domain_offset"), mDomainOffset );
+            // get domain offset
+            string_to_mat( aParameterList.get< std::string >("domain_offset"), mDomainOffset );
 
-        // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainOffset.length(),
+            // check sanity of input
+            MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainOffset.length(),
                     "length of domain_offset must be equal to number_of_elements_per_dimension.");
 
-        // set buffer sizes
-        this->set_refinement_buffer( aParameterList.get< sint >("refinement_buffer") );
-        this->set_staircase_buffer ( aParameterList.get< sint >("staircase_buffer") );
+            // set buffer sizes
+            this->set_refinement_buffer( aParameterList.get< sint >("refinement_buffer") );
+            this->set_staircase_buffer ( aParameterList.get< sint >("staircase_buffer") );
 
-        string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
+            string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
-        string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
-        string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
-        string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
-        string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
-        string_to_mat( aParameterList.get< std::string >("bspline_orders"), mBSplineOrders );
-        string_to_mat( aParameterList.get< std::string >("bspline_pattern"), mBSplinePatterns );
+            string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+            string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
+            string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
+            string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
+            string_to_mat( aParameterList.get< std::string >("bspline_orders"), mBSplineOrders );
+            string_to_mat( aParameterList.get< std::string >("bspline_pattern"), mBSplinePatterns );
 
-        this->set_union_pattern  ( aParameterList.get< sint >( "union_pattern" ) );
-        this->set_working_pattern( aParameterList.get< sint >( "working_pattern" ) );
+            this->set_union_pattern  ( aParameterList.get< sint >( "union_pattern" ) );
+            this->set_working_pattern( aParameterList.get< sint >( "working_pattern" ) );
 
-        string_to_cell_mat( aParameterList.get< std::string >("lagrange_to_bspline"), mLagrangeToBSplineMesh );
+            string_to_cell_mat( aParameterList.get< std::string >("lagrange_to_bspline"), mLagrangeToBSplineMesh );
 
-        if( aParameterList.get< sint >("severity_level") != 1 )
-        {
-            this->set_severity_level( aParameterList.get< sint >("severity_level") );
+            if( aParameterList.get< sint >("severity_level") != 1 )
+            {
+                this->set_severity_level( aParameterList.get< sint >("severity_level") );
+            }
+
+            // set truncation flag
+            this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
+
+            //        // set minimum initial refinement
+            string_to_mat( aParameterList.get< std::string >("initial_refinement"), mInitialRefinementLevel );
+            string_to_mat( aParameterList.get< std::string >("initial_refinement_pattern"), mInitialRefinementPattern );
+
+            MORIS_ERROR( mInitialRefinementLevel.numel() == mInitialRefinementPattern.numel(),
+                    "length of mInitialRefinementLevel must be equal to mInitialRefinementPattern.");
+
+            this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
+
+            // get multigrid parameter
+            this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
+
+            // get refinement interrelation parameter
+            this->set_refinement_interrelation( aParameterList.get< sint >("use_refinement_interrelation") == 1 );
+
+            // get renumber lagrange nodes
+            this->set_renumber_lagrange_nodes( aParameterList.get< sint >("renumber_lagrange_nodes") == 1 );
+
+            // get multigrid parameter
+            this->set_number_aura( aParameterList.get< sint >("use_number_aura") == 1 );
+
+            this->set_write_background_mesh( aParameterList.get< std::string >("write_background_mesh") );
+
+            this->set_write_output_lagrange_mesh( aParameterList.get< std::string >("write_lagrange_output_mesh") );
+
+            // get user-defined refinement functions
+            Cell<std::string> tFunctionNames = string_to_cell<std::string>(aParameterList.get<std::string>("refinement_function_names"));
+            MORIS_ERROR((aLibrary != nullptr) or (tFunctionNames.size() == 0),
+                    "User-defined refinement function names were provided without a library to load them from.");
+            for (uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++)
+            {
+                mRefinementFunctions.push_back(aLibrary->load_user_defined_refinement_functions(tFunctionNames(tFunctionIndex)));
+            }
+
+            this->update_max_polynomial_and_truncated_buffer();
         }
 
-        // set truncation flag
-        this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
+        //--------------------------------------------------------------------------------
 
-//        // set minimum initial refinement
-        string_to_mat( aParameterList.get< std::string >("initial_refinement"), mInitialRefinementLevel );
-        string_to_mat( aParameterList.get< std::string >("initial_refinement_pattern"), mInitialRefinementPattern );
-
-        MORIS_ERROR( mInitialRefinementLevel.numel() == mInitialRefinementPattern.numel(),
-                     "length of mInitialRefinementLevel must be equal to mInitialRefinementPattern.");
-
-        this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
-
-        // get multigrid parameter
-        this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
-
-        // get refinement interrelation parameter
-        this->set_refinement_interrelation( aParameterList.get< sint >("use_refinement_interrelation") == 1 );
-
-        // get renumber lagrange nodes
-        this->set_renumber_lagrange_nodes( aParameterList.get< sint >("renumber_lagrange_nodes") == 1 );
-
-        // get multigrid parameter
-        this->set_number_aura( aParameterList.get< sint >("use_number_aura") == 1 );
-
-        this->set_write_background_mesh( aParameterList.get< std::string >("write_background_mesh") );
-
-        this->set_write_output_lagrange_mesh( aParameterList.get< std::string >("write_lagrange_output_mesh") );
-
-        // get user-defined refinement functions
-        Cell<std::string> tFunctionNames = string_to_cell<std::string>(aParameterList.get<std::string>("refinement_function_names"));
-        MORIS_ERROR((aLibrary != nullptr) or (tFunctionNames.size() == 0),
-                "User-defined refinement function names were provided without a library to load them from.");
-        for (uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++)
+        // creates a parameter list from parameters
+        ParameterList create_hmr_parameter_list( const Parameters * aParameters )
         {
-            mRefinementFunctions.push_back(aLibrary->load_user_defined_refinement_functions(tFunctionNames(tFunctionIndex)));
+            MORIS_ERROR(false, "create_hmr_parameter_list(), function not changed yet");
+            // create default values
+            ParameterList tParameterList = prm::create_hmr_parameter_list();
+
+            // buffer size
+            tParameterList.set( "refinement_buffer", ( sint ) aParameters->get_refinement_buffer() );
+            tParameterList.set( "staircase_buffer", ( sint ) aParameters->get_staircase_buffer() );
+
+            // verbosity flag
+            tParameterList.set( "severity_level", ( sint ) aParameters->get_severity_level() );
+
+            // truncation flag
+            tParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
+
+            // initial refinement
+            //tParameterList.set( "initial_refinement",     ( sint ) aParameters->get_initial_refinement() );
+
+            tParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
+
+            // side sets
+            tParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
+
+            tParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
+
+            tParameterList.set( "use_refinement_interrelation", ( sint ) aParameters->get_refinement_interrelation() );
+
+            tParameterList.set( "renumber_lagrange_nodes", ( sint ) aParameters->get_renumber_lagrange_nodes() );
+
+            tParameterList.set( "use_number_aura", ( sint ) aParameters->use_number_aura() );
+
+            return tParameterList;
         }
 
-        this->update_max_polynomial_and_truncated_buffer();
-    }
+        //--------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------
+        void Parameters::copy_selected_parameters( const Parameters & aParameters )
+        {
+            MORIS_ERROR(false, "copy_selected_parameters(), function not changed yet");
+            // buffer size
+            this->set_refinement_buffer( aParameters.get_refinement_buffer() );
+            this->set_staircase_buffer ( aParameters.get_staircase_buffer() );
 
-    // creates a parameter list from parameters
-    ParameterList create_hmr_parameter_list( const Parameters * aParameters )
-    {
-        MORIS_ERROR(false, "create_hmr_parameter_list(), function not changed yet");
-        // create default values
-        ParameterList tParameterList = prm::create_hmr_parameter_list();
+            // verbosity flag
+            this->set_severity_level( aParameters.get_severity_level() );
 
-        // buffer size
-        tParameterList.set( "refinement_buffer", ( sint ) aParameters->get_refinement_buffer() );
-        tParameterList.set( "staircase_buffer", ( sint ) aParameters->get_staircase_buffer() );
+            // truncation flag
+            this->set_bspline_truncation( aParameters.truncate_bsplines() );
 
-        // verbosity flag
-        tParameterList.set( "severity_level", ( sint ) aParameters->get_severity_level() );
+            // initial refinement
+            this->set_initial_refinement( aParameters.get_initial_refinement() );
+            this->set_additional_lagrange_refinement( aParameters.get_additional_lagrange_refinement() );
 
-        // truncation flag
-        tParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
+            // side sets
+            this->set_side_sets( aParameters.get_side_sets() );
 
-        // initial refinement
-        //tParameterList.set( "initial_refinement",     ( sint ) aParameters->get_initial_refinement() );
+            // gmsh scaling factor
+            this->set_gmsh_scale( aParameters.get_gmsh_scale() );
 
-        tParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
+            this->set_lagrange_orders( aParameters.get_lagrange_orders() );
 
-        // side sets
-        tParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
+            this->set_bspline_orders( aParameters.get_bspline_orders() );
+            this->set_max_refinement_level( aParameters.get_max_refinement_level() );
 
-        tParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
+            this->set_multigrid( aParameters.use_multigrid() );
 
-        tParameterList.set( "use_refinement_interrelation", ( sint ) aParameters->get_refinement_interrelation() );
+            // set refinement interrelation parameter
+            this->set_refinement_interrelation( aParameters.get_refinement_interrelation() );
 
-        tParameterList.set( "renumber_lagrange_nodes", ( sint ) aParameters->get_renumber_lagrange_nodes() );
+            this->set_renumber_lagrange_nodes( aParameters.get_renumber_lagrange_nodes() );
 
-        tParameterList.set( "use_number_aura", ( sint ) aParameters->use_number_aura() );
+            this->set_number_aura( aParameters.use_number_aura() );
+        }
 
-        return tParameterList;
-    }
+        //--------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------
+        void Parameters::copy_selected_parameters( ParameterList & aParameterList )
+        {
+            // create a temporary parameter object
+            Parameters tParameters( aParameterList, nullptr );
 
-    void Parameters::copy_selected_parameters( const Parameters & aParameters )
-    {
-        MORIS_ERROR(false, "copy_selected_parameters(), function not changed yet");
-        // buffer size
-        this->set_refinement_buffer( aParameters.get_refinement_buffer() );
-        this->set_staircase_buffer ( aParameters.get_staircase_buffer() );
+            // copy values into myself
+            this->copy_selected_parameters( tParameters );
+        }
 
-        // verbosity flag
-        this->set_severity_level( aParameters.get_severity_level() );
-
-        // truncation flag
-        this->set_bspline_truncation( aParameters.truncate_bsplines() );
-
-        // initial refinement
-        this->set_initial_refinement( aParameters.get_initial_refinement() );
-        this->set_additional_lagrange_refinement( aParameters.get_additional_lagrange_refinement() );
-
-        // side sets
-        this->set_side_sets( aParameters.get_side_sets() );
-
-        // gmsh scaling factor
-        this->set_gmsh_scale( aParameters.get_gmsh_scale() );
-
-        this->set_lagrange_orders( aParameters.get_lagrange_orders() );
-
-        this->set_bspline_orders( aParameters.get_bspline_orders() );
-        this->set_max_refinement_level( aParameters.get_max_refinement_level() );
-
-        this->set_multigrid( aParameters.use_multigrid() );
-
-        // set refinement interrelation parameter
-        this->set_refinement_interrelation( aParameters.get_refinement_interrelation() );
-
-        this->set_renumber_lagrange_nodes( aParameters.get_renumber_lagrange_nodes() );
-
-        this->set_number_aura( aParameters.use_number_aura() );
-    }
-
-//--------------------------------------------------------------------------------
-
-    void Parameters::copy_selected_parameters( ParameterList & aParameterList )
-    {
-        // create a temporary parameter object
-        Parameters tParameters( aParameterList, nullptr );
-
-        // copy values into myself
-        this->copy_selected_parameters( tParameters );
-    }
-
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::error( const std::string & aMessage ) const
         {
@@ -310,7 +310,7 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::error_if_locked( const std::string & aFunctionName ) const
         {
@@ -322,14 +322,14 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::lock()
         {
             mParametersAreLocked = true;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
         void Parameters::print() const
         {
             if ( par_rank() == 0 )
@@ -372,7 +372,7 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         /**
          * Sets processor decomposition method.  Options 1, 2, or 3 as of 10/29/2020
@@ -386,7 +386,7 @@ namespace moris
             mProcDecompMethod = aProcDecompMethod;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         /**
          * Sets processor dimensions.  Only matters for "user defined" decomp method
@@ -400,7 +400,7 @@ namespace moris
             mProcessorDimensions = aProcessorDimensions;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         /**
          * sets the mesh orders according to given matrix
@@ -419,7 +419,7 @@ namespace moris
             this->update_max_polynomial_and_truncated_buffer();
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         /**
          * sets the mesh orders according to given matrix
@@ -438,23 +438,23 @@ namespace moris
             this->update_max_polynomial_and_truncated_buffer();
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::update_max_polynomial_and_truncated_buffer()
         {
             mMaxPolynomial = ( mLagrangeOrders.max() > mBSplineOrders.max() ) ? ( mLagrangeOrders.max() ) : ( mBSplineOrders.max() );
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         auto Parameters::get_padding_size() const -> decltype ( mStaircaseBuffer )
-        {
+                {
             // returns the larger value of max polynomial and buffer size.
             // in the future, filter with will be regarded here
             return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), mRefinementBuffer );
-        }
+                }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_number_of_elements_per_dimension( const Matrix< DDLUMat > & aNumberOfElementsPerDimension )
         {
@@ -471,10 +471,10 @@ namespace moris
             this->set_default_dimensions_and_offset();
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_number_of_elements_per_dimension( const luint & aElementsX,
-                                                               const luint & aElementsY )
+                const luint & aElementsY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
@@ -487,11 +487,11 @@ namespace moris
             this->set_default_dimensions_and_offset();
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_number_of_elements_per_dimension( const luint & aElementsX,
-                                                               const luint & aElementsY,
-                                                               const luint & aElementsZ )
+                const luint & aElementsY,
+                const luint & aElementsZ )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
@@ -505,28 +505,28 @@ namespace moris
             this->set_default_dimensions_and_offset();
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
-       void Parameters::set_default_dimensions_and_offset()
-       {
-           // test if calling this function is allowed
-           this->error_if_locked("set_default_dimensions_and_offset");
+        void Parameters::set_default_dimensions_and_offset()
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_default_dimensions_and_offset");
 
-           auto tNumberOfDimensions = mNumberOfElementsPerDimension.length();
+            auto tNumberOfDimensions = mNumberOfElementsPerDimension.length();
 
-           // auto set for domain dimensions
-           if ( mDomainDimensions.length() == 0 )
-           {
-               mDomainDimensions.set_size( tNumberOfDimensions, 1, 1.0 );
-           }
+            // auto set for domain dimensions
+            if ( mDomainDimensions.length() == 0 )
+            {
+                mDomainDimensions.set_size( tNumberOfDimensions, 1, 1.0 );
+            }
 
-           // auto set offset
-           if ( mDomainOffset.length() == 0 )
-           {
-               mDomainOffset.set_size( tNumberOfDimensions, 1, 0.0 );
-           }
-       }
-//--------------------------------------------------------------------------------
+            // auto set offset
+            if ( mDomainOffset.length() == 0 )
+            {
+                mDomainOffset.set_size( tNumberOfDimensions, 1, 0.0 );
+            }
+        }
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions )
         {
@@ -535,17 +535,17 @@ namespace moris
 
             // check sanity of input
             MORIS_ERROR( aDomainDimensions.length() == 2 || aDomainDimensions.length() == 3,
-                         "Domain Dimensions must be a matrix of length 2 or 3.");
+                    "Domain Dimensions must be a matrix of length 2 or 3.");
 
             MORIS_ERROR( aDomainDimensions.max() > 0.0, "Domain Dimensions be greater than zero");
 
             mDomainDimensions = aDomainDimensions;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_domain_dimensions( const real & aDomainDimensionsX,
-                                                const real & aDomainDimensionsY )
+                const real & aDomainDimensionsY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_dimensions");
@@ -560,11 +560,11 @@ namespace moris
             mDomainDimensions( 1 ) = aDomainDimensionsY;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_domain_dimensions( const real & aDomainDimensionsX,
-                                                const real & aDomainDimensionsY,
-                                                const real & aDomainDimensionsZ)
+                const real & aDomainDimensionsY,
+                const real & aDomainDimensionsZ)
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_dimensions");
@@ -582,7 +582,7 @@ namespace moris
             mDomainDimensions( 2 ) = aDomainDimensionsZ;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_domain_offset( const Matrix< DDRMat > & aDomainOffset )
         {
@@ -591,15 +591,15 @@ namespace moris
 
             // check sanity of input
             MORIS_ERROR( aDomainOffset.length() == 2 || aDomainOffset.length() == 3,
-                         "Domain Offset must be a matrix of length 2 or 3.");
+                    "Domain Offset must be a matrix of length 2 or 3.");
 
             mDomainOffset = aDomainOffset;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_domain_offset( const real & aDomainOffsetX,
-                                            const real & aDomainOffsetY )
+                const real & aDomainOffsetY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -609,11 +609,11 @@ namespace moris
             mDomainOffset( 1 ) = aDomainOffsetY;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_domain_offset( const real & aDomainOffsetX,
-                                            const real & aDomainOffsetY,
-                                            const real & aDomainOffsetZ )
+                const real & aDomainOffsetY,
+                const real & aDomainOffsetZ )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -624,7 +624,7 @@ namespace moris
             mDomainOffset( 2 ) = aDomainOffsetZ;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         Matrix< DDLUMat > Parameters::get_domain_ijk() const
         {
@@ -647,7 +647,7 @@ namespace moris
             return aDomain;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         /**
          * returns with, height and length of specified domain
@@ -684,7 +684,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         /**
          * sets the patterns for the Lagrange Meshes
@@ -705,7 +705,7 @@ namespace moris
             mLagrangePatterns = aPatterns;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         /**
          * sets the patterns for the Lagrange Meshes
@@ -726,7 +726,7 @@ namespace moris
             mBSplinePatterns = aPatterns;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::check_sanity() const
         {
@@ -737,29 +737,29 @@ namespace moris
 
                 // check dimensions
                 MORIS_ERROR( mNumberOfElementsPerDimension.length() == tNumberOfDimensions,
-                             "Number of Elements Per Dimension does not match" );
+                        "Number of Elements Per Dimension does not match" );
 
                 MORIS_ERROR( mDomainDimensions.length() == tNumberOfDimensions,
-                             "Domain dimensions and Number of Elements per dimension do not match");
+                        "Domain dimensions and Number of Elements per dimension do not match");
 
                 MORIS_ERROR( mDomainOffset.length() == tNumberOfDimensions,
-                             "Domain offset and Number of Elements per dimension do not match");
+                        "Domain offset and Number of Elements per dimension do not match");
 
                 // get number of B-Spline meshes
                 auto tNumberOfBSplineMeshes = mBSplineOrders.length();
 
                 MORIS_ERROR( mBSplinePatterns.length() == tNumberOfBSplineMeshes,
-                             "B-Spline pattern list does not match number of B-Splines" );
+                        "B-Spline pattern list does not match number of B-Splines" );
 
                 // get number of Lagrange meshes
                 auto tNumberOfLagrangeMeshes = mLagrangeOrders.length();
 
                 MORIS_ERROR( mLagrangePatterns.length() == tNumberOfLagrangeMeshes,
-                             "Lagrange pattern list does not match number of Lagrange meshes" );
+                        "Lagrange pattern list does not match number of Lagrange meshes" );
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         std::string Parameters::get_side_sets_as_string() const
         {
@@ -768,7 +768,7 @@ namespace moris
             return aString;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Parameters::set_refinement_functions( Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> aRefinementFunctions )
         {
@@ -781,10 +781,33 @@ namespace moris
         {
             MORIS_ASSERT(aFunctionIndex < mRefinementFunctions.size(),
                     ("A user-defined refinement function with index " + std::to_string(aFunctionIndex) +
-                    " was requested for use, but only " + std::to_string(mRefinementFunctions.size()) +
-                    " user-defined refinement functions were provided to HMR.").c_str());
+                            " was requested for use, but only " + std::to_string(mRefinementFunctions.size()) +
+                            " user-defined refinement functions were provided to HMR.").c_str());
             return mRefinementFunctions(aFunctionIndex);
         }
+
+        //--------------------------------------------------------------------------------
+
+        bool Parameters::is_output_mesh( const uint aMeshIndex ) const
+        {
+            const Matrix< DDUMat > & tOutputMeshes = this->get_output_mesh();
+
+            bool tIsOutputMesh = false;
+
+            for( uint k=0; k<tOutputMeshes.numel(); ++k )
+            {
+                if( aMeshIndex == tOutputMeshes( k ) )
+                {
+                    tIsOutputMesh = true;
+                    break;
+                }
+            }
+
+            return tIsOutputMesh;
+        }
+
+        //--------------------------------------------------------------------------------
+
 
     } /* namespace hmr */
 } /* namespace moris */
