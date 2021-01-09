@@ -52,6 +52,35 @@ namespace moris
                 Set      * mSet     = nullptr;
                 Cluster  * mCluster = nullptr;
 
+                // function pointers
+                void ( Element:: * m_compute_jacobian )(
+                        const std::shared_ptr< IWG > & aReqIWG,
+                        real                           aWStar ) = nullptr;
+                void ( Element:: * m_compute_dRdp )(
+                        const std::shared_ptr< IWG >      & aReqIWG,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
+                void ( Element:: * m_compute_dQIdu )(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar ) = nullptr;
+                void ( Element:: * m_compute_dQIdp )(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar,
+                        Matrix< DDSMat >             & aGeoLocalAssembly ) = nullptr;
+
+                // finite difference scheme type for jacobian and dQIdu
+                fem::FDScheme_Type mFAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+                // finite difference perturbation size for jacobian and dQIdu
+                real mFAFDPerturbation = 1e-6;
+
+                // finite difference scheme type for dRdp and dQIdp
+                fem::FDScheme_Type mSAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+                // finite difference perturbation size for dRdp and dQIdp
+                real mSAFDPerturbation = 1e-6;
+
                 //------------------------------------------------------------------------------
             public:
                 //------------------------------------------------------------------------------
@@ -81,6 +110,9 @@ namespace moris
 
                     // fill the bulk mtk::Cell pointer //FIXME
                     mMasterCell = aCell;
+
+                    // set function pointers
+                    this->set_function_pointers();
                 };
 
                 //------------------------------------------------------------------------------
@@ -107,6 +139,9 @@ namespace moris
                     // fill the master and slave cell pointers
                     mMasterCell = aMasterCell;
                     mSlaveCell  = aSlaveCell;
+
+                    // set function pointers
+                    this->set_function_pointers();
                 };
 
                 //------------------------------------------------------------------------------
@@ -114,6 +149,227 @@ namespace moris
                  * trivial destructor
                  */
                 virtual ~Element(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set function pointers for analytical and FD
+                 */
+                void set_function_pointers()
+                {
+                    // get bool for forward analysis evaluation type
+                    // FIXME need to come from input through fem set
+                    bool tIsAnalyticalJacobian = true;
+
+                    if( tIsAnalyticalJacobian )
+                    {
+                        m_compute_jacobian = &Element::select_jacobian;
+                        m_compute_dQIdu    = &Element::select_dQIdu;
+                    }
+                    else
+                    {
+                        // get finite difference scheme type
+                        mFAFDScheme = mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+                        // get the finite difference perturbation size
+                        mFAFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
+                        m_compute_jacobian = &Element::select_jacobian_FD;
+                        m_compute_dQIdu    = &Element::select_dQIdu_FD;
+
+                        if( mSet->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
+                        {
+                            m_compute_jacobian = &Element::select_jacobian_FD_double;
+                            m_compute_dQIdu    = &Element::select_dQIdu_FD_double;
+                        }
+                    }
+
+                    // get bool for sensitivity analysis evaluation type
+                    bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+
+                    if( tIsAnalyticalSA )
+                    {
+                        m_compute_dRdp  = &Element::select_dRdp;
+                        m_compute_dQIdp = &Element::select_dQIdp;
+                    }
+                    else
+                    {
+                        m_compute_dRdp  = &Element::select_dRdp_FD;
+                        m_compute_dQIdp = &Element::select_dQIdp_FD;
+
+                        // get finite difference scheme type
+                        mSAFDScheme = mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+                        // get the finite difference perturbation size
+                        mSAFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
+                        if( mSet->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
+                        {
+                            m_compute_dRdp  = &Element::select_dRdp_FD_double;
+                            m_compute_dQIdp = &Element::select_dQIdp_FD_double;
+                        }
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * select jacobian
+                 */
+                void select_jacobian(
+                        const std::shared_ptr< IWG > & aReqIWG,
+                        real                           aWStar )
+                {
+                    // compute Jacobian
+                    aReqIWG->compute_jacobian( aWStar );
+                }
+
+                void select_jacobian_FD(
+                        const std::shared_ptr< IWG > & aReqIWG,
+                        real                           aWStar )
+                {
+                    // compute Jacobian
+                    aReqIWG->compute_jacobian_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
+                }
+
+                void select_jacobian_FD_double(
+                        const std::shared_ptr< IWG > & aReqIWG,
+                        real                           aWStar )
+                {
+                    // compute Jacobian
+                    aReqIWG->compute_jacobian_FD_double( aWStar, mFAFDPerturbation, mFAFDScheme );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * select dQIdu
+                 */
+                void select_dQIdu(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar )
+                {
+                    // compute dQIdu
+                    aReqIQI->compute_dQIdu( aWStar );
+                }
+
+                void select_dQIdu_FD(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar )
+                {
+                    // compute dQIdu FD
+                    aReqIQI->compute_dQIdu_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
+                }
+
+                void select_dQIdu_FD_double(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar )
+                {
+                    MORIS_ERROR( false, "Not implemented yet.");
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * select dRdp
+                 */
+                void select_dRdp(
+                        const std::shared_ptr< IWG >      & aReqIWG,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+                {
+                    // compute Jacobian
+                    aReqIWG->compute_jacobian( aWStar );
+                }
+
+                void select_dRdp_FD(
+                        const std::shared_ptr< IWG >      & aReqIWG,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+                {
+                    // compute dRdpMat at evaluation point
+                    aReqIWG->compute_dRdp_FD_material(
+                            aWStar,
+                            mSAFDPerturbation,
+                            mSAFDScheme );
+
+                    // compute dRdpGeo at evaluation point
+                    if( mSet->get_geo_pdv_assembly_flag() )
+                    {
+                        aReqIWG->compute_dRdp_FD_geometry(
+                                aWStar,
+                                mSAFDPerturbation,
+                                aGeoLocalAssembly,
+                                mSAFDScheme );
+                    }
+                }
+
+                void select_dRdp_FD_double(
+                        const std::shared_ptr< IWG >      & aReqIWG,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+                {
+                    // compute dRdpMat at evaluation point
+                    aReqIWG->compute_dRdp_FD_material_double(
+                            aWStar,
+                            mSAFDPerturbation,
+                            mSAFDScheme );
+
+                    // if active pdv on master or slave
+                    if( mSet->get_geo_pdv_assembly_flag() )
+                    {
+                        // compute dRdpGeo at evaluation point
+                        aReqIWG->compute_dRdp_FD_geometry_double(
+                                aWStar,
+                                mSAFDPerturbation,
+                                aVertexIndices( 0 ),
+                                aVertexIndices( 1 ),
+                                aGeoLocalAssembly,
+                                mSAFDScheme );
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * select dQIdp
+                 */
+                void select_dQIdp(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar,
+                        Matrix< DDSMat >             & aGeoLocalAssembly )
+                {
+                    // compute Jacobian
+                    aReqIQI->compute_dQIdp( aWStar );
+                }
+
+                void select_dQIdp_FD(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar,
+                        Matrix< DDSMat >             & aGeoLocalAssembly )
+                {
+                    // compute dQIdpMat at evaluation point
+                    aReqIQI->compute_dQIdp_FD_material(
+                            aWStar,
+                            mSAFDPerturbation,
+                            mSAFDScheme );
+
+                    // compute dQIdpGeo at evaluation point
+                    if( mSet->get_geo_pdv_assembly_flag() )
+                    {
+                        aReqIQI->compute_dQIdp_FD_geometry(
+                                aWStar,
+                                mSAFDPerturbation,
+                                aGeoLocalAssembly,
+                                mSAFDScheme );
+                    }
+                }
+
+                void select_dQIdp_FD_double(
+                        const std::shared_ptr< IQI > & aReqIQI,
+                        real                           aWStar,
+                        Matrix< DDSMat >             & aGeoLocalAssembly )
+                {
+                    MORIS_ERROR( false, "Not implemented yet.");
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -157,19 +413,11 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp by analytical formulation
+                 * compute dRdp
                  */
                 virtual void compute_dRdp()
                 {
                     MORIS_ERROR( false, "Element::compute_dRdp - Not implemented for base class." );
-                }
-
-                /**
-                 * compute dRdp by finite difference
-                 */
-                virtual void compute_dRdp_FD()
-                {
-                    MORIS_ERROR( false, "Element::compute_dRdp_FD - Not implemented for base class." );
                 }
 
                 //------------------------------------------------------------------------------
@@ -183,27 +431,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dQIdp by analytical formulation
+                 * compute dQIdp
                  */
                 virtual void compute_dQIdp_explicit()
                 {
                     MORIS_ERROR( false, "Element::compute_dQIdp_explicit - Not implemented for base class." );
                 }
 
-
-                /**
-                 * compute dQIdp by finite difference
-                 */
-                virtual void compute_dQIdp_explicit_FD()
-                {
-                    MORIS_ERROR( false, "Element::compute_dQIdp_explicit_FD - Not implemented for base class." );
-                }
-
                 //------------------------------------------------------------------------------
                 /**
                  * compute dRdp and dQIdp by finite difference
                  */
-                virtual void compute_dRdp_and_dQIdp_FD()
+                virtual void compute_dRdp_and_dQIdp()
                 {
                     MORIS_ERROR( false, "Element::compute_dRdp_and_dQIdp_FD - Not implemented for base class." );
                 }

@@ -70,14 +70,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp by analytical formulation
+                 * compute dRdp
                  */
                 void compute_dRdp();
-
-                /**
-                 * compute dRdp by finite difference
-                 */
-                void compute_dRdp_FD();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -87,20 +82,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dQIdp by analytical formulation
+                 * compute dQIdp
                  */
                 void compute_dQIdp_explicit();
-
-                /**
-                 * compute dQIdp by finite difference
-                 */
-                void compute_dQIdp_explicit_FD();
                 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp and dQIdp by finite difference
+                 * compute dRdp and dQIdp
                  */
-                void compute_dRdp_and_dQIdp_FD();
+                void compute_dRdp_and_dQIdp();
 
                 //------------------------------------------------------------------------------
                 /**
