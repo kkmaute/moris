@@ -121,6 +121,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     // set a fem set pointer
 
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -516,6 +517,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     // set a fem set pointer
 
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -863,6 +865,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal_Analytic",
     // set a fem set pointer
 
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList

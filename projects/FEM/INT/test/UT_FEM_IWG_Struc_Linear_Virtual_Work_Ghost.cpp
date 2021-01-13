@@ -117,6 +117,7 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
     //------------------------------------------------------------------------------
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList

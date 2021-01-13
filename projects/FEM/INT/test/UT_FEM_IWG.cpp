@@ -114,6 +114,8 @@ namespace moris
         //tIWG->mRequestedSlaveGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
         MSI::Equation_Set * tSet = new fem::Set();
 
+        static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
+
         tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
         tIWG->mSet->mUniqueDofTypeList.resize( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, MSI::Dof_Type::END_ENUM );

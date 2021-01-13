@@ -172,6 +172,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
 
     // create a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
 
     // FEM parameter lists
     Cell<Cell<ParameterList>> tParameterList;

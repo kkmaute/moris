@@ -286,6 +286,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
 
             // create and set the fem set for the IWG
             MSI::Equation_Set * tSet = new fem::Set();
+            static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 
             // set pointer for IWG
             tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
