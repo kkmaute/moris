@@ -2,6 +2,7 @@
 #include "st_GEN_Field_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
 
+#include "cl_GEN_Constant_Property.hpp"
 #include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Discrete_Property.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
@@ -205,7 +206,16 @@ namespace moris
             tParameters.mBSplineUpperBound = aPropertyParameterList.get<real>("bspline_upper_bound");
 
             // Build Property
-            if (tPropertyType == "scaled_field")
+            if (tPropertyType == "constant")
+            {
+                return std::make_shared<Constant_Property>(
+                        aADVs,
+                        tPropertyVariableIndices,
+                        tADVIndices,
+                        tConstants,
+                        tParameters);
+            }
+            else if (tPropertyType == "scaled_field")
             {
                 return std::make_shared<Scaled_Field>(
                         aADVs,

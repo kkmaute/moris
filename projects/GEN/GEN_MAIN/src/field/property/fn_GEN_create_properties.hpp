@@ -46,7 +46,7 @@ namespace moris
         std::shared_ptr<Property> create_property(
                 ParameterList                aPropertyParameterList,
                 Vector_Type&                 aADVs,
-                Cell<std::shared_ptr<Field>> aFieldDependencies,
+                Cell<std::shared_ptr<Field>> aFieldDependencies = {},
                 std::shared_ptr<Library_IO>  aLibrary = nullptr);
     }
 }
