@@ -185,6 +185,7 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2");
         tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0");
         tParameterlist( 1 )( 0 ).set( "bspline_mesh_index", -1);
+        tParameterlist( 1 )( 0 ).set( "multilinear_intersections", false);
 
                 // Geometry parameter lists
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
@@ -192,6 +193,7 @@ namespace moris
         tParameterlist( 1 )( 1 ).set( "number_of_refinements", "2");
         tParameterlist( 1 )( 1 ).set( "refinement_mesh_index", "0");
         tParameterlist( 1 )( 1 ).set( "bspline_mesh_index", -1);
+        tParameterlist( 1 )( 1 ).set( "multilinear_intersections", false);
 
                 // Geometry parameter lists
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
@@ -199,6 +201,7 @@ namespace moris
         tParameterlist( 1 )( 2 ).set( "number_of_refinements", "2");
         tParameterlist( 1 )( 2 ).set( "refinement_mesh_index", "0");
         tParameterlist( 1 )( 2 ).set( "bspline_mesh_index", -1);
+        tParameterlist( 1 )( 2 ).set( "multilinear_intersections", false);
 
                 // Geometry parameter lists
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
@@ -206,6 +209,7 @@ namespace moris
         tParameterlist( 1 )( 3 ).set( "number_of_refinements", "2");
         tParameterlist( 1 )( 3 ).set( "refinement_mesh_index", "0");
         tParameterlist( 1 )( 3 ).set( "bspline_mesh_index", -1);
+        tParameterlist( 1 )( 3 ).set( "multilinear_intersections", false);
 
 
     }
