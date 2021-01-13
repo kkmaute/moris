@@ -136,6 +136,22 @@ namespace moris
             real mReferenceValue = 1.0;
             bool mNormalized = false;
 
+            // function pointers
+            void ( IQI:: * m_compute_dQIdu_FD )(
+                    real               aWStar,
+                    real               aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType ) = nullptr;
+            void ( IQI:: * m_compute_dQIdp_FD_material )(
+                    real               aWStar,
+                    real               aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType ) = nullptr;
+            void ( IQI:: * m_compute_dQIdp_FD_geometry )(
+                    real                                aWStar,
+                    real                                aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
+
             //------------------------------------------------------------------------------
         public :
 
@@ -308,7 +324,17 @@ namespace moris
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
+
+                // set function pointer for dQIdu, dQIdp
+                this->set_function_pointers();
             }
+
+            //------------------------------------------------------------------------------
+            /*
+             * set fem set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_function_pointers();
 
             //------------------------------------------------------------------------------
             /*
@@ -534,7 +560,16 @@ namespace moris
             void compute_dQIdu_FD(
                     real               aWStar,
                     real               aPerturbation,
-                    fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                    fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+            {
+                // compute dQIdu geometry by FD
+                ( this->*m_compute_dQIdu_FD )( aWStar, aPerturbation, aFDSchemeType );
+            }
+
+            void select_dQIdu_FD(
+                    real               aWStar,
+                    real               aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType );
 
             //------------------------------------------------------------------------------
             /**
@@ -576,14 +611,23 @@ namespace moris
             void compute_dQIdp_FD_material(
                     moris::real        aWStar,
                     moris::real        aPerturbation,
-                    fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
-
-            void compute_dQIdp_FD_material_double(
-                    moris::real        aWStar,
-                    moris::real        aPerturbation,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
             {
-                MORIS_ERROR( false, "IQI::compute_dQIdp_FD_material_double - not implemented yet");
+                // compute dQIdp geometry by FD
+                ( this->*m_compute_dQIdp_FD_material )( aWStar, aPerturbation, aFDSchemeType );
+            }
+
+            void select_dQIdp_FD_material(
+                    moris::real        aWStar,
+                    moris::real        aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType );
+
+            void select_dQIdp_FD_material_double(
+                    moris::real        aWStar,
+                    moris::real        aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType )
+            {
+                MORIS_ERROR( false, "IQI::select_dQIdp_FD_material_double - not implemented yet");
             }
 
             //------------------------------------------------------------------------------
@@ -596,30 +640,41 @@ namespace moris
              * @param[ in ] aFDSchemeType     enum for FD scheme
              */
             void compute_dQIdp_FD_geometry(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+            {
+                // compute dQIdp geometry by FD
+                ( this->*m_compute_dQIdp_FD_geometry )(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType,
+                        aGeoLocalAssembly,
+                        aVertexIndices );
+            }
 
-            void compute_dQIdp_FD_geometry_bulk(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+            void select_dQIdp_FD_geometry_bulk(
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-            void compute_dQIdp_FD_geometry_sideset(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+            void select_dQIdp_FD_geometry_sideset(
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-            void compute_dQIdp_FD_geometry_double(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< IndexMat > & aMasterVertexIndices,
-                    Matrix< IndexMat > & aSlaveVertexIndices,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+            void select_dQIdp_FD_geometry_double(
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices )
             {
                 MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet");
             }

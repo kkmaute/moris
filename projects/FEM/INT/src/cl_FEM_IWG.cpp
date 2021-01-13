@@ -117,6 +117,47 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_function_pointers()
+        {
+            // switch on element type
+            switch( mSet->get_element_type() )
+            {
+                case fem::Element_Type::BULK :
+                {
+                    m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
+                    m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
+                    m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_bulk;
+                    break;
+                }
+                case fem::Element_Type::SIDESET :
+                {
+                    m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
+                    m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
+                    m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset;
+                    break;
+                }
+                case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY:
+                {
+                    m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
+                    m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
+                    m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_time_sideset;
+                    break;
+                }
+                case fem::Element_Type::DOUBLE_SIDESET:
+                {
+                    m_compute_jacobian_FD      = &IWG::select_jacobian_FD_double;
+                    m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material_double;
+                    m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_double;
+                    break;
+                }
+                default :
+                    MORIS_ERROR( false, "IWG::set_function_pointers - unknown element type.");
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::set_phase_name(
                 std::string aPhaseName,
                 mtk::Master_Slave aIsMaster )
@@ -1428,11 +1469,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_jacobian_FD(
+        void IWG::select_jacobian_FD(
                 real                aWStar,
                 real                aPerturbation,
                 fem::FDScheme_Type  aFDSchemeType )
         {
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -1548,15 +1592,21 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_jacobian_FD_double(
+        void IWG::select_jacobian_FD_double(
                 real                aWStar,
                 real                aPerturbation,
                 fem::FDScheme_Type  aFDSchemeType )
         {
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -1807,6 +1857,9 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
         }
 
         //------------------------------------------------------------------------------
@@ -1862,14 +1915,8 @@ namespace moris
             mSet->get_jacobian().fill( 0.0 );
 
             // compute jacobian by FD
-            if( tSlaveNumRows > 0 )
-            {
-                this->compute_jacobian_FD_double( aWStar, aPerturbation );
-            }
-            else
-            {
-                this->compute_jacobian_FD( aWStar, aPerturbation );
-            }
+              this->compute_jacobian_FD( aWStar, aPerturbation );
+
 
             // get the computed jacobian
             aJacobianFD( { 0, tMasterNumRows - 1 }, { 0, tNumCols - 1 } ) =
@@ -1929,43 +1976,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_dRdp_FD_geometry(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
+        void IWG::select_dRdp_FD_geometry_bulk(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType,
+                Matrix< DDSMat >                  & aGeoLocalAssembly,
+                moris::Cell< Matrix< IndexMat > > & aVertexIndices )
         {
-            switch( mSet->get_element_type() )
-            {
-                case fem::Element_Type::BULK :
-                    this->compute_dRdp_FD_geometry_bulk(
-                            aWStar, aPerturbation,
-                            aGeoLocalAssembly, aFDSchemeType );
-                    break;
-                case fem::Element_Type::SIDESET :
-                    this->compute_dRdp_FD_geometry_sideset(
-                            aWStar, aPerturbation,
-                            aGeoLocalAssembly, aFDSchemeType );
-                    break;
-                case fem::Element_Type::TIME_SIDESET :
-                case fem::Element_Type::TIME_BOUNDARY:
-                    this->compute_dRdp_FD_geometry_time_sideset(
-                            aWStar, aPerturbation,
-                            aGeoLocalAssembly, aFDSchemeType );
-                    break;
-                default :
-                    MORIS_ERROR( false, "IWG::compute_dRdp_FD_geometry - unknown element type.");
-            }
-        }
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
-        //------------------------------------------------------------------------------
-
-        void IWG::compute_dRdp_FD_geometry_bulk(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
-        {
             // get the GI for the IG element considered
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
@@ -2106,6 +2126,9 @@ namespace moris
             mSet->get_field_interpolator_manager()->
                     set_space_time_from_local_IG_point( tEvaluationPoint );
 
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
@@ -2113,12 +2136,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_dRdp_FD_geometry_sideset(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
+        void IWG::select_dRdp_FD_geometry_sideset(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType,
+                Matrix< DDSMat >                  & aGeoLocalAssembly,
+                moris::Cell< Matrix< IndexMat > > & aVertexIndices )
         {
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get the GI for the IG element considered
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
@@ -2282,6 +2309,9 @@ namespace moris
             // reset normal
             this->set_normal( tNormal );
 
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
@@ -2289,12 +2319,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_dRdp_FD_geometry_time_sideset(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
+        void IWG::select_dRdp_FD_geometry_time_sideset(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType,
+                Matrix< DDSMat >                  & aGeoLocalAssembly,
+                moris::Cell< Matrix< IndexMat > > & aVertexIndices )
         {
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get the GI for the IG element considered
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
@@ -2460,6 +2494,9 @@ namespace moris
             tIGGI->set_space_coeff( tCoeff );
             tIGGIPrevious->set_space_coeff( tCoeff );
 
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
@@ -2467,14 +2504,20 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_dRdp_FD_geometry_double(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< IndexMat > & aMasterVertexIndices,
-                Matrix< IndexMat > & aSlaveVertexIndices,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
+        void IWG::select_dRdp_FD_geometry_double(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType,
+                Matrix< DDSMat >                  & aGeoLocalAssembly,
+                moris::Cell< Matrix< IndexMat > > & aVertexIndices )
         {
+            // unpack vertex indices
+            Matrix< IndexMat > & aMasterVertexIndices = aVertexIndices( 0 );
+            Matrix< IndexMat > & aSlaveVertexIndices  = aVertexIndices( 1 );
+
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get requested geometry pdv types
             moris::Cell< PDV_Type > tRequestedGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
@@ -2697,6 +2740,9 @@ namespace moris
                     set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
             this->set_normal( tMasterNormal );
 
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
                     "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
@@ -2704,11 +2750,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_dRdp_FD_material(
+        void IWG::select_dRdp_FD_material(
                 moris::real        aWStar,
                 moris::real        aPerturbation,
                 fem::FDScheme_Type aFDSchemeType )
         {
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -2832,6 +2881,9 @@ namespace moris
                 tFI->set_coeff( tCoeff );
             }
 
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpmat() ) ,
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
@@ -2839,11 +2891,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::compute_dRdp_FD_material_double(
+        void IWG::select_dRdp_FD_material_double(
                 moris::real        aWStar,
                 moris::real        aPerturbation,
                 fem::FDScheme_Type aFDSchemeType )
         {
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -3115,6 +3170,9 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpmat() ) ,

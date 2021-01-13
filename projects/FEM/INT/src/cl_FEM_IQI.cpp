@@ -69,6 +69,47 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IQI::set_function_pointers()
+        {
+            // switch on element type
+            switch( mSet->get_element_type() )
+            {
+                case fem::Element_Type::BULK :
+                {
+                    m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
+                    m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
+                    m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_bulk;
+                    break;
+                }
+                case fem::Element_Type::SIDESET :
+                {
+                    m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
+                    m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
+                    m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_sideset;
+                    break;
+                }
+                case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY:
+                {
+                    m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
+                    m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
+                    m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_bulk;
+                    break;
+                }
+                case fem::Element_Type::DOUBLE_SIDESET:
+                {
+                    m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
+                    m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material_double;
+                    m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_double;
+                    break;
+                }
+                default :
+                    MORIS_ERROR( false, "IWG::set_function_pointers - unknown element type.");
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI::reset_eval_flags()
         {
             // reset properties
@@ -1252,11 +1293,17 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI::compute_dQIdu_FD(
+        void IQI::select_dQIdu_FD(
                 real               aWStar,
                 real               aPerturbation,
                 fem::FDScheme_Type aFDSchemeType )
         {
+            // get the column index to assemble in residual
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // store QI value
+            Matrix< DDRMat > tQIStore = mSet->get_QI()( tQIIndex );
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -1265,9 +1312,6 @@ namespace moris
             // get master number of dof types
             uint tNumMasterDofType = mRequestedMasterGlobalDofTypes.size();
             uint tNumSlaveDofType  = mRequestedSlaveGlobalDofTypes.size();
-
-            // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // reset the QI
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
@@ -1465,6 +1509,9 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // reset QI value
+            mSet->get_QI()( tQIIndex ) = tQIStore;
         }
 
         //------------------------------------------------------------------------------
@@ -1481,7 +1528,6 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // compute dQIdu with IQI
-            //this->add_dQIdu_on_set( aWStar );
             this->compute_dQIdu( aWStar );
             adQIdu = mSet->get_residual()( tQIIndex );
 
@@ -1516,11 +1562,17 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI::compute_dQIdp_FD_material(
+        void IQI::select_dQIdp_FD_material(
                 moris::real aWStar,
                 moris::real aPerturbation,
                 fem::FDScheme_Type aFDSchemeType )
         {
+            // get the column index to assemble in residual
+            sint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+
+            // store QI value
+            Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -1532,9 +1584,6 @@ namespace moris
 
             // get number of requested dv types
             uint tNumPdvType = tRequestedPdvTypes.size();
-
-            // get the IQI index
-            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
 
             // reset the QI
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
@@ -1630,6 +1679,9 @@ namespace moris
                 tFI->set_coeff( tCoeff );
             }
 
+            // reset QI value
+            mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_material - dQIdp contains NAN or INF, exiting!");
@@ -1637,39 +1689,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI::compute_dQIdp_FD_geometry(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
-        {
-            switch( mSet->get_element_type() )
-            {
-                case fem::Element_Type::BULK :
-                    this->compute_dQIdp_FD_geometry_bulk(
-                            aWStar, aPerturbation,
-                            aGeoLocalAssembly, aFDSchemeType );
-                    break;
-                case fem::Element_Type::SIDESET :
-                    this->compute_dQIdp_FD_geometry_sideset(
-                            aWStar, aPerturbation,
-                            aGeoLocalAssembly, aFDSchemeType );
-                    break;
-                default :
-                    MORIS_ERROR( false, "IQI::compute_dRdp_FD_geometry - unknown element type.");
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI::compute_dQIdp_FD_geometry_bulk(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
+        void IQI::select_dQIdp_FD_geometry_bulk(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType,
+                Matrix< DDSMat >                  & aGeoLocalAssembly,
+                moris::Cell< Matrix< IndexMat > > & aVertexIndices )
         {
             // get the IQI index
             uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+
+            // store QI value
+            Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
 
             // get the GI for the IP and IG element considered
             Geometry_Interpolator * tIPGI =
@@ -1801,6 +1832,9 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
             }
 
+            // reset QI value
+            mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
@@ -1808,14 +1842,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI::compute_dQIdp_FD_geometry_sideset(
-                moris::real          aWStar,
-                moris::real          aPerturbation,
-                Matrix< DDSMat >   & aGeoLocalAssembly,
-                fem::FDScheme_Type   aFDSchemeType )
+        void IQI::select_dQIdp_FD_geometry_sideset(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType,
+                Matrix< DDSMat >                  & aGeoLocalAssembly,
+                moris::Cell< Matrix< IndexMat > > & aVertexIndices )
         {
             // get the IQI index
             uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+
+            // store QI value
+            Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
 
             // get the GI for the IP and IG element considered
             Geometry_Interpolator * tIPGI =
@@ -1826,14 +1864,14 @@ namespace moris
             // store unperturbed xyz coordinates
             Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
 
-            // store unperturbed local coordiantes
+            // store unperturbed local coordinates
             Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
 
             // store unperturbed evaluation point
             Matrix< DDRMat > tEvaluationPoint;
             tIGGI->get_space_time( tEvaluationPoint );
 
-            // store unperturbed evaluation ppint weight
+            // store unperturbed evaluation point weight
             real tGPWeight = aWStar / tIGGI->det_J();
 
             // store unperturbed normal
@@ -1968,6 +2006,9 @@ namespace moris
                 // reset normal
                 this->set_normal( tNormal );
             }
+
+            // reset QI value
+            mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
