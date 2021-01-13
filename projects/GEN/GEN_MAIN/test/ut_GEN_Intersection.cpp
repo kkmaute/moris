@@ -4,7 +4,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
 
 #include "fn_GEN_check_equal.hpp"

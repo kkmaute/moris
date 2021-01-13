@@ -6,7 +6,7 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_typedefs.hpp"
 #include "fn_GEN_create_geometries.hpp"
-#include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_BSpline_Geometry.hpp"
 #include "cl_GEN_Stored_Geometry.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
@@ -961,7 +961,7 @@ namespace moris
                         mShapeSensitivities = true;
 
                         // Create level set FIXME for multiple level set fields
-                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                                 mOwnedADVs,
                                 tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),

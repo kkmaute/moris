@@ -1,4 +1,4 @@
-#include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -18,20 +18,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Level_Set::Level_Set(
-                sol::Dist_Vector*         aOwnedADVs,
-                const Matrix<DDSMat>&     aOwnedADVIds,
-                const Matrix<DDSMat>&     aSharedADVIds,
-                uint                      aOwnedADVIdsOffset,
-                mtk::Interpolation_Mesh*  aMesh,
-                std::shared_ptr<Geometry> aGeometry)
-                : Field(aSharedADVIds, aGeometry)
-                , Geometry(aGeometry->get_intersection_interpolation())
+        BSpline_Field::BSpline_Field(
+                sol::Dist_Vector*        aOwnedADVs,
+                const Matrix<DDSMat>&    aOwnedADVIds,
+                const Matrix<DDSMat>&    aSharedADVIds,
+                uint                     aOwnedADVIdsOffset,
+                mtk::Interpolation_Mesh* aMesh,
+                std::shared_ptr<Field>   aField)
+                : Field(aSharedADVIds, aField)
                 , Field_Discrete_Integration(aMesh->get_num_nodes())
                 , mMesh(aMesh)
         {
             // Map to B-splines
-            Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
+            Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
 
             // Get B-spline mesh index
             uint tBSplineMeshIndex = this->get_bspline_mesh_index();
@@ -87,7 +86,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Level_Set::~Level_Set()
+        BSpline_Field::~BSpline_Field()
         {
             delete mOwnedNodalValues;
             delete mSharedNodalValues;
@@ -95,7 +94,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Level_Set::get_field_value(uint aNodeIndex)
+        real BSpline_Field::get_field_value(uint aNodeIndex)
         {
             sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                     aNodeIndex,
@@ -107,7 +106,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Level_Set::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& BSpline_Field::get_field_sensitivities(uint aNodeIndex)
         {
             mSensitivities = trans(mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index()));
             return mSensitivities;
@@ -115,14 +114,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Level_Set::get_determining_adv_ids(uint aNodeIndex)
+        Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
             return mMesh->get_bspline_ids_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index());
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Level_Set::import_advs(sol::Dist_Vector* aOwnedADVs)
+        void BSpline_Field::import_advs(sol::Dist_Vector* aOwnedADVs)
         {
             // Import ADVs as usual
             Field::import_advs(aOwnedADVs);
@@ -157,14 +156,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Level_Set::conversion_to_bsplines()
+        bool BSpline_Field::conversion_to_bsplines()
         {
             return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Level_Set::map_to_bsplines(std::shared_ptr<Geometry> aGeometry)
+        Matrix<DDRMat> BSpline_Field::map_to_bsplines(std::shared_ptr<Field> aField)
         {
             // Tracer
             Tracer tTracer("GEN", "Levelset", "L2Mapping");
@@ -174,7 +173,7 @@ namespace moris
             for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
             {
                 tSourceField(tNodeIndex) =
-                        aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                        aField->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
             }
 
             // Create target field

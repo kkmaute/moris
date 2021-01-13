@@ -37,6 +37,7 @@ set(LIB_SOURCES
 	field/cl_GEN_Field_Discrete_Integration.cpp
 	field/cl_GEN_Field_Discrete_Interpolation.cpp
 	field/cl_GEN_User_Defined_Field.cpp
+	field/cl_GEN_BSpline_Field.cpp
 
 	field/geometry/cl_GEN_Geometry.cpp
 	field/geometry/cl_GEN_Circle.cpp
@@ -47,7 +48,7 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	field/geometry/cl_GEN_Voxel_Input.cpp
 	field/geometry/cl_GEN_Single_Grain.cpp
-	field/geometry/cl_GEN_Level_Set.cpp
+	field/geometry/cl_GEN_BSpline_Geometry.cpp
 	field/geometry/cl_GEN_Stored_Geometry.cpp
 	field/geometry/cl_GEN_Multigeometry.cpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
@@ -57,6 +58,7 @@ set(LIB_SOURCES
 	field/property/cl_GEN_Property.cpp
 	field/property/cl_GEN_Scaled_Field.cpp
 	field/property/cl_GEN_Discrete_Property.cpp
+	field/property/cl_GEN_BSpline_Property.cpp
 	field/property/fn_GEN_create_properties.cpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.cpp

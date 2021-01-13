@@ -1,7 +1,6 @@
-#ifndef MORIS_CL_GEN_LEVEL_SET_HPP
-#define MORIS_CL_GEN_LEVEL_SET_HPP
+#ifndef MORIS_CL_GEN_BSPLINE_FIELD_HPP
+#define MORIS_CL_GEN_BSPLINE_FIELD_HPP
 
-#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -10,8 +9,7 @@ namespace moris
 {
     namespace ge
     {
-
-        class Level_Set : public Geometry, public Field_Discrete_Integration
+        class BSpline_Field : public Field_Discrete_Integration
         {
 
         private:
@@ -20,7 +18,6 @@ namespace moris
             sol::Dist_Vector* mSharedNodalValues = nullptr;
 
         public:
-
             /**
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
              *
@@ -29,19 +26,20 @@ namespace moris
              * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
              * @param aOwnedADVIdsOffset Offset in the owned ADV IDs for pulling ADV IDs
              * @param aMesh The mesh pointer where the B-spline information can be obtained
-             * @param aGeometry Geometry for initializing the B-spline level set discretization
+             * @param aField Field for initializing the B-spline level set discretization
              */
-            Level_Set(sol::Dist_Vector*         aOwnedADVs,
-                      const Matrix<DDSMat>&     aOwnedADVIds,
-                      const Matrix<DDSMat>&     aSharedADVIds,
-                      uint                      aOwnedADVIdsOffset,
-                      mtk::Interpolation_Mesh*  aMesh,
-                      std::shared_ptr<Geometry> aGeometry);
+            BSpline_Field(
+                    sol::Dist_Vector*    aOwnedADVs,
+                    const Matrix<DDSMat>&    aOwnedADVIds,
+                    const Matrix<DDSMat>&    aSharedADVIds,
+                    uint                     aOwnedADVIdsOffset,
+                    mtk::Interpolation_Mesh* aMesh,
+                    std::shared_ptr<Field>   aField);
 
             /**
              * Destructor
              */
-            ~Level_Set();
+            ~BSpline_Field();
 
             /**
              * Given a node index, returns the field value.
@@ -90,10 +88,10 @@ namespace moris
              *
              * @return Target field
              */
-            Matrix<DDRMat> map_to_bsplines(std::shared_ptr<Geometry> aGeometry);
+            Matrix<DDRMat> map_to_bsplines(std::shared_ptr<Field> aField);
 
         };
     }
 }
 
-#endif //MORIS_CL_GEN_LEVEL_SET_HPP
+#endif //MORIS_CL_GEN_BSPLINE_FIELD_HPP

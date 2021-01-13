@@ -10,7 +10,7 @@
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
-#include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
 
