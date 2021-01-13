@@ -134,6 +134,15 @@ namespace moris
             bool mTimeBoundary = false;
 
             // bool for analytical/FD SA
+            bool mIsAnalyticalFA = true;
+
+            // enum for FD scheme used for FD SA
+            fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::UNDEFINED;
+
+            // real for FD perturbation size
+            real mFDPerturbationFA = 0.0;
+
+            // bool for analytical/FD SA
             bool mIsAnalyticalSA = false;
 
             // enum for FD scheme used for FD SA
@@ -237,6 +246,69 @@ namespace moris
             enum fem::Element_Type get_element_type() const
             {
                 return mElementType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set forward analysis type flag on the set (analytical or finite difference)
+             * @param[ in ] aIsAnalyticalFA bool true if analytical forward analysis
+             *                                   false if finite difference
+             */
+            void set_is_analytical_forward_analysis( bool aIsAnalyticalFA )
+            {
+                mIsAnalyticalFA = aIsAnalyticalFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get flag for forward analysis on the set (analytical or finite difference)
+             * @param[ out ] mIsAnalyticalFA bool true if analytical forward analysis
+             *                                    false if finite difference
+             */
+            bool get_is_analytical_forward_analysis() const
+            {
+                return mIsAnalyticalFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set FD scheme enum for forward analysis on the set
+             * @param[ in ] aFDSchemeForFA enum for FD scheme used for forward analysis
+             */
+            void set_finite_difference_scheme_for_forward_analysis(
+                    enum fem::FDScheme_Type aFDSchemeForFA )
+            {
+                mFDSchemeForFA = aFDSchemeForFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get enum for FD scheme for forward analysis on the set
+             * @param[ out ] mFDSchemeForFA enum for FD scheme used for forward analysis
+             */
+            enum fem::FDScheme_Type get_finite_difference_scheme_for_forward_analysis() const
+            {
+                return mFDSchemeForFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set perturbation size for finite difference for forward analysis
+             * @param[ in ] aFDPerturbationFA perturbation size
+             */
+            void set_finite_difference_perturbation_size_forward( real aFDPerturbationFA )
+            {
+                mFDPerturbationFA = aFDPerturbationFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get perturbation size for finite difference for forward analysis
+             * @param[ out ] mFDPerturbation perturbation size
+             */
+            real get_finite_difference_perturbation_size_forward()
+            {
+                return mFDPerturbationFA;
             }
 
             //------------------------------------------------------------------------------
@@ -787,6 +859,13 @@ namespace moris
              * determine set type from mtk set type
              */
             void determine_set_type();
+
+            //------------------------------------------------------------------------------
+            /**
+             * set set type
+             * only for debug and unit test
+             */
+            void set_set_type( fem::Element_Type aElementType );
 
             //------------------------------------------------------------------------------
             /**
