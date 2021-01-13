@@ -65,9 +65,10 @@ namespace moris
                         const std::shared_ptr< IQI > & aReqIQI,
                         real                           aWStar ) = nullptr;
                 void ( Element:: * m_compute_dQIdp )(
-                        const std::shared_ptr< IQI > & aReqIQI,
-                        real                           aWStar,
-                        Matrix< DDSMat >             & aGeoLocalAssembly ) = nullptr;
+                        const std::shared_ptr< IQI >      & aReqIQI,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
 
                 // finite difference scheme type for jacobian and dQIdu
                 fem::FDScheme_Type mFAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
@@ -157,8 +158,7 @@ namespace moris
                 void set_function_pointers()
                 {
                     // get bool for forward analysis evaluation type
-                    // FIXME need to come from input through fem set
-                    bool tIsAnalyticalJacobian = true;
+                    bool tIsAnalyticalJacobian = mSet->get_is_analytical_forward_analysis();
 
                     if( tIsAnalyticalJacobian )
                     {
@@ -168,19 +168,13 @@ namespace moris
                     else
                     {
                         // get finite difference scheme type
-                        mFAFDScheme = mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+                        mFAFDScheme = mSet->get_finite_difference_scheme_for_forward_analysis();
 
                         // get the finite difference perturbation size
-                        mFAFDPerturbation = mSet->get_finite_difference_perturbation_size();
+                        mFAFDPerturbation = mSet->get_finite_difference_perturbation_size_forward();
 
                         m_compute_jacobian = &Element::select_jacobian_FD;
                         m_compute_dQIdu    = &Element::select_dQIdu_FD;
-
-                        if( mSet->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
-                        {
-                            m_compute_jacobian = &Element::select_jacobian_FD_double;
-                            m_compute_dQIdu    = &Element::select_dQIdu_FD_double;
-                        }
                     }
 
                     // get bool for sensitivity analysis evaluation type
@@ -201,12 +195,6 @@ namespace moris
 
                         // get the finite difference perturbation size
                         mSAFDPerturbation = mSet->get_finite_difference_perturbation_size();
-
-                        if( mSet->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
-                        {
-                            m_compute_dRdp  = &Element::select_dRdp_FD_double;
-                            m_compute_dQIdp = &Element::select_dQIdp_FD_double;
-                        }
                     }
                 }
 
@@ -230,14 +218,6 @@ namespace moris
                     aReqIWG->compute_jacobian_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
                 }
 
-                void select_jacobian_FD_double(
-                        const std::shared_ptr< IWG > & aReqIWG,
-                        real                           aWStar )
-                {
-                    // compute Jacobian
-                    aReqIWG->compute_jacobian_FD_double( aWStar, mFAFDPerturbation, mFAFDScheme );
-                }
-
                 //------------------------------------------------------------------------------
                 /**
                  * select dQIdu
@@ -256,13 +236,6 @@ namespace moris
                 {
                     // compute dQIdu FD
                     aReqIQI->compute_dQIdu_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
-                }
-
-                void select_dQIdu_FD_double(
-                        const std::shared_ptr< IQI > & aReqIQI,
-                        real                           aWStar )
-                {
-                    MORIS_ERROR( false, "Not implemented yet.");
                 }
 
                 //------------------------------------------------------------------------------
@@ -297,34 +270,9 @@ namespace moris
                         aReqIWG->compute_dRdp_FD_geometry(
                                 aWStar,
                                 mSAFDPerturbation,
+                                mSAFDScheme,
                                 aGeoLocalAssembly,
-                                mSAFDScheme );
-                    }
-                }
-
-                void select_dRdp_FD_double(
-                        const std::shared_ptr< IWG >      & aReqIWG,
-                        real                                aWStar,
-                        Matrix< DDSMat >                  & aGeoLocalAssembly,
-                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
-                {
-                    // compute dRdpMat at evaluation point
-                    aReqIWG->compute_dRdp_FD_material_double(
-                            aWStar,
-                            mSAFDPerturbation,
-                            mSAFDScheme );
-
-                    // if active pdv on master or slave
-                    if( mSet->get_geo_pdv_assembly_flag() )
-                    {
-                        // compute dRdpGeo at evaluation point
-                        aReqIWG->compute_dRdp_FD_geometry_double(
-                                aWStar,
-                                mSAFDPerturbation,
-                                aVertexIndices( 0 ),
-                                aVertexIndices( 1 ),
-                                aGeoLocalAssembly,
-                                mSAFDScheme );
+                                aVertexIndices );
                     }
                 }
 
@@ -333,18 +281,20 @@ namespace moris
                  * select dQIdp
                  */
                 void select_dQIdp(
-                        const std::shared_ptr< IQI > & aReqIQI,
-                        real                           aWStar,
-                        Matrix< DDSMat >             & aGeoLocalAssembly )
+                        const std::shared_ptr< IQI >      & aReqIQI,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
                 {
                     // compute Jacobian
                     aReqIQI->compute_dQIdp( aWStar );
                 }
 
                 void select_dQIdp_FD(
-                        const std::shared_ptr< IQI > & aReqIQI,
-                        real                           aWStar,
-                        Matrix< DDSMat >             & aGeoLocalAssembly )
+                        const std::shared_ptr< IQI >      & aReqIQI,
+                        real                                aWStar,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
                 {
                     // compute dQIdpMat at evaluation point
                     aReqIQI->compute_dQIdp_FD_material(
@@ -358,17 +308,10 @@ namespace moris
                         aReqIQI->compute_dQIdp_FD_geometry(
                                 aWStar,
                                 mSAFDPerturbation,
+                                mSAFDScheme,
                                 aGeoLocalAssembly,
-                                mSAFDScheme );
+                                aVertexIndices );
                     }
-                }
-
-                void select_dQIdp_FD_double(
-                        const std::shared_ptr< IQI > & aReqIQI,
-                        real                           aWStar,
-                        Matrix< DDSMat >             & aGeoLocalAssembly )
-                {
-                    MORIS_ERROR( false, "Not implemented yet.");
                 }
 
                 //------------------------------------------------------------------------------

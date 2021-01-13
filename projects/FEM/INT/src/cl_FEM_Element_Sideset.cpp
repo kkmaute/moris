@@ -604,7 +604,8 @@ namespace moris
                     tReqIQI->set_normal( tNormal );
 
                     // compute dQIdp at evaluation point
-                    ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly );
+                    moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }
         }
@@ -695,7 +696,8 @@ namespace moris
                     tReqIQI->set_normal( tNormal );
 
                     // compute dQIdpMat at evaluation point
-                    ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly );
+                    moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }
         }
