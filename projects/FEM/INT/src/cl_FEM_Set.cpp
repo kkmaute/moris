@@ -2753,9 +2753,11 @@ namespace moris
 
             // clear requested IQI list
             mRequestedNodalIQIs.clear();
+            mRequestedNodalIQIsGlobalIndices.clear();
 
             // reserve memory
             mRequestedNodalIQIs.reserve( tNumRequestedNodalIQINames );
+            mRequestedNodalIQIsGlobalIndices.reserve( tNumRequestedNodalIQINames );
 
             // loop over requested IQI names
             for( uint Ik = 0; Ik < tNumRequestedNodalIQINames; Ik++ )
@@ -2767,6 +2769,9 @@ namespace moris
                     moris_index tIQISetLocalIndex =
                             mIQINameToIndexMap.find( aQINames( Ik ) );
 
+                    // put global model index in list
+                    mRequestedNodalIQIsGlobalIndices.push_back( Ik );
+
                     // put IQI in requested IQI list
                     mRequestedNodalIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
                 }
@@ -2774,6 +2779,7 @@ namespace moris
 
             // reduce memory to used space
             mRequestedNodalIQIs.shrink_to_fit();
+            mRequestedNodalIQIsGlobalIndices.shrink_to_fit();
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
@@ -2798,6 +2804,13 @@ namespace moris
         uint Set::get_number_of_requested_nodal_IQIs_for_visualization()
         {
             return mRequestedNodalIQIs.size();
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris_index > & Set::get_requested_nodal_IQIs_global_indices_for_visualization()
+        {
+            return mRequestedNodalIQIsGlobalIndices;
         }
 
         //------------------------------------------------------------------------------

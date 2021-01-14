@@ -109,6 +109,7 @@ namespace moris
             moris::Cell< std::shared_ptr< IQI > > mRequestedElementalIQIs;
             moris::Cell< moris_index > mRequestedElementalIQIsGlobalIndices;
             moris::Cell< std::shared_ptr< IQI > > mRequestedNodalIQIs;
+            moris::Cell< moris_index > mRequestedNodalIQIsGlobalIndices;
 
             // enum for element type
             enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
@@ -789,6 +790,13 @@ namespace moris
              * get number of requested IQIs for nodal evaluation for visualization
              */
             uint get_number_of_requested_nodal_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for nodal evaluation for visualization
+             */
+            const moris::Cell< moris_index > & get_requested_nodal_IQIs_global_indices_for_visualization();
 
             //------------------------------------------------------------------------------
             /**

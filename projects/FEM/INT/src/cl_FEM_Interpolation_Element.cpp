@@ -1083,6 +1083,10 @@ namespace moris
                         const std::shared_ptr< IQI > & tReqIQI =
                                 mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
 
+                        // get IQI global index
+                        moris_index tGlobalIndex =
+                                mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
+
                         // reset the requested IQI
                         tReqIQI->reset_eval_flags();
 
@@ -1091,7 +1095,7 @@ namespace moris
                         tReqIQI->compute_QI( tQINodal );
 
                         // assemble the nodal QI value on the set
-                        ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), iIQI ) = tQINodal( 0 );
+                        ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), tGlobalIndex ) = tQINodal( 0 );
                     }
                 }
             }
