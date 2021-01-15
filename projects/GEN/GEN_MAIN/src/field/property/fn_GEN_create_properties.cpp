@@ -4,7 +4,6 @@
 
 #include "cl_GEN_Constant_Property.hpp"
 #include "cl_GEN_Scaled_Field.hpp"
-#include "cl_GEN_Discrete_Property.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 
 namespace moris
@@ -223,15 +222,6 @@ namespace moris
                         tADVIndices,
                         tConstants,
                         aFieldDependencies,
-                        tParameters);
-            }
-            else if (tPropertyType == "discrete")
-            {
-                return std::make_shared<Discrete_Property>(
-                        aADVs,
-                        tPropertyVariableIndices,
-                        tADVIndices,
-                        tConstants,
                         tParameters);
             }
             else if (tPropertyType == "user_defined")

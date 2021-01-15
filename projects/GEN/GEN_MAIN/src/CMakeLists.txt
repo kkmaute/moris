@@ -58,7 +58,6 @@ set(LIB_SOURCES
 	field/property/cl_GEN_Property.cpp
 	field/property/cl_GEN_Constant_Property.cpp
 	field/property/cl_GEN_Scaled_Field.cpp
-	field/property/cl_GEN_Discrete_Property.cpp
 	field/property/cl_GEN_BSpline_Property.cpp
 	field/property/fn_GEN_create_properties.cpp
 
