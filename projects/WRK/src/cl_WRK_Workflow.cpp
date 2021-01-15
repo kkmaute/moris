@@ -53,7 +53,7 @@ namespace moris
                 // Trace GEN
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
-                mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
+                mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                         mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
                 // Get ADVs
@@ -76,7 +76,7 @@ namespace moris
             mPerformerManager->create_xtk();
 
             // Compute level set data in GEN
-            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
+            mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // Output GEN fields, if requested

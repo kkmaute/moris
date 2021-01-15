@@ -376,7 +376,7 @@ namespace moris
              *
              * @param aMesh Mesh for computing level set data
              */
-            void compute_level_set_data(mtk::Interpolation_Mesh* aMesh);
+            void distribute_advs(mtk::Interpolation_Mesh* aMesh);
 
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
