@@ -450,7 +450,9 @@ namespace moris
                 std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
 
                 // Create geometry engine
-                Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tMesh);
+                Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mGeometries = {tBSplineCircle};
+                Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds
                 tADVs = tGeometryEngine.get_advs();
@@ -561,7 +563,9 @@ namespace moris
             std::shared_ptr<Geometry> tCircle = create_geometry(tCircleParameterList, tADVs);
 
             // Create geometry engine
-            Geometry_Engine_Test tGeometryEngine({tCircle}, tMesh);
+            Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = {tCircle};
+            Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
             // Get geometry back
             std::shared_ptr<Geometry> tStoredCircle = tGeometryEngine.get_geometry(0);

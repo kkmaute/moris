@@ -40,8 +40,11 @@ namespace moris
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary)
 
+                // Phase table
+                : mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
+
                 // Level set options
-                : mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") )
+                , mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") )
                 , mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") )
                 , mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") )
 
@@ -59,9 +62,6 @@ namespace moris
 
                 // Properties
                 , mPropertyParameterLists( aParameterLists(2) )
-
-                // Phase table
-                , mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine", "Create");
@@ -134,19 +134,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< std::shared_ptr<Geometry> > aGeometries,
-                mtk::Interpolation_Mesh*          aMesh,
-                Matrix<DDRMat>                    aADVs,
-                real                              aIsocontourThreshold,
-                real                              aIsocontourTolerance,
-                real                              aIntersectionTolerance,
-                Matrix<DDUMat>                    aBulkPhases)
-                : mIsocontourThreshold(aIsocontourThreshold),
-                  mIsocontourTolerance(aIsocontourTolerance),
-                  mIntersectionTolerance(aIntersectionTolerance),
-                  mADVs(aADVs),
-                  mGeometries(aGeometries),
-                  mPhaseTable( create_phase_table(aGeometries.size(), aBulkPhases) )
+                mtk::Interpolation_Mesh*   aMesh,
+                Geometry_Engine_Parameters aParameters)
+                : mGeometries(aParameters.mGeometries)
+                , mProperties(aParameters.mProperties)
+                , mPhaseTable( create_phase_table(aParameters.mGeometries.size(), aParameters.mBulkPhases) )
+                , mIntersectionMode(aParameters.mIntersectionMode)
+                , mIsocontourThreshold(aParameters.mIsocontourThreshold)
+                , mIsocontourTolerance(aParameters.mIsocontourTolerance)
+                , mIntersectionTolerance(aParameters.mIntersectionTolerance)
+                , mTimeOffset(aParameters.mTimeOffset)
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine", "Create");

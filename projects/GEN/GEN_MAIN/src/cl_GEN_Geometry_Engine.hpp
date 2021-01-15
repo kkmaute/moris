@@ -10,12 +10,10 @@
 #include "cl_WRK_Performer.hpp"
 
 // GEN
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Property.hpp"
+#include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Geometric_Proximity.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Core.hpp"
@@ -49,10 +47,17 @@ namespace moris
 
         class Geometry_Engine : public wrk::Performer
         {
+        // Fields
+        protected:
+            Cell<std::shared_ptr<Geometry>> mGeometries;
+            Cell<std::shared_ptr<Property>> mProperties;
 
         private:
-            // Level set
-            enum Intersection_Mode mIntersectionMode = Intersection_Mode::LEVEL_SET;
+            // Phase Table
+            Phase_Table mPhaseTable;
+
+            // Intersections
+            Intersection_Mode mIntersectionMode;
             real mIsocontourThreshold;
             real mIsocontourTolerance;
             real mIntersectionTolerance;
@@ -76,28 +81,19 @@ namespace moris
             // Library
             std::shared_ptr<Library_IO> mLibrary;
 
-            // Geometries
-        protected:
-            Cell<std::shared_ptr<Geometry>> mGeometries;
-
-        private:
             size_t mActiveGeometryIndex = 0;
             Cell<ParameterList> mGeometryParameterLists;
-            std::string mGeometryFieldFile = "";
-            std::string mOutputMeshFile = "";
+            std::string mGeometryFieldFile;
+            std::string mOutputMeshFile;
             bool mShapeSensitivities = false;
-            real mTimeOffset = 0.0;
+            real mTimeOffset;
 
             // Properties
-            Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
             // PDVs
             Pdv_Host_Manager mPdvHostManager;
             std::shared_ptr<Intersection_Node> mQueuedIntersectionNode;
-
-            // Phase Table
-            Phase_Table mPhaseTable;
 
             // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)
             // 0 - G(x) < threshold
@@ -119,22 +115,14 @@ namespace moris
                     std::shared_ptr<Library_IO> aLibrary = nullptr);
 
             /**
-             * Constructor using externally-created geometry and phase table
+             * Constructor
              *
-             * @param aGeometry Geometry instances to use
-             * @param aMesh Mesh for computing level-set values
-             * @param aADVs ADV vector
-             * @param aIsocontourThreshold Threshold for setting the level-set isocontour
-             * @param aIsocontourTolerance Tolerance for determining if a node is on an interface
+             * @param aMesh Mesh for getting B-spline information
+             * @param aParameters Optional geometry engine parameters
              */
             Geometry_Engine(
-                    Cell< std::shared_ptr<Geometry> > aGeometry,
-                    mtk::Interpolation_Mesh*          aMesh,
-                    Matrix<DDRMat>                    aADVs = {{}},
-                    real                              aIsocontourThreshold = 0.0,
-                    real                              aIsocontourTolerance = 0.0,
-                    real                              aIntersectionTolerance = 0.0,
-                    Matrix<DDUMat>                    aBulkPhases = {{}});
+                    mtk::Interpolation_Mesh*   aMesh,
+                    Geometry_Engine_Parameters aParameters = {});
 
             /**
              * Destructor

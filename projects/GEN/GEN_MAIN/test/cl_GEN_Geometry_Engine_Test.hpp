@@ -13,11 +13,22 @@ namespace moris
         class Geometry_Engine_Test : public Geometry_Engine
         {
         public:
-
+            /**
+             * Constructor
+             *
+             * @param aMesh Mesh for getting B-spline information
+             * @param aParameters Optional geometry engine parameters
+             */
             Geometry_Engine_Test(
-                    Cell< std::shared_ptr<Geometry> > aGeometry,
-                    mtk::Interpolation_Mesh*          aMesh);
+                    mtk::Interpolation_Mesh*   aMesh = nullptr,
+                    Geometry_Engine_Parameters aParameters = {});
 
+            /**
+             * Gets a geometry
+             *
+             * @param aGeometryIndex Geometry index
+             * @return Geometry
+             */
             std::shared_ptr<Geometry> get_geometry(uint aGeometryIndex);
         };
     }

@@ -8,9 +8,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine_Test::Geometry_Engine_Test(
-                Cell< std::shared_ptr<Geometry> > aGeometry,
-                mtk::Interpolation_Mesh*          aMesh)
-        : Geometry_Engine(aGeometry, aMesh)
+                mtk::Interpolation_Mesh*   aMesh,
+                Geometry_Engine_Parameters aParameters)
+                : Geometry_Engine(aMesh, aParameters)
         {
         }
 

@@ -161,7 +161,9 @@ namespace xtk
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tMeshData);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometryVector;
+        moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -217,7 +219,9 @@ namespace xtk
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tMeshData);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometryVector;
+        moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -277,7 +281,9 @@ namespace xtk
             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tMeshData);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;

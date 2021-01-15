@@ -60,7 +60,9 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
 
     moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
-    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tMeshData);
+    moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+    tGeometryEngineParameters.mGeometries = tGeometry;
+    moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
     /*
      * Setup XTK Model and tell it how to cut
