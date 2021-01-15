@@ -346,13 +346,6 @@ namespace moris
                 void communicate_shared_intersection_node_pdv_ids();
 
                 void build_local_to_global_maps();
-                
-                /**
-                 * Computes the derivatives of the PDVs with respect to the ADVs
-                 *
-                 * @return Matrix of pdv/adv sensitivities
-                 */
-                sol::Dist_Matrix* compute_dpdv_dadv();
 
         };
     }
