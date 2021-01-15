@@ -16,33 +16,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Discrete property based on ADVs", "[gen], [property], [discrete property]")
-        {
-            // Set up default parameter lists
-            moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
-            tParameterLists(0).resize(1);
-            tParameterLists(2).resize(1);
-            tParameterLists(0)(0) = moris::prm::create_gen_parameter_list();
-            tParameterLists(2)(0) = moris::prm::create_gen_property_parameter_list();
-
-            // Modify parameters
-            tParameterLists(0)(0).set("advs_size", 4);
-            tParameterLists(0)(0).set("initial_advs_fill", 0.3);
-            tParameterLists(0)(0).set("lower_bounds_fill", 0.0);
-            tParameterLists(0)(0).set("upper_bounds_fill", 1.0);
-            tParameterLists(0)(0).set("PDV_types", "DENSITY");
-
-            tParameterLists(2)(0).set("type", "discrete");
-            tParameterLists(2)(0).set("name", "density");
-            tParameterLists(2)(0).set("field_variable_indices", "all");
-            tParameterLists(2)(0).set("adv_indices", "all");
-            tParameterLists(2)(0).set("pdv_type", "DENSITY");
-
-            Geometry_Engine tGeometryEngine(tParameterLists);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         TEST_CASE("Constant property", "[gen], [property], [constant property]")
         {
             // Create ADVs
