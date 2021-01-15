@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"

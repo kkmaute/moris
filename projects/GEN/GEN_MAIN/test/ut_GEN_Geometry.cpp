@@ -4,7 +4,7 @@
 #include "fn_Exec_load_user_library.hpp"
 #include "fn_trans.hpp"
 
-#include "cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
@@ -29,31 +29,10 @@ namespace moris
                                            const Cell<real*>&    aParameters,
                                            Matrix<DDRMat>&       aSensitivities);
 
+    //--------------------------------------------------------------------------------------------------------------
+
     namespace ge
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        // Class for testing (sometimes need access to geometry after GEN manipulation)
-        class Geometry_Engine_Test : public Geometry_Engine
-        {
-        public:
-
-            Geometry_Engine_Test(
-                    Cell< std::shared_ptr<Geometry> > aGeometry,
-                    mtk::Interpolation_Mesh*          aMesh)
-                    : Geometry_Engine(aGeometry, aMesh)
-            {
-            }
-
-            std::shared_ptr<Geometry> get_geometry(uint aGeometryIndex = 0)
-            {
-                return mGeometries(aGeometryIndex);
-            }
-        };
-
-        //--------------------------------------------------------------------------------------------------------------
-
         // Check for ellipse location in a swiss cheese
         void check_swiss_cheese(std::shared_ptr<Geometry> aSwissCheese,
                                 real aXCenter,
@@ -457,12 +436,14 @@ namespace moris
                         tLagrangeOrder,
                         tBSplineOrder);
 
-                // Level set circle parameter list
+                // B-spline circle parameter list
                 real tRadius = 0.5;
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
                 tCircleParameterList.set("type", "circle");
                 tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
                 tCircleParameterList.set("bspline_mesh_index", 0);
+                tCircleParameterList.set("bspline_lower_bound", -1.0);
+                tCircleParameterList.set("bspline_upper_bound", 1.0);
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -489,6 +470,8 @@ namespace moris
                     for (uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++)
                     {
                         CHECK(tADVs(tBSplineIndex) != Approx(0.0).epsilon(tEpsilon));
+                        CHECK(tLowerBounds(tBSplineIndex) == Approx(-1.0));
+                        CHECK(tUpperBounds(tBSplineIndex) == Approx(1.0));
                     }
                 }
                 else
