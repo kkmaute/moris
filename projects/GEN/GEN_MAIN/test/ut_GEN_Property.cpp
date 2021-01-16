@@ -1,12 +1,10 @@
 #include "catch.hpp"
-#include "cl_Matrix.hpp"
-#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-#include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Scaled_Field.hpp"
+#include "cl_GEN_Geometry_Engine_Test.hpp"
+#include "fn_GEN_create_simple_mesh.hpp"
 #include "fn_GEN_check_equal.hpp"
 
 namespace moris
@@ -100,6 +98,126 @@ namespace moris
                     check_equal(tScaledField->get_determining_adv_ids(0, tCoordinates),
                             tCircle->get_determining_adv_ids(0, tCoordinates));
                 }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("B-spline Property", "[gen], [property], [distributed advs], [B-spline property]")
+        {
+            // Constant B-spline parameter list
+            ParameterList tPropertyParameterList = prm::create_gen_property_parameter_list();
+            tPropertyParameterList.set("type", "constant");
+            tPropertyParameterList.set("constant_parameters", "1.0");
+            tPropertyParameterList.set("bspline_mesh_index", 0);
+            tPropertyParameterList.set("bspline_lower_bound", -2.0);
+            tPropertyParameterList.set("bspline_upper_bound", 2.0);
+
+            // Loop over possible cases
+            for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
+            {
+                // Determine mesh orders
+                uint tLagrangeOrder = 1;
+                uint tBSplineOrder = 1;
+                switch (tCaseNumber)
+                {
+                    case 1:
+                    {
+                        tLagrangeOrder = 2;
+                        break;
+                    }
+                    case 2:
+                    {
+                        tBSplineOrder = 2;
+                        break;
+                    }
+                    case 3:
+                    {
+                        tLagrangeOrder = 2;
+                        tBSplineOrder = 2;
+                        break;
+                    }
+                    default:
+                    {
+                        // Do nothing
+                    }
+                }
+
+                // Create mesh
+                uint tNumElementsPerDimension = 10;
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                        tNumElementsPerDimension,
+                        tNumElementsPerDimension,
+                        tLagrangeOrder,
+                        tBSplineOrder);
+
+                // Set up property
+                Matrix<DDRMat> tADVs(0, 0);
+                std::shared_ptr<Property> tBSplineProperty = create_property(tPropertyParameterList, tADVs);
+
+                // Create geometry engine
+                Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mProperties = {tBSplineProperty};
+                Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
+
+                // Get ADVs and upper/lower bounds
+                tADVs = tGeometryEngine.get_advs();
+                Matrix<DDRMat> tLowerBounds = tGeometryEngine.get_lower_bounds();
+                Matrix<DDRMat> tUpperBounds = tGeometryEngine.get_upper_bounds();
+
+                // Check that ADVs were created and L2 was performed
+                if (par_rank() == 0)
+                {
+                    uint tNumADVs = pow(tNumElementsPerDimension + tBSplineOrder, 2);
+                    REQUIRE(tADVs.length() == tNumADVs);
+                    REQUIRE(tLowerBounds.length() == tNumADVs);
+                    REQUIRE(tUpperBounds.length() == tNumADVs);
+                    for (uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++)
+                    {
+                        CHECK(tLowerBounds(tBSplineIndex) == Approx(-2.0));
+                        CHECK(tUpperBounds(tBSplineIndex) == Approx(2.0));
+                    }
+                }
+                else
+                {
+                    REQUIRE(tADVs.length() == 0);
+                    REQUIRE(tLowerBounds.length() == 0);
+                    REQUIRE(tUpperBounds.length() == 0);
+                }
+
+                // Get property back
+                tBSplineProperty = tGeometryEngine.get_property(0);
+
+                // Check field values and sensitivities at all nodes
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    // Check field value
+                    CHECK(tBSplineProperty->get_field_value(tNodeIndex, {{}}) == Approx(1.0));
+
+                    // Check sensitivities
+                    if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
+                    {
+                        Matrix<DDRMat> tMatrix = trans(tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
+                        check_equal(tBSplineProperty->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
+                        check_equal(
+                                tBSplineProperty->get_determining_adv_ids(tNodeIndex, {{}}),
+                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
+                    }
+                }
+
+                // Set new ADVs
+                tADVs = tADVs * 2;
+                tGeometryEngine.set_advs(tADVs);
+
+                // Check field values at all nodes again
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    // Check field value
+                    CHECK(tBSplineProperty->get_field_value(tNodeIndex, {{}}) == Approx(2.0));
+                }
+
+                // Delete mesh pointer
+                delete tMesh;
             }
         }
 

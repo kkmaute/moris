@@ -30,6 +30,14 @@ namespace moris
              * @return Geometry
              */
             std::shared_ptr<Geometry> get_geometry(uint aGeometryIndex);
+
+            /**
+             * Gets a property
+             *
+             * @param aPropertyIndex Geometry index
+             * @return Property
+             */
+            std::shared_ptr<Property> get_property(uint aPropertyIndex);
         };
     }
 }

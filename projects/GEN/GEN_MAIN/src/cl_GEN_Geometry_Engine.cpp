@@ -950,7 +950,10 @@ namespace moris
                 }
 
                 // Build properties from parameter lists using distributed vector
-                mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
+                if (mPropertyParameterLists.size() > 0)
+                {
+                    mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
+                }
 
                 //----------------------------------------//
                 // Convert to B-spline fields             //

@@ -1,14 +1,12 @@
 #include "catch.hpp"
-#include "cl_Matrix.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_Exec_load_user_library.hpp"
 #include "fn_trans.hpp"
-
-#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
+#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "fn_GEN_check_equal.hpp"
 
@@ -398,6 +396,15 @@ namespace moris
 
         TEST_CASE("B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]")
         {
+            // B-spline circle parameter list
+            real tRadius = 0.5;
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+            tCircleParameterList.set("bspline_mesh_index", 0);
+            tCircleParameterList.set("bspline_lower_bound", -1.0);
+            tCircleParameterList.set("bspline_upper_bound", 1.0);
+
             // Loop over possible cases
             for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
             {
@@ -435,15 +442,6 @@ namespace moris
                         tNumElementsPerDimension,
                         tLagrangeOrder,
                         tBSplineOrder);
-
-                // B-spline circle parameter list
-                real tRadius = 0.5;
-                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
-                tCircleParameterList.set("type", "circle");
-                tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-                tCircleParameterList.set("bspline_mesh_index", 0);
-                tCircleParameterList.set("bspline_lower_bound", -1.0);
-                tCircleParameterList.set("bspline_upper_bound", 1.0);
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -483,7 +481,7 @@ namespace moris
                     REQUIRE(tUpperBounds.length() == 0);
                 }
 
-                // Epsilon must be larger for a quadratic Lagrange mesh
+                // Epsilon for field value checks must be larger for a quadratic Lagrange mesh
                 if (tLagrangeOrder > 1)
                 {
                     tEpsilon = 0.04;
@@ -536,7 +534,7 @@ namespace moris
                             .epsilon(tEpsilon);
 
                     // Check field value
-                    CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                    CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget); // FIXME
                 }
 
                 // Delete mesh pointer
