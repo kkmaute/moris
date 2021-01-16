@@ -1023,9 +1023,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Interpolation_Element::compute_quantity_of_interest(
-                const uint                         aMeshIndex,
-                const moris::Cell< std::string > & aQINames,
-                enum vis::Field_Type               aFieldType )
+                const uint           aMeshIndex,
+                enum vis::Field_Type aFieldType )
         {
             // compute pdof values
             // FIXME do this only once
@@ -1074,32 +1073,36 @@ namespace moris
                     // set vertex coordinates for field interpolator
                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
-                    // loop over the IQIs
-                    for( uint iIQI = 0; iIQI < aQINames.size(); iIQI++ )
+                    // get number of active local IQIs
+                    uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+
+                    // loop over IQI
+                    for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
                     {
-                        // if IQI defined on set
-                        if( mSet->mIQINameToIndexMap.key_exists( aQINames( iIQI ) ) )
-                        {
-                            // get the set local index for IQI name
-                            moris_index tIQISetLocalIndex = mSet->mIQINameToIndexMap.find( aQINames( iIQI ) );
+                        // get requested IQI
+                        const std::shared_ptr< IQI > & tReqIQI =
+                                mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
 
-                            // reset the requested IQI
-                            mSet->mIQIs( tIQISetLocalIndex )->reset_eval_flags();
+                        // get IQI global index
+                        moris_index tGlobalIndex =
+                                mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
 
-                            // compute quantity of interest at evaluation point
-                            Matrix< DDRMat > tQIValue;
-                            mSet->mIQIs( tIQISetLocalIndex )->compute_QI( tQIValue );
+                        // reset the requested IQI
+                        tReqIQI->reset_eval_flags();
 
-                            // fill in the nodal set values
-                            ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), iIQI ) = tQIValue( 0 );
-                        }
+                        // compute quantity of interest at evaluation point
+                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                        tReqIQI->compute_QI( tQINodal );
+
+                        // assemble the nodal QI value on the set
+                        ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), tGlobalIndex ) = tQINodal( 0 );
                     }
                 }
             }
             else
             {
                 // ask cluster to compute quantity of interest
-                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aQINames, aFieldType );
+                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );
             }
         }
 

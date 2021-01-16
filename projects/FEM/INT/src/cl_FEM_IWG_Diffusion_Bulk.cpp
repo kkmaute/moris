@@ -190,9 +190,12 @@ namespace moris
                     }
 
                     // add contribution from stabilization parameter
-                    tJac += aWStar * (
-                            tCMDiffusion->testStrain_trans() * ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) *
-                            tGGLSParam->dSPdMasterDOF( tDofType ) );
+                    if ( tGGLSParam->check_dof_dependency( tDofType ) )
+                    {
+                        tJac += aWStar * (
+                                tCMDiffusion->testStrain_trans() * ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) *
+                                tGGLSParam->dSPdMasterDOF( tDofType ) );
+                    }
                 }
             }
 

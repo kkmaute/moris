@@ -103,6 +103,14 @@ namespace moris
 
             moris::map< std::string, moris_index > mIQINameToIndexMap;
 
+            // cell of pointer to IQI objects for vis
+            moris::Cell< std::shared_ptr< IQI > > mRequestedGlobalIQIs;
+            moris::Cell< moris_index > mRequestedGlobalIQIsGlobalIndices;
+            moris::Cell< std::shared_ptr< IQI > > mRequestedElementalIQIs;
+            moris::Cell< moris_index > mRequestedElementalIQIsGlobalIndices;
+            moris::Cell< std::shared_ptr< IQI > > mRequestedNodalIQIs;
+            moris::Cell< moris_index > mRequestedNodalIQIsGlobalIndices;
+
             // enum for element type
             enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
 
@@ -125,6 +133,15 @@ namespace moris
 
             // bool for time boundary integral
             bool mTimeBoundary = false;
+
+            // bool for analytical/FD SA
+            bool mIsAnalyticalFA = true;
+
+            // enum for FD scheme used for FD SA
+            fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::UNDEFINED;
+
+            // real for FD perturbation size
+            real mFDPerturbationFA = 0.0;
 
             // bool for analytical/FD SA
             bool mIsAnalyticalSA = false;
@@ -230,6 +247,69 @@ namespace moris
             enum fem::Element_Type get_element_type() const
             {
                 return mElementType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set forward analysis type flag on the set (analytical or finite difference)
+             * @param[ in ] aIsAnalyticalFA bool true if analytical forward analysis
+             *                                   false if finite difference
+             */
+            void set_is_analytical_forward_analysis( bool aIsAnalyticalFA )
+            {
+                mIsAnalyticalFA = aIsAnalyticalFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get flag for forward analysis on the set (analytical or finite difference)
+             * @param[ out ] mIsAnalyticalFA bool true if analytical forward analysis
+             *                                    false if finite difference
+             */
+            bool get_is_analytical_forward_analysis() const
+            {
+                return mIsAnalyticalFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set FD scheme enum for forward analysis on the set
+             * @param[ in ] aFDSchemeForFA enum for FD scheme used for forward analysis
+             */
+            void set_finite_difference_scheme_for_forward_analysis(
+                    enum fem::FDScheme_Type aFDSchemeForFA )
+            {
+                mFDSchemeForFA = aFDSchemeForFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get enum for FD scheme for forward analysis on the set
+             * @param[ out ] mFDSchemeForFA enum for FD scheme used for forward analysis
+             */
+            enum fem::FDScheme_Type get_finite_difference_scheme_for_forward_analysis() const
+            {
+                return mFDSchemeForFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set perturbation size for finite difference for forward analysis
+             * @param[ in ] aFDPerturbationFA perturbation size
+             */
+            void set_finite_difference_perturbation_size_forward( real aFDPerturbationFA )
+            {
+                mFDPerturbationFA = aFDPerturbationFA;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get perturbation size for finite difference for forward analysis
+             * @param[ out ] mFDPerturbation perturbation size
+             */
+            real get_finite_difference_perturbation_size_forward()
+            {
+                return mFDPerturbationFA;
             }
 
             //------------------------------------------------------------------------------
@@ -701,6 +781,25 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get list of requested IQIs for nodal evaluation for visualization
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_nodal_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for nodal evaluation for visualization
+             */
+            uint get_number_of_requested_nodal_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for nodal evaluation for visualization
+             */
+            const moris::Cell< moris_index > & get_requested_nodal_IQIs_global_indices_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
              * compute a quantity of interest global
              * @param[ in ] aMeshIndex         vis mesh index to define mesh
              *                                 on which values are evaluated
@@ -711,6 +810,25 @@ namespace moris
                     const uint                         aMeshIndex,
                     Matrix< DDRMat >                 * aGlobalFieldValues,
                     const moris::Cell< std::string > & aQINames );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get list of requested IQIs for global evaluation for visualization
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_global_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for global evaluation for visualization
+             */
+            uint get_number_of_requested_global_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for global evaluation for visualization
+             */
+            const moris::Cell< moris_index > & get_requested_global_IQIs_global_indices_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
@@ -727,9 +845,35 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get list of requested IQIs for elemental evaluation for visualization
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_elemental_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for elemental evaluation for visualization
+             */
+            uint get_number_of_requested_elemental_IQIs_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for elemental evaluation for visualization
+             */
+            const moris::Cell< moris_index > & get_requested_elemental_IQIs_global_indices_for_visualization();
+
+            //------------------------------------------------------------------------------
+            /**
              * determine set type from mtk set type
              */
             void determine_set_type();
+
+            //------------------------------------------------------------------------------
+            /**
+             * set set type
+             * only for debug and unit test
+             */
+            void set_set_type( fem::Element_Type aElementType );
 
             //------------------------------------------------------------------------------
             /**

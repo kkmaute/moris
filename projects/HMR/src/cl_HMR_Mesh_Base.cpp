@@ -753,7 +753,7 @@ namespace moris
             this->select_activation_pattern();
 
             // get number of active elements
-            if( mParameters->use_number_aura() )
+            if( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
             {
                 moris_index tNumberOfElements = this->get_number_of_elements_including_aura();
 

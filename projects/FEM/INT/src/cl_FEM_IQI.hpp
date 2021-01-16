@@ -136,6 +136,22 @@ namespace moris
             real mReferenceValue = 1.0;
             bool mNormalized = false;
 
+            // function pointers
+            void ( IQI:: * m_compute_dQIdu_FD )(
+                    real               aWStar,
+                    real               aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType ) = nullptr;
+            void ( IQI:: * m_compute_dQIdp_FD_material )(
+                    real               aWStar,
+                    real               aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType ) = nullptr;
+            void ( IQI:: * m_compute_dQIdp_FD_geometry )(
+                    real                                aWStar,
+                    real                                aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
+
             //------------------------------------------------------------------------------
         public :
 
@@ -308,7 +324,17 @@ namespace moris
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
+
+                // set function pointer for dQIdu, dQIdp
+                this->set_function_pointers();
             }
+
+            //------------------------------------------------------------------------------
+            /*
+             * set fem set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_function_pointers();
 
             //------------------------------------------------------------------------------
             /*
@@ -518,36 +544,6 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-
-            /**
-             * Gets the quantity of interest, including scaling.
-             * @param[ in ] aQIVal quantity of interest matrix to fill
-             */
-            void get_QI( Matrix< DDRMat > & aQIVal );
-
-            /**
-             * Gets the derivative of the quantities of interest wrt requested dof types, including scaling.
-             * @param[ in ]  aDofType group of dof type for derivative
-             * @param[ out ] adQIdu   derivative of quantity of interest
-             */
-            void get_dQIdu(
-                    moris::Cell< MSI::Dof_Type > & aDofType,
-                    Matrix< DDRMat >             & adQIdu );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the quantities of interest, and add to the cell contained on the set
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void add_QI_on_set( real aWStar );
-
-            /**
-             * compute the derivatives of the quantities of interest, and add to the cell contained on the set
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void add_dQIdu_on_set( real aWStar );
-
-            //------------------------------------------------------------------------------
             /**
              * build requested dof type list
              */
@@ -564,7 +560,16 @@ namespace moris
             void compute_dQIdu_FD(
                     real               aWStar,
                     real               aPerturbation,
-                    fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                    fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+            {
+                // compute dQIdu geometry by FD
+                ( this->*m_compute_dQIdu_FD )( aWStar, aPerturbation, aFDSchemeType );
+            }
+
+            void select_dQIdu_FD(
+                    real               aWStar,
+                    real               aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType );
 
             //------------------------------------------------------------------------------
             /**
@@ -606,14 +611,23 @@ namespace moris
             void compute_dQIdp_FD_material(
                     moris::real        aWStar,
                     moris::real        aPerturbation,
-                    fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
-
-            void compute_dQIdp_FD_material_double(
-                    moris::real        aWStar,
-                    moris::real        aPerturbation,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
             {
-                MORIS_ERROR( false, "IQI::compute_dQIdp_FD_material_double - not implemented yet");
+                // compute dQIdp geometry by FD
+                ( this->*m_compute_dQIdp_FD_material )( aWStar, aPerturbation, aFDSchemeType );
+            }
+
+            void select_dQIdp_FD_material(
+                    moris::real        aWStar,
+                    moris::real        aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType );
+
+            void select_dQIdp_FD_material_double(
+                    moris::real        aWStar,
+                    moris::real        aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType )
+            {
+                MORIS_ERROR( false, "IQI::select_dQIdp_FD_material_double - not implemented yet");
             }
 
             //------------------------------------------------------------------------------
@@ -626,30 +640,41 @@ namespace moris
              * @param[ in ] aFDSchemeType     enum for FD scheme
              */
             void compute_dQIdp_FD_geometry(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+            {
+                // compute dQIdp geometry by FD
+                ( this->*m_compute_dQIdp_FD_geometry )(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType,
+                        aGeoLocalAssembly,
+                        aVertexIndices );
+            }
 
-            void compute_dQIdp_FD_geometry_bulk(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+            void select_dQIdp_FD_geometry_bulk(
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-            void compute_dQIdp_FD_geometry_sideset(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+            void select_dQIdp_FD_geometry_sideset(
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-            void compute_dQIdp_FD_geometry_double(
-                    moris::real          aWStar,
-                    moris::real          aPerturbation,
-                    Matrix< IndexMat > & aMasterVertexIndices,
-                    Matrix< IndexMat > & aSlaveVertexIndices,
-                    Matrix< DDSMat >   & aGeoLocalAssembly,
-                    fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+            void select_dQIdp_FD_geometry_double(
+                    moris::real                         aWStar,
+                    moris::real                         aPerturbation,
+                    fem::FDScheme_Type                  aFDSchemeType,
+                    Matrix< DDSMat >                  & aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > > & aVertexIndices )
             {
                 MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet");
             }
@@ -663,6 +688,13 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * Evaluate the quantity of interest.
+             * @param[ in ] aWStar            weight associated to evaluation point
+             */
+            virtual void compute_QI( real aWStar ) = 0;
+
+            //------------------------------------------------------------------------------
+            /**
              * Compute the derivative of the quantities of interest wrt requested dof types.
              * @param[ in ]  aDofType Dof type being evaluated
              * @param[ out ] adQIdu derivative of quantity of interest
@@ -670,6 +702,13 @@ namespace moris
             virtual void compute_dQIdu(
                     moris::Cell< MSI::Dof_Type > & aDofType,
                     Matrix< DDRMat >             & adQIdu ) = 0;
+
+            //------------------------------------------------------------------------------
+            /**
+             * Compute the derivative of the quantities of interest
+             * @param[ in ] aWStar weight associated to evaluation point
+             */
+            virtual void compute_dQIdu( real aWstar ) = 0;
 
         };
         //------------------------------------------------------------------------------

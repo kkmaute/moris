@@ -177,6 +177,7 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -488,6 +489,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tFIs( 0 )->set_space_time( tParamPoint );
 
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
 
     tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 

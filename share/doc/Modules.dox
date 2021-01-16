@@ -410,8 +410,8 @@ This leads to:
     /** @defgroup TSMfc Time Solver Module
     
 This module discusses MORIS's Time Solver manager. The time solver serves as the module orchestrating all matters related to timestepping. 
-In Pysical time-dependent problems, information flows in the direction of positive time. 
-The dicontinousGalerkin appied over space-time slabs of thickness \f$ \delta t \f$ leads to a system in which the solution throughout
+In Physical time-dependent problems, information flows in the direction of positive time. 
+The dicontinous Galerkin applied over space-time slabs of thickness \f$ \delta t \f$ leads to a system in which the solution throughout
 the current slab ( \f$ Q = \Omega \times ]t_{n}, t_{n+1}[ \f$ where \f$ \Omega \f$ is the spatial domain and n the time step number. 
 The boundary \f$ P = \Gamma \times ]t_{n}, t_{n+1}[ \f$ ) depends only upon the solution \f$ t^{+}_{n} \f$.
 In Figure 1 the time slabs \f$ n-1, n , n+1 \f$ are illustraded on the right. On the left the focus is on time slab \f$ n \f$. 
@@ -419,7 +419,7 @@ The marked boundarys \f$ P_{n}^{+} \f$ and \f$ P_{n+1}^{-} \f$ are the upper and
 
 @image html ./figures/Time_Slabs.JPG "Figure 1: Time Slabs"
 
-An space-time equation object therefore provides residual blocks related to a certain set of degrees of freedom.
+A space-time equation object therefore provides residual blocks related to a certain set of degrees of freedom.
 Figure 2 shows a space time element.
 
 @image html ./figures/Space_Time_Element.JPG "Figure 2: Space Time Element"

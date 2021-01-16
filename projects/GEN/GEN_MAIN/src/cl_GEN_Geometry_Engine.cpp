@@ -351,6 +351,8 @@ namespace moris
                             if (mNumSpatialDimensions == 2)
                             {
                                 mQueuedIntersectionNode = std::make_shared<Intersection_Node_Bilinear>(
+                                        aFirstNodeIndex,
+                                        aSecondNodeIndex,
                                         aFirstNodeLocalCoordinates,
                                         aSecondNodeLocalCoordinates,
                                         aBackgroundElementNodeIndices,

@@ -55,6 +55,15 @@ namespace moris
                 // real for finite difference perturbation size
                 real mFDPerturbation;
 
+                // bool for forward analysis computation type
+                bool mIsAnalyticalFA = true;
+
+                // enum for FD scheme used for FD for forward analysis
+                fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::UNDEFINED;
+
+                // real for finite difference perturbation size for forward analysis
+                real mFDPerturbationFA;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -238,6 +247,69 @@ namespace moris
                 real & get_finite_difference_perturbation_size() const
                 {
                     return mFDPerturbation;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set flag for forward analysis on the set (analytical or finite difference)
+                 * @param[ in ] aIsAnalyticalFA bool for forward analysis computation type
+                 */
+                void set_is_analytical_forward_analysis( bool aIsAnalyticalFA )
+                {
+                    mIsAnalyticalFA = aIsAnalyticalFA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get flag for forward analysis on the set (analytical or finite difference)
+                 * @param[ in ] aIsAnalyticalFA bool for forward analysis computation type
+                 */
+                const
+                bool & get_is_analytical_forward_analysis() const
+                {
+                    return mIsAnalyticalFA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set FD scheme enum for forward analysis on the set
+                 * @param[ in ] aFDSchemeForFA enum for FD scheme used for
+                 */
+                void set_finite_difference_scheme_for_forward_analysis(
+                        enum fem::FDScheme_Type aFDSchemeForFA )
+                {
+                    mFDSchemeForFA = aFDSchemeForFA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get enum for FD scheme for forward analysis on the set
+                 * @param[ out ] mFDSchemeForFA enum for FD scheme used for
+                 */
+                enum fem::FDScheme_Type get_finite_difference_scheme_for_forward_analysis() const
+                {
+                    return mFDSchemeForFA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set perturbation size for finite difference for forward analysis
+                 * @param[ in ] aFDPerturbationFA perturbation size
+                 */
+                void set_finite_difference_perturbation_size_for_forward_analysis( real aFDPerturbationFA )
+                {
+                    mFDPerturbationFA = aFDPerturbationFA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get perturbation size for finite difference for forward analysis
+                 * @param[ out ] mFDPerturbationFA perturbation size
+                 */
+                const
+                real & get_finite_difference_perturbation_size_for_forward_analysis() const
+                {
+                    return mFDPerturbationFA;
                 }
 
                 //------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
-
+        
         //------------------------------------------------------------------------------
 
         void IQI_J_Integral::compute_QI( Matrix< DDRMat > & aQI )
@@ -49,11 +49,30 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_J_Integral::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu  )
+        void IQI_J_Integral::compute_QI( real aWStar )
         {
-            MORIS_ERROR( false, "IQI_J_Integral::compute_dQIdu() - this function does nothing for the J-Integral" );
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            /*
+             * TODO: implement switch case for 2D or 3D
+             */
+            Matrix< DDRMat > tN = { {1.0}, {0.0} };
+
+            // get indices for properties, CM and SP
+            uint tElastLinIsoIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
+
+            /* evaluate the QI:
+             * when crack grows straight ahead, G = J = int_{\Gamma} W n_1 - t_i \frac{\partial u_i}{\partial x_1}
+             */
+
+            // 2D
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ) += aWStar * (
+                    trans( mMasterCM( tElastLinIsoIndex )->flux() ) * mMasterCM( tElastLinIsoIndex )->strain() )*tN(0)
+                    - mMasterCM( tElastLinIsoIndex )->traction(tN)(0)*mMasterCM( tElastLinIsoIndex )->strain()(0)
+                    - mMasterCM( tElastLinIsoIndex )->traction(tN)(1)*mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
+
         }
 
         //------------------------------------------------------------------------------

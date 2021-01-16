@@ -75,7 +75,7 @@ namespace moris
                 const uint  mActivationPattern;
 
                 //! index
-                uint mMeshIndex;
+                moris::uint mMeshIndex = MORIS_UINT_MAX;
 
                 //! maximum level of entities that are active
                 uint mMaxLevel = 0;

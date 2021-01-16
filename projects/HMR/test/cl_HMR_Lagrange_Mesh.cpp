@@ -1297,4 +1297,114 @@ TEST_CASE("Lagrange_Mesh_4_proc_problem","[moris],[hmr],[Lagrange_Mesh_4_proc_pr
     }
 }
 
+TEST_CASE("Lagrange_Mesh_4_proc_meshes","[moris],[hmr],[Lagrange_Mesh_4_proc_meshes],[lagrange_mesh]")
+{
+    if(par_size() == 4)
+    {
+        std::cout<<"I am proc: "<<par_rank()<<std::endl;
+
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        // create settings object
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {6}, {6}, {3} } );
+        tParameters.set_domain_dimensions( 2, 2, 1 );
+        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
+        tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
+
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_lagrange_orders  ( { {1}, {1} });
+        tParameters.set_lagrange_patterns( { {0}, {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_staircase_buffer( 0 );
+
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
+
+        tParameters.set_write_background_mesh( "backgroundmesh.vtk" );
+        tParameters.set_write_output_lagrange_mesh( "lagrangemesh.vtk" );
+
+        tParameters.set_number_aura( true );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+        tLagrangeToBSplineMesh( 1 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
+
+        tHMR.perform_initial_refinement();
+
+        //-----------------------------------------
+
+        moris::hmr::Background_Mesh_Base* tBackgroundMesh = tHMR.get_database()->get_background_mesh();
+
+        // manually select output pattern
+        tHMR.get_database()->set_activation_pattern( 0 );
+
+        if( par_rank() == 0 )
+        {
+            tHMR.get_database()->get_background_mesh()->get_element( 7 )->put_on_refinement_queue();
+        }
+        if( par_rank() == 1 )
+        {
+            tHMR.get_database()->get_background_mesh()->get_element( 2 )->put_on_refinement_queue();
+        }
+
+        // refine mesh
+        tBackgroundMesh->perform_refinement( 0 );
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( 0 );
+        std::shared_ptr< moris::hmr::Mesh > tMesh02 = tHMR.create_mesh( 1 );
+
+        tHMR.get_database()->update_bspline_meshes();
+        tHMR.get_database()->update_lagrange_meshes();
+
+        tHMR.finalize();
+
+        tHMR.save_mesh_to_vtk( "Lagrange_Mesh1.vtk", 0 );
+        tHMR.save_mesh_to_vtk( "Lagrange_Mesh2.vtk", 1 );
+
+        if( par_rank() == 0 )
+        {
+            REQUIRE( tMesh01->get_num_nodes()  == 137 );
+            REQUIRE( tMesh02->get_num_nodes()  == 83 );
+            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 66 );
+            REQUIRE( tMesh01->get_mtk_vertex( 48 ).get_id()  == 43 );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 2 ), 1.666666666666667e-01, 1.0e+08 ) );
+        }
+        if( par_rank() == 1 )
+        {
+            REQUIRE( tMesh01->get_num_nodes()  == 137 );
+            REQUIRE( tMesh02->get_num_nodes()  == 83 );
+            REQUIRE( tMesh01->get_mtk_vertex( 23 ).get_id()  == 43 );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 23 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 23 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 23 ).get_coords()( 2 ), 1.666666666666667e-01, 1.0e+08 ) );
+        }
+        if( par_rank() == 2 )
+        {
+            REQUIRE( tMesh01->get_num_nodes()  == 119 );
+            REQUIRE( tMesh02->get_num_nodes()  == 64 );
+            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 64 );
+            REQUIRE( tMesh01->get_mtk_vertex( 43 ).get_id()  == 43 );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
+            CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 2 ), 1.666666666666667e-01, 1.0e+08 ) );
+        }
+    }
+}
+
 

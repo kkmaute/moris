@@ -83,7 +83,7 @@ namespace moris
                 // add contribution
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
+                        { 0, 0 } ) -= aWStar * (
                                 tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) );
             }
 
@@ -93,7 +93,7 @@ namespace moris
                 // add contribution
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
+                        { 0, 0 } ) -= aWStar * (
                                 trans( tFITemp->N() ) * tPropBodyHeatLoad->val() );
             }
 
@@ -163,7 +163,7 @@ namespace moris
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) *
                                         tPropBodyForce->dPropdDOF( tDofType ) );
                     }
@@ -174,7 +174,7 @@ namespace moris
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->N() );
                     }
 
@@ -184,7 +184,7 @@ namespace moris
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tPropBodyForce->val() ) * tFIVelocity->N() );
                     }
                 }
@@ -198,7 +198,7 @@ namespace moris
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tFITemp->N() ) * tPropBodyHeatLoad->dPropdDOF( tDofType ) );
                     }
                 }

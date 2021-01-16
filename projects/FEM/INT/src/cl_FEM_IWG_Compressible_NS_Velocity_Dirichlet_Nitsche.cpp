@@ -105,8 +105,8 @@ namespace moris
                 // compute master residual
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                tFIVelocity->N_trans() * tM * tCMFluid->traction( mNormal, CM_Function_Type::MECHANICAL)
+                        { 0, 0 } ) += aWStar * (
+                                -1.0 * tFIVelocity->N_trans() * tM * tCMFluid->traction( mNormal, CM_Function_Type::MECHANICAL)
                                 + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump );
             }
 
@@ -204,8 +204,8 @@ namespace moris
                         // compute jacobian direct dependencies
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::MECHANICAL ) ) * tM * tFIVelocity->N()
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        -1.0 * mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::MECHANICAL ) ) * tM * tFIVelocity->N()
                                         + tSPNitsche->val()( 0 )  * tFIVelocity->N_trans() * tM * tFIVelocity->N() );
                     }
 

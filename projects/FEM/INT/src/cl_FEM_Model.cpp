@@ -1620,16 +1620,30 @@ namespace moris
             // get fem computation type parameter list
             ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
 
-            // get bool for analytical/finite difference for SA
+            // bool true for analytical forward analysis, false for finite difference
+            // decide if dRdu and dQIdu are computed by A/FD
+            bool tIsAnalyticalFA =
+                    tComputationParameterList.get< bool >( "is_analytical_forward" );
+
+            // get enum for FD scheme for forward analysis
+            fem::FDScheme_Type tFDSchemeForFA = static_cast< fem::FDScheme_Type >(
+                    tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+
+            // get perturbation size for FD for forward analysis
+            real tFDPerturbationFA = tComputationParameterList.get< real >(
+                    "finite_difference_perturbation_size_forward" );
+
+            // get bool for analytical/finite difference for sensitivity analysis
+            // decide if dRdp and dQIdp are computed by A/FD
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
-            // get enum for FD scheme
+            // get enum for FD scheme for sensitivity analysis
             fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
                     tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
 
-            // get perturbation size for FD
-            real tFDPerturbation = tComputationParameterList.get< real >(
+            // get perturbation size for FD for sensitivity analysis
+            real tFDPerturbationSA = tComputationParameterList.get< real >(
                     "finite_difference_perturbation_size" );
 
             // create a map of the set
@@ -1707,6 +1721,15 @@ namespace moris
                         // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
 
+                        // set its forward analysis type flag
+                        aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
+
+                        // set its FD scheme for forward analysis
+                        aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
+
+                        // set its FD perturbation size for forward analysis
+                        aSetUserInfo.set_finite_difference_perturbation_size_for_forward_analysis( tFDPerturbationFA );
+
                         // set its sensitivity analysis type flag
                         aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
 
@@ -1714,7 +1737,7 @@ namespace moris
                         aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
 
                         // set its FD perturbation size for sensitivity analysis
-                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
+                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbationSA );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -1802,6 +1825,15 @@ namespace moris
                         // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
 
+                        // set its forward analysis type flag
+                        aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
+
+                        // set its FD scheme for forward analysis
+                        aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
+
+                        // set its FD perturbation size for forward analysis
+                        aSetUserInfo.set_finite_difference_perturbation_size_for_forward_analysis( tFDPerturbationFA );
+
                         // set its sensitivity analysis type flag
                         aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
 
@@ -1809,7 +1841,7 @@ namespace moris
                         aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
 
                         // set its FD perturbation size for sensitivity analysis
-                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
+                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbationSA );
 
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );

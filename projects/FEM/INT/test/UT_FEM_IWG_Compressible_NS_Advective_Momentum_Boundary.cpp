@@ -116,6 +116,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_Ideal",
     // set a fem set pointer
 
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -515,6 +516,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_VdW",
     // set a fem set pointer
 
     MSI::Equation_Set * tSet = new fem::Set();
+    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList

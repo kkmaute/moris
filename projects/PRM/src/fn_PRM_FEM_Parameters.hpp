@@ -219,10 +219,22 @@ namespace moris
             // bool true for printing physics
             tParameterList.insert( "print_physics_model", false );
 
+            // bool true for analytical forward analysis, false for finite difference
+            // decide if dRdu (jacobian) and dQIdu are computed by A/FD
+            tParameterList.insert( "is_analytical_forward", true );
+
+            // enum for finite difference scheme for forward analysis
+            tParameterList.insert( "finite_difference_scheme_forward",
+                    static_cast< uint >( fem::FDScheme_Type::POINT_1_FORWARD ) );
+
+            // real for relative perturbation size for finite difference for forward analysis
+            tParameterList.insert( "finite_difference_perturbation_size_forward", 1e-6 );
+
             // bool true for analytical sensitivity analysis, false for finite difference
+            // decide if dRdp and dQIdp are computed by A/FD
             tParameterList.insert( "is_analytical_sensitivity", false );
 
-            // enum for finite difference scheme
+            // enum for finite difference scheme for sensitivity analysis
             tParameterList.insert( "finite_difference_scheme",
                     static_cast< uint >( fem::FDScheme_Type::POINT_1_FORWARD ) );
 

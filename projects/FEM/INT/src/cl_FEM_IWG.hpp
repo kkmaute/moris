@@ -129,6 +129,22 @@ namespace moris
                 //! string for IWG name
                 enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::UNDEFINED;
 
+                // function pointers
+                void ( IWG:: * m_compute_jacobian_FD )(
+                        real               aWStar,
+                        real               aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType ) = nullptr;
+                void ( IWG:: * m_compute_dRdp_FD_material )(
+                        real               aWStar,
+                        real               aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType ) = nullptr;
+                void ( IWG:: * m_compute_dRdp_FD_geometry )(
+                        real                                aWStar,
+                        real                                aPerturbation,
+                        fem::FDScheme_Type                  aFDSchemeType,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -267,7 +283,16 @@ namespace moris
                 void set_set_pointer( Set * aSetPointer )
                 {
                     mSet = aSetPointer;
+
+                    // set function pointer
+                    this->set_function_pointers();
                 }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * set function pointers
+                 */
+                void set_function_pointers();
 
                 //------------------------------------------------------------------------------
                 /*
@@ -557,12 +582,21 @@ namespace moris
                 void compute_jacobian_FD(
                         real               aWStar,
                         real               aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5 )
+                {
+                    // compute jacobian by FD
+                    ( this->*m_compute_jacobian_FD )( aWStar, aPerturbation, aFDSchemeType );
+                }
 
-                void compute_jacobian_FD_double(
+                void select_jacobian_FD(
                         real               aWStar,
                         real               aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+                        fem::FDScheme_Type aFDSchemeType );
+
+                void select_jacobian_FD_double(
+                        real               aWStar,
+                        real               aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -605,14 +639,23 @@ namespace moris
                  * @param[ in ] aFDSchemeType enum for FD scheme
                  */
                 void compute_dRdp_FD_material(
-                        moris::real        aWStar,
-                        moris::real        aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                        real               aWStar,
+                        real               aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+                {
+                    // compute jacobian by FD
+                    ( this->*m_compute_dRdp_FD_material )( aWStar, aPerturbation, aFDSchemeType );
+                }
 
-                void compute_dRdp_FD_material_double(
+                void select_dRdp_FD_material(
                         moris::real        aWStar,
                         moris::real        aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                        fem::FDScheme_Type aFDSchemeType );
+
+                void select_dRdp_FD_material_double(
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -624,36 +667,48 @@ namespace moris
                  * @param[ in ] aFDSchemeType     enum for FD scheme
                  */
                 void compute_dRdp_FD_geometry(
-                        moris::real          aWStar,
-                        moris::real          aPerturbation,
-                        Matrix< DDSMat >   & aGeoLocalAssembly,
-                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                        moris::real                         aWStar,
+                        moris::real                         aPerturbation,
+                        fem::FDScheme_Type                  aFDSchemeType,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+                {
+                    // compute jacobian by FD
+                    ( this->*m_compute_dRdp_FD_geometry )(
+                            aWStar,
+                            aPerturbation,
+                            aFDSchemeType,
+                            aGeoLocalAssembly,
+                            aVertexIndices );
+                }
 
-                void compute_dRdp_FD_geometry_bulk(
-                        moris::real          aWStar,
-                        moris::real          aPerturbation,
-                        Matrix< DDSMat >   & aGeoLocalAssembly,
-                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                void select_dRdp_FD_geometry_bulk(
+                        moris::real                         aWStar,
+                        moris::real                         aPerturbation,
+                        fem::FDScheme_Type                  aFDSchemeType,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-                void compute_dRdp_FD_geometry_sideset(
-                        moris::real          aWStar,
-                        moris::real          aPerturbation,
-                        Matrix< DDSMat >   & aGeoLocalAssembly,
-                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                void select_dRdp_FD_geometry_sideset(
+                        moris::real                         aWStar,
+                        moris::real                         aPerturbation,
+                        fem::FDScheme_Type                  aFDSchemeType,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-                void compute_dRdp_FD_geometry_time_sideset(
-                        moris::real          aWStar,
-                        moris::real          aPerturbation,
-                        Matrix< DDSMat >   & aGeoLocalAssembly,
-                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                void select_dRdp_FD_geometry_time_sideset(
+                        moris::real                         aWStar,
+                        moris::real                         aPerturbation,
+                        fem::FDScheme_Type                  aFDSchemeType,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
-                void compute_dRdp_FD_geometry_double(
-                        moris::real          aWStar,
-                        moris::real          aPerturbation,
-                        Matrix< IndexMat > & aMasterVertexIndices,
-                        Matrix< IndexMat > & aSlaveVertexIndices,
-                        Matrix< DDSMat >   & aGeoLocalAssembly,
-                        fem::FDScheme_Type   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+                void select_dRdp_FD_geometry_double(
+                        moris::real                         aWStar,
+                        moris::real                         aPerturbation,
+                        fem::FDScheme_Type                  aFDSchemeType,
+                        Matrix< DDSMat >                  & aGeoLocalAssembly,
+                        moris::Cell< Matrix< IndexMat > > & aVertexIndices );
 
                 //------------------------------------------------------------------------------
                 /**
