@@ -258,19 +258,6 @@ namespace moris
                     const moris_index & aNodeOwner );
 
             /**
-             * Gets all of the geometry field values at the specified coordinates
-             *
-             * @param aNodeIndices Node indices on the mesh
-             * @param aCoordinates Coordinate values for evaluating the geometry fields
-             * @param aGeometryIndex Index of the geometry for evaluating the field of
-             * @return Field values
-             */
-            real get_geometry_field_value(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    uint                  aGeometryIndex = 0);
-
-            /**
              * create new node geometry objects
              * @param[ in ] aNodeCoords node coordinates
              */

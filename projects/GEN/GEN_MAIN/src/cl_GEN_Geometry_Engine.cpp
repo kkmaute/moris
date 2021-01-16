@@ -250,16 +250,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Geometry_Engine::get_geometry_field_value(
-                uint                   aNodeIndex,
-                const Matrix<DDRMat> & aCoordinates,
-                uint                   aGeometryIndex)
-        {
-            return mGeometries(aGeometryIndex)->get_field_value(aNodeIndex, aCoordinates);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         bool Geometry_Engine::is_intersected(const Matrix<IndexMat>& aNodeIndices, const Matrix<DDRMat>& aNodeCoordinates)
         {
             // Check input
@@ -511,7 +501,7 @@ namespace moris
                 {
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
 
-                    real tVertGeomVal = this->get_geometry_field_value(aNewNodeIndices(tNode), tCoord, tGeometryIndex);
+                    real tVertGeomVal = mGeometries(tGeometryIndex)->get_field_value(aNewNodeIndices(tNode), tCoord);
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
@@ -1437,7 +1427,7 @@ namespace moris
 
                 for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
                 {            
-                    real tVertGeomVal = this->get_geometry_field_value(moris_index(iV), tCoords, iGeometryIndex);
+                    real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
@@ -1556,7 +1546,7 @@ namespace moris
                 // iterate through following geometries (here we just compute the vertex value to determine proximity)
                 for (uint tGeometryIndex = this->get_active_geometry_index() + 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
-                    real tVertGeomVal = this->get_geometry_field_value(aNodeIndex, mQueuedIntersectionNode->get_global_coordinates(), tGeometryIndex);
+                    real tVertGeomVal = mGeometries(tGeometryIndex)->get_field_value(aNodeIndex, mQueuedIntersectionNode->get_global_coordinates());
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 

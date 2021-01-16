@@ -4017,24 +4017,6 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::print_vertex_geometry()
-    {
-        for(moris::uint  i = 0; i < mBackgroundMesh.get_num_entities(EntityRank::NODE); i++)
-        {
-            moris::mtk::Vertex & tVertex = mBackgroundMesh.get_mtk_vertex(i);
-
-            std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
-            for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
-            {
-                std::cout<<std::setw(12)<<mGeometryEngine->get_geometry_field_value(tVertex.get_index(), tVertex.get_coords(), j)<<" , ";
-            }
-            std::cout<<std::endl;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
     Model::print_interface_vertices()
     {
         mBackgroundMesh.print_interface_node_flags();
@@ -4290,29 +4272,11 @@ namespace xtk
         // Interface nodes
         Cell<moris::Matrix<moris::IndexMat>> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_glob_ids();
 
-        // Assemble geometry data as field for mesh output
-        moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryFieldData = assemble_geometry_data_as_mesh_field(tOutputtedNodeInds);
-
-        // Give the geometry data a name
-        moris::Cell<std::string> tGeometryFieldNames = assign_geometry_data_names();
-
-        // Get rank of the geometry data field
-        moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_ranks();
-
         // number of phases being output
         moris::uint tNumPhasesOutput = get_num_phases_to_output(aOutputOptions);
 
         // Set up field data structure for MTK input
         moris::mtk::MtkFieldsInfo tFieldsInfo;
-        moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tGeometryFields(tGeometryFieldData.size());
-
-        for(uint i = 0; i <tGeometryFieldData.size(); i++)
-        {
-            tGeometryFields(i).set_field_name(tGeometryFieldNames(i));
-            tGeometryFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-            tGeometryFields(i).add_field_data(&tLocalToGlobalNodeMap, &tGeometryFieldData(i));
-            tFieldsInfo.mRealScalarFields.push_back(&tGeometryFields(i));
-        }
 
         // External Fields - real cell fields
         uint tNumExtRealCellScalarFields = aOutputOptions.mRealElementExternalFieldNames.size();
@@ -5216,31 +5180,6 @@ namespace xtk
 
             std::cout<<std::endl;
         }
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::Cell< moris::Matrix < moris::DDRMat > >
-    Model::assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput)
-    {
-        uint tNumGeometries = mGeometryEngine->get_num_geometries();
-        uint tNumNodes      = aNodeIndsToOutput.numel();
-
-        // Allocate output data
-        moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
-
-        //Iterate through geometries
-        moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_selected_node_coordinates_loc_inds(aNodeIndsToOutput);
-        for(uint iG = 0; iG <tNumGeometries; iG++)
-        {
-            // Iterate through nodes
-            for(uint iN = 0; iN<tNumNodes; iN++)
-            {
-                tGeometryData(iG)(iN) = mGeometryEngine->get_geometry_field_value(aNodeIndsToOutput(iN), tNodeCoords.get_row(iN), iG);
-            }
-        }
-
-        return tGeometryData;
     }
 
     //------------------------------------------------------------------------------

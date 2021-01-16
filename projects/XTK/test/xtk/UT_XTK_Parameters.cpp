@@ -35,7 +35,7 @@ namespace xtk
 {
 
 TEST_CASE("XTK Parameter List","[PARAM]")
-                {
+{
     // Geometry Engine Setup ---------------------------------------------------------
     // Using a Levelset Sphere as the Geometry
 
@@ -174,33 +174,25 @@ TEST_CASE("XTK Parameter List","[PARAM]")
             moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
 
             // Nodes attached to parent element
-            moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
+            moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem =
+                    tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
 
-            // Get the level set values of each node on the hex8
-            moris::Matrix< moris::DDRMat > tHex8LSVs(8,1);
-            for(size_t iNode = 0; iNode<8; iNode++)
+            if (par_size() == 1)
             {
-                tHex8LSVs(iNode)  = tXTKModel.get_geom_engine()->get_geometry_field_value(tNodesAttachedToParentElem(iNode),
-                                                                                          tMeshData->get_node_coordinate(tNodesAttachedToParentElem(iNode)),
-                                                                                          0);
+                REQUIRE(tNodesAttachedToParentElem.length() == 8);
+                CHECK(tNodesAttachedToParentElem(0) == 0);
+                CHECK(tNodesAttachedToParentElem(1) == 1);
+                CHECK(tNodesAttachedToParentElem(2) == 3);
+                CHECK(tNodesAttachedToParentElem(3) == 2);
+                CHECK(tNodesAttachedToParentElem(4) == 4);
+                CHECK(tNodesAttachedToParentElem(5) == 5);
+                CHECK(tNodesAttachedToParentElem(6) == 7);
+                CHECK(tNodesAttachedToParentElem(7) == 6);
             }
-
-            // Get the interface node parametric coordinate in iCM
-            moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tInterfaceNodes(iIN));
-
-            // Get the basis function values at this point
-            tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
-
-            // Evaluate the nodes global coordinate from the basis weights
-            moris::Matrix<moris::DDRMat> tInterfaceLSV = tBasisWeights*tHex8LSVs;
-
-            // Verify it is  approximately 0.0
-            CHECK(std::abs(tInterfaceLSV(0)) <= 0.15);
-
         }
     }
 
 
     delete tMeshData;
-                }
+}
 }

@@ -312,27 +312,18 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem =
                             tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
 
-                    // Get the level set values of each node on the hex8
-                    moris::Matrix< moris::DDRMat > tHex8LSVs(8,1);
-                    for(size_t iNode = 0; iNode<8; iNode++)
+                    if (par_size() == 1)
                     {
-                        tHex8LSVs(iNode)  = tXTKModel.get_geom_engine()->get_geometry_field_value(
-                                tNodesAttachedToParentElem(iNode),
-                                tMeshData->get_node_coordinate(tNodesAttachedToParentElem(iNode)),
-                                0);
+                        REQUIRE(tNodesAttachedToParentElem.length() == 8);
+                        CHECK(tNodesAttachedToParentElem(0) == 0);
+                        CHECK(tNodesAttachedToParentElem(1) == 1);
+                        CHECK(tNodesAttachedToParentElem(2) == 3);
+                        CHECK(tNodesAttachedToParentElem(3) == 2);
+                        CHECK(tNodesAttachedToParentElem(4) == 4);
+                        CHECK(tNodesAttachedToParentElem(5) == 5);
+                        CHECK(tNodesAttachedToParentElem(6) == 7);
+                        CHECK(tNodesAttachedToParentElem(7) == 6);
                     }
-
-                    // Get the interface node parametric coordinate in iCM
-                    moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tInterfaceNodes(iIN));
-
-                    // Get the basis function values at this point
-                    tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
-
-                    // Evaluate the nodes global coordinate from the basis weights
-                    moris::Matrix<moris::DDRMat> tInterfaceLSV = tBasisWeights*tHex8LSVs;
-
-                    // Verify it is  approximately 0.0
-                    CHECK(std::abs(tInterfaceLSV(0)) <= 0.15);
 
                 }
             }
@@ -363,20 +354,20 @@ namespace xtk
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-    /*
-     * Load Mesh which has 3 block sets. These blocks are named:
-     *  - top_bread
-     *  - meat
-     *  - bottom_bread
-     *
-     * Side Sets will eventually be named
-     *  - top_crust
-     *  - bottom_crust
-     */
-    std::string tPrefix;
-    tPrefix = moris::get_base_moris_dir();
-    std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
-    moris::Cell<std::string> tFieldNames;
+        /*
+         * Load Mesh which has 3 block sets. These blocks are named:
+         *  - top_bread
+         *  - meat
+         *  - bottom_bread
+         *
+         * Side Sets will eventually be named
+         *  - top_crust
+         *  - bottom_crust
+         */
+        std::string tPrefix;
+        tPrefix = moris::get_base_moris_dir();
+        std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
+        moris::Cell<std::string> tFieldNames;
 
         // add parallel fields to the mesh
         moris::mtk::Visualization_STK tVizTool;

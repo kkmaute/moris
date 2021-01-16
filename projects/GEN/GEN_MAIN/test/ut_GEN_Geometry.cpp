@@ -534,7 +534,7 @@ namespace moris
                             .epsilon(tEpsilon);
 
                     // Check field value
-                    CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget); // FIXME
+                    CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tApproxTarget);
                 }
 
                 // Delete mesh pointer

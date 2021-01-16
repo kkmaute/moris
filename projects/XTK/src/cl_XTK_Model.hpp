@@ -503,11 +503,6 @@ namespace xtk
             //------------------------------------------------------------------------------
 
             void
-            print_vertex_geometry();
-
-            //------------------------------------------------------------------------------
-
-            void
             print_neighborhood();
 
             //------------------------------------------------------------------------------
@@ -1095,12 +1090,6 @@ namespace xtk
                       Output_Options                   const  & aOutputOptions,
                       Cell<moris::Matrix<moris::IdMat>>       & aCellIdsAndSideOrds,
                       Cell<std::string>                       & aInterfaceSetNames);
-
-              //------------------------------------------------------------------------------
-
-              moris::Cell< moris::Matrix < moris::DDRMat > >
-              assemble_geometry_data_as_mesh_field(
-                      moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput);
 
               //------------------------------------------------------------------------------
 
