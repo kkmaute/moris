@@ -212,7 +212,7 @@ namespace moris
                 // delete the field interpolator pointers
                 this->delete_pointers();
 
-                // creat integration information
+                // create integration information
                 this->create_integrator( aModelSolverInterface );
 
                 // create the field interpolators
@@ -703,6 +703,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Set::create_unique_dof_and_dv_type_maps()
         {
             // dof types
