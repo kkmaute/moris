@@ -1,14 +1,12 @@
 #include "catch.hpp"
-#include "cl_Matrix.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_Exec_load_user_library.hpp"
 #include "fn_trans.hpp"
-
-#include "cl_GEN_Geometry_Engine.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
+#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "fn_GEN_check_equal.hpp"
 
@@ -29,31 +27,10 @@ namespace moris
                                            const Cell<real*>&    aParameters,
                                            Matrix<DDRMat>&       aSensitivities);
 
+    //--------------------------------------------------------------------------------------------------------------
+
     namespace ge
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        // Class for testing (sometimes need access to geometry after GEN manipulation)
-        class Geometry_Engine_Test : public Geometry_Engine
-        {
-        public:
-
-            Geometry_Engine_Test(
-                    Cell< std::shared_ptr<Geometry> > aGeometry,
-                    mtk::Interpolation_Mesh*          aMesh)
-                    : Geometry_Engine(aGeometry, aMesh)
-            {
-            }
-
-            std::shared_ptr<Geometry> get_geometry(uint aGeometryIndex = 0)
-            {
-                return mGeometries(aGeometryIndex);
-            }
-        };
-
-        //--------------------------------------------------------------------------------------------------------------
-
         // Check for ellipse location in a swiss cheese
         void check_swiss_cheese(std::shared_ptr<Geometry> aSwissCheese,
                                 real aXCenter,
@@ -381,7 +358,7 @@ namespace moris
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
-            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
+            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Field>(
                     tADVs,
                     Matrix<DDUMat>({{1, 0}}),
                     Matrix<DDUMat>({{0, 1}}),
@@ -419,6 +396,15 @@ namespace moris
 
         TEST_CASE("B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]")
         {
+            // B-spline circle parameter list
+            real tRadius = 0.5;
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+            tCircleParameterList.set("bspline_mesh_index", 0);
+            tCircleParameterList.set("bspline_lower_bound", -1.0);
+            tCircleParameterList.set("bspline_upper_bound", 1.0);
+
             // Loop over possible cases
             for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
             {
@@ -457,19 +443,14 @@ namespace moris
                         tLagrangeOrder,
                         tBSplineOrder);
 
-                // Level set circle parameter list
-                real tRadius = 0.5;
-                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
-                tCircleParameterList.set("type", "circle");
-                tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-                tCircleParameterList.set("bspline_mesh_index", 0);
-
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
                 std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
 
                 // Create geometry engine
-                Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tMesh);
+                Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mGeometries = {tBSplineCircle};
+                Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds
                 tADVs = tGeometryEngine.get_advs();
@@ -489,6 +470,8 @@ namespace moris
                     for (uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++)
                     {
                         CHECK(tADVs(tBSplineIndex) != Approx(0.0).epsilon(tEpsilon));
+                        CHECK(tLowerBounds(tBSplineIndex) == Approx(-1.0));
+                        CHECK(tUpperBounds(tBSplineIndex) == Approx(1.0));
                     }
                 }
                 else
@@ -498,7 +481,7 @@ namespace moris
                     REQUIRE(tUpperBounds.length() == 0);
                 }
 
-                // Epsilon must be larger for a quadratic Lagrange mesh
+                // Epsilon for field value checks must be larger for a quadratic Lagrange mesh
                 if (tLagrangeOrder > 1)
                 {
                     tEpsilon = 0.04;
@@ -551,7 +534,7 @@ namespace moris
                             .epsilon(tEpsilon);
 
                     // Check field value
-                    CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                    CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tApproxTarget);
                 }
 
                 // Delete mesh pointer
@@ -578,7 +561,9 @@ namespace moris
             std::shared_ptr<Geometry> tCircle = create_geometry(tCircleParameterList, tADVs);
 
             // Create geometry engine
-            Geometry_Engine_Test tGeometryEngine({tCircle}, tMesh);
+            Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = {tCircle};
+            Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
             // Get geometry back
             std::shared_ptr<Geometry> tStoredCircle = tGeometryEngine.get_geometry(0);

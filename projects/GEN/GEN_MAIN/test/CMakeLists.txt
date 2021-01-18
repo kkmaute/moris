@@ -8,20 +8,19 @@ set(TEST_SOURCES
 	ut_GEN_Geometry.cpp
 	ut_GEN_Property.cpp
 	ut_GEN_Intersection.cpp
+	cl_GEN_Geometry_Engine_Test.cpp
 	fn_GEN_create_simple_mesh.cpp
     )
-    
-# List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_MAIN_INCLUDES                                                                                                                                                                                                                                                               
-    "additional"
-    "pdv"
-    "geometry"
-    "property"
-    )
 
-# Include depedency directories
-foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
+set(GEN_INCLUDES
+	"field"
+	"field/geometry"
+	"field/property"
+	"pdv"
+	)
+
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
 endforeach()
      
 # Include WRK directory

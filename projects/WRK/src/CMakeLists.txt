@@ -13,19 +13,16 @@ set(HEADERS
     )
  
 set(GEN_INCLUDES
-    "additional"
+    "field"
+    "field/geometry"
+    "field/property"
     "pdv"
-    "geomeng"
-    "geometry"
-    "property"
     )
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
 endforeach()
-
-
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Parameters Library

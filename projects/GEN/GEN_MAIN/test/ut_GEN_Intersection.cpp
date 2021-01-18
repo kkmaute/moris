@@ -4,7 +4,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
 
 #include "fn_GEN_check_equal.hpp"
@@ -34,7 +34,6 @@ namespace moris
                 mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
 
                 // Set up geometry
-                Cell<std::shared_ptr<Geometry>> tGeometries(2);
                 Matrix<DDRMat> tADVs(0, 0);
 
                 // Circle
@@ -42,16 +41,17 @@ namespace moris
                 tCircleParameterList.set("type", "circle");
                 tCircleParameterList.set("constant_parameters", "-0.25, 0.0, 0.7499999999");
                 tCircleParameterList.set("bspline_mesh_index", 0);
-                tGeometries(0) = create_geometry(tCircleParameterList, tADVs);
 
                 // Plane
                 ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
                 tPlaneParameterList.set("type", "plane");
                 tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
-                tGeometries(1) = create_geometry(tPlaneParameterList, tADVs);
 
                 // Create geometry engine
-                Geometry_Engine tGeometryEngine(tGeometries, tMesh);
+                Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mGeometries =
+                        create_geometries({tCircleParameterList, tPlaneParameterList}, tADVs);
+                Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
                 tGeometryEngine.output_fields_on_mesh(tMesh, "intersection_test.exo");
@@ -229,7 +229,7 @@ namespace moris
 
                 // Set new ADVs, level set field now has no intersections
                 tGeometryEngine.set_advs(Matrix<DDRMat>(16, 1, 1.0));
-                tGeometryEngine.compute_level_set_data(tMesh);
+                tGeometryEngine.distribute_advs(tMesh);
 
                 // Solution for is_intersected() per geometry and per element
                 tIsElementIntersected = {{false, false, false, false}, {false, true, false, true}};
@@ -351,7 +351,9 @@ namespace moris
                 Matrix<DDRMat> tADVs(0, 0);
 
                 // Create geometry engine
-                Geometry_Engine tGeometryEngine( create_geometries({tCircleParameterList}, tADVs) , tMesh); // FIXME multilinear
+                Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mGeometries = create_geometries({tCircleParameterList}, tADVs);
+                Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Solution for is_intersected() per geometry and per element
                 Cell<bool> tIsElementIntersected = {true, true, true, true};

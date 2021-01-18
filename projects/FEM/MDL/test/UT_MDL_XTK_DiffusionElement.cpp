@@ -108,7 +108,9 @@ namespace moris
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
             moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpMesh1);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometry;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
@@ -386,7 +388,9 @@ namespace moris
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
             moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-            ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh1);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            ge::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;

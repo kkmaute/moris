@@ -209,7 +209,9 @@ namespace moris
             tHMR->finalize();
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tInterpolationMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometry;
+            moris::ge::Geometry_Engine tGENGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
@@ -576,7 +578,9 @@ namespace moris
             tHMR->finalize();
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tInterpolationMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometry;
+            moris::ge::Geometry_Engine tGENGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
@@ -2269,7 +2273,9 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
                     tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tInterpolationMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometry;
+            moris::ge::Geometry_Engine tGENGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGENGeometryEngine );

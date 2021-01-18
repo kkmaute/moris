@@ -163,7 +163,9 @@ namespace moris
                 tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.11, 0.11, 1.0, 0.0);
 
                 size_t tModelDimension = 2;
-                moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+                moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mGeometries = tGeometryVector;
+                moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;

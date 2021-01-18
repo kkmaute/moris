@@ -213,7 +213,9 @@ namespace moris
 
             size_t tModelDimension = 2;
             //------------------------------------------------------------------------------
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpolationMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
             xtk::Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);
 
@@ -685,7 +687,10 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(-500.0, 0.0, 1.0, 0.0);
 
             size_t tModelDimension = 2;
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpolationMesh);
+
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
             xtk::Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);
 

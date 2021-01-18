@@ -622,26 +622,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sol::Dist_Matrix* Pdv_Host_Manager::compute_dpdv_dadv()
-        {
-            // Create factory for distributed matrix
-            sol::Matrix_Vector_Factory tDistributedFactory;
-
-            // Create row and column maps
-            sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
-            sol::Dist_Map* tOwnedPDVMap = tDistributedFactory.create_map(mOwnedPdvLocalToGlobalMap);
-
-            // Create vector
-            sol::Dist_Matrix* tdPDVdADV = tDistributedFactory.create_matrix(tOwnedPDVMap, tOwnedADVMap);
-
-            // Global assembly
-            tdPDVdADV->matrix_global_assembly();
-
-            return tdPDVdADV;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::communicate_dof_types( moris::Cell< enum PDV_Type > & aPdvTypeList )
         {
             // Get processor size

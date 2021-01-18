@@ -27,20 +27,18 @@ set(XTK_INCLUDES
 foreach(XTK_INCLUDE ${XTK_INCLUDES})  
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
 endforeach()   
-    
-# List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_MAIN_INCLUDES         
-    "pdv"                                                                                                                                                                                                                                                      
-    "additional"
-    "geomeng"
-    "geometry"
-    "property"
-    )
 
-# Include depedency directories
-foreach(GEN_MAIN_INCLUDE ${GEN_MAIN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_MAIN_INCLUDE})
-endforeach()    
+# GEN directories
+set(GEN_INCLUDES
+	"field"
+	"field/geometry"
+	"field/property"
+	"pdv"
+	)
+
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+endforeach()
     
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)

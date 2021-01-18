@@ -42,7 +42,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 #include "fn_norm.hpp"
 
@@ -184,10 +184,13 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             }
 
             Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             size_t tModelDimension = 3;
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
             xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
             tXTKModel.mVerbose  =  true;
 

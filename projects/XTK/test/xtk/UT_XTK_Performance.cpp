@@ -44,7 +44,7 @@
 //#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 //#include "cl_HMR_Parameters.hpp" //HMR/src
 //
-//#include "cl_GEN_User_Defined_Geometry.hpp"
+//#include "cl_GEN_User_Defined_Field.hpp"
 //
 //#include "fn_norm.hpp"
 //#include "fn_compute_interface_surface_area.hpp"
@@ -199,7 +199,7 @@
 //                tGeometryVector(iGeom) = tGeometries(iGeom);
 //            }
 //
-//            tGeometryVector.push_back( std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereGyroidGeometry)));
+//            tGeometryVector.push_back( std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(LevelSetSphereGyroidGeometry)));
 //
 //
 //            size_t tModelDimension = 3;

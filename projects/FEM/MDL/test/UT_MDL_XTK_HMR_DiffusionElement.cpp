@@ -90,7 +90,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 namespace moris
 {
@@ -235,7 +235,9 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(1.011, 1.011, 1.411, 0.0, 0.0, 1.0);
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t tModelDimension = 3;
@@ -491,7 +493,9 @@ namespace moris
             tGeometryVector(0) = std::make_shared<moris::ge::Plane>(1.011, 1.011, 1.411, 0.0, 0.0, 1.0);
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t tModelDimension = 3;
@@ -779,10 +783,12 @@ namespace moris
             tic tTimer_XTK;
 
             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t tModelDimension = 3;
@@ -1085,10 +1091,12 @@ namespace moris
             tic tTimer_XTK;
 
             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), LevelSetSphereCylinderGeometry);
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), LevelSetSphereCylinderGeometry);
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mGeometries = tGeometryVector;
+            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t tModelDimension = 3;

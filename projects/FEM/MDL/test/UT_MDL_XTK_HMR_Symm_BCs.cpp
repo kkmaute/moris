@@ -170,7 +170,9 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(-100.0, -100.0, 0.001);
 
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tInterpolationMesh);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometry;
+        moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
          xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
 

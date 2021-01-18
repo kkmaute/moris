@@ -239,10 +239,6 @@ namespace moris
         tParameterlist( 2 ).resize(1);
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set("advs_size"         , 861);
-        tParameterlist( 0 )( 0 ).set("initial_advs_fill" , 0.4);
-        tParameterlist( 0 )( 0 ).set("lower_bounds_fill" , 0.001);
-        tParameterlist( 0 )( 0 ).set("upper_bounds_fill" , 1.0);
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
         tParameterlist( 0 )( 0 ).set("PDV_types"         , "DENSITY");
 
@@ -252,10 +248,12 @@ namespace moris
 
         // Density property
         tParameterlist( 2 )( 0 ) = moris::prm::create_gen_property_parameter_list();
-        tParameterlist( 2 )( 0 ).set("type", "discrete");
+        tParameterlist( 2 )( 0 ).set("type", "constant");
         tParameterlist( 2 )( 0 ).set("name", "density");
-        tParameterlist( 2 )( 0 ).set("field_variable_indices", "all");
-        tParameterlist( 2 )( 0 ).set("adv_indices", "all");
+        tParameterlist( 2 )( 0 ).set("constant_parameters", "0.4");
+        tParameterlist( 2 )( 0 ).set("bspline_mesh_index", 0);
+        tParameterlist( 2 )( 0 ).set("bspline_lower_bound", 0.001);
+        tParameterlist( 2 )( 0 ).set("bspline_upper_bound", 1.0);
         tParameterlist( 2 )( 0 ).set("pdv_type", "DENSITY");
         tParameterlist( 2 )( 0 ).set("pdv_mesh_set_names", "HMR_dummy_n_p0,SideSet_4_n_p0,SideSet_2_n_p0");
         tParameterlist( 2 )( 0 ).set("pdv_mesh_set_indices", "");

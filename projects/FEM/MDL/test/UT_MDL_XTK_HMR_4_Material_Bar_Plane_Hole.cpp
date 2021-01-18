@@ -79,7 +79,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_norm.hpp"
 
 moris::real
@@ -288,7 +288,9 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 1.0, 0.0);
 
         size_t tModelDimension = 2;
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometryVector;
+        moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
         xtk::Model           tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;
 
@@ -741,11 +743,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiMat3dCylGeometry));
+        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(MultiMat3dCylGeometry));
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 0.1, 1.0, 0.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpMesh);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometryVector;
+        moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
         xtk::Model           tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 

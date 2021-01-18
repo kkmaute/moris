@@ -6,7 +6,8 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_typedefs.hpp"
 #include "fn_GEN_create_geometries.hpp"
-#include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_BSpline_Geometry.hpp"
+#include "cl_GEN_BSpline_Property.hpp"
 #include "cl_GEN_Stored_Geometry.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
@@ -37,30 +38,30 @@ namespace moris
 
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
-                std::shared_ptr<Library_IO> aLibrary) :
-
-                // Level set options
-                mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") ),
-                mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") ),
-                mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") ),
-
-                // Requested IQIs
-                mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) ),
-
-                // Library
-                mLibrary(aLibrary),
-
-                // Geometries
-                mGeometryParameterLists( aParameterLists(1) ),
-                mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") ),
-                mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") ),
-                mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") ),
-
-                // Properties
-                mPropertyParameterLists( aParameterLists(2) ),
+                std::shared_ptr<Library_IO> aLibrary)
 
                 // Phase table
-                mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
+                : mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
+
+                // Level set options
+                , mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") )
+                , mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") )
+                , mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") )
+
+                // Requested IQIs
+                , mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) )
+
+                // Library
+                , mLibrary(aLibrary)
+
+                // Geometries
+                , mGeometryParameterLists( aParameterLists(1) )
+                , mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") )
+                , mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") )
+                , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
+
+                // Properties
+                , mPropertyParameterLists( aParameterLists(2) )
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine", "Create");
@@ -68,9 +69,9 @@ namespace moris
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
             {
-                mADVs        = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
-                mLowerBounds = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
-                mUpperBounds = Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
+                mADVs        = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
+                mLowerBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
+                mUpperBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
             }
             else
             {
@@ -133,24 +134,21 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< std::shared_ptr<Geometry> > aGeometries,
-                mtk::Interpolation_Mesh*          aMesh,
-                Matrix<DDRMat>                    aADVs,
-                real                              aIsocontourThreshold,
-                real                              aIsocontourTolerance,
-                real                              aIntersectionTolerance,
-                Matrix<DDUMat>                    aBulkPhases)
-                : mIsocontourThreshold(aIsocontourThreshold),
-                  mIsocontourTolerance(aIsocontourTolerance),
-                  mIntersectionTolerance(aIntersectionTolerance),
-                  mADVs(aADVs),
-                  mGeometries(aGeometries),
-                  mPhaseTable( create_phase_table(aGeometries.size(), aBulkPhases) )
+                mtk::Interpolation_Mesh*   aMesh,
+                Geometry_Engine_Parameters aParameters)
+                : mGeometries(aParameters.mGeometries)
+                , mProperties(aParameters.mProperties)
+                , mPhaseTable( create_phase_table(aParameters.mGeometries.size(), aParameters.mBulkPhases) )
+                , mIntersectionMode(aParameters.mIntersectionMode)
+                , mIsocontourThreshold(aParameters.mIsocontourThreshold)
+                , mIsocontourTolerance(aParameters.mIsocontourTolerance)
+                , mIntersectionTolerance(aParameters.mIntersectionTolerance)
+                , mTimeOffset(aParameters.mTimeOffset)
         {
             // Tracer
             Tracer tTracer("GEN", "Geometry_Engine", "Create");
 
-            this->compute_level_set_data(aMesh);
+            this->distribute_advs(aMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -178,6 +176,11 @@ namespace moris
             {
                 mGeometries(tGeometryIndex)->import_advs(mOwnedADVs);
                 mGeometries(tGeometryIndex)->reset_nodal_information();
+            }
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                mProperties(tPropertyIndex)->import_advs(mOwnedADVs);
+                mProperties(tPropertyIndex)->reset_nodal_information();
             }
         }
 
@@ -243,16 +246,6 @@ namespace moris
         MSI::Design_Variable_Interface* Geometry_Engine::get_design_variable_interface()
         {
             return &mPdvHostManager;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real Geometry_Engine::get_geometry_field_value(
-                uint                   aNodeIndex,
-                const Matrix<DDRMat> & aCoordinates,
-                uint                   aGeometryIndex)
-        {
-            return mGeometries(aGeometryIndex)->get_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -510,7 +503,7 @@ namespace moris
                 {
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
 
-                    real tVertGeomVal = this->get_geometry_field_value(aNewNodeIndices(tNode), tCoord, tGeometryIndex);
+                    real tVertGeomVal = mGeometries(tGeometryIndex)->get_field_value(aNewNodeIndices(tNode), tCoord);
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
@@ -668,9 +661,6 @@ namespace moris
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
 
-            // Build properties from parameter lists using distributed vector
-            mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, tInterpolationMesh, mLibrary);
-
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPdvTypeGroup(1);
@@ -784,10 +774,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
+        void Geometry_Engine::distribute_advs(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GEN", "N/A", "Set up parallel ADVs");
+            Tracer tTracer("GEN", "N/A", "Distribute ADVs");
 
             // Register spatial dimension
             mNumSpatialDimensions = aMesh->get_spatial_dim();
@@ -798,6 +788,11 @@ namespace moris
             // allocate proximity data
             this->setup_initial_geometric_proximities(aMesh);
 
+            // Gather all fields
+            Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+
             // Build distributed ADVs
             if (mOwnedADVs == nullptr)
             {
@@ -807,13 +802,13 @@ namespace moris
 
                 // Loop over all geometries to get number of new ADVs
                 uint tNumNewOwnedADVs = 0;
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
                     // Determine if level set will be created
-                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                    if (tFields(tFieldIndex)->conversion_to_bsplines())
                     {
                         // Get number of coefficients
-                        sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
+                        sint tBSplineMeshIndex = tFields(tFieldIndex)->get_bspline_mesh_index();
                         uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
 
                         // Loop over B-spline coefficients
@@ -852,10 +847,10 @@ namespace moris
 
                 // Check for proper dimensions
                 MORIS_ASSERT( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
-                        "ADV lower bound vector needs to be column vectors.\n");
+                        "ADV lower bound vector needs to be a column vector.\n");
 
                 MORIS_ASSERT( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
-                        "ADV upper bound vector needs to be column vectors.\n");
+                        "ADV upper bound vector needs to be a column vector.\n");
 
                 // Resize owned IDs and bounds
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);
@@ -863,26 +858,26 @@ namespace moris
                 mUpperBounds.resize(tNumOwnedADVs, 1);
 
                 // Cell of shared ADV IDs
-                Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size());
+                Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size() + mProperties.size());
 
                 // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
                 uint tOwnedADVIndex = mADVs.length();
-                uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple level set fields
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple B-spline fields
+                for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
                     // Determine if level set will be created
-                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                    if (tFields(tFieldIndex)->conversion_to_bsplines())
                     {
                         // Get bounds
-                        real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
-                        real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
+                        real tBSplineLowerBound = tFields(tFieldIndex)->get_bspline_lower_bound();
+                        real tBSplineUpperBound = tFields(tFieldIndex)->get_bspline_upper_bound();
 
                         // Get number of coefficients
-                        sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
+                        sint tBSplineMeshIndex = tFields(tFieldIndex)->get_bspline_mesh_index();
                         uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
 
                         // Resize shared ADV IDs
-                        tSharedADVIds(tGeometryIndex).resize(tNumCoefficients, 1);
+                        tSharedADVIds(tFieldIndex).resize(tNumCoefficients, 1);
 
                         // Loop over B-spline coefficients
                         for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
@@ -892,7 +887,7 @@ namespace moris
                                     tBSplineIndex,
                                     EntityRank::BSPLINE,
                                     tBSplineMeshIndex);
-                            tSharedADVIds(tGeometryIndex)(tBSplineIndex) = tNewADVId;
+                            tSharedADVIds(tFieldIndex)(tBSplineIndex) = tNewADVId;
 
                             // If this processor owns this coefficient set to owned list and set bounds
                             if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
@@ -946,24 +941,30 @@ namespace moris
                     mGeometryParameterLists.clear();
                 }
 
+                // Build properties from parameter lists using distributed vector
+                if (mPropertyParameterLists.size() > 0)
+                {
+                    mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
+                }
+
                 //----------------------------------------//
-                // Convert geometries to level sets       //
+                // Convert to B-spline fields             //
                 //----------------------------------------//
 
-                // Determine if conversion to level sets are needed and if shape sensitivities are needed
+                // Loop to find B-spline geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
-                    // Shape sensitivities logic in case of no level sets
+                    // Shape sensitivities logic
                     mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
 
-                    // Convert to level set if needed
+                    // Convert to B-spline field
                     if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
                     {
-                        // Always have shape sensitivities if level set
+                        // Always have shape sensitivities if B-spline field
                         mShapeSensitivities = true;
 
-                        // Create level set FIXME for multiple level set fields
-                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                        // Create B-spline geometry FIXME Multiple B-spline fields
+                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                                 mOwnedADVs,
                                 tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),
@@ -979,6 +980,23 @@ namespace moris
                         mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
                                 aMesh,
                                 mGeometries(tGeometryIndex));
+                    }
+                }
+
+                // Loop to find B-spline properties
+                for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+                {
+                    // Convert to B-spline field
+                    if (mProperties(tPropertyIndex)->conversion_to_bsplines())
+                    {
+                        // Create B-spline property FIXME Multiple B-spline fields
+                        mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
+                                mOwnedADVs,
+                                tOwnedADVIds,
+                                tSharedADVIds(mGeometries.size() + tPropertyIndex),
+                                tPrimitiveADVIds.length(),
+                                aMesh,
+                                mProperties(tPropertyIndex));
                     }
                 }
 
@@ -1411,7 +1429,7 @@ namespace moris
 
                 for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
                 {            
-                    real tVertGeomVal = this->get_geometry_field_value(moris_index(iV), tCoords, iGeometryIndex);
+                    real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
@@ -1530,7 +1548,7 @@ namespace moris
                 // iterate through following geometries (here we just compute the vertex value to determine proximity)
                 for (uint tGeometryIndex = this->get_active_geometry_index() + 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
-                    real tVertGeomVal = this->get_geometry_field_value(aNodeIndex, mQueuedIntersectionNode->get_global_coordinates(), tGeometryIndex);
+                    real tVertGeomVal = mGeometries(tGeometryIndex)->get_field_value(aNodeIndex, mQueuedIntersectionNode->get_global_coordinates());
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 

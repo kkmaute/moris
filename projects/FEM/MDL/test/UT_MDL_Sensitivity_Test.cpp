@@ -50,9 +50,9 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_User_Defined_Property.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -195,7 +195,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 
         Matrix<DDRMat> tADVs(0, 0);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(tADVs,
+        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(tADVs,
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDRMat> (0, 0),
@@ -441,14 +441,14 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                 set_ip_requested_dv_types( tMatPdvTypes );
 
         Matrix<DDRMat> tAdvs(1, 1, 0.0);
-        std::shared_ptr<ge::Property> tDensityProperty1 = std::make_shared<ge::User_Defined_Property>(tAdvs,
+        std::shared_ptr<ge::Property> tDensityProperty1 = std::make_shared<ge::User_Defined_Field>(tAdvs,
                                                                                                       Matrix<DDUMat>(0, 0),
                                                                                                       Matrix<DDUMat>(0, 0),
                                                                                                       Matrix<DDRMat>(0, 0),
                                                                                                       Cell<std::shared_ptr<ge::Property>>(0),
                                                                                                       &density_function_1,
                                                                                                       &evaluate_sensitivity);
-        std::shared_ptr<ge::Property> tDensityProperty2 = std::make_shared<ge::User_Defined_Property>(tAdvs,
+        std::shared_ptr<ge::Property> tDensityProperty2 = std::make_shared<ge::User_Defined_Field>(tAdvs,
                                                                                                       Matrix<DDUMat>(0, 0),
                                                                                                       Matrix<DDUMat>(0, 0),
                                                                                                       Matrix<DDRMat>(0, 0),

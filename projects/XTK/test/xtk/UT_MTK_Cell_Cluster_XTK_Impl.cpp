@@ -97,7 +97,9 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
         Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tMeshData);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometry;
+        moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
         /*
          * Setup XTK Model and tell it how to cut

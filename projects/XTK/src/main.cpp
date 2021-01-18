@@ -184,7 +184,9 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
     tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
     // setup the geometry engine
-    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tMeshData);
+    moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+    tGeometryEngineParameters.mGeometries = tGeometry;
+    moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
     // setup the XTK model
     Model tXTKModel(3,tMeshData,&tGeometryEngine);

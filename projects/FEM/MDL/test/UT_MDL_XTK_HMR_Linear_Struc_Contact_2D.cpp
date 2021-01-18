@@ -270,7 +270,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tGeometryVector(3) = tBottomPlane;
 
         size_t tModelDimension = 2;
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tInterpolationMesh);
+        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        tGeometryEngineParameters.mGeometries = tGeometryVector;
+        moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
         xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 
