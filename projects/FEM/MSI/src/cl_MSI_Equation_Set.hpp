@@ -168,9 +168,6 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
-            const moris::Cell< MSI::Dof_Type > & get_dof_type_list_2(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
             //------------------------------------------------------------------------------
             /**
              * get dof type map
