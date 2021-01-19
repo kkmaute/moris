@@ -59,9 +59,6 @@ namespace moris
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
 
-            moris::Cell< enum MSI::Dof_Type > mMasterDofTypesList;
-            moris::Cell< enum MSI::Dof_Type > mSlaveDofTypesList;
-
             // maps for the master and slave dof type
             moris::Matrix< DDSMat > mMasterDofTypeMap;
             moris::Matrix< DDSMat > mSlaveDofTypeMap;
