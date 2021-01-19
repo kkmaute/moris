@@ -722,7 +722,7 @@ namespace moris
 
                     // reshape adjoint values
                     Matrix< DDRMat > tMasterAdjointCoeff;
-                    this->reshape_pdof_values( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
+                    this->reshape_pdof_values_vector( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
 
                     // get indices for begin and end
                     uint tDofIndex   = mSet->get_dof_index_for_type( tMasterDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::MASTER );
@@ -747,7 +747,7 @@ namespace moris
 
                     // reshape adjoint values
                     Matrix< DDRMat > tSlaveAdjointCoeff;
-                    this->reshape_pdof_values( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
+                    this->reshape_pdof_values_vector( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
 
                     // get indices for begin and end
                     uint tDofIndex   = mSet->get_dof_index_for_type( tSlaveDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::SLAVE );
@@ -909,7 +909,7 @@ namespace moris
 
                     // reshape adjoint values
                     Matrix< DDRMat > tMasterAdjointCoeff;
-                    this->reshape_pdof_values( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
+                    this->reshape_pdof_values_vector( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
 
                     // get indices for begin and end
                     uint tDofIndex   = mSet->get_dof_index_for_type( tMasterDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::MASTER );
@@ -934,7 +934,7 @@ namespace moris
 
                     // reshape adjoint values
                     Matrix< DDRMat > tSlaveAdjointCoeff;
-                    this->reshape_pdof_values( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
+                    this->reshape_pdof_values_vector( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
 
                     // get indices for begin and end
                     uint tDofIndex   = mSet->get_dof_index_for_type( tSlaveDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::SLAVE );

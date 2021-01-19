@@ -1260,6 +1260,26 @@ namespace moris
                 aReshapedPdofValues( { 0, tRows - 1 }, { Ik, Ik } ) = aPdofValues( Ik ).matrix_data();
             }
         }
+        
+        //-------------------------------------------------------------------------------------------------
+
+        void Equation_Object::reshape_pdof_values_vector(
+                const Cell< Matrix< DDRMat > > & aPdofValues,
+                Matrix< DDRMat >               & aReshapedPdofValues )
+        {
+            MORIS_ASSERT( aPdofValues.size() != 0,
+                    "Equation_Object::reshape_pdof_values(), pdof value vector is empty");
+
+            uint tCols = aPdofValues.size();
+            uint tRows = aPdofValues( 0 ).numel();
+
+            aReshapedPdofValues.set_size( tRows * tCols, 1 );
+
+            for( uint Ik = 0; Ik < tCols; Ik++ )
+            {
+                aReshapedPdofValues( { Ik * tRows, ( Ik + 1 ) * tRows - 1 } ) = aPdofValues( Ik ).matrix_data();
+            }
+        }
 
         //-------------------------------------------------------------------------------------------------
 
