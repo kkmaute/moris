@@ -527,6 +527,24 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_explicit()
         {
+            // initialize IP and IG pdv assembly maps
+            this->fill_mat_pdv_assembly_vector();
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // get the assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
+                    mEquationSet->get_mat_pdv_assembly_vector();
+
+            // get the assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
+                    mEquationSet->get_geo_pdv_assembly_vector();
+
+            // if there is no pdv defined, return
+            if( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+            {
+                return;
+            }
+
             // compute pdof values
             // FIXME do this only once
             this->compute_my_pdof_values();
@@ -539,14 +557,6 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
-            // initialize geo pdv assembly map
-            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
-            this->fill_mat_pdv_assembly_vector();
-
-            // initialize dQIdp
-            mSet->initialize_mdQIdpMat();
-            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
@@ -556,15 +566,15 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
+            // initialize dQIdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdp_explicit();
 
             // Assembly for the IP pdv
             //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
-                    mEquationSet->get_mat_pdv_assembly_vector();
-
             // if assembly vector is not empty
             if( tLocalToGlobalIdsIPPdv.numel() != 0 )
             {
@@ -582,10 +592,6 @@ namespace moris
 
             // Assembly for the IG pdv
             //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
-                    mEquationSet->get_geo_pdv_assembly_vector();
-
             // if assembly vector is not empty
             if( tLocalToGlobalIdsIGPdv.numel() != 0 )
             {
@@ -606,6 +612,38 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_explicit_implicit()
         {
+            // fill IP pdv assembly vector
+            this->fill_mat_pdv_assembly_vector();
+
+            // init IG pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // get the IP pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
+                    mEquationSet->get_mat_pdv_assembly_vector();
+
+            // get the IG pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
+                    mEquationSet->get_geo_pdv_assembly_vector();
+
+            // if there is no pdv defined, return
+            if( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+            {
+                return;
+            }
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+            // initialize dQIdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
+            // as long as dRdp is computed with FD,
+            // we need to init the residual storage
+            mSet->initialize_mResidual();
+
             // compute pdof values
             // FIXME do this only once
             this->compute_my_pdof_values();
@@ -617,23 +655,6 @@ namespace moris
                 // FIXME do this only once
                 this->compute_previous_pdof_values();
             }
-
-            // init geo pdv assembly map
-            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
-
-            // fill mat pdv assembly vector
-            this->fill_mat_pdv_assembly_vector();
-
-            // init dRdp
-            mSet->initialize_mdRdpMat();
-            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
-
-            // initialize dQIdp
-            mSet->initialize_mdQIdpMat();
-            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
-            // as long as dRdp is computed with FD we need this
-            mSet->initialize_mResidual();
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
@@ -681,14 +702,6 @@ namespace moris
 
             // get number of slave dof types
             uint tNumSlaveDofTypes = tSlaveDofTypeGroup.size();
-
-            // get the IP pdv assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
-                    mEquationSet->get_mat_pdv_assembly_vector();
-
-            // get the IG pdv assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
-                    mEquationSet->get_geo_pdv_assembly_vector();
 
             // loop over the RHS
             for( uint Ik = 0; Ik < tNumRHS; Ik++ )
@@ -796,8 +809,57 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_implicit()
         {
-            // comupte dRdp
-            this->compute_dRdp();
+            // fill IP pdv assembly vector
+            this->fill_mat_pdv_assembly_vector();
+
+            // init IG pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // get the IP pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
+                    mEquationSet->get_mat_pdv_assembly_vector();
+
+            // get the IG pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
+                    mEquationSet->get_geo_pdv_assembly_vector();
+
+            // if there is no pdv defined, return
+            if( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+            {
+                return;
+            }
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+            // as long as dRdp is computed with FD,
+            // we need to init the residual storage
+            mSet->initialize_mResidual();
+
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute dRdp
+            mFemCluster( 0 )->compute_dRdp();
 
             // get reference to computed dRdp
             moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_drdp();
@@ -827,14 +889,6 @@ namespace moris
 
             // get number of slave dof types
             uint tNumSlaveDofTypes = tSlaveDofTypeGroup.size();
-
-            // get the IP pdv assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
-                    mEquationSet->get_mat_pdv_assembly_vector();
-
-            // get the IG pdv assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
-                    mEquationSet->get_geo_pdv_assembly_vector();
 
             // loop over the RHS
             for( uint Ik = 0; Ik < tNumRHS; Ik++ )
