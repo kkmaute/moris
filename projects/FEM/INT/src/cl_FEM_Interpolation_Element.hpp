@@ -90,6 +90,28 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get ip cell
+                 */
+                const mtk::Cell * get_ip_cell( mtk::Master_Slave aIsMaster )
+                {
+                    switch( aIsMaster )
+                    {
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            return mMasterInterpolationCell;
+                        }
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            return mSlaveInterpolationCell;
+                        }
+                        default:
+                            MORIS_ERROR( false, "aIsMaster can only be master or slave" );
+                            return mMasterInterpolationCell;
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * set cluster
                  * @param[ in ] aCluster pointer to a fem cluster
                  * @param[ in ] aIndex   mesh index
