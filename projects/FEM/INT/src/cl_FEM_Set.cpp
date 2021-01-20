@@ -41,7 +41,8 @@ namespace moris
           mFDPerturbationFA( aSetInfo.get_finite_difference_perturbation_size_for_forward_analysis() ),
           mIsAnalyticalSA( aSetInfo.get_is_analytical_sensitivity_analysis() ),
           mFDSchemeForSA( aSetInfo.get_finite_difference_scheme_for_sensitivity_analysis() ),
-          mFDPerturbation( aSetInfo.get_finite_difference_perturbation_size() )
+          mFDPerturbation( aSetInfo.get_finite_difference_perturbation_size() ),
+          mPerturbationStrategy( aSetInfo.get_perturbation_strategy() )
         {
             // get the set type (BULK, SIDESET, DOUBLE_SIDESET, TIME_SIDESET)
             this->determine_set_type();

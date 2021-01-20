@@ -241,6 +241,10 @@ namespace moris
             // real for relative perturbation size for finite difference
             tParameterList.insert( "finite_difference_perturbation_size", 1e-6 );
 
+            // enum for finite difference perturbation strategy (relative, absolute)
+            tParameterList.insert( "finite_difference_perturbation_strategy",
+                    static_cast< uint >( fem::Perturbation_Type::RELATIVE ) );
+
             return tParameterList;
         }
 

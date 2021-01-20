@@ -145,6 +145,12 @@ namespace moris
                         Matrix< DDSMat >                  & aGeoLocalAssembly,
                         moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
 
+                // function pointer for building the perturbation size for FD
+                real ( IWG:: * m_build_perturbation_size )(
+                        real aPerturbation,
+                        real aCoefficientToPerturb,
+                        real aTolerance ) = nullptr;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -709,6 +715,40 @@ namespace moris
                         fem::FDScheme_Type                  aFDSchemeType,
                         Matrix< DDSMat >                  & aGeoLocalAssembly,
                         moris::Cell< Matrix< IndexMat > > & aVertexIndices );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * build perturbation size for finite difference
+                 * @param[ in ] aPerturbation         provided perturbation size from input
+                 * @param[ in ] aCoefficientToPerturb coefficient to perturb
+                 * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
+                 */
+                real build_perturbation_size(
+                        real aPerturbation,
+                        real aCoefficientToPerturb,
+                        real aTolerance = 1e-12 );
+
+                /**
+                 * build relative perturbation size for finite difference
+                 * @param[ in ] aPerturbation         provided perturbation size from input
+                 * @param[ in ] aCoefficientToPerturb coefficient to perturb
+                 * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
+                 */
+                real build_perturbation_size_relative(
+                        real aPerturbation,
+                        real aCoefficientToPerturb,
+                        real aTolerance );
+
+                /**
+                 * build absolute perturbation size for finite difference
+                 * @param[ in ] aPerturbation         provided perturbation size from input
+                 * @param[ in ] aCoefficientToPerturb coefficient to perturb
+                 * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
+                 */
+                real build_perturbation_size_absolute(
+                        real aPerturbation,
+                        real aCoefficientToPerturb,
+                        real aTolerance );
 
                 //------------------------------------------------------------------------------
                 /**

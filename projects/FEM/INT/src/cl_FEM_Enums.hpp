@@ -292,6 +292,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        enum class Perturbation_Type
+        {
+                UNDEFINED,
+                RELATIVE,
+                ABSOLUTE,
+                END_PERTURBATION_TYPE
+        };
+
+        //------------------------------------------------------------------------------
+
         enum class Stress_Type
         {
                 UNDEFINED,
