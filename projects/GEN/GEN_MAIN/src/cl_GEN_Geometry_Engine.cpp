@@ -55,7 +55,6 @@ namespace moris
                 , mLibrary(aLibrary)
 
                 // Geometries
-                , mGeometryParameterLists( aParameterLists(1) )
                 , mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") )
                 , mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") )
                 , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
@@ -933,18 +932,13 @@ namespace moris
                 // Get primitive ADVs from owned vector
                 mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
-                // Build geometries from parameter lists using distributed vector
-                // TODO augmented copy constructor for fields
-                if (mGeometryParameterLists.size() > 0)
+                // Set field ADVs using distributed vector
+                if (mADVs.length() > 0)
                 {
-                    mGeometries = create_geometries(mGeometryParameterLists, mPrimitiveADVs, mLibrary);
-                    mGeometryParameterLists.clear();
-                }
-
-                // Build properties from parameter lists using distributed vector
-                if (mPropertyParameterLists.size() > 0)
-                {
-                    mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
+                    for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
+                    {
+                        tFields(tFieldIndex)->set_advs(mPrimitiveADVs);
+                    }
                 }
 
                 //----------------------------------------//

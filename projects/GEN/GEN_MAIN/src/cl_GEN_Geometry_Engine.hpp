@@ -82,7 +82,6 @@ namespace moris
             std::shared_ptr<Library_IO> mLibrary;
 
             size_t mActiveGeometryIndex = 0;
-            Cell<ParameterList> mGeometryParameterLists;
             std::string mGeometryFieldFile;
             std::string mOutputMeshFile;
             bool mShapeSensitivities = false;

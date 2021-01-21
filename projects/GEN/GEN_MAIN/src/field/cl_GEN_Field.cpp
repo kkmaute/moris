@@ -46,10 +46,7 @@ namespace moris
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
             // Fill with pointers to ADVs
-            for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
-            {
-                mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = get_address(aADVs, aADVIndices(tADVFillIndex));
-            }
+            this->set_advs(aADVs);
             
             // Fill constant parameters
             this->fill_constant_parameters();
@@ -118,6 +115,20 @@ namespace moris
         Field::~Field()
         {
             delete mSharedADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        template <typename Vector_Type>
+        void Field::set_advs(Vector_Type& aADVs)
+        {
+            for (uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++)
+            {
+                if (mDeterminingADVIds(tVariableIndex) > -1)
+                {
+                    mFieldVariables(tVariableIndex) = get_address(aADVs, mDeterminingADVIds(tVariableIndex));
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -267,6 +278,12 @@ namespace moris
                      Matrix<DDUMat>     aADVIndices,
                      Matrix<DDRMat>     aConstants,
                      Field_Parameters   aParameters);
+
+        template
+        void Field::set_advs(Matrix<DDRMat>& aADVs);
+
+        template
+        void Field::set_advs(sol::Dist_Vector*& aADVs);
 
         //--------------------------------------------------------------------------------------------------------------
 

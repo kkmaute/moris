@@ -104,6 +104,15 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
+             * Sets the ADVs and grabs the field variables needed from the ADV vector
+             *
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADVs
+             */
+            template <typename Vector_Type>
+            void set_advs(Vector_Type& aADVs);
+
+            /**
              * Imports the local ADVs required from the full owned ADV distributed vector.
              *
              * @param aOwnedADVs Full owned distributed ADV vector
