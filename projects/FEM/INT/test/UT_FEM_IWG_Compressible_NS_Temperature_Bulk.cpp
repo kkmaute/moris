@@ -816,8 +816,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
         "[IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic]" )
 {
-    // define an epsilon environment
-    real tEpsilon = 1.0E-4;
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
@@ -903,9 +901,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
 
     // set space dimension to CM
     tCMMasterFluid->set_space_dim( 2 );
-
-    // only use linear
-    uint iInterpOrder = 1;
 
     // create an interpolation order
     mtk::Interpolation_Order tGIInterpolationOrder = mtk::Interpolation_Order::LINEAR;
