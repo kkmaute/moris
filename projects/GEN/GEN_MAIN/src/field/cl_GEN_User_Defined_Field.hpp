@@ -4,18 +4,27 @@
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace ge
     {
+        // User-defined field functions
+        typedef real ( *Field_Function ) (
+                const moris::Matrix< DDRMat >     & aCoordinates,
+                const moris::Cell< moris::real* > & aParameters );
+        typedef void ( *Sensitivity_Function ) (
+                const moris::Matrix< DDRMat >&     aCoordinates,
+                const moris::Cell< moris::real* >& aParameters,
+                moris::Matrix< DDRMat >&           aReturnValue);
+
         class User_Defined_Field : public Geometry, public Property, public Field_Analytic
         {
 
         private:
-            MORIS_GEN_FIELD_FUNCTION get_field_value_user_defined;
-            MORIS_GEN_SENSITIVITY_FUNCTION get_field_sensitivities_user_defined;
+            Field_Function get_field_value_user_defined;
+            Sensitivity_Function get_field_sensitivities_user_defined;
 
         public:
 
@@ -33,13 +42,13 @@ namespace moris
              */
             template <typename Vector_Type>
             User_Defined_Field(
-                    Vector_Type&                   aADVs,
-                    Matrix<DDUMat>                 aGeometryVariableIndices,
-                    Matrix<DDUMat>                 aADVIndices,
-                    Matrix<DDRMat>                 aConstants,
-                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                    Field_Parameters               aParameters = {})
+                    Vector_Type&         aADVs,
+                    Matrix<DDUMat>       aGeometryVariableIndices,
+                    Matrix<DDUMat>       aADVIndices,
+                    Matrix<DDRMat>       aConstants,
+                    Field_Function       aFieldEvaluationFunction,
+                    Sensitivity_Function aSensitivityEvaluationFunction,
+                    Field_Parameters     aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
             {
                 this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
@@ -53,9 +62,9 @@ namespace moris
              * @param aParameters Additional parameters
              */
             User_Defined_Field(
-                    Matrix<DDRMat>           aConstants,
-                    MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                    Field_Parameters         aParameters = {});
+                    Matrix<DDRMat>   aConstants,
+                    Field_Function   aFieldEvaluationFunction,
+                    Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.
@@ -83,8 +92,8 @@ namespace moris
              * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
              */
             void set_user_defined_functions(
-                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction);
+                    Field_Function       aFieldEvaluationFunction,
+                    Sensitivity_Function aSensitivityEvaluationFunction);
 
             /**
              * Used internally to automatically error out if no sensitivities were provided

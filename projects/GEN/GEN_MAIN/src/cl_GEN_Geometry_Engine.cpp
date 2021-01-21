@@ -1573,7 +1573,7 @@ namespace moris
             {
                 // User-defined phase function
                 return Phase_Table(
-                        aLibrary->load_gen_phase_function(tPhaseFunctionName),
+                        aLibrary->load_function<PHASE_FUNCTION>(tPhaseFunctionName),
                         aParameterLists(0)(0).get<sint>("number_of_phases"));
             }
             else if (aParameterLists(0)(0).get<std::string>("phase_table") != "")
@@ -1593,7 +1593,7 @@ namespace moris
         Phase_Table Geometry_Engine::create_phase_table(
                 uint                     aNumGeometries,
                 Matrix<DDUMat>           aBulkPhases,
-                MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
+                PHASE_FUNCTION aPhaseFunction,
                 uint                     aNumPhases)
         {
             if (aPhaseFunction)

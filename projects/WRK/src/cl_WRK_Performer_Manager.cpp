@@ -25,12 +25,17 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace wrk
     {
+        //------------------------------------------------------------------------------
+
+        // Parameter function
+        typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+
         //------------------------------------------------------------------------------
 
         Performer_Manager::Performer_Manager( std::shared_ptr< Library_IO > aLibrary )
@@ -56,12 +61,12 @@ namespace moris
 
             // load the HMR parameter list
             std::string tHMRString = "HMRParameterList";
-            MORIS_PARAMETER_FUNCTION tHMRParameterListFunc = mLibrary->load_parameter_file( tHMRString );
+            Parameter_Function tHMRParameterListFunc = mLibrary->load_function<Parameter_Function>( tHMRString );
             moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
             tHMRParameterListFunc( tHMRParameterList );
 
             std::string tGENString = "GENParameterList";
-            MORIS_PARAMETER_FUNCTION tGENParameterListFunc = mLibrary->load_parameter_file( tGENString );
+            Parameter_Function tGENParameterListFunc = mLibrary->load_function<Parameter_Function>( tGENString );
             moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
             tGENParameterListFunc( tGENParameterList );
 
@@ -97,7 +102,7 @@ namespace moris
         void Performer_Manager::create_xtk()
         {
             // Read parameter list from shared object
-            MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mLibrary->load_parameter_file( "XTKParameterList" );
+            Parameter_Function tXTKParameterListFunc = mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
             moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
             tXTKParameterListFunc( tXTKParameterList );
 

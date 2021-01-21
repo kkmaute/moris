@@ -9,7 +9,7 @@ namespace moris
 
         User_Defined_Field::User_Defined_Field(
                 Matrix<DDRMat>           aConstants,
-                MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
+                Field_Function aFieldEvaluationFunction,
                 Field_Parameters         aParameters)
                 : Field(aConstants, aParameters)
         {
@@ -34,8 +34,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void User_Defined_Field::set_user_defined_functions(
-                MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
+                Field_Function aFieldEvaluationFunction,
+                Sensitivity_Function aSensitivityEvaluationFunction)
         {
             // Set field evaluation function
             get_field_value_user_defined = aFieldEvaluationFunction;

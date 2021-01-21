@@ -37,10 +37,13 @@
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
+    // Parameter function
+    typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+
     namespace mdl
     {
         //------------------------------------------------------------------------------
@@ -132,22 +135,22 @@ namespace moris
 
             // load the MSI parameter list
             std::string tMSIString = "MSIParameterList";
-            MORIS_PARAMETER_FUNCTION tMSIParameterListFunc = mLibrary->load_parameter_file( tMSIString );
+            Parameter_Function tMSIParameterListFunc = mLibrary->load_function<Parameter_Function>( tMSIString );
             tMSIParameterListFunc( mMSIParameterList );
 
             // load the SOL parameter list
             std::string tSOLString = "SOLParameterList";
-            MORIS_PARAMETER_FUNCTION tSOLParameterListFunc = mLibrary->load_parameter_file( tSOLString );
+            Parameter_Function tSOLParameterListFunc = mLibrary->load_function<Parameter_Function>( tSOLString );
             tSOLParameterListFunc( mSOLParameterList );
 
             // load the FEM parameter list
             std::string tFEMString = "FEMParameterList";
-            MORIS_PARAMETER_FUNCTION tFEMParameterListFunc = mLibrary->load_parameter_file( tFEMString );
+            Parameter_Function tFEMParameterListFunc = mLibrary->load_function<Parameter_Function>( tFEMString );
             tFEMParameterListFunc( mFEMParameterList );
 
             // load the VIS parameter list
             std::string tVISString = "VISParameterList";
-            MORIS_PARAMETER_FUNCTION tVISParameterListFunc = mLibrary->load_parameter_file( tVISString );
+            Parameter_Function tVISParameterListFunc = mLibrary->load_function<Parameter_Function>( tVISString );
             tVISParameterListFunc( mVISParameterList );
         }
 

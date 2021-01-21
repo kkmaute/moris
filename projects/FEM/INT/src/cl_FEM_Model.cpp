@@ -42,6 +42,11 @@ namespace moris
 {
     namespace fem
     {
+        // User-defined FEM function
+        typedef void ( *FEM_Function ) (
+                moris::Matrix< moris::DDRMat >                & aPropMatrix,
+                moris::Cell< moris::Matrix< moris::DDRMat > > & aParameters,
+                moris::fem::Field_Interpolator_Manager        * aFIManager );
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
@@ -820,10 +825,10 @@ namespace moris
 
                 // set value function for property
                 std::string tValFuncName = tPropParameter.get< std::string >( "value_function" );
-                MORIS_FEM_FREE_FUNCTION tValFunction = nullptr;
+                FEM_Function tValFunction = nullptr;
                 if ( tValFuncName.size() > 1 )
                 {
-                    tValFunction = aLibrary->load_fem_free_functions( tValFuncName );
+                    tValFunction = aLibrary->load_function<FEM_Function>( tValFuncName );
                     mProperties( iProp )->set_val_function( tValFunction );
                 }
 
@@ -838,8 +843,8 @@ namespace moris
                 {
                     if( tDofDerFuncNames( iFunc ).size() > 1 )
                     {
-                        MORIS_FEM_FREE_FUNCTION tValFunction =
-                                aLibrary->load_fem_free_functions( tDofDerFuncNames( iFunc ) );
+                        FEM_Function tValFunction =
+                                aLibrary->load_function<FEM_Function>( tDofDerFuncNames( iFunc ) );
                         tDofDerFunctions( iFunc ) = tValFunction;
                     }
                 }
@@ -856,8 +861,8 @@ namespace moris
                 {
                     if( tDvDerFuncNames( iFunc ).size() > 1 )
                     {
-                        MORIS_FEM_FREE_FUNCTION tValFunction =
-                                aLibrary->load_fem_free_functions( tDvDerFuncNames( iFunc ) );
+                        FEM_Function tValFunction =
+                                aLibrary->load_function<FEM_Function>( tDvDerFuncNames( iFunc ) );
                         tDvDerFunctions( iFunc ) = tValFunction;
                     }
                 }

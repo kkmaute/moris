@@ -22,12 +22,18 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_XML_Parser.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace hmr
     {
+        class Element;
+
+        // User-defined refinement function
+        typedef sint  ( *Refinement_Function ) (
+                hmr::Element                   * aElement,
+                const Matrix< DDRMat > & aElementLocalValues);
 
 // -----------------------------------------------------------------------------
 
@@ -156,7 +162,7 @@ namespace moris
            bool mRenumberLagrangeNodes = false;
 
            // HMR user defined refinement function
-           Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> mRefinementFunctions;
+           Cell<Refinement_Function> mRefinementFunctions;
 
 //--------------------------------------------------------------------------------
         public:
@@ -1098,14 +1104,14 @@ namespace moris
              *
              * @param aRefinementFunctions
              */
-            void set_refinement_functions( Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> aRefinementFunctions );
+            void set_refinement_functions( Cell<Refinement_Function> aRefinementFunctions );
 
             /**
              * Get a user-defined refinement function from the parameters
              * @param aFunctionIndex
              * @return
              */
-            MORIS_USER_DEFINED_REFINEMENT_FUNCTION get_refinement_function( uint aFunctionIndex );
+            Refinement_Function get_refinement_function( uint aFunctionIndex );
 
 //-------------------------------------------------------------------------------
         private:

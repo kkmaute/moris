@@ -3,12 +3,19 @@
 
 #include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace opt
     {
+        // User-defined function types
+        typedef void ( *Criteria_Initialize_Function ) (
+                Matrix<DDRMat>& aAdvs,
+                Matrix<DDRMat>& aLowerBounds,
+                Matrix<DDRMat>& aUpperBounds);
+        typedef Matrix<DDRMat> ( *Criteria_Function ) (const moris::Matrix<DDRMat>& );
+
         class Interface_User_Defined : public Criteria_Interface
         {
         private:
@@ -32,9 +39,9 @@ namespace moris
              * @param aCriteriaGradientFunction Function for evaluating the gradient of the criteria vector wrt ADVs.
              */
             Interface_User_Defined(
-                    MORIS_CRITERIA_INITIALIZE_FUNCTION aInitializationFunction,
-                    MORIS_CRITERIA_FUNCTION aCriteriaEvaluationFunction,
-                    MORIS_CRITERIA_FUNCTION aCriteriaGradientFunction);
+                    Criteria_Initialize_Function aInitializationFunction,
+                    Criteria_Function aCriteriaEvaluationFunction,
+                    Criteria_Function aCriteriaGradientFunction);
 
             /**
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
@@ -64,9 +71,9 @@ namespace moris
             
         private:
             // Loaded user-defined functions
-            MORIS_CRITERIA_INITIALIZE_FUNCTION initialize_user_defined;
-            MORIS_CRITERIA_FUNCTION get_criteria_user_defined;
-            MORIS_CRITERIA_FUNCTION compute_dcriteria_dadv_user_defined;
+            Criteria_Initialize_Function initialize_user_defined;
+            Criteria_Function get_criteria_user_defined;
+            Criteria_Function compute_dcriteria_dadv_user_defined;
 
         };
     }

@@ -3,7 +3,7 @@
 
 // MRS
 #include "cl_Param_List.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 #include "fn_trans.hpp"
 
 // WRK
@@ -468,7 +468,7 @@ namespace moris
             static Phase_Table create_phase_table(
                     uint                     aNumGeometries,
                     Matrix<DDUMat>           aBulkPhases,
-                    MORIS_GEN_PHASE_FUNCTION aPhaseFunction = nullptr,
+                    PHASE_FUNCTION aPhaseFunction = nullptr,
                     uint                     aNumPhases = 1);
         };
     }

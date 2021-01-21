@@ -10,7 +10,7 @@ set(HEADERS
     cl_Query.hpp
 	cl_XML_Parser.hpp
 	fn_Parsing_Tools.hpp
-	fn_Exec_load_user_library.hpp
+	cl_Library_IO.hpp
 	fn_Logger.hpp
     fn_stringify.hpp
     fn_stringify_matrix.hpp
@@ -24,6 +24,7 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
+	cl_Library_IO.cpp
 	cl_GlobalClock.cpp
 	cl_Logger.cpp
     cl_Query.cpp
