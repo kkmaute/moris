@@ -49,6 +49,7 @@ namespace moris
     namespace wrk
     {
         class Workflow;
+        class Workflow_HMR_XTK;
 
         //------------------------------------------------------------------------------
 
@@ -64,6 +65,7 @@ namespace moris
                 moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
 
                 friend class wrk::Workflow;
+                friend class wrk::Workflow_HMR_XTK;
 
             public:
 
@@ -79,13 +81,6 @@ namespace moris
                  * destructor
                  */
                 ~Performer_Manager();
-
-                void initialize_performers();
-
-                void set_performer_cooperations();
-
-                void create_xtk();
-
                 //------------------------------------------------------------------------------
         };
     } /* namespace mdl */

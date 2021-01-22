@@ -1,5 +1,5 @@
 #include "cl_WRK_Performer_Manager.hpp"
-#include "cl_WRK_Workflow.hpp"
+#include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "fn_WRK_perform_refinement.hpp"
 
 #include "cl_HMR.hpp"
@@ -21,14 +21,56 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        Workflow::Workflow( wrk::Performer_Manager * aPerformerManager )
-        : mPerformerManager( aPerformerManager )
+        Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager * aPerformerManager )
+        : Workflow( aPerformerManager )
         {
+
+            // Performer set for this workflow
+            mPerformerManager->mHMRPerformer.resize( 1 );
+            mPerformerManager->mGENPerformer.resize( 1 );
+            mPerformerManager->mXTKPerformer.resize( 1 );
+            mPerformerManager->mMTKPerformer.resize( 2 );
+            mPerformerManager->mMDLPerformer.resize( 1 );
+
+            // load the HMR parameter list
+            std::string tHMRString = "HMRParameterList";
+            MORIS_PARAMETER_FUNCTION tHMRParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( tHMRString );
+            moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
+            tHMRParameterListFunc( tHMRParameterList );
+
+            std::string tGENString = "GENParameterList";
+            MORIS_PARAMETER_FUNCTION tGENParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( tGENString );
+            moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
+            tGENParameterListFunc( tGENParameterList );
+
+            // create HMR performer
+            mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
+
+            // create MTK performer - will be used for HMR mesh
+            mPerformerManager->mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+
+            // Create GE performer
+            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary );
+
+            // create MTK performer - will be used for XTK mesh
+            mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+
+            // create MDL performer
+            mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
+
+
+            // set cooperations
+            
+            // Set performer to HMR
+            mPerformerManager->mHMRPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 0 ) );
+
+            // Set performer to MDL
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Workflow::initialize(
+        void Workflow_HMR_XTK::initialize(
                 Matrix<DDRMat>& aADVs,
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
@@ -60,12 +102,13 @@ namespace moris
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
                 aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
                 aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-            }
+            }   
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix<DDRMat> Workflow_HMR_XTK::perform(const Matrix<DDRMat> & aNewADVs)
         {
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
@@ -73,7 +116,7 @@ namespace moris
             // Stage 1: HMR refinement
 
             // Stage 2: XTK -----------------------------------------------------------------------------
-            mPerformerManager->create_xtk();
+            this->create_xtk();
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->distribute_advs(
@@ -121,7 +164,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::compute_dcriteria_dadv()
+        Matrix<DDRMat> Workflow_HMR_XTK::compute_dcriteria_dadv()
         {
             mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
@@ -152,6 +195,26 @@ namespace moris
             }
 
             return tDCriteriaDAdv;
+        }
+
+        void Workflow_HMR_XTK::create_xtk()
+        {
+            // Read parameter list from shared object
+            MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( "XTKParameterList" );
+            moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
+            tXTKParameterListFunc( tXTKParameterList );
+
+            // Create XTK
+            mPerformerManager->mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+
+            // Reset output MTK performer
+            mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
+
+            // Set performers
+            mPerformerManager->mXTKPerformer( 0 )->set_geometry_engine( mPerformerManager->mGENPerformer( 0 ).get() );
+            mPerformerManager->mXTKPerformer( 0 )->set_input_performer( mPerformerManager->mMTKPerformer( 0 ) );
+            mPerformerManager->mXTKPerformer( 0 )->set_output_performer( mPerformerManager->mMTKPerformer( 1 ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------

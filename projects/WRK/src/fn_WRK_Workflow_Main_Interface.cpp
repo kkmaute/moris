@@ -29,6 +29,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
 
+#include "cl_WRK_Workflow_Factory.hpp"
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Manager.hpp"
@@ -60,18 +61,17 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
         tOPTParameterListFunc( tOPTParameterList );
 
-            // Create workflow
-            wrk::Performer_Manager tPerformerManager( tLibrary );
-            tPerformerManager.initialize_performers();
-            tPerformerManager.set_performer_cooperations();
+        // Create performer manager
+        wrk::Performer_Manager tPerformerManager( tLibrary );
 
-        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { std::make_shared<wrk::Workflow>( &tPerformerManager ) };
+        // FIXME: get this from parameter list
+        std::string tWRKFlowStr = "HMR_XTK";
+        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { wrk::create_workflow(tWRKFlowStr, &tPerformerManager) };
 
         if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
         {
             moris::opt::Manager tManager( tOPTParameterList, tWorkflows );
             tManager.perform();
-
         }
         else
         {

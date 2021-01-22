@@ -9,6 +9,8 @@ set(HEADERS
     cl_WRK_Performer_Manager.hpp
     cl_WRK_Performer.hpp
     cl_WRK_Workflow.hpp
+    cl_WRK_Workflow_Factory.hpp
+    cl_WRK_Workflow_HMR_XTK.hpp
     fn_WRK_perform_refinement.hpp
     )
  
@@ -31,7 +33,8 @@ endforeach()
 set(LIB_SOURCES
     cl_WRK_Performer_Manager.cpp
     cl_WRK_Performer.cpp
-    cl_WRK_Workflow.cpp
+    cl_WRK_Workflow_Factory.cpp
+    cl_WRK_Workflow_HMR_XTK.cpp
     fn_WRK_Workflow_Main_Interface.cpp
     fn_WRK_perform_refinement.cpp
     )
