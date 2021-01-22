@@ -574,7 +574,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergyDISP");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                    static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso1,Elast");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1);
         tIQICounter++;
