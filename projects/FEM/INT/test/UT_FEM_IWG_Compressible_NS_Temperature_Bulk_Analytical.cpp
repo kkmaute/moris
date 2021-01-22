@@ -36,7 +36,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
         "[IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-4;
+    real tEpsilon = 2.0E-4;
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
