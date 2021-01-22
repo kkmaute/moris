@@ -154,6 +154,23 @@ namespace moris
                 default :
                     MORIS_ERROR( false, "IWG::set_function_pointers - unknown element type.");
             }
+
+            // switch on perturbation strategy
+            switch( mSet->get_perturbation_strategy() )
+            {
+                case fem::Perturbation_Type::RELATIVE :
+                {
+                    m_build_perturbation_size = &IWG::build_perturbation_size_relative;
+                    break;
+                }
+                case fem::Perturbation_Type::ABSOLUTE :
+                {
+                    m_build_perturbation_size = &IWG::build_perturbation_size_absolute;
+                    break;
+                }
+                default :
+                    MORIS_ERROR( false, "IWG::set_function_pointers - unknown perturbation type.");
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1976,6 +1993,48 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real IWG::build_perturbation_size(
+                real aPerturbation,
+                real aCoefficientToPerturb,
+                real aTolerance )
+        {
+           return ( this->*m_build_perturbation_size )(
+                    aPerturbation,
+                    aCoefficientToPerturb,
+                    aTolerance );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real IWG::build_perturbation_size_relative(
+                real aPerturbation,
+                real aCoefficientToPerturb,
+                real aTolerance )
+        {
+            // compute the perturbation value
+            real tDeltaH = aPerturbation * aCoefficientToPerturb;
+
+            // check that perturbation is not zero
+            if( std::abs( tDeltaH ) < aTolerance )
+            {
+                tDeltaH = aPerturbation;
+            }
+
+            return tDeltaH;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real IWG::build_perturbation_size_absolute(
+                real aPerturbation,
+                real aCoefficientToPerturb,
+                real aTolerance )
+        {
+            return aPerturbation;
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::select_dRdp_FD_geometry_bulk(
                 moris::real                         aWStar,
                 moris::real                         aPerturbation,
@@ -2038,13 +2097,7 @@ namespace moris
                     if( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
-                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                        // check that perturbation is not zero
-                        if( std::abs( tDeltaH ) < 1e-12 )
-                        {
-                            tDeltaH = aPerturbation;
-                        }
+                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
@@ -2208,13 +2261,7 @@ namespace moris
                     if( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
-                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                        // check that perturbation is not zero
-                        if( std::abs( tDeltaH ) < 1e-12 )
-                        {
-                            tDeltaH = aPerturbation;
-                        }
+                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
@@ -2389,13 +2436,7 @@ namespace moris
                     if( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
-                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                        // check that perturbation is not zero
-                        if( std::abs( tDeltaH ) < 1e-12 )
-                        {
-                            tDeltaH = aPerturbation;
-                        }
+                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
@@ -2616,13 +2657,7 @@ namespace moris
                     if ( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
-                        tDeltaH = aPerturbation * tMasterCoeff( iCoeffRow, iCoeffCol );
-
-                        // check that perturbation is not zero
-                        if( std::abs( tDeltaH ) < 1e-12 )
-                        {
-                            tDeltaH = aPerturbation;
-                        }
+                        tDeltaH = build_perturbation_size( aPerturbation, tMasterCoeff( iCoeffRow, iCoeffCol ) );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
