@@ -143,6 +143,18 @@ namespace moris
         real tElapsedTimeMax = logger_max_all(tElapsedTime);
         real tElapsedTimeMin = logger_min_all(tElapsedTime);
 
+        // debug - wall clock time measurements
+        real tElapsedWallTimeMax = 0.0;
+        real tElapsedWallTimeMin = 0.0;
+        if ( PRINT_WALL_TIME )
+        {
+            std::chrono::duration<double> tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[mGlobalClock.mIndentationLevel] );
+            real tElapsedWallTime = tChronoElapsedWallTime.count();
+            //std::cout << "Proc #" << logger_par_rank() << ": Wall clock time at sign out: " << tElapsedWallTime << " seconds. \n" << std::endl;
+            tElapsedWallTimeMax = logger_max_all(tElapsedWallTime);
+            tElapsedWallTimeMin = logger_min_all(tElapsedWallTime);
+        }
+
         // log to file
         if( mWriteToAscii )
         {
@@ -186,6 +198,15 @@ namespace moris
                             " / " <<
                             tElapsedTimeMin <<
                             " \n" << std::flush;
+
+                    if ( PRINT_WALL_TIME )
+                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << 
+                        "ElapsedWallTime (max/min) = " << 
+                        tElapsedWallTimeMax << 
+                        " / " <<
+                        tElapsedWallTimeMin <<
+                        " \n" << std::flush;
+
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
                 else                
