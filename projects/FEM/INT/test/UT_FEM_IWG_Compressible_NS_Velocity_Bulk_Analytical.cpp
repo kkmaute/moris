@@ -124,9 +124,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal_Analytic",
     // set space dimension to CM
     tCMMasterFluid->set_space_dim( 2 );
 
-    // only use linear
-    uint iInterpOrder = 1;
-
     // create an interpolation order
     mtk::Interpolation_Order tGIInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
@@ -457,9 +454,6 @@ TEST_CASE("IWG_Compressible_NS_Velocity_Bulk_VdW_Analytic",
 
         // set space dimension to CM
         tCMMasterFluid->set_space_dim(2);
-
-        // only use linear
-        uint iInterpOrder = 2;
 
         // create an interpolation order
         mtk::Interpolation_Order tGIInterpolationOrder = mtk::Interpolation_Order::LINEAR;
