@@ -38,7 +38,8 @@ namespace moris
 
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
-                std::shared_ptr<Library_IO> aLibrary)
+                std::shared_ptr<Library_IO> aLibrary,
+                std::shared_ptr< mtk::Mesh_Manager >  aMTKMesh)
 
                 // Phase table
                 : mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
@@ -94,7 +95,8 @@ namespace moris
             mGeometries = create_geometries(
                     aParameterLists(1),
                     mADVs,
-                    mLibrary);
+                    mLibrary,
+                    aMTKMesh->get_interpolation_mesh(0));
 
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
@@ -937,7 +939,7 @@ namespace moris
                 // TODO augmented copy constructor for fields
                 if (mGeometryParameterLists.size() > 0)
                 {
-                    mGeometries = create_geometries(mGeometryParameterLists, mPrimitiveADVs, mLibrary);
+                    mGeometries = create_geometries(mGeometryParameterLists, mPrimitiveADVs, mLibrary, aMesh);
                     mGeometryParameterLists.clear();
                 }
 

@@ -1,24 +1,43 @@
-#ifndef MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
-#define MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
+#ifndef MORIS_CL_GEN_FIELD_DISCRETE_INTERPOLATION_HPP
+#define MORIS_CL_GEN_FIELD_DISCRETE_INTERPOLATION_HPP
 
-#include "cl_GEN_Field.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Field_Discrete_Interpolation : virtual public Field
+        class Field_Discrete_Interpolation : virtual public Geometry
         {
         private:
-            mtk::Mesh* mMesh;
+            mtk::Mesh*                        mMesh;
+            std::string                       mFieldName;
+            moris::moris_index                mFieldIndex;
+            Matrix<DDRMat>                    mFieldSensitivity;
+            moris_index                       mNumOriginalNodes;
+            Cell<std::shared_ptr<Child_Node>> mChildNodes;
 
         public:
 
             /**
              * Trivial constructor, necessary for clean virtual inheritance without default constructor in base class
              */
-            Field_Discrete_Interpolation(mtk::Mesh* aMesh);
+            template< typename Vector_Type > 
+            Field_Discrete_Interpolation(
+                  mtk::Mesh*       aMesh,
+                  Vector_Type&     aADVs,
+                  Matrix<DDUMat>   aGeometryVariableIndices,
+                  Matrix<DDUMat>   aADVIndices,
+                  Matrix<DDRMat>   aConstants,
+                  Field_Parameters aParameters = {})
+                 : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters),
+                  mMesh(aMesh),
+                  mFieldName(aParameters.mName),
+                  mFieldIndex(mMesh->get_field_ind(mFieldName,EntityRank::NODE)),
+                  mNumOriginalNodes(mMesh->get_num_entities(EntityRank::NODE))
+            {
+            };
 
             /**
              * Given a node index or coordinate, returns the field value.
@@ -37,7 +56,11 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Field value
              */
-            virtual real get_field_value(uint aNodeIndex) = 0;
+            real get_field_value(uint aNodeIndex)
+            {
+                MORIS_ERROR(0,"ISSUE");
+                return 0;
+            };
 
             /**
              * Given a node index or coordinate, returns a matrix all sensitivities.
@@ -46,8 +69,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Matrix of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(
-                    uint aNodeIndex,
+            const Matrix<DDRMat>& 
+            get_field_sensitivities(
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
@@ -56,7 +80,9 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Matrix of sensitivities
              */
-            virtual const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex) = 0;
+            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex);
+
+            
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
@@ -76,6 +102,19 @@ namespace moris
              * @return Determining ADV IDs at this node
              */
             virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+
+            /**
+             * Add a new child node for evaluation.
+             *
+             * @param aNodeIndex Index of the child node
+             * @param aChildNode Contains information about how the child node was created
+             */
+            void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
+
+            /**
+             * Resets all child nodes, called when a new XTK mesh is being created.
+             */
+            void reset_nodal_information();
 
         };
     }

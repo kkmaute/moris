@@ -109,10 +109,12 @@ namespace moris
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
+              * @param aMTKMesh Mesh for discrete or mesh based geomtries
              */
             Geometry_Engine(
-                    Cell< Cell<ParameterList> > aParameterLists,
-                    std::shared_ptr<Library_IO> aLibrary = nullptr);
+                    Cell< Cell<ParameterList> >          aParameterLists,
+                    std::shared_ptr<Library_IO>          aLibrary = nullptr,
+                    std::shared_ptr< mtk::Mesh_Manager > aMTKMesh = nullptr);
 
             /**
              * Constructor

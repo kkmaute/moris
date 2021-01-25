@@ -13,6 +13,7 @@
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
+#include "cl_GEN_Field_Discrete_Interpolation.hpp"
 
 namespace moris
 {
@@ -40,7 +41,8 @@ namespace moris
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 Vector_Type&                aADVs,
-                std::shared_ptr<Library_IO> aLibrary)
+                std::shared_ptr<Library_IO> aLibrary,
+                mtk::Mesh*                  aMTKMesh)
         {
             // Create geometry cell
             Cell<std::shared_ptr<Geometry>> tGeometries(0);
@@ -50,7 +52,7 @@ namespace moris
             for (uint tGeometryIndex = 0; tGeometryIndex < aGeometryParameterLists.size(); tGeometryIndex++)
             {
                 // Create geometry
-                std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary);
+                std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary, nullptr, aMTKMesh);
                 if (aGeometryParameterLists(tGeometryIndex).get<bool>("multilinear_intersections"))
                 {
                     tGeometry->set_intersection_interpolation("multilinear");
@@ -103,7 +105,7 @@ namespace moris
                     for (uint tVoxelID = 1; tVoxelID <= tNumVoxelIDs; tVoxelID++)
                     {
                         std::shared_ptr<Geometry> tGeometrySingleGrain =
-                                create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary, tGeometry, tVoxelID);
+                                create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary, tGeometry, aMTKMesh, tVoxelID);
 
                         tGeometries.push_back( tGeometrySingleGrain );
                     }
@@ -127,6 +129,7 @@ namespace moris
                 Vector_Type&                aADVs,
                 std::shared_ptr<Library_IO> aLibrary,
                 std::shared_ptr<Geometry>   aGeometry,
+                mtk::Mesh*                  aMTKMesh,
                 uint                        aIndex)
         {
             // Geometry type
@@ -224,6 +227,12 @@ namespace moris
             else if (tGeometryType == "plane")
             {
                 return std::make_shared<Plane>(aADVs, tGeometryVariableIndices, tADVIndices, tConstants, tParameters);
+            }
+            else if (tGeometryType == "nodal_field")
+            {
+                MORIS_ERROR(aMTKMesh != nullptr,"Mesh is a null ptr for nodal field geometry");
+                std::cout<<"Field Name = "<<tParameters.mName<<std::endl;
+                return std::make_shared<ge::Field_Discrete_Interpolation>(aMTKMesh, aADVs, tGeometryVariableIndices, tADVIndices, tConstants, tParameters);
             }
             else if (tGeometryType == "user_defined")
             {
@@ -339,12 +348,14 @@ namespace moris
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary);
+                std::shared_ptr<Library_IO> aLibrary,
+                mtk::Mesh*   aMTKMesh);
         template
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 sol::Dist_Vector*&          aADVs,
-                std::shared_ptr<Library_IO> aLibrary);
+                std::shared_ptr<Library_IO> aLibrary,
+                mtk::Mesh*   aMTKMesh);
 
         //--------------------------------------------------------------------------------------------------------------
 

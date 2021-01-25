@@ -65,7 +65,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         wrk::Performer_Manager tPerformerManager( tLibrary );
 
         // FIXME: get this from parameter list
-        std::string tWRKFlowStr = "HMR_XTK";
+        std::string tWRKFlowStr = "STK_XTK";
         moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { wrk::create_workflow(tWRKFlowStr, &tPerformerManager) };
 
         if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )

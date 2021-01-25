@@ -50,6 +50,7 @@ namespace moris
     {
         class Workflow;
         class Workflow_HMR_XTK;
+        class Workflow_STK_XTK;
 
         //------------------------------------------------------------------------------
 
@@ -66,6 +67,7 @@ namespace moris
 
                 friend class wrk::Workflow;
                 friend class wrk::Workflow_HMR_XTK;
+                friend class wrk::Workflow_STK_XTK;
 
             public:
 
