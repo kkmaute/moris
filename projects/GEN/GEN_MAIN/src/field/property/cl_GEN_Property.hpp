@@ -2,6 +2,7 @@
 #define MORIS_CL_GEN_PROPERTY_HPP_
 
 #include "cl_GEN_Field.hpp"
+#include "st_GEN_Property_Parameters.hpp"
 
 namespace moris
 {
@@ -9,9 +10,8 @@ namespace moris
     {
         class Property : virtual public Field
         {
-
-        protected:
-            Cell<std::shared_ptr<Field>> mFieldDependencies;
+        private:
+            Property_Parameters mParameters;
 
         public:
 
@@ -20,7 +20,14 @@ namespace moris
              *
              * @param aFieldDependencies This property's dependencies
              */
-            Property(Cell<std::shared_ptr<Field>> aFieldDependencies = {});
+            Property(Property_Parameters aParameters);
+
+            /**
+             * Copy constructor
+             *
+             * @param aProperty Property to copy
+             */
+            Property(std::shared_ptr<Property> aProperty);
 
         };
     }

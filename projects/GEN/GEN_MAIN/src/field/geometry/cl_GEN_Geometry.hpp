@@ -2,29 +2,30 @@
 #define MORIS_CL_GEN_GEOMETRY_HPP
 
 #include "cl_GEN_Field.hpp"
+#include "st_GEN_Geometry_Parameters.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        enum class Intersection_Interpolation
-        {
-            LINEAR,
-            MULTILINEAR
-        };
-
         class Geometry : virtual public Field
         {
-
         private:
-            Intersection_Interpolation mIntersectionInterpolation;
+            Geometry_Field_Parameters mParameters;
 
         public:
 
             /**
              * Constructor
              */
-            Geometry(Intersection_Interpolation aInterpolation = Intersection_Interpolation::LINEAR);
+            Geometry(Geometry_Field_Parameters aParameters);
+
+            /**
+             * Copy constructor
+             *
+             * @param aGeometry Geometry to copy
+             */
+            Geometry(std::shared_ptr<Geometry> aGeometry);
 
             /**
              * Sets the intersection interpolation type for this geometry.

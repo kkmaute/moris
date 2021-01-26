@@ -16,6 +16,7 @@ namespace moris
                 std::shared_ptr<Property> aProperty)
                 : Field(aSharedADVIds, aProperty)
                 , BSpline_Field(aOwnedADVs, aOwnedADVIds, aSharedADVIds, aOwnedADVIdsOffset, aMesh, aProperty)
+                , Property(aProperty)
         {
         }
 

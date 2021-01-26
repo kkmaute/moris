@@ -39,7 +39,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_norm.hpp"
 
 namespace xtk
@@ -145,7 +145,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
+        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
 
         size_t tModelDimension = 2;
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

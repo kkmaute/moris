@@ -2,7 +2,7 @@
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Library_IO.hpp"
 #include "fn_trans.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -358,7 +358,7 @@ namespace moris
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
-            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Field>(
+            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
                     tADVs,
                     Matrix<DDUMat>({{1, 0}}),
                     Matrix<DDUMat>({{0, 1}}),

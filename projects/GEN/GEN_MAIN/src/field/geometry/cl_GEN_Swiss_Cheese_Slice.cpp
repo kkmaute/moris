@@ -22,7 +22,7 @@ namespace moris
                 real             aRegularization,
                 real             aShift,
                 real             aOffset,
-                Field_Parameters aParameters)
+                Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>(0, 0), aParameters)
                 , Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                           aLeftBound,
@@ -68,7 +68,7 @@ namespace moris
                 real             aShift,
                 real             aOffset,
                 bool             aAllowLessThanTargetSpacing,
-                Field_Parameters aParameters)
+                Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>(0, 0), aParameters)
                 , Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                           aLeftBound,
@@ -121,7 +121,7 @@ namespace moris
                 real             aScaling,
                 real             aRegularization,
                 real             aShift,
-                Field_Parameters aParameters)
+                Geometry_Field_Parameters aParameters)
         {
             for (uint tYHoleIndex = 0; tYHoleIndex < aNumYHoles; tYHoleIndex++)
             {

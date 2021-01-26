@@ -7,8 +7,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real aXCenter, real aYCenter, real aRadius, Field_Parameters aParameters)
+        Circle::Circle(real aXCenter, real aYCenter, real aRadius, Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}), aParameters)
+                , Geometry(aParameters)
         {
         }
 

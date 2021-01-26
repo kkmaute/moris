@@ -28,8 +28,9 @@ namespace moris
                     Matrix<DDUMat>               aPropertyVariableIndices,
                     Matrix<DDUMat>               aADVIndices,
                     Matrix<DDRMat>               aConstants,
-                    Field_Parameters             aParameters = {})
+                    Property_Field_Parameters    aParameters = {})
                     : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Property(aParameters)
             {
                 MORIS_ERROR(mFieldVariables.size() == 1, "A constant property has only one variable.");
             }

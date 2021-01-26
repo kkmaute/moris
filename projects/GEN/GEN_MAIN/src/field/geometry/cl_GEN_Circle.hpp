@@ -27,8 +27,9 @@ namespace moris
                    Matrix<DDUMat>   aGeometryVariableIndices,
                    Matrix<DDUMat>   aADVIndices,
                    Matrix<DDRMat>   aConstants,
-                   Field_Parameters aParameters = {})
+                   Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
             {
                 MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 3,
                             "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constants)");
@@ -42,7 +43,7 @@ namespace moris
              * @param aRadius radius of the circle
              * @param aParameters Additional parameters
              */
-            Circle(real aXCenter, real aYCenter, real aRadius, Field_Parameters aParameters = {});
+            Circle(real aXCenter, real aYCenter, real aRadius, Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

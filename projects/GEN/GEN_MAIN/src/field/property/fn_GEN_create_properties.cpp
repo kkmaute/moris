@@ -1,10 +1,10 @@
 #include "fn_GEN_create_properties.hpp"
-#include "st_GEN_Field_Parameters.hpp"
+#include "st_GEN_Property_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Constant_Property.hpp"
 #include "cl_GEN_Scaled_Field.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Property.hpp"
 
 namespace moris
 {
@@ -195,7 +195,7 @@ namespace moris
             Matrix<DDRMat> tConstants = string_to_mat<DDRMat>(aPropertyParameterList.get<std::string>("constant_parameters"));
 
             // Property parameters
-            Field_Parameters tParameters;
+            Property_Field_Parameters tParameters;
             tParameters.mName = aPropertyParameterList.get<std::string>("name");
             tParameters.mNumRefinements = aPropertyParameterList.get<std::string>("number_of_refinements");
             tParameters.mRefinementMeshIndices = aPropertyParameterList.get<std::string>("refinement_mesh_index");
@@ -221,7 +221,7 @@ namespace moris
                         tPropertyVariableIndices,
                         tADVIndices,
                         tConstants,
-                        aFieldDependencies,
+                        aFieldDependencies(0),
                         tParameters);
             }
             else if (tPropertyType == "user_defined")
@@ -234,7 +234,7 @@ namespace moris
                 Sensitivity_Function tSensitivityFunction =
                         (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_function<Sensitivity_Function>(tSensitivityFunctionName));
 
-                return std::make_shared<User_Defined_Field>(
+                return std::make_shared<User_Defined_Property>(
                         aADVs,
                         tPropertyVariableIndices,
                         tADVIndices,

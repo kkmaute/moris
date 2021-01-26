@@ -43,7 +43,7 @@ namespace moris
                     real             aRegularization = 1e-8,
                     real             aShift = 0.0,
                     real             aOffset = 0.0,
-                    Field_Parameters aParameters = {});
+                    Geometry_Field_Parameters aParameters = {});
 
             /**
              * Constructor for a swiss cheese slice, with hole spacing specified
@@ -78,7 +78,7 @@ namespace moris
                     real             aShift,
                     real             aOffset = 0.0,
                     bool             aAllowLessThanTargetSpacing = false,
-                    Field_Parameters aParameters = {});
+                    Geometry_Field_Parameters aParameters = {});
 
         private:
 
@@ -119,7 +119,7 @@ namespace moris
                     real           aScaling,
                     real           aRegularization,
                     real           aShift,
-                    Field_Parameters aParameters);
+                    Geometry_Field_Parameters aParameters);
         };
     }
 }

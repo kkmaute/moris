@@ -11,6 +11,7 @@ namespace moris
         class BSpline_Geometry : public BSpline_Field, public Geometry
         {
         public:
+
             /**
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
              *

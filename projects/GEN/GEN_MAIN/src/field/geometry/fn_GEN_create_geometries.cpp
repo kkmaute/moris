@@ -1,5 +1,5 @@
 #include "fn_GEN_create_geometries.hpp"
-#include "st_GEN_Field_Parameters.hpp"
+#include "st_GEN_Geometry_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Circle.hpp"
@@ -7,7 +7,7 @@
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
@@ -195,7 +195,7 @@ namespace moris
             }
 
             // Geometry parameters
-            Field_Parameters tParameters;
+            Geometry_Field_Parameters tParameters;
             tParameters.mName = aGeometryParameterList.get<std::string>("name");
             tParameters.mNumRefinements = aGeometryParameterList.get<std::string>("number_of_refinements");
             tParameters.mRefinementMeshIndices = aGeometryParameterList.get<std::string>("refinement_mesh_index");
@@ -236,7 +236,7 @@ namespace moris
                         (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_function<Sensitivity_Function>(tSensitivityFunctionName));
 
                 // Create user-defined geometry
-                return std::make_shared<User_Defined_Field>(
+                return std::make_shared<User_Defined_Geometry>(
                         aADVs,
                         tGeometryVariableIndices,
                         tADVIndices,

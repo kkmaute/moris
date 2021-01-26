@@ -40,8 +40,9 @@ namespace moris
                     Matrix<DDRMat>            aConstants,
                     std::shared_ptr<Geometry> aVoxelGeometry,
                     uint                      aIndex,
-                    Field_Parameters          aParameters = {})
+                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
                     , mVoxelGeometry(aVoxelGeometry)
                     , mIndex(aIndex)
             {
@@ -57,7 +58,7 @@ namespace moris
                     Matrix<DDRMat>            aConstants,
                     std::shared_ptr<Geometry> aVoxelGeometry,
                     uint                      aIndex,
-                    Field_Parameters          aParameters = {});
+                    Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

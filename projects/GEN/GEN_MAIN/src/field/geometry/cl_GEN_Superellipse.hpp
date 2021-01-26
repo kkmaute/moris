@@ -31,8 +31,9 @@ namespace moris
                     Matrix<DDUMat>   aGeometryVariableIndices,
                     Matrix<DDUMat>   aADVIndices,
                     Matrix<DDRMat>   aConstants,
-                    Field_Parameters aParameters = {})
+                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
             {
                 MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
                             "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constants).");
@@ -63,7 +64,7 @@ namespace moris
                     real             aScaling,
                     real             aRegularization,
                     real             aShift,
-                    Field_Parameters aParameters = {});
+                    Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

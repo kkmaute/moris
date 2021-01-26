@@ -16,7 +16,7 @@ namespace moris
                 std::shared_ptr<Geometry> aGeometry)
                 : Field(aSharedADVIds, aGeometry)
                 , BSpline_Field(aOwnedADVs, aOwnedADVIds, aSharedADVIds, aOwnedADVIdsOffset, aMesh, aGeometry)
-                , Geometry(aGeometry->get_intersection_interpolation())
+                , Geometry(aGeometry)
         {
         }
 
