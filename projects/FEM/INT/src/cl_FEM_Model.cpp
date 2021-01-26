@@ -1651,6 +1651,10 @@ namespace moris
             real tFDPerturbationSA = tComputationParameterList.get< real >(
                     "finite_difference_perturbation_size" );
 
+            // get enum for perturbation strategy for finite difference
+            fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >(
+                    tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
+
             // create a map of the set
             std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
 
@@ -1743,6 +1747,9 @@ namespace moris
 
                         // set its FD perturbation size for sensitivity analysis
                         aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbationSA );
+
+                        // set its perturbation strategy for finite difference
+                        aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -1847,6 +1854,9 @@ namespace moris
 
                         // set its FD perturbation size for sensitivity analysis
                         aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbationSA );
+
+                        // set its perturbation strategy for finite difference
+                        aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );

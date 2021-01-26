@@ -527,6 +527,24 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_explicit()
         {
+            // initialize IP and IG pdv assembly maps
+            this->fill_mat_pdv_assembly_vector();
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // get the assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
+                    mEquationSet->get_mat_pdv_assembly_vector();
+
+            // get the assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
+                    mEquationSet->get_geo_pdv_assembly_vector();
+
+            // if there is no pdv defined, return
+            if( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+            {
+                return;
+            }
+
             // compute pdof values
             // FIXME do this only once
             this->compute_my_pdof_values();
@@ -539,14 +557,6 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
-            // initialize geo pdv assembly map
-            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
-            this->fill_mat_pdv_assembly_vector();
-
-            // initialize dQIdp
-            mSet->initialize_mdQIdpMat();
-            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
@@ -556,15 +566,15 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
+            // initialize dQIdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdp_explicit();
 
             // Assembly for the IP pdv
             //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
-                    mEquationSet->get_mat_pdv_assembly_vector();
-
             // if assembly vector is not empty
             if( tLocalToGlobalIdsIPPdv.numel() != 0 )
             {
@@ -582,10 +592,6 @@ namespace moris
 
             // Assembly for the IG pdv
             //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
-                    mEquationSet->get_geo_pdv_assembly_vector();
-
             // if assembly vector is not empty
             if( tLocalToGlobalIdsIGPdv.numel() != 0 )
             {
@@ -606,6 +612,38 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_explicit_implicit()
         {
+            // fill IP pdv assembly vector
+            this->fill_mat_pdv_assembly_vector();
+
+            // init IG pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // get the IP pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
+                    mEquationSet->get_mat_pdv_assembly_vector();
+
+            // get the IG pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
+                    mEquationSet->get_geo_pdv_assembly_vector();
+
+            // if there is no pdv defined, return
+            if( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+            {
+                return;
+            }
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+            // initialize dQIdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
+            // as long as dRdp is computed with FD,
+            // we need to init the residual storage
+            mSet->initialize_mResidual();
+
             // compute pdof values
             // FIXME do this only once
             this->compute_my_pdof_values();
@@ -617,23 +655,6 @@ namespace moris
                 // FIXME do this only once
                 this->compute_previous_pdof_values();
             }
-
-            // init geo pdv assembly map
-            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
-
-            // fill mat pdv assembly vector
-            this->fill_mat_pdv_assembly_vector();
-
-            // init dRdp
-            mSet->initialize_mdRdpMat();
-            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
-
-            // initialize dQIdp
-            mSet->initialize_mdQIdpMat();
-            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
-            // as long as dRdp is computed with FD we need this
-            mSet->initialize_mResidual();
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
@@ -659,105 +680,89 @@ namespace moris
             // extract adjoint values for this equation object
             this->compute_my_adjoint_values();
 
-            // get number of  RHS
+            // get number of RHS
             uint tNumRHS = mAdjointPdofValues.size();
 
             // get number of pdof values
             uint tNumPdofValues = tdRdp( 0 ).n_rows();
 
             // reorder adjoint values following the requested dof types order
-            Cell< Matrix< DDRMat > > tAdjointPdofValuesReordered( tNumRHS );
+            Matrix< DDRMat > tAdjointPdofValuesReordered;
 
             // get master dof type list from set
-            const Cell< MSI::Dof_Type > & tDofTypeGroup =
-                    mSet->get_dof_type_list_2( mtk::Master_Slave::MASTER );
+            const Cell< Cell< MSI::Dof_Type > > & tMasterDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Master_Slave::MASTER );
 
             // get number of master dof types
-            uint tNumDofTypes = tDofTypeGroup.size();
+            uint tNumMasterDofTypes = tMasterDofTypeGroup.size();
 
-            // get the adjoint values for the ith dof type group
-            Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
-            this->get_my_pdof_values(
-                    mAdjointPdofValues,
-                    tDofTypeGroup,
-                    tMasterAdjointOriginal,
-                    mtk::Master_Slave::MASTER );
+            // get slave dof type list from set
+            const Cell< Cell< MSI::Dof_Type > > & tSlaveDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Master_Slave::SLAVE );
 
-            uint tNumMasterPdofValues = 0;
-            Cell< Matrix< DDRMat > > tMasterAdjoint( tNumRHS );
+            // get number of slave dof types
+            uint tNumSlaveDofTypes = tSlaveDofTypeGroup.size();
+
+            // loop over the RHS
             for( uint Ik = 0; Ik < tNumRHS; Ik++ )
             {
                 // set size for reordered adjoint values
-                tAdjointPdofValuesReordered( Ik ).set_size( tNumPdofValues, 1, 0.0 );
+                tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
 
-                // FIXME get rid of for loop - use a better solution
-                uint tCounter = 0;
-                for( uint Ia = 0; Ia < tNumDofTypes; Ia++ )
+                // loop over the master dof types
+                for( uint Ia = 0; Ia < tNumMasterDofTypes; Ia++ )
                 {
-                    // get number of pdof values for dof type
-                    uint tNumPdofValuesForType = tMasterAdjointOriginal( Ik )( Ia ).numel();
+                    // get the adjoint values for the ith dof type group
+                    Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
+                    this->get_my_pdof_values(
+                            mAdjointPdofValues,
+                            tMasterDofTypeGroup( Ia ),
+                            tMasterAdjointOriginal,
+                            mtk::Master_Slave::MASTER );
+
+                    // reshape adjoint values
+                    Matrix< DDRMat > tMasterAdjointCoeff;
+                    this->reshape_pdof_values_vector( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
+
+                    // get indices for begin and end
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tMasterDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::MASTER );
+                    uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                    uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                     // fill reordered adjoint pdof values
-                    tAdjointPdofValuesReordered( Ik )(
-                            { tCounter, tCounter + tNumPdofValuesForType - 1 } ) =
-                                    tMasterAdjointOriginal( Ik )( Ia ).matrix_data();
-
-                    // update counter
-                    tCounter += tNumPdofValuesForType;
+                    tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                            tMasterAdjointCoeff.matrix_data();
                 }
 
-                // get number of master pdof values
-                tNumMasterPdofValues = tCounter;
-            }
-
-            if( mSet->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // get slave dof type list from set
-                const Cell< MSI::Dof_Type > & tSlaveDofTypeGroup =
-                        mSet->get_dof_type_list_2( mtk::Master_Slave::SLAVE );
-
-                // get number of slave dof types
-                tNumDofTypes = tSlaveDofTypeGroup.size();
-
-                // get the adjoint values for the ith dof type group
-                Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
-                this->get_my_pdof_values(
-                        mAdjointPdofValues,
-                        tSlaveDofTypeGroup,
-                        tSlaveAdjointOriginal,
-                        mtk::Master_Slave::SLAVE );
-
-                for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                // loop over the slave dof types
+                for( uint Ia = 0; Ia < tNumSlaveDofTypes; Ia++ )
                 {
-                    // FIXME get rid of for loop - use a better solution
-                    uint tCounter = tNumMasterPdofValues;
-                    for( uint Ia = 0; Ia < tNumDofTypes; Ia++ )
-                    {
-                        // get number of pdof values for dof type
-                        uint tNumPdofValuesForType = tSlaveAdjointOriginal( Ik )( Ia ).numel();
+                    // get the adjoint values for the ith dof type group
+                    Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
+                    this->get_my_pdof_values(
+                            mAdjointPdofValues,
+                            tSlaveDofTypeGroup( Ia ),
+                            tSlaveAdjointOriginal,
+                            mtk::Master_Slave::SLAVE );
 
-                        // fill reordered adjoint pdof values
-                        tAdjointPdofValuesReordered( Ik )(
-                                { tCounter, tCounter + tNumPdofValuesForType - 1 } ) =
-                                        tSlaveAdjointOriginal( Ik )( Ia ).matrix_data();
+                    // reshape adjoint values
+                    Matrix< DDRMat > tSlaveAdjointCoeff;
+                    this->reshape_pdof_values_vector( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
 
-                        // update counter
-                        tCounter += tNumPdofValuesForType;
-                    }
+                    // get indices for begin and end
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tSlaveDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::SLAVE );
+                    uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                    uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+                    // fill reordered adjoint pdof values
+                    tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                            tSlaveAdjointCoeff.matrix_data();
                 }
-            }
 
-            // Assembly for the IP pdv
-            //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
-                    mEquationSet->get_mat_pdv_assembly_vector();
-
-            // if the assembly vector is not empty
-            if( tLocalToGlobalIdsIPPdv.numel() != 0 )
-            {
-                // loop over the number of adjoint vectors for this equation object
-                for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                // Assembly for the IP pdv
+                //----------------------------------------------------------------------------------------
+                // if the assembly vector is not empty
+                if( tLocalToGlobalIdsIPPdv.numel() != 0 )
                 {
                     // assemble explicit dQIdpMat into multivector
                     mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
@@ -767,7 +772,7 @@ namespace moris
 
                     // post multiplication of adjoint values time dRdp
                     moris::Matrix< DDRMat > tLocalIPdQiDp =
-                            -1.0 * trans( tAdjointPdofValuesReordered( Ik ) ) * tdRdp( 0 );
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
@@ -775,19 +780,11 @@ namespace moris
                             tLocalIPdQiDp,
                             Ik );
                 }
-            }
 
-            // Assembly for the IG pdv
-            //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
-                    mEquationSet->get_geo_pdv_assembly_vector();
-
-            // if assembly vector is not empty
-            if( tLocalToGlobalIdsIGPdv.numel() != 0 )
-            {
-                // loop over the adjoint values lambda
-                for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                // Assembly for the IG pdv
+                //----------------------------------------------------------------------------------------
+                // if assembly vector is not empty
+                if( tLocalToGlobalIdsIGPdv.numel() != 0 )
                 {
                     // assemble explicit dQIdpGeo into multivector
                     mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
@@ -797,7 +794,7 @@ namespace moris
 
                     // post multiplication of adjoint values time dRdp
                     moris::Matrix< DDRMat > tLocalIGdQiDp =
-                            -1.0 * trans( tAdjointPdofValuesReordered( Ik ) ) * tdRdp( 1 );
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
@@ -812,8 +809,57 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_implicit()
         {
-            // comupte dRdp
-            this->compute_dRdp();
+            // fill IP pdv assembly vector
+            this->fill_mat_pdv_assembly_vector();
+
+            // init IG pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // get the IP pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
+                    mEquationSet->get_mat_pdv_assembly_vector();
+
+            // get the IG pdv assembly vector
+            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
+                    mEquationSet->get_geo_pdv_assembly_vector();
+
+            // if there is no pdv defined, return
+            if( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+            {
+                return;
+            }
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+            // as long as dRdp is computed with FD,
+            // we need to init the residual storage
+            mSet->initialize_mResidual();
+
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute dRdp
+            mFemCluster( 0 )->compute_dRdp();
 
             // get reference to computed dRdp
             moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_drdp();
@@ -828,103 +874,86 @@ namespace moris
             uint tNumPdofValues = tdRdp( 0 ).n_rows();
 
             // reorder adjoint values following the requested dof types order
-            Cell< Matrix< DDRMat > > tAdjointPdofValuesReordered( tNumRHS );
+            Matrix< DDRMat > tAdjointPdofValuesReordered;
 
             // get master dof type list from set
-            const Cell< MSI::Dof_Type > & tDofTypeGroup =
-                    mSet->get_dof_type_list_2( mtk::Master_Slave::MASTER );
+            const Cell< Cell< MSI::Dof_Type > > & tMasterDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Master_Slave::MASTER );
 
             // get number of master dof types
-            uint tNumDofTypes = tDofTypeGroup.size();
+            uint tNumMasterDofTypes = tMasterDofTypeGroup.size();
 
-            // get the adjoint values for the ith dof type group
-            Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
-            this->get_my_pdof_values(
-                    mAdjointPdofValues,
-                    tDofTypeGroup,
-                    tMasterAdjointOriginal,
-                    mtk::Master_Slave::MASTER );
+            // get slave dof type list from set
+            const Cell< Cell< MSI::Dof_Type > > & tSlaveDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Master_Slave::SLAVE );
 
-            uint tNumMasterPdofValues = 0;
-            Cell< Matrix< DDRMat > > tMasterAdjoint( tNumRHS );
+            // get number of slave dof types
+            uint tNumSlaveDofTypes = tSlaveDofTypeGroup.size();
+
+            // loop over the RHS
             for( uint Ik = 0; Ik < tNumRHS; Ik++ )
             {
                 // set size for reordered adjoint values
-                tAdjointPdofValuesReordered( Ik ).set_size( tNumPdofValues, 1, 0.0 );
+                tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
 
-                // FIXME get rid of for loop - use a better solution
-                uint tCounter = 0;
-                for( uint Ia = 0; Ia < tNumDofTypes; Ia++ )
+                // loop over the master dof types
+                for( uint Ia = 0; Ia < tNumMasterDofTypes; Ia++ )
                 {
-                    // get number of pdof values for dof type
-                    uint tNumPdofValuesForType = tMasterAdjointOriginal( Ik )( Ia ).numel();
+                    // get the adjoint values for the ith dof type group
+                    Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
+                    this->get_my_pdof_values(
+                            mAdjointPdofValues,
+                            tMasterDofTypeGroup( Ia ),
+                            tMasterAdjointOriginal,
+                            mtk::Master_Slave::MASTER );
+
+                    // reshape adjoint values
+                    Matrix< DDRMat > tMasterAdjointCoeff;
+                    this->reshape_pdof_values_vector( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
+
+                    // get indices for begin and end
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tMasterDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::MASTER );
+                    uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                    uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                     // fill reordered adjoint pdof values
-                    tAdjointPdofValuesReordered( Ik )(
-                            { tCounter, tCounter + tNumPdofValuesForType - 1 },
-                            { 0, 0 } ) =
-                                    tMasterAdjointOriginal( Ik )( Ia ).matrix_data();
-
-                    // update counter
-                    tCounter += tNumPdofValuesForType;
+                    tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                            tMasterAdjointCoeff.matrix_data();
                 }
 
-                // get number of master pdof values
-                tNumMasterPdofValues = tCounter;
-            }
-
-            if( mSet->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
-            {
-                // get slave dof type list from set
-                const Cell< MSI::Dof_Type > & tSlaveDofTypeGroup =
-                        mSet->get_dof_type_list_2( mtk::Master_Slave::SLAVE );
-
-                // get number of slave dof types
-                tNumDofTypes = tSlaveDofTypeGroup.size();
-
-                // get the adjoint values for the ith dof type group
-                Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
-                this->get_my_pdof_values(
-                        mAdjointPdofValues,
-                        tSlaveDofTypeGroup,
-                        tSlaveAdjointOriginal,
-                        mtk::Master_Slave::SLAVE );
-
-                for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                // loop over the slave dof types
+                for( uint Ia = 0; Ia < tNumSlaveDofTypes; Ia++ )
                 {
-                    // FIXME get rid of for loop - use a better solution
-                    uint tCounter = tNumMasterPdofValues;
-                    for( uint Ia = 0; Ia < tNumDofTypes; Ia++ )
-                    {
-                        // get number of pdof values for dof type
-                        uint tNumPdofValuesForType = tSlaveAdjointOriginal( Ik )( Ia ).numel();
+                    // get the adjoint values for the ith dof type group
+                    Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
+                    this->get_my_pdof_values(
+                            mAdjointPdofValues,
+                            tSlaveDofTypeGroup( Ia ),
+                            tSlaveAdjointOriginal,
+                            mtk::Master_Slave::SLAVE );
 
-                        // fill reordered adjoint pdof values
-                        tAdjointPdofValuesReordered( Ik )(
-                                { tCounter, tCounter + tNumPdofValuesForType - 1 } ) =
-                                        tSlaveAdjointOriginal( Ik )( Ia ).matrix_data();
+                    // reshape adjoint values
+                    Matrix< DDRMat > tSlaveAdjointCoeff;
+                    this->reshape_pdof_values_vector( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
 
-                        // update counter
-                        tCounter += tNumPdofValuesForType;
-                    }
+                    // get indices for begin and end
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tSlaveDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::SLAVE );
+                    uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                    uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+                    // fill reordered adjoint pdof values
+                    tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                            tSlaveAdjointCoeff.matrix_data();
                 }
-            }
 
-            // Assembly for the IP pdv
-            //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            const Matrix< DDSMat > & tLocalToGlobalIdsIPPdv =
-                    mEquationSet->get_mat_pdv_assembly_vector();
-
-            // if the assembly vector is not empty
-            if( tLocalToGlobalIdsIPPdv.numel() != 0 )
-            {
-                // loop over the number of adjoint vectors for this equation object
-                for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
+                // Assembly for the IP pdv
+                //----------------------------------------------------------------------------------------
+                // if the assembly vector is not empty
+                if( tLocalToGlobalIdsIPPdv.numel() != 0 )
                 {
                     // post multiplication of adjoint values time dRdp
                     moris::Matrix< DDRMat > tLocalIPdQiDp =
-                            -1.0 * trans( tAdjointPdofValuesReordered( Ik ) ) * tdRdp( 0 );
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
@@ -932,24 +961,15 @@ namespace moris
                             tLocalIPdQiDp,
                             Ik );
                 }
-            }
 
-            // Assembly for the IG pdv
-            //----------------------------------------------------------------------------------------
-            // get the assembly vector
-            this->fill_mat_pdv_assembly_vector();
-            const Matrix< DDSMat > & tLocalToGlobalIdsIGPdv =
-                    mEquationSet->get_geo_pdv_assembly_vector();
-
-            // if assembly vector is not empty
-            if( tLocalToGlobalIdsIGPdv.numel() != 0 )
-            {
-                // loop over the adjoint values lambda
-                for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
+                // Assembly for the IG pdv
+                //----------------------------------------------------------------------------------------
+                // if assembly vector is not empty
+                if( tLocalToGlobalIdsIGPdv.numel() != 0 )
                 {
                     // post multiplication of adjoint values time dRdp
                     moris::Matrix< DDRMat > tLocalIGdQiDp =
-                            -1.0 * trans( tAdjointPdofValuesReordered( Ik ) ) * tdRdp( 1 );
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(

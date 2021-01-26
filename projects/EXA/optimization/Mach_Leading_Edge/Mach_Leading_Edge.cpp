@@ -616,6 +616,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",    true );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
+        tParameterlist( 0 )( 0 ).set( "output_path",               "./" );
+        tParameterlist( 0 )( 0 ).set( "keep_all_opt_iters",        true );
     }
 
     /* ------------------------------------------------------------------------ */

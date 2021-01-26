@@ -43,27 +43,6 @@ namespace moris
             }
         }
 
-        const moris::Cell< MSI::Dof_Type > & Equation_Set::get_dof_type_list_2(
-                mtk::Master_Slave aIsMaster )
-        {
-            switch ( aIsMaster )
-            {
-                case mtk::Master_Slave::MASTER:
-                {
-                    return mMasterDofTypesList;
-                }
-                case mtk::Master_Slave::SLAVE:
-                {
-                    return mSlaveDofTypesList;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Equation_Set::get_dof_type_list_2 - can only be MASTER or SLAVE");
-                    return mMasterDofTypesList;
-                }
-            }
-        }
-
         //------------------------------------------------------------------------------
 
         Matrix< DDSMat > & Equation_Set::get_dof_type_map(
@@ -396,12 +375,18 @@ namespace moris
 
         moris::Cell< enum MSI::Dof_Type > Equation_Set::get_requested_dof_types()
         {
+            MORIS_ERROR( mModelSolverInterface != nullptr,
+                    "Equation_Set::get_requested_dof_types - model solver interface not set yet." );
+
             return mModelSolverInterface->get_solver_interface()->get_requested_dof_types();
         }
 
         //------------------------------------------------------------------------------
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > Equation_Set::get_secondary_dof_types()
         {
+            MORIS_ERROR( mModelSolverInterface != nullptr,
+                    "Equation_Set::get_requested_dof_types - model solver interface not set yet." );
+
             return mModelSolverInterface->get_solver_interface()->get_secondary_dof_types();
         }
 

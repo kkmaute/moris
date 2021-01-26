@@ -4,7 +4,7 @@
 #include "cl_Bitset.hpp"
 
 // Constants
-#define MAX_GEOMETRIES 16
+#define MAX_GEOMETRIES 500
 
 namespace moris
 {

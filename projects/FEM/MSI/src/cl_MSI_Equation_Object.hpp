@@ -281,6 +281,17 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * reshape the pdof values of this equation object
+             * @param[ in ] aPdofValues           list of matrices with pdof values
+             *                                    (one matrix per dof type)
+             * @param[ in ] aReshapedPdofValues   vector with pdof values
+             */
+            void reshape_pdof_values_vector(
+                    const Cell< Matrix< DDRMat > > & aPdofValues,
+                    Matrix< DDRMat >               & aReshapedPdofValues );
+
+            //------------------------------------------------------------------------------
+            /**
              * FIXME doc????
              */
             void set_vector_entry_number_of_pdof();

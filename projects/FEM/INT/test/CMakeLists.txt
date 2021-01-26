@@ -65,8 +65,11 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Interface_Nitsche.cpp
     
     UT_FEM_IWG_Compressible_NS_Density_Bulk.cpp
+    UT_FEM_IWG_Compressible_NS_Density_Bulk_Analytical.cpp
     UT_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
+    UT_FEM_IWG_Compressible_NS_Velocity_Bulk_Analytical.cpp
     UT_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
+    UT_FEM_IWG_Compressible_NS_Temperature_Bulk_Analytical.cpp
     UT_FEM_IWG_Compressible_NS_Advective_Momentum_Boundary.cpp
     UT_FEM_IWG_Compressible_NS_Advective_Energy_Boundary.cpp
     UT_FEM_IWG_Compressible_NS_Neumann_Boundaries.cpp

@@ -336,7 +336,7 @@ namespace moris
                         tReqIQI->set_normal( tNormal );
 
                         // compute dQIdu at evaluation point
-                        ( this->*m_compute_dQIdu )( tReqIQI, tWStar);
+                        ( this->*m_compute_dQIdu )( tReqIQI, tWStar );
                     }
                 }
             }

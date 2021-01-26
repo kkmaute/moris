@@ -59,9 +59,6 @@ namespace moris
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
 
-            moris::Cell< enum MSI::Dof_Type > mMasterDofTypesList;
-            moris::Cell< enum MSI::Dof_Type > mSlaveDofTypesList;
-
             // maps for the master and slave dof type
             moris::Matrix< DDSMat > mMasterDofTypeMap;
             moris::Matrix< DDSMat > mSlaveDofTypeMap;
@@ -166,9 +163,6 @@ namespace moris
              * @param[ in ] aIsMaster enum for master or slave
              */
             moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-            const moris::Cell< MSI::Dof_Type > & get_dof_type_list_2(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------

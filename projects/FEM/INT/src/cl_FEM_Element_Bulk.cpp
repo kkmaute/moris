@@ -303,7 +303,7 @@ namespace moris
                         tReqIQI->reset_eval_flags();
 
                         // compute dQIdu at evaluation point
-                        ( this->*m_compute_dQIdu )( tReqIQI, tWStar);
+                        ( this->*m_compute_dQIdu )( tReqIQI, tWStar );
                     }
                 }
             }
