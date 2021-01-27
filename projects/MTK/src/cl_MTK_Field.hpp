@@ -87,6 +87,12 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+                /**
+                 * returns the discretazion order. When using HMR this is the BSpline order
+                 */
+                virtual uint get_discretization_order() const = 0;
+
+                //------------------------------------------------------------------------------
 
                 const std::string & get_label() const
                 {

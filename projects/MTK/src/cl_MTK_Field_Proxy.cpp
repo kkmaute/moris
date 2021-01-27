@@ -3,6 +3,8 @@
 
 #include "fn_dot.hpp"
 
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+
 namespace moris
 {
     namespace mtk
@@ -22,6 +24,16 @@ namespace moris
         Field_Proxy::~Field_Proxy()
         {
 
+        }
+
+        // ----------------------------------------------------------------------------------------------
+
+        uint Field_Proxy::get_discretization_order() const
+        {
+            return mMeshManager->
+                    get_interpolation_mesh( mMeshIndex )->
+                    get_HMR_lagrange_mesh()->
+                    get_bspline_order( mDiscretizationMeshIndex );
         }
 
         // ----------------------------------------------------------------------------------------------
