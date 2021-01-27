@@ -49,9 +49,6 @@ class Serialized_Mesh_Data
         moris::Cell<std::string>   mCellSetNames;
         moris::Cell<Matrix<IdMat>> mCellsInCellSet;
 
-
-
-
         // collected data on proc 0
         moris::Cell<std::unordered_map<moris_index,moris_index>> mCollectVertexMaps;
         moris::Cell<Matrix<IdMat>> mCollectVertexIds; //(x)
@@ -60,6 +57,11 @@ class Serialized_Mesh_Data
         moris::Cell<moris::Cell<Matrix<DDRMat>>> mCollectVertexTMatrixWeights; //(x)
         moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisIds; //(x)
         moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisOwners;
+        
+        // overall 
+        moris::Cell<moris_index> mVertexSerialIndexToId;
+        std::unordered_map<moris_index,moris_index> mSerialVertexMap;
+        
 
 
 
@@ -101,6 +103,13 @@ private:
     bool mIgVertexDiag    = false;
     bool mIgVertexOwnerDiag = false;
 
+    // Serialized mesh accessors
+    moris_index
+    get_vertex_proc_index_from_id(moris_id aId, moris_index aProc,Serialized_Mesh_Data* aSerializedMesh);
+
+    // only proc 0
+    moris_index
+    get_vertex_serial_index_from_id(moris_id aId,Serialized_Mesh_Data* aSerializedMesh);
 
     void
     serialize_mesh();

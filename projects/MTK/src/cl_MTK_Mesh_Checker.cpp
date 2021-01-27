@@ -15,6 +15,7 @@
 #include "linalg_typedefs.hpp"
 #include "fn_all_true.hpp"
 #include "fn_norm.hpp"
+#include "fn_unique.hpp"
 #include "op_minus.hpp"
 
 #include <unordered_map>
@@ -255,29 +256,34 @@ Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
 
     if(par_rank() == 0)
     {
+        Matrix<IndexMat> tVertexOwners(1,aSerializedMesh->mVertexSerialIndexToId.size(),MORIS_INDEX_MAX);
         // iterate through processors
         for(moris::uint iP = 0; iP< aSerializedMesh->mCollectVertexIds.size(); iP++)
         {
+
             // iterate through vertices on proc
             for(moris::uint iV = 0; iV < aSerializedMesh->mCollectVertexIds(iP).numel(); iV++)
             {
                 moris_id tVertexId = aSerializedMesh->mCollectVertexIds(iP)(iV);
+                
+                moris_id tSerialVertInd = this->get_vertex_serial_index_from_id(tVertexId,aSerializedMesh);
+                moris_id tProcVertInd = this->get_vertex_proc_index_from_id(tVertexId,iP,aSerializedMesh);
 
-                /*
-                moris_id tVertexOwner = aSerializedMesh->mCollectVertexOwners(iP)(iV);
-
-                bool tNodeExists = true;
-
-                auto tIter = aSerializedMesh->mCollectVertexMaps(tVertexOwner).find(tVertexId);
-                if(tIter == aSerializedMesh->mCollectVertexMaps(tVertexOwner).end())
+                if(tVertexOwners(tSerialVertInd) == MORIS_INDEX_MAX)
                 {
-
-                    tNodeExists =false;
+                    tVertexOwners(tSerialVertInd) = aSerializedMesh->mCollectVertexOwners(iP)(tProcVertInd);
                 }
-                */
+                else
+                {
+                    // ownership issue
+                    if( aSerializedMesh->mCollectVertexOwners(iP)(tProcVertInd) != tVertexOwners(tSerialVertInd) )
+                    {
+                        std::cout<<"Issue with Vertex Ownership, Vertex ID = "<<tVertexId  <<" | Owner on "<<iP<<" = ";
+                        std::cout<< aSerializedMesh->mCollectVertexOwners(iP)(tProcVertInd)<<" | expected owner = "<< tVertexOwners(tSerialVertInd)<<std::endl;
+                        tValidInd =0;
+                    }
+                }
 
-                MORIS_ASSERT(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
-                aSerializedMesh->mCollectVertexMaps(iP)[tVertexId] = iV;
             }
         }
     }
@@ -314,8 +320,27 @@ Mesh_Checker::print_diagnostics()
         std::cout<<std::setw(tFirstColWidth)<<"Vertex Owners: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
     }
 }
-
 //--------------------------------------------------------------------------------
+
+moris_index
+Mesh_Checker::get_vertex_proc_index_from_id(moris_id aId, 
+                                            moris_index aProc,
+                                            Serialized_Mesh_Data* aSerializedMesh)
+{
+    MORIS_ERROR(aSerializedMesh->mCollectVertexMaps(aProc).find(aId) != aSerializedMesh->mCollectVertexMaps(aProc).end(),"Vertex id already in the map");
+    return aSerializedMesh->mCollectVertexMaps(aProc)[aId];
+}
+
+moris_index
+Mesh_Checker::get_vertex_serial_index_from_id(moris_id aId,Serialized_Mesh_Data* aSerializedMesh)
+{
+    MORIS_ERROR(aSerializedMesh->mSerialVertexMap.find(aId) != aSerializedMesh->mSerialVertexMap.end(),"Vertex id already in the map");
+    return aSerializedMesh->mSerialVertexMap[aId];
+
+}
+//--------------------------------------------------------------------------------
+
+
 void
 Mesh_Checker::serialize_mesh()
 {
@@ -472,6 +497,8 @@ Mesh_Checker::gather_serialized_ip_mesh(Serialized_Mesh_Data* aSerializedMesh)
 void
 Mesh_Checker::setup_vertex_maps(Serialized_Mesh_Data* aSerializedMesh)
 {
+    moris_index tUniqueVertCount = 0 ;
+
     aSerializedMesh->mCollectVertexMaps.resize(aSerializedMesh->mCollectVertexIds.size());
 
     // iterate through processors
@@ -484,6 +511,12 @@ Mesh_Checker::setup_vertex_maps(Serialized_Mesh_Data* aSerializedMesh)
 
             MORIS_ASSERT(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
             aSerializedMesh->mCollectVertexMaps(iP)[tVertexId] = iV;
+
+            if(aSerializedMesh->mSerialVertexMap.find(tVertexId) == aSerializedMesh->mSerialVertexMap.end())
+            {
+                aSerializedMesh->mSerialVertexMap[tVertexId] = tUniqueVertCount;
+                aSerializedMesh->mVertexSerialIndexToId.push_back(tVertexId);
+            }
         }
     }
 }
