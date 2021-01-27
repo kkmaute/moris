@@ -78,6 +78,8 @@ namespace moris
              */
             virtual uint get_spatial_dim() const = 0;
 
+            uint get_order();
+
             // FIXME This should be default, individual calls should be virtual
             /**
              * Gets the number of entities for a specified entity rank.
