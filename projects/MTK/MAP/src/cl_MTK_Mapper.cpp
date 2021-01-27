@@ -168,27 +168,35 @@ namespace moris
                         mFieldIn,
                         tFieldUnion );
             }
-//            else
-//            {
-//                // mesh the input field is based on                                             //FIXME
-//                std::shared_ptr< Mesh > tInputMesh = this->create_mesh(
-//                        tOrder,
-//                        aField->get_lagrange_pattern(),
-//                        aField->get_lagrange_pattern() );
-//
-//                // first, project field on mesh with correct order
-//                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
-//                        0 );
-//
-//                mDatabase->change_field_order( aField, tTemporaryField );
-//
-//                // now, interpolate this field onto the union
-//                mDatabase->interpolate_field(
-//                        aField->get_lagrange_pattern(),
-//                        tTemporaryField,
-//                        mParameters->get_union_pattern(),
-//                        tUnionField );
-//            }
+            else
+            {
+                // create union mesh. Bspline order will not be used
+                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tLagrangeOrder,
+                        tSourcePattern,
+                        tLagrangeOrder,
+                        tSourcePattern); // order, Lagrange pattern, bspline order, bspline pattern
+
+                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                hmr::Integration_Mesh_HMR* tHigherOrderIntegrationMesh = new hmr::Integration_Mesh_HMR(
+                        tLagrangeOrder,
+                        tSourcePattern,
+                        tHigherOrderInterpolationMesh);
+
+                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
+
+                mtk::Field * tFieldHigerOrder = new mtk::Field_Proxy( tMeshManager, tMeshIndexUnion );
+
+                this->change_field_order( aFieldSource, tFieldHigerOrder );
+
+                // interpolate field onto union mesh
+                this->interpolate_field(
+                        tFieldHigerOrder,
+                        tFieldUnion );
+
+                delete tFieldHigerOrder;
+            }
 
             // project field to union
             this->perform_mapping(
@@ -201,6 +209,8 @@ namespace moris
 
             // evaluate nodes
             mFieldOut->evaluate_node_values();
+
+            delete tFieldUnion;
         }
 
         // -----------------------------------------------------------------------------
@@ -208,7 +218,7 @@ namespace moris
         // interpolate field values from source Lagrange to target Lagrange mesh
         void Mapper::interpolate_field(
                 mtk::Field * aFieldSource,
-                mtk::Field * aFieldTarget)
+                mtk::Field * aFieldTarget )
         {
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
@@ -231,7 +241,7 @@ namespace moris
                     "Mapper::interpolate_field() Source and target mesh order are not the same" );
 
             MORIS_ERROR( aFieldTarget->get_number_of_dimensions() == aFieldSource->get_number_of_dimensions(),
-                      "Mapper::interpolate_field() Source and target field number of dimmensions differ" );
+                    "Mapper::interpolate_field() Source and target field number of dimmensions differ" );
 
             // pointer to mesh that is linked to input field
             hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
@@ -327,6 +337,94 @@ namespace moris
             }
 
             delete( tTMatrix );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        void Mapper::change_field_order(
+                mtk::Field * aFieldSource,
+                mtk::Field * aFieldTarget )
+        {
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
+
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+
+            // pointer to mesh that is linked to input field
+            hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base * tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
+
+            // make sure that meshes are compatible
+            MORIS_ASSERT( tSourceLagrangeMesh->get_activation_pattern() == tTargetLagrangeMesh->get_activation_pattern(),
+                    "Mapper::change_field_order() Source and target field have to be build based on the same pattern" );
+
+            tTargetLagrangeMesh->select_activation_pattern();
+
+            // unflag all nodes on out mesh
+            tTargetLagrangeMesh->unflag_all_basis();
+
+            // source values
+            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_node_values();
+
+            // target values
+            Matrix< DDRMat > & tTargetValues = aFieldTarget->get_node_values();
+
+            // allocate output memory
+            tTargetValues.set_size( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
+
+            // get number of elements
+            uint tNumberOfElements = tSourceLagrangeMesh->get_number_of_elements();
+
+            hmr::T_Matrix * tTMatrix = new hmr::T_Matrix(
+                    tSourceMesh->get_HMR_database()->get_parameters(),
+                    tSourceLagrangeMesh );
+
+            uint tTargetMeshOrder = tTargetMesh->get_order();
+            Matrix< DDRMat > tT = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
+
+            // delete t-Matrix object
+            delete tTMatrix;
+
+            uint tNumberOfNodesPerSourceElement = tSourceLagrangeMesh->get_number_of_basis_per_element();
+            uint tNumberOfNodesPerTargetElement = tTargetLagrangeMesh->get_number_of_basis_per_element();
+
+            Matrix< DDRMat > tLocalSourceValues( tNumberOfNodesPerSourceElement, 1 );
+            Matrix< DDRMat > tN( 1, tNumberOfNodesPerSourceElement );
+
+            // loop over all elements
+            for( uint Ie = 0; Ie < tNumberOfElements; ++Ie )
+            {
+                // get pointer to source element
+                const hmr::Element * tSourceElement = tSourceLagrangeMesh->get_element( Ie );
+
+                for( uint Ii = 0; Ii < tNumberOfNodesPerSourceElement; ++Ii )
+                {
+                    tLocalSourceValues( Ii ) = tSourceValues( tSourceElement->get_basis( Ii )->get_index() );
+                }
+
+                // get pointer to target element
+                hmr::Element * tTargetElement = tTargetLagrangeMesh->get_element( Ie );
+
+                // loop over all nodes on target
+                for( uint Ik = 0; Ik < tNumberOfNodesPerTargetElement; ++Ik )
+                {
+                    // get basis
+                    hmr::Basis * tNode = tTargetElement->get_basis( Ik );
+
+                    if( ! tNode->is_flagged() )
+                    {
+                        // copy row from T-Matrix
+                        tT.get_row( Ik, tN );
+
+                        // interpolate values
+                        tTargetValues( tNode->get_index() ) = dot( tN, tLocalSourceValues );
+
+                        // flag node
+                        tNode->flag();
+                    }
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -445,7 +543,7 @@ namespace moris
             {
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 case( EntityRank::NODE ) :
-                            {
+                                {
                     switch( aTargetEntityRank )
                     {
                         case( EntityRank::BSPLINE ) :
@@ -465,7 +563,7 @@ namespace moris
                         }
                     }
                     break;
-                            }
+                                }
                 case( EntityRank::BSPLINE ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
@@ -473,13 +571,13 @@ namespace moris
                     switch( aTargetEntityRank )
                     {
                         case( EntityRank::NODE ) :
-                                    {
+                                        {
                             this->map_bspline_to_node_same_mesh(
                                     tSourceIndex,
                                     aSourceEntityRank,
                                     tTargetIndex );
                             break;
-                                    }
+                                        }
                         default :
                         {
                             MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");

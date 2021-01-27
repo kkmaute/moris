@@ -113,6 +113,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                void change_field_order(
+                        mtk::Field * aFieldSource,
+                        mtk::Field * aFieldTarget );
+
+                //------------------------------------------------------------------------------
+
                 void perform_mapping( const std::string      & aSourceLabel,
                         const enum EntityRank    aSourceEntityRank,
                         const std::string      & aTargetLabel,
