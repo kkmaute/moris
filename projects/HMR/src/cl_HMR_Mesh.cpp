@@ -194,6 +194,10 @@ namespace moris
         uint Mesh::get_num_entities( const enum EntityRank aEntityRank,
                 const moris_index     aIndex ) const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             switch ( aEntityRank )
             {
                 case EntityRank::NODE:
@@ -233,6 +237,10 @@ namespace moris
 
         uint Mesh::get_num_elemens_including_aura() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             return mMesh->get_number_of_elements_including_aura();
         }
 
@@ -247,6 +255,10 @@ namespace moris
 
         uint Mesh::get_num_edges() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             return mMesh->get_number_of_edges();
         }
 
@@ -254,6 +266,10 @@ namespace moris
 
         uint Mesh::get_num_faces() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             return mMesh->get_number_of_facets();
         }
 
@@ -261,6 +277,10 @@ namespace moris
 
         uint Mesh::get_num_elems() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             if( mDatabase->get_parameters()->use_number_aura() and
                 mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
