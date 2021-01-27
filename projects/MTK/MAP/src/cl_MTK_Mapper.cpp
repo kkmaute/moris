@@ -13,6 +13,15 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
+#include "cl_MTK_Field_Proxy.hpp"
+
+#include "cl_HMR_Database.hpp"     //HMR/src
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
+#include "cl_HMR_Mesh.hpp" //HMR/src
+#include "cl_HMR_T_Matrix.hpp" //HMR/src
 
 #include "cl_MSI_Solver_Interface.hpp"
 
@@ -38,6 +47,7 @@
 #include "op_div.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
+#include "fn_eye.hpp"
 
 #include "cl_MDL_Model.hpp"
 
@@ -56,7 +66,7 @@ namespace moris
                 std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
                 const moris_index                  aMeshPairIndex,
                 const uint                         aBSplineOrder )
-        : mMeshPairIndex( aMeshPairIndex ),
+        : mMeshPairIndex_In( aMeshPairIndex ),
           mMeshManager( aMeshManager ),
           mBSplineMeshIndex( aBSplineOrder )
         {
@@ -69,6 +79,21 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Mapper::Mapper(
+                mtk::Field                         * aFieldIn,
+                mtk::Field                         * aFieldOut )
+        : mFieldIn( aFieldIn ),
+          mFieldOut( aFieldOut )
+        {
+            // Retrieve source mesh pair
+            //            mSourceMesh = mMeshManager->get_interpolation_mesh(aMeshPairIndex);
+            //
+            //            // Retrieve target mesh pair
+            //            mTargetMesh = mMeshManager->get_interpolation_mesh(aMeshPairIndex);
+        }
+
+        //------------------------------------------------------------------------------
+
         Mapper::~Mapper()
         {
             // test if model and IWG have been created
@@ -77,6 +102,236 @@ namespace moris
                 // delete the fem model
                 delete mModel;
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Mapper::map_input_field_to_output_field()
+        {
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = mFieldIn->get_mesh_pair();
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = mFieldOut->get_mesh_pair();
+
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+
+            MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
+            MORIS_ERROR( tTargetMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::map_input_field_to_output_field() Target mesh is not and HMR mesh" );
+            MORIS_ERROR( tSourceMesh->get_HMR_database() == tTargetMesh->get_HMR_database(),
+                    "Mapper::map_input_field_to_output_field() Source and target mesh are based on two different instances of HMR" );
+
+            std::shared_ptr< hmr::Database > tHMRDatabase = tSourceMesh->get_HMR_database();
+
+            // grab orders of meshes
+            uint tSourceLagrangeOrder = tSourceMesh->get_order();
+            uint tTargetLagrangeOrder = tTargetMesh->get_order();
+
+            // get order of Union Mesh
+            uint tOrder = std::max( tSourceLagrangeOrder, tTargetLagrangeOrder );
+
+            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tTargetPattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+            // create union pattern
+            tHMRDatabase->create_union_pattern(
+                    tSourcePattern,
+                    tTargetPattern,
+                    tUnionPattern );
+
+//            tHMRDatabase->update_bspline_meshes();
+//            tHMRDatabase->update_lagrange_meshes();
+
+            // create union mesh
+            hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                    tHMRDatabase,
+                    tOrder,
+                    tUnionPattern,
+                    tTargetPattern); // order, Lagrange pattern, bspline pattern
+
+            //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                    tOrder,
+                    tUnionPattern,
+                    tUnionInterpolationMesh);
+
+            // Create mesh manager
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
+            // Register mesh pair
+            uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+
+            mtk::Field * tFieldUnion = new mtk::Field_Proxy( tMeshManager, tMeshIndexUnion );
+
+            // map source Lagrange field to target Lagrange field
+            if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
+            {
+                // interpolate field onto union mesh
+                this->interpolate_field(
+                        mFieldIn,
+                        tFieldUnion );
+            }
+//            else
+//            {
+//                // mesh the input field is based on                                             //FIXME
+//                std::shared_ptr< Mesh > tInputMesh = this->create_mesh(
+//                        tOrder,
+//                        aField->get_lagrange_pattern(),
+//                        aField->get_lagrange_pattern() );
+//
+//                // first, project field on mesh with correct order
+//                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
+//                        0 );
+//
+//                mDatabase->change_field_order( aField, tTemporaryField );
+//
+//                // now, interpolate this field onto the union
+//                mDatabase->interpolate_field(
+//                        aField->get_lagrange_pattern(),
+//                        tTemporaryField,
+//                        mParameters->get_union_pattern(),
+//                        tUnionField );
+//            }
+
+            // project field to union
+            this->perform_mapping(
+                    tFieldUnion,
+                    EntityRank::NODE,
+                    EntityRank::BSPLINE);
+
+            // move coefficients to output field
+            mFieldOut->get_coefficients() = std::move( tFieldUnion->get_coefficients() );
+
+            // evaluate nodes
+            mFieldOut->evaluate_node_values();
+        }
+
+        // -----------------------------------------------------------------------------
+
+        // interpolate field values from source Lagrange to target Lagrange mesh
+        void Mapper::interpolate_field(
+                mtk::Field * aFieldSource,
+                mtk::Field * aFieldTarget)
+        {
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
+
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+
+            MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::interpolate_field() Source mesh is not and HMR mesh" );
+            MORIS_ERROR( tTargetMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::interpolate_field() Target mesh is not and HMR mesh" );
+            MORIS_ERROR( tSourceMesh->get_HMR_database() == tTargetMesh->get_HMR_database(),
+                    "Mapper::interpolate_field() Source and target mesh are based on two different instances of HMR" );
+
+            // grab orders of meshes
+            uint tSourceLagrangeOrder = tSourceMesh->get_order();
+            uint tTargetLagrangeOrder = tTargetMesh->get_order();
+
+            MORIS_ERROR( tSourceLagrangeOrder == tTargetLagrangeOrder,
+                    "Mapper::interpolate_field() Source and target mesh order are not the same" );
+
+            MORIS_ERROR( aFieldTarget->get_number_of_dimensions() == aFieldSource->get_number_of_dimensions(),
+                      "Mapper::interpolate_field() Source and target field number of dimmensions differ" );
+
+            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            //uint tTargetPattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+
+
+            // pointer to mesh that is linked to input field
+//            hmr::Lagrange_Mesh_Base * tSourceMesh = tSourceMesh->get_HMR_lagrange_mesh();
+//            hmr::Lagrange_Mesh_Base * tTargetMesh = tTargetMesh->get_HMR_lagrange_mesh();
+
+            tTargetMesh->get_HMR_lagrange_mesh()->select_activation_pattern();
+
+            // unflag nodes on target
+            tTargetMesh->get_HMR_lagrange_mesh()->unflag_all_basis();
+
+            // number of elements on target mesh
+            auto tNumberOfElements = tTargetMesh->get_HMR_lagrange_mesh()->get_number_of_elements();
+
+            // number of nodes per element
+            auto tNumberOfNodesPerElement = tTargetMesh->get_HMR_lagrange_mesh()->get_number_of_basis_per_element();
+
+            // create unity matrix
+            Matrix< DDRMat > tEye;
+            eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
+
+            // get values of source field
+            const Matrix< DDRMat > & tSourceData = aFieldSource->get_node_values();
+
+            // get target data
+            Matrix< DDRMat > & tTargetData = aFieldTarget->get_node_values();
+
+            // allocate value matrix
+            tTargetData.set_size( tTargetMesh->get_HMR_lagrange_mesh()->get_number_of_all_basis_on_proc(), aFieldTarget->get_number_of_dimensions() );
+
+            // containers for source and target data
+            Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_dimensions() );
+
+            hmr::T_Matrix * tTMatrix = new hmr::T_Matrix(
+                    tSourceMesh->get_HMR_database()->get_parameters(),
+                    tTargetMesh->get_HMR_lagrange_mesh() );
+
+            // loop over all elements
+            for( luint Ie = 0; Ie < tNumberOfElements; ++Ie )
+            {
+                // get pointer to target element
+                auto tTargetElement = tTargetMesh->get_HMR_lagrange_mesh()->get_element( Ie );
+
+                // get background element
+                auto tBackgroundElement = tTargetElement->get_background_element();
+
+                // initialize refinement Matrix
+                Matrix< DDRMat > tR( tEye );
+
+                while( ! tBackgroundElement->is_active( tSourcePattern ) )
+                {
+                    // right multiply refinement matrix
+                    tR = tR * tTMatrix->get_refinement_matrix( tBackgroundElement->get_child_index() );
+
+                    // jump to parent
+                    tBackgroundElement = tBackgroundElement->get_parent();
+                }
+
+                // get pointer to source element
+                auto tSourceElement = tSourceMesh->get_HMR_lagrange_mesh()->get_element_by_memory_index( tBackgroundElement->get_memory_index() );
+
+                // fill source data vector
+                for( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
+                {
+                    // get pointer to source node
+                    auto tNode  = tSourceElement->get_basis( Ik );
+                    auto tIndex = tNode->get_index();
+
+                    // copy data from source mesh
+                    tElementSourceData.set_row( Ik, tSourceData.get_row( tIndex ) );
+                }
+
+                // copy target data to target mesh
+                for( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
+                {
+                    // get pointer to target node
+                    auto tNode = tTargetElement->get_basis( Ik );
+
+                    // test if data has already been written to target
+                    if ( ! tNode->is_flagged() )
+                    {
+                        // get node index
+                        auto tIndex = tNode->get_index();
+
+                        tTargetData.set_row( tIndex, tR.get_row( Ik ) * tElementSourceData );
+
+                        // flag this node
+                        tNode->flag();
+                    }
+                }
+            }
+
+            delete( tTMatrix );
         }
 
         //------------------------------------------------------------------------------
@@ -102,7 +357,41 @@ namespace moris
                         mMeshManager.get(),
                         mBSplineMeshIndex,
                         tSetInfo,
-                        mMeshPairIndex );
+                        mMeshPairIndex_In );
+
+                // set bool for building IWG and model to true
+                mHaveIwgAndModel = true;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void Mapper::create_iwg_and_model(
+                mtk::Field * aField,
+                const real aAlpha )
+        {
+            if( ! mHaveIwgAndModel )
+            {
+                // create a L2 IWG
+                //FIXME should be provided to the function
+                fem::IWG_Factory tIWGFactory;
+                std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
+                tIWGL2->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+                tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
+
+                // define set info
+                //FIXME should be provided to the function
+                moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+                tSetInfo( 0 ).set_mesh_index( 0 );
+                tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
+
+                std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aField->get_mesh_pair();
+
+                // create model
+                mModel = new mdl::Model(
+                        tMeshPairIn.second.get(),
+                        aField->get_discretization_mesh_index(),
+                        tSetInfo,
+                        tMeshPairIn.first );
 
                 // set bool for building IWG and model to true
                 mHaveIwgAndModel = true;
@@ -161,7 +450,7 @@ namespace moris
             {
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 case( EntityRank::NODE ) :
-                    {
+                            {
                     switch( aTargetEntityRank )
                     {
                         case( EntityRank::BSPLINE ) :
@@ -181,7 +470,7 @@ namespace moris
                         }
                     }
                     break;
-                    }
+                            }
                 case( EntityRank::BSPLINE ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
@@ -189,13 +478,13 @@ namespace moris
                     switch( aTargetEntityRank )
                     {
                         case( EntityRank::NODE ) :
-                            {
+                                    {
                             this->map_bspline_to_node_same_mesh(
                                     tSourceIndex,
                                     aSourceEntityRank,
                                     tTargetIndex );
                             break;
-                            }
+                                    }
                         default :
                         {
                             MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
@@ -271,11 +560,60 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mapper::perform_mapping(
+                mtk::Field * aField,
+                const enum EntityRank aSourceEntityRank,
+                const enum EntityRank aTargetEntityRank )
+        {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper", "Map");
+
+            switch( aSourceEntityRank )
+            {
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                case EntityRank::NODE :
+                {
+                    switch( aTargetEntityRank )
+                    {
+                        case EntityRank::BSPLINE:
+                        {
+                            this->map_node_to_bspline_from_field( aField );
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case EntityRank::BSPLINE:
+                {
+                    switch( aTargetEntityRank )
+                    {
+                        default :
+                        {
+                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
+                            break;
+                        }
+                    }
+                    break;
+                }
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                default :
+                {
+                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported.");
+                    break;
+                }
+            }
+        }
+
         //------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline(
-                const enum EntityRank   aBSplineRank,
-                Matrix<DDRMat>        & aSolution )
+        void Mapper::map_node_to_bspline( Matrix<DDRMat> & aSolution )
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
@@ -362,7 +700,7 @@ namespace moris
 
             // Map to B-splines
             Matrix<DDRMat> tSolution(0, 0);
-            this->map_node_to_bspline(aBSplineRank, tSolution);
+            this->map_node_to_bspline( tSolution);
 
             // test if output mesh is HMR
             if( mTargetMesh->get_mesh_type() == MeshType::HMR )
@@ -416,7 +754,23 @@ namespace moris
             // set weak bcs from field
             mModel->set_weak_bcs( aSourceField );
 
-            this->map_node_to_bspline(aBSplineRank, aTargetField);
+            this->map_node_to_bspline( aTargetField);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mapper::map_node_to_bspline_from_field( mtk::Field * aField )
+        {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
+
+            // create the model if it has not been created yet
+            this->create_iwg_and_model( aField );
+
+            // set weak bcs from field
+            mModel->set_weak_bcs( aField->get_node_values() );
+
+            this->map_node_to_bspline( aField->get_coefficients() );
         }
 
         //------------------------------------------------------------------------------
