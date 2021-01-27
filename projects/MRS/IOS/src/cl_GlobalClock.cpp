@@ -1,4 +1,5 @@
 #include "cl_GlobalClock.hpp"
+#include "Log_Constants.hpp"
 
 #include <cstdio>
 #include <string>
@@ -33,11 +34,15 @@ namespace moris
         // initialize list of Actions
         mCurrentIteration.resize( 1 , 0 );
 
-        // record starting time
+        // record starting time of iterations
         mIterationTimeStamps.resize( 1 , (real) std::clock() );
 
         // record starting time
         mTimeStamps.resize( 1 , (real) std::clock() );
+
+        // record starting wall clock time
+        if ( PRINT_WALL_TIME )
+            mWallTimeStamps.resize( 1 , std::chrono::system_clock::now() );
     }
 
     // --------------------------------------------------------------------------------
@@ -73,6 +78,10 @@ namespace moris
 
         // create time stamp for new entity
         mTimeStamps.push_back( (real) std::clock() );
+
+        // create wall clock time stamp for new entity
+        if ( PRINT_WALL_TIME )
+            mWallTimeStamps.push_back( std::chrono::system_clock::now() );        
         
 #ifdef DEBUG
         // check that indentation level and array size match
@@ -111,6 +120,10 @@ namespace moris
 
         // decrement indentation level
         mIndentationLevel--;
+
+        // remove wall time stamp from list of active entities
+        if ( PRINT_WALL_TIME )
+            mWallTimeStamps.pop_back();
 
 #ifdef DEBUG
         // check that indentation level and array size match

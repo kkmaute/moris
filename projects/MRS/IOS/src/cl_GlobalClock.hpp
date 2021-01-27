@@ -7,19 +7,13 @@
 
 // define time functions
 #include <ctime>
+#include <chrono>
 
 // Define uint, real, etc.
 #include "typedefs.hpp"
 
 namespace moris
 {
-
-// Define enums used
-enum class EntityBase;
-enum class EntityType;
-enum class EntityAction;
-enum class OutputSpecifier;
-
 
 class GlobalClock
     {
@@ -56,6 +50,9 @@ class GlobalClock
 
     // track number of function IDs
     uint mMaxFunctionID = 0;
+
+    // wall clock timer for debugging purposes
+    std::vector< std::chrono::_V2::system_clock::time_point > mWallTimeStamps;
 
     //------------------------------------ PUBLIC -------------------------------------
 

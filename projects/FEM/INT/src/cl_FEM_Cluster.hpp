@@ -25,6 +25,7 @@
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
+#include "cl_FEM_Interpolation_Element.hpp"       //FEM/INT/src
 
 namespace moris
 {

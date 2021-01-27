@@ -106,6 +106,23 @@ namespace moris
                 default :
                     MORIS_ERROR( false, "IWG::set_function_pointers - unknown element type.");
             }
+
+            // switch on perturbation strategy
+            switch( mSet->get_perturbation_strategy() )
+            {
+                case fem::Perturbation_Type::RELATIVE :
+                {
+                    m_build_perturbation_size = &IQI::build_perturbation_size_relative;
+                    break;
+                }
+                case fem::Perturbation_Type::ABSOLUTE :
+                {
+                    m_build_perturbation_size = &IQI::build_perturbation_size_absolute;
+                    break;
+                }
+                default :
+                    MORIS_ERROR( false, "IQI::set_function_pointers - unknown perturbation type.");
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1689,6 +1706,48 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real IQI::build_perturbation_size(
+                real aPerturbation,
+                real aCoefficientToPerturb,
+                real aTolerance )
+        {
+            return ( this->*m_build_perturbation_size )(
+                    aPerturbation,
+                    aCoefficientToPerturb,
+                    aTolerance );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real IQI::build_perturbation_size_relative(
+                real aPerturbation,
+                real aCoefficientToPerturb,
+                real aTolerance )
+        {
+            // compute the perturbation value
+            real tDeltaH = aPerturbation * aCoefficientToPerturb;
+
+            // check that perturbation is not zero
+            if( std::abs( tDeltaH ) < aTolerance )
+            {
+                tDeltaH = aPerturbation;
+            }
+
+            return tDeltaH;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real IQI::build_perturbation_size_absolute(
+                real aPerturbation,
+                real aCoefficientToPerturb,
+                real aTolerance )
+        {
+            return aPerturbation;
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI::select_dQIdp_FD_geometry_bulk(
                 moris::real                         aWStar,
                 moris::real                         aPerturbation,
@@ -1735,6 +1794,9 @@ namespace moris
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
+            // init perturbation
+            real tDeltaH = 0.0;
+
             // loop over the spatial directions/loop on pdv type
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
@@ -1748,13 +1810,7 @@ namespace moris
                     if( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                        // check that perturbation is not zero
-                        if( std::abs( tDeltaH ) < 1e-12 )
-                        {
-                            tDeltaH = aPerturbation;
-                        }
+                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
@@ -1894,6 +1950,9 @@ namespace moris
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
+            // init perturbation
+                        real tDeltaH = 0.0;
+
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tIGGI->get_number_of_space_bases();
             uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
@@ -1911,13 +1970,7 @@ namespace moris
                     if( tPdvAssemblyIndex != -1 )
                     {
                         // compute the perturbation value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                        // check that perturbation is not zero
-                        if( std::abs( tDeltaH ) < 1e-12 )
-                        {
-                            tDeltaH = aPerturbation;
-                        }
+                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;

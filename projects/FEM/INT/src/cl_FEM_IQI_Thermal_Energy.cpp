@@ -108,8 +108,6 @@ namespace moris
             Field_Interpolator * tFITemp =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
-
-
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 

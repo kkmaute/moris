@@ -152,6 +152,9 @@ namespace moris
             // real for FD perturbation size
             real mFDPerturbation = 0.0;
 
+            // enum for perturbation strategy used for FD (FA and SA)
+            fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
+
             friend class MSI::Equation_Object;
             friend class Cluster;
             friend class Element_Bulk;
@@ -373,6 +376,29 @@ namespace moris
             real get_finite_difference_perturbation_size()
             {
                 return mFDPerturbation;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set perturbation strategy enum for sensitivity analysis on the set
+             * @param[ in ] aPerturbationStrategy enum for perturbation strategy used for
+             * FA and SA if computed by FD
+             */
+            void set_perturbation_strategy(
+                    enum fem::Perturbation_Type aPerturbationStrategy )
+            {
+                mPerturbationStrategy = aPerturbationStrategy;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get perturbation strategy enum for sensitivity analysis on the set
+             * @param[ out ] aPerturbationStrategy enum for perturbation strategy used for
+             * FA and SA if computed by FD
+             */
+            enum fem::Perturbation_Type get_perturbation_strategy() const
+            {
+                return mPerturbationStrategy;
             }
 
             //------------------------------------------------------------------------------

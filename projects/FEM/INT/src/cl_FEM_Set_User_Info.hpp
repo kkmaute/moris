@@ -64,6 +64,9 @@ namespace moris
                 // real for finite difference perturbation size for forward analysis
                 real mFDPerturbationFA;
 
+               // enum for perturbation strategy used for FD (FA and SA)
+                fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -310,6 +313,29 @@ namespace moris
                 real & get_finite_difference_perturbation_size_for_forward_analysis() const
                 {
                     return mFDPerturbationFA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set perturbation strategy enum for sensitivity analysis on the set
+                 * @param[ in ] aPerturbationStrategy enum for perturbation strategy used for
+                 * FA and SA if computed by FD
+                 */
+                void set_perturbation_strategy(
+                        enum fem::Perturbation_Type aPerturbationStrategy )
+                {
+                    mPerturbationStrategy = aPerturbationStrategy;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get perturbation strategy enum for sensitivity analysis on the set
+                 * @param[ out ] aPerturbationStrategy enum for perturbation strategy used for
+                 * FA and SA if computed by FD
+                 */
+                enum fem::Perturbation_Type get_perturbation_strategy() const
+                {
+                    return mPerturbationStrategy;
                 }
 
                 //------------------------------------------------------------------------------
