@@ -283,42 +283,38 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-
                 mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
                 mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetFunction1 );
-                //reinterpret_cast< mtk::Field_Proxy* >( tField_Out )->evaluate_scalar_function( LevelSetPlainFunction );
+                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                //                moris::print( tField_In->get_node_values(), "FieldVal" );
-                //                moris::print( tField_Out->get_node_values(), "FieldVal" );
-
-                std::cout<<"Field_In size: "<<tField_In->get_node_values().numel()<<std::endl;
-                //std::cout<<"Field_Out size: "<<tField_Out->get_node_values().numel()<<std::endl;
-
-//                CHECK(equal_to( tField_In->get_node_values().numel(), 125));
-//                CHECK(equal_to( tField_Out->get_node_values().numel(), 46));
+                CHECK(equal_to( tField_In->get_node_values().numel(), 46));;
 
                 // Use mapper
                 mapper::Mapper tMapper( tField_In, tField_Out );
                 tMapper.map_input_field_to_output_field();
 
-                moris::print( tField_Out->get_coefficients(),"Fieldout");
                 tField_Out->evaluate_node_values();
-                moris::print( tField_Out->get_node_values(),"FieldoutNode");
-
-//                std::shared_ptr< moris::hmr::Mesh > tMesh1 = tHMR.create_mesh( tLagrangeMeshIndex_Out );
-//                std::shared_ptr< moris::hmr::Field > tFieldHMR1 = tMesh->create_field( tFieldName, tLagrangeMeshIndex_Out );
 
                 tFieldHMR->get_node_values() = tField_Out->get_node_values();
 
-                tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
+                //tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
-                tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
+                //tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
+                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+
+                CHECK(equal_to( tField_Out->get_node_values().numel(), 125));
+
+                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                {
+                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                }
 
                 delete tField_In;
                 delete tField_Out;
+                delete tField_Ref;
             }
         }
 
