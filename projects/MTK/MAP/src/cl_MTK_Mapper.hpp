@@ -90,8 +90,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                Mapper( mtk::Field                         * aFieldIn,
-                        mtk::Field                         * aFieldOut );
+                Mapper();
 
                 //------------------------------------------------------------------------------
 
@@ -102,7 +101,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void map_input_field_to_output_field();
+                void map_input_field_to_output_field(
+                        mtk::Field * aFieldSource,
+                        mtk::Field * aFieldTarget );
 
                 //------------------------------------------------------------------------------
 

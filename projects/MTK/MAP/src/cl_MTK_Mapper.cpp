@@ -79,17 +79,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Mapper::Mapper(
-                mtk::Field                         * aFieldIn,
-                mtk::Field                         * aFieldOut )
-        : mFieldIn( aFieldIn ),
-          mFieldOut( aFieldOut )
+        Mapper::Mapper()
         {
-            // Retrieve source mesh pair
-            //            mSourceMesh = mMeshManager->get_interpolation_mesh(aMeshPairIndex);
-            //
-            //            // Retrieve target mesh pair
-            //            mTargetMesh = mMeshManager->get_interpolation_mesh(aMeshPairIndex);
         }
 
         //------------------------------------------------------------------------------
@@ -106,8 +97,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Mapper::map_input_field_to_output_field()
+        void Mapper::map_input_field_to_output_field(
+                mtk::Field * aFieldSource,
+                mtk::Field * aFieldTarget )
         {
+            mFieldIn = aFieldSource;
+            mFieldOut = aFieldTarget;
+
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = mFieldIn->get_mesh_pair();
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = mFieldOut->get_mesh_pair();
 
@@ -128,11 +124,13 @@ namespace moris
             uint tTargetLagrangeOrder = tTargetMesh->get_order();
 
             // get order of Union Mesh
-            uint tOrder = std::max( tSourceLagrangeOrder, tTargetLagrangeOrder );
+            uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tTargetLagrangeOrder );
 
             uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             uint tTargetPattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+            uint tUnionDescritizationOrder = mFieldOut->get_discretization_order();
 
             // create union pattern
             tHMRDatabase->create_union_pattern(
@@ -140,19 +138,17 @@ namespace moris
                     tTargetPattern,
                     tUnionPattern );
 
-//            tHMRDatabase->update_bspline_meshes();
-//            tHMRDatabase->update_lagrange_meshes();
-
             // create union mesh
             hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                     tHMRDatabase,
-                    tOrder,
+                    tLagrangeOrder,
                     tUnionPattern,
+                    tUnionDescritizationOrder,
                     tTargetPattern); // order, Lagrange pattern, bspline pattern
 
             //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
             hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
-                    tOrder,
+                    tLagrangeOrder,
                     tUnionPattern,
                     tUnionInterpolationMesh);
 
@@ -237,24 +233,23 @@ namespace moris
             MORIS_ERROR( aFieldTarget->get_number_of_dimensions() == aFieldSource->get_number_of_dimensions(),
                       "Mapper::interpolate_field() Source and target field number of dimmensions differ" );
 
-            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            //uint tTargetPattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-
-
             // pointer to mesh that is linked to input field
-//            hmr::Lagrange_Mesh_Base * tSourceMesh = tSourceMesh->get_HMR_lagrange_mesh();
-//            hmr::Lagrange_Mesh_Base * tTargetMesh = tTargetMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base * tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
 
-            tTargetMesh->get_HMR_lagrange_mesh()->select_activation_pattern();
+            uint tSourcePattern = tSourceLagrangeMesh->get_activation_pattern();
+            //uint tTargetPattern = tTargetLagrangeMesh->get_activation_pattern();
+
+            tTargetLagrangeMesh->select_activation_pattern();
 
             // unflag nodes on target
-            tTargetMesh->get_HMR_lagrange_mesh()->unflag_all_basis();
+            tTargetLagrangeMesh->unflag_all_basis();
 
             // number of elements on target mesh
-            auto tNumberOfElements = tTargetMesh->get_HMR_lagrange_mesh()->get_number_of_elements();
+            auto tNumberOfElements = tTargetLagrangeMesh->get_number_of_elements();
 
             // number of nodes per element
-            auto tNumberOfNodesPerElement = tTargetMesh->get_HMR_lagrange_mesh()->get_number_of_basis_per_element();
+            auto tNumberOfNodesPerElement = tTargetLagrangeMesh->get_number_of_basis_per_element();
 
             // create unity matrix
             Matrix< DDRMat > tEye;
@@ -267,20 +262,20 @@ namespace moris
             Matrix< DDRMat > & tTargetData = aFieldTarget->get_node_values();
 
             // allocate value matrix
-            tTargetData.set_size( tTargetMesh->get_HMR_lagrange_mesh()->get_number_of_all_basis_on_proc(), aFieldTarget->get_number_of_dimensions() );
+            tTargetData.set_size( tTargetLagrangeMesh->get_number_of_all_basis_on_proc(), aFieldTarget->get_number_of_dimensions() );
 
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_dimensions() );
 
             hmr::T_Matrix * tTMatrix = new hmr::T_Matrix(
                     tSourceMesh->get_HMR_database()->get_parameters(),
-                    tTargetMesh->get_HMR_lagrange_mesh() );
+                    tTargetLagrangeMesh );
 
             // loop over all elements
             for( luint Ie = 0; Ie < tNumberOfElements; ++Ie )
             {
                 // get pointer to target element
-                auto tTargetElement = tTargetMesh->get_HMR_lagrange_mesh()->get_element( Ie );
+                auto tTargetElement = tTargetLagrangeMesh->get_element( Ie );
 
                 // get background element
                 auto tBackgroundElement = tTargetElement->get_background_element();
@@ -298,7 +293,7 @@ namespace moris
                 }
 
                 // get pointer to source element
-                auto tSourceElement = tSourceMesh->get_HMR_lagrange_mesh()->get_element_by_memory_index( tBackgroundElement->get_memory_index() );
+                auto tSourceElement = tSourceLagrangeMesh->get_element_by_memory_index( tBackgroundElement->get_memory_index() );
 
                 // fill source data vector
                 for( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
