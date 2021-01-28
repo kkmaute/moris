@@ -492,6 +492,7 @@ namespace moris
         mStream << "Eigen \n";
 #endif
 
+        mStream << "\nProc-#: " << logger_par_rank() << "\n";
         mStream << LOGGER_HEADER_END << "\n";
 
         // Top row in table
