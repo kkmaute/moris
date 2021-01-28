@@ -158,7 +158,6 @@ namespace xtk
         mEnrichedInterpMesh = Cell<Enriched_Interpolation_Mesh*>(0, nullptr);
         mEnrichedIntegMesh  = Cell<Enriched_Integration_Mesh*>(0, nullptr);
         mConvertedToTet10s  = false;
-
         mBackgroundMesh = Background_Mesh(aMesh,mGeometryEngine);
         mBackgroundMesh.initialize_interface_node_flags(
                 mBackgroundMesh.get_num_entities(EntityRank::NODE),
@@ -190,12 +189,14 @@ namespace xtk
 
         if(mParameterList.get<bool>("decompose"))
         {
+            std::cout<<"Decomp"<<std::endl;
             Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
             this->decompose(tSubdivisionMethods);
         }
 
         if(mParameterList.get<bool>("enrich"))
         {
+            std::cout<<"Enrich"<<std::endl;
             enum EntityRank tBasisRank = get_entity_rank_from_str(mParameterList.get<std::string>("basis_rank"));
 
             Matrix<IndexMat> tMeshIndexCell;
@@ -317,6 +318,13 @@ namespace xtk
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print("XTK Model");
         }
+
+        // print 
+        MORIS_LOG_SPEC("IG verts",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::NODE)));
+        MORIS_LOG_SPEC("IG cells",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT)));
+        MORIS_LOG_SPEC("IP verts",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::NODE)));
+        MORIS_LOG_SPEC("IP cells",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT)));
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -470,6 +478,7 @@ namespace xtk
         // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
         // i.e set element ids, indices for children elements
         this->finalize_decomp_in_xtk_mesh(tSetPhase);
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -1599,7 +1608,7 @@ namespace xtk
         // handle received information
         this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeId);
 
-        MORIS_ASSERT(this->verify_successful_node_assignment(aDecompData),"Unsuccesssful node assignment detected.");
+        MORIS_ERROR(this->verify_successful_node_assignment(aDecompData),"Unsuccesssful node assignment detected.");
 
         barrier();
     }
@@ -1755,12 +1764,19 @@ namespace xtk
     bool
     Model::verify_successful_node_assignment(Decomposition_Data & aDecompData)
     {
+        uint tNumUnsuccessful = 0;
         for(moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++)
         {
             if(aDecompData.tNewNodeId(i) == MORIS_INDEX_MAX)
             {
-                return false;
+                tNumUnsuccessful++;
             }
+         }
+
+        if(tNumUnsuccessful > 0)
+        {
+            std::cout<<"There were "<<tNumUnsuccessful<<" bad nodes of "<<aDecompData.tNewNodeId.size()<<" total nodes"<<std::endl;
+            return false;
         }
 
         return true;
@@ -1842,6 +1858,8 @@ namespace xtk
             Cell<Matrix<IndexMat>> const & aRequestAnswers,
             moris::moris_id              & aNodeId)
     {
+        Cell<moris_index> tUnhandledRequestIndices;
+
         // iterate through received data
         for(moris::uint i = 0; i < aRequests.size(); i++)
         {
@@ -1878,7 +1896,6 @@ namespace xtk
                         // meaning the owning processor expected this and gave an answer
                         if(tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId(tRequestIndex) == MORIS_INDEX_MAX)
                         {
-                            aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
 
                             // set the new node id
                             aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
@@ -1887,20 +1904,25 @@ namespace xtk
 
                         }
 
-                        // This is a hanging
+                        // The owner did not expect and did not return an answer
                         else
-                        {
-                            //                    MORIS_ASSERT(aDecompData.mSubdivisionMethod == Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 && (int)tParentRank == 2," The only known case where hanging nodes are allowed to show up is on a face during NC_REGULAR_SUBDIVISION_HEX8");
-                            //                    aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
+                        {   
+                            // keep track of unhandled
+                            tUnhandledRequestIndices.push_back(tRequestIndex);
+                            // moris_index tNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
 
-                            //                    aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-                            //                    aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
-                            //                    aNodeInd++;
-                            //
-                            //                    // set the new node id
-                            //                    aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-                            //
-                            //                    aDecompData.mNumNewNodesWithIds++;
+                            // aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
+
+                            // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                            // aDecompData.tNewNodeIndex(tRequestIndex) = tNodeIndex;
+                            // tNodeIndex++;
+                            
+                            // // set the new node id
+                            // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                            
+                            // aDecompData.mNumNewNodesWithIds++;
+
+                            // mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
 
                         }
                     }
@@ -1911,6 +1933,19 @@ namespace xtk
                 }
             }
         }
+
+        // handle the unhandled requests wiht current proc being the owner
+        moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(tUnhandledRequestIndices.size(), EntityRank::NODE);
+        std::cout<<"tUnhandledRequestIndices = "<<tUnhandledRequestIndices.size()<<std::endl;
+        
+        for (moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++)
+        {
+            moris_index tRequestIndex = tUnhandledRequestIndices(i);
+            aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
+            aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+            tNodeId++;
+        }
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -2043,7 +2078,6 @@ namespace xtk
                     else
                     {
                         aRequestAnswers(i)(j) = MORIS_ID_MAX;
-                        MORIS_ASSERT(0,"Request does not exist. Need to handle hanging node in reg sub of hex8");
                     }
                 }
             }
@@ -2286,6 +2320,10 @@ namespace xtk
                     moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
                     moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
 
+                    if(!mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT))
+                    {
+                        std::cout<<"tParentId = "<<tParentId<<std::endl;
+                    }
                     // get child mesh
                     MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),
                             "Request is made for child element ids on a parent cell not intersected");
@@ -2829,6 +2867,8 @@ namespace xtk
         // access the communication table
         Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
 
+        moris::print(tCommTable,"tCommTable");
+
         // resize proc ranks and setup map to comm table
         aProcRanks.resize(tCommTable.numel());
         for(moris::uint i = 0; i <tCommTable.numel(); i++)
@@ -2842,6 +2882,8 @@ namespace xtk
         // ask owning processor about child element ids
         Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
         Cell<moris_id>    const & tNotOwnedChildMeshOwners = mCutMesh.get_not_owned_child_owners();
+
+        std::cout<<"tNotOwnedChildMeshes.size() = " <<tNotOwnedChildMeshes.size()<<" on "<<par_rank()<<std::endl;
 
         // sort child meshes by owner
         for(moris::size_t i = 0; i < tNotOwnedChildMeshes.size(); i++)
@@ -4215,6 +4257,8 @@ namespace xtk
     Model::get_subphase_index(moris_id aSubphaseId)
     {
         auto tIter = mGlobalToLocalSubphaseMap.find(aSubphaseId);
+
+        std::cout<<"aSubphaseId = "<<aSubphaseId<<" on "<<par_rank()<<std::endl;
 
         MORIS_ASSERT(tIter != mGlobalToLocalSubphaseMap.end(),"Subphase id not in map");
 
