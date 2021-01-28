@@ -204,6 +204,11 @@ namespace moris
             tParameters.mBSplineLowerBound = aPropertyParameterList.get<real>("bspline_lower_bound");
             tParameters.mBSplineUpperBound = aPropertyParameterList.get<real>("bspline_upper_bound");
 
+            map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
+            tParameters.mPDVType = tPDVTypeMap[aPropertyParameterList.get<std::string>("pdv_type")];
+            tParameters.mPDVMeshSetIndices = string_to_mat<DDUMat>(aPropertyParameterList.get<std::string>("pdv_mesh_set_indices"));
+            tParameters.mPDVMeshSetNames = string_to_cell<std::string>(aPropertyParameterList.get<std::string>("pdv_mesh_set_names"));
+
             // Build Property
             if (tPropertyType == "constant")
             {

@@ -87,9 +87,6 @@ namespace moris
             bool mShapeSensitivities = false;
             real mTimeOffset;
 
-            // Properties
-            Cell<ParameterList> mPropertyParameterLists;
-
             // PDVs
             Pdv_Host_Manager mPdvHostManager;
             std::shared_ptr<Intersection_Node> mQueuedIntersectionNode;

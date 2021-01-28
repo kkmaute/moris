@@ -58,12 +58,9 @@ namespace moris
                 , mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") )
                 , mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") )
                 , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
-
-                // Properties
-                , mPropertyParameterLists( aParameterLists(2) )
         {
             // Tracer
-            Tracer tTracer("GEN", "Geometry_Engine", "Create");
+            Tracer tTracer("GEN", "N/A", "Create geometry engine");
 
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
@@ -145,7 +142,7 @@ namespace moris
                 , mTimeOffset(aParameters.mTimeOffset)
         {
             // Tracer
-            Tracer tTracer("GEN", "Geometry_Engine", "Create");
+            Tracer tTracer("GEN", "N/A", "Create geometry engine");
 
             this->distribute_advs(aMesh);
         }
@@ -654,7 +651,7 @@ namespace moris
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             // Tracer
-            Tracer tTracer( "GeometryEngine", "PDVs", "Create" );
+            Tracer tTracer( "GEN", "N/A", "Create PDVs" );
 
             // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
@@ -662,36 +659,31 @@ namespace moris
 
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
-            Cell<PDV_Type> tPdvTypeGroup(1);
-
-            Cell<std::string> tMeshSetNames(0);
-            Matrix<DDUMat> tMeshSetIndices(0, 0);
-
-            // PDV type map
-            map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+            Cell<PDV_Type> tPDVTypeGroup(1);
+            Cell<Matrix<DDUMat>> tMeshSetIndicesPerProperty(mProperties.size());
 
             // Loop over properties to create PDVs
-            for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 // PDV type and mesh set names/indices from parameter list
-                tPdvTypeGroup(0) = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+                tPDVTypeGroup(0) = mProperties(tPropertyIndex)->get_pdv_type();
 
-                string_to_cell(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
-                string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
+                tMeshSetIndicesPerProperty(tPropertyIndex) = mProperties(tPropertyIndex)->get_pdv_mesh_set_indices();
+                Cell<std::string> tMeshSetNames = mProperties(tPropertyIndex)->get_pdv_mesh_set_names();
 
                 // Convert mesh set names to indices
-                uint tNumSetIndices = tMeshSetIndices.length();
-                tMeshSetIndices.resize(tNumSetIndices + tMeshSetNames.size(), 1);
+                uint tNumSetIndices = tMeshSetIndicesPerProperty(tPropertyIndex).length();
+                tMeshSetIndicesPerProperty(tPropertyIndex).resize(tNumSetIndices + tMeshSetNames.size(), 1);
 
-                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndices.length(); tIndex++)
+                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
                 {
-                    tMeshSetIndices(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
+                    tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
                 }
 
                 // Assign PDV types
-                for (uint tIndex = 0; tIndex < tMeshSetIndices.length(); tIndex++)
+                for (uint tIndex = 0; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
                 {
-                    tPdvTypes(tMeshSetIndices(tIndex)).push_back(tPdvTypeGroup);
+                    tPdvTypes(tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex)).push_back(tPDVTypeGroup);
                 }
             }
 
@@ -717,12 +709,16 @@ namespace moris
             }
 
             // Loop over properties to assign PDVs
-            for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 // Assign PDVs
-                if (mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
+                if (mProperties(tPropertyIndex)->is_interpolation_pdv())
                 {
-                    this->assign_property_to_pdv_hosts(mProperties(tPropertyIndex), tPdvTypeGroup(0), tIntegrationMesh, tMeshSetIndices);
+                    this->assign_property_to_pdv_hosts(
+                            mProperties(tPropertyIndex),
+                            tPDVTypeGroup(0),
+                            tIntegrationMesh,
+                            tMeshSetIndicesPerProperty(tPropertyIndex));
                 }
                 else
                 {
@@ -747,10 +743,10 @@ namespace moris
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
             // Loop over properties to build parallel consitent pdv list
-             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
+             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
              {
                  // PDV type and mesh set names/indices from parameter list
-                 enum PDV_Type tPdvType = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+                 PDV_Type tPdvType = mProperties(tPropertyIndex)->get_pdv_type();
 
                  if ( tListToCheckIfEnumExist(static_cast< int >(tPdvType) , 0) == 0)
                  {

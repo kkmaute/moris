@@ -15,8 +15,8 @@ namespace moris
         {
             PDV_Type mPDVType = PDV_Type::UNDEFINED;  //! The type of PDV that this property will be assigned to
             bool mInterpolationPDV = true;            //! If the PDV is defined on the interpolation mesh (always true for now)
-            Cell<std::string> mPDVMeshSetNames = {};  //! Mesh set names for assigning PDVs
             Matrix<DDUMat> mPDVMeshSetIndices = {{}}; //! Mesh set indices for assigning PDVs
+            Cell<std::string> mPDVMeshSetNames = {};  //! Mesh set names for assigning PDVs
         };
 
         /**
