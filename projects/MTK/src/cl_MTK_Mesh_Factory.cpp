@@ -133,6 +133,7 @@ namespace moris
         Integration_Mesh* create_integration_mesh_from_interpolation_mesh(
                 enum MeshType aMeshType,
                 Interpolation_Mesh* aInterpMesh,
+                uint                aMeshIndex,
                 Cell_Cluster_Input* aCellClusterData)
         {
             switch (aMeshType)
@@ -143,7 +144,7 @@ namespace moris
                 }
                 case MeshType::HMR:
                 {
-                    return new hmr::Integration_Mesh_HMR(0, static_cast<hmr::Interpolation_Mesh_HMR*>(aInterpMesh));
+                    return new hmr::Integration_Mesh_HMR(aMeshIndex, static_cast<hmr::Interpolation_Mesh_HMR*>(aInterpMesh));
                 }
                 default:
                 {
