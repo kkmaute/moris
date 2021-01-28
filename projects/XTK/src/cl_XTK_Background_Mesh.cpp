@@ -1339,7 +1339,7 @@ namespace xtk
         {
             std::unordered_map<moris_id,moris_id> tCommunicationMap;
             Cell<moris_index> tCellOfProcs;
-
+    
             for(moris::uint i = 0; i < mMeshData->get_num_entities(EntityRank::NODE); i++)
             {
                 moris_index tOwner = mMeshData->get_entity_owner((moris_index)i,EntityRank::NODE);
@@ -1350,7 +1350,6 @@ namespace xtk
                     tCommunicationMap[tOwner] = 1;
                 }
             }
-
             mCommunicationMap.resize(1,tCellOfProcs.size());
             for(moris::uint i = 0; i < tCellOfProcs.size(); i++)
             {
@@ -1359,20 +1358,28 @@ namespace xtk
 
             Cell<Matrix<IndexMat>> tGatheredMats;
             moris_index tTag = 10009;
-            all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0,0);
-
+            if(tCellOfProcs.size() == 0)
+            {
+                Matrix<IndexMat> tDummy(1,1,MORIS_INDEX_MAX);
+                all_gather_vector(tDummy,tGatheredMats,tTag,0,0);
+            }
+            else
+            {
+                all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0,0);
+            }
             if(par_rank() == 0)
             {
                 Cell<Cell<uint>> tProcToProc(par_size());
-
                 for(moris::uint i = 0; i < tGatheredMats.size(); i++)
                 {
                     for(moris::uint j = 0; j < tGatheredMats(i).numel(); j ++)
                     {
-                        tProcToProc(tGatheredMats(i)(j)).push_back((moris_index)i);
+                        if(tGatheredMats(i)(j) != MORIS_INDEX_MAX)
+                        {
+                            tProcToProc(tGatheredMats(i)(j)).push_back((moris_index)i);
+                        }
                     }
                 }
-
                 Cell<Matrix<IndexMat>> tReturnMats(tProcToProc.size());
                 // convert to a matrix
                 for(moris::uint  i = 0; i < tProcToProc.size(); i++)
@@ -1383,8 +1390,11 @@ namespace xtk
                     {
                         tReturnMats(i)(j) = tProcToProc(i)(j);
                     }
+                    if(tProcToProc(i).size() == 0)
+                    {
+                        tReturnMats(i) = Matrix<IndexMat>(1,1,MORIS_INDEX_MAX);
+                    }
                 }
-
                 // send them back
                 for(moris::uint i = 0; i < tReturnMats.size(); i++)
                 {
@@ -1398,6 +1408,8 @@ namespace xtk
 
             for(moris::uint i =0; i < tTempCommMap.numel(); i++)
             {
+                if(tTempCommMap(i) != MORIS_INDEX_MAX)
+                {
                 if(tCommunicationMap.find(tTempCommMap(i)) == tCommunicationMap.end() && tTempCommMap(i) != par_rank())
                 {
                     moris_index tIndex = mCommunicationMap.numel();
@@ -1406,6 +1418,7 @@ namespace xtk
                     tCommunicationMap[tTempCommMap(i)] = 1;
 
                     mCommunicationMap(tIndex) = tTempCommMap(i);
+                }
                 }
             }
 
