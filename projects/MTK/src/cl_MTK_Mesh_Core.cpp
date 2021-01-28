@@ -1,5 +1,7 @@
 #include "cl_MTK_Mesh_Core.hpp"
 
+#include "cl_HMR_Mesh.hpp" //HMR/src
+
 namespace moris
 {
     namespace mtk
@@ -1011,6 +1013,12 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        uint Mesh::get_order()
+        {
+            MORIS_ERROR( this->get_mesh_type() == MeshType::HMR,"get_order only implemented for HMR meshes");
+            return mMesh->get_order();
+        }
 
 #ifdef DEBUG
 

@@ -88,6 +88,7 @@ namespace moris
         Integration_Mesh* create_integration_mesh_from_interpolation_mesh(
                 enum MeshType aMeshType,
                 Interpolation_Mesh *aInterpMesh,
+                uint                aMeshIndex = 0,
                 Cell_Cluster_Input *aCellClusterData = nullptr);
 
     }

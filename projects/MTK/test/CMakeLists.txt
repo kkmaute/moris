@@ -1,6 +1,8 @@
 # MTK Tests ---------------------------------------------------------------
 # -------------------------------------------------------------------------
 
+    include_directories(MTK_Test_Proxy)
+    
 # List source files
 set(TEST_SOURCES
     test_main.cpp
@@ -24,7 +26,8 @@ set(TEST_SOURCES
 	UT_MTK_Cell_Info_Quad9.cpp
 	UT_MTK_Cell_Info_Quad16.cpp
 	UT_MTK_Connectivity.cpp
-	UT_MTK_Mesh_Comm_Maps.cpp)
+	UT_MTK_Mesh_Comm_Maps.cpp
+	UT_MTK_Field.cpp )
 
 # List additional includes
 include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)

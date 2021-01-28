@@ -49,6 +49,20 @@ namespace moris
                 {
                 }
 
+                Interpolation_Mesh_HMR(
+                        std::shared_ptr< Database >   aDatabase,
+                        const uint                  & aLagrangeOrder,
+                        const uint                  & aLagrangePattern,
+                        const uint                  & aBSplineOrder,
+                        const uint                  & aBsplinePattern)
+                : Mesh( aDatabase,
+                        aLagrangeOrder,
+                        aLagrangePattern,
+                        aBSplineOrder,
+                        aBsplinePattern )
+                {
+                }
+
                 ~Interpolation_Mesh_HMR()
                 {
                 }
