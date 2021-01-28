@@ -135,6 +135,64 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        Mesh::Mesh(
+                std::shared_ptr< Database >   aDatabase,
+                const uint                  & aLagrangeOrder,
+                const uint                  & aLagrangePattern,
+                const uint                  & aBSplineOrder,
+                const uint                  & aBSplinePattern)
+        {
+            // copy database pointer
+            mDatabase = aDatabase;
+
+            mDummyBSplineMeshes.resize( 3, nullptr );
+            moris::hmr::Factory tFactory;
+
+            for( uint Ik = 0; Ik<3; Ik++ )
+            {
+                mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
+                        mDatabase->get_parameters(),                 //FIXME only one mesh
+                        mDatabase->get_background_mesh(),
+                        aBSplinePattern,
+                        aBSplineOrder );
+            }
+
+            mMesh = tFactory.create_lagrange_mesh(
+                    mDatabase->get_parameters(),
+                    mDatabase->get_background_mesh(),
+                    mDummyBSplineMeshes,
+                    aLagrangePattern,
+                    aLagrangeOrder );
+
+            mDatabase->add_lagrange_mesh( mMesh );                                       //FIXME dont add
+
+            // remember active pattern
+            auto tActivePattern = mDatabase->get_background_mesh()->get_activation_pattern();
+
+            // activate output pattern
+            mDatabase->get_background_mesh()->set_activation_pattern( mMesh->get_activation_pattern() );
+
+            mMesh->update_mesh();
+
+            mMesh->calculate_node_indices();
+            mMesh->calculate_node_sharing();
+            mMesh->calculate_t_matrices();
+
+            for( auto tMesh : mDummyBSplineMeshes )      //FIXME only one mesh
+            {
+                tMesh->calculate_basis_indices( mDatabase->get_communication_table() );
+            }
+
+            // reset active pattern
+            if ( mDatabase->get_background_mesh()->get_activation_pattern() != tActivePattern )
+            {
+                mDatabase->get_background_mesh()->set_activation_pattern( tActivePattern );
+            }
+        }
+
+
+        //-----------------------------------------------------------------------------
+
         Mesh::~Mesh()
         {
             for( auto tMesh : mDummyBSplineMeshes )
@@ -194,6 +252,10 @@ namespace moris
         uint Mesh::get_num_entities( const enum EntityRank aEntityRank,
                 const moris_index     aIndex ) const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             switch ( aEntityRank )
             {
                 case EntityRank::NODE:
@@ -233,6 +295,10 @@ namespace moris
 
         uint Mesh::get_num_elemens_including_aura() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             return mMesh->get_number_of_elements_including_aura();
         }
 
@@ -247,6 +313,10 @@ namespace moris
 
         uint Mesh::get_num_edges() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             return mMesh->get_number_of_edges();
         }
 
@@ -254,6 +324,10 @@ namespace moris
 
         uint Mesh::get_num_faces() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             return mMesh->get_number_of_facets();
         }
 
@@ -261,8 +335,12 @@ namespace moris
 
         uint Mesh::get_num_elems() const
         {
+            if( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
+            {
+                mMesh->select_activation_pattern();
+            }
             if( mDatabase->get_parameters()->use_number_aura() and
-                mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
+                    mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
                 return this->get_num_elemens_including_aura();
             }
@@ -1158,7 +1236,7 @@ namespace moris
             {
                 // get pointer to element
                 Background_Element_Base * tBackElement = tNode->get_element( k )
-                                                                                              ->get_background_element();
+                                                                                                      ->get_background_element();
 
                 if( tBackElement->is_active( tPattern ) )
                 {
@@ -1905,7 +1983,7 @@ namespace moris
                 // MORIS_ASSERT(mEntityGlobaltoLocalMap(aCounter).find(tEntityId) == mEntityGlobaltoLocalMap(aCounter).end(),"ID already exists.");
 
                 MORIS_ASSERT( tEntityId >= 0,"EntityID received is smaller than 0.");
-                
+
                 mEntityGlobaltoLocalMap( aCounter )[ tEntityId ] = tCount;
 
                 tCount++;

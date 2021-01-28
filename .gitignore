@@ -37,4 +37,4 @@ CMakeCache.txt
 /CMakeFiles/clion-log.txt
 .idea
 *.idea
-
+.vscode

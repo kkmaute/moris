@@ -61,8 +61,14 @@ namespace moris
         // Write enrichement fields on mesh (only recommended on very small meshes)
         tParameterList.insert( "write_enrichment_fields", false );
 
+        // path to folder for XTK output
+        tParameterList.insert( "output_path", "./" );
+
         // print enriched integration mesh
         tParameterList.insert( "print_enriched_ig_mesh", false );
+
+        // save enriched integration mesh for every optimization iteration
+        tParameterList.insert( "keep_all_opt_iters", false );
 
         // write XTK exodus mesh
         tParameterList.insert( "exodus_output_XTK_ig_mesh", false );

@@ -19,6 +19,7 @@
 #include "fn_isempty.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include <memory>
+#include "cl_Logger.hpp"
 
 namespace xtk
 {
@@ -778,9 +779,29 @@ namespace xtk
                 this->deactivate_empty_sets();
             }
 
+            // get path to output XTK files to
+            std::string tOutputPath = aParamList->get<std::string>("output_path");
+            
             // Write mesh
             moris::mtk::Writer_Exodus writer( this );
-            writer.write_mesh("", "./xtk_temp.exo", "", "./xtk_temp2.exo");
+            
+            // if user requests to keep XTK output for all iterations, add iteration count to output file name
+            if ( aParamList->get<bool>("keep_all_opt_iters") ) 
+            {
+                // get optimization iteration ( function returns zero if no optimization )
+                uint tOptIter = gLogger.get_opt_iteration();
+
+                writer.write_mesh(
+                    "", tOutputPath + "xtk_temp." + std::to_string( tOptIter ) + ".exo", 
+                    "", tOutputPath + "xtk_temp2." + std::to_string( tOptIter ) + ".exo" );
+            }
+            // else: proceed as usual and overwrite xtk_temp.exo each iteration
+            else 
+            {
+                writer.write_mesh(
+                    "", tOutputPath + "xtk_temp.exo", 
+                    "", tOutputPath + "xtk_temp2.exo" );
+            }
 
             if(aParamList->get<bool>("write_enrichment_fields"))
             {

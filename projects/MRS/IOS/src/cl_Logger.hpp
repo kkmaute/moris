@@ -115,6 +115,13 @@ namespace moris
 
                 // log end of Global Clock to console - only processor mOutputRank prints message
                 std::cout << "Global Clock Stopped. ElapsedTime = " << tElapsedTime << " \n" << std::flush;
+
+                if ( PRINT_WALL_TIME )
+                {
+                    std::chrono::duration<double> tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[mGlobalClock.mIndentationLevel] );
+                    real tElapsedWallTime = tChronoElapsedWallTime.count();
+                    std::cout << "Global Clock Stopped. ElapsedWallTime = " << tElapsedWallTime << " \n" << std::flush;                
+                }
             };
 
             //------------------------------------------------------------------------------
@@ -155,7 +162,7 @@ namespace moris
                 mDirectOutputFormat = aDirectOutputFormat;
                 mSeverityLevel      = aSverityLevel;
 
-                mStream.open(aPath,std::ofstream::out);
+                mStream.open( aPath + "." + std::to_string( logger_par_rank() ) ,std::ofstream::out);
 
                 mWriteToAscii = true;
 
