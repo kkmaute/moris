@@ -162,7 +162,7 @@ namespace moris
                 mDirectOutputFormat = aDirectOutputFormat;
                 mSeverityLevel      = aSverityLevel;
 
-                mStream.open(aPath,std::ofstream::out);
+                mStream.open( aPath + "." + std::to_string( logger_par_rank() ) ,std::ofstream::out);
 
                 mWriteToAscii = true;
 
