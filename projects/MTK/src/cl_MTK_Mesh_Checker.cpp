@@ -48,8 +48,13 @@ Mesh_Checker::Mesh_Checker(
     this->gather_serialized_ip_mesh(&mSerializedIpMesh);
 
     // setup maps for each proc
+    // vertex maps
     this->setup_vertex_maps(&mSerializedIpMesh);
     this->setup_vertex_maps(&mSerializedIgMesh);
+
+    // Cell maps
+    this->setup_cell_maps(&mSerializedIpMesh);
+    this->setup_cell_maps(&mSerializedIgMesh);
 }
 //--------------------------------------------------------------------------------
 Mesh_Checker::~Mesh_Checker(){}
@@ -63,7 +68,12 @@ Mesh_Checker::perform()
 
     // verify the ownership
     mIpVertexOwnerDiag = this->verify_vertex_ownership(&mSerializedIpMesh);
-    mIpVertexOwnerDiag = this->verify_vertex_ownership(&mSerializedIgMesh);
+    mIgVertexOwnerDiag = this->verify_vertex_ownership(&mSerializedIgMesh);
+
+        // verify the ownership
+    mIpCellOwnerDiag = this->verify_cell_ownership(&mSerializedIpMesh);
+    mIgCellOwnerDiag = this->verify_cell_ownership(&mSerializedIgMesh);
+
 
     return false;
 }
@@ -269,6 +279,7 @@ Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
                 moris_id tSerialVertInd = this->get_vertex_serial_index_from_id(tVertexId,aSerializedMesh);
                 moris_id tProcVertInd = this->get_vertex_proc_index_from_id(tVertexId,iP,aSerializedMesh);
 
+
                 if(tVertexOwners(tSerialVertInd) == MORIS_INDEX_MAX)
                 {
                     tVertexOwners(tSerialVertInd) = aSerializedMesh->mCollectVertexOwners(iP)(tProcVertInd);
@@ -286,6 +297,92 @@ Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
 
             }
         }
+
+                // iterate to see if a proc thinks someone owns the vert but they dont
+        for(moris::uint iV  = 0 ; iV < tVertexOwners.numel(); iV++)
+        {
+            moris_index tOwner = tVertexOwners(iV);
+            moris_index tID = aSerializedMesh->mVertexSerialIndexToId(iV);
+            moris_id tProcVertInd = this->get_vertex_proc_index_from_id(tID,tOwner,aSerializedMesh);
+
+            if( aSerializedMesh->mCollectVertexOwners(tOwner)(tProcVertInd) != tOwner )
+            {
+                std::cout<<"Vertex Ownership issue 2"<<std::endl;
+                tValidInd =0;
+            }
+        }
+    }
+
+    broadcast(tValidInd);
+
+    barrier();
+
+    if(tValidInd == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool
+Mesh_Checker::verify_cell_ownership(Serialized_Mesh_Data* aSerializedMesh)
+{
+    moris::uint tValidInd = 1;
+
+    if(par_rank() == 0)
+    {
+        Matrix<IndexMat> tCellOwners(1,aSerializedMesh->mCellSerialIndexToId.size(),MORIS_INDEX_MAX);
+        // iterate through processors
+        for(moris::uint iP = 0; iP< aSerializedMesh->mCollectCellIds.size(); iP++)
+        {
+            // iterate through vertices on proc
+            for(moris::uint iV = 0; iV < aSerializedMesh->mCollectCellIds(iP).numel(); iV++)
+            {
+                moris_id tCellId = aSerializedMesh->mCollectCellIds(iP)(iV);
+                
+                
+                moris_id tSerialVertInd = this->get_cell_serial_index_from_id(tCellId,aSerializedMesh);
+                moris_id tProcVertInd = this->get_cell_proc_index_from_id(tCellId,iP,aSerializedMesh);
+
+                if(tCellId == 94849)
+                {
+                    std::cout<<"iP = "<<iP<<" | SerializedMesh->mCollectCellOwners(iP)(tProcVertInd) = "<<aSerializedMesh->mCollectCellOwners(iP)(tProcVertInd)<<std::endl;
+                }
+
+                if(tCellOwners(tSerialVertInd) == MORIS_INDEX_MAX)
+                {
+                    tCellOwners(tSerialVertInd) = aSerializedMesh->mCollectCellOwners(iP)(tProcVertInd);
+                }
+                else
+                {
+                    // ownership issue
+                    if( aSerializedMesh->mCollectCellOwners(iP)(tProcVertInd) != tCellOwners(tSerialVertInd) )
+                    {
+                        std::cout<<"Issue with Cell Ownership, Cell ID = "<<tCellId  <<" | Owner on "<<iP<<" = ";
+                        std::cout<< aSerializedMesh->mCollectCellOwners(iP)(tProcVertInd)<<" | expected owner = "<< tCellOwners(tSerialVertInd)<<std::endl;
+                        tValidInd =0;
+                    }
+                }
+
+            }
+        }
+
+                // iterate to see if a proc thinks someone owns the vert but they dont
+        for(moris::uint iV  = 0 ; iV < tCellOwners.numel(); iV++)
+        {
+            moris_index tOwner = tCellOwners(iV);
+            moris_index tID = aSerializedMesh->mCellSerialIndexToId(iV);
+            moris_id tProcVertInd = this->get_cell_proc_index_from_id(tID,tOwner,aSerializedMesh);
+
+            if( aSerializedMesh->mCollectCellOwners(tOwner)(tProcVertInd) != tOwner )
+            {
+                std::cout<<"Cell Ownership issue 2"<<std::endl;
+                tValidInd =0;
+            }
+        }
     }
 
 
@@ -301,7 +398,6 @@ Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
     {
         return true;
     }
-
 }
 
 //--------------------------------------------------------------------------------
@@ -317,7 +413,9 @@ Mesh_Checker::print_diagnostics()
         std::cout<<std::setw(tFirstColWidth)<<""<<std::setw(tSecondColWidth)<<"Interp Mesh"<<std::setw(tSecondColWidth)<<" | Integ Mesh"<<std::endl;
         std::cout<<std::setw(tFirstColWidth)<<"Vertex Ids: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
         std::cout<<std::setw(tFirstColWidth)<<"Vertex Coords: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
-        std::cout<<std::setw(tFirstColWidth)<<"Vertex Owners: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
+        std::cout<<std::setw(tFirstColWidth)<<"Vertex Owners: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexOwnerDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexOwnerDiag)<<std::endl;
+        std::cout<<std::setw(tFirstColWidth)<<"Cell Owners: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpCellOwnerDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgCellOwnerDiag)<<std::endl;
+
     }
 }
 //--------------------------------------------------------------------------------
@@ -327,7 +425,7 @@ Mesh_Checker::get_vertex_proc_index_from_id(moris_id aId,
                                             moris_index aProc,
                                             Serialized_Mesh_Data* aSerializedMesh)
 {
-    MORIS_ERROR(aSerializedMesh->mCollectVertexMaps(aProc).find(aId) != aSerializedMesh->mCollectVertexMaps(aProc).end(),"Vertex id already in the map");
+    MORIS_ERROR(aSerializedMesh->mCollectVertexMaps(aProc).find(aId) != aSerializedMesh->mCollectVertexMaps(aProc).end(),"Vertex id not in the map");
     return aSerializedMesh->mCollectVertexMaps(aProc)[aId];
 }
 
@@ -338,6 +436,24 @@ Mesh_Checker::get_vertex_serial_index_from_id(moris_id aId,Serialized_Mesh_Data*
     return aSerializedMesh->mSerialVertexMap[aId];
 
 }
+
+moris_index
+Mesh_Checker::get_cell_proc_index_from_id(moris_id aId, 
+                                            moris_index aProc,
+                                            Serialized_Mesh_Data* aSerializedMesh)
+{
+    MORIS_ERROR(aSerializedMesh->mCollectCellMaps(aProc).find(aId) != aSerializedMesh->mCollectCellMaps(aProc).end(),"Vertex id not in the map");
+    return aSerializedMesh->mCollectCellMaps(aProc)[aId];
+}
+
+moris_index
+Mesh_Checker::get_cell_serial_index_from_id(moris_id aId,Serialized_Mesh_Data* aSerializedMesh)
+{
+    MORIS_ERROR(aSerializedMesh->mSerialCellMap.find(aId) != aSerializedMesh->mSerialCellMap.end(),"Vertex id already in the map");
+    return aSerializedMesh->mSerialCellMap[aId];
+
+}
+
 //--------------------------------------------------------------------------------
 
 
@@ -357,6 +473,10 @@ Mesh_Checker::serialize_mesh_core()
     // serialize vertex
     this->serialize_vertices(mIpMesh,&mSerializedIpMesh);
     this->serialize_vertices(mIgMesh,&mSerializedIgMesh);
+
+    // serialize cells
+    this->serialize_cells(mIpMesh,&mSerializedIpMesh);
+    this->serialize_cells(mIgMesh,&mSerializedIgMesh);
 
     // for the interpolation matrix serialize the data for vertex interp
     this->serialize_vertex_t_matrices(mIpMesh,&mSerializedIpMesh);
@@ -383,7 +503,7 @@ Mesh_Checker::serialize_vertices(
         aSerialMesh->mVertexIds(i) = aMesh->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE,mMeshIndex);
 
         // get the owner
-//        aSerialMesh->mVertexOwners(i) = aMesh->get_entity_owner(i,EntityRank::NODE);
+       aSerialMesh->mVertexOwners(i) = aMesh->get_entity_owner(i,EntityRank::NODE);
     }
 
 }
@@ -419,6 +539,25 @@ Mesh_Checker::serialize_vertex_t_matrices(
 
 }
 
+void
+Mesh_Checker::serialize_cells( Mesh* aMesh,
+                                Serialized_Mesh_Data* aSerializedMesh)
+{
+    size_t tNumCells = aMesh->get_num_entities((moris::EntityRank)EntityRank::ELEMENT);
+
+    aSerializedMesh->mCellIds.resize(tNumCells,1);
+    aSerializedMesh->mCellOwners.resize(tNumCells,1);
+
+    for(size_t i = 0; i< tNumCells; i++ )
+    {
+        // add id to the data
+        aSerializedMesh->mCellIds(i) = aMesh->get_glb_entity_id_from_entity_loc_index(i,EntityRank::ELEMENT,mMeshIndex);
+
+        // get the owner
+       aSerializedMesh->mCellOwners(i) = aMesh->get_entity_owner(i,EntityRank::ELEMENT);
+    }
+}
+
 //--------------------------------------------------------------------------------
 void
 Mesh_Checker::gather_serialized_mesh(Serialized_Mesh_Data* aSerializedMesh)
@@ -426,9 +565,14 @@ Mesh_Checker::gather_serialized_mesh(Serialized_Mesh_Data* aSerializedMesh)
 
     moris_index tTag = 600;
 
+    // gather vertex
     moris::all_gather_vector(aSerializedMesh->mVertexIds,aSerializedMesh->mCollectVertexIds,tTag,1);
     moris::all_gather_vector(aSerializedMesh->mVertexOwners,aSerializedMesh->mCollectVertexOwners,tTag+1,1);
     moris::all_gather_vector(aSerializedMesh->mVertexCoordinates,aSerializedMesh->mCollectVertexCoords,tTag+2,1);
+
+    // gather cells
+    moris::all_gather_vector(aSerializedMesh->mCellIds,aSerializedMesh->mCollectCellIds,tTag+3,1);
+    moris::all_gather_vector(aSerializedMesh->mCellOwners,aSerializedMesh->mCollectCellOwners,tTag+4,1);
 }
 
 void
@@ -504,18 +648,55 @@ Mesh_Checker::setup_vertex_maps(Serialized_Mesh_Data* aSerializedMesh)
     // iterate through processors
     for(moris::uint iP = 0; iP< aSerializedMesh->mCollectVertexIds.size(); iP++)
     {
+        Matrix<IndexMat> tUniqueCheck;
+        unique(aSerializedMesh->mCollectVertexIds(iP),tUniqueCheck);
+
+        MORIS_ERROR(aSerializedMesh->mCollectVertexIds(iP).numel() == tUniqueCheck.numel(),"Unique vertex issue from a proc");
         // iterate through vertices on proc
         for(moris::uint iV = 0; iV < aSerializedMesh->mCollectVertexIds(iP).numel(); iV++)
         {
             moris_id tVertexId = aSerializedMesh->mCollectVertexIds(iP)(iV);
 
-            MORIS_ASSERT(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
+            MORIS_ERROR(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
             aSerializedMesh->mCollectVertexMaps(iP)[tVertexId] = iV;
 
             if(aSerializedMesh->mSerialVertexMap.find(tVertexId) == aSerializedMesh->mSerialVertexMap.end())
             {
                 aSerializedMesh->mSerialVertexMap[tVertexId] = tUniqueVertCount;
                 aSerializedMesh->mVertexSerialIndexToId.push_back(tVertexId);
+                tUniqueVertCount++;
+            }
+        }
+    }
+}
+
+void
+Mesh_Checker::setup_cell_maps(Serialized_Mesh_Data* aSerializedMesh)
+{
+    moris_index tUniqueCellCount = 0 ;
+
+    aSerializedMesh->mCollectCellMaps.resize(aSerializedMesh->mCollectCellIds.size());
+
+    // iterate through processors
+    for(moris::uint iP = 0; iP< aSerializedMesh->mCollectCellIds.size(); iP++)
+    {
+        Matrix<IndexMat> tUniqueCheck;
+        unique(aSerializedMesh->mCollectCellIds(iP),tUniqueCheck);
+        MORIS_ERROR(aSerializedMesh->mCollectCellIds(iP).numel() == tUniqueCheck.numel(),"Unique vertex issue from a proc");
+
+        // iterate through vertices on proc
+        for(moris::uint iC = 0; iC < aSerializedMesh->mCollectCellIds(iP).numel(); iC++)
+        {
+            moris_id tCellId = aSerializedMesh->mCollectCellIds(iP)(iC);
+
+            MORIS_ERROR(aSerializedMesh->mCollectCellMaps(iP).find(tCellId) == aSerializedMesh->mCollectCellMaps(iP).end(),"Vertex id already in the map");
+            aSerializedMesh->mCollectCellMaps(iP)[tCellId] = iC;
+
+            if(aSerializedMesh->mSerialCellMap.find(tCellId) == aSerializedMesh->mSerialCellMap.end())
+            {
+                aSerializedMesh->mSerialCellMap[tCellId] = tUniqueCellCount;
+                aSerializedMesh->mCellSerialIndexToId.push_back(tCellId);
+                tUniqueCellCount++;
             }
         }
     }

@@ -14,6 +14,7 @@
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
 #include "cl_GEN_Field_Discrete_Interpolation.hpp"
+#include "cl_GEN_Mesh_Field_Geometry.hpp"
 
 namespace moris
 {
@@ -231,8 +232,7 @@ namespace moris
             else if (tGeometryType == "nodal_field")
             {
                 MORIS_ERROR(aMTKMesh != nullptr,"Mesh is a null ptr for nodal field geometry");
-                std::cout<<"Field Name = "<<tParameters.mName<<std::endl;
-                return std::make_shared<ge::Field_Discrete_Interpolation>(aMTKMesh, aADVs, tGeometryVariableIndices, tADVIndices, tConstants, tParameters);
+                return std::make_shared<ge::Mesh_Field_Geometry>(aMTKMesh, tParameters.mName, EntityRank::NODE);
             }
             else if (tGeometryType == "user_defined")
             {

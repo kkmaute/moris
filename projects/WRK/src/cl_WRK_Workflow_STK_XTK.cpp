@@ -9,6 +9,7 @@
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
@@ -43,9 +44,18 @@ namespace moris
             moris::Cell< moris::Cell< ParameterList > > tSTKParameterList;
             tSTKParameterListFunc( tSTKParameterList );
 
+
+
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
             this->create_stk(tSTKParameterList);
+
+            // moris::mtk::Cell tCell
+
+            // verify these meshes
+            mtk::Mesh_Checker tMeshChecker(0,mIpMesh.get(),mIgMesh.get());
+            tMeshChecker.perform();
+            tMeshChecker.print_diagnostics();
 
             // load gen parameter list
             std::string tGENString = "GENParameterList";

@@ -42,6 +42,14 @@ class Serialized_Mesh_Data
         moris::Cell<Matrix<IdMat>> mVertexTMatrixBasisOwners; //(x)
 
         // cell related data
+        Matrix<IdMat>  mCellIds; //(x)
+        Matrix<IdMat>  mCellOwners; //(x)
+        moris::Cell<std::unordered_map<moris_index,moris_index>> mCollectCellMaps;
+        std::unordered_map<moris_index,moris_index> mSerialCellMap;
+        moris::Cell<moris_index> mCellSerialIndexToId;
+        moris::Cell<Matrix<IdMat>> mCollectCellIds; //(x)
+        moris::Cell<Matrix<IdMat>> mCollectCellOwners; //(x)
+
         moris::Cell<Matrix<IdMat>>     mCellToVertex; //(-) outer cell is the  cell topology
         moris::Cell<enum CellTopology> mCellTopo;     //(-)
 
@@ -57,10 +65,13 @@ class Serialized_Mesh_Data
         moris::Cell<moris::Cell<Matrix<DDRMat>>> mCollectVertexTMatrixWeights; //(x)
         moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisIds; //(x)
         moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisOwners;
-        
+
         // overall 
         moris::Cell<moris_index> mVertexSerialIndexToId;
         std::unordered_map<moris_index,moris_index> mSerialVertexMap;
+
+        // collected cell data on proc 0
+        
         
 
 
@@ -98,10 +109,12 @@ private:
     bool mIpVertexDiag = false;
     bool mIpVertexOwnerDiag = false;
     bool mIpVertexBasisDiag = false;
+    bool mIpCellOwnerDiag    = false;
 
     // integ mesh
     bool mIgVertexDiag    = false;
     bool mIgVertexOwnerDiag = false;
+    bool mIgCellOwnerDiag    = false;
 
     // Serialized mesh accessors
     moris_index
@@ -110,6 +123,13 @@ private:
     // only proc 0
     moris_index
     get_vertex_serial_index_from_id(moris_id aId,Serialized_Mesh_Data* aSerializedMesh);
+
+    moris_index
+    get_cell_proc_index_from_id(moris_id aId, moris_index aProc,Serialized_Mesh_Data* aSerializedMesh);
+
+    // only proc 0
+    moris_index
+    get_cell_serial_index_from_id(moris_id aId,Serialized_Mesh_Data* aSerializedMesh);
 
     void
     serialize_mesh();
@@ -128,6 +148,11 @@ private:
             Serialized_Mesh_Data* aSerializedMesh);
 
     void
+    serialize_cells(
+            Mesh* aMesh,
+            Serialized_Mesh_Data* aSerializedMesh);            
+
+    void
     gather_serialized_mesh(Serialized_Mesh_Data* aSerializedMesh);
 
     void
@@ -135,6 +160,9 @@ private:
 
     void
     setup_vertex_maps(Serialized_Mesh_Data* aSerializedMesh);
+
+    void
+    setup_cell_maps(Serialized_Mesh_Data* aSerializedMesh);
 
     std::string
     bool_to_string(bool aBool);
@@ -156,6 +184,13 @@ private:
      */
     bool
     verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh);
+
+    /*!
+     * Verifies cell ownership in the mesh.
+     * @param[in] aMesh - An integration or interpolation mesh
+     */
+    bool
+    verify_cell_ownership(Serialized_Mesh_Data* aSerializedMesh);
 
 
 
