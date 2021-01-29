@@ -3,6 +3,7 @@
 #include "cl_FEM_Element_Bulk.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Model.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_MSI_Equation_Model.hpp"
@@ -306,6 +307,8 @@ namespace moris
                         ( this->*m_compute_dQIdu )( tReqIQI, tWStar );
                     }
                 }
+
+                mSet->mFemModel->mBulkGaussPoints++;
             }
         }
 

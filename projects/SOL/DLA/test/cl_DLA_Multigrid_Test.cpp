@@ -4,7 +4,7 @@
  *  Created on: Nov 18, 2018
  *      Author: schmidt
  */
-#include "../../../FEM/INT/src/cl_FEM_Element_Bulk.hpp"
+
 #include "catch.hpp"
 
 #include "fn_equal_to.hpp" // ALG/src
@@ -27,8 +27,6 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
-#include "cl_FEM_Model.hpp"
-
 #include "fn_PRM_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
@@ -37,10 +35,17 @@
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 
+#define protected public
+#define private   public
+#include "cl_FEM_Model.hpp"
+
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_Element_Bulk.hpp"
+#undef protected
+#undef private
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -53,6 +58,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+
 
 #include "fn_norm.hpp"
 
@@ -192,6 +198,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                                              tNodes );
 
             tElementBlocks( tFemSetCounter )->set_equation_model( tEquationModel.get() );
+
+            reinterpret_cast<fem::Set *>(tElementBlocks( tFemSetCounter ))->mFemModel
+                    = reinterpret_cast< fem::FEM_Model *>(tEquationModel.get());
 
             // collect equation objects associated with the block-set
             tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );

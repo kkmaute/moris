@@ -200,6 +200,8 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
         Matrix< DDSMat >         tElementTopology;
         Cell< Matrix< DDRMat > > tElementRHS;
 
+        this->report_beginning_of_assembly();
+
         // Loop over all local elements to build matrix graph
         for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
         {
@@ -239,6 +241,8 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
 
         // global assembly to switch entries to the right processor
         aVectorRHS->vector_global_assembly();
+
+        this->report_end_of_assebly();
     }
 }
 
@@ -251,6 +255,8 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 
     Matrix< DDSMat > tElementTopology;
     Matrix< DDRMat > tElementMatrix;
+
+    this->report_beginning_of_assembly();
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
@@ -280,6 +286,8 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
+
+    this->report_end_of_assebly();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -292,6 +300,8 @@ void Solver_Interface::fill_matrix_and_RHS(
     moris::uint numBlocks = this->get_num_my_blocks();
 
     moris::uint tNumRHS = this->get_num_rhs();
+
+    this->report_beginning_of_assembly();
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
@@ -344,6 +354,8 @@ void Solver_Interface::fill_matrix_and_RHS(
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
     aVectorRHS->vector_global_assembly();
+
+    this->report_end_of_assebly();
 }
 
 //---------------------------------------------------------------------------------------------------------

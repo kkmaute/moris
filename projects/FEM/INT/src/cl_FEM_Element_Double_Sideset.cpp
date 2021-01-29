@@ -2,6 +2,7 @@
 //FEM/INT/src
 #include "cl_FEM_Element_Double_Sideset.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Model.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "fn_FEM_Rotation_Matrix.hpp"
 //FEM/MSI/src
@@ -442,6 +443,8 @@ namespace moris
                     // compute jacobian at integration point
                     ( this->*m_compute_jacobian )( tReqIWG, tWStar );
                 }
+
+                mSet->mFemModel->mDoubleSidedSitsetsGaussPoints++;
             }
         }
 
