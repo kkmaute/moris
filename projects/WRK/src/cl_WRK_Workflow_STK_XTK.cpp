@@ -52,10 +52,10 @@ namespace moris
 
             // moris::mtk::Cell tCell
 
-            // verify these meshes
-            mtk::Mesh_Checker tMeshChecker(0,mIpMesh.get(),mIgMesh.get());
-            tMeshChecker.perform();
-            tMeshChecker.print_diagnostics();
+            // // verify these meshes
+            // mtk::Mesh_Checker tMeshChecker(0,mIpMesh.get(),mIgMesh.get());
+            // tMeshChecker.perform();
+            // tMeshChecker.print_diagnostics();
 
             // load gen parameter list
             std::string tGENString = "GENParameterList";

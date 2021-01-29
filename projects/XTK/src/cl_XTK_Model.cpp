@@ -189,14 +189,12 @@ namespace xtk
 
         if(mParameterList.get<bool>("decompose"))
         {
-            std::cout<<"Decomp"<<std::endl;
             Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
             this->decompose(tSubdivisionMethods);
         }
 
         if(mParameterList.get<bool>("enrich"))
         {
-            std::cout<<"Enrich"<<std::endl;
             enum EntityRank tBasisRank = get_entity_rank_from_str(mParameterList.get<std::string>("basis_rank"));
 
             Matrix<IndexMat> tMeshIndexCell;
@@ -1936,8 +1934,7 @@ namespace xtk
 
         // handle the unhandled requests wiht current proc being the owner
         moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(tUnhandledRequestIndices.size(), EntityRank::NODE);
-        std::cout<<"tUnhandledRequestIndices = "<<tUnhandledRequestIndices.size()<<std::endl;
-        
+       
         for (moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++)
         {
             moris_index tRequestIndex = tUnhandledRequestIndices(i);
@@ -2320,10 +2317,10 @@ namespace xtk
                     moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
                     moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
 
-                    if(!mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT))
-                    {
-                        std::cout<<"tParentId = "<<tParentId<<std::endl;
-                    }
+                    // if(!mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT))
+                    // {
+                    //     std::cout<<"tParentId = "<<tParentId<<std::endl;
+                    // }
                     // get child mesh
                     MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),
                             "Request is made for child element ids on a parent cell not intersected");
@@ -4257,8 +4254,6 @@ namespace xtk
     Model::get_subphase_index(moris_id aSubphaseId)
     {
         auto tIter = mGlobalToLocalSubphaseMap.find(aSubphaseId);
-
-        std::cout<<"aSubphaseId = "<<aSubphaseId<<" on "<<par_rank()<<std::endl;
 
         MORIS_ASSERT(tIter != mGlobalToLocalSubphaseMap.end(),"Subphase id not in map");
 
