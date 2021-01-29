@@ -345,6 +345,8 @@ namespace moris
              */
             void set_is_sensitivity_analysis()
             {
+                this->reset();
+
                 mIsForwardAnalysis = false;
             }
 
@@ -354,8 +356,24 @@ namespace moris
              */
             void set_is_forward_analysis()
             {
+                this->reset();
+
                 mIsForwardAnalysis = true;
             }
+
+            //------------------------------------------------------------------------------
+            /**
+             * resets member variables of the equation object
+             */
+            virtual void reset()
+            {};
+
+            //------------------------------------------------------------------------------
+            /**
+             * report on assembly information
+             */
+            virtual void report_on_assembly()
+            {};
 
             //------------------------------------------------------------------------------
             /**
