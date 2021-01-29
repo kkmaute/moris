@@ -44,7 +44,7 @@ namespace moris
             // user requests output log file
             if ( std::string( argv[ k ] ) == "--outputlog" || std::string( argv[ k ] ) == "-ol" )
             {
-                mStream.open( std::string( argv[ k+1 ] ) , std::ofstream::out );
+                mStream.open( std::string( argv[ k+1 ] ) + "." + std::to_string( logger_par_rank() ) , std::ofstream::out );
                 mWriteToAscii = true;
                 //std::cout << "\n Logger: writing to: " << std::string( argv[ k+1 ] ) << "\n";
             }
@@ -492,6 +492,7 @@ namespace moris
         mStream << "Eigen \n";
 #endif
 
+        mStream << "\nProc-#: " << logger_par_rank() << "\n";
         mStream << LOGGER_HEADER_END << "\n";
 
         // Top row in table
