@@ -96,7 +96,9 @@ namespace moris
                     aParameterLists(1),
                     mADVs,
                     mLibrary,
-                    aMTKMesh->get_interpolation_mesh(0));
+                    aMTKMesh == nullptr ? nullptr : aMTKMesh->get_interpolation_mesh(0));
+
+            
 
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
