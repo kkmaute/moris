@@ -15,6 +15,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Communication_Tools.hpp"
 
 #include "fn_PRM_FEM_Parameters.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -103,6 +104,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
             public:
+
+                //! Gauss point information. Only used for output
+                uint mBulkGaussPoints               = 0;
+                uint mSideSetsGaussPoints           = 0;
+                uint mDoubleSidedSitsetsGaussPoints = 0;
+
                 //------------------------------------------------------------------------------
                 /**
                  * constructor
@@ -177,6 +184,30 @@ namespace moris
                  * @param[ in ] aLibrary       a file path for property functions
                  */
                 void initialize( std::shared_ptr< Library_IO > aLibrary );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * resets model member variables
+                 */
+                void reset()
+                {
+                    mBulkGaussPoints               = 0;
+                    mSideSetsGaussPoints           = 0;
+                    mDoubleSidedSitsetsGaussPoints = 0;
+                };
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * resets model member variables
+                 */
+                void report_on_assembly()
+                {
+                    MORIS_LOG_SPEC( "Number of Bulk Gauss Points", sum_all(mBulkGaussPoints) );
+                    MORIS_LOG_SPEC( "Number of SideSet Gauss Points", sum_all(mSideSetsGaussPoints) );
+                    MORIS_LOG_SPEC( "Number of DoubleSidedSiteset Gauss Points", sum_all(mDoubleSidedSitsetsGaussPoints) );
+                };
 
                 //------------------------------------------------------------------------------
                 /**
