@@ -2864,8 +2864,6 @@ namespace xtk
         // access the communication table
         Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
 
-        moris::print(tCommTable,"tCommTable");
-
         // resize proc ranks and setup map to comm table
         aProcRanks.resize(tCommTable.numel());
         for(moris::uint i = 0; i <tCommTable.numel(); i++)
@@ -2879,8 +2877,6 @@ namespace xtk
         // ask owning processor about child element ids
         Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
         Cell<moris_id>    const & tNotOwnedChildMeshOwners = mCutMesh.get_not_owned_child_owners();
-
-        std::cout<<"tNotOwnedChildMeshes.size() = " <<tNotOwnedChildMeshes.size()<<" on "<<par_rank()<<std::endl;
 
         // sort child meshes by owner
         for(moris::size_t i = 0; i < tNotOwnedChildMeshes.size(); i++)
