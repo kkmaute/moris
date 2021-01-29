@@ -154,6 +154,12 @@ namespace moris
                     const bool aIsAdjointOffDiagonalTimeContribution = false)
             {  };
 
+            virtual void report_beginning_of_assembly()
+            {};
+
+            virtual void report_end_of_assebly()
+            {};
+
             virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
             {
                 MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set.");
