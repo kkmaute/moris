@@ -4,7 +4,7 @@
  *  Created on: Nov 18, 2018
  *      Author: schmidt
  */
-#include "../../../FEM/INT/src/cl_FEM_Element_Bulk.hpp"
+
 #include "catch.hpp"
 
 #include "fn_equal_to.hpp" // ALG/src
@@ -27,8 +27,6 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
-#include "cl_FEM_Model.hpp"
-
 #include "fn_PRM_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
@@ -37,10 +35,17 @@
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 
+#define protected public
+#define private   public
+#include "cl_FEM_Model.hpp"
+
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_Element_Bulk.hpp"
+#undef protected
+#undef private
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -53,6 +58,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+
 
 #include "fn_norm.hpp"
 
@@ -76,233 +82,236 @@ namespace moris
 using namespace dla;
 using namespace NLA;
 
-//TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
-//{
-//    if( moris::par_size() == 1 )
-//    {
-//       // create parameter object
-//        moris::uint tLagrangeMeshIndex = 0;
-//        moris::uint tBSplineMeshIndex = 0;
-//
-//        // create parameter object
-//        moris::hmr::Parameters tParameters;
-//        tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
-//
-//        tParameters.set_severity_level( 0 );
-//        tParameters.set_multigrid( true );
-//        tParameters.set_bspline_truncation( true );
-//
-//        tParameters.set_output_meshes( { {0} } );
-//
-//        tParameters.set_lagrange_orders  ( { {1} });
-//        tParameters.set_lagrange_patterns({ {0} });
-//
-//        tParameters.set_bspline_orders   ( { {1} } );
-//        tParameters.set_bspline_patterns ( { {0} } );
-//
-//        tParameters.set_union_pattern( 2 );
-//        tParameters.set_working_pattern( 3 );
-//
-//        tParameters.set_refinement_buffer( 1 );
-//        tParameters.set_staircase_buffer( 1 );
-//
-//        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-//        tLagrangeToBSplineMesh( 0 ) = { {0} };
-//
-//        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-//
-//        // create HMR object
-//        moris::hmr::HMR tHMR( tParameters );
-//
-//        // flag first element for refinement
-//        tHMR.flag_element( 0 );
-//        tHMR.perform_refinement_based_on_working_pattern( 0 );
-//
-//        tHMR.flag_element( 0 );
-//        tHMR.perform_refinement_based_on_working_pattern( 0 );
-//
-//        tHMR.finalize();
-//
-//        // grab pointer to output field
-//        //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
-//        hmr::Interpolation_Mesh_HMR * tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex);
-//        hmr::Integration_Mesh_HMR * tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, tInterpolationMesh );
-//
-//        // create field
-//        std::shared_ptr< moris::hmr::Field > tField = tInterpolationMesh->create_field( "Circle", tLagrangeMeshIndex );
-//
-//        // evaluate node values
-//        tField->evaluate_scalar_function( LevelSetFunction );
-//
-////        tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
-//
-//        moris::map< moris::moris_id, moris::moris_index > tMap;
-//        tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tMap );
-//        //tMap.print("Adof Map");
-//
-//         //-------------------------------------------------------------------------------------------
-//        // create a L2 IWG
-//        fem::IWG_Factory tIWGFactory;
-//        std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
-//        tIWGL2->set_residual_dof_type( { MSI::Dof_Type::L2 } );
-//        tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
-//
-//        // define set info
-//        moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
-//        tSetInfo( 0 ).set_mesh_index( 0 );
-//        tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
-//
-//        Cell< fem::Node_Base* >        tNodes;
-//        Cell< MSI::Equation_Object* >  tElements;
-//
-//        // ask mesh about number of nodes on proc
-//        luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
-//
-//        // create node objects
-//        tNodes.resize( tNumberOfNodes, nullptr );
-//
-//        for( luint k = 0; k < tNumberOfNodes; ++k )
-//        {
-//            tNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
-//        }
-//
-//        // ask mesh about number of elements on proc
-//        luint tNumberOfElements = tIntegrationMesh->get_num_elems();
-//
-//        // create equation objects
-//        tElements.reserve( tNumberOfElements );
-//
-//        Cell< MSI::Equation_Set * > tElementBlocks(1,nullptr);
-//
-//        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< fem::FEM_Model >();
-//
-//        // init the fem set counter
-//        moris::uint tFemSetCounter = 0;
-//
-//        // loop over the used mesh block-set
-//        for( luint Ik = 0; Ik < 1; ++Ik )
-//        {
-//            // create a list of cell clusters (this needs to stay in scope somehow)
-//            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
-//
-//            // create new fem set
-//            tElementBlocks( tFemSetCounter ) = new fem::Set( nullptr,
-//                                                             tBlockSet,
-//                                                             tSetInfo( tFemSetCounter ),
-//                                                             tNodes );
-//
-//            tElementBlocks( tFemSetCounter )->set_equation_model( tEquationModel.get() );
-//
-//            // collect equation objects associated with the block-set
-//            tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
-//
-//            // update fem set counter
-//            tFemSetCounter++;
-//        }
-//
-//        Cell< MSI::Equation_Set * > & tEquationSet = tEquationModel->get_equation_sets();
-//        tEquationSet = tElementBlocks;
-//
-//        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
-//        tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
-//        tMSIParameters.set( "multigrid", true );
-//
-//        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
-//                                                                                     tEquationModel,
-//                                                                                     tInterpolationMesh );
-//
-//        tElementBlocks( 0 )->finalize( tMSI );
-//
-//        tMSI->finalize();
-//
-//        moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
-//
-//        tSolverInterface->set_requested_dof_types( { MSI::Dof_Type::L2 } );
-//
-//        Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
-//
-////---------------------------------------------------------------------------------------------------------------
-//
-//        sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
-//
-//        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-//        for( uint Ik = 0; Ik < 7; Ik ++)
-//        {
-//        	tParameterlist( Ik ).resize(1);
-//        }
-//
-//        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-//        tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
-//        tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
-//        tParameterlist( 0 )(0).set( "ILUFill", 3 );
-//        tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
-//
-//        tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-//        tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-//        tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
-//
-//        tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-//        tParameterlist( 3 )(0).set("NLA_DofTypes"      , "L2" );
-//
-//        tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-//        tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-//        tParameterlist( 5 )(0).set("TSA_DofTypes"      , "L2" );
-//
-//        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
-//        tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
-//
-//        tSolverWarehouse.set_parameterlist( tParameterlist );
-//
-//        tSolverWarehouse.initialize();
-//
-//        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
-//
-//         for( auto tElement : tElements )
-//         {
-//             Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
-//             uint tNumberOfNodes = tElement->get_num_nodes();
-//             tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-//
-//             for( uint k=0; k<tNumberOfNodes; ++k )
-//             {
-//                 // copy weakbc into element
-//                 tNodalWeakBCs( k ) = tInterpolationMesh->get_value_of_scalar_field( 3,
-//                                                                        EntityRank::NODE,
-//                                                                        tElement->get_node_index( k ) );
-//             }
-//         }
-//
-////         tNonLinSolManager.solve( tNonlinearProblem );
-////         Matrix< DDRMat > tSolution;
-////         tNonlinearSolver->get_full_solution( tSolution );
-//
-//         tTimeSolver->solve();
-//         moris::Matrix< DDRMat > tSolution;
-//         tTimeSolver->get_full_solution( tSolution );
-//
-//
-//         CHECK( equal_to( tSolution( 0, 0 ), -0.9010796, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 1, 0 ), -0.7713064956, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 2, 0 ), -0.7713064956, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 3, 0 ), -0.733678875, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 4, 0 ), -0.6539977592, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 5, 0 ), -0.6539977592, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 6, 0 ), -0.54951427221, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 7, 0 ), -0.3992520178, 1.0e+08 ) );
-//         CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
-//
-//         delete ( tMSI );
-//
-//         for( auto k :tNodes)
-//         {
-//             delete k ;
-//         }
-//         tNodes.clear();
-//
-//         delete tIntegrationMesh;
-//         delete tInterpolationMesh;
-//    }
-//}
+TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
+{
+    if( moris::par_size() == 1 )
+    {
+       // create parameter object
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
+
+        // create parameter object
+        moris::hmr::Parameters tParameters;
+        tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+
+        tParameters.set_severity_level( 0 );
+        tParameters.set_multigrid( true );
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create HMR object
+        moris::hmr::HMR tHMR( tParameters );
+
+        // flag first element for refinement
+        tHMR.flag_element( 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
+
+        tHMR.flag_element( 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
+
+        tHMR.finalize();
+
+        // grab pointer to output field
+        //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+        hmr::Interpolation_Mesh_HMR * tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex);
+        hmr::Integration_Mesh_HMR * tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, tInterpolationMesh );
+
+        // create field
+        std::shared_ptr< moris::hmr::Field > tField = tInterpolationMesh->create_field( "Circle", tLagrangeMeshIndex );
+
+        // evaluate node values
+        tField->evaluate_scalar_function( LevelSetFunction );
+
+//        tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
+
+        moris::map< moris::moris_id, moris::moris_index > tMap;
+        tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tMap );
+        //tMap.print("Adof Map");
+
+         //-------------------------------------------------------------------------------------------
+        // create a L2 IWG
+        fem::IWG_Factory tIWGFactory;
+        std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
+        tIWGL2->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+        tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
+
+        // define set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+        tSetInfo( 0 ).set_mesh_index( 0 );
+        tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
+
+        Cell< fem::Node_Base* >        tNodes;
+        Cell< MSI::Equation_Object* >  tElements;
+
+        // ask mesh about number of nodes on proc
+        luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
+
+        // create node objects
+        tNodes.resize( tNumberOfNodes, nullptr );
+
+        for( luint k = 0; k < tNumberOfNodes; ++k )
+        {
+            tNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
+        }
+
+        // ask mesh about number of elements on proc
+        luint tNumberOfElements = tIntegrationMesh->get_num_elems();
+
+        // create equation objects
+        tElements.reserve( tNumberOfElements );
+
+        Cell< MSI::Equation_Set * > tElementBlocks(1,nullptr);
+
+        std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< fem::FEM_Model >();
+
+        // init the fem set counter
+        moris::uint tFemSetCounter = 0;
+
+        // loop over the used mesh block-set
+        for( luint Ik = 0; Ik < 1; ++Ik )
+        {
+            // create a list of cell clusters (this needs to stay in scope somehow)
+            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_set_by_index( 0 );
+
+            // create new fem set
+            tElementBlocks( tFemSetCounter ) = new fem::Set( nullptr,
+                                                             tBlockSet,
+                                                             tSetInfo( tFemSetCounter ),
+                                                             tNodes );
+
+            tElementBlocks( tFemSetCounter )->set_equation_model( tEquationModel.get() );
+
+            reinterpret_cast<fem::Set *>(tElementBlocks( tFemSetCounter ))->mFemModel
+                    = reinterpret_cast< fem::FEM_Model *>(tEquationModel.get());
+
+            // collect equation objects associated with the block-set
+            tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
+
+            // update fem set counter
+            tFemSetCounter++;
+        }
+
+        Cell< MSI::Equation_Set * > & tEquationSet = tEquationModel->get_equation_sets();
+        tEquationSet = tElementBlocks;
+
+        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+        tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
+        tMSIParameters.set( "multigrid", true );
+
+        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tMSIParameters,
+                                                                                     tEquationModel,
+                                                                                     tInterpolationMesh );
+
+        tElementBlocks( 0 )->finalize( tMSI );
+
+        tMSI->finalize();
+
+        moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
+
+        tSolverInterface->set_requested_dof_types( { MSI::Dof_Type::L2 } );
+
+        Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
+
+//---------------------------------------------------------------------------------------------------------------
+
+        sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
+
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        for( uint Ik = 0; Ik < 7; Ik ++)
+        {
+        	tParameterlist( Ik ).resize(1);
+        }
+
+        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
+        tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
+        tParameterlist( 0 )(0).set( "ILUFill", 3 );
+        tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
+
+        tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
+
+        tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )(0).set("NLA_DofTypes"      , "L2" );
+
+        tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 )(0).set("TSA_DofTypes"      , "L2" );
+
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
+
+        tSolverWarehouse.set_parameterlist( tParameterlist );
+
+        tSolverWarehouse.initialize();
+
+        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+
+         for( auto tElement : tElements )
+         {
+             Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
+             uint tNumberOfNodes = tElement->get_num_nodes();
+             tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+             for( uint k=0; k<tNumberOfNodes; ++k )
+             {
+                 // copy weakbc into element
+                 tNodalWeakBCs( k ) = tInterpolationMesh->get_value_of_scalar_field( 3,
+                                                                        EntityRank::NODE,
+                                                                        tElement->get_node_index( k ) );
+             }
+         }
+
+//         tNonLinSolManager.solve( tNonlinearProblem );
+//         Matrix< DDRMat > tSolution;
+//         tNonlinearSolver->get_full_solution( tSolution );
+
+         tTimeSolver->solve();
+         moris::Matrix< DDRMat > tSolution;
+         tTimeSolver->get_full_solution( tSolution );
+
+
+         CHECK( equal_to( tSolution( 0, 0 ), -0.9010796, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 1, 0 ), -0.7713064956, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 2, 0 ), -0.7713064956, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 3, 0 ), -0.733678875, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 4, 0 ), -0.6539977592, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 5, 0 ), -0.6539977592, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 6, 0 ), -0.54951427221, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 7, 0 ), -0.3992520178, 1.0e+08 ) );
+         CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
+
+         delete ( tMSI );
+
+         for( auto k :tNodes)
+         {
+             delete k ;
+         }
+         tNodes.clear();
+
+         delete tIntegrationMesh;
+         delete tInterpolationMesh;
+    }
+}
 
 /*
 TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
