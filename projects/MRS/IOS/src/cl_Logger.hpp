@@ -401,12 +401,12 @@ namespace moris
                         {
                             std::cout << aOutputSpecifier << ": " << ios::stringify(aOutputValue) << " \n" << std::flush;
                         }
-
-                        // write to file if requested
-                        if( mWriteToAscii )
-                        {
-                            this->log_to_file( aOutputSpecifier, aOutputValue );
-                        }
+                    }
+                    
+                    // write to file if requested
+                    if( mWriteToAscii )
+                    {
+                        this->log_to_file( aOutputSpecifier, aOutputValue );
                     }
             }
 

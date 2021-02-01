@@ -31,6 +31,9 @@ namespace moris
         Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager * aPerformerManager )
         : Workflow( aPerformerManager )
         {
+            Tracer tTracer( "Workflow", "STK_XTK", "Initialize" );
+            MORIS_LOG_SPEC("Par_Rank",par_rank());
+            MORIS_LOG_SPEC("Par_Size",par_size());
 
             // Performer set for this workflow
             mPerformerManager->mGENPerformer.resize( 1 );
@@ -49,6 +52,7 @@ namespace moris
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
             this->create_stk(tSTKParameterList);
+            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get());
 
             // moris::mtk::Cell tCell
 
@@ -219,9 +223,6 @@ namespace moris
             // construct the meshes
             mIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>( tMeshFile, tSuppMeshData, true );
             mIgMesh = std::make_shared<mtk::Integration_Mesh_STK> ( *mIpMesh, tCellClusterData);
-
-            std::cout<<"Mesh Index = "<<mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get())<<std::endl;
-
         }
 
         //--------------------------------------------------------------------------------------------------------------

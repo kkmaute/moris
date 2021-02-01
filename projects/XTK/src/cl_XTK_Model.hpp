@@ -260,6 +260,13 @@ namespace xtk
                     Matrix<IndexMat> const & aMeshIndex);
 
             // ----------------------------------------------------------------------------------
+            /*!
+             * @brief Probes and prints the information about a background cell
+             */
+            void
+            probe_bg_cell(Matrix<IndexMat> const & tBGCellIds);
+
+            // ----------------------------------------------------------------------------------
 
             /*!
              * @return Basis enrichment

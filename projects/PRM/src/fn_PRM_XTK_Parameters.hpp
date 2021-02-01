@@ -82,6 +82,9 @@ namespace moris
         // print memory usage
         tParameterList.insert( "print_memory", false );
 
+        // probe a cell - Debug
+        tParameterList.insert( "probe_bg_cells", "" );
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------

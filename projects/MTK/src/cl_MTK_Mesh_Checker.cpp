@@ -347,11 +347,6 @@ Mesh_Checker::verify_cell_ownership(Serialized_Mesh_Data* aSerializedMesh)
                 moris_id tSerialVertInd = this->get_cell_serial_index_from_id(tCellId,aSerializedMesh);
                 moris_id tProcVertInd = this->get_cell_proc_index_from_id(tCellId,iP,aSerializedMesh);
 
-                if(tCellId == 94849)
-                {
-                    std::cout<<"iP = "<<iP<<" | SerializedMesh->mCollectCellOwners(iP)(tProcVertInd) = "<<aSerializedMesh->mCollectCellOwners(iP)(tProcVertInd)<<std::endl;
-                }
-
                 if(tCellOwners(tSerialVertInd) == MORIS_INDEX_MAX)
                 {
                     tCellOwners(tSerialVertInd) = aSerializedMesh->mCollectCellOwners(iP)(tProcVertInd);

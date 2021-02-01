@@ -20,6 +20,8 @@
 
 #include "fn_stringify.hpp"
 #include "Log_Constants.hpp"
+#include "cl_Git_info.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace moris
 {
@@ -44,7 +46,14 @@ namespace moris
             // user requests output log file
             if ( std::string( argv[ k ] ) == "--outputlog" || std::string( argv[ k ] ) == "-ol" )
             {
-                mStream.open( std::string( argv[ k+1 ] ) + "." + std::to_string( logger_par_rank() ) , std::ofstream::out );
+                uint tPadding = 3;
+                std::string tParRankStr = std::to_string(par_rank());
+                std::string tBufferedParRankStr = std::string(tPadding - tParRankStr.length(), '0') + tParRankStr;
+
+                std::string tParSizeStr = std::to_string(par_size());
+                std::string tBufferedParSizeStr = std::string(tPadding - tParSizeStr.length(), '0') + tParSizeStr;
+
+                mStream.open( std::string( argv[ k+1 ] ) + "." + tBufferedParSizeStr + "." + tBufferedParRankStr , std::ofstream::out );
                 mWriteToAscii = true;
                 //std::cout << "\n Logger: writing to: " << std::string( argv[ k+1 ] ) << "\n";
             }
@@ -467,14 +476,18 @@ namespace moris
         mStream << "\n--- HOST ---\n";
         mStream << "User: " << std::getenv( "USER" ) << "\n";
         mStream << "Host: " << std::getenv( "HOSTNAME" ) << "\n";
-        mStream << "Operating System: " << std::getenv( "OSTYPE" ) << "\n";
-        mStream << "Host Type: " << std::getenv( "HOSTTYPE" ) << "\n";
+
+        std::string tOSStr = std::getenv( "OSTYPE" ) == nullptr ? "NA" : std::getenv( "OSTYPE" );
+        std::string tHostStr = std::getenv( "HOSTTYPE" ) == nullptr ? "NA" : std::getenv( "HOSTTYPE" );
+        mStream << "Operating System: " << tOSStr << "\n";
+        mStream << "Host Type: " << tHostStr << "\n";
 
         // print build info
+        git_info tGitInfo;
         mStream << "\n--- BUILD ---\n";
         mStream << "Build date: " << __DATE__ << "; " << __TIME__ << "\n";
-        mStream << "Git branch: " << get_moris_git_branch() << "\n";
-        mStream << "Git hash: " << get_moris_git_hash() << "\n";
+        mStream << "Git branch: " << tGitInfo.get_git_branch() << "\n";
+        mStream << "Git hash: " << tGitInfo.get_git_hash() << "\n";
         mStream << "DEBUG: ";
 
 #if defined(DEBUG)
