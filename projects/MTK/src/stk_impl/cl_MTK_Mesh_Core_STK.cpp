@@ -144,7 +144,6 @@ namespace mtk
         }
 
         for (size_t ghost_i = 0 ; ghost_i<mSTKMeshData->mMtkMeshBulkData->ghostings().size() ; ++ghost_i) {
-            std::cout<<"ghost_i = "<<ghost_i<<" on "<<par_rank()<<std::endl;
             stk::mesh::communicate_field_data(*(mSTKMeshData->mMtkMeshBulkData->ghostings()[ghost_i]), const_fields);
         }
 
