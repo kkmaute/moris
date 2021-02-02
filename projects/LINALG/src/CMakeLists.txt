@@ -45,8 +45,10 @@ fn_r2.hpp
 fn_reshape.hpp
 fn_save_matrix_to_binary_file.hpp
 fn_sort.hpp
+fn_sqrtmat.hpp
 fn_sum.hpp
 fn_svd.hpp
+fn_sylvester.hpp
 fn_trans.hpp
 fn_unique.hpp
 linalg_typedefs.hpp
@@ -150,8 +152,10 @@ Arma_Impl/fn_norm_Arma.hpp
 Arma_Impl/fn_qr_Arma.hpp
 Arma_Impl/fn_reshape_Arma.hpp
 Arma_Impl/fn_sort_Arma.hpp
+Arma_Impl/fn_sqrtmat_Arma.hpp
 Arma_Impl/fn_sum_Arma.hpp
 Arma_Impl/fn_svd_Arma.hpp
+Arma_Impl/fn_sylvester_Arma.hpp
 Arma_Impl/fn_trans_Arma.hpp
 Arma_Impl/fn_unique_Arma.hpp
 Arma_Impl/op_elemwise_div_Arma.hpp
