@@ -37,7 +37,7 @@ namespace moris
                   mFieldIndex(mMesh->get_field_ind(mFieldName,EntityRank::NODE)),
                   mNumOriginalNodes(mMesh->get_num_entities(EntityRank::NODE))
             {
-            };
+            }
 
             /**
              * Given a node index or coordinate, returns the field value.
