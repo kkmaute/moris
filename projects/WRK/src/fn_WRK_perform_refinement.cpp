@@ -27,7 +27,7 @@ namespace moris
                     tMeshIndices,
                     tNumMeshes );
 
-           // sint tRefinementNumber = 0;
+            // sint tRefinementNumber = 0;
             sint tNumPerformers = aPerformers.size();
 
             for (uint Ii = 0; Ii < tNumMeshes; Ii++)
@@ -61,15 +61,55 @@ namespace moris
                     //}
                 }
             }
+
+            for (uint Ii = 0; Ii < tNumMeshes; Ii++)
+            {
+                sint tMeshIndex = tMeshIndices( Ii );
+
+                while ( true )
+                {
+                    // Create mesh //FIXME
+                    std::shared_ptr<hmr::Mesh> tMesh = aHMR->create_mesh( tMeshIndex );
+
+                    uint tLagrangeMeshPattern = tMesh->get_lagrange_mesh_pattern();
+
+                    uint tNumQueuedElements = 0;
+
+                    for (sint Ik = 0; Ik < tNumPerformers; Ik++)
+                    {
+                        // Queue refinement
+                        tNumQueuedElements += queue_low_level_elements_for_refinement(aHMR, tMesh, aPerformers( Ik ), tMeshIndex);
+                    }
+
+                    if( tNumQueuedElements == 0 )
+                    {
+                        break;
+                    }
+
+                    //refine
+                    // Perform refinement and update index
+                    if (true)
+                    {
+                        aHMR->perform_refinement( tLagrangeMeshPattern );
+                        aHMR->update_refinement_pattern( tLagrangeMeshPattern );
+                    }
+
+                    //if (tPerformRefinement)
+                    //{
+                    //    aHMR->perform_refinement_based_on_working_pattern( 0, false );
+                    //}
+                    break;
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void queue_single_refinement(std::shared_ptr<hmr::HMR>  aHMR,
-                                     std::shared_ptr<hmr::Mesh> aMesh,
-                                     std::shared_ptr<Performer> aPerformer,
-                                     sint                       aRefinementNumber,
-                                     sint                       aMeshIndex )
+                std::shared_ptr<hmr::Mesh> aMesh,
+                std::shared_ptr<Performer> aPerformer,
+                sint                       aRefinementNumber,
+                sint                       aMeshIndex )
         {
             //uint tLagrangeMeshPattern = aMesh->get_lagrange_mesh_pattern();
 
@@ -98,9 +138,42 @@ namespace moris
                         }
                     }
                 }
+            }
+        }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        uint queue_low_level_elements_for_refinement(
+                std::shared_ptr<hmr::HMR>  aHMR,
+                std::shared_ptr<hmr::Mesh> aMesh,
+                std::shared_ptr<Performer> aPerformer,
+                sint                       aMeshIndex )
+        {
+            uint tNumElements = 0;
+            // Loop over fields
+            for (uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++)
+            {
+                const moris::Matrix< DDSMat > & tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
+
+                // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
+                for (uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++)
+                {
+                    if( tLagrangeMeshIndices( Ii ) == aMeshIndex )
+                    {
+                        // Loop over nodes and get field values
+                        Matrix<DDRMat> tFieldValues(aMesh->get_num_nodes(), 1);
+                        for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                        {
+                            tFieldValues(tNodeIndex) = aPerformer->get_field_value(Ik, tNodeIndex, aMesh->get_node_coordinate(tNodeIndex));
+                        }
+
+                        // Put elements on queue and set flag for refinement //FIXME this is untested for a refinement function,
+                        tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue(tFieldValues, 0, aPerformer->get_refinement_function_index(Ik, 0));
+                    }
+                }
             }
 
+            return tNumElements;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -80,6 +80,8 @@ namespace moris
                 // Trace HMR
                 Tracer tTracer( "HMR", "HMRmesh", "Create" );
 
+                mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
+
                 // uniform initial refinement
                 mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
