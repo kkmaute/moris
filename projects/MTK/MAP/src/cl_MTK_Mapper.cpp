@@ -13,7 +13,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
-#include "cl_MTK_Field_Proxy.hpp"
+#include "cl_MTK_Field.hpp"
 
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -158,7 +158,7 @@ namespace moris
             // Register mesh pair
             uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
-            mtk::Field * tFieldUnion = new mtk::Field_Proxy( tMeshManager, tMeshIndexUnion );
+            mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
@@ -166,7 +166,7 @@ namespace moris
                 // interpolate field onto union mesh
                 this->interpolate_field(
                         mFieldIn,
-                        tFieldUnion );
+                        &tFieldUnion );
             }
             else
             {
@@ -186,31 +186,27 @@ namespace moris
 
                 uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
 
-                mtk::Field * tFieldHigerOrder = new mtk::Field_Proxy( tMeshManager, tMeshIndexUnion );
+                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndexUnion );
 
-                this->change_field_order( aFieldSource, tFieldHigerOrder );
+                this->change_field_order( aFieldSource, &tFieldHigerOrder );
 
                 // interpolate field onto union mesh
                 this->interpolate_field(
-                        tFieldHigerOrder,
-                        tFieldUnion );
-
-                delete tFieldHigerOrder;
+                        &tFieldHigerOrder,
+                        &tFieldUnion );
             }
 
             // project field to union
             this->perform_mapping(
-                    tFieldUnion,
+                    &tFieldUnion,
                     EntityRank::NODE,
                     EntityRank::BSPLINE);
 
             // move coefficients to output field
-            mFieldOut->get_coefficients() = std::move( tFieldUnion->get_coefficients() );
+            mFieldOut->get_coefficients() = std::move( tFieldUnion.get_coefficients() );
 
             // evaluate nodes
             mFieldOut->evaluate_node_values();
-
-            delete tFieldUnion;
         }
 
         // -----------------------------------------------------------------------------
