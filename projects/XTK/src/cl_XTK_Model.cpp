@@ -32,6 +32,7 @@
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
+#include "fn_stringify_matrix.hpp"
 
 using namespace moris;
 
@@ -187,11 +188,20 @@ namespace xtk
         MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
         MORIS_ERROR(this->valid_parameters(),"Invalid parameters detected in XTK.");
 
+        if(mParameterList.get<std::string>("probe_bg_cells") != "")
+        {
+            Matrix<IdMat> tBgCellIds;
+            string_to_mat( mParameterList.get< std::string >("probe_bg_cells"), tBgCellIds );
+            print(tBgCellIds,"tBgCellIds");
+            this->probe_bg_cell(tBgCellIds);
+        }
+
         if(mParameterList.get<bool>("decompose"))
         {
             Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
             this->decompose(tSubdivisionMethods);
         }
+
 
         if(mParameterList.get<bool>("enrich"))
         {
@@ -318,10 +328,14 @@ namespace xtk
         }
 
         // print 
-        MORIS_LOG_SPEC("IG verts",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::NODE)));
-        MORIS_LOG_SPEC("IG cells",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT)));
-        MORIS_LOG_SPEC("IP verts",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::NODE)));
-        MORIS_LOG_SPEC("IP cells",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT)));
+        MORIS_LOG_SPEC("All_IG_verts",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::NODE)));
+        MORIS_LOG_SPEC("All_IG_cells",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT)));
+        MORIS_LOG_SPEC("All_IP_verts",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::NODE)));
+        MORIS_LOG_SPEC("All_IP_cells",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT)));
+        MORIS_LOG_SPEC("My_IG_verts",tEnrIntegMesh.get_num_entities(EntityRank::NODE));
+        MORIS_LOG_SPEC("My_IG_cells",tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT));
+        MORIS_LOG_SPEC("My_IP_verts",tEnrInterpMesh.get_num_entities(EntityRank::NODE));
+        MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
 
     }
 
@@ -473,9 +487,12 @@ namespace xtk
             }
         }
 
+
         // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
         // i.e set element ids, indices for children elements
         this->finalize_decomp_in_xtk_mesh(tSetPhase);
+
+        MORIS_LOG_SPEC("Num Intersected BG Cell",mCutMesh.get_num_child_meshes());
 
     }
 
@@ -2291,7 +2308,8 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::prepare_child_cell_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+    Model::prepare_child_cell_id_answers(
+            Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
             Cell<Matrix<IndexMat>> & aReceivedParentCellNumChildren,
             Cell<Matrix<IndexMat>> & aChildCellIdOffset)
     {
@@ -2317,10 +2335,10 @@ namespace xtk
                     moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
                     moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
 
-                    // if(!mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT))
-                    // {
-                    //     std::cout<<"tParentId = "<<tParentId<<std::endl;
-                    // }
+                    if(!mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT))
+                    {
+                        std::cout<<"tParentId = "<<tParentId<<" on "<<par_rank()<<std::endl;
+                    }
                     // get child mesh
                     MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),
                             "Request is made for child element ids on a parent cell not intersected");
@@ -3462,7 +3480,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
-        Tracer tTracer( "XTK", "Enrichment", "Enrich" );
+        Tracer tTracer( "XTK", "Enrichment");
 
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
@@ -3471,9 +3489,64 @@ namespace xtk
         mEnrichedInterpMesh.resize(aMeshIndex.numel()+1,nullptr);
 
         this->perform_basis_enrichment_internal(aBasisRank,aMeshIndex);
+           
 
         // Change the enrichment flag
         mEnriched = true;
+    }
+
+    void
+    Model::probe_bg_cell(Matrix<IndexMat> const & tBGCellIds)
+    {
+        Tracer tTracer( "XTK", "BG Cell Probe" );
+
+        for(moris::uint i = 0; i < tBGCellIds.numel(); i++)
+        {
+            Tracer tTracer( "XTK", "BG Cell Probe","Cell Id " + std::to_string(tBGCellIds(i)) );
+            // supress errors from procs that dont have the probed cell
+            // try
+            // {
+                moris_index tIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tBGCellIds(i),EntityRank::ELEMENT);
+                mtk::Cell & tCell = mBackgroundMesh.get_mesh_data().get_mtk_cell(tIndex);
+                Matrix<IndexMat> tVertexIds = tCell.get_vertex_ids();
+                moris::Cell< mtk::Vertex* > tVertexPtrs = tCell.get_vertex_pointers();
+                Matrix<IndexMat> tVertexOwner(1,tVertexPtrs.size());
+
+                Matrix< DDRMat > tFieldVals(1,tVertexPtrs.size());
+                std::string tFieldName = "levelset";
+
+                for(moris::uint iV = 0; iV < tVertexPtrs.size(); iV++)
+                {
+                    tVertexOwner(iV) = tVertexPtrs(iV)->get_owner();
+                    tFieldVals(iV) = mBackgroundMesh.get_mesh_data().get_entity_field_value_real_scalar({{tVertexPtrs(iV)->get_index()}},tFieldName,EntityRank::NODE)(0);
+                    
+                }   
+
+                MORIS_LOG_SPEC("Cell Id",tBGCellIds(i));
+                MORIS_LOG_SPEC("Cell Index",tIndex);
+                MORIS_LOG_SPEC("Cell Owner",tCell.get_owner());
+                MORIS_LOG_SPEC("Vertex Ids",ios::stringify_log(tVertexIds));
+                MORIS_LOG_SPEC("Vertex Owners",ios::stringify_log(tVertexOwner));
+                MORIS_LOG_SPEC("Mesh Field",ios::stringify_log(tFieldVals));
+
+                // collect geometric info
+                uint tNumGeom = mGeometryEngine->get_num_geometries();
+                Cell<Matrix<DDRMat>> tVertexGeomVals(tNumGeom,Matrix<DDRMat>(1,tVertexPtrs.size()));
+                for(moris::uint iG = 0; iG < tNumGeom; iG++)
+                {
+                    for(moris::uint iV = 0; iV < tVertexPtrs.size(); iV++)
+                    {
+                        tVertexGeomVals(iG)(iV) = mGeometryEngine->get_field_value(iG,(uint)tVertexPtrs(iV)->get_index(),tVertexPtrs(iV)->get_coords());
+                    }
+                    MORIS_LOG_SPEC("Geom Field " + std::to_string(iG) + " Vals",ios::stringify_log(tVertexGeomVals(iG)));
+                }
+            // }
+            // catch (...)
+            // {
+            //     MORIS_LOG_INFO("Not on proc");
+            // }
+        }
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -3516,6 +3589,7 @@ namespace xtk
             enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
+
         // initialize enrichment (ptr because of circular dependency)
         mEnrichment = new Enrichment(
                 Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
