@@ -145,6 +145,11 @@ set(HEADERS
     fn_FEM_Rotation_Matrix.hpp
     cl_FEM_Property.hpp
     
+    cl_FEM_Material_Model.hpp
+    #cl_FEM_MM_Perfect_Gas.hpp
+    #cl_FEM_MM_Van_Der_Waals_Fluid.hpp
+    cl_FEM_MM_Factory.hpp
+
     cl_FEM_Constitutive_Model.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
@@ -289,6 +294,14 @@ set(LIB_SOURCES
     cl_FEM_Integrator_Test_Polynomial.cpp
     cl_FEM_Property.cpp
     
+    cl_FEM_Material_Model.cpp
+    cl_FEM_Material_Model_Density_Functions.cpp
+    cl_FEM_Material_Model_Pressure_Functions.cpp
+    cl_FEM_Material_Model_Temperature_Functions.cpp
+    #cl_FEM_MM_Perfect_Gas.cpp
+    #cl_FEM_MM_Van_Der_Waals_Fluid.cpp
+    cl_FEM_MM_Factory.cpp
+
     cl_FEM_Constitutive_Model.cpp
     cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp

@@ -12,6 +12,7 @@
 #include "cl_Cell.hpp"
 //FEM/INT/src
 #include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Material_Model.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 namespace moris
@@ -55,6 +56,13 @@ namespace moris
                 // constitutive model map
                 std::map< std::string, uint > mCMMap;
 
+                // material models
+                moris::Cell< std::shared_ptr< fem::Material_Model > > mMMs;
+                uint mNumMMs = 0;
+
+                // constitutive model map
+                std::map< std::string, uint > mMMMap;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -89,14 +97,21 @@ namespace moris
                     // print the phase indices
                     for( uint iPhaseIndex = 0; iPhaseIndex < mPhaseIndex.numel(); iPhaseIndex++ )
                     {
-                        std::cout<<"Phase index: "<<mPhaseIndex( iPhaseIndex )<<std::endl;
+                        std::cout << "Phase index: " << mPhaseIndex( iPhaseIndex ) << std::endl;
                     }
 
                     // print CM names
                     for ( uint iCM = 0; iCM < mCMs.size(); iCM++ )
                     {
-                        std::cout<<"CM name: "<<mCMs( iCM )->get_name()<<std::endl;
+                        std::cout << "CM name: " << mCMs( iCM )->get_name() << std::endl;
                     }
+
+                    // print mM names
+                    for ( uint iMM = 0; iMM < mMMs.size(); iMM++ )
+                    {
+                        std::cout << "MM name: " << mMMs( iMM )->get_name() << std::endl;
+                    }
+
                 }
 
                 //------------------------------------------------------------------------------
@@ -235,6 +250,7 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * set CMs
                  * @param[ in ] aCMs list of CM pointers
@@ -292,6 +308,66 @@ namespace moris
                 {
                     return mCMs;
                 }
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * set MMs
+                 * @param[ in ] aMMs list of MM pointers
+                 */
+                void set_MMs( const moris::Cell< std::shared_ptr< fem::Material_Model > > & aMMs )
+                {
+                    mMMs = aMMs;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set MM
+                 * @param[ in ] aMM material model pointer
+                 */
+                void set_MM( std::shared_ptr< fem::Material_Model > aMM )
+                {
+                    // get MM name
+                    std::string tMMName = aMM->get_name();
+
+                    // if MM was not set before
+                    if ( mMMMap.find( tMMName ) == mMMMap.end() )
+                    {
+                        // add MM to list
+                        mMMs.push_back( aMM );
+
+                        // add MM index to map
+                        mMMMap[ tMMName ] = mNumMMs++;
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get MM by name
+                 * @param[ out ] aMMName material model name requested
+                 */
+                std::shared_ptr< fem::Material_Model > get_MM_by_name( std::string aMMName )
+                {
+                    // check for unknown MM name
+                    MORIS_ERROR( mMMMap.find( aMMName ) != mMMMap.end(),
+                            "Phase_User_Info::get_MM_by_name - Unknown aMMName for %s : %s \n",
+                            mPhaseName.c_str(),
+                            aMMName.c_str() );
+
+                    // return MM for name
+                    return mMMs( mMMMap[ aMMName ] );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get MMs
+                 * @param[ out ] mMMs list of material model pointers
+                 */
+                const
+                moris::Cell< std::shared_ptr< fem::Material_Model > > & get_MMs() const
+                {
+                    return mMMs;
+                }                
 
                 //------------------------------------------------------------------------------
         };
