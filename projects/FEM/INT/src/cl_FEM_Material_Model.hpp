@@ -567,9 +567,9 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnDensitydxn thermodynamic density and derivatives
                  */
-                // const Matrix< DDRMat > & density(){ return ( this->*m_get_Density )(); };
-                // const Matrix< DDRMat > & DensityDot(){ return ( this->*m_get_DensityDot )(); };
-                // const Matrix< DDRMat > & dnDensitydxn( uint aOrder ){ return ( this->*m_get_dnDensitydxn )( aOrder ); };
+                const Matrix< DDRMat > & density(){ return ( this->*m_get_Density )(); };
+                const Matrix< DDRMat > & DensityDot(){ return ( this->*m_get_DensityDot )(); };
+                const Matrix< DDRMat > & dnDensitydxn( uint aOrder ){ return ( this->*m_get_dnDensitydxn )( aOrder ); };
 
                 const Matrix< DDRMat > & density_dep();
                 const Matrix< DDRMat > & DensityDot_dep();
