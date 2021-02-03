@@ -294,7 +294,10 @@ namespace moris
                 mapper::Mapper tMapper;
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out->evaluate_node_values();
+                tMapper.perform_mapping(
+                        tField_Out,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
 
                 tFieldHMR->get_node_values() = tField_Out->get_node_values();
 
@@ -423,7 +426,10 @@ namespace moris
                 mapper::Mapper tMapper;
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out->evaluate_node_values();
+                tMapper.perform_mapping(
+                        tField_Out,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
 
                 tFieldHMR->get_node_values() = tField_Out->get_node_values();
 
@@ -552,7 +558,10 @@ namespace moris
                 mapper::Mapper tMapper;
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out->evaluate_node_values();
+                tMapper.perform_mapping(
+                        tField_Out,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
 
                 tFieldHMR->get_node_values() = tField_Out->get_node_values();
 

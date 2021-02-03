@@ -46,7 +46,10 @@ namespace moris
                 //! //FIXME right now only scalar field
                 const uint mNumberOfDimensions = 1;
 
+                //! Nodal field values
                 Matrix< DDRMat > mNodalValues;
+
+                //! Coefficients values
                 Matrix< DDRMat > mCoefficients;
 
                 //------------------------------------------------------------------------------
@@ -160,10 +163,6 @@ namespace moris
                     MORIS_ASSERT( mDiscretizationMeshIndex != -1, "get_discretization_mesh_index() Discretization index not set");
                     return mDiscretizationMeshIndex;
                 }
-
-                //------------------------------------------------------------------------------
-
-                void evaluate_node_values();
 
                 //------------------------------------------------------------------------------
                 //
