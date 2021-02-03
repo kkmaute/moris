@@ -102,7 +102,6 @@ namespace mtk
 
         // Include mesh fields and populate the database
         mSTKMeshData->mMeshReader->add_all_mesh_fields_as_input_fields( stk::io::MeshField::CLOSEST );
-
         // Declare supplementary fields
         if(aSuppMeshData != nullptr)
         {
@@ -136,6 +135,16 @@ namespace mtk
             // Create mesh face entities
             stk::mesh::create_faces( *mSTKMeshData->mMtkMeshBulkData, true );
             mSTKMeshData->mCreatedFaces = true;
+        }
+
+        const stk::mesh::FieldVector& fields = mSTKMeshData->mMtkMeshMetaData->get_fields();
+        std::vector<const stk::mesh::FieldBase*> const_fields(fields.size());
+        for(size_t i=0; i<fields.size(); ++i) {
+            const_fields[i] = fields[i];
+        }
+
+        for (size_t ghost_i = 0 ; ghost_i<mSTKMeshData->mMtkMeshBulkData->ghostings().size() ; ++ghost_i) {
+            stk::mesh::communicate_field_data(*(mSTKMeshData->mMtkMeshBulkData->ghostings()[ghost_i]), const_fields);
         }
 
         // Create communication tables in parallel.

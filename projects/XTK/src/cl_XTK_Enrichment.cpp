@@ -26,7 +26,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Interpolation_Vertex_Unzipped.hpp"
-
+#include "cl_Tracer.hpp"
 //#include "cl_HMR_Database.hpp"
 namespace xtk
 {
@@ -138,8 +138,12 @@ namespace xtk
         // iterate through basis types (i.e. linear and quadratic)
         for(moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++)
         {
+
+
             // get the mesh index
             moris_index tMeshIndex = mMeshIndices(iBasisType);
+
+            Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string(tMeshIndex));
 
             // Number of basis functions
             moris::size_t tNumBasis = tXTKMeshData.get_num_basis_functions(tMeshIndex);
@@ -207,6 +211,8 @@ namespace xtk
             this->assign_enriched_coefficients_identifiers(
                     tMeshIndex,
                     tMaxEnrichmentLevel);
+
+            MORIS_LOG_SPEC("Num Enriched Basis",mEnrichmentData(tMeshIndex).mNumEnrichmentLevels);
         }
 
         // create the enriched interpolation mesh
@@ -606,7 +612,10 @@ namespace xtk
 
                 for(moris::uint j = 1 ; j < tBasisEnrichmentInds.numel(); j++)
                 {
+                    MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tBasisEnrichmentInds(j)) == MORIS_INDEX_MAX,"Already set enriched basis id");
+
                     mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tBasisEnrichmentInds(j)) = tBasisIdOffset;
+
                     tBasisIdOffset++;
                 }
             }
@@ -768,8 +777,8 @@ namespace xtk
                             tCount++;
                             tFound = true;
                         }
+                        
                     }
-
                     MORIS_ERROR(tFound,"Basis not found");
                 }
             }
@@ -819,6 +828,7 @@ namespace xtk
                 {
                     moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
                     moris_index tGlobaId         = aReceivedEnrichedIds(i)(j);
+
 
                     MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,
                             "Id already set for this basis function");
@@ -1610,7 +1620,6 @@ namespace xtk
 
         // global maximum
         moris_index tFirstAvailGlbMaxId = moris::max_all( tLocMaxId )+1;
-
         if(tProcRank == 0)
         {
             // Loop over entities print the number of entities requested by each processor

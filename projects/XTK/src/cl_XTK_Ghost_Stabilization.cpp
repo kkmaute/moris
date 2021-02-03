@@ -1172,6 +1172,7 @@ namespace xtk
         {
             // allocate space in the integration mesh double side sets
             tEnrIntegMesh.mDoubleSideSets(aGhostSetupData.mDblSideSetIndexInMesh(i)).resize(aGhostSetupData.mMasterSideIpCells(i).size());
+            MORIS_LOG_SPEC("Ghost Facets BP " + std::to_string(i), aGhostSetupData.mMasterSideIpCells(i).size() );
 
             // iterate through double sides in this bulk phase
             for(moris::uint j = 0; j < aGhostSetupData.mMasterSideIpCells(i).size(); j++)
