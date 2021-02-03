@@ -43,6 +43,12 @@ namespace moris
                                      sint                       aRefinementNumber,
                                      sint                       aMeshIndex );
 
+        uint queue_low_level_elements_for_refinement(
+                std::shared_ptr<hmr::HMR>  aHMR,
+                std::shared_ptr<hmr::Mesh> aMesh,
+                std::shared_ptr<Performer> aPerformer,
+                sint                       aMeshIndex );
+
         moris::sint get_max_refinement_level( const Cell< std::shared_ptr<Performer> > & aPerformers );
 
         void get_all_refinement_mesh_indices(
