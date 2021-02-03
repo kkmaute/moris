@@ -14,6 +14,10 @@
 #include "HDF5_Tools.hpp"
 
 #include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+
 #include "fn_dot.hpp"
 
 namespace moris
@@ -26,6 +30,49 @@ namespace moris
         Field::~Field()
         {
 
+        }
+
+        void Field::evaluate_node_values()
+        {
+            Interpolation_Mesh* tInterpolationMesh =
+                    mMeshManager->get_interpolation_mesh( mMeshIndex );
+
+            // get number of nodes on block
+            uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
+
+            // set size of node values
+            mNodalValues.set_size( tNumberOfNodes, 1 );
+
+            for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
+            {
+                // get pointer to node
+                auto tNode = &tInterpolationMesh->get_mtk_vertex( Ik );
+
+                // get PDOFs from node
+                auto tBSplines = tNode->
+                        get_interpolation( mDiscretizationMeshIndex )->
+                        get_coefficients();
+
+                // get T-Matrix
+                const Matrix< DDRMat > & tTMatrix = *tNode->
+                        get_interpolation( mDiscretizationMeshIndex )->
+                        get_weights();
+
+                // get number of coefficients
+                uint tNumberOfCoeffs = tTMatrix.length();
+
+                MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
+
+                // fill coeffs vector
+                Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
+                for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                {
+                    tCoeffs( Ii ) = mCoefficients( tBSplines( Ii )->get_index() );
+                }
+
+                // write value into solution
+                mNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
+            }
         }
 
         //------------------------------------------------------------------------------
