@@ -157,6 +157,7 @@ set(HEADERS
     cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Fluid_Turbulence.hpp
     cl_FEM_CM_Fluid_Compressible_Ideal.hpp
+    cl_FEM_CM_Compressible_Newtonian_Fluid.hpp
     cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
     cl_FEM_CM_Factory.hpp
     
@@ -312,6 +313,8 @@ set(LIB_SOURCES
     cl_FEM_CM_Fluid_Turbulence.cpp
     cl_FEM_CM_Fluid_Compressible_Ideal.cpp
     cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp
+    cl_FEM_CM_Compressible_Newtonian_Fluid.cpp
+    cl_FEM_CM_Compressible_Newtonian_Fluid_Test_Tractions.cpp
     cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
     cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
     
