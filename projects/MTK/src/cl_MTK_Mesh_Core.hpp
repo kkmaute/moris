@@ -80,6 +80,8 @@ namespace moris
 
             uint get_order();
 
+            uint get_discretization_order( moris_index aBSplineMeshIndex );
+
             // FIXME This should be default, individual calls should be virtual
             /**
              * Gets the number of entities for a specified entity rank.

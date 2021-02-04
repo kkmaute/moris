@@ -13,7 +13,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
-#include "cl_MTK_Field_Proxy.hpp"
+#include "cl_MTK_Field.hpp"
 
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -158,7 +158,7 @@ namespace moris
             // Register mesh pair
             uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
-            mtk::Field * tFieldUnion = new mtk::Field_Proxy( tMeshManager, tMeshIndexUnion );
+            mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
@@ -166,7 +166,7 @@ namespace moris
                 // interpolate field onto union mesh
                 this->interpolate_field(
                         mFieldIn,
-                        tFieldUnion );
+                        &tFieldUnion );
             }
             else
             {
@@ -186,31 +186,29 @@ namespace moris
 
                 uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
 
-                mtk::Field * tFieldHigerOrder = new mtk::Field_Proxy( tMeshManager, tMeshIndexUnion );
+                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndexUnion );
 
-                this->change_field_order( aFieldSource, tFieldHigerOrder );
+                this->change_field_order( aFieldSource, &tFieldHigerOrder );
 
                 // interpolate field onto union mesh
                 this->interpolate_field(
-                        tFieldHigerOrder,
-                        tFieldUnion );
-
-                delete tFieldHigerOrder;
+                        &tFieldHigerOrder,
+                        &tFieldUnion );
             }
 
             // project field to union
             this->perform_mapping(
-                    tFieldUnion,
+                    &tFieldUnion,
                     EntityRank::NODE,
                     EntityRank::BSPLINE);
 
             // move coefficients to output field
-            mFieldOut->get_coefficients() = std::move( tFieldUnion->get_coefficients() );
+            mFieldOut->get_coefficients() = std::move( tFieldUnion.get_coefficients() );
 
-            // evaluate nodes
-            mFieldOut->evaluate_node_values();
-
-            delete tFieldUnion;
+            this->perform_mapping(
+                    mFieldOut,
+                    EntityRank::BSPLINE,
+                    EntityRank::NODE);
         }
 
         // -----------------------------------------------------------------------------
@@ -543,7 +541,7 @@ namespace moris
             {
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 case( EntityRank::NODE ) :
-                                {
+                                        {
                     switch( aTargetEntityRank )
                     {
                         case( EntityRank::BSPLINE ) :
@@ -563,7 +561,7 @@ namespace moris
                         }
                     }
                     break;
-                                }
+                                        }
                 case( EntityRank::BSPLINE ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
@@ -571,13 +569,13 @@ namespace moris
                     switch( aTargetEntityRank )
                     {
                         case( EntityRank::NODE ) :
-                                        {
+                                                {
                             this->map_bspline_to_node_same_mesh(
                                     tSourceIndex,
                                     aSourceEntityRank,
                                     tTargetIndex );
                             break;
-                                        }
+                                                }
                         default :
                         {
                             MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
@@ -614,8 +612,6 @@ namespace moris
                     switch( aTargetEntityRank )
                     {
                         case EntityRank::BSPLINE:
-                        case EntityRank::BSPLINE_2:
-                        case EntityRank::BSPLINE_3:
                         {
                             this->map_node_to_bspline_from_field( aSourceField,
                                     aTargetField,
@@ -631,8 +627,6 @@ namespace moris
                     break;
                 }
                 case EntityRank::BSPLINE:
-                case EntityRank::BSPLINE_2:
-                case EntityRank::BSPLINE_3:
                 {
                     switch( aTargetEntityRank )
                     {
@@ -687,6 +681,11 @@ namespace moris
                 {
                     switch( aTargetEntityRank )
                     {
+                        case EntityRank::NODE:
+                        {
+                            this->map_bspline_to_node_same_mesh( aField );
+                            break;
+                        }
                         default :
                         {
                             MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
@@ -911,9 +910,64 @@ namespace moris
                             tBSplines( i ) ) * tTMatrix( i );
                 }
             }
-
         }
 
+        //------------------------------------------------------------------------------
+
+        void
+        Mapper::map_bspline_to_node_same_mesh( mtk::Field * aField )
+        {
+            // Tracer
+            Tracer tTracer("MTK", "Mapper", "Map Bspline-to-Node");
+            
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPair = aField->get_mesh_pair();
+
+            moris::mtk::Mesh * tInterpolationMesh = tMeshPair.second->get_interpolation_mesh( tMeshPair.first );
+
+            moris_index tDescritizationIndex= aField->get_discretization_mesh_index();
+
+            // get number of nodes on block
+            uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
+
+            Matrix< DDRMat > & tNodalValues = aField->get_node_values();
+
+            tNodalValues.set_size( tNumberOfNodes, 1 );
+
+            const Matrix< DDRMat > & tCoefficients = aField->get_coefficients();
+
+            for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
+            {
+                // get pointer to node
+                auto tNode = &tInterpolationMesh->get_mtk_vertex( Ik );
+
+                // get PDOFs from node
+                auto tBSplines = tNode->
+                        get_interpolation( tDescritizationIndex )->
+                        get_coefficients();
+
+                // get T-Matrix
+                const Matrix< DDRMat > & tTMatrix = *tNode->
+                        get_interpolation( tDescritizationIndex )->
+                        get_weights();
+
+                // get number of coefficients
+                uint tNumberOfCoeffs = tTMatrix.length();
+
+                MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
+
+                // fill coeffs vector
+                Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
+                for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                {
+                    tCoeffs( Ii ) = tCoefficients( tBSplines( Ii )->get_index() );
+                }
+
+                // write value into solution
+                tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
+            }
+        }
+
+        // FIXME do not delete for future use
         ////------------------------------------------------------------------------------
         //
         //        void

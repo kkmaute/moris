@@ -46,11 +46,28 @@ namespace moris
                 //! //FIXME right now only scalar field
                 const uint mNumberOfDimensions = 1;
 
+                //! Nodal field values
+                Matrix< DDRMat > mNodalValues;
+
+                //! Coefficients values
+                Matrix< DDRMat > mCoefficients;
+
                 //------------------------------------------------------------------------------
             public :
                 //------------------------------------------------------------------------------
 
                 Field()
+                {};
+
+                //------------------------------------------------------------------------------
+
+                Field(
+                        std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
+                        uint const                         & aMeshIndex,
+                        uint const                         & aDiscretizationMeshIndex =0)
+                : mMeshManager( aMeshManager ),
+                  mMeshIndex( aMeshIndex ),
+                  mDiscretizationMeshIndex( aDiscretizationMeshIndex )
                 {};
 
                 //------------------------------------------------------------------------------
@@ -90,7 +107,12 @@ namespace moris
                 /**
                  * returns the discretazion order. When using HMR this is the BSpline order
                  */
-                virtual uint get_discretization_order() const = 0;
+                virtual uint get_discretization_order() const
+                {
+                    return mMeshManager->
+                            get_interpolation_mesh( mMeshIndex )->
+                            get_discretization_order( mDiscretizationMeshIndex );
+                };
 
                 //------------------------------------------------------------------------------
 
@@ -108,19 +130,31 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual Matrix< DDRMat > & get_node_values() = 0;
+                virtual Matrix< DDRMat > & get_node_values()
+                {
+                    return mNodalValues;
+                };
 
                 //------------------------------------------------------------------------------
 
-                virtual const Matrix< DDRMat > & get_node_values() const = 0;
+                virtual const Matrix< DDRMat > & get_node_values() const
+                {
+                    return mNodalValues;
+                };
 
                 //------------------------------------------------------------------------------
 
-                virtual Matrix< DDRMat > & get_coefficients() = 0;
+                virtual Matrix< DDRMat > & get_coefficients()
+                {
+                    return mCoefficients;
+                };
 
                 //------------------------------------------------------------------------------
 
-                virtual const Matrix< DDRMat > & get_coefficients() const = 0;
+                virtual const Matrix< DDRMat > & get_coefficients() const
+                {
+                    return mCoefficients;
+                };
 
                 //------------------------------------------------------------------------------
 
@@ -129,10 +163,6 @@ namespace moris
                     MORIS_ASSERT( mDiscretizationMeshIndex != -1, "get_discretization_mesh_index() Discretization index not set");
                     return mDiscretizationMeshIndex;
                 }
-
-                //------------------------------------------------------------------------------
-
-                virtual void evaluate_node_values() = 0;
 
                 //------------------------------------------------------------------------------
                 //

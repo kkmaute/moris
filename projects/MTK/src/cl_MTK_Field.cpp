@@ -14,6 +14,10 @@
 #include "HDF5_Tools.hpp"
 
 #include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+
 #include "fn_dot.hpp"
 
 namespace moris
