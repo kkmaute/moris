@@ -18,17 +18,18 @@ set(INT_INCLUDES
     "Interpolation_Functions"
     "IQIs"
     "Linear_Elasticity"
-    "Turbulence"
-	)
+    "Turbulence")
+
+set(INT_INTERNAL_INCLUDES)
 
 # Include depedency directories
 foreach(INT_INCLUDES ${INT_INCLUDES})
+    list(APPEND INT_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${INT_INCLUDES}")
 	include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES})
-#	list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${INT_INCLUDES}")
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Geometry Engine Library
+# INT Library
 
 # List header files
 set(HEADERS
@@ -419,7 +420,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Create library
 add_library(${INT}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${INT}-lib PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${INT_INTERNAL_INCLUDES};>"
 	$<INSTALL_INTERFACE:${${INT}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${INT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${INT}-lib PROPERTIES OUTPUT_NAME ${INT})
