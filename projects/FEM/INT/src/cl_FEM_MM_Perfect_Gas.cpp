@@ -93,7 +93,7 @@ namespace moris
             real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // compute internal energy
-            mEint = tIsochoricHeatCapacity * this->temperature()( 0 );
+            mEint = tIsochoricHeatCapacity * this->temperature();
         }
 
         //------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ namespace moris
             real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // compute internal energy
-            mEintDot = tIsochoricHeatCapacity * this->TemperatureDot()( 0 );
+            mEintDot = tIsochoricHeatCapacity * this->TemperatureDot();
         }
 
         //------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ namespace moris
             real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // compute internal energy
-            mdEintdx = tIsochoricHeatCapacity * this->dnTemperaturedxn( 1 )( 0 );
+            mdEintdx = tIsochoricHeatCapacity * this->dnTemperaturedxn( 1 );
         }
 
         //------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace moris
             real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // compute internal energy
-            md2Eintdx2 = tIsochoricHeatCapacity * this->dnTemperaturedxn( 2 )( 0 );
+            md2Eintdx2 = tIsochoricHeatCapacity * this->dnTemperaturedxn( 2 );
         }        
 
         //------------------------------------------------------------------------------

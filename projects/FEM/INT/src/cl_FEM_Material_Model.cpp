@@ -571,7 +571,7 @@ namespace moris
         // RETURN FUNCTIONS FOR FIRST EQUATION OF STATE
         //------------------------------------------------------------------------------
 
-        real Material_Model::Eint()
+        const Matrix< DDRMat > & Material_Model::Eint()
         {
             // if the flux was not evaluated
             if( mEintEval )
@@ -588,7 +588,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Material_Model::EintDot()
+        const Matrix< DDRMat > & Material_Model::EintDot()
         {
             // if the flux was not evaluated
             if( mEintDotEval )

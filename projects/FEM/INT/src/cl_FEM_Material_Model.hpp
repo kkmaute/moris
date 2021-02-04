@@ -106,8 +106,8 @@ namespace moris
                              
 
                 // storage for specific internal energy (computed using 1st EOS)
-                real mEint;
-                real mEintDot;
+                Matrix< DDRMat > mEint;
+                Matrix< DDRMat > mEintDot;
                 Matrix< DDRMat > mdEintdx;
                 Matrix< DDRMat > md2Eintdx2;
 
@@ -494,8 +494,8 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnEintdxn specific internal energy and derivatives
                  */
-                real Eint();
-                real EintDot();
+                const Matrix< DDRMat > &  Eint();
+                const Matrix< DDRMat > &  EintDot();
                 const Matrix< DDRMat > & dnEintdxn( uint aOrder );
 
                 //------------------------------------------------------------------------------
