@@ -19,6 +19,7 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "fn_FEM_FD_Scheme.hpp"
+#include "cl_FEM_Material_Model.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include <map>
@@ -79,6 +80,12 @@ namespace moris
 
                 // local string to property enum map
                 std::map< std::string, uint > mPropertyMap;
+
+                // Material Model
+                moris::Cell< std::shared_ptr< Material_Model > > mMaterialModels;
+
+                // local string to property enum map
+                std::map< std::string, uint > mMaterialModelMap;
 
                 // spatial dimensions
                 uint mSpaceDim;
@@ -249,15 +256,39 @@ namespace moris
                 /**
                  * get property
                  * @param[ in ]  aPropertyString string describing the property to get
-                 * @param[ out ] aProperty       property shared pointer
+                 * @param[ out ] tProperty       property shared pointer
                  */
                 std::shared_ptr< fem::Property > & get_property( std::string aPropertyString );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set thermodynamic material model
+                 * @param[ in ] aMaterialModel       material model shared pointer to set
+                 * @param[ in ] aMaterialModelString string describing the material model to set
+                 */
+                void set_material_model(
+                        std::shared_ptr< fem::Material_Model > aMaterialModel,
+                        std::string                            aMaterialModelString );                
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get thermodynamic material model
+                 * @param[ in ]  aMaterialModelString   string describing the Material Model to get
+                 * @param[ out ] tMaterialModel         material model shared pointer
+                 */
+                std::shared_ptr< fem::Material_Model > & get_material_model( std::string aMaterialModelString );                
 
                 //------------------------------------------------------------------------------
                 /**
                  * set local properties
                  */
                 virtual void set_local_properties(){}
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set local material model
+                 */
+                virtual void set_local_material_model(){}
 
                 //------------------------------------------------------------------------------
                 /**
