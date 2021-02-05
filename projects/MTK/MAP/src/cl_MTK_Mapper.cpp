@@ -13,7 +13,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
-#include "cl_MTK_Field_Proxy.hpp"
+#include "cl_MTK_BSpline_Field.hpp"
 
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -93,7 +93,7 @@ namespace moris
 
         void Mapper::map_input_field_to_output_field(
                 Field &       aFieldSource,
-                Field_Proxy & aFieldTarget )
+                BSpline_Field & aFieldTarget )
         {
             std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget.get_mesh_pair();
             Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
@@ -144,7 +144,7 @@ namespace moris
             // Register mesh pair
             uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
-            Field_Proxy tFieldUnion( tMeshManager, tMeshIndexUnion );
+            BSpline_Field tFieldUnion( tMeshManager, tMeshIndexUnion );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
@@ -172,7 +172,7 @@ namespace moris
 
                 uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
 
-                Field_Proxy tFieldHigherOrder( tMeshManager, tMeshIndexUnion );
+                BSpline_Field tFieldHigherOrder( tMeshManager, tMeshIndexUnion );
 
                 this->change_field_order( aFieldSource, tFieldHigherOrder );
 
@@ -201,8 +201,8 @@ namespace moris
 
         // interpolate field values from source Lagrange to target Lagrange mesh
         void Mapper::interpolate_field(
-                Field & aFieldSource,
-                Field_Proxy & aFieldTarget )
+                Field &         aFieldSource,
+                BSpline_Field & aFieldTarget )
         {
             std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget.get_mesh_pair();
             Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
@@ -324,7 +324,7 @@ namespace moris
 
         void Mapper::change_field_order(
                 Field &       aFieldSource,
-                Field_Proxy & aFieldTarget )
+                BSpline_Field & aFieldTarget )
         {
             std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget.get_mesh_pair();
             Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
@@ -437,7 +437,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void Mapper::create_iwg_and_model(
-                Field_Proxy & aField,
+                BSpline_Field & aField,
                 real          aAlpha )
         {
             if( ! mHaveIwgAndModel )
@@ -635,7 +635,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Mapper::perform_mapping(
-                Field_Proxy & aField,
+                BSpline_Field & aField,
                 EntityRank    aSourceEntityRank,
                 EntityRank    aTargetEntityRank )
         {
@@ -831,7 +831,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline_from_field( Field_Proxy & aField )
+        void Mapper::map_node_to_bspline_from_field( BSpline_Field & aField )
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");

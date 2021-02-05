@@ -6,6 +6,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
+	cl_MTK_Field_Proxy.cpp
 	cl_MTK_Mesh.cpp
 	cl_MTK_Blocks.cpp
 	cl_MTK_Side_Set.cpp

@@ -22,7 +22,6 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
-
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR.hpp"
@@ -41,6 +40,7 @@
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 
+#include "cl_MTK_BSpline_Field.hpp"
 #include "cl_MTK_Field_Proxy.hpp"
 #include "cl_MTK_Mapper.hpp"
 
@@ -168,11 +168,11 @@ namespace moris
                 tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
                 tField_Out.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                std::cout<<"Field_In size: "<<tField_In.get_nodal_values().numel()<<std::endl;
-                std::cout<<"Field_Out size: "<<tField_Out.get_nodal_values().numel()<<std::endl;
+                std::cout<<"Field_In size: "<<tField_In.get_nodal_values(tInterpolationMesh).numel()<<std::endl;
+                std::cout<<"Field_Out size: "<<tField_Out.get_nodal_values(tInterpolationMesh_Out).numel()<<std::endl;
 
-                CHECK(equal_to( tField_In.get_nodal_values().numel(), 125));
-                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 46));
+                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh).numel(), 125));
+                CHECK(equal_to( tField_Out.get_nodal_values(tInterpolationMesh_Out).numel(), 46));
             }
                 }
 
@@ -271,11 +271,11 @@ namespace moris
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
                 mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::BSpline_Field tField_Out( tMeshManager, tMeshIndex_Out, 0 );
 
                 tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In.get_nodal_values().numel(), 46));;
+                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh_In).numel(), 46));;
 
                 // Use mapper
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
@@ -294,7 +294,7 @@ namespace moris
 
                 for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
                 }
             }
         }
@@ -394,11 +394,11 @@ namespace moris
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
                 mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::BSpline_Field tField_Out( tMeshManager, tMeshIndex_Out, 0 );
 
                 tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In.get_nodal_values().numel(), 217));;
+                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh_In).numel(), 217));;
 
                 // Use mapper
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
@@ -417,7 +417,7 @@ namespace moris
 
                 for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
                 }
             }
         }
@@ -517,11 +517,11 @@ namespace moris
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
                 mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::BSpline_Field tField_Out( tMeshManager, tMeshIndex_Out, 0 );
 
                 tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In.get_nodal_values().numel(), 63));;
+                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh_In).numel(), 63));;
 
                 // Use mapper
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
@@ -540,7 +540,7 @@ namespace moris
 
                 for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
                 }
             }
         }

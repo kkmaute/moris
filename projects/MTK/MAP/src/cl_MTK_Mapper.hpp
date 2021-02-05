@@ -45,7 +45,7 @@ namespace moris
         class Mesh;
         class Mesh_Manager;
         class Field;
-        class Field_Proxy;
+        class BSpline_Field;
 
         class Mapper
         {
@@ -91,19 +91,19 @@ namespace moris
             
             void map_input_field_to_output_field(
                     Field &       aFieldSource,
-                    Field_Proxy & aFieldTarget );
+                    BSpline_Field & aFieldTarget );
 
             //------------------------------------------------------------------------------
 
             void interpolate_field(
                     Field &       aFieldSource,
-                    Field_Proxy & aFieldTarget);
+                    BSpline_Field & aFieldTarget);
 
             //------------------------------------------------------------------------------
 
             void change_field_order(
                     Field &       aFieldSource,
-                    Field_Proxy & aFieldTarget );
+                    BSpline_Field & aFieldTarget );
 
             //------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ namespace moris
                     EntityRank            aTargetEntityRank );
 
             void perform_mapping(
-                    Field_Proxy & aField,
+                    BSpline_Field & aField,
                     EntityRank    aSourceEntityRank,
                     EntityRank    aTargetEntityRank );
 
@@ -163,7 +163,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void map_node_to_bspline_from_field( Field_Proxy & aField );
+            void map_node_to_bspline_from_field( BSpline_Field & aField );
 
             ////------------------------------------------------------------------------------
             //
@@ -184,7 +184,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void create_iwg_and_model(Field_Proxy & aField, real aAlpha = 0.0);
+            void create_iwg_and_model(BSpline_Field & aField, real aAlpha = 0.0);
 
             //------------------------------------------------------------------------------
 

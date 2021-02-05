@@ -1,8 +1,5 @@
-
-#include "cl_MTK_Field_Proxy.hpp"
-
+#include "cl_MTK_BSpline_Field.hpp"
 #include "fn_dot.hpp"
-
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 
 namespace moris
@@ -12,7 +9,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field_Proxy::Field_Proxy(
+        BSpline_Field::BSpline_Field(
                 std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
                 uint                               aMeshIndex,
                 uint                               aDiscretizationMeshIndex )
@@ -24,27 +21,27 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field_Proxy::~Field_Proxy()
+        BSpline_Field::~BSpline_Field()
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Proxy::set_coefficients(Matrix<DDRMat> aCoefficients)
+        void BSpline_Field::set_coefficients(Matrix<DDRMat> aCoefficients)
         {
             mCoefficients = aCoefficients;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Proxy::transfer_coefficients(const Field_Proxy& aField)
+        void BSpline_Field::transfer_coefficients(const BSpline_Field& aField)
         {
             mCoefficients = std::move(aField.mCoefficients);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Proxy::get_field_value(
+        real BSpline_Field::get_field_value(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
@@ -67,14 +64,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > Field_Proxy::get_mesh_pair()
+        std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > BSpline_Field::get_mesh_pair()
         {
             return std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> >( mMeshIndex, mMeshManager );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Proxy::evaluate_nodal_values()
+        void BSpline_Field::evaluate_nodal_values()
         {
             Interpolation_Mesh* tInterpolationMesh =
                     mMeshManager->get_interpolation_mesh( mMeshIndex );

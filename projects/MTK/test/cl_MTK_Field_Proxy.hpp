@@ -25,7 +25,6 @@ namespace moris
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
             uint mMeshIndex;
             Matrix< DDRMat > mNodalValues;
-            Matrix< DDRMat > mCoefficients;
 
         public :
 
@@ -48,24 +47,7 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates);
 
             // FIXME
-            void evaluate_nodal_values();
-
-            // FIXME
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > get_mesh_pair();
-
-            // FIXME
-            Matrix<DDRMat>& get_nodal_values()
-            {
-                return mNodalValues;
-            }
-
-            //------------------------------------------------------------------------------
-
-            void set_coefficients(Matrix<DDRMat> aCoefficients);
-
-            //------------------------------------------------------------------------------
-
-            void transfer_coefficients(const Field_Proxy& aField);
 
             // ----------------------------------------------------------------------------------------------
 
