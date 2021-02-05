@@ -41,13 +41,8 @@
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 
-#define protected public
-#define private   public
 #include "cl_MTK_Field_Proxy.hpp"
 #include "cl_MTK_Mapper.hpp"
-#undef protected
-#undef private
-
 
 namespace moris
 {
@@ -64,7 +59,7 @@ namespace moris
     }
 
     moris::real
-    LevelSetPlainFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+    LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     {
         return  aPoint( 0 )  - 0.2;
     }
@@ -167,25 +162,17 @@ namespace moris
                 uint tMeshIndex_In = tMeshManager->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
 
+                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In );
+                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out );
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out );
+                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
+                tField_Out.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Out )->evaluate_scalar_function( LevelSetPlainFunction );
+                std::cout<<"Field_In size: "<<tField_In.get_nodal_values().numel()<<std::endl;
+                std::cout<<"Field_Out size: "<<tField_Out.get_nodal_values().numel()<<std::endl;
 
-                std::cout<<"Field_In size: "<<tField_In->get_node_values().numel()<<std::endl;
-                std::cout<<"Field_Out size: "<<tField_Out->get_node_values().numel()<<std::endl;
-
-                CHECK(equal_to( tField_In->get_node_values().numel(), 125));
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 46));
-
-                //                tFieldHMR->get_node_values() = tField_In->get_node_values();
-                //                tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
-                //                tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
-
-                delete tField_In;
-                delete tField_Out;
+                CHECK(equal_to( tField_In.get_nodal_values().numel(), 125));
+                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 46));
             }
                 }
 
@@ -283,38 +270,32 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
+                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out, 0 );
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
+                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 46));;
+                CHECK(equal_to( tField_In.get_nodal_values().numel(), 46));;
 
                 // Use mapper
-                mapper::Mapper tMapper;
+                mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out->evaluate_node_values();
-
-                tFieldHMR->get_node_values() = tField_Out->get_node_values();
+                tField_Out.evaluate_nodal_values();
 
                 //tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
                 //tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
+                tField_Ref.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 125));
+                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 125));
 
-                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values()( Ik )));
                 }
-
-                delete tField_In;
-                delete tField_Out;
-                delete tField_Ref;
             }
         }
 
@@ -412,38 +393,32 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
+                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out, 0 );
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
+                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 217));;
+                CHECK(equal_to( tField_In.get_nodal_values().numel(), 217));;
 
                 // Use mapper
-                mapper::Mapper tMapper;
+                mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out->evaluate_node_values();
-
-                tFieldHMR->get_node_values() = tField_Out->get_node_values();
+                tField_Out.evaluate_nodal_values();
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
+                tField_Ref.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 133));
+                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 133));
 
-                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values()( Ik )));
                 }
-
-                delete tField_In;
-                delete tField_Out;
-                delete tField_Ref;
             }
         }
 
@@ -541,38 +516,32 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
+                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out, 0 );
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
+                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 63));;
+                CHECK(equal_to( tField_In.get_nodal_values().numel(), 63));;
 
                 // Use mapper
-                mapper::Mapper tMapper;
+                mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out->evaluate_node_values();
-
-                tFieldHMR->get_node_values() = tField_Out->get_node_values();
+                tField_Out.evaluate_nodal_values();
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
+                tField_Ref.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 465));
+                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 465));
 
-                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values()( Ik )));
                 }
-
-                delete tField_In;
-                delete tField_Out;
-                delete tField_Ref;
             }
         }
 

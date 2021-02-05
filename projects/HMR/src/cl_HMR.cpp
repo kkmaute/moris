@@ -964,7 +964,7 @@ namespace moris
             aField->get_node_values().set_size( tNumberOfNodes, 1 );
 
             // evaluate node values
-            aField->evaluate_node_values();
+            aField->evaluate_nodal_values();
 
             // return the pointer
             return aField;
@@ -1507,7 +1507,7 @@ namespace moris
         //            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
         //            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
         //            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
-        //            Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
+        //            Cell< mtk::Mapper * > tMappers( tNumberOfMappers, nullptr );
         //
         //            for( uint m=0; m<tNumberOfMappers; ++m )
         //            {
@@ -1540,7 +1540,7 @@ namespace moris
         //                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
         //
         //                // create mapper
-        //                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex );
+        //                tMappers( m ) = new mtk::Mapper( &tMeshManager,tMeshPairIndex );
         //            }
         //
         //            // - - - - - - - - - - - - - - - - - - - - - -
@@ -1616,7 +1616,7 @@ namespace moris
         //                tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
         //
         //                // evaluate nodes
-        //                tOutputField->evaluate_node_values();
+        //                tOutputField->evaluate_nodal_values();
         //
         //                // make this field point to the output mesh
         //                tInputField->change_mesh( tOutputField->get_mesh(),
@@ -1624,7 +1624,7 @@ namespace moris
         //            }
         //
         //            // delete mappers
-        //            for( mapper::Mapper * tMapper : tMappers )
+        //            for( mtk::Mapper * tMapper : tMappers )
         //            {
         //                delete tMapper;
         //            }
@@ -1698,7 +1698,7 @@ namespace moris
             moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
             // create mapper
-            mapper::Mapper tMapper(
+            mtk::Mapper tMapper(
                     tMeshManager,
                     tMeshPairIndex,
                     aBsplineMeshIndex );
@@ -1730,7 +1730,7 @@ namespace moris
             tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
 
             // evaluate nodes
-            tOutputField->evaluate_node_values();
+            tOutputField->evaluate_nodal_values();
 
             // make this field point to the output mesh
             aField->change_mesh( tOutputField->get_mesh(),

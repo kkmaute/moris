@@ -131,7 +131,7 @@ namespace moris
             Cell< Integration_Mesh_HMR * >   tUnionIntegMeshes;
             Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
             Cell< Integration_Mesh_HMR * >   tInputIntegMeshes;
-            Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
+            Cell< mtk::Mapper * > tMappers( tNumberOfMappers, nullptr );
 
             for( uint m=0; m<tNumberOfMappers; ++m )
             {
@@ -176,7 +176,7 @@ namespace moris
                         tUnionIntegMeshes(m));
 
                 // create mapper
-                tMappers( m ) = new mapper::Mapper( tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
+                tMappers( m ) = new mtk::Mapper( tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -
@@ -260,7 +260,7 @@ namespace moris
                 tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
 
                 // evaluate nodes
-                tOutputField->evaluate_node_values();
+                tOutputField->evaluate_nodal_values();
 
                 // copy field id
                 tOutputField->set_id( tInputField->get_id() );
@@ -280,7 +280,7 @@ namespace moris
                             tBSplineOrder );
 
                     // evaluate node values for linear field
-                    tLinearField->evaluate_node_values( tOutputField->get_coefficients() );
+                    tLinearField->evaluate_nodal_values( tOutputField->get_coefficients() );
                 }
 
                 // if the field is not quadratic, also map it to quadratic mesh
@@ -295,7 +295,7 @@ namespace moris
                             tBSplineOrder );
 
                     // evaluate node values for linear field
-                    tQuadraticField->evaluate_node_values( tOutputField->get_coefficients() );
+                    tQuadraticField->evaluate_nodal_values( tOutputField->get_coefficients() );
                 }
             }
 
@@ -328,7 +328,7 @@ namespace moris
             }
 
             // delete mappers
-            for( mapper::Mapper * tMapper : tMappers )
+            for( mtk::Mapper * tMapper : tMappers )
             {
                 delete tMapper;
             }

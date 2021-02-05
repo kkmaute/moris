@@ -285,7 +285,7 @@ namespace moris
 //                 tExact->get_node_values() = tField->get_node_values();
 //
 //                 // create mapper
-//                 moris::mapper::Mapper tMapper( tMesh );
+//                 moris::mtk::Mapper tMapper( tMesh );
 //
 //                 // call mapping function
 //                 tMapper.perform_mapping(
@@ -294,7 +294,7 @@ namespace moris
 //                         tField->get_label(),
 //                         tField->get_bspline_rank() );
 //
-//                 tField->evaluate_node_values();
+//                 tField->evaluate_nodal_values();
 //
 //                 // save field to hdf5
 //                 tField->save_field_to_hdf5("Circle.hdf5");

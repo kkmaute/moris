@@ -9,87 +9,91 @@ namespace moris
 {
     namespace mtk
     {
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Field_Proxy::Field_Proxy(
-                std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
-                uint const                         & aMeshIndex,
-                uint const                         & aDiscretizationMeshIndex )
+                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
+                uint                               aMeshIndex,
+                uint                               aDiscretizationMeshIndex )
+                : Field(aDiscretizationMeshIndex)
+                , mMeshManager(aMeshManager)
+                , mMeshIndex(aMeshIndex)
         {
-            mMeshManager = aMeshManager;
-            mMeshIndex = aMeshIndex;
-            mDiscretizationMeshIndex = aDiscretizationMeshIndex;
         }
 
-        // ----------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         Field_Proxy::~Field_Proxy()
         {
-
         }
 
-        // ----------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        uint Field_Proxy::get_discretization_order() const
+        void Field_Proxy::set_coefficients(Matrix<DDRMat> aCoefficients)
         {
-            return mMeshManager->
-                    get_interpolation_mesh( mMeshIndex )->
-                    get_HMR_lagrange_mesh()->
-                    get_bspline_order( mDiscretizationMeshIndex );
+            mCoefficients = aCoefficients;
         }
 
-        // ----------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat > & Field_Proxy::get_node_values()
+        void Field_Proxy::transfer_coefficients(const Field_Proxy& aField)
         {
-            return mNodalValues;
+            mCoefficients = std::move(aField.mCoefficients);
         }
 
-        // ----------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Field_Proxy::get_node_values() const
+        real Field_Proxy::get_field_value(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
-            return mNodalValues;
+//            // Get mesh
+//            Interpolation_Mesh* tInterpolationMesh =
+//                    mMeshManager->get_interpolation_mesh( mMeshIndex );
+//
+//            // Get T-matrix
+//            Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index());
+//            Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
+//
+//            // Compute field value
+//            real tValue = 0.0;
+//            for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
+//            {
+//                tValue += tMatrix(tBSpline) * mCoefficients(tBSplineIndices(tBSpline));
+//            }
+            return mNodalValues(aNodeIndex);
         }
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > & Field_Proxy::get_coefficients()
+        std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > Field_Proxy::get_mesh_pair()
         {
-            return mCoefficients;
+            return std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> >( mMeshIndex, mMeshManager );
         }
 
-        //------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Field_Proxy::get_coefficients() const
-        {
-            return mCoefficients;
-        }
-
-        // ----------------------------------------------------------------------------------------------
-
-        void Field_Proxy::evaluate_node_values()
+        void Field_Proxy::evaluate_nodal_values()
         {
             Interpolation_Mesh* tInterpolationMesh =
                     mMeshManager->get_interpolation_mesh( mMeshIndex );
 
-            // get number of nodes on block
-            uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
+            mNodalValues.set_size(tInterpolationMesh->get_num_nodes(), 1);
 
-            // set size of node values
-            mNodalValues.set_size( tNumberOfNodes, 1 );
-
-            for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
+            for( uint Ik = 0; Ik < tInterpolationMesh->get_num_nodes(); ++Ik )
             {
                 // get pointer to node
                 auto tNode = &tInterpolationMesh->get_mtk_vertex( Ik );
 
                 // get PDOFs from node
                 auto tBSplines = tNode->
-                        get_interpolation( mDiscretizationMeshIndex )->
+                        get_interpolation( this->get_discretization_mesh_index() )->
                         get_coefficients();
 
                 // get T-Matrix
                 const Matrix< DDRMat > & tTMatrix = *tNode->
-                        get_interpolation( mDiscretizationMeshIndex )->
+                        get_interpolation( this->get_discretization_mesh_index() )->
                         get_weights();
 
                 // get number of coefficients
@@ -109,7 +113,149 @@ namespace moris
             }
         }
 
-        // ----------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        //        void Field::save_field_to_hdf5(
+        //                const std::string & aFilePath,
+        //                const bool          aCreateNewFile )
+        //        {
+        //            // test if file exists
+        //            std::string tFilePath = make_path_parallel( aFilePath );
+        //
+        //            // test if file exists
+        //            std::ifstream tFile( tFilePath );
+        //            bool tFileExists;
+        //            if( tFile )
+        //            {
+        //                tFileExists = true;
+        //            }
+        //            else
+        //            {
+        //                tFileExists = false;
+        //            }
+        //
+        //            tFile.close();
+        //
+        //            // delete file if it exists and user does not want to keep it
+        //            if( aCreateNewFile && tFileExists )
+        //            {
+        //                std::remove( tFilePath.c_str() );
+        //                tFileExists = false;
+        //            }
+        //
+        //            hid_t tFileID;
+        //
+        //            if( tFileExists )
+        //            {
+        //                tFileID = open_hdf5_file( aFilePath );
+        //            }
+        //            else
+        //            {
+        //                tFileID = create_hdf5_file( aFilePath );
+        //            }
+        //
+        //            herr_t tStatus;
+        //
+        //            save_matrix_to_hdf5_file( tFileID,
+        //                    this->get_name(),
+        //                    this->get_coefficients(),
+        //                    tStatus );
+        //
+        //            // close file
+        //            tStatus = close_hdf5_file( tFileID );
+        //        }
+        //
+        //        //------------------------------------------------------------------------------
+        //
+        //        void Field::save_node_values_to_hdf5(
+        //                const std::string & aFilePath,
+        //                const bool          aCreateNewFile )
+        //        {
+        //            // test if file exists
+        //            std::string tFilePath = make_path_parallel( aFilePath );
+        //
+        //            // test if file exists
+        //            std::ifstream tFile( tFilePath );
+        //            bool tFileExists;
+        //            if( tFile )
+        //            {
+        //                tFileExists = true;
+        //            }
+        //            else
+        //            {
+        //                tFileExists = false;
+        //            }
+        //
+        //            tFile.close();
+        //
+        //            // delete file if it exists and user does not want to keep it
+        //            if( aCreateNewFile && tFileExists )
+        //            {
+        //                std::remove( tFilePath.c_str() );
+        //                tFileExists = false;
+        //            }
+        //
+        //            hid_t tFileID;
+        //
+        //            if( tFileExists )
+        //            {
+        //                tFileID = open_hdf5_file( aFilePath );
+        //            }
+        //            else
+        //            {
+        //                tFileID = create_hdf5_file( aFilePath );
+        //            }
+        //
+        //            herr_t tStatus;
+        //
+        //            // FIXME
+        //            save_matrix_to_hdf5_file( tFileID,
+        //                    this->get_name(),
+        //                    this->get_node_values(),
+        //                    tStatus );
+        //
+        //            // close file
+        //            tStatus = close_hdf5_file( tFileID );
+        //        }
+        //
+        //        //------------------------------------------------------------------------------
+        //
+        //        void Field::load_field_from_hdf5(
+        //                const std::string & aFilePath,
+        //                const uint          aBSplineOrder )
+        //        {
+        //            hid_t tFile    = open_hdf5_file( aFilePath );
+        //            herr_t tStatus = 0;
+        ////            load_matrix_from_hdf5_file( tFile,
+        ////                    this->get_name(),
+        ////                    this->get_coefficients(),
+        ////                    tStatus );
+        //
+        //            tStatus = close_hdf5_file( tFile );
+        //        }
+        //
+        //        //------------------------------------------------------------------------------
+        //
+        //        void Field::save_node_values_to_binary( const std::string & aFilePath )
+        //        {
+        //            // make path parallel
+        //            std::string tFilePath = parallelize_path( aFilePath );
+        //
+        //            //FIXME
+        ////            save_matrix_to_binary_file( this->get_node_values(), tFilePath );
+        //        }
+        //
+        //        //------------------------------------------------------------------------------
+        //
+        //        void Field::save_bspline_coeffs_to_binary( const std::string & aFilePath )
+        //        {
+        //            // make path parallel
+        //            std::string tFilePath = parallelize_path( aFilePath );
+        //
+        ////            save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
+        //        }
+        //
+        //        //------------------------------------------------------------------------------
 
     }
 }

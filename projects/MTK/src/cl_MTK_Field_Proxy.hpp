@@ -21,68 +21,84 @@ namespace moris
     {
         class Field_Proxy : public Field
         {
-            private:
-                Matrix< DDRMat > mNodalValues;
-                Matrix< DDRMat > mCoefficients;
+        private:
+            std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
+            uint mMeshIndex;
+            Matrix< DDRMat > mNodalValues;
+            Matrix< DDRMat > mCoefficients;
 
-            public :
+        public :
 
-                // ----------------------------------------------------------------------------------------------
+            Field_Proxy(
+                    std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
+                    uint                               aMeshIndex,
+                    uint                               aDiscretizationMeshIndex = 0 );
 
-                Field_Proxy(
-                        std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
-                        uint const                         & aMeshIndex,
-                        uint const                         & aDiscretizationMeshIndex = 0 );
+            ~Field_Proxy();
 
-                // ----------------------------------------------------------------------------------------------
+            /**
+             * Given a node index or coordinate, returns the field value.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Vector of coordinate values
+             * @return Field value
+             */
+            real get_field_value(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
-                ~Field_Proxy();
+            // FIXME
+            void evaluate_nodal_values();
 
-                // ----------------------------------------------------------------------------------------------
+            // FIXME
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > get_mesh_pair();
 
-                Matrix< DDRMat > & get_node_values();
+            // FIXME
+            Matrix<DDRMat>& get_nodal_values()
+            {
+                return mNodalValues;
+            }
 
-                // ----------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                const Matrix< DDRMat > & get_node_values() const;
+            void set_coefficients(Matrix<DDRMat> aCoefficients);
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                Matrix< DDRMat > & get_coefficients();
+            void transfer_coefficients(const Field_Proxy& aField);
 
-                //------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                const Matrix< DDRMat > & get_coefficients() const;
+            //            void save_field_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
+            //
+            //            void save_node_values_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
+            //
+            //            void load_field_from_hdf5( const std::string & aFilePath,
+            //                    const uint          aBSplineOrder=0 );
+            //
+            //            void save_bspline_coeffs_to_binary( const std::string & aFilePath );
+            //
+            //            void save_node_values_to_binary( const std::string & aFilePath );
 
-                // ----------------------------------------------------------------------------------------------
+            template<typename T>
+            void evaluate_scalar_function( T aLambda )
+            {
+                Interpolation_Mesh* tInterpolationMesh =
+                        mMeshManager->get_interpolation_mesh( mMeshIndex );
 
-                void evaluate_node_values();
+                // get number of nodes on block
+                uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
 
-                // ----------------------------------------------------------------------------------------------
+                // set size of node values
+                mNodalValues.set_size( tNumberOfVertices, 1 );
 
-                uint get_discretization_order() const;
-
-                // ----------------------------------------------------------------------------------------------
-
-                template<typename T>
-                void evaluate_scalar_function( T aLambda )
+                // loop over all vertices
+                for( uint Ik = 0; Ik < tNumberOfVertices; ++Ik )
                 {
-                    Interpolation_Mesh* tInterpolationMesh =
-                            mMeshManager->get_interpolation_mesh( mMeshIndex );
-
-                    // get number of nodes on block
-                    uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
-
-                    // set size of node values
-                    mNodalValues.set_size( tNumberOfVertices, 1 );
-
-                    // loop over all vertices
-                    for( uint Ik = 0; Ik < tNumberOfVertices; ++Ik )
-                    {
-                        // evaluate function at vertex coordinates
-                        mNodalValues( Ik ) = aLambda( tInterpolationMesh->get_mtk_vertex( Ik ).get_coords() );
-                    }
+                    // evaluate function at vertex coordinates
+                    mNodalValues( Ik ) = aLambda( tInterpolationMesh->get_mtk_vertex( Ik ).get_coords() );
                 }
+            }
         };
     }
 }

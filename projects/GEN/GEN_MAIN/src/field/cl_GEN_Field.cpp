@@ -31,7 +31,8 @@ namespace moris
                      Matrix<DDUMat>   aADVIndices,
                      Matrix<DDRMat>   aConstants,
                      Field_Parameters aParameters)
-                : mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
+                : mtk::Field(aParameters.mBSplineMeshIndex, aParameters.mName)
+                , mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
                 , mSensitivities(1, aFieldVariableIndices.length() + aConstants.length())
                 , mConstants(aConstants)
                 , mParameters(aParameters)
@@ -56,7 +57,8 @@ namespace moris
 
         Field::Field(const Matrix<DDSMat>&  aSharedADVIds,
                      std::shared_ptr<Field> aField)
-                : mFieldVariables(aSharedADVIds.length())
+                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_name())
+                , mFieldVariables(aSharedADVIds.length())
                 , mSensitivities(1, aSharedADVIds.length())
                 , mParameters(aField->mParameters)
                 , mDeterminingADVIds(aSharedADVIds)
@@ -83,7 +85,8 @@ namespace moris
 
         Field::Field(Matrix<DDRMat>   aConstants,
                      Field_Parameters aParameters)
-                : mFieldVariables(aConstants.length())
+                : mtk::Field(aParameters.mBSplineMeshIndex, aParameters.mName)
+                , mFieldVariables(aConstants.length())
                 , mSensitivities(1, aConstants.length())
                 , mConstants(aConstants)
                 , mParameters(aParameters)
@@ -97,7 +100,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(std::shared_ptr<Field> aField)
-                : mParameters(aField->mParameters)
+                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_name())
+                , mParameters(aField->mParameters)
                 , mDependsOnADVs(aField->mDependsOnADVs)
         {
         }
@@ -183,13 +187,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::string Field::get_name()
-        {
-            return mParameters.mName;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         const Matrix< DDSMat > & Field::get_num_refinements()
         {
             return mParameters.mNumRefinements;
@@ -207,13 +204,6 @@ namespace moris
         sint Field::get_refinement_function_index()
         {
             return mParameters.mRefinementFunctionIndex;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        uint Field::get_bspline_mesh_index()
-        {
-            return (uint)mParameters.mBSplineMeshIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------

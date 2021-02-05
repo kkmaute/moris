@@ -166,7 +166,7 @@ main(
       // - - - - - - - - - - - - - - - - - - - -
 
       // create mapper for input
-      mapper::Mapper tInputMapper( tInputMesh.get() );
+      mtk::Mapper tInputMapper( tInputMesh.get() );
 
       tInputMapper.perform_mapping(
               tLabel,
@@ -196,7 +196,7 @@ main(
       // - - - - - - - - - - - - - - - - - - - -
 
       // create mapper for untion
-      mapper::Mapper tUnionMapper( tUnionMesh.get() );
+      mtk::Mapper tUnionMapper( tUnionMesh.get() );
 
       tUnionMapper.perform_mapping(
               tLabel,
@@ -212,7 +212,7 @@ main(
       auto tOutputMesh = tHMR.create_mesh( tLagrangeOrder, tHMR.get_parameters()->get_output_pattern() );
 
       // create mapper for output
-      mapper::Mapper tOutputMapper( tOutputMesh.get() );
+      mtk::Mapper tOutputMapper( tOutputMesh.get() );
 
       std::shared_ptr< Field > tOutputField = tOutputMesh->create_field( tLabel, tField->get_bspline_order() );
       tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );

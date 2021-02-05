@@ -33,7 +33,7 @@ namespace moris
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
 
             // Get B-spline mesh index
-            uint tBSplineMeshIndex = this->get_bspline_mesh_index();
+            uint tBSplineMeshIndex = this->get_discretization_mesh_index();
 
             // Assign ADVs
             for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
@@ -99,7 +99,7 @@ namespace moris
             sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                     aNodeIndex,
                     EntityRank::NODE,
-                    this->get_bspline_mesh_index());
+                    this->get_discretization_mesh_index());
 
             return (*mSharedNodalValues)(tNodeID);
         }
@@ -108,7 +108,7 @@ namespace moris
 
         const Matrix<DDRMat>& BSpline_Field::get_field_sensitivities(uint aNodeIndex)
         {
-            mSensitivities = trans(mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index()));
+            mSensitivities = trans(mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index()));
             return mSensitivities;
         }
 
@@ -116,7 +116,7 @@ namespace moris
 
         Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
-            return mMesh->get_bspline_ids_of_node_loc_ind(aNodeIndex, this->get_bspline_mesh_index());
+            return mMesh->get_bspline_ids_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -132,14 +132,14 @@ namespace moris
             // Evaluate field at owned nodes
             for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
             {
-                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, this->get_bspline_mesh_index()))
+                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, this->get_discretization_mesh_index()))
                 {
                     sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,
                             EntityRank::NODE,
-                            this->get_bspline_mesh_index());
-                    Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_bspline_mesh_index());
-                    Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, this->get_bspline_mesh_index());
+                            this->get_discretization_mesh_index());
+                    Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
+                    Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
                     for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
                     {
                         (*mOwnedNodalValues)(tNodeID) += tMatrix(tBSpline) * (*mFieldVariables(tBSplineIndices(tBSpline)));
@@ -190,7 +190,7 @@ namespace moris
             uint tMeshIndex = tMeshManager->register_mesh_pair(mMesh, tIntegrationMesh);
 
             // Use mapper
-            mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
+            mtk::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_discretization_mesh_index());
             tMapper.perform_mapping(tSourceField, EntityRank::NODE, tTargetField, EntityRank::BSPLINE);
 
             // Delete integration mesh
