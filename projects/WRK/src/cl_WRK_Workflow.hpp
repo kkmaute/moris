@@ -54,7 +54,7 @@ namespace moris
 
         class Workflow : public opt::Criteria_Interface
         {
-            private:
+            protected:
 
                 wrk::Performer_Manager * mPerformerManager;
 
@@ -64,7 +64,9 @@ namespace moris
                 /**
                  * constructor
                  */
-                Workflow( wrk::Performer_Manager * aPerformerManager );
+                Workflow( wrk::Performer_Manager * aPerformerManager ):
+                mPerformerManager(aPerformerManager)
+                {};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -76,10 +78,11 @@ namespace moris
                 /**
                  * Initializes the vectors of ADV values, lower bounds, and upper bounds
                  */
+                virtual
                 void initialize(
                         Matrix<DDRMat>& aADVs,
                         Matrix<DDRMat>& aLowerBounds,
-                        Matrix<DDRMat>& aUpperBounds);
+                        Matrix<DDRMat>& aUpperBounds) = 0;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -87,7 +90,9 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs);
+                virtual
+                Matrix<DDRMat> 
+                perform(const Matrix<DDRMat> & aNewADVs) = 0;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -95,7 +100,9 @@ namespace moris
                  *
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
-                Matrix<DDRMat> compute_dcriteria_dadv();
+                virtual
+                Matrix<DDRMat> 
+                compute_dcriteria_dadv() = 0;
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */

@@ -146,7 +146,7 @@ namespace moris
 
             // set the property in the property cell
             mProperties( mPropertyMap[ aPropertyString ] ) = aProperty;
-        }
+        }      
 
         //------------------------------------------------------------------------------
 
@@ -162,6 +162,37 @@ namespace moris
             // get the property in the property cell
             return  mProperties( mPropertyMap[ aPropertyString ] );
         }
+
+        //------------------------------------------------------------------------------
+
+        void Constitutive_Model::set_material_model(
+                std::shared_ptr< fem::Material_Model > aMaterialModel,
+                std::string                            aMaterialModelString )
+        {
+            // check that aMaterialModelString makes sense
+            MORIS_ERROR( mMaterialModelMap.find( aMaterialModelString ) != mMaterialModelMap.end(),
+                    "Constitutive_Model::set_material_model - CM %s - Unknown aMaterialModelString : %s \n",
+                    mName.c_str(),
+                    aMaterialModelString.c_str() );
+
+            // set the property in the property cell
+            mMaterialModels( mMaterialModelMap[ aMaterialModelString ] ) = aMaterialModel;
+        }          
+
+        //------------------------------------------------------------------------------
+
+        std::shared_ptr< fem::Material_Model > & Constitutive_Model::get_material_model(
+                std::string aMaterialModelString )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mMaterialModelMap.find( aMaterialModelString ) != mPropertyMap.end(),
+                    "Constitutive_Model::get_material_model - CM %s - Unknown aMaterialModelString : %s \n",
+                    mName.c_str(),
+                    aMaterialModelString.c_str() );
+
+            // get the material model in the material model cell
+            return  mMaterialModels( mMaterialModelMap[ aMaterialModelString ] );
+        }        
 
         //------------------------------------------------------------------------------
 

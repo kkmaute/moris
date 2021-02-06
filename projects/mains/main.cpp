@@ -34,9 +34,12 @@ int main( int argc, char * argv[] )
         git_info tGitInfo;
         std::fprintf( stdout, "\n     GIT branch    : %s\n",  tGitInfo.get_git_branch().c_str() );
         std::fprintf( stdout,   "     GIT revision  : %s\n\n",tGitInfo.get_git_hash().c_str() );
+        MORIS_LOG_SPEC("Par Rank",par_rank());
+        MORIS_LOG_SPEC("Par Size",par_size());
     }
-    // call to performance manager main interface
+
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+ 
 
     //Kokkos::finalize_all();
 

@@ -160,6 +160,20 @@ namespace moris
 
     //-------------------------------------------------------------------------------------------------------
 
+    void MSI_Solver_Interface::report_beginning_of_assembly()
+    {
+        mMSI->get_equation_model()->reset();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::report_end_of_assebly()
+    {
+        mMSI->get_equation_model()->report_on_assembly();
+    }
+
+    //-------------------------------------------------------------------------------------------------------
+
     void MSI_Solver_Interface::free_block_memory( const uint aMyEquSetInd )
     {
         mMSI->get_equation_model()->

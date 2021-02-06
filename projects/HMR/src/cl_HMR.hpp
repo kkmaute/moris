@@ -74,6 +74,13 @@ namespace moris
                         const  real                aLowerBound = -0.0001,
                         const  real                aUpperBound =  0.0001);
 
+                void find_low_level_cells_intersected_by_levelset(
+                        Cell< hmr::Element * >   & aCells,
+                        Cell< hmr::Element * >   & aCandidates,
+                        const  Matrix< DDRMat >  & aVertexValues,
+                        const  real                aLowerBound = -0.0001,
+                        const  real                aUpperBound =  0.0001);
+
                 /*
                  * @brief determines volume elements (cells)
                  *
@@ -385,6 +392,11 @@ namespace moris
                         const Matrix< DDRMat > & aFieldValues,
                         uint                     aLagrangeMeshIndex,
                         sint                     aFunctionIndex = -1);
+
+                uint based_on_field_put_low_level_elements_on_queue(
+                        const Matrix< DDRMat > & aFieldValues,
+                        uint                     aLagrangeMeshIndex,
+                        sint                     aFunctionIndex);
 
                 // -----------------------------------------------------------------------------
 

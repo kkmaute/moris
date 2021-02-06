@@ -212,7 +212,7 @@ namespace moris
         {
                 UNDEFINED,
                 DIFF_LIN_ISO,
-                DIFF_LIN_ISO_PC, // DIFF_LIN_ISO with phase change
+                DIFF_LIN_ISO_PC,
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
@@ -222,6 +222,16 @@ namespace moris
                 FLUID_COMPRESSIBLE_VDW,
                 END_CONSTITUTIVE_TYPE
         };
+
+        //------------------------------------------------------------------------------
+
+        enum class Material_Type
+        {
+                UNDEFINED,
+                PERFECT_GAS,
+                VAN_DER_WAALS_FLUID,
+                END_CONSTITUTIVE_TYPE
+        };        
 
         //------------------------------------------------------------------------------
 

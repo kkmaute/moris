@@ -12,6 +12,7 @@ build/
 build_dbg/
 build_opt/
 tmp/
+install/
 
 # no build links either
 *build*@

@@ -789,22 +789,26 @@ namespace moris
         // if rows are fixed
         moris_index tNumRow = 0;
         moris_index tNumCol = 0;
+
+        typename Matrix< MatrixType >::Data_Type tTyper = 1;
+
         if(aFixedDim == 0)
         {
+            
             tNumRow = aMatToGather.n_rows();
         }
         else
         {
             tNumCol = aMatToGather.n_cols();
         }
-
+  
         MPI_Request tRequest;
 
         // send the matrix
         MPI_Isend(
                 aMatToGather.data(),
                 aMatToGather.numel(),
-                moris::get_comm_datatype(aMatToGather(0,0)),
+                moris::get_comm_datatype(tTyper),
                 aBaseProc,
                 aTag,
                 moris::get_comm(),
@@ -823,29 +827,31 @@ namespace moris
                 MPI_Probe(i, aTag, moris::get_comm(), &tStatus);
 
                 //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
-
+                 
                 int tLength = 0;
                 MPI_Get_count(
                         &tStatus,
-                        moris::get_comm_datatype(aMatToGather(0,0)),
+                        moris::get_comm_datatype(tTyper),
                         &tLength);
 
-                if(aFixedDim == 0)
+                if(tLength != 0 )
                 {
+                    if(aFixedDim == 0)
+                    {
                     tNumCol = tLength/tNumRow;
-                }
-                else
-                {
+                    }
+                    else
+                    {
                     tNumRow = tLength/tNumCol;
+                    }
                 }
-
                 // Resize the matrix
                 aGatheredMats(i).resize(tNumRow, tNumCol);
 
                 MPI_Recv(
                         aGatheredMats(i).data(),
                         tLength,
-                        moris::get_comm_datatype(aMatToGather(0,0)),
+                        moris::get_comm_datatype(tTyper),
                         i,
                         aTag,
                         moris::get_comm(),

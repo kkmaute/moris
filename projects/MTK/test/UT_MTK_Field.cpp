@@ -281,7 +281,10 @@ namespace moris
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out.evaluate_nodal_values();
+                tMapper.perform_mapping(
+                        tField_Out,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
 
                 //tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -404,7 +407,10 @@ namespace moris
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out.evaluate_nodal_values();
+                tMapper.perform_mapping(
+                        tField_Out,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -527,7 +533,10 @@ namespace moris
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
-                tField_Out.evaluate_nodal_values();
+                tMapper.perform_mapping(
+                        tField_Out,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 

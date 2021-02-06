@@ -1857,14 +1857,21 @@ namespace xtk
         {
             for(moris::uint iB =0; iB <mEnrichCoeffLocToGlob(iM).numel(); iB++)
             {
-                
-                MORIS_ASSERT(mGlobaltoLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobaltoLocalBasisMaps(iM).end(),
-                        "Duplicate id in the basis map detected");
+                // MORIS_LOG_SPEC("mEnrichCoeffLocToGlob(iM)(iB)",mEnrichCoeffLocToGlob(iM)(iB));
+                // MORIS_ASSERT(mGlobaltoLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobaltoLocalBasisMaps(iM).end(),
+                //         "Duplicate id in the basis map detected");
 
-                mGlobaltoLocalBasisMaps(iM)[mEnrichCoeffLocToGlob(iM)(iB)] = (moris_index) iB;
+                if(mGlobaltoLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobaltoLocalBasisMaps(iM).end())
+                {
+                    mGlobaltoLocalBasisMaps(iM)[mEnrichCoeffLocToGlob(iM)(iB)] = (moris_index) iB;
+                    MORIS_ASSERT(this->get_enr_basis_index_from_enr_basis_id(iM,mEnrichCoeffLocToGlob(iM)(iB)) == (moris_index)iB,
+                            "Issue setting up the basis map");
+                }
+                else
+                {
+                    // MORIS_ASSERT(this->get_basis_owner(mEnrichCoeffLocToGlob(iM)(iB),iM) != par_rank(),"Merging basis required for owned basis.");
+                }
 
-                MORIS_ASSERT(this->get_enr_basis_index_from_enr_basis_id(iM,mEnrichCoeffLocToGlob(iM)(iB)) == (moris_index)iB,
-                        "Issue setting up the basis map");
             }
         }
     }

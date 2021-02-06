@@ -1020,6 +1020,14 @@ namespace moris
             return mMesh->get_order();
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        uint Mesh::get_discretization_order( moris_index aBSplineMeshIndex )
+        {
+            MORIS_ERROR( this->get_mesh_type() == MeshType::HMR,"get_order only implemented for HMR meshes");
+            return mMesh->get_bspline_order( aBSplineMeshIndex );
+        }
+
 #ifdef DEBUG
 
         Matrix< DDRMat > Mesh::get_basis_coords(

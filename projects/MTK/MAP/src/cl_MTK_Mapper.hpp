@@ -58,7 +58,7 @@ namespace moris
             // Mesh manager- needed for FEM Model
             std::shared_ptr<Mesh_Manager> mInputMeshManager;
             uint mMeshPairIndex;
-            
+
             //         fem::IWG_L2                  * mIWG;
             mdl::Model                   * mModel = nullptr;
             uint                           mBSplineMeshIndex; // FIXME
@@ -88,7 +88,7 @@ namespace moris
             ~Mapper();
 
             //------------------------------------------------------------------------------
-            
+
             void map_input_field_to_output_field(
                     Field &       aFieldSource,
                     BSpline_Field & aFieldTarget );
@@ -146,7 +146,7 @@ namespace moris
              * set the parameter for the L2 projection
              */
             void set_l2_alpha( real aAlpha );
-            
+
         private:
 
             void map_node_to_bspline( Matrix<DDRMat>& aSolution );
@@ -175,10 +175,12 @@ namespace moris
 
             void map_bspline_to_node_same_mesh(
                     moris_index     aSourceIndex,
-                    EntityRank aBSplineRank,
+                    EntityRank      aBSplineRank,
                     moris_index     aTargetIndex );
 
             //------------------------------------------------------------------------------
+
+//            void map_bspline_to_node_same_mesh( mtk::BSpline_Field & aField );
 
             void create_iwg_and_model(real aAlpha = 0.0);
 

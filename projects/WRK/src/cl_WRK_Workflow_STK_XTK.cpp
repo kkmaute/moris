@@ -1,12 +1,19 @@
 #include "cl_WRK_Performer_Manager.hpp"
-#include "cl_WRK_Workflow.hpp"
+#include "cl_WRK_Workflow_STK_XTK.hpp"
 #include "fn_WRK_perform_refinement.hpp"
+#include "cl_Param_List.hpp"
 
-#include "cl_HMR.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Interpolation_Mesh_STK.hpp"
+#include "cl_MTK_Integration_Mesh_STK.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
+
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -19,39 +26,73 @@ namespace moris
 {
     namespace wrk
     {
+        //------------------------------------------------------------------------------
+
+        // Parameter function
+        typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+        
         //--------------------------------------------------------------------------------------------------------------
 
-        Workflow::Workflow( wrk::Performer_Manager * aPerformerManager )
-        : mPerformerManager( aPerformerManager )
+        Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager * aPerformerManager )
+        : Workflow( aPerformerManager )
         {
+            Tracer tTracer( "Workflow", "STK_XTK", "Initialize" );
+            MORIS_LOG_SPEC("Par_Rank",par_rank());
+            MORIS_LOG_SPEC("Par_Size",par_size());
+
+            // Performer set for this workflow
+            mPerformerManager->mGENPerformer.resize( 1 );
+            mPerformerManager->mXTKPerformer.resize( 1 );
+            mPerformerManager->mMTKPerformer.resize( 2 );
+            mPerformerManager->mMDLPerformer.resize( 1 );
+
+            // load the STK parameter list
+            std::string tSTKString = "STKParameterList";
+            Parameter_Function tSTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tSTKString );
+            moris::Cell< moris::Cell< ParameterList > > tSTKParameterList;
+            tSTKParameterListFunc( tSTKParameterList );
+
+            // load the meshes
+            mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
+            this->create_stk(tSTKParameterList);
+            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get());
+
+            // moris::mtk::Cell tCell
+
+            // // verify these meshes
+            // mtk::Mesh_Checker tMeshChecker(0,mIpMesh.get(),mIgMesh.get());
+            // tMeshChecker.perform();
+            // tMeshChecker.print_diagnostics();
+
+            // load gen parameter list
+            std::string tGENString = "GENParameterList";
+            Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
+            moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
+            tGENParameterListFunc( tGENParameterList );
+
+            // Create GE performer
+            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary, mPerformerManager->mMTKPerformer( 0 ) );
+
+            // create MTK performer - will be used for XTK mesh
+            mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+
+            // create MDL performer
+            mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
+
+            // Set performer to MDL
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Workflow::initialize(
+        void Workflow_STK_XTK::initialize(
                 Matrix<DDRMat>& aADVs,
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-            // Stage 1: HMR refinement -------------------------------------------------------------------
-            {
-                // Trace HMR
-                Tracer tTracer( "HMR", "HMRmesh", "Create" );
-
-                // uniform initial refinement
-                mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
-
-                // HMR refined by GE
-                perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
-
-                // HMR finalize
-                mPerformerManager->mHMRPerformer( 0 )->perform();
-            }
-
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-            {
-                // Trace GEN
-                Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
+            // Trace GEN
+            Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                         mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
@@ -60,12 +101,11 @@ namespace moris
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
                 aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
                 aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix<DDRMat> Workflow_STK_XTK::perform(const Matrix<DDRMat> & aNewADVs)
         {
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
@@ -73,7 +113,7 @@ namespace moris
             // Stage 1: HMR refinement
 
             // Stage 2: XTK -----------------------------------------------------------------------------
-            mPerformerManager->create_xtk();
+            this->create_xtk();
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->distribute_advs(
@@ -121,7 +161,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow::compute_dcriteria_dadv()
+        Matrix<DDRMat> Workflow_STK_XTK::compute_dcriteria_dadv()
         {
             mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
@@ -152,6 +192,40 @@ namespace moris
             }
 
             return tDCriteriaDAdv;
+        }
+
+        void Workflow_STK_XTK::create_xtk()
+        {
+            // Read parameter list from shared object
+            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
+            moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
+            tXTKParameterListFunc( tXTKParameterList );
+
+            // Create XTK
+            mPerformerManager->mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+
+            // Reset output MTK performer
+            mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
+
+            // Set performers
+            mPerformerManager->mXTKPerformer( 0 )->set_geometry_engine( mPerformerManager->mGENPerformer( 0 ).get() );
+            mPerformerManager->mXTKPerformer( 0 )->set_input_performer( mPerformerManager->mMTKPerformer( 0 ) );
+            mPerformerManager->mXTKPerformer( 0 )->set_output_performer( mPerformerManager->mMTKPerformer( 1 ) );
+        }
+
+        void
+        Workflow_STK_XTK::create_stk(Cell< Cell<ParameterList> > & aParameterLists)
+        {
+            Tracer tTracer( "STK", "Mesh", "InitializeMesh" );
+            std::string tMeshFile = "femur.g";
+            mtk::MtkMeshData* tSuppMeshData = nullptr;
+
+            mtk::Cell_Cluster_Input* tCellClusterData = nullptr;
+
+            // construct the meshes
+            mIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>( tMeshFile, tSuppMeshData, true );
+            mIgMesh = std::make_shared<mtk::Integration_Mesh_STK> ( *mIpMesh, tCellClusterData);
         }
 
         //--------------------------------------------------------------------------------------------------------------

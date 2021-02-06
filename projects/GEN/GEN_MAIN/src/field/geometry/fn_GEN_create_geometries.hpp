@@ -23,7 +23,8 @@ namespace moris
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 Vector_Type&                aADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr);
+                std::shared_ptr<Library_IO> aLibrary = nullptr,
+                mtk::Mesh*                  aMTKMesh = nullptr);
 
         /**
          * Creates an instance of the specified Geometry class and returns a shared pointer to it.
@@ -40,6 +41,7 @@ namespace moris
                 Vector_Type&                aADVs,
                 std::shared_ptr<Library_IO> aLibrary = nullptr,
                 std::shared_ptr<Geometry>   aGeometry = nullptr,
+                mtk::Mesh*                  aMTKMesh = nullptr,
                 uint                        aIndex = 0);
     }
 }
