@@ -29,6 +29,8 @@ namespace moris
 
         void BSpline_Field::set_coefficients(Matrix<DDRMat> aCoefficients)
         {
+            MORIS_ERROR(aCoefficients.length() == mMeshManager->get_interpolation_mesh(mMeshIndex)->get_num_coeffs(get_discretization_mesh_index()),
+                    "B-spline coefficients set to a field must match the number of coefficients on the mesh.");
             mCoefficients = aCoefficients;
         }
 
@@ -36,6 +38,8 @@ namespace moris
 
         void BSpline_Field::transfer_coefficients(const BSpline_Field& aField)
         {
+            MORIS_ERROR(aField.mCoefficients.length() == mMeshManager->get_interpolation_mesh(mMeshIndex)->get_num_coeffs(get_discretization_mesh_index()),
+                    "B-spline coefficients transferred to a field must match the number of coefficients on the mesh.");
             mCoefficients = std::move(aField.mCoefficients);
         }
 

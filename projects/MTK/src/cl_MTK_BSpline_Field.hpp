@@ -52,15 +52,20 @@ namespace moris
                 return mNodalValues;
             }
 
-            //------------------------------------------------------------------------------
-
+            /**
+             * Sets the B-spline coefficients which interpolate this field.
+             *
+             * @param aCoefficients B-spline coefficients
+             */
             void set_coefficients(Matrix<DDRMat> aCoefficients);
 
-            //------------------------------------------------------------------------------
-
+            /**
+             * Transfers the coefficients from another B-spline field (protects coefficients in argument field from
+             * the outside).
+             *
+             * @param aField Field to transfer coefficients from
+             */
             void transfer_coefficients(const BSpline_Field& aField);
-
-            // ----------------------------------------------------------------------------------------------
 
         };
     }
