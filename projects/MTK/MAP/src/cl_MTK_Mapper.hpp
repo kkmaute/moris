@@ -90,20 +90,20 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void map_input_field_to_output_field(
-                    Field &       aFieldSource,
-                    BSpline_Field & aFieldTarget );
+                    std::shared_ptr<Field>       aFieldSource,
+                    std::shared_ptr<BSpline_Field> aFieldTarget );
 
             //------------------------------------------------------------------------------
 
             void interpolate_field(
-                    Field &       aFieldSource,
-                    BSpline_Field & aFieldTarget);
+                    std::shared_ptr<Field>       aFieldSource,
+                    std::shared_ptr<BSpline_Field> aFieldTarget);
 
             //------------------------------------------------------------------------------
 
             void change_field_order(
-                    Field &       aFieldSource,
-                    BSpline_Field & aFieldTarget );
+                    std::shared_ptr<Field>       aFieldSource,
+                    std::shared_ptr<BSpline_Field> aFieldTarget );
 
             //------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ namespace moris
                     EntityRank            aTargetEntityRank );
 
             void perform_mapping(
-                    BSpline_Field & aField,
+                    std::shared_ptr<BSpline_Field> aField,
                     EntityRank    aSourceEntityRank,
                     EntityRank    aTargetEntityRank );
 
@@ -163,13 +163,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void map_node_to_bspline_from_field( BSpline_Field & aField );
-
-            ////------------------------------------------------------------------------------
-            //
-            //         void map_node_to_element_same_mesh(
-            //                          moris_index   aSourceIndex,
-            //                          moris_index   aTargetIndex );
+            void map_node_to_bspline_from_field( std::shared_ptr<BSpline_Field> aField );
 
             //------------------------------------------------------------------------------
 
@@ -180,13 +174,13 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-//            void map_bspline_to_node_same_mesh( mtk::BSpline_Field & aField );
+//            void map_bspline_to_node_same_mesh( mtk::std::shared_ptr<BSpline_Field> aField );
 
             void create_iwg_and_model(real aAlpha = 0.0);
 
             //------------------------------------------------------------------------------
 
-            void create_iwg_and_model(BSpline_Field & aField, real aAlpha = 0.0);
+            void create_iwg_and_model(std::shared_ptr<BSpline_Field> aField, real aAlpha = 0.0);
 
             //------------------------------------------------------------------------------
 

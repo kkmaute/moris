@@ -162,8 +162,8 @@ namespace moris
                 uint tMeshIndex_In = tMeshManager->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
 
-                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In );
-                mtk::Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out );
+                Field_Proxy tField_In( tMeshManager, tMeshIndex_In );
+                Field_Proxy tField_Out( tMeshManager, tMeshIndex_Out );
 
                 tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
                 tField_Out.evaluate_scalar_function( LevelSetPlaneFunction );
@@ -270,12 +270,12 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
-                mtk::BSpline_Field tField_Out( tMeshManager, tMeshIndex_Out, 0 );
+                std::shared_ptr<Field_Proxy> tField_In = std::make_shared<Field_Proxy>( tMeshManager, tMeshIndex_In, 0 );
+                std::shared_ptr<BSpline_Field> tField_Out = std::make_shared<BSpline_Field>( tMeshManager, tMeshIndex_Out, 0 );
 
-                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
+                tField_In->evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh_In).numel(), 46));;
+                CHECK(equal_to( tField_In->get_nodal_values(tInterpolationMesh_In).numel(), 46));;
 
                 // Use mapper
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
@@ -290,14 +290,14 @@ namespace moris
 
                 //tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
+                Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
                 tField_Ref.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 125));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 125));
 
-                for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
                 }
             }
         }
@@ -396,12 +396,12 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
-                mtk::BSpline_Field tField_Out( tMeshManager, tMeshIndex_Out, 0 );
+                std::shared_ptr<Field_Proxy> tField_In = std::make_shared<Field_Proxy>( tMeshManager, tMeshIndex_In, 0 );
+                std::shared_ptr<BSpline_Field> tField_Out = std::make_shared<BSpline_Field>( tMeshManager, tMeshIndex_Out, 0 );
 
-                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
+                tField_In->evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh_In).numel(), 217));;
+                CHECK(equal_to( tField_In->get_nodal_values(tInterpolationMesh_In).numel(), 217));;
 
                 // Use mapper
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
@@ -416,14 +416,14 @@ namespace moris
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
+                Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
                 tField_Ref.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 133));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 133));
 
-                for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
                 }
             }
         }
@@ -522,12 +522,12 @@ namespace moris
                 uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
                 uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
 
-                mtk::Field_Proxy tField_In( tMeshManager, tMeshIndex_In, 0 );
-                mtk::BSpline_Field tField_Out( tMeshManager, tMeshIndex_Out, 0 );
+                std::shared_ptr<Field_Proxy> tField_In = std::make_shared<Field_Proxy>( tMeshManager, tMeshIndex_In, 0 );
+                std::shared_ptr<BSpline_Field> tField_Out = std::make_shared<BSpline_Field>( tMeshManager, tMeshIndex_Out, 0 );
 
-                tField_In.evaluate_scalar_function( LevelSetPlaneFunction );
+                tField_In->evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_In.get_nodal_values(tInterpolationMesh_In).numel(), 63));;
+                CHECK(equal_to( tField_In->get_nodal_values(tInterpolationMesh_In).numel(), 63));;
 
                 // Use mapper
                 mtk::Mapper tMapper(tMeshManager, tMeshIndex_In);
@@ -542,18 +542,17 @@ namespace moris
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
+                Field_Proxy tField_Ref( tMeshManager, tMeshIndex_Out, 0 );
                 tField_Ref.evaluate_scalar_function( LevelSetPlaneFunction );
 
-                CHECK(equal_to( tField_Out.get_nodal_values().numel(), 465));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 465));
 
-                for( uint Ik = 0; Ik < tField_Out.get_nodal_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out.get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref.get_nodal_values(tInterpolationMesh_Out)( Ik )));
                 }
             }
         }
-
-
+        
     }
 }
