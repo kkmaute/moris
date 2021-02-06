@@ -11,8 +11,8 @@ namespace moris
 
         Intersection_Node::Intersection_Node(
                 real                       aLocalCoordinate,
-                real                       aFirstParentPhi,
-                real                       aSecondParentPhi,
+                real                       aFirstParentNodeIndex,
+                real                       aSecondParentNodeIndex,
                 const Matrix<DDRMat>&      aFirstParentNodeLocalCoordinates,
                 const Matrix<DDRMat>&      aSecondParentNodeLocalCoordinates,
                 Matrix<DDUMat>             aAncestorNodeIndices,
@@ -49,10 +49,12 @@ namespace moris
             }
 
             // Parents on interface
+            real tFirstParentPhi = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex, tFirstParentGlobalCoordinates);
+            real tSecondParentPhi = aInterfaceGeometry->get_field_value(aSecondParentNodeIndex, tSecondParentGlobalCoordinates);
             real tParentLength = norm(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
-            mFirstParentOnInterface = std::abs(aFirstParentPhi) < aIsocontourTolerance or
+            mFirstParentOnInterface = std::abs(tFirstParentPhi) < aIsocontourTolerance or
                     0.5 * tParentLength * std::abs(1 + aLocalCoordinate) < aIntersectionTolerance;
-            mSecondParentOnInterface = std::abs(aSecondParentPhi) < aIsocontourTolerance or
+            mSecondParentOnInterface = std::abs(tSecondParentPhi) < aIsocontourTolerance or
                     0.5 * tParentLength * std::abs(1 - aLocalCoordinate) < aIntersectionTolerance;
         }
 
