@@ -10,6 +10,7 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -43,7 +44,6 @@ namespace moris
     namespace mtk
     {
         class Mesh;
-        class Mesh_Manager;
         class Field;
         class Discrete_Field;
         class BSpline_Field;
@@ -57,8 +57,7 @@ namespace moris
             Mesh* mTargetMesh; // FIXME
 
             // Mesh manager- needed for FEM Model
-            std::shared_ptr<Mesh_Manager> mInputMeshManager;
-            uint mMeshPairIndex;
+            Mesh_Pair mMeshPair;
 
             //         fem::IWG_L2                  * mIWG;
             mdl::Model                   * mModel = nullptr;
@@ -76,12 +75,10 @@ namespace moris
              * Constructor
              *
              * @param aInputMeshManager Mesh manager for input mesh
-             * @param aMeshPairIndex Mesh pair index
              * @param aBSplineMeshIndex B-spline mesh index
              */
-            Mapper( std::shared_ptr<Mesh_Manager> aInputMeshManager,
-                    uint aMeshPairIndex,
-                    uint aBSplineMeshIndex = 0 );
+            Mapper( Mesh_Pair aMeshPair,
+                    uint      aBSplineMeshIndex = 0 );
 
             /**
              * Destructor
@@ -162,15 +159,14 @@ namespace moris
             void map_node_to_bspline_from_field(
                     std::shared_ptr<Field>         aSourceField,
                     std::shared_ptr<BSpline_Field> aTargetField,
-                    std::shared_ptr<Mesh_Manager> aMeshManager,
-                    uint aMeshIndex);
+                    Mesh_Pair                      aMeshPair);
 
             //------------------------------------------------------------------------------
 
             void map_bspline_to_node_same_mesh(
-                    moris_index     aSourceIndex,
-                    EntityRank      aBSplineRank,
-                    moris_index     aTargetIndex );
+                    moris_index aSourceIndex,
+                    EntityRank  aBSplineRank,
+                    moris_index aTargetIndex );
 
             //------------------------------------------------------------------------------
 
@@ -181,8 +177,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void create_iwg_and_model(
-                    std::shared_ptr<Mesh_Manager> aMeshManager,
-                    uint aMeshIndex,
+                    Mesh_Pair aMeshPair,
                     uint aDiscretizationMeshIndex,
                     real aAlpha = 0.0);
 

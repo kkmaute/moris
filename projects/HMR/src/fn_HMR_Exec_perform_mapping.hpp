@@ -26,7 +26,9 @@
 #include "fn_unique.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 
+#include "st_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Mapper.hpp"
+
 namespace moris
 {
     namespace hmr
@@ -170,13 +172,11 @@ namespace moris
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
-                // add pairs to mesh manager
-                moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair(
-                        tUnionInterpMeshes(m),
-                        tUnionIntegMeshes(m));
-
                 // create mapper
-                tMappers( m ) = new mtk::Mapper( tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
+                mtk::Mesh_Pair tMeshPair;
+                tMeshPair.mInterpolationMesh = tUnionInterpMeshes(m);
+                tMeshPair.mIntegrationMesh = tUnionIntegMeshes(m);
+                tMappers( m ) = new mtk::Mapper( tMeshPair, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -

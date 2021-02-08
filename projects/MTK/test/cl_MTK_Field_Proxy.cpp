@@ -13,12 +13,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field_Proxy::Field_Proxy(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                uint                               aMeshIndex,
-                uint                               aDiscretizationMeshIndex )
+                Mesh_Pair aMeshPair,
+                uint aDiscretizationMeshIndex )
                 : Field(aDiscretizationMeshIndex)
-                , mMeshManager(aMeshManager)
-                , mMeshIndex(aMeshIndex)
+                , mMeshPair(aMeshPair)
         {
         }
 
@@ -37,11 +35,11 @@ namespace moris
             return mNodalValues(aNodeIndex);
         }
 
-        //------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > Field_Proxy::get_mesh_pair()
+        Mesh_Pair Field_Proxy::get_mesh_pair()
         {
-            return std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> >( mMeshIndex, mMeshManager );
+            return mMeshPair;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -5,8 +5,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Field.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
 
 namespace moris
 {
@@ -15,16 +14,14 @@ namespace moris
         class Discrete_Field : public Field
         {
         private:
-            std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-            uint mMeshIndex;
+            Mesh_Pair      mMeshPair;
             Matrix<DDRMat> mNodalValues;
 
         public:
 
             Discrete_Field(
-                    std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                    uint                               aMeshIndex,
-                    uint                               aDiscretizationMeshIndex = 0 );
+                    Mesh_Pair aMeshPair,
+                    uint      aDiscretizationMeshIndex = 0);
 
             ~Discrete_Field();
 
@@ -53,8 +50,12 @@ namespace moris
              */
             const Matrix<DDRMat>& get_nodal_values();
 
-            // FIXME
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > get_mesh_pair();
+            /**
+             * Gets the mesh pair associated with this field.
+             *
+             * @return Mesh pair
+             */
+            Mesh_Pair get_mesh_pair();
 
         };
     }

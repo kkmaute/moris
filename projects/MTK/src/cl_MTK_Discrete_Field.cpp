@@ -1,6 +1,6 @@
 #include "cl_MTK_Discrete_Field.hpp"
 #include "fn_dot.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -10,12 +10,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Discrete_Field::Discrete_Field(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                uint                               aMeshIndex,
-                uint                               aDiscretizationMeshIndex )
+                Mesh_Pair aMeshPair,
+                uint      aDiscretizationMeshIndex)
                 : Field(aDiscretizationMeshIndex)
-                , mMeshManager(aMeshManager)
-                , mMeshIndex(aMeshIndex)
+                , mMeshPair(aMeshPair)
         {
         }
 
@@ -38,7 +36,7 @@ namespace moris
 
         void Discrete_Field::set_nodal_values(const Matrix<DDRMat>& aNodalValues)
         {
-            MORIS_ERROR(aNodalValues.length() == mMeshManager->get_interpolation_mesh(mMeshIndex)->get_num_nodes(),
+            MORIS_ERROR(aNodalValues.length() == mMeshPair.mInterpolationMesh->get_num_nodes(),
                         "B-spline coefficients set to a field must match the number of coefficients on the mesh.");
             mNodalValues = aNodalValues;
         }
@@ -52,9 +50,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > Discrete_Field::get_mesh_pair()
+        Mesh_Pair Discrete_Field::get_mesh_pair()
         {
-            return std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> >( mMeshIndex, mMeshManager );
+            return mMeshPair;
         }
 
         //--------------------------------------------------------------------------------------------------------------

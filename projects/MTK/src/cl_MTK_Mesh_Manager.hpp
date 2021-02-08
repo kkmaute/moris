@@ -31,13 +31,28 @@ namespace moris
 
             //--------------------------------------------------------------------
 
-            uint
-            register_mesh_pair(
+            uint register_mesh_pair(
                     Interpolation_Mesh* aInterpolationMesh,
                     Integration_Mesh*   aIntegrationMesh,
                     bool                aIsOwned = false );
 
             //--------------------------------------------------------------------
+
+            /**
+             * Register a mesh pair with the mesh manager.
+             *
+             * @param aMeshPair Mesh pair
+             * @return Mesh pair index
+             */
+            uint register_mesh_pair(Mesh_Pair aMeshPair);
+
+            /**
+             * Gets a mesh pair.
+             *
+             * @param aPairIndex Mesh pair index
+             * @return Mesh pair
+             */
+            Mesh_Pair get_mesh_pair(moris_index aPairIndex);
 
             void
             get_mesh_pair(

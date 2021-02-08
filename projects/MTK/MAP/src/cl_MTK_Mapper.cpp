@@ -64,18 +64,16 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Mapper::Mapper(
-                std::shared_ptr<Mesh_Manager> aInputMeshManager,
-                uint                          aMeshPairIndex,
-                uint                          aBSplineMeshIndex )
-                : mInputMeshManager( aInputMeshManager )
-                , mMeshPairIndex( aMeshPairIndex )
+                Mesh_Pair aMeshPair,
+                uint      aBSplineMeshIndex )
+                : mMeshPair(aMeshPair)
                 , mBSplineMeshIndex( aBSplineMeshIndex )
         {
             // Retrieve source mesh pair
-            mSourceMesh = mInputMeshManager->get_interpolation_mesh(aMeshPairIndex);
+            mSourceMesh = aMeshPair.mInterpolationMesh;
 
             // Retrieve target mesh pair
-            mTargetMesh = mInputMeshManager->get_interpolation_mesh(aMeshPairIndex);
+            mTargetMesh = aMeshPair.mInterpolationMesh;
         }
 
         //------------------------------------------------------------------------------
@@ -96,8 +94,7 @@ namespace moris
                 std::shared_ptr<Field>       aFieldSource,
                 std::shared_ptr<BSpline_Field> aFieldTarget )
         {
-            std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
-            Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+            Mesh * tTargetMesh = aFieldTarget->get_mesh_pair().mInterpolationMesh;
 
             MORIS_ERROR( mSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -139,13 +136,11 @@ namespace moris
                     tUnionPattern,
                     tUnionInterpolationMesh);
 
-            // Create mesh manager
-            std::shared_ptr<Mesh_Manager> tMeshManager = std::make_shared<Mesh_Manager>();
-
-            // Register mesh pair
-            uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
-
-            std::shared_ptr<Discrete_Field> tFieldUnion = std::make_shared<Discrete_Field>( tMeshManager, tMeshIndexUnion );
+            // Create mesh pair
+            Mesh_Pair tMeshPair;
+            tMeshPair.mInterpolationMesh = tUnionInterpolationMesh;
+            tMeshPair.mIntegrationMesh = tIntegrationUnionMesh;
+            std::shared_ptr<Discrete_Field> tFieldUnion = std::make_shared<Discrete_Field>( tMeshPair );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
@@ -171,9 +166,12 @@ namespace moris
                         tSourcePattern,
                         tHigherOrderInterpolationMesh);
 
-                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
+                // Create mesh pair
+                Mesh_Pair tMeshPairHigherOrder;
+                tMeshPairHigherOrder.mInterpolationMesh = tHigherOrderInterpolationMesh;
+                tMeshPairHigherOrder.mIntegrationMesh = tHigherOrderIntegrationMesh;
 
-                std::shared_ptr<Discrete_Field> tFieldHigherOrder = std::make_shared<Discrete_Field>( tMeshManager, tMeshIndexUnion );
+                std::shared_ptr<Discrete_Field> tFieldHigherOrder = std::make_shared<Discrete_Field>( tMeshPairHigherOrder );
 
                 this->change_field_order( aFieldSource, tFieldHigherOrder );
 
@@ -186,7 +184,7 @@ namespace moris
 
             // project field to union
             mSourceMesh = tUnionInterpolationMesh;
-            this->map_node_to_bspline_from_field(tFieldUnion, aFieldTarget, tMeshManager, tMeshIndexUnion);
+            this->map_node_to_bspline_from_field(tFieldUnion, aFieldTarget, tMeshPair);
         }
 
         // -----------------------------------------------------------------------------
@@ -196,8 +194,7 @@ namespace moris
                 std::shared_ptr<Field>          aFieldSource,
                 std::shared_ptr<Discrete_Field> aFieldTarget )
         {
-            std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
-            Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+            Mesh * tTargetMesh = aFieldTarget->get_mesh_pair().mInterpolationMesh;
 
             MORIS_ERROR( mSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::interpolate_field() Source mesh is not an HMR mesh" );
@@ -318,8 +315,7 @@ namespace moris
                 std::shared_ptr<Field>          aFieldSource,
                 std::shared_ptr<Discrete_Field> aFieldTarget )
         {
-            std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
-            Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+            Mesh * tTargetMesh = aFieldTarget->get_mesh_pair().mInterpolationMesh;
 
             // pointer to mesh that is linked to input field
             hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = mSourceMesh->get_HMR_lagrange_mesh();
@@ -415,12 +411,15 @@ namespace moris
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
+                Mesh_Manager* tMeshManager = new Mesh_Manager();
+                uint tMeshIndex = tMeshManager->register_mesh_pair(mMeshPair);
+
                 // create model
                 mModel = new mdl::Model(
-                        mInputMeshManager.get(),
+                        tMeshManager,
                         mBSplineMeshIndex,
                         tSetInfo,
-                        mMeshPairIndex );
+                        tMeshIndex );
 
                 // set bool for building IWG and model to true
                 mHaveIwgAndModel = true;
@@ -429,10 +428,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void Mapper::create_iwg_and_model(
-                std::shared_ptr<Mesh_Manager> aMeshManager,
-                uint aMeshIndex,
-                uint aDiscretizationMeshIndex,
-                real          aAlpha )
+                Mesh_Pair aMeshPair,
+                uint      aDiscretizationMeshIndex,
+                real      aAlpha )
         {
             if( ! mHaveIwgAndModel )
             {
@@ -449,12 +447,15 @@ namespace moris
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
+                Mesh_Manager* tMeshManager = new Mesh_Manager();
+                uint tMeshIndex = tMeshManager->register_mesh_pair(aMeshPair);
+
                 // create model
                 mModel = new mdl::Model(
-                        aMeshManager.get(),
+                        tMeshManager,
                         aDiscretizationMeshIndex,
                         tSetInfo,
-                        aMeshIndex );
+                        tMeshIndex );
 
                 // set bool for building IWG and model to true
                 mHaveIwgAndModel = true;
@@ -771,14 +772,13 @@ namespace moris
         void Mapper::map_node_to_bspline_from_field(
                 std::shared_ptr<Field>         aSourceField,
                 std::shared_ptr<BSpline_Field> aTargetField,
-                std::shared_ptr<Mesh_Manager> aMeshManager,
-                uint aMeshIndex)
+                Mesh_Pair                      aMeshPair)
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
 
             // create the model if it has not been created yet
-            this->create_iwg_and_model( aMeshManager, aMeshIndex, aTargetField->get_discretization_mesh_index() );
+            this->create_iwg_and_model( aMeshPair, aTargetField->get_discretization_mesh_index() );
 
             // set weak bcs from field
             const Matrix<DDRMat>& tFieldValues = aSourceField->get_nodal_values(mSourceMesh);

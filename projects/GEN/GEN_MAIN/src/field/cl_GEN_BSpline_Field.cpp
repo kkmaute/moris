@@ -1,5 +1,5 @@
 #include "cl_GEN_BSpline_Field.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mapper.hpp"
@@ -179,22 +179,17 @@ namespace moris
             // Create target field
             Matrix<DDRMat> tTargetField(0, 0);
 
-            // Create integration mesh
-            mtk::Integration_Mesh* tIntegrationMesh =
-                    create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
-
-            // Create mesh manager
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-
-            // Register mesh pair
-            uint tMeshIndex = tMeshManager->register_mesh_pair(mMesh, tIntegrationMesh);
+            // Create mesh pair
+            mtk::Mesh_Pair tMeshPair;
+            tMeshPair.mInterpolationMesh = mMesh;
+            tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
 
             // Use mapper
-            mtk::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_discretization_mesh_index());
+            mtk::Mapper tMapper(tMeshPair, (uint)this->get_discretization_mesh_index());
             tMapper.perform_mapping(tSourceField, EntityRank::NODE, tTargetField, EntityRank::BSPLINE);
 
             // Delete integration mesh
-            delete tIntegrationMesh;
+            delete tMeshPair.mIntegrationMesh;
 
             // Return mapped field
             return tTargetField;

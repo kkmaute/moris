@@ -22,16 +22,14 @@ namespace moris
         class Field_Proxy : public Field
         {
         private:
-            std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-            uint mMeshIndex;
+            Mesh_Pair mMeshPair;
             Matrix< DDRMat > mNodalValues;
 
         public :
 
             Field_Proxy(
-                    std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                    uint                               aMeshIndex,
-                    uint                               aDiscretizationMeshIndex = 0 );
+                    Mesh_Pair aMeshPair,
+                    uint      aDiscretizationMeshIndex = 0 );
 
             ~Field_Proxy();
 
@@ -46,8 +44,12 @@ namespace moris
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
-            // FIXME
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > get_mesh_pair();
+            /**
+             * Gets the mesh pair associated with this field.
+             *
+             * @return Mesh pair
+             */
+            Mesh_Pair get_mesh_pair();
 
             // ----------------------------------------------------------------------------------------------
 
@@ -65,8 +67,7 @@ namespace moris
             template<typename T>
             void evaluate_scalar_function( T aLambda )
             {
-                Interpolation_Mesh* tInterpolationMesh =
-                        mMeshManager->get_interpolation_mesh( mMeshIndex );
+                Interpolation_Mesh* tInterpolationMesh = mMeshPair.mInterpolationMesh;
 
                 // get number of nodes on block
                 uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();

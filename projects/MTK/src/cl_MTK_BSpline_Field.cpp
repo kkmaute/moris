@@ -1,6 +1,6 @@
 #include "cl_MTK_BSpline_Field.hpp"
 #include "fn_dot.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -10,12 +10,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         BSpline_Field::BSpline_Field(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                uint                               aMeshIndex,
-                uint                               aDiscretizationMeshIndex )
+                Mesh_Pair aMeshPair,
+                uint      aDiscretizationMeshIndex)
                 : Field(aDiscretizationMeshIndex)
-                , mMeshManager(aMeshManager)
-                , mMeshIndex(aMeshIndex)
+                , mMeshPair(aMeshPair)
         {
         }
 
@@ -29,7 +27,7 @@ namespace moris
 
         void BSpline_Field::set_coefficients(const Matrix<DDRMat>& aCoefficients)
         {
-            MORIS_ERROR(aCoefficients.length() == mMeshManager->get_interpolation_mesh(mMeshIndex)->get_num_coeffs(get_discretization_mesh_index()),
+            MORIS_ERROR(aCoefficients.length() == mMeshPair.mInterpolationMesh->get_num_coeffs(get_discretization_mesh_index()),
                         "B-spline coefficients set to a field must match the number of coefficients on the mesh.");
             mCoefficients = aCoefficients;
         }
@@ -38,7 +36,7 @@ namespace moris
 
         const Matrix<DDRMat>& BSpline_Field::get_nodal_values()
         {
-            return Field::get_nodal_values(mMeshManager->get_interpolation_mesh(mMeshIndex));
+            return Field::get_nodal_values(mMeshPair.mInterpolationMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -48,7 +46,7 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates)
         {
             // Get mesh
-            Mesh* tMesh = mMeshManager->get_interpolation_mesh(mMeshIndex);
+            Mesh* tMesh = mMeshPair.mInterpolationMesh;
 
             // Get B-spline information
 //            sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
@@ -70,9 +68,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > BSpline_Field::get_mesh_pair()
+        Mesh_Pair BSpline_Field::get_mesh_pair()
         {
-            return std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> >( mMeshIndex, mMeshManager );
+            return mMeshPair;
         }
 
         //--------------------------------------------------------------------------------------------------------------

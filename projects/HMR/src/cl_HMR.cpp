@@ -36,6 +36,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 
 #include "HDF5_Tools.hpp"
@@ -1744,13 +1745,13 @@ namespace moris
             Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-            moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+            mtk::Mesh_Pair tMeshPair;
+            tMeshPair.mInterpolationMesh = tUnionInterpolationMesh;
+            tMeshPair.mIntegrationMesh = tIntegrationUnionMesh;
 
             // create mapper
             mtk::Mapper tMapper(
-                    tMeshManager,
-                    tMeshPairIndex,
+                    tMeshPair,
                     aBsplineMeshIndex );
 
             // project field to union

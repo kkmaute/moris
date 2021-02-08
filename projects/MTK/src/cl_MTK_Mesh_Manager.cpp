@@ -38,14 +38,30 @@ namespace moris
 
         //-------------------------------------------------------------------------
 
+        uint Mesh_Manager::register_mesh_pair(Mesh_Pair aMeshPair)
+        {
+            mMeshPairs.push_back(aMeshPair);
+            return mMeshPairs.size() - 1;
+        }
+
+        //-------------------------------------------------------------------------
+
+        Mesh_Pair Mesh_Manager::get_mesh_pair(moris_index aPairIndex)
+        {
+            MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
+                          "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
+            return mMeshPairs(aPairIndex);
+        }
+
+        //-------------------------------------------------------------------------
+
         void
         Mesh_Manager::get_mesh_pair(
                 moris_index          aPairIndex,
                 Interpolation_Mesh * & aInterpolationMesh,
                 Integration_Mesh   * & aIntegrationMesh)
         {
-            MORIS_ASSERT(
-                    aPairIndex < (moris_index) mMeshPairs.size(),
+            MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
                     "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
 
             aInterpolationMesh = mMeshPairs(aPairIndex).mInterpolationMesh;
