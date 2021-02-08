@@ -44,7 +44,7 @@ namespace moris
              * @param aMeshPair Mesh pair
              * @return Mesh pair index
              */
-            uint register_mesh_pair(Mesh_Pair aMeshPair);
+            uint register_mesh_pair(Mesh_Pair& aMeshPair);
 
             /**
              * Gets a mesh pair.

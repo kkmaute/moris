@@ -9,6 +9,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Mesh_Pair::Mesh_Pair(const Mesh_Pair& aMeshPair)
+                : mInterpolationMesh(aMeshPair.mInterpolationMesh)
+                , mIntegrationMesh(aMeshPair.mIntegrationMesh)
+                , mIsOwned(false)
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Mesh_Pair::~Mesh_Pair()
         {
             if (mIsOwned)

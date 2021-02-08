@@ -15,6 +15,18 @@ namespace moris
             bool mIsOwned = false; //! If the mesh pointers are owned by the mesh pair
 
             /**
+             * Default constructor
+             */
+            Mesh_Pair() = default;
+
+            /**
+             * Explicit copy constructor to ensure pointers are only owned once.
+             *
+             * @param aMeshPair Input mesh pair for copying
+             */
+            Mesh_Pair(const Mesh_Pair& aMeshPair);
+
+            /**
              * Destructor (deletes mesh pointers if owned)
              */
             ~Mesh_Pair();

@@ -28,19 +28,27 @@ namespace moris
             Mesh_Pair tMeshPair;
             tMeshPair.mInterpolationMesh = aInterpolationMesh;
             tMeshPair.mIntegrationMesh = aIntegrationMesh;
-            tMeshPair.mIsOwned = aIsOwned;
             
-            // Push back new mesh
+            // Push back new pair
             mMeshPairs.push_back(tMeshPair);
+
+            // Ownership begins after adding
+            mMeshPairs(mMeshPairs.size() - 1).mIsOwned = aIsOwned;
 
             return mMeshPairs.size() - 1;
         }
 
         //-------------------------------------------------------------------------
 
-        uint Mesh_Manager::register_mesh_pair(Mesh_Pair aMeshPair)
+        uint Mesh_Manager::register_mesh_pair(Mesh_Pair& aMeshPair)
         {
+            // Push back new pair
             mMeshPairs.push_back(aMeshPair);
+
+            // Ensure correct ownership
+            mMeshPairs(mMeshPairs.size() - 1).mIsOwned = aMeshPair.mIsOwned;
+            aMeshPair.mIsOwned = false;
+
             return mMeshPairs.size() - 1;
         }
 
