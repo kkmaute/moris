@@ -45,6 +45,7 @@ namespace moris
         class Mesh;
         class Mesh_Manager;
         class Field;
+        class Discrete_Field;
         class BSpline_Field;
 
         class Mapper
@@ -96,14 +97,14 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void interpolate_field(
-                    std::shared_ptr<Field>       aFieldSource,
-                    std::shared_ptr<BSpline_Field> aFieldTarget);
+                    std::shared_ptr<Field>          aFieldSource,
+                    std::shared_ptr<Discrete_Field> aFieldTarget);
 
             //------------------------------------------------------------------------------
 
             void change_field_order(
-                    std::shared_ptr<Field>       aFieldSource,
-                    std::shared_ptr<BSpline_Field> aFieldTarget );
+                    std::shared_ptr<Field>          aFieldSource,
+                    std::shared_ptr<Discrete_Field> aFieldTarget );
 
             //------------------------------------------------------------------------------
 
@@ -118,11 +119,6 @@ namespace moris
                     EntityRank            aSourceEntityRank,
                     Matrix<DDRMat>&       aTargetField,
                     EntityRank            aTargetEntityRank );
-
-            void perform_mapping(
-                    std::shared_ptr<BSpline_Field> aField,
-                    EntityRank    aSourceEntityRank,
-                    EntityRank    aTargetEntityRank );
 
             //------------------------------------------------------------------------------
 
@@ -163,7 +159,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void map_node_to_bspline_from_field( std::shared_ptr<BSpline_Field> aField );
+            void map_node_to_bspline_from_field(
+                    std::shared_ptr<Field>         aSourceField,
+                    std::shared_ptr<BSpline_Field> aTargetField,
+                    std::shared_ptr<Mesh_Manager> aMeshManager,
+                    uint aMeshIndex);
 
             //------------------------------------------------------------------------------
 
@@ -180,7 +180,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void create_iwg_and_model(std::shared_ptr<BSpline_Field> aField, real aAlpha = 0.0);
+            void create_iwg_and_model(
+                    std::shared_ptr<Mesh_Manager> aMeshManager,
+                    uint aMeshIndex,
+                    uint aDiscretizationMeshIndex,
+                    real aAlpha = 0.0);
 
             //------------------------------------------------------------------------------
 

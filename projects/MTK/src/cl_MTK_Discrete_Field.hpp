@@ -1,5 +1,5 @@
-#ifndef SRC_MTK_BSPLINE_FIELD_HPP_
-#define SRC_MTK_BSPLINE_FIELD_HPP_
+#ifndef SRC_MTK_DISCRETE_FIELD_HPP_
+#define SRC_MTK_DISCRETE_FIELD_HPP_
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -12,22 +12,21 @@ namespace moris
 {
     namespace mtk
     {
-        class BSpline_Field : public Field
+        class Discrete_Field : public Field
         {
         private:
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
             uint mMeshIndex;
-            Matrix<DDRMat> mCoefficients;
             Matrix<DDRMat> mNodalValues;
 
         public:
 
-            BSpline_Field(
+            Discrete_Field(
                     std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
                     uint                               aMeshIndex,
                     uint                               aDiscretizationMeshIndex = 0 );
 
-            ~BSpline_Field();
+            ~Discrete_Field();
 
             /**
              * Given a node index or coordinate, returns the field value.
@@ -41,14 +40,14 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Sets the B-spline coefficients which interpolate this field.
+             * Sets the nodal values of this discrete field.
              *
-             * @param aCoefficients B-spline coefficients
+             * @param aNodalValues Nodal values
              */
-            void set_coefficients(const Matrix<DDRMat>& aCoefficients);
+            void set_nodal_values(const Matrix<DDRMat>& aNodalValues);
 
             /**
-             * Gets the nodal values of this B-spline field.
+             * Gets the nodal values of this discrete field.
              *
              * @return Nodal values
              */
@@ -60,4 +59,4 @@ namespace moris
         };
     }
 }
-#endif /* SRC_MTK_BSPLINE_FIELD_HPP_ */
+#endif /* SRC_MTK_DISCRETE_FIELD_HPP_ */

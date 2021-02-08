@@ -13,6 +13,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
+#include "cl_MTK_Discrete_Field.hpp"
 #include "cl_MTK_BSpline_Field.hpp"
 
 #include "cl_HMR_Database.hpp"     //HMR/src
@@ -144,7 +145,7 @@ namespace moris
             // Register mesh pair
             uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
-            std::shared_ptr<BSpline_Field> tFieldUnion = std::make_shared<BSpline_Field>( tMeshManager, tMeshIndexUnion );
+            std::shared_ptr<Discrete_Field> tFieldUnion = std::make_shared<Discrete_Field>( tMeshManager, tMeshIndexUnion );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
@@ -172,7 +173,7 @@ namespace moris
 
                 uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
 
-                std::shared_ptr<BSpline_Field> tFieldHigherOrder = std::make_shared<BSpline_Field>( tMeshManager, tMeshIndexUnion );
+                std::shared_ptr<Discrete_Field> tFieldHigherOrder = std::make_shared<Discrete_Field>( tMeshManager, tMeshIndexUnion );
 
                 this->change_field_order( aFieldSource, tFieldHigherOrder );
 
@@ -185,24 +186,15 @@ namespace moris
 
             // project field to union
             mSourceMesh = tUnionInterpolationMesh;
-            this->perform_mapping(
-                    tFieldUnion,
-                    EntityRank::NODE,
-                    EntityRank::BSPLINE);
-
-            // move coefficients to output field
-            aFieldTarget->transfer_coefficients( *tFieldUnion );
-
-            // evaluate nodes
-            aFieldTarget->evaluate_nodal_values();
+            this->map_node_to_bspline_from_field(tFieldUnion, aFieldTarget, tMeshManager, tMeshIndexUnion);
         }
 
         // -----------------------------------------------------------------------------
 
         // interpolate field values from source Lagrange to target Lagrange mesh
         void Mapper::interpolate_field(
-                std::shared_ptr<Field>         aFieldSource,
-                std::shared_ptr<BSpline_Field> aFieldTarget )
+                std::shared_ptr<Field>          aFieldSource,
+                std::shared_ptr<Discrete_Field> aFieldTarget )
         {
             std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
             Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
@@ -249,11 +241,8 @@ namespace moris
             // get values of source field
             const Matrix<DDRMat>& tSourceData = aFieldSource->get_nodal_values(mSourceMesh);
 
-            // get target data
-            Matrix< DDRMat > & tTargetData = aFieldTarget->get_nodal_values();
-
             // allocate value matrix
-            tTargetData.set_size( tTargetLagrangeMesh->get_number_of_all_basis_on_proc(), aFieldTarget->get_number_of_dimensions() );
+            Matrix< DDRMat > tTargetData( tTargetLagrangeMesh->get_number_of_all_basis_on_proc(), aFieldTarget->get_number_of_dimensions() );
 
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_dimensions() );
@@ -317,14 +306,17 @@ namespace moris
                 }
             }
 
+            // Set nodal values
+            aFieldTarget->set_nodal_values(tTargetData);
+
             delete( tTMatrix );
         }
 
         // -----------------------------------------------------------------------------
 
         void Mapper::change_field_order(
-                std::shared_ptr<Field>       aFieldSource,
-                std::shared_ptr<BSpline_Field> aFieldTarget )
+                std::shared_ptr<Field>          aFieldSource,
+                std::shared_ptr<Discrete_Field> aFieldTarget )
         {
             std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
             Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
@@ -345,11 +337,8 @@ namespace moris
             // get values of source field
             const Matrix<DDRMat>& tSourceValues = aFieldSource->get_nodal_values(mSourceMesh);
 
-            // target values
-            Matrix< DDRMat > & tTargetValues = aFieldTarget->get_nodal_values();
-
             // allocate output memory
-            tTargetValues.set_size( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
+            Matrix< DDRMat > tTargetValues( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
 
             // get number of elements
             uint tNumberOfElements = tSourceLagrangeMesh->get_number_of_elements();
@@ -403,6 +392,9 @@ namespace moris
                     }
                 }
             }
+
+            // Set nodal values
+            aFieldTarget->set_nodal_values(tTargetValues);
         }
 
         //------------------------------------------------------------------------------
@@ -437,7 +429,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void Mapper::create_iwg_and_model(
-                std::shared_ptr<BSpline_Field> aField,
+                std::shared_ptr<Mesh_Manager> aMeshManager,
+                uint aMeshIndex,
+                uint aDiscretizationMeshIndex,
                 real          aAlpha )
         {
             if( ! mHaveIwgAndModel )
@@ -455,14 +449,12 @@ namespace moris
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
-                std::pair< moris_index, std::shared_ptr<Mesh_Manager> > tMeshPairIn = aField->get_mesh_pair();
-
                 // create model
                 mModel = new mdl::Model(
-                        tMeshPairIn.second.get(),
-                        aField->get_discretization_mesh_index(),
+                        aMeshManager.get(),
+                        aDiscretizationMeshIndex,
                         tSetInfo,
-                        tMeshPairIn.first );
+                        aMeshIndex );
 
                 // set bool for building IWG and model to true
                 mHaveIwgAndModel = true;
@@ -628,62 +620,6 @@ namespace moris
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Mapper::perform_mapping(
-                std::shared_ptr<BSpline_Field> aField,
-                EntityRank    aSourceEntityRank,
-                EntityRank    aTargetEntityRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map");
-
-            switch( aSourceEntityRank )
-            {
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                case EntityRank::NODE :
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        case EntityRank::BSPLINE:
-                        {
-                            this->map_node_to_bspline_from_field( aField );
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case EntityRank::BSPLINE:
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        case EntityRank::NODE:
-                        {
-                            aField->evaluate_nodal_values();
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                default :
-                {
-                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported.");
-                    break;
-                }
-            }
-        }
-
         //------------------------------------------------------------------------------
 
         void Mapper::map_node_to_bspline( Matrix<DDRMat> & aSolution )
@@ -832,26 +768,26 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline_from_field( std::shared_ptr<BSpline_Field> aField )
+        void Mapper::map_node_to_bspline_from_field(
+                std::shared_ptr<Field>         aSourceField,
+                std::shared_ptr<BSpline_Field> aTargetField,
+                std::shared_ptr<Mesh_Manager> aMeshManager,
+                uint aMeshIndex)
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
 
             // create the model if it has not been created yet
-            this->create_iwg_and_model( aField );
+            this->create_iwg_and_model( aMeshManager, aMeshIndex, aTargetField->get_discretization_mesh_index() );
 
             // set weak bcs from field
-            Matrix<DDRMat> tFieldValues(mSourceMesh->get_num_nodes(), 1);
-            for (uint tNodeIndex = 0; tNodeIndex < mSourceMesh->get_num_nodes(); tNodeIndex++)
-            {
-                tFieldValues(tNodeIndex) = aField->get_field_value(tNodeIndex, mSourceMesh->get_node_coordinate(tNodeIndex));
-            }
+            const Matrix<DDRMat>& tFieldValues = aSourceField->get_nodal_values(mSourceMesh);
             mModel->set_weak_bcs( tFieldValues );
 
             // Get solution
             Matrix<DDRMat> tSolution;
             this->map_node_to_bspline(tSolution);
-            aField->set_coefficients(tSolution);
+            aTargetField->set_coefficients(tSolution);
         }
 
         //------------------------------------------------------------------------------
