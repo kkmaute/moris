@@ -138,7 +138,7 @@ namespace moris
             real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );   
 
             // compute internal energy
             mEintDof( tDofIndex ) = tIsochoricHeatCapacity * this->TemperatureDOF( aDofTypes );
@@ -311,6 +311,14 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        void MM_Perfect_Gas::eval_d2Densitydx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // FIXME: skip for now as not needed
+            MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Densitydx2DOF - Not implemented yet." );
+        }            
+
+        //------------------------------------------------------------------------------
         // PRESSURE (SECOND EQUATION OF STATE)
         //------------------------------------------------------------------------------          
 
@@ -319,7 +327,7 @@ namespace moris
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
-            // compute pressure as function of pressure and temperature
+            // compute pressure as function of density and temperature
             mPressure = tSpecificGasConstant * this->density() * this->temperature();
         }
 
@@ -330,7 +338,7 @@ namespace moris
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
-            // compute pressure as function of pressure and temperature
+            // compute pressure as function of density and temperature
             mPressureDot = tSpecificGasConstant * ( 
                 this->DensityDot() * this->temperature() + 
                 this->density() * this->TemperatureDot() );
@@ -343,7 +351,7 @@ namespace moris
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
-            // compute pressure as function of pressure and temperature
+            // compute pressure as function of density and temperature
             mdPressuredx = tSpecificGasConstant * ( 
                 this->temperature() * this->dnDensitydxn( 1 ) + 
                 this->density() * this->dnTemperaturedxn( 1 ) );
@@ -368,7 +376,7 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // compute pressure as function of pressure and temperature
+            // compute pressure as function of density and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * this->density() * this->TemperatureDOF( aDofTypes );
 
@@ -386,7 +394,7 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // compute pressure as function of pressure and temperature
+            // compute pressure as function of density and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * ( 
                     this->DensityDot()( 0 ) * this->TemperatureDOF( aDofTypes ) + 
@@ -408,7 +416,7 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // compute pressure as function of pressure and temperature
+            // compute pressure as function of density and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * ( 
                     this->dnDensitydxn( 1 ) * this->TemperatureDOF( aDofTypes ) + 

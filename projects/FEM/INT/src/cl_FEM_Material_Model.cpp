@@ -15,13 +15,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Material_Model::Material_Model()
-        {
-
-            // check which variables are set 
-
-            // set function pointers
-        }
+        Material_Model::Material_Model(){}
 
         //------------------------------------------------------------------------------
 
@@ -58,46 +52,37 @@ namespace moris
             md2Eintdx2DofEval.fill( true );            
 
             // reset eval flags for density, if it is a dependent variable
-            if ( mDensityIsDependent )
-            {
-                mDensityEval = true;
-                mDensityDotEval = true;
-                mdDensitydxEval = true;
-                md2Densitydx2Eval = true;
+            mDensityEval = true;
+            mDensityDotEval = true;
+            mdDensitydxEval = true;
+            md2Densitydx2Eval = true;
 
-                mDensityDofEval.fill( true );
-                mDensityDotDofEval.fill( true );          
-                mdDensitydxDofEval.fill( true );
-                md2Densitydx2DofEval.fill( true );
-            }
+            mDensityDofEval.fill( true );
+            mDensityDotDofEval.fill( true );          
+            mdDensitydxDofEval.fill( true );
+            md2Densitydx2DofEval.fill( true );
 
             // reset eval flags for pressure, if it is a dependent variable
-            if ( mPressureIsDependent )
-            {
-                mPressureEval = true;
-                mPressureDotEval = true;
-                mdPressuredxEval = true;
-                md2Pressuredx2Eval = true;
+            mPressureEval = true;
+            mPressureDotEval = true;
+            mdPressuredxEval = true;
+            md2Pressuredx2Eval = true;
 
-                mPressureDofEval.fill( true );
-                mPressureDotDofEval.fill( true );          
-                mdPressuredxDofEval.fill( true );
-                md2Pressuredx2DofEval.fill( true );
-            }
+            mPressureDofEval.fill( true );
+            mPressureDotDofEval.fill( true );          
+            mdPressuredxDofEval.fill( true );
+            md2Pressuredx2DofEval.fill( true );
 
             // reset eval flags for temperature, if it is a dependent variable
-            if ( mTemperatureIsDependent )
-            {
-                mTemperatureEval = true;
-                mTemperatureDotEval = true;
-                mdTemperaturedxEval = true;
-                md2Temperaturedx2Eval = true;
+            mTemperatureEval = true;
+            mTemperatureDotEval = true;
+            mdTemperaturedxEval = true;
+            md2Temperaturedx2Eval = true;
 
-                mTemperatureDofEval.fill( true );
-                mTemperatureDotDofEval.fill( true );          
-                mdTemperaturedxDofEval.fill( true );
-                md2Temperaturedx2DofEval.fill( true );
-            }                        
+            mTemperatureDofEval.fill( true );
+            mTemperatureDotDofEval.fill( true );          
+            mdTemperaturedxDofEval.fill( true );
+            md2Temperaturedx2DofEval.fill( true );                      
 
             // reset underlying properties
             for( const std::shared_ptr< Property > & tProp : mProperties )
@@ -119,14 +104,14 @@ namespace moris
         {
             // check list of DoF types and set flags for dependent variables accordingly
             // get number of dof types
-            uint tNumDofTypes = mDofTypes.size();
+            uint tNumDofTypes = aDofTypes.size();
 
             // check list of DoF types and set flags for dependent variables accordingly
             for ( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
             {
                 // get DoF type in list
-                //MSI::Dof_Type tCurrentDofType = mDofTypes( iDOF )( 0 );
-                int tCurrentDofType = static_cast< int >( mDofTypes( iDOF )( 0 ) );
+                //MSI::Dof_Type tCurrentDofType = aDofTypes( iDOF )( 0 );
+                int tCurrentDofType = static_cast< int >( aDofTypes( iDOF )( 0 ) );
 
                 // check if DoF type corresponds to one of thermodynamic state variables
                 switch ( tCurrentDofType )
@@ -339,50 +324,41 @@ namespace moris
             mdEintdxDof.resize( tNumGlobalDofTypes );
             md2Eintdx2Dof.resize( tNumGlobalDofTypes );
 
-            if ( mDensityIsDependent )
-            {
-                // set flags for evaluation
-                mDensityDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                mDensityDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                mdDensitydxDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                md2Densitydx2DofEval.set_size( tNumGlobalDofTypes, 1, true );
+            // set flags for evaluation
+            mDensityDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mDensityDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdDensitydxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            md2Densitydx2DofEval.set_size( tNumGlobalDofTypes, 1, true );
 
-                // set storage for evaluation
-                mDensityDof.resize( tNumGlobalDofTypes );
-                mDensityDotDof.resize( tNumGlobalDofTypes );
-                mdDensitydxDof.resize( tNumGlobalDofTypes );
-                md2Densitydx2Dof.resize( tNumGlobalDofTypes );
-            }
+            // set storage for evaluation
+            mDensityDof.resize( tNumGlobalDofTypes );
+            mDensityDotDof.resize( tNumGlobalDofTypes );
+            mdDensitydxDof.resize( tNumGlobalDofTypes );
+            md2Densitydx2Dof.resize( tNumGlobalDofTypes );
 
-            if ( mPressureIsDependent )
-            {
-                // set flags for evaluation
-                mPressureDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                mPressureDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                mdPressuredxDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                md2Pressuredx2DofEval.set_size( tNumGlobalDofTypes, 1, true );
+            // set flags for evaluation
+            mPressureDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mPressureDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdPressuredxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            md2Pressuredx2DofEval.set_size( tNumGlobalDofTypes, 1, true );
 
-                // set storage for evaluation
-                mPressureDof.resize( tNumGlobalDofTypes );
-                mPressureDotDof.resize( tNumGlobalDofTypes );
-                mdPressuredxDof.resize( tNumGlobalDofTypes );
-                md2Pressuredx2Dof.resize( tNumGlobalDofTypes );                
-            }
+            // set storage for evaluation
+            mPressureDof.resize( tNumGlobalDofTypes );
+            mPressureDotDof.resize( tNumGlobalDofTypes );
+            mdPressuredxDof.resize( tNumGlobalDofTypes );
+            md2Pressuredx2Dof.resize( tNumGlobalDofTypes );                
 
-            if ( mTemperatureIsDependent )
-            {
-                // set flags for evaluation
-                mTemperatureDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                mTemperatureDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                mdTemperaturedxDofEval.set_size( tNumGlobalDofTypes, 1, true );
-                md2Temperaturedx2DofEval.set_size( tNumGlobalDofTypes, 1, true );
+            // set flags for evaluation
+            mTemperatureDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mTemperatureDotDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdTemperaturedxDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            md2Temperaturedx2DofEval.set_size( tNumGlobalDofTypes, 1, true );
 
-                // set storage for evaluation
-                mTemperatureDof.resize( tNumGlobalDofTypes );
-                mTemperatureDotDof.resize( tNumGlobalDofTypes );
-                mdTemperaturedxDof.resize( tNumGlobalDofTypes );
-                md2Temperaturedx2Dof.resize( tNumGlobalDofTypes );                
-            }
+            // set storage for evaluation
+            mTemperatureDof.resize( tNumGlobalDofTypes );
+            mTemperatureDotDof.resize( tNumGlobalDofTypes );
+            mdTemperaturedxDof.resize( tNumGlobalDofTypes );
+            md2Temperaturedx2Dof.resize( tNumGlobalDofTypes );                
 
             // initialize storage variables specific to child MMs
             this->initialize_spec_storage_vars_and_eval_flags();
@@ -582,6 +558,7 @@ namespace moris
                 // set bool for evaluation
                 mEintEval = false;
             }
+
             // return the flux value
             return mEint;
         }
@@ -599,6 +576,7 @@ namespace moris
                 // set bool for evaluation
                 mEintDotEval = false;
             }
+
             // return the flux value
             return mEintDot;
         }        
@@ -649,7 +627,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::EintDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::EintDOF - no dependency in this dof type." );
 
@@ -675,7 +653,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::EintDotDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::EintDotDOF - no dependency in this dof type." );
 
@@ -701,7 +679,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::dnEintdxnDOF( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::dnEintdxnDOF - no dependency in this dof type." );
 
@@ -744,7 +722,194 @@ namespace moris
                 MORIS_ERROR( false, "Material_Model::dnEintdxnDOF - aOrder unknown, only 1 and 2 supported." );
                 return mdEintdxDof( 0 );
             }
-        }      
+        }    
+
+        //------------------------------------------------------------------------------
+        // FINITE DIFFERENCE FUNCTIONS
+        //------------------------------------------------------------------------------
+
+        void Material_Model::eval_EintDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aEintDOF_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType)
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // evaluate unperturbed internal energy
+            Matrix< DDRMat > tEint = this->Eint();
+
+            // set size for derivative
+            aEintDOF_FD.set_size( tEint.n_rows(), tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed flux contribution to dfluxdu
+                        aEintDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tEint /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over the points for FD
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        aEintDOF_FD.get_column( tDofCounter ) +=
+                                        tFDScheme( 1 )( iPoint ) * this->Eint() /
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+        }            
+
+        //------------------------------------------------------------------------------
+
+        void Material_Model::eval_TemperatureDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aTDvarDOF_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType)
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // evaluate unperturbed internal energy
+            Matrix< DDRMat > tTemp = this->temperature();
+
+            // set size for derivative
+            aTDvarDOF_FD.set_size( tTemp.n_rows(), tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed flux contribution to dfluxdu
+                        aTDvarDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tTemp /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over the points for FD
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        aTDvarDOF_FD.get_column( tDofCounter ) +=
+                                        tFDScheme( 1 )( iPoint ) * this->temperature() /
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+        }                            
+
 
     }/* end_fem_namespace */
 }/* end_moris_namespace */

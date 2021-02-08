@@ -149,13 +149,31 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::TemperatureDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
-            // check DOF deriv is wrt to own DOF-type is with 
-            // FIXME: this might need to be changed to provide a zero matrix
-            MORIS_ASSERT( aDofType( 0 ) == mDofTemperature, 
-                "Material_Model::TemperatureDOF_dep - Requesting DoF derivative of primitive variable wrt. to another DoF type." );
+            // check DOF deriv is wrt to own DOF-type is with             
+            if ( aDofType( 0 ) != mDofTemperature )
+            {
+                // get the dof type index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
-            // return the temperature rate of change
-            return mFIManager->get_field_interpolators_for_type( mDofTemperature )->N();
+                if ( mTemperatureDofEval( tDofIndex ))
+                {
+                    // initialize output matrix with zeros
+                    mTemperatureDof( tDofIndex ).set_size( 1, // mSpaceDim
+                            mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                            get_number_of_space_time_coefficients(), 0.0 );
+
+                    // set flag
+                    mTemperatureDofEval( tDofIndex ) = false;
+                }
+
+                // return zero matrix
+                return mTemperatureDof( tDofIndex );
+            }
+            else
+            {
+                // return the temperature dof deriv
+                return mFIManager->get_field_interpolators_for_type( mDofTemperature )->N();
+            }
         } 
 
         //-----------------------------------------------------------------------------
@@ -188,13 +206,31 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::TemperatureDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
-            // check DOF deriv is wrt to own DOF-type is with 
-            // FIXME: this might need to be changed to provide a zero matrix
-            MORIS_ASSERT( aDofType( 0 ) == mDofTemperature, 
-                "Material_Model::TemperatureDotDOF_triv - Requesting DoF derivative of primitive variable wrt. to another DoF type." );
+            // check DOF deriv is wrt to own DOF-type is with             
+            if ( aDofType( 0 ) != mDofTemperature )
+            {
+                // get the dof type index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
-            // return the temperature rate of change
-            return mFIManager->get_field_interpolators_for_type( mDofTemperature )->dnNdtn( 1 );
+                if ( mTemperatureDotDofEval( tDofIndex ))
+                {
+                    // initialize output matrix with zeros
+                    mTemperatureDotDof( tDofIndex ).set_size( 1, // mSpaceDim
+                            mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                            get_number_of_space_time_coefficients(), 0.0 );
+
+                    // set flag
+                    mTemperatureDotDofEval( tDofIndex )= false;
+                }
+
+                // return zero matrix
+                return mTemperatureDotDof( tDofIndex );
+            }
+            else
+            {
+                // return the temperature rate of change dof deriv
+                return mFIManager->get_field_interpolators_for_type( mDofTemperature )->dnNdtn( 1 );
+            }
         }         
 
         //-----------------------------------------------------------------------------
@@ -255,13 +291,55 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::dnTemperaturedxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
-            // check DOF deriv is wrt to own DOF-type is with 
-            // FIXME: this might need to be changed to provide a zero matrix
-            MORIS_ASSERT( aDofType( 0 ) == mDofTemperature, 
-                "Material_Model::dnTemperaturedxnDOF_triv - Requesting DoF derivative of primitive variable wrt. to another DoF type." );
+            // check DOF deriv is wrt to own DOF-type is with             
+            if ( aDofType( 0 ) != mDofTemperature )
+            {
+                // get the dof type index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
-            // return the temperature rate of change
-            return mFIManager->get_field_interpolators_for_type( mDofTemperature )->dnNdxn( aOrder );
+                if ( aOrder == 1 )
+                {
+                    if ( mdTemperaturedxDofEval( tDofIndex ))
+                    {
+                        // initialize output matrix with zeros
+                        mdTemperaturedxDof( tDofIndex ).set_size( mSpaceDim,
+                                mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+    
+                        // set flag
+                        mdTemperaturedxDofEval( tDofIndex )= false;
+                    }
+    
+                    // return zero matrix
+                    return mdTemperaturedxDof( tDofIndex );
+                }
+                else if ( aOrder == 2 )
+                {
+                    if ( md2Temperaturedx2DofEval( tDofIndex ))
+                    {
+                        // initialize output matrix with zeros
+                        md2Temperaturedx2Dof( tDofIndex ).set_size( 3 * mSpaceDim - 3,
+                                mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+
+                        // set flag
+                        md2Temperaturedx2DofEval( tDofIndex )= false;
+                    }
+
+                    // return zero matrix
+                    return md2Temperaturedx2Dof( tDofIndex );
+                }
+                else
+                {
+                    MORIS_ERROR( false, "Material_Model::dnDensitydxnDOF_triv - only orders 1 and 2 implemented." );
+                    return mdDensitydxDof( 0 );                    
+                }                
+            }
+            else
+            {
+                // return the temperature gradient dof deriv
+                return mFIManager->get_field_interpolators_for_type( mDofTemperature )->dnNdxn( aOrder );
+            }
         }    
 
         //-----------------------------------------------------------------------------

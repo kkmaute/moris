@@ -494,8 +494,8 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnEintdxn specific internal energy and derivatives
                  */
-                const Matrix< DDRMat > &  Eint();
-                const Matrix< DDRMat > &  EintDot();
+                const Matrix< DDRMat > & Eint();
+                const Matrix< DDRMat > & EintDot();
                 const Matrix< DDRMat > & dnEintdxn( uint aOrder );
 
                 //------------------------------------------------------------------------------
@@ -814,12 +814,18 @@ namespace moris
                  * @param[ in ] aDerivOrder     order of the spatial derivatives ( includes 0 )
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
-                // void eval_EintDOF_FD(
+                void eval_EintDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aEintDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
+                // void eval_dnEintdxnDOF_FD(
                 //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & adDepTDvardDOF_FD,
+                //         Matrix< DDRMat >                   & adnEintdxnDOF_FD,
                 //         real                                 aPerturbation,
                 //         uint                                 aDerivOrder,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );                        
 
                 // void eval_EintDotDOF_FD(
                 //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
@@ -831,11 +837,18 @@ namespace moris
                 /**
                  * evaluate the third dependent thermodynamic variable wrt to a dof type
                  * @param[ in ] aDofTypes       dof type wrt which the derivative is evaluated
-                 * @param[ in ] aDepTDvarDOF_FD   matrix to fill with derivative of the 3rd thermodynamic variable
+                 * @param[ in ] aTDvarDOF_FD    matrix to fill with derivative of the 3rd thermodynamic variable
                  * @param[ in ] aPerturbation   real to perturb for FD
                  * @param[ in ] aDerivOrder     order of the spatial derivatives ( includes 0 )
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
+
+                void eval_TemperatureDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aTDvarDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
                 // void eval_DepTDvarDOF_FD(
                 //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 //         Matrix< DDRMat >                   & adDepTDvardDOF_FD,
