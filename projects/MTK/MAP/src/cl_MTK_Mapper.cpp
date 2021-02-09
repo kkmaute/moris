@@ -592,7 +592,7 @@ namespace moris
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Bspline-to-Node");
-            
+
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPair = aField->get_mesh_pair();
 
             moris::mtk::Mesh * tInterpolationMesh = tMeshPair.second->get_interpolation_mesh( tMeshPair.first );
