@@ -36,7 +36,6 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
-#include "st_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 
 #include "HDF5_Tools.hpp"
@@ -1558,7 +1557,7 @@ namespace moris
         //            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
         //            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
         //            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
-        //            Cell< mtk::Mapper * > tMappers( tNumberOfMappers, nullptr );
+        //            Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
         //
         //            for( uint m=0; m<tNumberOfMappers; ++m )
         //            {
@@ -1667,7 +1666,7 @@ namespace moris
         //                tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
         //
         //                // evaluate nodes
-        //                tOutputField->evaluate_nodal_values();
+        //                tOutputField->evaluate_node_values();
         //
         //                // make this field point to the output mesh
         //                tInputField->change_mesh( tOutputField->get_mesh(),
@@ -1675,7 +1674,7 @@ namespace moris
         //            }
         //
         //            // delete mappers
-        //            for( mtk::Mapper * tMapper : tMappers )
+        //            for( mapper::Mapper * tMapper : tMappers )
         //            {
         //                delete tMapper;
         //            }
@@ -1745,13 +1744,13 @@ namespace moris
             Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
-            mtk::Mesh_Pair tMeshPair;
-            tMeshPair.mInterpolationMesh = tUnionInterpolationMesh;
-            tMeshPair.mIntegrationMesh = tIntegrationUnionMesh;
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
             // create mapper
             mtk::Mapper tMapper(
-                    tMeshPair,
+                    tMeshManager,
+                    tMeshPairIndex,
                     aBsplineMeshIndex );
 
             // project field to union
