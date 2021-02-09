@@ -30,7 +30,7 @@ namespace moris
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
                         &initialize_rosenbrock_1,
                         &get_criteria_rosenbrock_1,
-                        &get_dcriteria_dadv_rosenbrock_1);
+                        &get_dcriteria_dadv_rosenbrock);
 
                 // Create Problem
                 std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
@@ -65,12 +65,12 @@ namespace moris
                 // Set up default parameter lists
                 ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
                 ParameterList tAlgorithmParameterList = moris::prm::create_sqp_parameter_list();
-            
+
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
                         &initialize_rosenbrock_1,
                         &get_criteria_rosenbrock_1,
-                        &get_dcriteria_dadv_rosenbrock_1);
+                        &get_dcriteria_dadv_rosenbrock);
             
                 // Create Problem
                 std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
