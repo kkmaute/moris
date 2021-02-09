@@ -1497,7 +1497,7 @@ namespace moris
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
+            uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get master index for residual dof type, indices for assembly
             sint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1573,7 +1573,7 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1627,7 +1627,7 @@ namespace moris
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
+            uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get master index for residual dof type, indices for assembly
             sint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1719,7 +1719,7 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1831,7 +1831,7 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1994,44 +1994,62 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real IWG::build_perturbation_size(
-                real aPerturbation,
-                real aCoefficientToPerturb,
-                real aTolerance )
+                const real & aPerturbation,
+                const real & aCoefficientToPerturb,
+                const real & aMaxPerturbation,
+                const real   aTolerance )
         {
-           return ( this->*m_build_perturbation_size )(
+            return ( this->*m_build_perturbation_size )(
                     aPerturbation,
                     aCoefficientToPerturb,
+                    aMaxPerturbation,
                     aTolerance );
         }
 
         //------------------------------------------------------------------------------
 
         real IWG::build_perturbation_size_relative(
-                real aPerturbation,
-                real aCoefficientToPerturb,
-                real aTolerance )
+                const real & aPerturbation,
+                const real & aCoefficientToPerturb,
+                const real & aMaxPerturbation,
+                const real & aTolerance )
         {
-            // compute the perturbation value
-            real tDeltaH = aPerturbation * aCoefficientToPerturb;
+            // compute the perturbation value using fraction of maximum allowable perturbation
+            real tDeltaH = std::abs(aPerturbation * aMaxPerturbation);
 
-            // check that perturbation is not zero
-            if( std::abs( tDeltaH ) < aTolerance )
-            {
-                tDeltaH = aPerturbation;
-            }
+            // check that maximum perturbation size is larger than tolerance
+            MORIS_ASSERT( aMaxPerturbation >= aTolerance,
+                    "Error: maximum perturbation size is smaller than tolerance.\n");
+
+            // determine actual tolerance (only useful when above assert inactive)
+            const real tActualTol = std::min(aMaxPerturbation,aTolerance);
+
+            // compute perturbation such that it is not smaller than tolerance
+            // and not larger than maximum value
+            tDeltaH = std::max( std::min(tDeltaH,aMaxPerturbation), tActualTol );
 
             return tDeltaH;
-        }
+         }
 
         //------------------------------------------------------------------------------
 
         real IWG::build_perturbation_size_absolute(
-                real aPerturbation,
-                real aCoefficientToPerturb,
-                real aTolerance )
+                const real & aPerturbation,
+                const real & aCoefficientToPerturb,
+                const real & aMaxPerturbation,
+                const real & aTolerance )
         {
-            return aPerturbation;
-        }
+            // check that maximum perturbation size is larger than tolerance
+            MORIS_ASSERT( aMaxPerturbation >= aTolerance,
+                    "Error: maximum perturbation size is smaller than tolerance.\n");
+
+            // determine actual tolerance (only useful when above assert inactive)
+            const real tActualTol = std::min(aMaxPerturbation,aTolerance);
+
+            // check that absolute value of perturbation is not smaller than tolerance
+            // and not larger than maximum value
+            return std::max( std::min(std::abs(aPerturbation),aMaxPerturbation),tActualTol );
+         }
 
         //------------------------------------------------------------------------------
 
@@ -2059,24 +2077,27 @@ namespace moris
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
-            Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )(
-                    { tResDofAssemblyStart, tResDofAssemblyStop },
-                    { 0, 0 } );
+            Matrix< DDRMat > tResidual =
+                    mSet->get_residual()( 0 )(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0, 0 } );
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tIGGI->get_number_of_space_bases();
             uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
 
             // coefficients for dv type wrt which derivative is computed
-            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
-            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
-            Matrix< DDRMat > tEvaluationPoint;
-            tIGGI->get_space_time( tEvaluationPoint );
-            real tGPWeight = aWStar / tIGGI->det_J();
+            Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();             // get nodal coordinates of integration element
+            Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();  // get IP natural coordinate of integration nodes
 
-            // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tEvaluationPoint;                              // get IG natural coordinates of quadrature points
+            tIGGI->get_space_time( tEvaluationPoint );
+
+            real tGPWeight = aWStar / tIGGI->det_J();                       // reconstruct integration weight
+
+            // IP element max/min                                           // FIXME: only works for rectangular IP elements
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );      // get maximum values of coordinates of IP nodes
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );      // get minimum values of coordinates of IP nodes
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -2096,21 +2117,58 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
+                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
+                        MORIS_ASSERT(
+                                tMaxIP( iCoeffCol ) >= tCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
+                                tMinIP( iCoeffCol ) <= tCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
+                                "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
+                                iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ));
+
+                        // get maximum possible perturbation
+                        real tMaxPerturb = (tMaxIP(iCoeffCol)-tMinIP(iCoeffCol))/3.0;
+
                         // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
+                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
 
                         // check point location
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
+                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMaxIP( iCoeffCol ) )
                         {
                             tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+
+                            // check for correctness of perturbation size for backward FD
+                            MORIS_ASSERT( tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
+                                    "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                                    "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                    iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
                         }
-                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
+                        else
                         {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                            if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMinIP( iCoeffCol ) )
+                            {
+                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+                                // check for correctness of perturbation size for backward FD
+                                MORIS_ASSERT( tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ),
+                                        "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                            }
+                            else
+                            {
+                                // check for correctness of perturbation size for central FD
+                                MORIS_ASSERT(
+                                        tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ) &&
+                                        tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
+                                        "ERROR: central perturbation size exceed limits of interpolation element:\n"
+                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                            }
                         }
+
+                        // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
-                        uint tNumPoints = tFDScheme( 0 ).size();
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
@@ -2131,21 +2189,23 @@ namespace moris
                         }
 
                         // loop over point of FD scheme
-                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficients
+                            // reset the perturbed coefficients, i.e. the nodal coordinate of integration element
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // perturb the coefficient
+                            // perturb the coefficient, i.e. the nodal coordinate of integration element
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                            // setting the perturbed coefficients
+                            // setting the perturbed coefficients, i.e. the nodal coordinate of integration element
                             tIGGI->set_space_coeff( tCoeffPert );
 
-                            // update local coordinates
+                            // update natural coordinates of IG nodes in IP element
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
                             tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+
                             Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
                             tIGGI->set_space_param_coeff( tParamCoeffPert );
@@ -2173,6 +2233,7 @@ namespace moris
                     }
                 }
             }
+
             // reset the coefficients values
             tIGGI->set_space_coeff( tCoeff );
             tIGGI->set_space_param_coeff( tParamCoeff );
@@ -2260,21 +2321,58 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
+                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
+                         MORIS_ASSERT(
+                                 tMaxIP( iCoeffCol ) >= tCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
+                                 tMinIP( iCoeffCol ) <= tCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
+                                 "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
+                                 iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ));
 
-                        // check point location
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-                        }
-                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-                        }
+                         // get maximum possible perturbation
+                         real tMaxPerturb = (tMaxIP(iCoeffCol)-tMinIP(iCoeffCol))/3.0;
+
+                         // compute the perturbation value
+                         tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
+
+                         // check point location
+                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMaxIP( iCoeffCol ) )
+                         {
+                             tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+
+                             // check for correctness of perturbation size for backward FD
+                             MORIS_ASSERT( tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
+                                     "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                                     "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                     iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                         }
+                         else
+                         {
+                             if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMinIP( iCoeffCol ) )
+                             {
+                                 tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+                                 // check for correctness of perturbation size for backward FD
+                                 MORIS_ASSERT( tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ),
+                                         "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+                                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                         iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                             }
+                             else
+                             {
+                                 // check for correctness of perturbation size for central FD
+                                 MORIS_ASSERT(
+                                         tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ) &&
+                                         tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
+                                         "ERROR: central perturbation size exceed limits of interpolation element:\n"
+                                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                         iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                             }
+                         }
+
+                        // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
-                        uint tNumPoints = tFDScheme( 0 ).size();
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
@@ -2295,7 +2393,7 @@ namespace moris
                         }
 
                         // loop over point of FD scheme
-                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -2435,21 +2533,58 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ) );
+                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
+                         MORIS_ASSERT(
+                                 tMaxIP( iCoeffCol ) >= tCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
+                                 tMinIP( iCoeffCol ) <= tCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
+                                 "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
+                                 iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ));
 
-                        // check point location
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-                        }
-                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-                        }
+                         // get maximum possible perturbation
+                         real tMaxPerturb = (tMaxIP(iCoeffCol)-tMinIP(iCoeffCol))/3.0;
+
+                         // compute the perturbation value
+                         tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
+
+                         // check point location
+                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMaxIP( iCoeffCol ) )
+                         {
+                             tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+
+                             // check for correctness of perturbation size for backward FD
+                             MORIS_ASSERT( tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
+                                     "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                                     "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                     iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                         }
+                         else
+                         {
+                             if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMinIP( iCoeffCol ) )
+                             {
+                                 tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+                                 // check for correctness of perturbation size for backward FD
+                                 MORIS_ASSERT( tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ),
+                                         "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+                                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                         iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                             }
+                             else
+                             {
+                                 // check for correctness of perturbation size for central FD
+                                 MORIS_ASSERT(
+                                         tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ) &&
+                                         tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
+                                         "ERROR: central perturbation size exceed limits of interpolation element:\n"
+                                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                         iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                             }
+                         }
+
+                        // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
-                        uint tNumPoints = tFDScheme( 0 ).size();
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
@@ -2470,7 +2605,7 @@ namespace moris
                         }
 
                         // loop over point of FD scheme
-                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -2656,21 +2791,58 @@ namespace moris
 
                     if ( tPdvAssemblyIndex != -1 )
                     {
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tMasterCoeff( iCoeffRow, iCoeffCol ) );
+                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
+                         MORIS_ASSERT(
+                                 tMasterMaxIP( iCoeffCol ) >= tMasterCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
+                                 tMasterMinIP( iCoeffCol ) <= tMasterCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
+                                 "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
+                                 iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ));
 
-                        // check point location
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-                        }
-                        else if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-                        }
+                         // get maximum possible perturbation
+                         real tMaxPerturb = (tMasterMaxIP(iCoeffCol)-tMasterMinIP(iCoeffCol))/3.0;
+
+                         // compute the perturbation value
+                         tDeltaH = build_perturbation_size( aPerturbation, tMasterCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
+
+                         // check point location
+                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                         if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMasterMaxIP( iCoeffCol ) )
+                         {
+                             tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+
+                             // check for correctness of perturbation size for backward FD
+                             MORIS_ASSERT( tDeltaH < tMasterCoeff( iCoeffRow, iCoeffCol ) - tMasterMinIP( iCoeffCol ),
+                                     "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                                     "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                     iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                         }
+                         else
+                         {
+                             if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMasterMinIP( iCoeffCol ) )
+                             {
+                                 tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+                                 // check for correctness of perturbation size for backward FD
+                                 MORIS_ASSERT( tDeltaH < tMasterMaxIP( iCoeffCol ) - tMasterCoeff(iCoeffRow, iCoeffCol ),
+                                         "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+                                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                         iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                             }
+                             else
+                             {
+                                 // check for correctness of perturbation size for central FD
+                                 MORIS_ASSERT(
+                                         tDeltaH < tMasterMaxIP( iCoeffCol ) - tMasterCoeff(iCoeffRow, iCoeffCol ) &&
+                                         tDeltaH < tMasterCoeff( iCoeffRow, iCoeffCol ) - tMasterMinIP( iCoeffCol ),
+                                         "ERROR: central perturbation size exceed limits of interpolation element:\n"
+                                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                                         iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
+                             }
+                         }
+
+                        // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
-                        uint tNumPoints = tFDScheme( 0 ).size();
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
@@ -2698,7 +2870,7 @@ namespace moris
                         }
 
                         // loop over point of FD scheme
-                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
@@ -2796,7 +2968,7 @@ namespace moris
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
+            uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get the requested ip pdv types
             moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes;
@@ -2880,7 +3052,7 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -2937,7 +3109,7 @@ namespace moris
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
+            uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get the requested ip pdv types
             moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes;
@@ -3037,7 +3209,7 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -3162,7 +3334,7 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
