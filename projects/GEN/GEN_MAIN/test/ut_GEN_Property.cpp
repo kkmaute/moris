@@ -145,7 +145,11 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                mtk::Interpolation_Mesh* tMesh = nullptr;
+                mtk::Integration_Mesh* tIGMesh = nullptr;
+                create_simple_mesh(
+                        tMesh,
+                        tIGMesh,
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
@@ -158,7 +162,7 @@ namespace moris
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
                           std::make_shared< mtk::Mesh_Manager >();
 
-                  tMeshManager->register_mesh_pair(tMesh, nullptr );
+                  tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;

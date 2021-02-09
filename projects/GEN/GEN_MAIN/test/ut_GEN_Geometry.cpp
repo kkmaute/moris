@@ -437,7 +437,11 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                mtk::Interpolation_Mesh* tMesh = nullptr;
+                mtk::Integration_Mesh* tIGMesh = nullptr;
+                create_simple_mesh(
+                        tMesh,
+                        tIGMesh,
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
@@ -446,7 +450,7 @@ namespace moris
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
                         std::make_shared< mtk::Mesh_Manager >();
 
-                tMeshManager->register_mesh_pair(tMesh, nullptr );
+                tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -555,7 +559,9 @@ namespace moris
         TEST_CASE("Stored Geometry", "[gen], [geometry], [stored geometry]")
         {
             // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
+            mtk::Interpolation_Mesh* tMesh = nullptr;
+            mtk::Integration_Mesh* tIGMesh = nullptr;
+            create_simple_mesh(tMesh,tIGMesh,6, 6);
 
             // Level set circle parameter list
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
