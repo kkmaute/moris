@@ -35,7 +35,6 @@ set(LIB_SOURCES
 	field/cl_GEN_Field.cpp
 	field/cl_GEN_Field_Analytic.cpp
 	field/cl_GEN_Field_Discrete_Integration.cpp
-	field/geometry/cl_GEN_Field_Discrete_Interpolation.cpp
 	field/cl_GEN_User_Defined_Field.cpp
 	field/cl_GEN_BSpline_Field.cpp
 
