@@ -10,7 +10,6 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "st_MTK_Mesh_Pair.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -44,153 +43,178 @@ namespace moris
     namespace mtk
     {
         class Mesh;
+        class Mesh_Manager;
         class Field;
-        class Discrete_Field;
-        class BSpline_Field;
+    }
+
+    //------------------------------------------------------------------------------
+    namespace mtk
+    {
+        //------------------------------------------------------------------------------
 
         class Mapper
         {
-            // Source meshes
-            Mesh* mSourceMesh;
+                // Source meshes
+                moris::mtk::Mesh* mSourceMesh;
 
-            // Target meshes
-            Mesh* mTargetMesh; // FIXME
+                // Target meshes
+                moris::mtk::Mesh* mTargetMesh;
 
-            // Mesh manager- needed for FEM Model
-            Mesh_Pair mMeshPair;
+                // Mesh manager- needed for FEM Model
+                moris::moris_index             mMeshPairIndex_In;
+                moris::moris_index             mMeshPairIndex_Out;
+                std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
+                //         fem::IWG_L2                  * mIWG;
+                mdl::Model                   * mModel = nullptr;
+                uint                           mBSplineMeshIndex;
 
-            //         fem::IWG_L2                  * mIWG;
-            mdl::Model                   * mModel = nullptr;
-            uint                           mBSplineMeshIndex; // FIXME
+                mtk::Field * mFieldIn = nullptr;
+                mtk::Field * mFieldOut = nullptr;
 
-            //         Cell< Node* >                  mNodes;
+                //         moris::Cell< Node* >                  mNodes;
 
-            bool mHaveIwgAndModel = false;
-            //         bool mHaveNodes       = false;
-            //         real mFilterRadius = 0;
+                bool mHaveIwgAndModel = false;
+                //         bool mHaveNodes       = false;
+                //         real mFilterRadius = 0;
 
-        public:
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
 
-            /**
-             * Constructor
-             *
-             * @param aInputMeshManager Mesh manager for input mesh
-             * @param aBSplineMeshIndex B-spline mesh index
-             */
-            Mapper( Mesh_Pair aMeshPair,
-                    uint      aBSplineMeshIndex = 0 );
+                /**
+                 * constructor with only one mesh
+                 */
+                Mapper( std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
+                        const moris_index aMeshPairIndex,
+                        const uint aBSplineMeshIndex = 0 );
 
-            /**
-             * Destructor
-             */
-            ~Mapper();
+                //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+                Mapper();
 
-            void map_input_field_to_output_field(
-                    std::shared_ptr<Field>       aFieldSource,
-                    std::shared_ptr<BSpline_Field> aFieldTarget );
+                //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+                /**
+                 * destructor
+                 */
+                ~Mapper();
 
-            void interpolate_field(
-                    std::shared_ptr<Field>          aFieldSource,
-                    std::shared_ptr<Discrete_Field> aFieldTarget);
+                //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+                void map_input_field_to_output_field(
+                        mtk::Field * aFieldSource,
+                        mtk::Field * aFieldTarget );
 
-            void change_field_order(
-                    std::shared_ptr<Field>          aFieldSource,
-                    std::shared_ptr<Discrete_Field> aFieldTarget );
+                //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+                void interpolate_field(
+                        mtk::Field * aFieldSource,
+                        mtk::Field * aFieldTarget);
 
-            void perform_mapping(
-                    std::string aSourceLabel,
-                    EntityRank  aSourceEntityRank,
-                    std::string aTargetLabel,
-                    EntityRank  aTargetEntityRank );
+                //------------------------------------------------------------------------------
 
-            void perform_mapping(
-                    const Matrix<DDRMat>& aSourceField,
-                    EntityRank            aSourceEntityRank,
-                    Matrix<DDRMat>&       aTargetField,
-                    EntityRank            aTargetEntityRank );
+                void change_field_order(
+                        mtk::Field * aFieldSource,
+                        mtk::Field * aFieldTarget );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-//            void perform_filter(
-//                    std::string      aSourceLabel,
-//                    real             aFilterRadius,
-//                    Matrix< DDRMat > & aValues );
+                void perform_mapping( const std::string      & aSourceLabel,
+                        const enum EntityRank    aSourceEntityRank,
+                        const std::string      & aTargetLabel,
+                        const enum EntityRank    aTargetEntityRank );
 
-            //------------------------------------------------------------------------------
+                void perform_mapping( const Matrix<DDRMat>& aSourceField,
+                        const enum EntityRank aSourceEntityRank,
+                        Matrix<DDRMat>&       aTargetField,
+                        const enum EntityRank aTargetEntityRank );
 
-            /*void
-     project_coeffs_from_node_data(
-             const Matrix< DDRMat > & aNodeValues,
-             const uint             & aBSplineOrder,
-             std::shared_ptr< Mesh >  aMesh,
-             Matrix< DDRMat >       & aCoeffs ); */
+                void perform_mapping(
+                        mtk::Field * aField,
+                        const enum EntityRank aSourceEntityRank,
+                        const enum EntityRank aTargetEntityRank );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /*
-             * set the parameter for the L2 projection
-             */
-            void set_l2_alpha( real aAlpha );
+                void perform_filter( const std::string      & aSourceLabel,
+                        const real             & aFilterRadius,
+                        Matrix< DDRMat > & aValues );
 
-        private:
+                //------------------------------------------------------------------------------
 
-            void map_node_to_bspline( Matrix<DDRMat>& aSolution );
+                /*void
+         project_coeffs_from_node_data(
+                 const Matrix< DDRMat > & aNodeValues,
+                 const uint             & aBSplineOrder,
+                 std::shared_ptr< Mesh >  aMesh,
+                 Matrix< DDRMat >       & aCoeffs ); */
 
-            void map_node_to_bspline_same_mesh(
-                    moris_index aSourceIndex,
-                    moris_index aTargetIndex,
-                    EntityRank  aBSplineRank );
+                //------------------------------------------------------------------------------
 
-            void map_node_to_bspline_from_field(
-                    const Matrix<DDRMat>& aSourceField,
-                    Matrix<DDRMat>&       aTargetField,
-                    EntityRank            aBSplineRank );
+                /*
+                 * set the parameter for the L2 projection
+                 */
+                void set_l2_alpha( const real & aAlpha );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+            private:
+                //------------------------------------------------------------------------------
 
-            void map_node_to_bspline_from_field(
-                    std::shared_ptr<Field>         aSourceField,
-                    std::shared_ptr<BSpline_Field> aTargetField,
-                    Mesh_Pair                      aMeshPair);
+                void map_node_to_bspline( Matrix<DDRMat>& aSolution );
 
-            //------------------------------------------------------------------------------
+                void map_node_to_bspline_same_mesh(
+                        const moris_index        aSourceIndex,
+                        const moris_index        aTargetIndex,
+                        const enum EntityRank    aBSplineRank );
 
-            void map_bspline_to_node_same_mesh(
-                    moris_index aSourceIndex,
-                    EntityRank  aBSplineRank,
-                    moris_index aTargetIndex );
+                void map_node_to_bspline_from_field( const Matrix<DDRMat>& aSourceField,
+                        Matrix<DDRMat>&       aTargetField,
+                        const enum EntityRank aBSplineRank );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-//            void map_bspline_to_node_same_mesh( mtk::std::shared_ptr<BSpline_Field> aField );
+                void map_node_to_bspline_from_field( mtk::Field * aField );
 
-            void create_iwg_and_model(real aAlpha = 0.0);
+                ////------------------------------------------------------------------------------
+                //
+                //         void map_node_to_element_same_mesh(
+                //                          const moris_index   aSourceIndex,
+                //                          const moris_index   aTargetIndex );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            void create_iwg_and_model(
-                    Mesh_Pair aMeshPair,
-                    uint aDiscretizationMeshIndex,
-                    real aAlpha = 0.0);
+                void map_bspline_to_node_same_mesh(
+                        const moris_index     aSourceIndex,
+                        const enum EntityRank aBSplineRank,
+                        const moris_index     aTargetIndex );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            void create_nodes_for_filter();
+                void
+                map_bspline_to_node_same_mesh( mtk::Field * aField );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            void calculate_filter_weights( real aFilterRadius );
+                void create_iwg_and_model( const real aAlpha = 0.0 );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+
+                void create_iwg_and_model(
+                        mtk::Field * aField,
+                        const real aAlpha = 0.0 );
+
+                //------------------------------------------------------------------------------
+
+                void create_nodes_for_filter();
+
+                //------------------------------------------------------------------------------
+
+                void calculate_filter_weights( const real & aFilterRadius );
+
+                //------------------------------------------------------------------------------
         };
+
+        //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
 
