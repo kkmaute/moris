@@ -37,6 +37,7 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Field.hpp"          //HMR/src
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -1747,21 +1748,18 @@ namespace moris
             std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
             moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
+            mtk::Field tFieldUnion( tMeshManager, tMeshPairIndex );
+
+            tFieldUnion.get_node_values() = tUnionField->get_node_values();
+
             // create mapper
-            mtk::Mapper tMapper(
-                    tMeshManager,
-                    tMeshPairIndex,
-                    aBsplineMeshIndex );
+            mtk::Mapper tMapper;
 
             // project field to union
-            tMapper.perform_mapping( aField->get_label(),
+            tMapper.perform_mapping(
+                    &tFieldUnion,
                     EntityRank::NODE,
-                    aField->get_label(),
-                    tUnionField->get_bspline_rank() );
-
-            // a small sanity test
-            //            MORIS_ASSERT( tUnionField->get_coefficients().length() == tUnionInterpolationMesh->get_num_coeffs( aBsplineMeshIndex ),
-            //                            "Number of B-Splines does not match" );
+                    EntityRank::BSPLINE );
 
             // get pointer to output mesh
             std::shared_ptr< Mesh > tOutputMesh = this->create_mesh(
@@ -1774,7 +1772,7 @@ namespace moris
                     aBsplineMeshIndex );     // BSplineIndex
 
             // move coefficients to output field
-            tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
+            tOutputField->get_coefficients() = std::move( tFieldUnion.get_coefficients() );
 
             // allocate nodes for output
             tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
