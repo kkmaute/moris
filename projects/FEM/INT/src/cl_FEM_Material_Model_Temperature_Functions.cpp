@@ -14,7 +14,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
-        // RETURN FUNCTIONS FOR DENSITY (SECOND EQUATION OF STATE)
+        // RETURN FUNCTIONS FOR TEMPERATURE (SECOND EQUATION OF STATE)
         //------------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve value from storage
@@ -125,7 +125,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::TemperatureDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::TemperatureDOF - no dependency in this dof type." );
 
@@ -182,7 +182,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::TemperatureDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::TemperatureDotDOF_dep - no dependency in this dof type." );
 
@@ -239,7 +239,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::dnTemperaturedxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::dnTemperaturedxnDOF - no dependency in this dof type." );
 
@@ -331,8 +331,8 @@ namespace moris
                 }
                 else
                 {
-                    MORIS_ERROR( false, "Material_Model::dnDensitydxnDOF_triv - only orders 1 and 2 implemented." );
-                    return mdDensitydxDof( 0 );                    
+                    MORIS_ERROR( false, "Material_Model::dnTemperaturedxnDOF_triv - only orders 1 and 2 implemented." );
+                    return mdTemperaturedxDof( 0 );                    
                 }                
             }
             else

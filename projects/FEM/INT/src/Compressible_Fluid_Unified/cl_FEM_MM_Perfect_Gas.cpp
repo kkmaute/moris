@@ -28,7 +28,7 @@ namespace moris
             // populate the map
             mPropertyMap[ "IsochoricHeatCapacity" ] = static_cast< uint >( MM_Property_Type::ISOCHORIC_HEAT_CAPACITY ); // constant property
             mPropertyMap[ "SpecificGasConstant" ]   = static_cast< uint >( MM_Property_Type::SPECIFIC_GAS_CONSTANT );   // constant property
-            
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ namespace moris
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
             // compute density as function of pressure and temperature
-            mDensity = tSpecificGasConstant * this->temperature() / this->pressure()( 0 );
+            mDensity = this->pressure() / ( tSpecificGasConstant * this->temperature()( 0 ) );
         }
 
         //------------------------------------------------------------------------------          
@@ -206,13 +206,13 @@ namespace moris
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
-            // get pressure value
-            real tPressure = this->pressure()( 0 );
+            // get temperature value
+            real tTemperature = this->temperature()( 0 );
 
             // compute density as function of pressure and temperature
-            mDensityDot = tSpecificGasConstant * ( 
-                this->TemperatureDot() / tPressure +
-                this->temperature()( 0 ) * this->PressureDot() / tPressure / tPressure );
+            mDensityDot = ( 1.0 / ( tSpecificGasConstant * tTemperature ) ) * (
+                    this->PressureDot() -
+                    this->pressure()( 0 ) * this->TemperatureDot() / tTemperature );
         }     
 
         //------------------------------------------------------------------------------          
@@ -222,13 +222,13 @@ namespace moris
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
-            // get pressure value
-            real tPressure = this->pressure()( 0 );
+            // get temperature value
+            real tTemperature = this->temperature()( 0 );
 
             // compute density as function of pressure and temperature
-            mdDensitydx = tSpecificGasConstant * ( 
-                this->dnTemperaturedxn( 1 ) / tPressure +
-                this->temperature()( 0 ) * this->dnPressuredxn( 1 ) / tPressure / tPressure );
+            mdDensitydx = ( 1.0 / tSpecificGasConstant ) * (
+                    this->dnPressuredxn( 1 ) / tTemperature +
+                    this->pressure()( 0 ) * this->dnTemperaturedxn( 1 ) / ( tTemperature * tTemperature ) );
         }
 
         //------------------------------------------------------------------------------
@@ -250,15 +250,21 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // get pressure value
-            real tPressure = this->pressure()( 0 );
+            // get temperature value
+            real tTemperature = this->temperature()( 0 );
 
             // compute density as function of pressure and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
-                mDensityDof( tDofIndex ) = tSpecificGasConstant * this->TemperatureDOF( aDofTypes ) / tPressure;
+            {
+                mDensityDof( tDofIndex ) = ( -this->pressure()( 0 ) / ( tSpecificGasConstant * tTemperature * tTemperature ) ) *
+                        this->TemperatureDOF( aDofTypes );
+            }
 
             if ( aDofTypes( 0 ) == mDofPressure )
-                mDensityDof( tDofIndex ) = tSpecificGasConstant * this->temperature()( 0 ) * this->PressureDOF( aDofTypes ) / tPressure / tPressure;
+            {
+                mDensityDof( tDofIndex ) = ( 1.0 / ( tSpecificGasConstant * tTemperature ) ) *
+                        this->PressureDOF( aDofTypes );
+            }
         }   
 
         //------------------------------------------------------------------------------
@@ -271,18 +277,24 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // get pressure value
-            real tPressure = this->pressure()( 0 );
+            // get temperature value
+            real tTemperature = this->temperature()( 0 );
 
             // compute density as function of pressure and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
-                mDensityDof( tDofIndex ) = tSpecificGasConstant / tPressure * ( 
-                    this->TemperatureDotDOF( aDofTypes ) - this->PressureDot()( 0 ) * this->TemperatureDOF( aDofTypes ) / tPressure );
+            {
+                mDensityDotDof( tDofIndex ) = 1.0 / ( tSpecificGasConstant * tTemperature * tTemperature ) * (
+                        ( 2.0 * this->pressure()( 0 ) * this->TemperatureDot()( 0 ) / tTemperature ) * this->TemperatureDOF( aDofTypes ) -
+                        this->PressureDot()( 0 ) * this->TemperatureDOF( aDofTypes ) -
+                        this->pressure()( 0 ) * this->TemperatureDotDOF( aDofTypes ));
+            }
 
             if ( aDofTypes( 0 ) == mDofPressure )
-                mDensityDof( tDofIndex ) = tSpecificGasConstant / tPressure / tPressure * ( 
-                    ( 2.0 * this->temperature()( 0 ) / tPressure - this->TemperatureDot()( 0 ) ) * this->PressureDOF( aDofTypes ) - 
-                    this->temperature()( 0 ) * this->PressureDotDOF( aDofTypes ) );
+            {
+                mDensityDotDof( tDofIndex ) = ( 1.0 / ( tSpecificGasConstant * tTemperature ) ) * (
+                        this->PressureDotDOF( aDofTypes ) -
+                        ( this->TemperatureDot()( 0 ) / tTemperature ) * this->PressureDOF( aDofTypes ) );
+            }
         }       
 
         //------------------------------------------------------------------------------
@@ -295,19 +307,24 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // get pressure value
-            real tPressure = this->pressure()( 0 );
+            // get temperature value
+            real tTemperature = this->temperature()( 0 );
 
             // compute density as function of pressure and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
-                mDensityDof( tDofIndex ) = tSpecificGasConstant / tPressure * ( 
-                    this->dnTemperaturedxnDOF( aDofTypes, 1 ) - this->dnPressuredxn( 1 ) * this->TemperatureDOF( aDofTypes ) / tPressure );
+            {
+                mdDensitydxDof( tDofIndex ) = 1.0 / ( tSpecificGasConstant * tTemperature * tTemperature ) * (
+                        ( 2.0 * this->pressure()( 0 ) * this->dnTemperaturedxn( 1 ) / tTemperature ) * this->TemperatureDOF( aDofTypes ) -
+                        this->dnPressuredxn( 1 ) * this->TemperatureDOF( aDofTypes ) -
+                        this->pressure()( 0 ) * dnTemperaturedxnDOF( aDofTypes, 1 ) );
+            }
 
             if ( aDofTypes( 0 ) == mDofPressure )
-                mDensityDof( tDofIndex ) = tSpecificGasConstant / tPressure / tPressure * ( 
-                    2.0 * this->temperature()( 0 ) / tPressure * this->dnPressuredxn( 1 ) * this->PressureDOF( aDofTypes ) - 
-                    this->dnTemperaturedxn( 1 ) * this->PressureDOF( aDofTypes ) - 
-                    this->temperature()( 0 ) * this->dnPressuredxnDOF( aDofTypes, 1 ) );
+            {
+                mdDensitydxDof( tDofIndex ) = ( 1.0 / ( tSpecificGasConstant * tTemperature ) ) * (
+                        this->dnPressuredxnDOF( aDofTypes, 1 ) -
+                        ( this->dnTemperaturedxn( 1 ) / tTemperature ) * this->PressureDOF( aDofTypes ) );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -340,8 +357,8 @@ namespace moris
 
             // compute pressure as function of density and temperature
             mPressureDot = tSpecificGasConstant * ( 
-                this->DensityDot() * this->temperature() + 
-                this->density() * this->TemperatureDot() );
+                    this->DensityDot() * this->temperature() +
+                    this->density() * this->TemperatureDot() );
         }     
 
         //------------------------------------------------------------------------------          
@@ -353,8 +370,8 @@ namespace moris
 
             // compute pressure as function of density and temperature
             mdPressuredx = tSpecificGasConstant * ( 
-                this->temperature() * this->dnDensitydxn( 1 ) + 
-                this->density() * this->dnTemperaturedxn( 1 ) );
+                    this->temperature() * this->dnDensitydxn( 1 ) +
+                    this->density() * this->dnTemperaturedxn( 1 ) );
         }
 
         //------------------------------------------------------------------------------
@@ -397,13 +414,13 @@ namespace moris
             // compute pressure as function of density and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * ( 
-                    this->DensityDot()( 0 ) * this->TemperatureDOF( aDofTypes ) + 
-                    this->density()( 0 ) * this->TemperatureDotDOF( aDofTypes ) );
+                        this->DensityDot()( 0 ) * this->TemperatureDOF( aDofTypes ) +
+                        this->density()( 0 ) * this->TemperatureDotDOF( aDofTypes ) );
 
             if ( aDofTypes( 0 ) == mDofDensity )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * ( 
-                    this->temperature() * this->DensityDotDOF( aDofTypes ) + 
-                    this->TemperatureDot() * this->DensityDOF( aDofTypes ) );
+                        this->temperature() * this->DensityDotDOF( aDofTypes ) +
+                        this->TemperatureDot() * this->DensityDOF( aDofTypes ) );
         }       
 
         //------------------------------------------------------------------------------
@@ -419,13 +436,13 @@ namespace moris
             // compute pressure as function of density and temperature
             if ( aDofTypes( 0 ) == mDofTemperature )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * ( 
-                    this->dnDensitydxn( 1 ) * this->TemperatureDOF( aDofTypes ) + 
-                    this->density() * this->dnTemperaturedxnDOF( aDofTypes, 1 ) );
+                        this->dnDensitydxn( 1 ) * this->TemperatureDOF( aDofTypes ) +
+                        this->density() * this->dnTemperaturedxnDOF( aDofTypes, 1 ) );
 
             if ( aDofTypes( 0 ) == mDofDensity )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * ( 
-                    this->temperature() * this->dnDensitydxnDOF( aDofTypes, 1 ) + 
-                    this->dnTemperaturedxn( 1 ) * this->DensityDOF( aDofTypes ) );
+                        this->temperature() * this->dnDensitydxnDOF( aDofTypes, 1 ) +
+                        this->dnTemperaturedxn( 1 ) * this->DensityDOF( aDofTypes ) );
         }        
 
         //------------------------------------------------------------------------------

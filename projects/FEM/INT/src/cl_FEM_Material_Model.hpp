@@ -669,12 +669,12 @@ namespace moris
                 const Matrix< DDRMat > & PressureDot(){ return ( this->*m_get_PressureDot )(); };
                 const Matrix< DDRMat > & dnPressuredxn( uint aOrder ){ return ( this->*m_get_dnPressuredxn )( aOrder ); };
 
-                const Matrix< DDRMat > &  pressure_dep();
-                const Matrix< DDRMat > &  PressureDot_dep();
+                const Matrix< DDRMat > & pressure_dep();
+                const Matrix< DDRMat > & PressureDot_dep();
                 const Matrix< DDRMat > & dnPressuredxn_dep( uint aOrder );      
                 
-                const Matrix< DDRMat > &  pressure_triv();
-                const Matrix< DDRMat > &  PressureDot_triv();
+                const Matrix< DDRMat > & pressure_triv();
+                const Matrix< DDRMat > & PressureDot_triv();
                 const Matrix< DDRMat > & dnPressuredxn_triv( uint aOrder );                          
 
                 //------------------------------------------------------------------------------
@@ -820,6 +820,12 @@ namespace moris
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
+                void eval_EintDotDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aEintDotDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
                 // void eval_dnEintdxnDOF_FD(
                 //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 //         Matrix< DDRMat >                   & adnEintdxnDOF_FD,
@@ -842,12 +848,19 @@ namespace moris
                  * @param[ in ] aDerivOrder     order of the spatial derivatives ( includes 0 )
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
-
-                void eval_TemperatureDOF_FD(
+                void eval_TDvarDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aTDvarDOF_FD,
                         real                                 aPerturbation,
-                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+                        MSI::Dof_Type                        aTDvar,
+                        fem::FDScheme_Type                   aFDSchemeType );
+
+                void eval_TDvarDotDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aTDvarDotDOF_FD,
+                        real                                 aPerturbation,
+                        MSI::Dof_Type                        aTDvar,
+                        fem::FDScheme_Type                   aFDSchemeType );
 
                 // void eval_DepTDvarDOF_FD(
                 //         const moris::Cell< MSI::Dof_Type > & aDofTypes,

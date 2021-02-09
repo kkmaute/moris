@@ -182,7 +182,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::DensityDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::DensityDotDOF_dep - no dependency in this dof type." );
 
@@ -231,7 +231,7 @@ namespace moris
                 // return the density rate of change
                 return mFIManager->get_field_interpolators_for_type( mDofDensity )->dnNdtn( 1 );
             }
-        }         
+        }
 
         //-----------------------------------------------------------------------------
 
@@ -239,7 +239,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::dnDensitydxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::dnDensitydxnDOF - no dependency in this dof type." );
 

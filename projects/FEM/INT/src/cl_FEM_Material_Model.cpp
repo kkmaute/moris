@@ -816,13 +816,13 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
-        }            
+        }
 
         //------------------------------------------------------------------------------
 
-        void Material_Model::eval_TemperatureDOF_FD(
+        void Material_Model::eval_EintDotDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aTDvarDOF_FD,
+                Matrix< DDRMat >                   & aEintDotDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType)
         {
@@ -840,10 +840,136 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // evaluate unperturbed internal energy
-            Matrix< DDRMat > tTemp = this->temperature();
+            Matrix< DDRMat > tEintDot = this->EintDot();
 
             // set size for derivative
-            aTDvarDOF_FD.set_size( tTemp.n_rows(), tDerNumDof, 0.0 );
+            aEintDotDOF_FD.set_size( tEintDot.n_rows(), tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed flux contribution to dfluxdu
+                        aEintDotDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tEintDot /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over the points for FD
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        aEintDotDOF_FD.get_column( tDofCounter ) +=
+                                        tFDScheme( 1 )( iPoint ) * this->EintDot() /
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Material_Model::eval_TDvarDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aTDvarDOF_FD,
+                real                                 aPerturbation,
+                MSI::Dof_Type                        aTDvar,
+                fem::FDScheme_Type                   aFDSchemeType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // get dof index for thermodynamic variable
+            uint tTDvarIndex = static_cast< uint >( aTDvar );
+            Matrix< DDRMat > tTDvarVal;
+
+            // evaluate unperturbed variable
+            switch ( tTDvarIndex )
+            {
+                // Density DoF type 
+                case static_cast< int >( MSI::Dof_Type::RHO ):
+                {
+                    tTDvarVal = this->density();
+                    break;
+                }
+
+                // Pressure DoF Type 
+                case static_cast< int >( MSI::Dof_Type::P ):
+                {
+                    tTDvarVal = this->pressure();
+                    break; 
+                } 
+
+                // Temperature DoF Type 
+                case static_cast< int >( MSI::Dof_Type::TEMP ):
+                {
+                    tTDvarVal = this->temperature();
+                    break;
+                }
+
+                default:
+                {
+                    // throw error
+                    MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." ); 
+                    break; 
+                }                                          
+            }
+
+            // set size for derivative
+            aTDvarDOF_FD.set_size( tTDvarVal.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -875,7 +1001,7 @@ namespace moris
                     {
                         // add unperturbed flux contribution to dfluxdu
                         aTDvarDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tTemp /
+                                tFDScheme( 1 )( 0 ) * tTDvarVal /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
@@ -897,9 +1023,42 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
+                        // evaluate perturbed variable
+                        Matrix< DDRMat > tTDvarValPert;
+                        switch ( tTDvarIndex )
+                        {
+                            // Density DoF type 
+                            case static_cast< int >( MSI::Dof_Type::RHO ):
+                            {
+                                tTDvarValPert = this->density();
+                                break;
+                            }
+
+                            // Pressure DoF Type 
+                            case static_cast< int >( MSI::Dof_Type::P ):
+                            {
+                                tTDvarValPert = this->pressure();
+                                break; 
+                            } 
+
+                            // Temperature DoF Type 
+                            case static_cast< int >( MSI::Dof_Type::TEMP ):
+                            {
+                                tTDvarValPert = this->temperature();
+                                break;
+                            }
+
+                            default:
+                            {
+                                // throw error
+                                MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." ); 
+                                break; 
+                            }                                          
+                        }                        
+
                         // assemble the jacobian
                         aTDvarDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * this->temperature() /
+                                        tFDScheme( 1 )( iPoint ) * tTDvarValPert /
                                         ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
@@ -908,7 +1067,166 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
-        }                            
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Material_Model::eval_TDvarDotDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aTDvarDotDOF_FD,
+                real                                 aPerturbation,
+                MSI::Dof_Type                        aTDvar,
+                fem::FDScheme_Type                   aFDSchemeType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // get dof index for thermodynamic variable
+            uint tTDvarIndex = static_cast< uint >( aTDvar );
+            Matrix< DDRMat > tTDvarDotVal;
+
+            // evaluate unperturbed variable
+            switch ( tTDvarIndex )
+            {
+                // Density DoF type
+                case static_cast< int >( MSI::Dof_Type::RHO ):
+                {
+                    tTDvarDotVal = this->DensityDot();
+                    break;
+                }
+
+                // Pressure DoF Type
+                case static_cast< int >( MSI::Dof_Type::P ):
+                {
+                    tTDvarDotVal = this->PressureDot();
+                    break;
+                }
+
+                // Temperature DoF Type
+                case static_cast< int >( MSI::Dof_Type::TEMP ):
+                {
+                    tTDvarDotVal = this->TemperatureDot();
+                    break;
+                }
+
+                default:
+                {
+                    // throw error
+                    MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." );
+                    break;
+                }
+            }
+
+            // set size for derivative
+            aTDvarDotDOF_FD.set_size( tTDvarDotVal.n_rows(), tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed flux contribution to dfluxdu
+                        aTDvarDotDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tTDvarDotVal /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over the points for FD
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // evaluate perturbed variable
+                        Matrix< DDRMat > tTDvarDotValPert;
+                        switch ( tTDvarIndex )
+                        {
+                            // Density DoF type
+                            case static_cast< int >( MSI::Dof_Type::RHO ):
+                            {
+                                tTDvarDotValPert = this->DensityDot();
+                                break;
+                            }
+
+                            // Pressure DoF Type
+                            case static_cast< int >( MSI::Dof_Type::P ):
+                            {
+                                tTDvarDotValPert = this->PressureDot();
+                                break;
+                            }
+
+                            // Temperature DoF Type
+                            case static_cast< int >( MSI::Dof_Type::TEMP ):
+                            {
+                                tTDvarDotValPert = this->TemperatureDot();
+                                break;
+                            }
+
+                            default:
+                            {
+                                // throw error
+                                MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." );
+                                break;
+                            }
+                        }
+
+                        // assemble the jacobian
+                        aTDvarDotDOF_FD.get_column( tDofCounter ) +=
+                                        tFDScheme( 1 )( iPoint ) * tTDvarDotValPert /
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+        }
 
 
     }/* end_fem_namespace */
