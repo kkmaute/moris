@@ -826,18 +826,12 @@ namespace moris
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
-                // void eval_dnEintdxnDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & adnEintdxnDOF_FD,
-                //         real                                 aPerturbation,
-                //         uint                                 aDerivOrder,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );                        
-
-                // void eval_EintDotDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & aEintDotDOF_FD,
-                //         real                                 aPerturbation,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );                        
+                void eval_dnEintdxnDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adnEintdxnDOF_FD,
+                        real                                 aPerturbation,
+                        uint                                 aOrder,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -862,18 +856,13 @@ namespace moris
                         MSI::Dof_Type                        aTDvar,
                         fem::FDScheme_Type                   aFDSchemeType );
 
-                // void eval_DepTDvarDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & adDepTDvardDOF_FD,
-                //         real                                 aPerturbation,
-                //         uint                                 aDerivOrder,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
-
-                // void eval_DepTDvarDotDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & aDepTDvarDotDOF_FD,
-                //         real                                 aPerturbation,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );   
+                void eval_dnTDvardxnDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adnTDvardxnDOF_FD,
+                        real                                 aPerturbation,
+                        MSI::Dof_Type                        aTDvar,
+                        uint                                 aOrder,
+                        fem::FDScheme_Type                   aFDSchemeType );
 
                 //------------------------------------------------------------------------------
         };
