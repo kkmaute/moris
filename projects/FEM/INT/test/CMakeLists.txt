@@ -38,6 +38,7 @@ set(TEST_SOURCES
     UT_FEM_CM_Diff_PC.cpp
     UT_FEM_CM_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_Ideal.cpp
+    UT_FEM_CM_Compressible_Newtonian_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_VdW.cpp
     UT_FEM_CM_Struc_Linear_Isotropic.cpp
     UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp

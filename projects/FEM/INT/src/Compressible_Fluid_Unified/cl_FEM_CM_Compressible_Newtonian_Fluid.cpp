@@ -333,9 +333,11 @@ namespace moris
                     get_number_of_space_time_coefficients(), 0.0 );
 
             // compute derivative with direct dependency
-            mThermalFluxDof( tDofIndex ) +=
-                    -1.0 * tPropThermalConductivity->val()( 0 ) * tMM->dnTemperaturedxnDOF( aDofTypes, 1 );
-
+            if ( tMM->check_dof_dependency( aDofTypes ) )
+            {
+                mThermalFluxDof( tDofIndex ) +=
+                        -1.0 * tPropThermalConductivity->val()( 0 ) * tMM->dnTemperaturedxnDOF( aDofTypes, 1 );
+            }
 
             // if indirect dependency of conductivity on the dof type
             if ( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
@@ -504,7 +506,6 @@ namespace moris
             // direct dependency on the density dof type
             mEnergyFluxDof( tDofIndex ) += tFIVelocity->val() * this->dEnergydDOF( aDofTypes );
 
-
             // direct dependency on the velocity dof type
             if( aDofTypes( 0 ) == mDofVelocity )
             {
@@ -567,6 +568,9 @@ namespace moris
             // get the material model
             const std::shared_ptr< Material_Model > tMM = get_material_model( "ThermodynamicMaterialModel" );
 
+            // check material model in debug
+            MORIS_ASSERT( tMM != nullptr, "CM_Compressible_Newtonian_Fluid::eval_dEnergydDOF - Material Model not set" );
+
             // get the velocity FI
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
@@ -576,15 +580,12 @@ namespace moris
                     get_number_of_space_time_coefficients(), 0.0 );
 
             // direct dependency of internal energy on the dof type
-            mEnergyDof( tDofIndex ) += tMM->density() * tMM->EintDOF( aDofTypes );
-
-            // direct dependency on the density dof type
-            if( aDofTypes( 0 ) == mDofDensity )
+            if ( tMM->check_dof_dependency( aDofTypes ) )
             {
-                // compute contribution
-                mEnergyDof( tDofIndex ) +=
+                mEnergyDof( tDofIndex ) += 
                         tMM->Eint() * tMM->DensityDOF( aDofTypes ) +
-                        0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tMM->DensityDOF( aDofTypes );
+                        tMM->density() * tMM->EintDOF( aDofTypes ) +
+                        0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tMM->DensityDOF( aDofTypes );               
             }
 
             // direct dependency on the velocity dof type
@@ -607,6 +608,9 @@ namespace moris
             // get the material model
             const std::shared_ptr< Material_Model > tMM = get_material_model( "ThermodynamicMaterialModel" );
 
+            // check material model in debug
+            MORIS_ASSERT( tMM != nullptr, "CM_Compressible_Newtonian_Fluid::eval_... - Material Model not set" );
+
             // compute total energy density
             mEnergyDot = 
                 tMM->DensityDot()( 0 ) * ( tMM->Eint() + 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() ) + 
@@ -626,6 +630,9 @@ namespace moris
             // get the material model
             const std::shared_ptr< Material_Model > tMM = get_material_model( "ThermodynamicMaterialModel" );
 
+            // check material model in debug
+            MORIS_ASSERT( tMM != nullptr, "CM_Compressible_Newtonian_Fluid::eval_... - Material Model not set" );            
+
             // get the velocity FI
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
@@ -635,12 +642,17 @@ namespace moris
                     get_number_of_space_time_coefficients(), 0.0 );
 
             // direct dependency on the density dof type
-            if( aDofTypes( 0 ) == mDofDensity )
+            if ( tMM->check_dof_dependency( aDofTypes ) )
             {
-                // compute contribution
+                // compute contribution from Density (dependent) DoF
                 mEnergyDotDof( tDofIndex ) +=
                     ( tMM->Eint() + 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() ) * tMM->DensityDotDOF( aDofTypes ) + 
-                    ( tMM->EintDot() + trans( tFIVelocity->val() ) * trans( tFIVelocity->gradt( 1 ) ) * tMM->DensityDOF( aDofTypes ) );
+                    ( tMM->EintDot() + trans( tFIVelocity->val() ) * trans( tFIVelocity->gradt( 1 ) ) ) * tMM->DensityDOF( aDofTypes );
+
+                // contribution from internal energy
+                mEnergyDotDof( tDofIndex ) +=
+                    tMM->density()( 0 ) * tMM->EintDotDOF( aDofTypes ) +
+                    tMM->DensityDot()( 0 ) * tMM->EintDOF( aDofTypes ) ;                    
             }
 
             // direct dependency on the velocity dof type
@@ -652,12 +664,6 @@ namespace moris
                         tMM->density()( 0 ) * tFIVelocity->gradt( 1 ) * tFIVelocity->N()  +
                         tMM->density()( 0 ) * trans( tFIVelocity->val() ) * this->dNveldt();
             }
-
-            // contribution from internal energy
-            mEnergyDotDof( tDofIndex ) +=
-                    tMM->density()( 0 ) * tMM->EintDotDOF( aDofTypes ) +
-                    tMM->DensityDot()( 0 ) * tMM->EintDOF( aDofTypes ) ;
-
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -116,6 +116,15 @@ namespace moris
                 }
             }
 
+            // reset underlying material model
+            for( const std::shared_ptr< Material_Model > & tMaterialModel : mMaterialModels )
+            {
+                if ( tMaterialModel != nullptr )
+                {
+                    tMaterialModel->reset_eval_flags();
+                }
+            }
+
             // reset evaluation flags for specific constitutive model
             this->reset_specific_eval_flags();
         }

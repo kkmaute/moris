@@ -221,6 +221,7 @@ namespace moris
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,
                 FLUID_COMPRESSIBLE_VDW,
+                FLUID_COMPRESSIBLE_NEWTONIAN,
                 END_CONSTITUTIVE_TYPE
         };
 

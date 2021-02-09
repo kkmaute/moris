@@ -642,7 +642,7 @@ extern moris::Logger gLogger;
         { \
             if ( gLogger.get_severity_level() < 2 ) \
             {\
-                gLogger.log_warning( __VA_ARGS__ ); \
+                gLogger.log_error( __VA_ARGS__ ); \
             }\
         } while (false)
 

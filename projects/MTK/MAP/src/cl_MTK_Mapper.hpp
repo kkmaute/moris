@@ -85,6 +85,35 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                void perform_mapping(
+                        mtk::Field * aField,
+                        const enum EntityRank aSourceEntityRank,
+                        const enum EntityRank aTargetEntityRank );
+
+                //------------------------------------------------------------------------------
+
+                /*
+                 void perform_filter
+                         const std::string      & aSourceLabel,
+                         const real             & aFilterRadius,
+                         Matrix< DDRMat > & aValues );
+                 */
+
+                //------------------------------------------------------------------------------
+
+                /*void
+                project_coeffs_from_node_data(
+                 const Matrix< DDRMat > & aNodeValues,
+                 const uint             & aBSplineOrder,
+                 std::shared_ptr< Mesh >  aMesh,
+                 Matrix< DDRMat >       & aCoeffs ); */
+
+                //------------------------------------------------------------------------------
+            private:
+                //------------------------------------------------------------------------------
+
+                //------------------------------------------------------------------------------
+
                 void interpolate_field(
                         mtk::Field * aFieldSource,
                         mtk::Field * aFieldTarget);
@@ -95,30 +124,6 @@ namespace moris
                         mtk::Field * aFieldSource,
                         mtk::Field * aFieldTarget );
 
-                //------------------------------------------------------------------------------
-
-                void perform_mapping(
-                        mtk::Field * aField,
-                        const enum EntityRank aSourceEntityRank,
-                        const enum EntityRank aTargetEntityRank );
-
-                //------------------------------------------------------------------------------
-
-                void perform_filter( const std::string      & aSourceLabel,
-                        const real             & aFilterRadius,
-                        Matrix< DDRMat > & aValues );
-
-                //------------------------------------------------------------------------------
-
-                /*void
-         project_coeffs_from_node_data(
-                 const Matrix< DDRMat > & aNodeValues,
-                 const uint             & aBSplineOrder,
-                 std::shared_ptr< Mesh >  aMesh,
-                 Matrix< DDRMat >       & aCoeffs ); */
-
-                //------------------------------------------------------------------------------
-            private:
                 //------------------------------------------------------------------------------
 
                 void map_node_to_bspline( Matrix<DDRMat>& aSolution );
