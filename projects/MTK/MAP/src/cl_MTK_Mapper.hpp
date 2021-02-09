@@ -62,20 +62,16 @@ namespace moris
 
                 // Mesh manager- needed for FEM Model
                 moris::moris_index             mMeshPairIndex_In;
-                moris::moris_index             mMeshPairIndex_Out;
                 std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-                //         fem::IWG_L2                  * mIWG;
+
                 mdl::Model                   * mModel = nullptr;
                 uint                           mBSplineMeshIndex;
 
                 mtk::Field * mFieldIn = nullptr;
                 mtk::Field * mFieldOut = nullptr;
 
-                //         moris::Cell< Node* >                  mNodes;
-
                 bool mHaveIwgAndModel = false;
-                //         bool mHaveNodes       = false;
-                //         real mFilterRadius = 0;
+
 
                 //------------------------------------------------------------------------------
             public:
@@ -124,11 +120,6 @@ namespace moris
                         const std::string      & aTargetLabel,
                         const enum EntityRank    aTargetEntityRank );
 
-                void perform_mapping( const Matrix<DDRMat>& aSourceField,
-                        const enum EntityRank aSourceEntityRank,
-                        Matrix<DDRMat>&       aTargetField,
-                        const enum EntityRank aTargetEntityRank );
-
                 void perform_mapping(
                         mtk::Field * aField,
                         const enum EntityRank aSourceEntityRank,
@@ -166,10 +157,6 @@ namespace moris
                         const moris_index        aSourceIndex,
                         const moris_index        aTargetIndex,
                         const enum EntityRank    aBSplineRank );
-
-                void map_node_to_bspline_from_field( const Matrix<DDRMat>& aSourceField,
-                        Matrix<DDRMat>&       aTargetField,
-                        const enum EntityRank aBSplineRank );
 
                 //------------------------------------------------------------------------------
 

@@ -596,60 +596,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Mapper::perform_mapping(
-                const Matrix<DDRMat>& aSourceField,
-                const enum EntityRank aSourceEntityRank,
-                Matrix<DDRMat>&       aTargetField,
-                const enum EntityRank aTargetEntityRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map");
-
-            switch( aSourceEntityRank )
-            {
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                case EntityRank::NODE :
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        case EntityRank::BSPLINE:
-                        {
-                            this->map_node_to_bspline_from_field( aSourceField,
-                                    aTargetField,
-                                    aTargetEntityRank );
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case EntityRank::BSPLINE:
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                default :
-                {
-                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported.");
-                    break;
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Mapper::perform_mapping(
                 mtk::Field * aField,
                 const enum EntityRank aSourceEntityRank,
                 const enum EntityRank aTargetEntityRank )
@@ -828,25 +774,6 @@ namespace moris
                             k ) = tSolution( k );
                 }
             }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Mapper::map_node_to_bspline_from_field(
-                const Matrix<DDRMat>& aSourceField,
-                Matrix<DDRMat>&       aTargetField,
-                const enum EntityRank aBSplineRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
-
-            // create the model if it has not been created yet
-            this->create_iwg_and_model();
-
-            // set weak bcs from field
-            mModel->set_weak_bcs( aSourceField );
-
-            this->map_node_to_bspline( aTargetField);
         }
 
         //--------------------------------------------------------------------------------------------------------------
