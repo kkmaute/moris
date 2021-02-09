@@ -191,7 +191,8 @@ namespace moris
                 MORIS_LOG_ITERATION();
 
                 // Set new ADVs
-                mProblem->set_advs(mEvaluationPoints.get_column(tEvaluationIndex));
+                mProblem->trigger_criteria_solve(mEvaluationPoints.get_column(tEvaluationIndex));
+                mProblem->trigger_dcriteria_dadv_solve();
 
                 // Set evaluation name
                 tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);

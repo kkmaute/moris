@@ -164,16 +164,13 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::set_advs( const Matrix<DDRMat> & aNewADVs)
+        void Problem::trigger_criteria_solve(const Matrix<DDRMat> & aNewADVs)
         {
+            MORIS_ASSERT( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
+                    "Problem::compute_criteria() - size of ADV vectors does not match.\n");
             mADVs = aNewADVs;
 
-            MORIS_ASSERT( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
-                    "Problem::set_advs - size of ADV vectors does not match.\n");
-
             mCriteria = mInterface->get_criteria(aNewADVs);
-
-            mInterface->get_dcriteria_dadv();
 
             // log criteria and ADVs
             MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
@@ -182,6 +179,13 @@ namespace moris
                 MORIS_LOG_SPEC( "MinADV", mADVs.min() );
                 MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
             }
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        void Problem::trigger_dcriteria_dadv_solve()
+        {
+            mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------

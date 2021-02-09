@@ -26,7 +26,8 @@ namespace moris
             MORIS_LOG_ITERATION();
 
             // Set ADVs and get criteria
-            this->mProblem->set_advs(aADVs);
+            this->mProblem->trigger_criteria_solve(aADVs);
+            this->mProblem->trigger_dcriteria_dadv_solve();
         }
 
         //----------------------------------------------------------------------------------------------------------------------
