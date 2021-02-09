@@ -102,7 +102,7 @@ namespace moris
                                 for (uint tCheckFieldIndex = 0; tCheckFieldIndex < aGeometries.size(); tCheckFieldIndex++)
                                 {
                                     // Name match found
-                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == aGeometries(tCheckFieldIndex)->get_name())
+                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == aGeometries(tCheckFieldIndex)->get_label())
                                     {
                                         tNeededFields(tBuildPropertyIndex)(tDependencyIndex) = aGeometries(tCheckFieldIndex);
                                     }

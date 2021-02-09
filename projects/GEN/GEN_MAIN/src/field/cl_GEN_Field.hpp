@@ -93,6 +93,16 @@ namespace moris
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
+            void set_mesh( std::shared_ptr<mtk::Mesh_Manager> aMeshManager )
+            {
+                mMeshManager = aMeshManager;
+            }
+
+            void set_mesh_index( uint aMeshIndex )
+            {
+                mMeshIndex = aMeshIndex;
+            }
+
             /**
              * Sets the ADVs and grabs the field variables needed from the ADV vector
              *

@@ -443,6 +443,11 @@ namespace moris
                         tLagrangeOrder,
                         tBSplineOrder);
 
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                        std::make_shared< mtk::Mesh_Manager >();
+
+                tMeshManager->register_mesh_pair(tMesh, nullptr );
+
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
                 std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
@@ -450,6 +455,9 @@ namespace moris
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = {tBSplineCircle};
+                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
+                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
+
                 Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds

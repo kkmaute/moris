@@ -47,10 +47,18 @@ namespace moris
                 tPlaneParameterList.set("type", "plane");
                 tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
 
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                        std::make_shared< mtk::Mesh_Manager >();
+
+                tMeshManager->register_mesh_pair(tMesh, nullptr );
+
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries =
                         create_geometries({tCircleParameterList, tPlaneParameterList}, tADVs);
+                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
+                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
+
                 Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
@@ -350,9 +358,17 @@ namespace moris
                 tCircleParameterList.set("multilinear_intersections", true);
                 Matrix<DDRMat> tADVs(0, 0);
 
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                          std::make_shared< mtk::Mesh_Manager >();
+
+                  tMeshManager->register_mesh_pair(tMesh, nullptr );
+
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = create_geometries({tCircleParameterList}, tADVs);
+                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
+                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
+
                 Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Solution for is_intersected() per geometry and per element
