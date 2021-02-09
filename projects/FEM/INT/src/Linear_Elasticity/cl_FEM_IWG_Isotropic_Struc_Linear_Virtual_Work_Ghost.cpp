@@ -18,6 +18,12 @@ namespace moris
             // set ghost flag
             mIsGhost = true;
 
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -61,6 +67,13 @@ namespace moris
             // get the stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // loop over the order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -133,6 +146,13 @@ namespace moris
             // get the stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // order 1
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -239,6 +259,10 @@ namespace moris
             // get spatial dimensions
             uint tSpaceDim = mNormal.numel();
 
+            // get elasticity CM
+            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
             // switch on the ghost order
             switch( aOrder )
             {
@@ -271,7 +295,7 @@ namespace moris
                         case 2 :
                         {
                             // set the normal matrix size
-                            aFlatNormal.set_size( 2, 3, 0.0 );
+                            aFlatNormal.set_size( 2, tCMElasticity->strain().numel(), 0.0 );
 
                             // fill the normal matrix
                             aFlatNormal( 0, 0 ) = mNormal( 0 );

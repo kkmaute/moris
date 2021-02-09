@@ -216,6 +216,7 @@ namespace moris
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
+                STRUC_LIN_ISO_AXISYMMETRIC,
                 FLUID_INCOMPRESSIBLE,
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,

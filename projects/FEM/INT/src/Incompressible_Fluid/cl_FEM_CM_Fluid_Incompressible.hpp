@@ -67,6 +67,16 @@ namespace moris
                  */
                 ~CM_Fluid_Incompressible(){};
 
+                //------------------------------------------------------------------------------
+                /*
+                 * @return constitutive_type
+                 */
+                Constitutive_Type
+                get_constitutive_type() const
+                {
+                    return Constitutive_Type::FLUID_INCOMPRESSIBLE;
+                }
+
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * set space dim

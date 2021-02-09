@@ -181,6 +181,16 @@ namespace moris
                 ~CM_Fluid_Compressible_Van_der_Waals(){};
 
                 //------------------------------------------------------------------------------
+                /*
+                 * @return constitutive_type
+                 */
+                Constitutive_Type
+                get_constitutive_type() const
+                {
+                    return Constitutive_Type::FLUID_COMPRESSIBLE_VDW;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * set space dim
                  */
