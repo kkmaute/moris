@@ -29,7 +29,7 @@ namespace moris
              * @param aField Field for initializing the B-spline level set discretization
              */
             BSpline_Field(
-                    sol::Dist_Vector*    aOwnedADVs,
+                    sol::Dist_Vector*        aOwnedADVs,
                     const Matrix<DDSMat>&    aOwnedADVIds,
                     const Matrix<DDSMat>&    aSharedADVIds,
                     uint                     aOwnedADVIdsOffset,

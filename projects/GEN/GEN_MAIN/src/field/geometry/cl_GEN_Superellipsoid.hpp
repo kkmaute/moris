@@ -27,10 +27,10 @@ namespace moris
              */
             template <typename Vector_Type>
             Superellipsoid(
-                    Vector_Type&     aADVs,
-                    Matrix<DDUMat>   aGeometryVariableIndices,
-                    Matrix<DDUMat>   aADVIndices,
-                    Matrix<DDRMat>   aConstants,
+                    Vector_Type&              aADVs,
+                    Matrix<DDUMat>            aGeometryVariableIndices,
+                    Matrix<DDUMat>            aADVIndices,
+                    Matrix<DDRMat>            aConstants,
                     Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
                     , Geometry(aParameters)
@@ -54,13 +54,13 @@ namespace moris
              * @param aParameters Additional parameters
              */
             Superellipsoid(
-                    real             aXCenter,
-                    real             aYCenter,
-                    real             aZCenter,
-                    real             aXSemidiameter,
-                    real             aYSemidiameter,
-                    real             aZSemidiameter,
-                    real             aExponent,
+                    real                      aXCenter,
+                    real                      aYCenter,
+                    real                      aZCenter,
+                    real                      aXSemidiameter,
+                    real                      aYSemidiameter,
+                    real                      aZSemidiameter,
+                    real                      aExponent,
                     Geometry_Field_Parameters aParameters = {});
 
             /**

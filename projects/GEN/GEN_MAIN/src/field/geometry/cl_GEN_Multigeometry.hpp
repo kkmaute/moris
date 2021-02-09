@@ -29,7 +29,9 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return distance to nearest function
              */
-            real get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node index or coordinate, returns a matrix of all sensitivities

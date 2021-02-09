@@ -7,7 +7,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Stored_Geometry::Stored_Geometry(mtk::Mesh* aMesh, std::shared_ptr<Geometry> aGeometry)
+        Stored_Geometry::Stored_Geometry(
+                mtk::Mesh*                aMesh,
+                std::shared_ptr<Geometry> aGeometry)
                 : Field(aGeometry)
                 , Geometry(aGeometry)
                 , Field_Discrete_Integration(aMesh->get_num_nodes())

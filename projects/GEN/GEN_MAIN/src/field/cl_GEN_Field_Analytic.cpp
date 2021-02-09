@@ -14,7 +14,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real Field_Analytic::get_field_value(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_value(aCoordinates);
@@ -23,7 +23,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix<DDRMat>& Field_Analytic::get_field_sensitivities(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_field_sensitivities(aCoordinates);

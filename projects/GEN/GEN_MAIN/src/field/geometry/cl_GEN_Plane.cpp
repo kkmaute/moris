@@ -7,12 +7,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(real             aXCenter,
-                     real             aYCenter,
-                     real             aZCenter,
-                     real             aXNormal,
-                     real             aYNormal,
-                     real             aZNormal,
+        Plane::Plane(real                      aXCenter,
+                     real                      aYCenter,
+                     real                      aZCenter,
+                     real                      aXNormal,
+                     real                      aYNormal,
+                     real                      aZNormal,
                      Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}), aParameters)
                 , Geometry(aParameters)
@@ -23,7 +23,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
     
-        Plane::Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal, Geometry_Field_Parameters aParameters)
+        Plane::Plane(
+                real                      aXCenter,
+                real                      aYCenter,
+                real                      aXNormal,
+                real                      aYNormal,
+                Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}), aParameters)
                 , Geometry(aParameters)
         {

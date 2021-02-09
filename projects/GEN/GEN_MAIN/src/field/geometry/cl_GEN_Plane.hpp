@@ -26,10 +26,10 @@ namespace moris
              * @param aParameters Additional parameters
              */
             template <typename Vector_Type>
-            Plane(Vector_Type&     aADVs,
-                  Matrix<DDUMat>   aGeometryVariableIndices,
-                  Matrix<DDUMat>   aADVIndices,
-                  Matrix<DDRMat>   aConstants,
+            Plane(Vector_Type&              aADVs,
+                  Matrix<DDUMat>            aGeometryVariableIndices,
+                  Matrix<DDUMat>            aADVIndices,
+                  Matrix<DDRMat>            aConstants,
                   Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
                     , Geometry(aParameters)
@@ -61,12 +61,12 @@ namespace moris
              * @param aZNormal z normal for the plane
              * @param aParameters Additional parameters
              */
-            Plane(real             aXCenter,
-                  real             aYCenter,
-                  real             aZCenter,
-                  real             aXNormal,
-                  real             aYNormal,
-                  real             aZNormal,
+            Plane(real                      aXCenter,
+                  real                      aYCenter,
+                  real                      aZCenter,
+                  real                      aXNormal,
+                  real                      aYNormal,
+                  real                      aZNormal,
                   Geometry_Field_Parameters aParameters = {});
 
             /**
@@ -78,7 +78,11 @@ namespace moris
              * @param aYNormal y normal for the plane
              * @param aParameters Additional parameters
              */
-            Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal, Geometry_Field_Parameters aParameters = {});
+            Plane(real                      aXCenter,
+                  real                      aYCenter,
+                  real                      aXNormal,
+                  real                      aYNormal,
+                  Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.
