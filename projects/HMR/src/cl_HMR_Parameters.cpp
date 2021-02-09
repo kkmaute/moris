@@ -207,7 +207,7 @@ namespace moris
                     "User-defined refinement function names were provided without a library to load them from.");
             for (uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++)
             {
-                mRefinementFunctions.push_back(aLibrary->load_user_defined_refinement_functions(tFunctionNames(tFunctionIndex)));
+                mRefinementFunctions.push_back(aLibrary->load_function<Refinement_Function>(tFunctionNames(tFunctionIndex)));
             }
 
             this->update_max_polynomial_and_truncated_buffer();
@@ -772,14 +772,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Parameters::set_refinement_functions( Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> aRefinementFunctions )
+        void Parameters::set_refinement_functions( Cell<Refinement_Function> aRefinementFunctions )
         {
             mRefinementFunctions = aRefinementFunctions;
         }
 
         //--------------------------------------------------------------------------------
 
-        MORIS_USER_DEFINED_REFINEMENT_FUNCTION Parameters::get_refinement_function( uint aFunctionIndex )
+        Refinement_Function Parameters::get_refinement_function( uint aFunctionIndex )
         {
             MORIS_ASSERT(aFunctionIndex < mRefinementFunctions.size(),
                     ("A user-defined refinement function with index " + std::to_string(aFunctionIndex) +

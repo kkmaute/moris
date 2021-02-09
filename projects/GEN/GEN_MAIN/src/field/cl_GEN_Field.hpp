@@ -1,6 +1,7 @@
 #ifndef MORIS_CL_GEN_Field_HPP
 #define MORIS_CL_GEN_Field_HPP
 
+#include "cl_MTK_Field.hpp"
 #include "st_GEN_Field_Parameters.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -9,7 +10,7 @@ namespace moris
 {
     namespace ge
     {
-        class Field
+        class Field : public mtk::Field
         {
 
         protected:
@@ -82,17 +83,6 @@ namespace moris
             ~Field();
 
             /**
-             * Given a node index or coordinate, returns the field value.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @return Field value
-             */
-            virtual real get_field_value(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates) = 0;
-
-            /**
              * Given a node index or coordinate, returns a matrix of all sensitivities.
              *
              * @param aNodeIndex Node index
@@ -102,6 +92,25 @@ namespace moris
             virtual const Matrix<DDRMat>& get_field_sensitivities(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
+
+            void set_mesh( std::shared_ptr<mtk::Mesh_Manager> aMeshManager )
+            {
+                mMeshManager = aMeshManager;
+            }
+
+            void set_mesh_index( uint aMeshIndex )
+            {
+                mMeshIndex = aMeshIndex;
+            }
+
+            /**
+             * Sets the ADVs and grabs the field variables needed from the ADV vector
+             *
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADVs
+             */
+            template <typename Vector_Type>
+            void set_advs(Vector_Type& aADVs);
 
             /**
              * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -154,13 +163,6 @@ namespace moris
             bool depends_on_advs();
 
             /**
-             * Gets the name of this field.
-             *
-             * @return Field name
-             */
-            std::string get_name();
-
-            /**
              * This function will return true when called less than the number of refinements set for this field,
              * and false otherwise. This is to determine for a given refinement call if this field needs refinement.
              *
@@ -176,13 +178,6 @@ namespace moris
              * @return User-defined refinement function index
              */
             sint get_refinement_function_index();
-
-            /**
-             * Gets the index of a B-Spline mesh for creating a B-Spline discretization for this field
-             *
-             * @return B-Spline mesh index (undefined behavior if B-spline discretization is not being created)
-             */
-            uint get_bspline_mesh_index();
 
             /**
              * Gets the lower bound for the B-spline field.

@@ -291,7 +291,7 @@ namespace moris
                 CHECK(equal_to( tField_In->get_node_values().numel(), 46));;
 
                 // Use mapper
-                mapper::Mapper tMapper;
+                mtk::Mapper tMapper;
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
                 tMapper.perform_mapping(
@@ -423,7 +423,7 @@ namespace moris
                 CHECK(equal_to( tField_In->get_node_values().numel(), 217));;
 
                 // Use mapper
-                mapper::Mapper tMapper;
+                mtk::Mapper tMapper;
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
                 tMapper.perform_mapping(
@@ -555,7 +555,7 @@ namespace moris
                 CHECK(equal_to( tField_In->get_node_values().numel(), 63));;
 
                 // Use mapper
-                mapper::Mapper tMapper;
+                mtk::Mapper tMapper;
                 tMapper.map_input_field_to_output_field( tField_In, tField_Out );
 
                 tMapper.perform_mapping(

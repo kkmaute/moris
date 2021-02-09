@@ -9,6 +9,7 @@ namespace moris
 
         Multigeometry::Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries)
                 : Field(aGeometries(0))
+                , Geometry(aGeometries(0))
                 , mGeometries(aGeometries)
         {
             MORIS_ERROR(mGeometries.size() > 0, "A GEN Multigeometry must be created with at least one geometry.");

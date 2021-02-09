@@ -70,6 +70,13 @@ namespace moris
                   mDiscretizationMeshIndex( aDiscretizationMeshIndex )
                 {};
 
+                Field(
+                        uint const     & aDiscretizationMeshIndex,
+                        std::string const    & aName)
+                : mDiscretizationMeshIndex( aDiscretizationMeshIndex ),
+                  mLabel( aName )
+                {};
+
                 //------------------------------------------------------------------------------
 
                 virtual ~Field();
@@ -92,6 +99,11 @@ namespace moris
                 {
                     //FIXME right now only scalar field
                     return mNumberOfDimensions;
+                }
+
+                virtual moris::real get_field_value(  uint aNodeIndex, const Matrix< DDRMat > & aCoordinates)
+                {
+                    return mNodalValues( aNodeIndex );
                 }
 
                 //------------------------------------------------------------------------------
@@ -158,7 +170,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                uint get_discretization_mesh_index() const
+                virtual uint get_discretization_mesh_index() const
                 {
                     MORIS_ASSERT( mDiscretizationMeshIndex != -1, "get_discretization_mesh_index() Discretization index not set");
                     return mDiscretizationMeshIndex;

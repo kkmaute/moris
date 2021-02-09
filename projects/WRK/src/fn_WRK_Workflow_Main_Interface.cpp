@@ -34,10 +34,12 @@
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Manager.hpp"
 
-#include "fn_Exec_load_user_library.hpp"
-
+#include "cl_Library_IO.hpp"
 
 using namespace moris;
+
+// Parameter function
+typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
 {    
@@ -57,7 +59,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
     {
         // load the OPT parameter list
         std::string tOPTString = "OPTParameterList";
-        MORIS_PARAMETER_FUNCTION tOPTParameterListFunc = tLibrary->load_parameter_file( tOPTString );
+        Parameter_Function tOPTParameterListFunc = tLibrary->load_function<Parameter_Function>( tOPTString );
         moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
         tOPTParameterListFunc( tOPTParameterList );
 
@@ -75,9 +77,9 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         }
         else
         {
-            Matrix< DDRMat > tDummyMat;
-            tWorkflows(0)->initialize( tDummyMat,tDummyMat,tDummyMat );
-            Matrix<DDRMat> tADVs(1, 1, 0.0);
+            Matrix<DDRMat> tADVs(0, 0);
+            Matrix<DDRMat> tDummyBounds;
+            tWorkflows(0)->initialize(tADVs, tDummyBounds, tDummyBounds);
             tWorkflows(0)->get_criteria(tADVs);
         }
     }

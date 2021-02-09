@@ -26,6 +26,11 @@ namespace moris
 {
     namespace wrk
     {
+        //------------------------------------------------------------------------------
+
+        // Parameter function
+        typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+        
         //--------------------------------------------------------------------------------------------------------------
 
         Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager * aPerformerManager )
@@ -43,11 +48,9 @@ namespace moris
 
             // load the STK parameter list
             std::string tSTKString = "STKParameterList";
-            MORIS_PARAMETER_FUNCTION tSTKParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( tSTKString );
+            Parameter_Function tSTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tSTKString );
             moris::Cell< moris::Cell< ParameterList > > tSTKParameterList;
             tSTKParameterListFunc( tSTKParameterList );
-
-
 
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -63,7 +66,7 @@ namespace moris
 
             // load gen parameter list
             std::string tGENString = "GENParameterList";
-            MORIS_PARAMETER_FUNCTION tGENParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( tGENString );
+            Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
             moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
             tGENParameterListFunc( tGENParameterList );
 
@@ -194,7 +197,7 @@ namespace moris
         void Workflow_STK_XTK::create_xtk()
         {
             // Read parameter list from shared object
-            MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( "XTKParameterList" );
+            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
             moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
             tXTKParameterListFunc( tXTKParameterList );
 

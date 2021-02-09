@@ -15,9 +15,10 @@ namespace moris
                 real             aYSemidiameter,
                 real             aZSemidiameter,
                 real             aExponent,
-                Field_Parameters aParameters)
+                Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent}}),
                         aParameters)
+                , Geometry(aParameters)
         {
             MORIS_ERROR(*(mFieldVariables(3)) > 0 and *(mFieldVariables(4)) > 0 and *(mFieldVariables(5)) > 0,
                         "A GEN Superellipsoid must be created with positive semidiameters.");

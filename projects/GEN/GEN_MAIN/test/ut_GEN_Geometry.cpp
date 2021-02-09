@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include "fn_Parsing_Tools.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 #include "fn_trans.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -358,7 +358,7 @@ namespace moris
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
-            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Field>(
+            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
                     tADVs,
                     Matrix<DDUMat>({{1, 0}}),
                     Matrix<DDUMat>({{0, 1}}),
@@ -437,11 +437,20 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                mtk::Interpolation_Mesh* tMesh = nullptr;
+                mtk::Integration_Mesh* tIGMesh = nullptr;
+                create_simple_mesh(
+                        tMesh,
+                        tIGMesh,
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
                         tBSplineOrder);
+
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                        std::make_shared< mtk::Mesh_Manager >();
+
+                tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -450,6 +459,9 @@ namespace moris
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = {tBSplineCircle};
+                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
+                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
+
                 Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds
@@ -547,7 +559,9 @@ namespace moris
         TEST_CASE("Stored Geometry", "[gen], [geometry], [stored geometry]")
         {
             // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
+            mtk::Interpolation_Mesh* tMesh = nullptr;
+            mtk::Integration_Mesh* tIGMesh = nullptr;
+            create_simple_mesh(tMesh,tIGMesh,6, 6);
 
             // Level set circle parameter list
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();

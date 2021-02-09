@@ -3,12 +3,15 @@
 
 #include "cl_Matrix.hpp"
 #include "GEN_typedefs.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace ge
     {
+        // User-defined phase function
+        typedef uint ( *PHASE_FUNCTION )( const ge::Geometry_Bitset& aGeometrySigns );
+
         class Phase_Table
         {
 
@@ -19,7 +22,7 @@ namespace moris
                 Matrix<DDUMat> mBulkPhases;        // Geometric sign to bulk phase
                 Cell<std::string> mPhaseNames;     // Phase names
 
-                MORIS_GEN_PHASE_FUNCTION mPhaseFunction = nullptr;
+                PHASE_FUNCTION mPhaseFunction = nullptr;
 
             public:
 
@@ -53,9 +56,9 @@ namespace moris
                  * @param aPhaseNames (optional) Phase names
                  */
                 Phase_Table(
-                        MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
-                        uint                     aNumPhases,
-                        Cell<std::string>        aPhaseNames = {});
+                        PHASE_FUNCTION    aPhaseFunction,
+                        uint              aNumPhases,
+                        Cell<std::string> aPhaseNames = {});
 
                 /**
                  * Get the number of phases

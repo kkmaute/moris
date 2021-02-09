@@ -3,7 +3,7 @@
 
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
@@ -45,8 +45,9 @@ namespace moris
                     std::string      aVoxelFieldName,
                     Matrix<DDRMat>   aDomainDimensions,
                     Matrix<DDRMat>   aDomainOffset,
-                    Field_Parameters aParameters = {})
+                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
                     , mDomainDimensions( aDomainDimensions )
                     , mDomainOffset( aDomainOffset )
             {
@@ -64,7 +65,7 @@ namespace moris
                     std::string      aVoxelFieldName,
                     Matrix<DDRMat>   aDomainDimensions,
                     Matrix<DDRMat>   aDomainOffset,
-                    Field_Parameters aParameters = {});
+                    Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

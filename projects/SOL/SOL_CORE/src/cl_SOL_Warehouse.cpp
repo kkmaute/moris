@@ -26,10 +26,13 @@
 
 #include <petsc.h>
 
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 using namespace moris;
 using namespace sol;
+
+// User-defined pointer function
+typedef bool ( *Pointer_Function ) ( void * aPointer );
 
 SOL_Warehouse::~SOL_Warehouse()
 {
@@ -308,8 +311,7 @@ void SOL_Warehouse::create_time_solvers()
 
             for( uint Ia = 0; Ia< tOutputCriteria.size(); Ia++ )
             {
-                //                MORIS_SOL_CRITERIA_FUNC tCriteriaFunc = mLibrary->load_sol_criteria_functions( tOutputCriteria( Ia ) );
-                MORIS_POINTER_FUNC tCriteriaFunc = mLibrary->load_pointer_functions( tOutputCriteria( Ia ) );
+                Pointer_Function tCriteriaFunc = mLibrary->load_function<Pointer_Function>( tOutputCriteria( Ia ) );
 
                 mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
                         reinterpret_cast< bool(*)( moris::tsa::Time_Solver * )>( tCriteriaFunc ) );

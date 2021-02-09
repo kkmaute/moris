@@ -1,5 +1,5 @@
 #include "fn_GEN_create_geometries.hpp"
-#include "st_GEN_Field_Parameters.hpp"
+#include "st_GEN_Geometry_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Circle.hpp"
@@ -7,7 +7,7 @@
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
@@ -61,13 +61,13 @@ namespace moris
 
                 // Determine if to add to multigeometry
                 bool tMultigeometryFound = false;
-                std::string tGeometryName = tGeometry->get_name();
+                std::string tGeometryName = tGeometry->get_label();
                 if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
+                        if (tMultigeometries(tMultigeometryIndex)->get_label() == tGeometryName)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -80,7 +80,7 @@ namespace moris
                     {
                         for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
                         {
-                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
+                            if (tGeometries(tCreatedGeometryIndex)->get_label() == tGeometryName)
                             {
                                 tMultigeometryFound = true;
                                 tMultigeometries.push_back(std::make_shared<Multigeometry>(
@@ -199,7 +199,7 @@ namespace moris
             }
 
             // Geometry parameters
-            Field_Parameters tParameters;
+            Geometry_Field_Parameters tParameters;
             tParameters.mName = aGeometryParameterList.get<std::string>("name");
             tParameters.mNumRefinements = aGeometryParameterList.get<std::string>("number_of_refinements");
             tParameters.mRefinementMeshIndices = aGeometryParameterList.get<std::string>("refinement_mesh_index");
@@ -241,16 +241,16 @@ namespace moris
 
                 // Get sensitivity function if needed
                 std::string tSensitivityFunctionName = aGeometryParameterList.get<std::string>("sensitivity_function_name");
-                MORIS_GEN_SENSITIVITY_FUNCTION tSensitivityFunction =
-                        (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
+                Sensitivity_Function tSensitivityFunction =
+                        (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_function<Sensitivity_Function>(tSensitivityFunctionName));
 
                 // Create user-defined geometry
-                return std::make_shared<User_Defined_Field>(
+                return std::make_shared<User_Defined_Geometry>(
                         aADVs,
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstants,
-                        aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                        aLibrary->load_function<Field_Function>(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
                         tParameters);
             }

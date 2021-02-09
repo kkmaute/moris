@@ -11,7 +11,7 @@ namespace moris
                 uint aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
-            return *mFieldVariables(0) * mFieldDependencies(0)->get_field_value(aNodeIndex, aCoordinates);
+            return *mFieldVariables(0) * mField->get_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates)
         {
             mSensitivities = *mFieldVariables(0) *
-                    mFieldDependencies(0)->get_field_sensitivities(aNodeIndex, aCoordinates);
+                    mField->get_field_sensitivities(aNodeIndex, aCoordinates);
             return mSensitivities;
         }
 
@@ -31,7 +31,7 @@ namespace moris
                 uint aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
-            return mFieldDependencies(0)->get_determining_adv_ids(aNodeIndex, aCoordinates);
+            return mField->get_determining_adv_ids(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

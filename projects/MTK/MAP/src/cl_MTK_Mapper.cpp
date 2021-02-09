@@ -57,25 +57,8 @@
 
 namespace moris
 {
-    namespace mapper
+    namespace mtk
     {
-
-        //------------------------------------------------------------------------------
-
-        Mapper::Mapper(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                const moris_index                  aMeshPairIndex,
-                const uint                         aBSplineOrder )
-        : mMeshPairIndex_In( aMeshPairIndex ),
-          mMeshManager( aMeshManager ),
-          mBSplineMeshIndex( aBSplineOrder )
-        {
-            // Retrieve source mesh pair
-            mSourceMesh = mMeshManager->get_interpolation_mesh(aMeshPairIndex);
-
-            // Retrieve target mesh pair
-            mTargetMesh = mMeshManager->get_interpolation_mesh(aMeshPairIndex);
-        }
 
         //------------------------------------------------------------------------------
 
@@ -426,36 +409,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Mapper::create_iwg_and_model( const real aAlpha )
-        {
-            if( ! mHaveIwgAndModel )
-            {
-                // create a L2 IWG
-                //FIXME should be provided to the function
-                fem::IWG_Factory tIWGFactory;
-                std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
-                tIWGL2->set_residual_dof_type( { MSI::Dof_Type::L2 } );
-                tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
-
-                // define set info
-                //FIXME should be provided to the function
-                moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
-                tSetInfo( 0 ).set_mesh_index( 0 );
-                tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
-
-                // create model
-                mModel = new mdl::Model(
-                        mMeshManager.get(),
-                        mBSplineMeshIndex,
-                        tSetInfo,
-                        mMeshPairIndex_In );
-
-                // set bool for building IWG and model to true
-                mHaveIwgAndModel = true;
-            }
-        }
-
-        //------------------------------------------------------------------------------
         void Mapper::create_iwg_and_model(
                 mtk::Field * aField,
                 const real aAlpha )
@@ -486,164 +439,6 @@ namespace moris
 
                 // set bool for building IWG and model to true
                 mHaveIwgAndModel = true;
-            }
-        }
-
-        //-----------------------------------------------------------------------------
-
-        void Mapper::set_l2_alpha( const real & aAlpha )
-        {
-            // remove model
-            if( ! mHaveIwgAndModel )
-            {
-                this->create_iwg_and_model( aAlpha );
-            }
-            else
-            {
-                MORIS_ERROR(false, "Model does exist set alpha there");
-                //                mIWG->set_alpha( aAlpha );
-            }
-        }
-
-        //-----------------------------------------------------------------------------
-
-        void Mapper::perform_mapping(
-                const std::string      & aSourceLabel,
-                const enum EntityRank    aSourceEntityRank,
-                const std::string      & aTargetLabel,
-                const enum EntityRank    aTargetEntityRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map");
-
-            // get index of source
-            moris_index tSourceIndex = mSourceMesh->get_field_ind(
-                    aSourceLabel,
-                    aSourceEntityRank );
-
-            MORIS_ERROR( tSourceIndex != gNoIndex, "perform_mapping() Source Field not found");
-
-            // get target index
-            moris_index tTargetIndex = mTargetMesh->get_field_ind(
-                    aTargetLabel,
-                    aTargetEntityRank );
-
-            // test if output field has to be initialized
-            if( tTargetIndex == gNoIndex )
-            {
-                // create target field
-                tTargetIndex = mTargetMesh->create_scalar_field(
-                        aTargetLabel,
-                        aTargetEntityRank );
-            }
-
-            switch( aSourceEntityRank )
-            {
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                case( EntityRank::NODE ) :
-                                        {
-                    switch( aTargetEntityRank )
-                    {
-                        case( EntityRank::BSPLINE ) :
-                        case( EntityRank::BSPLINE_2 ) :
-                        case( EntityRank::BSPLINE_3 ) :
-                        {
-                            this->map_node_to_bspline_same_mesh(
-                                    tSourceIndex,
-                                    tTargetIndex,
-                                    aTargetEntityRank );
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                                        }
-                case( EntityRank::BSPLINE ) :
-                case( EntityRank::BSPLINE_2 ) :
-                case( EntityRank::BSPLINE_3 ) :
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        case( EntityRank::NODE ) :
-                                                {
-                            this->map_bspline_to_node_same_mesh(
-                                    tSourceIndex,
-                                    aSourceEntityRank,
-                                    tTargetIndex );
-                            break;
-                                                }
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                default :
-                {
-                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported.");
-                    break;
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Mapper::perform_mapping(
-                const Matrix<DDRMat>& aSourceField,
-                const enum EntityRank aSourceEntityRank,
-                Matrix<DDRMat>&       aTargetField,
-                const enum EntityRank aTargetEntityRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map");
-
-            switch( aSourceEntityRank )
-            {
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                case EntityRank::NODE :
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        case EntityRank::BSPLINE:
-                        {
-                            this->map_node_to_bspline_from_field( aSourceField,
-                                    aTargetField,
-                                    aTargetEntityRank );
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case EntityRank::BSPLINE:
-                {
-                    switch( aTargetEntityRank )
-                    {
-                        default :
-                        {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                default :
-                {
-                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported.");
-                    break;
-                }
             }
         }
 
@@ -776,81 +571,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline_same_mesh(
-                const moris_index     aSourceIndex,
-                const moris_index     aTargetIndex,
-                const enum EntityRank aBSplineRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
-
-            // create the model if it has not been created yet
-            this->create_iwg_and_model();
-
-            // set weak bcs from field
-            mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
-
-            // Map to B-splines
-            Matrix<DDRMat> tSolution(0, 0);
-            this->map_node_to_bspline( tSolution);
-
-            // test if output mesh is HMR
-            if( mTargetMesh->get_mesh_type() == MeshType::HMR )
-            {
-                Matrix< DDUMat > tAdofMap = mModel->get_adof_map();
-
-                uint tLength = tSolution.length();
-
-                // rearrange data into output
-                mTargetMesh->get_field( aTargetIndex, aBSplineRank ).set_size( tLength, 1 );
-
-                for( uint k=0; k<tLength; ++k )
-                {
-                    mTargetMesh->get_field( aTargetIndex, aBSplineRank )( k ) = tSolution( tAdofMap( k ) );
-                }
-            }
-            else
-            {
-                // get number of coeffs of
-                uint tNumberOfCoeffs = mTargetMesh->get_num_coeffs( mBSplineMeshIndex );
-
-                // make sure that solution is correct
-                MORIS_ERROR( tNumberOfCoeffs == tSolution.length(),
-                        "perform_mapping() number of coeffs does not match" );
-
-                // copy solution into target
-                for( uint k=0; k<tNumberOfCoeffs; ++k )
-                {
-                    // get ref to value
-                    mTargetMesh->get_value_of_scalar_field(
-                            aTargetIndex,
-                            aBSplineRank,
-                            k ) = tSolution( k );
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Mapper::map_node_to_bspline_from_field(
-                const Matrix<DDRMat>& aSourceField,
-                Matrix<DDRMat>&       aTargetField,
-                const enum EntityRank aBSplineRank )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
-
-            // create the model if it has not been created yet
-            this->create_iwg_and_model();
-
-            // set weak bcs from field
-            mModel->set_weak_bcs( aSourceField );
-
-            this->map_node_to_bspline( aTargetField);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Mapper::map_node_to_bspline_from_field( mtk::Field * aField )
         {
             // Tracer
@@ -868,58 +588,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Mapper::map_bspline_to_node_same_mesh(
-                const moris_index     aSourceIndex,
-                const enum EntityRank aBSplineRank,
-                const moris_index     aTargetIndex )
-        {
-            // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Bspline-to-Node");
-
-            // get number of nodes
-            moris_index tNumberOfNodes = mTargetMesh->get_num_nodes();
-
-            // loop over all nodes
-            for( moris_index k=0;  k<tNumberOfNodes; ++k )
-            {
-                // get weights
-                const Matrix< DDRMat > & tTMatrix = mTargetMesh->
-                        get_t_matrix_of_node_loc_ind( k, 0 );
-
-                // get indices
-                Matrix< IndexMat > tBSplines = mTargetMesh->
-                        get_bspline_inds_of_node_loc_ind( k, 0 );
-
-                // get number of coefficients
-                uint tNumberOfCoeffs = tTMatrix.length();
-
-                // value of node
-                real & tValue = mTargetMesh->get_value_of_scalar_field(
-                        aTargetIndex,
-                        EntityRank::NODE,
-                        k );
-
-                // reset value
-                tValue = 0.0;
-
-                for( uint i=0; i<tNumberOfCoeffs; ++i )
-                {
-                    tValue +=  mSourceMesh->get_value_of_scalar_field(
-                            aSourceIndex,
-                            aBSplineRank,
-                            tBSplines( i ) ) * tTMatrix( i );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
         Mapper::map_bspline_to_node_same_mesh( mtk::Field * aField )
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Bspline-to-Node");
-            
+
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPair = aField->get_mesh_pair();
 
             moris::mtk::Mesh * tInterpolationMesh = tMeshPair.second->get_interpolation_mesh( tMeshPair.first );

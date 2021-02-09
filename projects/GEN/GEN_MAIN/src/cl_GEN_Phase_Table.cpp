@@ -48,9 +48,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Phase_Table::Phase_Table(
-                MORIS_GEN_PHASE_FUNCTION aPhaseFunction,
-                uint                     aNumPhases,
-                Cell<std::string>        aPhaseNames)
+                PHASE_FUNCTION    aPhaseFunction,
+                uint              aNumPhases,
+                Cell<std::string> aPhaseNames)
                 : Phase_Table(0, {{aNumPhases - 1}}, aPhaseNames)
         {
             mPhaseFunction = aPhaseFunction;

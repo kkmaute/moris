@@ -10,56 +10,66 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
 
 namespace moris
 {
     namespace mtk
     {
-        class Interpolation_Mesh;
-        class Integration_Mesh;
-
         class Mesh_Manager
         {
-            private:
+        private:
+            moris::Cell<Mesh_Pair> mMeshPairs;
 
-                moris::Cell<Interpolation_Mesh*> mInterpolationMesh;
-                moris::Cell<Integration_Mesh*>   mIntegrationMesh;
+        public:
 
-                moris::Cell< bool >              mIsOwned;
+            Mesh_Manager();
 
-            public:
+            //--------------------------------------------------------------------
 
-                Mesh_Manager();
+            ~Mesh_Manager();
 
-                //--------------------------------------------------------------------
+            //--------------------------------------------------------------------
 
-                ~Mesh_Manager();
+            uint register_mesh_pair(
+                    Interpolation_Mesh* aInterpolationMesh,
+                    Integration_Mesh*   aIntegrationMesh,
+                    bool                aIsOwned = false );
 
-                //--------------------------------------------------------------------
+            //--------------------------------------------------------------------
 
-                uint
-                register_mesh_pair(
-                        Interpolation_Mesh* aInterpMesh,
-                        Integration_Mesh*   aIntegrationMesh,
-                        bool                aIsOwned = false );
+            /**
+             * Register a mesh pair with the mesh manager.
+             *
+             * @param aMeshPair Mesh pair
+             * @return Mesh pair index
+             */
+            uint register_mesh_pair(Mesh_Pair& aMeshPair);
 
-                //--------------------------------------------------------------------
+            /**
+             * Gets a mesh pair.
+             *
+             * @param aPairIndex Mesh pair index
+             * @return Mesh pair
+             */
+            Mesh_Pair get_mesh_pair(moris_index aPairIndex);
 
-                void
-                get_mesh_pair(
-                        moris::moris_index     aPairIndex,
-                        Interpolation_Mesh * & aInterpMesh,
-                        Integration_Mesh   * & aIntegrationMesh);
+            void
+            get_mesh_pair(
+                    moris_index          aPairIndex,
+                    Interpolation_Mesh * & aInterpolationMesh,
+                    Integration_Mesh   * & aIntegrationMesh);
 
-                //--------------------------------------------------------------------
+            //--------------------------------------------------------------------
 
-                Interpolation_Mesh*
-                get_interpolation_mesh(moris::moris_index aMeshIndex);
+            Interpolation_Mesh*
+            get_interpolation_mesh(moris_index aMeshIndex);
 
-                //--------------------------------------------------------------------
+            //--------------------------------------------------------------------
 
-                Integration_Mesh*
-                get_integration_mesh(moris::moris_index aMeshIndex);
+            Integration_Mesh*
+            get_integration_mesh(moris_index aMeshIndex);
+            
         };
     }
 }

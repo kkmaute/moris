@@ -147,9 +147,10 @@ namespace moris
 
                 // function pointer for building the perturbation size for FD
                 real ( IWG:: * m_build_perturbation_size )(
-                        real aPerturbation,
-                        real aCoefficientToPerturb,
-                        real aTolerance ) = nullptr;
+                         const real & aPerturbation,
+                         const real & aCoefficientToPerturb,
+                         const real & aMaxPerturbation,
+                         const real & aTolerance ) = nullptr;
 
                 //------------------------------------------------------------------------------
             public :
@@ -724,9 +725,10 @@ namespace moris
                  * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
                  */
                 real build_perturbation_size(
-                        real aPerturbation,
-                        real aCoefficientToPerturb,
-                        real aTolerance = 1e-12 );
+                        const real & aPerturbation,
+                        const real & aCoefficientToPerturb,
+                        const real & aMaxPerturbation,
+                        const real   aTolerance = 1e-12 );
 
                 /**
                  * build relative perturbation size for finite difference
@@ -735,9 +737,10 @@ namespace moris
                  * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
                  */
                 real build_perturbation_size_relative(
-                        real aPerturbation,
-                        real aCoefficientToPerturb,
-                        real aTolerance );
+                        const real & aPerturbation,
+                        const real & aCoefficientToPerturb,
+                        const real & aMaxPerturbation,
+                        const real & aTolerance );
 
                 /**
                  * build absolute perturbation size for finite difference
@@ -746,9 +749,10 @@ namespace moris
                  * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
                  */
                 real build_perturbation_size_absolute(
-                        real aPerturbation,
-                        real aCoefficientToPerturb,
-                        real aTolerance );
+                        const real & aPerturbation,
+                        const real & aCoefficientToPerturb,
+                        const real & aMaxPerturbation,
+                        const real & aTolerance );
 
                 //------------------------------------------------------------------------------
                 /**

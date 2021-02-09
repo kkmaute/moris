@@ -259,7 +259,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -372,7 +372,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -486,7 +486,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -1159,7 +1159,7 @@ TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_re
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 

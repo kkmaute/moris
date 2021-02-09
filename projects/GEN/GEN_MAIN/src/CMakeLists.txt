@@ -48,6 +48,7 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	field/geometry/cl_GEN_Voxel_Input.cpp
 	field/geometry/cl_GEN_Single_Grain.cpp
+	field/geometry/cl_GEN_User_Defined_Geometry.cpp
 	field/geometry/cl_GEN_BSpline_Geometry.cpp
 	field/geometry/cl_GEN_Stored_Geometry.cpp
 	field/geometry/cl_GEN_Multigeometry.cpp
@@ -58,6 +59,7 @@ set(LIB_SOURCES
 	field/property/cl_GEN_Property.cpp
 	field/property/cl_GEN_Constant_Property.cpp
 	field/property/cl_GEN_Scaled_Field.cpp
+	field/property/cl_GEN_User_Defined_Property.cpp
 	field/property/cl_GEN_BSpline_Property.cpp
 	field/property/fn_GEN_create_properties.cpp
 

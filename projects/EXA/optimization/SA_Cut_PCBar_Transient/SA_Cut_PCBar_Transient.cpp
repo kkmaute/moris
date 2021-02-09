@@ -67,9 +67,13 @@ namespace moris
     moris::sint tStep = 20;
     moris::real tTmax = 0.1;
 
-    moris::real tNLARelResNormDrop = 3.0e-06;
-    moris::real tNLARelaxationParameter = 1.0;
-    moris::sint tNLAMaxIter = 15;
+    moris::real tNLARelResNormDrop = 5.0e-07;
+    moris::real tNLARelaxationParameter = 0.9;
+    moris::sint tNLAMaxIter = 25;
+
+    // Sensitivity Analysis Parameters
+    moris::real tFEMFdEpsilon =  1.0e-8;
+    moris::uint tFEMFdScheme  =  static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL);
 
     // material parameters --------------------------------------------
 
@@ -280,6 +284,7 @@ namespace moris
         tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
         tParameterlist(2)(0).set("include_bounds", false);
         tParameterlist(2)(0).set("finite_difference_type", "all");
+        tParameterlist(2)(0).set("finite_difference_epsilons", "1E-6");
     }
 
     void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -705,6 +710,8 @@ namespace moris
         // create computation  parameter list
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 )( 0 ).set( "finite_difference_scheme",            tFEMFdScheme  );
+        tParameterList( 5 )( 0 ).set( "finite_difference_perturbation_size", tFEMFdEpsilon );
     }
 
     void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

@@ -19,6 +19,12 @@ namespace moris
 {
     namespace wrk
     {
+
+        //------------------------------------------------------------------------------
+
+        // Parameter function
+        typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+        
         //--------------------------------------------------------------------------------------------------------------
 
         Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager * aPerformerManager )
@@ -34,12 +40,12 @@ namespace moris
 
             // load the HMR parameter list
             std::string tHMRString = "HMRParameterList";
-            MORIS_PARAMETER_FUNCTION tHMRParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( tHMRString );
+            Parameter_Function tHMRParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tHMRString );
             moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
             tHMRParameterListFunc( tHMRParameterList );
 
             std::string tGENString = "GENParameterList";
-            MORIS_PARAMETER_FUNCTION tGENParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( tGENString );
+            Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
             moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
             tGENParameterListFunc( tGENParameterList );
 
@@ -57,9 +63,6 @@ namespace moris
 
             // create MDL performer
             mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
-
-
-            // set cooperations
             
             // Set performer to HMR
             mPerformerManager->mHMRPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 0 ) );
@@ -98,7 +101,7 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+                        mPerformerManager->mMTKPerformer( 0 ) );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
@@ -122,7 +125,7 @@ namespace moris
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 0 ) );
 
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(
@@ -202,7 +205,7 @@ namespace moris
         void Workflow_HMR_XTK::create_xtk()
         {
             // Read parameter list from shared object
-            MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mPerformerManager->mLibrary->load_parameter_file( "XTKParameterList" );
+            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
             moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
             tXTKParameterListFunc( tXTKParameterList );
 

@@ -7,8 +7,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Geometry::Geometry(Intersection_Interpolation aIntersectionInterpolation)
-                : mIntersectionInterpolation(aIntersectionInterpolation)
+        Geometry::Geometry(Geometry_Field_Parameters aParameters)
+                : mParameters(aParameters)
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Geometry::Geometry(std::shared_ptr<Geometry> aGeometry)
+                : mParameters(aGeometry->mParameters)
         {
         }
 
@@ -18,11 +25,11 @@ namespace moris
         {
             if (aInterpolationName == "linear")
             {
-                mIntersectionInterpolation = Intersection_Interpolation::LINEAR;
+                mParameters.mIntersectionInterpolation = Intersection_Interpolation::LINEAR;
             }
             else if (aInterpolationName == "multilinear")
             {
-                mIntersectionInterpolation = Intersection_Interpolation::MULTILINEAR;
+                mParameters.mIntersectionInterpolation = Intersection_Interpolation::MULTILINEAR;
             }
             else
             {
@@ -34,7 +41,7 @@ namespace moris
 
         Intersection_Interpolation Geometry::get_intersection_interpolation()
         {
-            return mIntersectionInterpolation;
+            return mParameters.mIntersectionInterpolation;
         }
 
         //--------------------------------------------------------------------------------------------------------------

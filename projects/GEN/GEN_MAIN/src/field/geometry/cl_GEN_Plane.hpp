@@ -30,8 +30,9 @@ namespace moris
                   Matrix<DDUMat>   aGeometryVariableIndices,
                   Matrix<DDUMat>   aADVIndices,
                   Matrix<DDRMat>   aConstants,
-                  Field_Parameters aParameters = {})
+                  Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
             {
                 if (mFieldVariables.size() == 4)
                 {
@@ -66,7 +67,7 @@ namespace moris
                   real             aXNormal,
                   real             aYNormal,
                   real             aZNormal,
-                  Field_Parameters aParameters = {});
+                  Geometry_Field_Parameters aParameters = {});
 
             /**
              * Constructor with only constant parameters, 2D
@@ -77,7 +78,7 @@ namespace moris
              * @param aYNormal y normal for the plane
              * @param aParameters Additional parameters
              */
-            Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal, Field_Parameters aParameters = {});
+            Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal, Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

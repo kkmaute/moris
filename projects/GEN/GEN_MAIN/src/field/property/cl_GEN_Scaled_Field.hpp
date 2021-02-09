@@ -11,6 +11,9 @@ namespace moris
         class Scaled_Field : public Property
         {
 
+        private:
+            std::shared_ptr<Field> mField;
+
         public:
             /**
              * Constructor
@@ -20,7 +23,7 @@ namespace moris
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstants The constant field variables not filled by ADVs
-             * @param aFieldDependencies Other created fields that this property depends on
+             * @param aField Field that this property will scale
              * @param aParameters Additional parameters
              */
             template <typename Vector_Type>
@@ -29,12 +32,12 @@ namespace moris
                     Matrix<DDUMat>               aPropertyVariableIndices,
                     Matrix<DDUMat>               aADVIndices,
                     Matrix<DDRMat>               aConstants,
-                    Cell<std::shared_ptr<Field>> aFieldDependencies,
-                    Field_Parameters             aParameters = {})
+                    std::shared_ptr<Field>       aField,
+                    Property_Field_Parameters    aParameters = {})
                     : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
-                    , Property(aFieldDependencies)
+                    , Property(aParameters)
+                    , mField(aField)
             {
-                MORIS_ERROR(mFieldDependencies.size() == 1, "A scaled field property must depend on one field.");
                 MORIS_ERROR(mFieldVariables.size() == 1, "A scaled field property must have one scaling factor.");
                 MORIS_ERROR(aPropertyVariableIndices.length() == 0,
                             "A scaled field property must have a constant scaling factor for now.");

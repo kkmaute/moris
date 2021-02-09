@@ -4,12 +4,18 @@
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_Param_List.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace opt
     {
+        // User-defined function types
+        typedef Matrix<DDRMat> ( *Objective_Constraint_Function ) (
+                const moris::Matrix<DDRMat>&,
+                const moris::Matrix<DDRMat>& );
+        typedef Matrix<DDSMat> ( *Constraint_Types_Function ) ( );
+
         class Problem_User_Defined : public moris::opt::Problem
         {
 
@@ -41,13 +47,13 @@ namespace moris
             Problem_User_Defined(
                     ParameterList                       aParameterList,
                     std::shared_ptr<Criteria_Interface> aInterface,
-                    MORIS_CONSTRAINT_TYPES_FUNCTION     aConstraintTypesFunction,
-                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveFunction,
-                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintFunction,
-                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveADVGradientFunction,
-                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveCriteriaGradientFunction,
-                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintADVGradientFunction,
-                    MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintCriteriaGradientFunction);
+                    Constraint_Types_Function     aConstraintTypesFunction,
+                    Objective_Constraint_Function aObjectiveFunction,
+                    Objective_Constraint_Function aConstraintFunction,
+                    Objective_Constraint_Function aObjectiveADVGradientFunction,
+                    Objective_Constraint_Function aObjectiveCriteriaGradientFunction,
+                    Objective_Constraint_Function aConstraintADVGradientFunction,
+                    Objective_Constraint_Function aConstraintCriteriaGradientFunction);
 
             /**
              * Gets the constraint types
@@ -101,13 +107,13 @@ namespace moris
             Matrix<DDRMat> compute_dconstraint_dcriteria();
 
         private:
-            MORIS_CONSTRAINT_TYPES_FUNCTION get_constraint_types_user_defined;
-            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_objectives_user_defined;
-            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_constraints_user_defined;
-            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dobjective_dadv_user_defined;
-            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dobjective_dcriteria_user_defined;
-            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dconstraint_dadv_user_defined;
-            MORIS_OBJECTIVE_CONSTRAINT_FUNCTION compute_dconstraint_dcriteria_user_defined;
+            Constraint_Types_Function get_constraint_types_user_defined;
+            Objective_Constraint_Function compute_objectives_user_defined;
+            Objective_Constraint_Function compute_constraints_user_defined;
+            Objective_Constraint_Function compute_dobjective_dadv_user_defined;
+            Objective_Constraint_Function compute_dobjective_dcriteria_user_defined;
+            Objective_Constraint_Function compute_dconstraint_dadv_user_defined;
+            Objective_Constraint_Function compute_dconstraint_dcriteria_user_defined;
         };
     }
 }

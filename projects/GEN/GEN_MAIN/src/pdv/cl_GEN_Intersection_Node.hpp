@@ -35,6 +35,8 @@ namespace moris
              * Constructor
              *
              * @param aLocalCoordinate Local coordinate inside of parent edge
+             * @param aFirstParentNodeIndex Index of the first parent of this node
+             * @param aSecondParentNodeIndex Index of the second parent of this node
              * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent of this node
              * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent of this node
              * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
@@ -47,8 +49,8 @@ namespace moris
              */
             Intersection_Node(
                     real                       aLocalCoordinate,
-                    real                       aFirstParentPhi,
-                    real                       aSecondParentPhi,
+                    real                       aFirstParentNodeIndex,
+                    real                       aSecondParentNodeIndex,
                     const Matrix<DDRMat>&      aFirstParentNodeLocalCoordinates,
                     const Matrix<DDRMat>&      aSecondParentNodeLocalCoordinates,
                     Matrix<DDUMat>             aAncestorNodeIndices,

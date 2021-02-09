@@ -2,13 +2,16 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "fn_PRM_HMR_Parameters.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        mtk::Interpolation_Mesh* create_simple_mesh(
+        void create_simple_mesh(
+                mtk::Interpolation_Mesh * & aIPMesh,
+                mtk::Integration_Mesh * & aIGMesh,
                 uint aNumXElements,
                 uint aNumYElements,
                 uint aLagrangeOrder,
@@ -42,7 +45,8 @@ namespace moris
             tHMR.perform_initial_refinement();
             tHMR.finalize();
 
-            return tHMR.create_interpolation_mesh(0);
+            aIPMesh = tHMR.create_interpolation_mesh(0);
+            aIGMesh = tHMR.create_integration_mesh(0, reinterpret_cast<moris::hmr::Interpolation_Mesh_HMR*>(aIPMesh) );
         }
     }
 }
