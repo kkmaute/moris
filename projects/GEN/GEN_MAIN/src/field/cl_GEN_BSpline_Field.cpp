@@ -174,34 +174,19 @@ namespace moris
             Tracer tTracer("GEN", "Levelset", "L2Mapping");
 
             // Create source field
-            Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
+            mNodalValues.set_size(mNumOriginalNodes, 1);
             for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
             {
-                tSourceField(tNodeIndex) =
+                mNodalValues(tNodeIndex) =
                         aField->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
             }
 
-            // Create target field
-            Matrix<DDRMat> tTargetField(0, 0);
-
-            // Create mesh pair
-            mtk::Mesh_Pair tMeshPair;
-            tMeshPair.mInterpolationMesh = mMesh;
-            tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
-
-            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-
-            uint tIndex = tMeshManager->register_mesh_pair( tMeshPair.mInterpolationMesh, tMeshPair.mIntegrationMesh );
-
             // Use mapper
-            mtk::Mapper tMapper( tMeshManager, tIndex );
-            tMapper.perform_mapping(tSourceField, EntityRank::NODE, tTargetField, EntityRank::BSPLINE);
-
-            // Delete integration mesh
-            delete tMeshPair.mIntegrationMesh;
+            mtk::Mapper tMapper;
+            tMapper.perform_mapping(this, EntityRank::NODE, EntityRank::BSPLINE);
 
             // Return mapped field
-            return tTargetField;
+            return mCoefficients;
         }
 
         //--------------------------------------------------------------------------------------------------------------
