@@ -15,6 +15,12 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Pressure_Bulk::IWG_Isotropic_Struc_Linear_Pressure_Bulk()
         {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
@@ -45,6 +51,13 @@ namespace moris
             // get elasticity CM
             moris::fem::CM_Struc_Linear_Isotropic* tCMElasticity =
                     static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // compute the residual
             mSet->get_residual()( 0 )(
@@ -77,6 +90,13 @@ namespace moris
             // get elasticity CM
             moris::fem::CM_Struc_Linear_Isotropic* tCMElasticity =
                     static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

@@ -20,6 +20,12 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Contact_Penalty::IWG_Isotropic_Struc_Linear_Contact_Penalty()
         {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+
             // set size for the constitutive model pointer cell
             // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -79,6 +85,12 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > & tSPStabPen
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
 
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // evaluate average traction
             Matrix< DDRMat > tJumpTraction = tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( mNormal );
@@ -180,6 +192,12 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > & tSPStabPen
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
 
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // evaluate average traction
             Matrix< DDRMat > tJumpTraction = tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( mNormal );

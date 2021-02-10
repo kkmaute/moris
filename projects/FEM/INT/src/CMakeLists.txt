@@ -189,6 +189,7 @@ set(HEADERS
     Diffusion/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     Linear_Elasticity/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     Linear_Elasticity/cl_FEM_CM_Struc_Linear_Isotropic.hpp
+    Linear_Elasticity/cl_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.hpp
     Incompressible_Fluid/cl_FEM_CM_Fluid_Incompressible.hpp
     Turbulence/cl_FEM_CM_Fluid_Turbulence.hpp
     Compressible_Fluid/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
@@ -348,6 +349,7 @@ set(LIB_SOURCES
     Diffusion/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
     Linear_Elasticity/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     Linear_Elasticity/cl_FEM_CM_Struc_Linear_Isotropic.cpp
+    Linear_Elasticity/cl_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
     Incompressible_Fluid/cl_FEM_CM_Fluid_Incompressible.cpp
     Turbulence/cl_FEM_CM_Fluid_Turbulence.cpp
     Compressible_Fluid/cl_FEM_CM_Fluid_Compressible_Ideal.cpp

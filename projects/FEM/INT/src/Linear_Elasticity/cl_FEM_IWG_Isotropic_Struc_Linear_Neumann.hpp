@@ -34,6 +34,7 @@ namespace moris
                 {
                     TRACTION,
                     PRESSURE,
+                    THICKNESS,
                     MAX_ENUM
                 };
 

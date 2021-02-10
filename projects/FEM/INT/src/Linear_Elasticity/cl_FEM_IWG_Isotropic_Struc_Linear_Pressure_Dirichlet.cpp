@@ -25,6 +25,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
             mPropertyMap[ "Select" ] = static_cast< uint >( IWG_Property_Type::SELECT );
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -80,6 +81,13 @@ namespace moris
             // get the imposed displacement property
             const std::shared_ptr< Property > & tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // get CM for elasticity
             const std::shared_ptr< Constitutive_Model > & tCMElasticity =
@@ -144,6 +152,13 @@ namespace moris
             // get CM for elasticity
             const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // compute jump
             Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();

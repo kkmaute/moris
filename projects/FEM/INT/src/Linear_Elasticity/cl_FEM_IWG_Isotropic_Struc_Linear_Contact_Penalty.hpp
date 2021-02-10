@@ -30,6 +30,12 @@ namespace moris
 
             public:
 
+                enum class IWG_Property_Type
+                {
+                    THICKNESS,
+                    MAX_ENUM
+                };
+
                 enum class IWG_Constitutive_Type
                 {
                     ELAST_LIN_ISO,

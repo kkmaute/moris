@@ -19,8 +19,9 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Load" ]    = static_cast< uint >( IWG_Property_Type::LOAD );
-            mPropertyMap[ "Bedding" ] = static_cast< uint >( IWG_Property_Type::BEDDING );
+            mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::LOAD );
+            mPropertyMap[ "Bedding" ]   = static_cast< uint >( IWG_Property_Type::BEDDING );
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -56,15 +57,27 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMElasticty =
+            std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // get thickness property
+            std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            MORIS_ASSERT( !(tCMElasticity->get_constitutive_type() == Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC
+                    and tPropThickness == nullptr),
+                    "IWG_Isotropic_Struc_Linear_Bulk::compute_residual - must define axis of rotation "
+                    "using IWG \"Thickness\" property as {{x1,y1},{x2,y2}} if using axisymmetric formulation");
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } );
 
             // compute the residual
-            tRes += aWStar * ( trans( tCMElasticty->testStrain() ) * tCMElasticty->flux() );
+            tRes += aWStar * ( trans( tCMElasticity->testStrain() ) * tCMElasticity->flux() );
 
             // if body load
             if ( tPropLoad != nullptr )
@@ -81,7 +94,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Isotropic_Struc_Linear_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -111,8 +124,20 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMElasticty =
+            std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // get thickness property
+            std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            MORIS_ASSERT( !(tCMElasticity->get_constitutive_type() == Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC
+                    and tPropThickness == nullptr),
+                    "IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian - must define axis of rotation "
+                    "using IWG \"Thickness\" property as {{x1,y1},{x2,y2}} if using axisymmetric formulation");
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // get the number of master dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -162,10 +187,10 @@ namespace moris
                 }
 
                 // if constitutive model depends on the dof type
-                if ( tCMElasticty->check_dof_dependency( tDofType ) )
+                if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     // compute the contribution to Jacobian
-                    tJac += aWStar * ( trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
+                    tJac += aWStar * ( trans( tCMElasticity->testStrain() ) * tCMElasticity->dFluxdDOF( tDofType ) );
                 }
             }
 

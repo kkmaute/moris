@@ -57,6 +57,16 @@ namespace moris
                 ~CM_Fluid_Turbulence(){};
 
                 //------------------------------------------------------------------------------
+                /*
+                 * @return constitutive_type
+                 */
+                Constitutive_Type
+                get_constitutive_type() const
+                {
+                    return Constitutive_Type::FLUID_TURBULENCE;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dof types
                  * @param[ in ] aDofTypes   a list of group of dof types

@@ -14,7 +14,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
-        // RETURN FUNCTIONS FOR DENSITY (SECOND EQUATION OF STATE)
+        // RETURN FUNCTIONS FOR PRESSURE (SECOND EQUATION OF STATE)
         //------------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve value from storage
@@ -114,7 +114,7 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::dnPressuredxn_triv( uint aOrder )
         {
-            // return the pressure rate of change
+            // return the pressure dof deriv
             return mFIManager->get_field_interpolators_for_type( mDofPressure )->gradx( aOrder );
         }         
 
@@ -125,7 +125,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::PressureDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::PressureDOF - no dependency in this dof type." );
 
@@ -149,13 +149,31 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::PressureDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
-            // check DOF deriv is wrt to own DOF-type is with 
-            // FIXME: this might need to be changed to provide a zero matrix
-            MORIS_ASSERT( aDofType( 0 ) == mDofPressure, 
-                "Material_Model::PressureDOF_dep - Requesting DoF derivative of primitive variable wrt. to another DoF type." );
+            // check DOF deriv is wrt to own DOF-type is with             
+            if ( aDofType( 0 ) != mDofPressure )
+            {
+                // get the dof type index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
-            // return the pressure rate of change
-            return mFIManager->get_field_interpolators_for_type( mDofPressure )->N();
+                if ( mPressureDofEval( tDofIndex ) )
+                {
+                    // initialize output matrix with zeros
+                    mPressureDof( tDofIndex ).set_size( 1, // mSpaceDim
+                            mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                            get_number_of_space_time_coefficients(), 0.0 );
+
+                    // set flag
+                    mPressureDofEval( tDofIndex ) = false;
+                }
+
+                // return zero matrix
+                return mPressureDof( tDofIndex );
+            }
+            else
+            {
+                // return the pressure rate of change dof deriv
+                return mFIManager->get_field_interpolators_for_type( mDofPressure )->N();
+            }
         } 
 
         //-----------------------------------------------------------------------------
@@ -164,7 +182,7 @@ namespace moris
         const Matrix< DDRMat > & Material_Model::PressureDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::PressureDotDOF_dep - no dependency in this dof type." );
 
@@ -188,22 +206,39 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::PressureDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
-            // check DOF deriv is wrt to own DOF-type is with 
-            // FIXME: this might need to be changed to provide a zero matrix
-            MORIS_ASSERT( aDofType( 0 ) == mDofPressure, 
-                "Material_Model::PressureDotDOF_triv - Requesting DoF derivative of primitive variable wrt. to another DoF type." );
+            // check DOF deriv is wrt to own DOF-type is with
+            if ( aDofType( 0 ) != mDofPressure )
+            {
+                // get the dof type index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
-            // return the pressure rate of change
-            return mFIManager->get_field_interpolators_for_type( mDofPressure )->dnNdtn( 1 );
-        }         
+                if ( mPressureDotDofEval( tDofIndex ) )
+                {
+                    // initialize output matrix with zeros
+                    mPressureDotDof( tDofIndex ).set_size( 1, // mSpaceDim
+                            mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                            get_number_of_space_time_coefficients(), 0.0 );
 
+                    // set flag
+                    mPressureDotDofEval( tDofIndex )= false;
+                }
+
+                // return zero matrix
+                return mPressureDotDof( tDofIndex );
+            }
+            else
+            {
+                // return the Pressure rate of change
+                return mFIManager->get_field_interpolators_for_type( mDofPressure )->dnNdtn( 1 );
+            }
+        }
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
         const Matrix< DDRMat > & Material_Model::dnPressuredxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
-            MORIS_ERROR(
+            MORIS_ASSERT(
                     this->check_dof_dependency( aDofType ),
                     "Material_Model::dnPressuredxnDOF - no dependency in this dof type." );
 
@@ -255,13 +290,55 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::dnPressuredxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
-            // check DOF deriv is wrt to own DOF-type is with 
-            // FIXME: this might need to be changed to provide a zero matrix
-            MORIS_ASSERT( aDofType( 0 ) == mDofPressure, 
-                "Material_Model::dnPressuredxnDOF_triv - Requesting DoF derivative of primitive variable wrt. to another DoF type." );
+            // check DOF deriv is wrt to own DOF-type is with             
+            if ( aDofType( 0 ) != mDofPressure )
+            {
+                // get the dof type index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
-            // return the pressure rate of change
-            return mFIManager->get_field_interpolators_for_type( mDofPressure )->dnNdxn( aOrder );
+                if ( aOrder == 1 )
+                {
+                    if ( mdPressuredxDofEval( tDofIndex ) )
+                    {
+                        // initialize output matrix with zeros
+                        mdPressuredxDof( tDofIndex ).set_size( mSpaceDim,
+                                mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+    
+                        // set flag
+                        mdPressuredxDofEval( tDofIndex )= false;
+                    }
+    
+                    // return zero matrix
+                    return mdPressuredxDof( tDofIndex );
+                }
+                else if ( aOrder == 2 )
+                {
+                    if ( md2Pressuredx2DofEval( tDofIndex ) )
+                    {
+                        // initialize output matrix with zeros
+                        md2Pressuredx2Dof( tDofIndex ).set_size( 3 * mSpaceDim - 3,
+                                mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+
+                        // set flag
+                        md2Pressuredx2DofEval( tDofIndex )= false;
+                    }
+
+                    // return zero matrix
+                    return md2Pressuredx2Dof( tDofIndex );
+                }
+                else
+                {
+                    MORIS_ERROR( false, "Material_Model::dnPressuredxnDOF_triv - only orders 1 and 2 implemented." );
+                    return mdPressuredxDof( 0 );                    
+                }                
+            }
+            else
+            {
+                // return the pressure gradient dof deriv
+                return mFIManager->get_field_interpolators_for_type( mDofPressure )->dnNdxn( aOrder );
+            }
         }    
 
         //-----------------------------------------------------------------------------

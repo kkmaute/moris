@@ -34,6 +34,7 @@ namespace moris
                 {
                     LOAD,
                     BEDDING,
+                    THICKNESS,
                     MAX_ENUM
                 };
 

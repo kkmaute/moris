@@ -77,7 +77,9 @@ namespace assert
             tString += "***          "; 
             tString +=exception_line.c_str(); 
         }
-        tString += "\n*** Where:   This error was encountered inside "; tString += location.c_str(); tString +=".\n";
+        tString += "\n*** Where:   This error was encountered on processor ";
+        tString += std::to_string(logger_par_rank() ); tString +=" inside ";
+        tString += location.c_str(); tString +=".\n";
         tString += "***  Version: 1.0\n";
         tString += "***\n";
         tString += "*** ---------------------------------------------------------------------------";

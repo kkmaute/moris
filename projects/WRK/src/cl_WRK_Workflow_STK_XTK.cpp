@@ -218,7 +218,7 @@ namespace moris
         Workflow_STK_XTK::create_stk(Cell< Cell<ParameterList> > & aParameterLists)
         {
             Tracer tTracer( "STK", "Mesh", "InitializeMesh" );
-            std::string tMeshFile = "femur.g";
+            std::string tMeshFile = aParameterLists(0)(0).get<std::string>("input_file");
             mtk::MtkMeshData* tSuppMeshData = nullptr;
 
             mtk::Cell_Cluster_Input* tCellClusterData = nullptr;
