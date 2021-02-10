@@ -154,11 +154,11 @@ namespace moris
         {
             this->finalize();
 
-            const Matrix< DDUMat > & OutputMeshIndex = mParameters->get_output_mesh();
+            const Cell< Matrix< DDUMat > > & OutputMeshIndex = mParameters->get_output_mesh();
 
-            MORIS_ERROR( OutputMeshIndex.numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
+            MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
 
-            uint tLagrangeMeshIndex = OutputMeshIndex( 0, 0 );
+            uint tLagrangeMeshIndex = OutputMeshIndex( 0 )( 0 );
 
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
                     this->create_interpolation_mesh( tLagrangeMeshIndex );
@@ -168,6 +168,26 @@ namespace moris
 
             // register HMR interpolation and integration meshes
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
+
+            if( OutputMeshIndex.size() == 2 )
+            {
+                for( uint Ik = 0; Ik < OutputMeshIndex( 1 ).numel(); Ik++ )
+                {
+                    uint tLagrangeMeshIndexSecundary = OutputMeshIndex( 1 )( Ik );
+
+                    MORIS_ERROR(tLagrangeMeshIndex!=tLagrangeMeshIndexSecundary,
+                            "it is not recommended to base a secondary output mesh on the same mesh index than the main output mesh. This might cause weird behaviors in parallel because of a numbered aura");
+
+                    moris::hmr::Interpolation_Mesh_HMR * tInterpolationMeshSecondary =
+                            this->create_interpolation_mesh( tLagrangeMeshIndex );
+
+                    moris::hmr::Integration_Mesh_HMR * tIntegrationMeshSecondary =
+                            this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
+
+                    // register HMR interpolation and integration meshes
+                    mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true );
+                }
+            }
         }
 
         // -----------------------------------------------------------------------------
