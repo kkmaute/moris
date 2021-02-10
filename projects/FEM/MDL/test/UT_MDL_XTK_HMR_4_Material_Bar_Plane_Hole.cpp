@@ -262,7 +262,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tParameters.set_domain_dimensions({ {6}, {2} });
         tParameters.set_domain_offset({ {-3.0}, {-1.0} });
         tParameters.set_bspline_truncation( true );
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
         tParameters.set_lagrange_orders  ( { {tLagrangeOrder} });
         tParameters.set_lagrange_patterns({ {0} });
         tParameters.set_bspline_orders   ( { {tBsplineOrder} } );
@@ -722,7 +722,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tParameters.set_domain_dimensions({ {6}, {2}, {2} });
         tParameters.set_domain_offset({ {-3.0}, {-1.0},{-1} });
         tParameters.set_bspline_truncation( true );
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
         tParameters.set_lagrange_orders  ( { {tLagrangeOrder} });
         tParameters.set_lagrange_patterns({ {0} });
         tParameters.set_bspline_orders   ( { {tBsplineOrder} } );
