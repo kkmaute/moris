@@ -36,6 +36,7 @@ namespace moris
                 enum class IWG_Property_Type
                 {
                         MATERIAL,
+                        THICKNESS,
                         MAX_ENUM
                 };
 

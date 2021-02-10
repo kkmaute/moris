@@ -25,10 +25,9 @@
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Field.hpp"
 
-#include "st_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Mapper.hpp"
-
 namespace moris
 {
     namespace hmr
@@ -134,6 +133,7 @@ namespace moris
             Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
             Cell< Integration_Mesh_HMR * >   tInputIntegMeshes;
             Cell< mtk::Mapper * > tMappers( tNumberOfMappers, nullptr );
+            Cell<mtk::Field*> tFieldUnion( tNumberOfMappers,nullptr );
 
             for( uint m=0; m<tNumberOfMappers; ++m )
             {
@@ -172,11 +172,15 @@ namespace moris
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
+                // add pairs to mesh manager
+                moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair(
+                        tUnionInterpMeshes(m),
+                        tUnionIntegMeshes(m));
+
                 // create mapper
-                mtk::Mesh_Pair tMeshPair;
-                tMeshPair.mInterpolationMesh = tUnionInterpMeshes(m);
-                tMeshPair.mIntegrationMesh = tUnionIntegMeshes(m);
-                tMappers( m ) = new mtk::Mapper( tMeshPair, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
+                tMappers( m ) = new mtk::Mapper();
+
+                tFieldUnion( m )=new mtk::Field( tMeshManager, tMeshPairIndex );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -
@@ -228,14 +232,12 @@ namespace moris
                     tUnionField->set_id( tInputField->get_id() );
                 }
 
-                // set alpha parameter of mapper
-                tMappers( m )->set_l2_alpha( aParamfile.get_field_params( f ).mL2alpha );
+                tFieldUnion(m)->set_nodal_values( tUnionField->get_node_values() );
 
-                // perform mapping
-                tMappers( m )->perform_mapping( tInputField->get_label(),
+                tMappers( m )->perform_mapping(
+                        tFieldUnion(m),
                         EntityRank::NODE,
-                        tInputField->get_label(),             //FIXME should this be tUnionField
-                        tUnionField->get_bspline_rank() );
+                        EntityRank::BSPLINE );
 
                 // a small sanity test
                 MORIS_ASSERT( tUnionField->get_coefficients().length()
@@ -254,7 +256,7 @@ namespace moris
 
                 // move coefficients to output field
                 // fixme: to be tested with Eigen also
-                tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
+                tOutputField->get_coefficients() = std::move( tFieldUnion(m)->get_coefficients() );
 
                 // allocate nodes for output
                 tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );

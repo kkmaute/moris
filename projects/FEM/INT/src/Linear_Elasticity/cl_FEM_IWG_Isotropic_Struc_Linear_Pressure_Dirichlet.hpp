@@ -30,6 +30,7 @@ namespace moris
                 {
                         DIRICHLET,
                         SELECT,
+                        THICKNESS,
                         MAX_ENUM
                 };
 

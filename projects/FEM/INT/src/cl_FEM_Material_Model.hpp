@@ -494,8 +494,8 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnEintdxn specific internal energy and derivatives
                  */
-                const Matrix< DDRMat > &  Eint();
-                const Matrix< DDRMat > &  EintDot();
+                const Matrix< DDRMat > & Eint();
+                const Matrix< DDRMat > & EintDot();
                 const Matrix< DDRMat > & dnEintdxn( uint aOrder );
 
                 //------------------------------------------------------------------------------
@@ -669,12 +669,12 @@ namespace moris
                 const Matrix< DDRMat > & PressureDot(){ return ( this->*m_get_PressureDot )(); };
                 const Matrix< DDRMat > & dnPressuredxn( uint aOrder ){ return ( this->*m_get_dnPressuredxn )( aOrder ); };
 
-                const Matrix< DDRMat > &  pressure_dep();
-                const Matrix< DDRMat > &  PressureDot_dep();
+                const Matrix< DDRMat > & pressure_dep();
+                const Matrix< DDRMat > & PressureDot_dep();
                 const Matrix< DDRMat > & dnPressuredxn_dep( uint aOrder );      
                 
-                const Matrix< DDRMat > &  pressure_triv();
-                const Matrix< DDRMat > &  PressureDot_triv();
+                const Matrix< DDRMat > & pressure_triv();
+                const Matrix< DDRMat > & PressureDot_triv();
                 const Matrix< DDRMat > & dnPressuredxn_triv( uint aOrder );                          
 
                 //------------------------------------------------------------------------------
@@ -814,40 +814,55 @@ namespace moris
                  * @param[ in ] aDerivOrder     order of the spatial derivatives ( includes 0 )
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
-                // void eval_EintDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & adDepTDvardDOF_FD,
-                //         real                                 aPerturbation,
-                //         uint                                 aDerivOrder,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+                void eval_EintDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aEintDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
-                // void eval_EintDotDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & aEintDotDOF_FD,
-                //         real                                 aPerturbation,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );                        
+                void eval_EintDotDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aEintDotDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
+                void eval_dnEintdxnDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adnEintdxnDOF_FD,
+                        real                                 aPerturbation,
+                        uint                                 aOrder,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the third dependent thermodynamic variable wrt to a dof type
                  * @param[ in ] aDofTypes       dof type wrt which the derivative is evaluated
-                 * @param[ in ] aDepTDvarDOF_FD   matrix to fill with derivative of the 3rd thermodynamic variable
+                 * @param[ in ] aTDvarDOF_FD    matrix to fill with derivative of the 3rd thermodynamic variable
                  * @param[ in ] aPerturbation   real to perturb for FD
                  * @param[ in ] aDerivOrder     order of the spatial derivatives ( includes 0 )
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
-                // void eval_DepTDvarDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & adDepTDvardDOF_FD,
-                //         real                                 aPerturbation,
-                //         uint                                 aDerivOrder,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+                void eval_TDvarDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aTDvarDOF_FD,
+                        real                                 aPerturbation,
+                        MSI::Dof_Type                        aTDvar,
+                        fem::FDScheme_Type                   aFDSchemeType );
 
-                // void eval_DepTDvarDotDOF_FD(
-                //         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                //         Matrix< DDRMat >                   & aDepTDvarDotDOF_FD,
-                //         real                                 aPerturbation,
-                //         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );   
+                void eval_TDvarDotDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aTDvarDotDOF_FD,
+                        real                                 aPerturbation,
+                        MSI::Dof_Type                        aTDvar,
+                        fem::FDScheme_Type                   aFDSchemeType );
+
+                void eval_dnTDvardxnDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adnTDvardxnDOF_FD,
+                        real                                 aPerturbation,
+                        MSI::Dof_Type                        aTDvar,
+                        uint                                 aOrder,
+                        fem::FDScheme_Type                   aFDSchemeType );
 
                 //------------------------------------------------------------------------------
         };

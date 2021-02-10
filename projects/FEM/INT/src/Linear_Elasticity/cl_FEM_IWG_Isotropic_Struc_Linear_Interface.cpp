@@ -18,6 +18,12 @@ namespace moris
             // set sint for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
 
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -69,6 +75,13 @@ namespace moris
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             real tNitsche      = tSPNitsche->val()( 0 );
             real tMasterWeight = tSPNitsche->val()( 1 );
@@ -140,6 +153,14 @@ namespace moris
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+
 
             real tNitsche      = tSPNitsche->val()( 0 );
             real tMasterWeight = tSPNitsche->val()( 1 );

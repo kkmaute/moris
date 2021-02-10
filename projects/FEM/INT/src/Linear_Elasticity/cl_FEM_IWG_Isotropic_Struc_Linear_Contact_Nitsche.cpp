@@ -23,6 +23,12 @@ namespace moris
             // sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
 
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+
             // set size for the constitutive model pointer cell
             // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -84,6 +90,12 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSPSlaveWeight
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
 
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             //             // get master index for residual dof type
             //             uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -240,6 +252,13 @@ namespace moris
             // get the master weight stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPSlaveWeight
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

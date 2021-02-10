@@ -5,7 +5,7 @@
  *  Author: wunsch
  */
 
-#include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
+#include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
@@ -19,7 +19,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::testTraction(
+        const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
                 enum CM_Function_Type aCMFunctionType )
@@ -35,7 +35,7 @@ namespace moris
                     // unknown CM function type
                 default :
                     MORIS_ERROR( false ,
-                            "CM_Fluid_Compressible_Ideal::testTraction - unknown CM function type for test-traction." );
+                            "CM_Compressible_Newtonian_Fluid::testTraction - unknown CM function type for test-traction." );
                     return mTestTraction( 0 );
             }
         }
@@ -43,7 +43,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_thermal_testTraction(
+        void CM_Compressible_Newtonian_Fluid::eval_thermal_testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
@@ -56,7 +56,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_testTraction(
+        const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::thermal_testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
@@ -79,7 +79,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_mechanical_testTraction(
+        void CM_Compressible_Newtonian_Fluid::eval_mechanical_testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
@@ -96,7 +96,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::mechanical_testTraction(
+        const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::mechanical_testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
         {
@@ -120,7 +120,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dTestTractiondDOF(
+        const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
@@ -138,7 +138,7 @@ namespace moris
                     // unknown CM function type
                 default :
                     MORIS_ERROR( false ,
-                            "CM_Fluid_Compressible_Ideal::dTestTractiondDOF - unknown CM function type for test-traction dof derivative." );
+                            "CM_Compressible_Newtonian_Fluid::dTestTractiondDOF - unknown CM function type for test-traction dof derivative." );
                     return mdTestTractiondDof( 0 )( 0 );
             }
         }
@@ -146,7 +146,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_thermal_dTestTractiondDOF(
+        void CM_Compressible_Newtonian_Fluid::eval_thermal_dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
@@ -196,7 +196,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_dTestTractiondDOF(
+        const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::thermal_dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
@@ -204,7 +204,7 @@ namespace moris
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),
-                    "CM_Fluid_Compressible_Ideal::thermal_dTestTractiondDOF - no dependency on this dof type." );
+                    "CM_Compressible_Newtonian_Fluid::thermal_dTestTractiondDOF - no dependency on this dof type." );
 
             // get the test dof index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -229,7 +229,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_mechanical_dTestTractiondDOF(
+        void CM_Compressible_Newtonian_Fluid::eval_mechanical_dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
@@ -406,7 +406,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::mechanical_dTestTractiondDOF(
+        const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::mechanical_dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
@@ -414,7 +414,7 @@ namespace moris
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),
-                    "CM_Fluid_Compressible_Ideal::mechanical_dTestTractiondDOF - no dependency on this dof type." );
+                    "CM_Compressible_Newtonian_Fluid::mechanical_dTestTractiondDOF - no dependency on this dof type." );
 
             // get the test dof index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );

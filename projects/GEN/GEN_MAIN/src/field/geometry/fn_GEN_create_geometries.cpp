@@ -60,13 +60,13 @@ namespace moris
 
                 // Determine if to add to multigeometry
                 bool tMultigeometryFound = false;
-                std::string tGeometryName = tGeometry->get_name();
+                std::string tGeometryName = tGeometry->get_label();
                 if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
+                        if (tMultigeometries(tMultigeometryIndex)->get_label() == tGeometryName)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -79,7 +79,7 @@ namespace moris
                     {
                         for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
                         {
-                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
+                            if (tGeometries(tCreatedGeometryIndex)->get_label() == tGeometryName)
                             {
                                 tMultigeometryFound = true;
                                 tMultigeometries.push_back(std::make_shared<Multigeometry>(

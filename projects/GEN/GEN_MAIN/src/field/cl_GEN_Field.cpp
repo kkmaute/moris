@@ -57,7 +57,7 @@ namespace moris
 
         Field::Field(const Matrix<DDSMat>&  aSharedADVIds,
                      std::shared_ptr<Field> aField)
-                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_name())
+                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_label())
                 , mFieldVariables(aSharedADVIds.length())
                 , mSensitivities(1, aSharedADVIds.length())
                 , mParameters(aField->mParameters)
@@ -100,7 +100,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(std::shared_ptr<Field> aField)
-                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_name())
+                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_label())
                 , mParameters(aField->mParameters)
                 , mDependsOnADVs(aField->mDependsOnADVs)
         {

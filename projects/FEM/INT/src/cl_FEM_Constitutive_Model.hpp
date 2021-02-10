@@ -244,6 +244,17 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * @return constitutive type
+                 */
+                virtual
+                Constitutive_Type get_constitutive_type() const
+                {
+                    // need to define this for every CM
+                    return Constitutive_Type::UNDEFINED;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * set property
                  * @param[ in ] aProperty       property shared pointer to set
                  * @param[ in ] aPropertyString string describing the property to set

@@ -145,7 +145,11 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                mtk::Interpolation_Mesh* tMesh = nullptr;
+                mtk::Integration_Mesh* tIGMesh = nullptr;
+                create_simple_mesh(
+                        tMesh,
+                        tIGMesh,
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
@@ -155,9 +159,17 @@ namespace moris
                 Matrix<DDRMat> tADVs(0, 0);
                 std::shared_ptr<Property> tBSplineProperty = create_property(tPropertyParameterList, tADVs);
 
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                          std::make_shared< mtk::Mesh_Manager >();
+
+                  tMeshManager->register_mesh_pair(tMesh, tIGMesh );
+
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mProperties = {tBSplineProperty};
+                tGeometryEngineParameters.mProperties(0)->set_mesh( tMeshManager );
+                tGeometryEngineParameters.mProperties(0)->set_mesh_index( 0 );
+
                 Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds

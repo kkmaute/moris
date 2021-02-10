@@ -38,7 +38,10 @@ set(TEST_SOURCES
     UT_FEM_CM_Diff_PC.cpp
     UT_FEM_CM_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_Ideal.cpp
+    UT_FEM_CM_Compressible_Newtonian_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_VdW.cpp
+    UT_FEM_CM_Struc_Linear_Isotropic.cpp
+    UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
     
     UT_FEM_SP_Fluid.cpp
     UT_FEM_IWG_Advection_Bulk.cpp  	
@@ -58,6 +61,14 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Interface.cpp
     #UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
+
+    UT_FEM_IWG_Struc_Linear_Axisymmetric_Bulk.cpp
+    UT_FEM_IWG_Struc_Linear_Axisymmetric_Pressure_Bulk.cpp
+    UT_FEM_IWG_Struc_Linear_Axisymmetric_Dirichlet.cpp
+    UT_FEM_IWG_Struc_Linear_Axisymmetric_Pressure_Dirichlet.cpp
+    UT_FEM_IWG_Struc_Linear_Axisymmetric_Interface.cpp
+
+    UT_FEM_IWG_Struc_Linear_Axisymmetric_Virtual_Work_Ghost.cpp
     
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp

@@ -71,6 +71,16 @@ namespace moris
                 ~CM_Diffusion_Linear_Isotropic_Phase_Change(){};
 
                 //------------------------------------------------------------------------------
+                /*
+                 * @return constitutive_type
+                 */
+                Constitutive_Type
+                get_constitutive_type() const
+                {
+                    return Constitutive_Type::DIFF_LIN_ISO_PC;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dof types
                  * @param[ in ] aDofTypes a list of group of dof types

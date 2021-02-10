@@ -19,7 +19,7 @@ TEST_CASE("SA_Cut_PCBar_Transient",
         "[moris],[example],[optimization],[sweep],[sweep_transient]")
 {
     // Tolerance for adjoint vs. FD sensitivities
-    moris::real tToleranceSensties = 0.03;
+    moris::real tToleranceSensties = 0.05;
 
     // define command line call
     int argc = 2;

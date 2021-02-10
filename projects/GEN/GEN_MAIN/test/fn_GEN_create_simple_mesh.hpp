@@ -2,6 +2,7 @@
 #define MORIS_FN_GEN_CREATE_SIMPLE_MESH_HPP
 
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris
 {
@@ -16,7 +17,9 @@ namespace moris
          * @param aBSplineOrder Order of the B-spline mesh
          * @return HMR mesh pointer
          */
-        mtk::Interpolation_Mesh* create_simple_mesh(
+        void create_simple_mesh(
+                mtk::Interpolation_Mesh* & aIPMesh,
+                mtk::Integration_Mesh* & aIGMesh,
                 uint aNumXElements,
                 uint aNumYElements,
                 uint aLagrangeOrder = 1,

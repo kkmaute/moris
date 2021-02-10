@@ -22,6 +22,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "Traction" ] = static_cast< uint >( IWG_Property_Type::TRACTION );
             mPropertyMap[ "Pressure" ] = static_cast< uint >( IWG_Property_Type::PRESSURE );
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
         }
 
         //------------------------------------------------------------------------------
@@ -49,6 +50,13 @@ namespace moris
             // get traction load property
             const std::shared_ptr< Property > & tPropPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // get sub-vector
             auto tRes =  mSet->get_residual()( 0 )(
@@ -96,6 +104,13 @@ namespace moris
             // get traction load property
             const std::shared_ptr< Property > & tPropPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property > & tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // compute the Jacobian for indirect IWG dof dependencies through properties
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )

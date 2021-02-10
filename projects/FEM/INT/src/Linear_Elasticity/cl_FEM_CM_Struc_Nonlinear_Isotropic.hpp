@@ -70,6 +70,16 @@ namespace moris
                 ~CM_Struc_Nonlinear_Isotropic(){};
 
                 //------------------------------------------------------------------------------
+                /*
+                 * @return constitutive_type
+                 */
+                Constitutive_Type
+                get_constitutive_type() const
+                {
+                    return Constitutive_Type::STRUC_NONLIN_ISO;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dof types
                  * @param[ in ] aDofTypes a list of group of dof types

@@ -351,6 +351,8 @@ namespace moris
              */
             void distribute_advs(mtk::Interpolation_Mesh* aMesh);
 
+            void distribute_advs( std::shared_ptr< mtk::Mesh_Manager> aMeshManager );
+
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
              * Uses output locations and file names stored from a parameter list or previous call to an output function.

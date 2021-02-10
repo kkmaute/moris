@@ -33,22 +33,8 @@ namespace moris
                 //------------------------------------------------------------------------------
             protected:
                 // default local properties
-                // std::shared_ptr< Property > mPropDynamicViscosity       = nullptr;
-                // std::shared_ptr< Property > mPropThermalConductivity    = nullptr;
-
-// TEMP
-// default local properties
-std::shared_ptr< Property > mPropIsochoricHeatCapacity  = nullptr;
-std::shared_ptr< Property > mPropSpecificGasConstant    = nullptr;
-std::shared_ptr< Property > mPropDynamicViscosity       = nullptr;
-std::shared_ptr< Property > mPropThermalConductivity    = nullptr;
-
-// Pressure
-Matrix< DDRMat > mPressure;
-bool mPressureEval = true;
-moris::Cell< Matrix< DDRMat > > mPressureDof;
-moris::Matrix< DDBMat > mPressureDofEval;
-// TEMP                
+                std::shared_ptr< Property > mPropDynamicViscosity       = nullptr;
+                std::shared_ptr< Property > mPropThermalConductivity    = nullptr;              
 
                 // default thermodynamic material model
                 std::shared_ptr< Material_Model > mMaterialModel  = nullptr;
@@ -172,33 +158,7 @@ moris::Matrix< DDBMat > mPressureDofEval;
                 /**
                  * trivial destructor
                  */
-                ~CM_Compressible_Newtonian_Fluid(){};
-
-// TEMP
-//------------------------------------------------------------------------------
-/**
- * evaluate the constitutive model pressure
- */
-void eval_pressure();
-/**
- * evaluate and get the constitutive model / equation of state pressure
- * @param[ out ] constitutive model / equation of state pressure
- */
-const Matrix< DDRMat > & pressure(){return mPressure;};
-//------------------------------------------------------------------------------
-/**
- * evaluate the constitutive model pressure
- * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
- */
-void eval_dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-/**
- * get the derivative of the Pressure wrt dof
- * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
- * @param[ out ] PressureDofDer derivative of the pressure wrt dof
- */
- const Matrix< DDRMat > & dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes ){return mPressureDof(0);};    
-//------------------------------------------------------------------------------       
-// TEMP     
+                ~CM_Compressible_Newtonian_Fluid(){}; 
 
                 //------------------------------------------------------------------------------
                 /**

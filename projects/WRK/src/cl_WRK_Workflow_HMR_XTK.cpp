@@ -101,7 +101,7 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+                        mPerformerManager->mMTKPerformer( 0 ) );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
@@ -125,7 +125,7 @@ namespace moris
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 0 ) );
 
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(
