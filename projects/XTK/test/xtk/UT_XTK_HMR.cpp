@@ -119,7 +119,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tParameters.set_bspline_orders   ( { {iOrder} } );
             tParameters.set_bspline_patterns ( { {0} } );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
             //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
             tParameters.set_staircase_buffer( 1 );
