@@ -93,7 +93,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
             tParameters.set_domain_offset({ {-1.0}, {-1.0} });
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes({{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {iOrder} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -196,7 +196,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });
@@ -304,7 +304,7 @@ TEST_CASE("2D Conformal Coincident Subdivision","[CM_2D_LIN_COIN]")
         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });

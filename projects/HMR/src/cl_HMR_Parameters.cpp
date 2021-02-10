@@ -154,7 +154,12 @@ namespace moris
 
             string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
-            string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+            string_to_cell_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+
+            MORIS_ERROR( mOutputMeshes( 0 ).numel() <=1, "only one main output mesh allowed right now");
+            MORIS_ERROR( mOutputMeshes.size() <=2,
+                    "Output mesh list can only have one list of main output meshes and one list of secondary output meshes");
+
             string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
             string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
             string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
@@ -792,13 +797,13 @@ namespace moris
 
         bool Parameters::is_output_mesh( const uint aMeshIndex ) const
         {
-            const Matrix< DDUMat > & tOutputMeshes = this->get_output_mesh();
+            const Cell< Matrix< DDUMat > > & tOutputMeshes = this->get_output_mesh();
 
             bool tIsOutputMesh = false;
 
-            for( uint k=0; k<tOutputMeshes.numel(); ++k )
+            for( uint k=0; k<tOutputMeshes( 0 ).numel(); ++k )
             {
-                if( aMeshIndex == tOutputMeshes( k ) )
+                if( aMeshIndex == tOutputMeshes( 0 )( k ) )
                 {
                     tIsOutputMesh = true;
                     break;

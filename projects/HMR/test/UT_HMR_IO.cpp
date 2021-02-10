@@ -211,7 +211,7 @@ TEST_CASE("HMR_Field_IO_HDF","[moris],[hmr],[HMR_Field_IO_HDF]")
             tParameters.set_bspline_orders   ( { {1}, {1}, {1}} );
             tParameters.set_bspline_patterns ( { {0}, {1}, {2}} );
 
-            tParameters.set_output_meshes ( { {0} } );
+            tParameters.set_output_meshes ( {{ {0} }} );
             tParameters.set_lagrange_input_mesh ( { {0} } );
 
             tParameters.set_staircase_buffer( 3 );

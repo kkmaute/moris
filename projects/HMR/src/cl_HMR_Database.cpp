@@ -428,11 +428,11 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-            const Matrix< DDUMat > & tOutputMeshIndices = mParameters->get_output_mesh();
+            const Cell< Matrix< DDUMat > > & tOutputMeshIndices = mParameters->get_output_mesh();
 
-            for( uint Ik = 0; Ik < tOutputMeshIndices.numel(); Ik ++ )
+            for( uint Ik = 0; Ik < tOutputMeshIndices( 0 ).numel(); Ik ++ )
             {
-                uint tMeshIndex = tOutputMeshIndices( Ik );
+                uint tMeshIndex = tOutputMeshIndices( 0 )( Ik );
 
                 // activate output pattern
                 mBackgroundMesh->set_activation_pattern( mLagrangeMeshes( tMeshIndex )->get_activation_pattern() );
@@ -1212,13 +1212,13 @@ namespace moris
 
         Matrix< DDUMat > Database::create_output_pattern_list()
         {
-            const Matrix< DDUMat > & OutputMeshIndex = mParameters->get_output_mesh();
+            const Cell< Matrix< DDUMat >> & OutputMeshIndex = mParameters->get_output_mesh();
 
-            Matrix< DDUMat > tPatternList(OutputMeshIndex.numel(), 1 , MORIS_UINT_MAX);
+            Matrix< DDUMat > tPatternList(OutputMeshIndex( 0 ).numel(), 1 , MORIS_UINT_MAX);
 
-            for( uint Ik = 0; Ik < OutputMeshIndex.numel(); ++Ik )
+            for( uint Ik = 0; Ik < OutputMeshIndex( 0 ).numel(); ++Ik )
             {
-                tPatternList( Ik ) = mLagrangeMeshes( OutputMeshIndex( Ik ) )->get_activation_pattern();
+                tPatternList( Ik ) = mLagrangeMeshes( OutputMeshIndex( 0 )( Ik ) )->get_activation_pattern();
             }
 
             MORIS_ASSERT( tPatternList.max() != MORIS_UINT_MAX, "Database::create_side_sets(), Output mesh return false pattern index");

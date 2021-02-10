@@ -129,7 +129,7 @@ namespace moris
             Matrix< DDUMat >     mUnionMeshes;
 
             //! Lagrange Meshes that are used for the output meshes
-            Matrix< DDUMat >     mOutputMeshes = { { 0 } };
+            Cell< Matrix< DDUMat > >    mOutputMeshes = { { { 0 } } };
 
             Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
 
@@ -490,17 +490,17 @@ namespace moris
             /**
              * returns the index of the defined Lagrange output mesh for a specified order
              */
-            const Matrix< DDUMat > & get_output_mesh() const
-               {
+            const Cell< Matrix< DDUMat > > & get_output_mesh() const
+            {
                 return mOutputMeshes;
-               }
+            }
 
             //--------------------------------------------------------------------------------
 
             /**
              * set which lagrange meshes are used for an output
              */
-            void set_output_meshes( const Matrix< DDUMat > & aOutputMeshes )
+            void set_output_meshes( const Cell< Matrix< DDUMat > > & aOutputMeshes )
             {
                 // test if calling this function is allowed
                 this->error_if_locked("set_output_meshes");
