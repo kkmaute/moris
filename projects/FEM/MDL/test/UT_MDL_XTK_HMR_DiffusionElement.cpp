@@ -189,7 +189,7 @@ namespace moris
             tParameters.set_bspline_truncation( true );
             tParameters.set_side_sets({ {5}, {6} });
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -443,7 +443,7 @@ namespace moris
             tParameters.set_bspline_truncation( true );
             tParameters.set_side_sets({ {5}, {6} });
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -732,7 +732,7 @@ namespace moris
 
             tParameters.set_multigrid( true );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -1040,7 +1040,7 @@ namespace moris
 
             tParameters.set_multigrid( true );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });

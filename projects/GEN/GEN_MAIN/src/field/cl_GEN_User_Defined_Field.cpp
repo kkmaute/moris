@@ -34,7 +34,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void User_Defined_Field::set_user_defined_functions(
-                Field_Function aFieldFunction,
+                Field_Function       aFieldFunction,
                 Sensitivity_Function aSensitivityFunction)
         {
             // Set field evaluation function

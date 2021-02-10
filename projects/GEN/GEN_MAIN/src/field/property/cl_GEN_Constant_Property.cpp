@@ -8,7 +8,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real Constant_Property::get_field_value(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             return *mFieldVariables(0);
@@ -17,7 +17,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix<DDRMat>& Constant_Property::get_field_sensitivities(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             mSensitivities = {{1.0}};

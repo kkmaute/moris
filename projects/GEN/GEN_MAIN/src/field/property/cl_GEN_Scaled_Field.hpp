@@ -28,12 +28,12 @@ namespace moris
              */
             template <typename Vector_Type>
             Scaled_Field(
-                    Vector_Type&                 aADVs,
-                    Matrix<DDUMat>               aPropertyVariableIndices,
-                    Matrix<DDUMat>               aADVIndices,
-                    Matrix<DDRMat>               aConstants,
-                    std::shared_ptr<Field>       aField,
-                    Property_Field_Parameters    aParameters = {})
+                    Vector_Type&              aADVs,
+                    Matrix<DDUMat>            aPropertyVariableIndices,
+                    Matrix<DDUMat>            aADVIndices,
+                    Matrix<DDRMat>            aConstants,
+                    std::shared_ptr<Field>    aField,
+                    Property_Field_Parameters aParameters = {})
                     : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
                     , Property(aParameters)
                     , mField(aField)
@@ -51,7 +51,7 @@ namespace moris
              * @return Property value
              */
             real get_field_value(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
@@ -63,7 +63,7 @@ namespace moris
              * @return Vector of sensitivities
              */
             const Matrix<DDRMat>& get_field_sensitivities(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
@@ -74,7 +74,7 @@ namespace moris
              * @return Determining ADV IDs at this node
              */
             Matrix<DDSMat> get_determining_adv_ids(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
         };
     }

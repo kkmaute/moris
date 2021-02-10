@@ -17,7 +17,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Multigeometry::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Multigeometry::get_field_value(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             real tResult = mGeometries(0)->get_field_value(aNodeIndex, aCoordinates);
             for (uint tGeometryIndex = 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++)

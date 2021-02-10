@@ -26,7 +26,7 @@ namespace moris
             MORIS_LOG_ITERATION();
 
             // Set ADVs and get criteria
-            this->mProblem->set_advs(aADVs);
+            this->mProblem->trigger_criteria_solve(aADVs);
         }
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -73,10 +73,11 @@ namespace moris
             Matrix<DDRMat> tDummyADVs;
 
             // Keep looping over func/grad calls
-            while(mRunning)
+            while (mRunning)
             {
                 // Call to help out with criteria solve
                 this->criteria_solve(tDummyADVs);
+                this->mProblem->trigger_dcriteria_dadv_solve();
 
                 // Communicate running status so these processors know when to exit
                 this->communicate_running_status();

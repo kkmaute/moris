@@ -30,7 +30,7 @@ namespace moris
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
                         &initialize_rosenbrock_1,
                         &get_criteria_rosenbrock_1,
-                        &get_dcriteria_dadv_rosenbrock_1);
+                        &get_dcriteria_dadv_rosenbrock);
 
                 // Create Problem
                 std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
@@ -65,12 +65,12 @@ namespace moris
                 // Set up default parameter lists
                 ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
                 ParameterList tAlgorithmParameterList = moris::prm::create_sqp_parameter_list();
-            
+
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
                         &initialize_rosenbrock_1,
                         &get_criteria_rosenbrock_1,
-                        &get_dcriteria_dadv_rosenbrock_1);
+                        &get_dcriteria_dadv_rosenbrock);
             
                 // Create Problem
                 std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
@@ -142,6 +142,34 @@ namespace moris
                 // Create manager
                 moris::opt::Manager tManager({tAlgorithmParameterList}, tProblem);
                 
+                // Solve optimization problem
+                tManager.perform();
+
+                // Sweep without sensitivities
+                tAlgorithmParameterList.set("evaluate_objective_gradients", false);
+                tAlgorithmParameterList.set("evaluate_constraint_gradients", false);
+
+                // Create interface
+                tInterface = std::make_shared<Interface_User_Defined>(
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
+                        nullptr);
+
+                // Create Problem
+                tProblem = std::make_shared<Problem_User_Defined>(
+                        tProblemParameterList,
+                        tInterface,
+                        &get_constraint_types_rosenbrock,
+                        &compute_objectives_rosenbrock,
+                        &compute_constraints_rosenbrock,
+                        nullptr,
+                        nullptr,
+                        nullptr,
+                        nullptr);
+
+                // Create manager
+                tManager = moris::opt::Manager({tAlgorithmParameterList}, tProblem);
+
                 // Solve optimization problem
                 tManager.perform();
             }

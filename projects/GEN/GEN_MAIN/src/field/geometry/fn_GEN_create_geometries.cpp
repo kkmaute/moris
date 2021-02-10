@@ -13,7 +13,6 @@
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
-#include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 
 namespace moris

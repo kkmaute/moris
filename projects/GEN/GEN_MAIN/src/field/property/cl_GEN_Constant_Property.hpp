@@ -24,11 +24,11 @@ namespace moris
              */
             template <typename Vector_Type>
             Constant_Property(
-                    Vector_Type&                 aADVs,
-                    Matrix<DDUMat>               aPropertyVariableIndices,
-                    Matrix<DDUMat>               aADVIndices,
-                    Matrix<DDRMat>               aConstants,
-                    Property_Field_Parameters    aParameters = {})
+                    Vector_Type&              aADVs,
+                    Matrix<DDUMat>            aPropertyVariableIndices,
+                    Matrix<DDUMat>            aADVIndices,
+                    Matrix<DDRMat>            aConstants,
+                    Property_Field_Parameters aParameters = {})
                     : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
                     , Property(aParameters)
             {
@@ -43,7 +43,7 @@ namespace moris
              * @return Property value
              */
             real get_field_value(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
@@ -55,7 +55,7 @@ namespace moris
              * @return Vector of sensitivities
              */
             const Matrix<DDRMat>& get_field_sensitivities(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
         };
     }

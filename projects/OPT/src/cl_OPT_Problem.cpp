@@ -114,16 +114,14 @@ namespace moris
 
         const Matrix<DDRMat>& Problem::get_objectives()
         {
-            if (mUpdateObjectives)
-            {
-                mObjectives = this->compute_objectives();
+            mObjectives = this->compute_objectives();
 
-                MORIS_ASSERT(mObjectives.numel() == mNumObjectives,
-                        "Number of objectives is incorrect.\n");
+            MORIS_ASSERT(mObjectives.numel() == mNumObjectives,
+                    "Number of objectives is incorrect.\n");
 
-                // log objective
-                MORIS_LOG_SPEC( "Objective", ios::stringify_log( mObjectives ) );
-            }
+            // log objective
+            MORIS_LOG_SPEC( "Objective", ios::stringify_log( mObjectives ) );
+
             return mObjectives;
         }
 
@@ -131,16 +129,14 @@ namespace moris
 
         const Matrix<DDRMat>& Problem::get_constraints()
         {
-            if (mUpdateConstraints)
-            {
-                mConstraints = this->compute_constraints();
+            mConstraints = this->compute_constraints();
 
-                MORIS_ASSERT(mConstraints.numel() == mNumConstraints,
-                        "Number of objectives is incorrect.\n");
-               
-                // log constraints
-                MORIS_LOG_SPEC( "Constraints", ios::stringify_log( mConstraints ) );
-            }
+            MORIS_ASSERT(mConstraints.numel() == mNumConstraints,
+                    "Number of objectives is incorrect.\n");
+
+            // log constraints
+            MORIS_LOG_SPEC( "Constraints", ios::stringify_log( mConstraints ) );
+
             return mConstraints;
         }
 
@@ -164,36 +160,41 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::set_advs( const Matrix<DDRMat> & aNewADVs)
+        void Problem::trigger_criteria_solve(const Matrix<DDRMat> & aNewADVs)
         {
-            mADVs = aNewADVs;
-
-            MORIS_ASSERT( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
-                    "Problem::set_advs - size of ADV vectors does not match.\n");
+            if (par_rank() == 0)
+            {
+                MORIS_ASSERT( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
+                              "Problem::compute_criteria() - size of ADV vectors does not match.\n");
+                mADVs = aNewADVs;
+            }
 
             mCriteria = mInterface->get_criteria(aNewADVs);
 
-            mInterface->get_dcriteria_dadv();
-
-            // log criteria and ADVs
-            MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
-            if ( mADVs.numel() > 0 )
+            if (par_rank() == 0)
             {
-                MORIS_LOG_SPEC( "MinADV", mADVs.min() );
-                MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
+                // log criteria and ADVs
+                MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
+                if ( mADVs.numel() > 0 )
+                {
+                    MORIS_LOG_SPEC( "MinADV", mADVs.min() );
+                    MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
+                }
             }
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        void Problem::trigger_dcriteria_dadv_solve()
+        {
+            mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
         const Matrix<DDRMat>& Problem::get_objective_gradients()
         {
-            if (mUpdateObjectiveGradients)
-            {
-                (this->*compute_objective_gradient)();
-                mUpdateObjectiveGradients = false;
-            }
-
+            (this->*compute_objective_gradient)();
             return mObjectiveGradient;
         }
 
@@ -201,12 +202,7 @@ namespace moris
 
         const Matrix<DDRMat>& Problem::get_constraint_gradients()
         {
-            if (mUpdateConstraintGradients)
-            {
-                (this->*compute_constraint_gradient)();
-                mUpdateConstraintGradients = false;
-            }
-
+            (this->*compute_constraint_gradient)();
             return mConstraintGradient;
         }
 

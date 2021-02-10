@@ -23,10 +23,10 @@ namespace moris
              * @param aParameters Additional parameters
              */
             template <typename Vector_Type>
-            Circle(Vector_Type&     aADVs,
-                   Matrix<DDUMat>   aGeometryVariableIndices,
-                   Matrix<DDUMat>   aADVIndices,
-                   Matrix<DDRMat>   aConstants,
+            Circle(Vector_Type&              aADVs,
+                   Matrix<DDUMat>            aGeometryVariableIndices,
+                   Matrix<DDUMat>            aADVIndices,
+                   Matrix<DDRMat>            aConstants,
                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
                     , Geometry(aParameters)
@@ -43,7 +43,10 @@ namespace moris
              * @param aRadius radius of the circle
              * @param aParameters Additional parameters
              */
-            Circle(real aXCenter, real aYCenter, real aRadius, Geometry_Field_Parameters aParameters = {});
+            Circle(real                      aXCenter,
+                   real                      aYCenter,
+                   real                      aRadius,
+                   Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

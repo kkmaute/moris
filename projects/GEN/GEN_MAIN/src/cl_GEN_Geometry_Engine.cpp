@@ -61,7 +61,7 @@ namespace moris
                 , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
         {
             // Tracer
-            Tracer tTracer("GEN", "N/A", "Create geometry engine");
+            Tracer tTracer("GEN", "Create geometry engine");
 
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
@@ -146,7 +146,7 @@ namespace moris
                 , mTimeOffset(aParameters.mTimeOffset)
         {
             // Tracer
-            Tracer tTracer("GEN", "N/A", "Create geometry engine");
+            Tracer tTracer("GEN", "Create geometry engine");
 
             this->distribute_advs(aMesh);
         }
@@ -655,7 +655,7 @@ namespace moris
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             // Tracer
-            Tracer tTracer( "GEN", "N/A", "Create PDVs" );
+            Tracer tTracer( "GEN", "Create PDVs" );
 
             // Get meshes
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
@@ -1089,7 +1089,7 @@ namespace moris
         void Geometry_Engine::distribute_advs(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GEN", "N/A", "Distribute ADVs");
+            Tracer tTracer("GEN", "Distribute ADVs");
 
             // Register spatial dimension
             mNumSpatialDimensions = aMesh->get_spatial_dim();
@@ -1391,7 +1391,7 @@ namespace moris
         void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
         {
             // Tracer
-            Tracer tTracer("GEN", "N/A", "Output fields");
+            Tracer tTracer("GEN", "Output fields");
 
             this->output_fields_on_mesh(aMesh, mOutputMeshFile);
             this->write_geometry_fields(aMesh, mGeometryFieldFile);

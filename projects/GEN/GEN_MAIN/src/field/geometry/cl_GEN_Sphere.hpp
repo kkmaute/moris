@@ -25,10 +25,10 @@ namespace moris
              * @param aParameters Additional parameters
              */
             template <typename Vector_Type>
-            Sphere(Vector_Type&     aADVs,
-                   Matrix<DDUMat>   aGeometryVariableIndices,
-                   Matrix<DDUMat>   aADVIndices,
-                   Matrix<DDRMat>   aConstants,
+            Sphere(Vector_Type&              aADVs,
+                   Matrix<DDUMat>            aGeometryVariableIndices,
+                   Matrix<DDUMat>            aADVIndices,
+                   Matrix<DDRMat>            aConstants,
                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
                     , Geometry(aParameters)
@@ -46,7 +46,11 @@ namespace moris
              * @param aRadius radius of the sphere
              * @param aParameters Additional parameters
              */
-            Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius, Geometry_Field_Parameters aParameters = {});
+            Sphere(real                      aXCenter,
+                   real                      aYCenter,
+                   real                      aZCenter,
+                   real                      aRadius,
+                   Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

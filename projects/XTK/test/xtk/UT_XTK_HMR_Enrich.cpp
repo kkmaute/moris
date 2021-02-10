@@ -101,7 +101,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_lagrange_orders  ( { {2} });
         tParameters.set_lagrange_patterns({ {0} });
@@ -225,7 +225,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         tParameters.set_domain_offset({ {-3.0}, {-1.0} });
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_lagrange_orders  ( { {2} });
         tParameters.set_lagrange_patterns({ {0} });

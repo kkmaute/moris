@@ -98,7 +98,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });
@@ -512,7 +512,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }});
 
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });

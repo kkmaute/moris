@@ -10,10 +10,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Voxel_Input::Voxel_Input(
-                Matrix<DDRMat>   aConstants,
-                std::string      aVoxelFieldName,
-                Matrix<DDRMat>   aDomainDimensions,
-                Matrix<DDRMat>   aDomainOffset,
+                Matrix<DDRMat>            aConstants,
+                std::string               aVoxelFieldName,
+                Matrix<DDRMat>            aDomainDimensions,
+                Matrix<DDRMat>            aDomainOffset,
                 Geometry_Field_Parameters aParameters)
                 : Field(aConstants, aParameters)
                 , Geometry(aParameters)

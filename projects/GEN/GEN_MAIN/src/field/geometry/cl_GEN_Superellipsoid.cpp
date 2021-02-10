@@ -8,13 +8,13 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipsoid::Superellipsoid(
-                real             aXCenter,
-                real             aYCenter,
-                real             aZCenter,
-                real             aXSemidiameter,
-                real             aYSemidiameter,
-                real             aZSemidiameter,
-                real             aExponent,
+                real                      aXCenter,
+                real                      aYCenter,
+                real                      aZCenter,
+                real                      aXSemidiameter,
+                real                      aYSemidiameter,
+                real                      aZSemidiameter,
+                real                      aExponent,
                 Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent}}),
                         aParameters)

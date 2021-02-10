@@ -7,7 +7,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius, Geometry_Field_Parameters aParameters)
+        Sphere::Sphere(
+                real                      aXCenter,
+                real                      aYCenter,
+                real                      aZCenter,
+                real                      aRadius,
+                Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}), aParameters)
                 , Geometry(aParameters)
         {
