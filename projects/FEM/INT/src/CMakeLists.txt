@@ -174,6 +174,7 @@ set(HEADERS
     cl_FEM_Node.hpp
     cl_FEM_Field_Interpolator.hpp
     cl_FEM_Field_Interpolator_Manager.hpp
+    cl_FEM_Field.hpp        
     fn_FEM_Rotation_Matrix.hpp
     cl_FEM_Property.hpp
     
@@ -327,6 +328,7 @@ set(LIB_SOURCES
     cl_FEM_Geometry_Interpolator.cpp
     cl_FEM_Field_Interpolator.cpp
     cl_FEM_Field_Interpolator_Manager.cpp
+    cl_FEM_Field.cpp  
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
