@@ -142,23 +142,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual Matrix< DDRMat > & get_node_values()
+                virtual const Matrix< DDRMat > & get_nodal_values() const
                 {
                     return mNodalValues;
                 };
 
                 //------------------------------------------------------------------------------
 
-                virtual const Matrix< DDRMat > & get_node_values() const
+                virtual void set_nodal_values( const Matrix< DDRMat > & aNodalValues )
                 {
-                    return mNodalValues;
-                };
-
-                //------------------------------------------------------------------------------
-
-                virtual Matrix< DDRMat > & get_coefficients()
-                {
-                    return mCoefficients;
+                    mNodalValues = aNodalValues;
                 };
 
                 //------------------------------------------------------------------------------
@@ -166,6 +159,13 @@ namespace moris
                 virtual const Matrix< DDRMat > & get_coefficients() const
                 {
                     return mCoefficients;
+                };
+
+                //------------------------------------------------------------------------------
+
+                virtual void set_coefficients( const Matrix< DDRMat > & aCoefficients )
+                {
+                    mCoefficients = aCoefficients;
                 };
 
                 //------------------------------------------------------------------------------

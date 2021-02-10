@@ -126,7 +126,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void map_node_to_bspline( Matrix<DDRMat>& aSolution );
+                void map_node_to_bspline(  mtk::Field * aField );
 
                 //------------------------------------------------------------------------------
 

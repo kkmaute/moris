@@ -174,13 +174,12 @@ namespace moris
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Out )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                std::cout<<"Field_In size: "<<tField_In->get_node_values().numel()<<std::endl;
-                std::cout<<"Field_Out size: "<<tField_Out->get_node_values().numel()<<std::endl;
+                std::cout<<"Field_In size: "<<tField_In->get_nodal_values().numel()<<std::endl;
+                std::cout<<"Field_Out size: "<<tField_Out->get_nodal_values().numel()<<std::endl;
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 125));
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 46));
+                CHECK(equal_to( tField_In->get_nodal_values().numel(), 125));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 46));
 
-                //                tFieldHMR->get_node_values() = tField_In->get_node_values();
                 //                tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
                 //                tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
@@ -288,7 +287,7 @@ namespace moris
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 46));;
+                CHECK(equal_to( tField_In->get_nodal_values().numel(), 46));;
 
                 // Use mapper
                 mtk::Mapper tMapper;
@@ -299,7 +298,7 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldHMR->get_node_values() = tField_Out->get_node_values();
+                tFieldHMR->get_node_values() = tField_Out->get_nodal_values();
 
                 //tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -308,11 +307,11 @@ namespace moris
                 mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 125));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 125));
 
-                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
                 }
 
                 delete tField_In;
@@ -420,7 +419,7 @@ namespace moris
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 217));;
+                CHECK(equal_to( tField_In->get_nodal_values().numel(), 217));;
 
                 // Use mapper
                 mtk::Mapper tMapper;
@@ -431,7 +430,7 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldHMR->get_node_values() = tField_Out->get_node_values();
+                tFieldHMR->get_node_values() = tField_Out->get_nodal_values();
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -440,11 +439,11 @@ namespace moris
                 mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 133));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 133));
 
-                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
                 }
 
                 delete tField_In;
@@ -552,7 +551,7 @@ namespace moris
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                CHECK(equal_to( tField_In->get_node_values().numel(), 63));;
+                CHECK(equal_to( tField_In->get_nodal_values().numel(), 63));;
 
                 // Use mapper
                 mtk::Mapper tMapper;
@@ -563,7 +562,7 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldHMR->get_node_values() = tField_Out->get_node_values();
+                tFieldHMR->get_node_values() = tField_Out->get_nodal_values();
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -572,11 +571,11 @@ namespace moris
                 mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
 
-                CHECK(equal_to( tField_Out->get_node_values().numel(), 465));
+                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 465));
 
-                for( uint Ik = 0; Ik < tField_Out->get_node_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_node_values()( Ik ), tField_Ref->get_node_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
                 }
 
                 delete tField_In;

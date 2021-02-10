@@ -129,7 +129,7 @@ namespace moris
 
             save_matrix_to_hdf5_file( tFileID,
                     this->get_label(),
-                    this->get_node_values(),
+                    this->get_nodal_values(),
                     tStatus );
 
             // close file
@@ -144,10 +144,13 @@ namespace moris
         {
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
+            Matrix<DDRMat> tMat;
             load_matrix_from_hdf5_file( tFile,
                     this->get_label(),
-                    this->get_coefficients(),
+                    tMat,
                     tStatus );
+
+            this->set_coefficients( tMat );
 
             tStatus = close_hdf5_file( tFile );
         }
@@ -159,7 +162,7 @@ namespace moris
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
 
-            save_matrix_to_binary_file( this->get_node_values(), tFilePath );
+            save_matrix_to_binary_file( this->get_nodal_values(), tFilePath );
         }
 
         //------------------------------------------------------------------------------

@@ -186,7 +186,7 @@ namespace moris
                     EntityRank::BSPLINE);
 
             // move coefficients to output field
-            mFieldOut->get_coefficients() = std::move( tFieldUnion.get_coefficients() );
+            mFieldOut->set_coefficients( tFieldUnion.get_coefficients() );
 
             this->perform_mapping(
                     mFieldOut,
@@ -247,13 +247,12 @@ namespace moris
             eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
 
             // get values of source field
-            const Matrix< DDRMat > & tSourceData = aFieldSource->get_node_values();
+            const Matrix< DDRMat > & tSourceData = aFieldSource->get_nodal_values();
 
             // get target data
-            Matrix< DDRMat > & tTargetData = aFieldTarget->get_node_values();
-
-            // allocate value matrix
-            tTargetData.set_size( tTargetLagrangeMesh->get_number_of_all_basis_on_proc(), aFieldTarget->get_number_of_dimensions() );
+            Matrix< DDRMat > tTargetData(
+                    tTargetLagrangeMesh->get_number_of_all_basis_on_proc(),
+                    aFieldTarget->get_number_of_dimensions() );
 
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_dimensions() );
@@ -317,6 +316,8 @@ namespace moris
                 }
             }
 
+            aFieldTarget->set_nodal_values( tTargetData );
+
             delete( tTMatrix );
         }
 
@@ -346,13 +347,10 @@ namespace moris
             tTargetLagrangeMesh->unflag_all_basis();
 
             // source values
-            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_node_values();
+            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_nodal_values();
 
             // target values
-            Matrix< DDRMat > & tTargetValues = aFieldTarget->get_node_values();
-
-            // allocate output memory
-            tTargetValues.set_size( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
+            Matrix< DDRMat > tTargetValues( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
 
             // get number of elements
             uint tNumberOfElements = tSourceLagrangeMesh->get_number_of_elements();
@@ -406,6 +404,8 @@ namespace moris
                     }
                 }
             }
+
+            aFieldTarget->set_nodal_values( tTargetValues );
         }
 
         //------------------------------------------------------------------------------
@@ -500,7 +500,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline( Matrix<DDRMat> & aSolution )
+        void Mapper::map_node_to_bspline(  mtk::Field * aField )
         {
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
@@ -566,7 +566,11 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             tTimeSolver.solve();
-            tTimeSolver.get_full_solution( aSolution );
+
+            Matrix<DDRMat> tSolution;
+            tTimeSolver.get_full_solution( tSolution );
+
+            aField->set_coefficients( tSolution );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -580,9 +584,9 @@ namespace moris
             this->create_iwg_and_model( aField );
 
             // set weak bcs from field
-            mModel->set_weak_bcs( aField->get_node_values() );
+            mModel->set_weak_bcs( aField->get_nodal_values() );
 
-            this->map_node_to_bspline( aField->get_coefficients() );
+            this->map_node_to_bspline( aField );
         }
 
         //------------------------------------------------------------------------------
@@ -602,9 +606,7 @@ namespace moris
             // get number of nodes on block
             uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
 
-            Matrix< DDRMat > & tNodalValues = aField->get_node_values();
-
-            tNodalValues.set_size( tNumberOfNodes, 1 );
+            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
 
             const Matrix< DDRMat > & tCoefficients = aField->get_coefficients();
 
@@ -638,6 +640,8 @@ namespace moris
                 // write value into solution
                 tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
             }
+
+            aField->set_nodal_values( tNodalValues );
         }
 
         // FIXME do not delete for future use
