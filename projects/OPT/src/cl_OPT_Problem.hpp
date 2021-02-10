@@ -41,10 +41,6 @@ namespace moris
                 Matrix<DDRMat> mCriteria;   // vector of criteria values
 
             public:
-                bool mUpdateObjectives          = true;  // whether or not to compute new objectives when requested
-                bool mUpdateConstraints         = true;  // whether or not to compute new constraints when requested
-                bool mUpdateObjectiveGradients  = true;  // "                 " objective gradients
-                bool mUpdateConstraintGradients = true;  // "                 " constraint gradients
 
                 /**
                  * Constructor

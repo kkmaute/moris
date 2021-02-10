@@ -144,6 +144,34 @@ namespace moris
                 
                 // Solve optimization problem
                 tManager.perform();
+
+                // Sweep without sensitivities
+                tAlgorithmParameterList.set("evaluate_objective_gradients", false);
+                tAlgorithmParameterList.set("evaluate_constraint_gradients", false);
+
+                // Create interface
+                tInterface = std::make_shared<Interface_User_Defined>(
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
+                        nullptr);
+
+                // Create Problem
+                tProblem = std::make_shared<Problem_User_Defined>(
+                        tProblemParameterList,
+                        tInterface,
+                        &get_constraint_types_rosenbrock,
+                        &compute_objectives_rosenbrock,
+                        &compute_constraints_rosenbrock,
+                        nullptr,
+                        nullptr,
+                        nullptr,
+                        nullptr);
+
+                // Create manager
+                tManager = moris::opt::Manager({tAlgorithmParameterList}, tProblem);
+
+                // Solve optimization problem
+                tManager.perform();
             }
 
             // ---------------------------------------------------------------------------------------------------------

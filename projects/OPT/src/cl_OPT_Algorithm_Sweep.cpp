@@ -16,10 +16,10 @@ namespace moris
 
         Algorithm_Sweep::Algorithm_Sweep(ParameterList aParameterList)
                 : mIncludeBounds(aParameterList.get<bool>("include_bounds")),
-                  mUpdateObjectives(aParameterList.get<bool>("evaluate_objectives")),
-                  mUpdateConstraints(aParameterList.get<bool>("evaluate_constraints")),
-                  mUpdateObjectiveGradients(aParameterList.get<bool>("evaluate_objective_gradients")),
-                  mUpdateConstraintGradients(aParameterList.get<bool>("evaluate_constraint_gradients")),
+                  mEvaluateObjectives(aParameterList.get<bool>("evaluate_objectives")),
+                  mEvaluateConstraints(aParameterList.get<bool>("evaluate_constraints")),
+                  mEvaluateObjectiveGradients(aParameterList.get<bool>("evaluate_objective_gradients")),
+                  mEvaluateConstraintGradients(aParameterList.get<bool>("evaluate_constraint_gradients")),
                   mSave(aParameterList.get<bool>("save")),
                   mPrint(aParameterList.get<bool>("print")),
                   mFileID(create_hdf5_file(aParameterList.get<std::string>("hdf5_path"))),
@@ -48,12 +48,6 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
             mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
             mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
-
-            // Set initial compute flags
-            mProblem->mUpdateObjectives = this->mUpdateObjectives;
-            mProblem->mUpdateConstraints = this->mUpdateConstraints;
-            mProblem->mUpdateObjectiveGradients = this->mUpdateObjectiveGradients;
-            mProblem->mUpdateConstraintGradients = this->mUpdateConstraintGradients;
 
             // Get number of ADVs
             uint tNumADVs = mProblem->get_num_advs();
@@ -191,8 +185,11 @@ namespace moris
                 MORIS_LOG_ITERATION();
 
                 // Set new ADVs
-                mProblem->trigger_criteria_solve(mEvaluationPoints.get_column(tEvaluationIndex));
-                mProblem->trigger_dcriteria_dadv_solve();
+                this->criteria_solve(mEvaluationPoints.get_column(tEvaluationIndex));
+                if (mEvaluateObjectiveGradients or mEvaluateConstraintGradients)
+                {
+                    mProblem->trigger_dcriteria_dadv_solve();
+                }
 
                 // Set evaluation name
                 tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
@@ -259,51 +256,53 @@ namespace moris
         
         void Algorithm_Sweep::output_objectives_constraints(std::string aEvaluationName)
         {
-            // Set flags for computation
-            mProblem->mUpdateObjectives = this->mUpdateObjectives;
-            mProblem->mUpdateConstraints = this->mUpdateConstraints;
-
-            // Calculate the objectives and constraints
-            Matrix<DDRMat> tObjectives = mProblem->get_objectives();
-            Matrix<DDRMat> tConstraints = mProblem->get_constraints();
-
             // Output
-            this->output_variables(tObjectives, "objectives" + aEvaluationName);
-            this->output_variables(tConstraints, "constraints" + aEvaluationName);
+            if (mEvaluateObjectives)
+            {
+                Matrix<DDRMat> tObjectives = mProblem->get_objectives();
+                this->output_variables(tObjectives, "objectives" + aEvaluationName);
+            }
+            if (mEvaluateConstraints)
+            {
+                Matrix<DDRMat> tConstraints = mProblem->get_constraints();
+                this->output_variables(tConstraints, "constraints" + aEvaluationName);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Algorithm_Sweep::evaluate_objective_gradients(std::string aEvaluationName)
         {
-            // Set flags for computation
-            mProblem->mUpdateObjectiveGradients = this->mUpdateObjectiveGradients;
+            if (mEvaluateObjectiveGradients)
+            {
+                // Calculate the objective gradients
+                Matrix<DDRMat> tObjectiveGradients = mProblem->get_objective_gradients();
 
-            // Calculate the objective gradients
-            Matrix<DDRMat> tObjectiveGradients = mProblem->get_objective_gradients();
+                // Output
+                this->output_variables(tObjectiveGradients, "objective_gradients" + aEvaluationName);
 
-            // Output
-            this->output_variables(tObjectiveGradients, "objective_gradients" + aEvaluationName);
-
-            // Return
-            return tObjectiveGradients;
+                // Return
+                return tObjectiveGradients;
+            }
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Algorithm_Sweep::evaluate_constraint_gradients(std::string aEvaluationName)
         {
-            // Set flags for computation
-            mProblem->mUpdateConstraintGradients = this->mUpdateConstraintGradients;
+            if (mEvaluateConstraintGradients)
+            {
+                // Calculate the constraint gradients
+                Matrix<DDRMat> tConstraintGradients = mProblem->get_constraint_gradients();
 
-            // Calculate the constraint gradients
-            Matrix<DDRMat> tConstraintGradients = mProblem->get_constraint_gradients();
+                // Output
+                this->output_variables(tConstraintGradients, "constraint_gradients" + aEvaluationName);
 
-            // Output
-            this->output_variables(tConstraintGradients, "constraint_gradients" + aEvaluationName);
-
-            // Return
-            return tConstraintGradients;
+                // Return
+                return tConstraintGradients;
+            }
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
