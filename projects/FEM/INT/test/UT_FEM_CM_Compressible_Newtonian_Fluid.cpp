@@ -767,7 +767,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
 {
     // define an epsilon environment
     real tEpsilon = 2.0E-6;
-    real tEpsilonCubic = 1.0E-5;
+    real tEpsilonCubic = 2.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-6;
