@@ -6,6 +6,11 @@
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "HMR_Globals.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
+#include "cl_MTK_Field.hpp"
+#include "cl_MTK_Mapper.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
@@ -196,9 +201,9 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         moris::uint tDimension = 3;
         moris::uint tOrder = 1;
 
-//------------------------------------------------------------------------------
-//  HMR Parameters setup
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
         moris::hmr::Parameters tParameters;
@@ -243,9 +248,9 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-//------------------------------------------------------------------------------
-//  HMR Initialization
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
 
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
@@ -286,8 +291,8 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // manually create union
         tDatabase->unite_patterns( 0,
-                                   1,
-                                   tParameters.get_union_pattern() );
+                1,
+                tParameters.get_union_pattern() );
 
         // update background mesh
         tDatabase->update_bspline_meshes();
@@ -328,14 +333,14 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
 TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
 {
-//    gLogger.set_severity_level( 0 );
+    //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 4  )
     {
 
-//------------------------------------------------------------------------------
-//  HMR Parameters setup
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
@@ -360,9 +365,9 @@ TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
 
-//------------------------------------------------------------------------------
-//  HMR Initialization
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
 
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
@@ -384,14 +389,14 @@ TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
 
 TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 {
-//    gLogger.set_severity_level( 0 );
+    //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1  )
     {
 
-//------------------------------------------------------------------------------
-//  HMR Parameters setup
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
@@ -413,9 +418,9 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
 
-//------------------------------------------------------------------------------
-//  HMR Initialization
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
 
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
@@ -430,14 +435,14 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // fixme: change this to 3
         for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-//            tDatabase->flag_element( 0 );
+            //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-       tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
@@ -446,7 +451,7 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // fixme: change this to 2
         for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-//            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+            //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
             tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
@@ -464,49 +469,49 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // calculate T-Matrices etc
         tDatabase->finalize();
 
-//------------------------------------------------------------------------------
-//  Fields
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  Fields
+        //------------------------------------------------------------------------------
 
-         // create pointer to input field
-         auto tField = tHMR.create_field( "LevelSet", 0, 0 );
+        // create pointer to input field
+        auto tField = tHMR.create_field( "LevelSet", 0, 0 );
 
-         // evaluate function at nodes
-         tField->evaluate_scalar_function( LevelSetFunction );
+        // evaluate function at nodes
+        tField->evaluate_scalar_function( LevelSetFunction );
 
-         uint tOutputOrder = 1;
+        uint tOutputOrder = 1;
 
-         // map input to output
-         tHMR.map_field_to_output_union( tField, tOutputOrder );
+        // map input to output
+        tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-         auto tOutputMesh = tHMR.create_mesh( tOutputOrder, 2 );        // order , pattern
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, 2 );        // order , pattern
 
-         // calculate exact value
-         auto tExact = tOutputMesh->create_field( "Exact", 0 );
+        // calculate exact value
+        auto tExact = tOutputMesh->create_field( "Exact", 0 );
 
-         tExact->evaluate_scalar_function( LevelSetFunction );
-//------------------------------------------------------------------------------
-//   Test error
-//------------------------------------------------------------------------------
+        tExact->evaluate_scalar_function( LevelSetFunction );
+        //------------------------------------------------------------------------------
+        //   Test error
+        //------------------------------------------------------------------------------
 
-         // determine coefficient of determination
-         moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+        // determine coefficient of determination
+        moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
-         // perform test
-         REQUIRE( tR2 > 0.99 );
+        // perform test
+        REQUIRE( tR2 > 0.99 );
     }
 }
 
 TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 {
-//    gLogger.set_severity_level( 0 );
+    //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1  )
     {
 
-//------------------------------------------------------------------------------
-//  HMR Parameters setup
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
         moris::hmr::Parameters tParameters;
@@ -536,9 +541,9 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         //FIXME assign bspline to lagrange mesh
 
-//------------------------------------------------------------------------------
-//  HMR Initialization
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
 
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
@@ -553,14 +558,14 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         // fixme: change this to 3
         for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-//            tDatabase->flag_element( 0 );
+            //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-       tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
@@ -569,7 +574,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         // fixme: change this to 2
         for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-//            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+            //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
             tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
@@ -587,9 +592,9 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         // calculate T-Matrices etc
         tDatabase->finalize();
 
-//------------------------------------------------------------------------------
-//  Fields
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  Fields
+        //------------------------------------------------------------------------------
 
         // create pointer to input field
         auto tField = tHMR.create_field( "LevelSet", 0, 0 );
@@ -608,29 +613,29 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         auto tExact = tOutputMesh->create_field( "Exact", 0 );
 
         tExact->evaluate_scalar_function( LevelSetFunction );
-//------------------------------------------------------------------------------
-//   Test error
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //   Test error
+        //------------------------------------------------------------------------------
 
-         // determine coefficient of determination
-         moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+        // determine coefficient of determination
+        moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
-         // perform test
-         REQUIRE( tR2 > 0.99 );
+        // perform test
+        REQUIRE( tR2 > 0.99 );
 
     }
 }
 
 TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 {
-//    gLogger.set_severity_level( 0 );
+    //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1  )
     {
 
-//------------------------------------------------------------------------------
-//  HMR Parameters setup
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
         moris::hmr::Parameters tParameters;
@@ -662,9 +667,9 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 
         //FIXME assign bspline to lagrange mesh
 
-//------------------------------------------------------------------------------
-//  HMR Initialization
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
 
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
@@ -679,14 +684,14 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         // fixme: change this to 3
         for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-//            tDatabase->flag_element( 0 );
+            //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-       tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
@@ -695,7 +700,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         // fixme: change this to 2
         for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-//            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+            //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
             tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
@@ -713,44 +718,44 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         // calculate T-Matrices etc
         tDatabase->finalize();
 
-//------------------------------------------------------------------------------
-//  Fields
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //  Fields
+        //------------------------------------------------------------------------------
 
-         // create pointer to input field
-         auto tField = tHMR.create_field( "LevelSet", 0, 0 );
+        // create pointer to input field
+        auto tField = tHMR.create_field( "LevelSet", 0, 0 );
 
-         // evaluate function at nodes
-         tField->evaluate_scalar_function( LevelSetFunction );
+        // evaluate function at nodes
+        tField->evaluate_scalar_function( LevelSetFunction );
 
-         uint tOutputOrder = 2;
+        uint tOutputOrder = 2;
 
-         // map input to output
-         tHMR.map_field_to_output_union( tField, tOutputOrder );
+        // map input to output
+        tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-         auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
 
-         // calculate exact value
-         auto tExact = tOutputMesh->create_field( "Exact", 0 );
+        // calculate exact value
+        auto tExact = tOutputMesh->create_field( "Exact", 0 );
 
-         tExact->evaluate_scalar_function( LevelSetFunction );
-//-------------------------------------------------------------------------------------
+        tExact->evaluate_scalar_function( LevelSetFunction );
+        //-------------------------------------------------------------------------------------
 
-//         auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
-//
-//         // calculate exact value
-//         auto tExact = tOutputMesh->create_field( "Exact", 1 );
-//
-//         tExact->evaluate_scalar_function( LevelSetFunction );
-//------------------------------------------------------------------------------
-//   Test error
-//------------------------------------------------------------------------------
+        //         auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
+        //
+        //         // calculate exact value
+        //         auto tExact = tOutputMesh->create_field( "Exact", 1 );
+        //
+        //         tExact->evaluate_scalar_function( LevelSetFunction );
+        //------------------------------------------------------------------------------
+        //   Test error
+        //------------------------------------------------------------------------------
 
-         // determine coefficient of determination
-         moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+        // determine coefficient of determination
+        moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
-         // perform test
-         REQUIRE( tR2 > 0.99 );
+        // perform test
+        REQUIRE( tR2 > 0.99 );
 
     }
 }
@@ -758,125 +763,125 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 {
     //    gLogger.set_severity_level( 0 );
-        // can only perform test for 1, 2 or 4 procs
-        if( moris::par_size() == 1  )
+    // can only perform test for 1, 2 or 4 procs
+    if( moris::par_size() == 1  )
+    {
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
+
+        // The parameter object controls the behavior of HMR.
+        moris::hmr::Parameters tParameters;
+
+        moris::Matrix< moris::DDLUMat > tNumberOfElements;
+
+        // set values to parameters
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+
+        // B-Spline truncation is turned on by default.
+        // It is recommended to leave this setting as is.
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_lagrange_orders  ( { {2}, {1} });
+        tParameters.set_lagrange_patterns({ {0}, {1} });
+
+        tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {2} } );
+        tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+
+        tParameters.set_union_pattern( 2 );
+
+        tParameters.set_staircase_buffer( 2 );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+        tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
+        tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        //FIXME assign bspline to lagrange mesh
+
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
+
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
+
+        // manually select output pattern
+        tDatabase->set_activation_pattern( 0 );
+
+        // refine the first element three times
+        // fixme: change this to 3
+        for( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
-    //------------------------------------------------------------------------------
-    //  HMR Parameters setup
-    //------------------------------------------------------------------------------
+            //            tDatabase->flag_element( 0 );
+            tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
-            // The parameter object controls the behavior of HMR.
-            moris::hmr::Parameters tParameters;
-
-            moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-            // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
-
-            // B-Spline truncation is turned on by default.
-            // It is recommended to leave this setting as is.
-            tParameters.set_bspline_truncation( true );
-
-            tParameters.set_lagrange_orders  ( { {2}, {1} });
-            tParameters.set_lagrange_patterns({ {0}, {1} });
-
-            tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {2} } );
-            tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
-
-            tParameters.set_union_pattern( 2 );
-
-            tParameters.set_staircase_buffer( 2 );
-
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-            tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-            //FIXME assign bspline to lagrange mesh
-
-    //------------------------------------------------------------------------------
-    //  HMR Initialization
-    //------------------------------------------------------------------------------
-
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
-
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
-
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 0 );
-
-            // refine the first element three times
-            // fixme: change this to 3
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-    //            tDatabase->flag_element( 0 );
-                tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
-
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement( 0 );
-            }
-
-           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
-
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 1 );
-
-            // refine the last element three times
-            // fixme: change this to 2
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-    //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-                tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
-
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement( 1 );
-            }
-
-            // manually create union
-            tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
-
-            tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-            //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
-
-            tDatabase->update_bspline_meshes();
-            tDatabase->update_lagrange_meshes();
-            // calculate T-Matrices etc
-            tDatabase->finalize();
-
-    //------------------------------------------------------------------------------
-    //  Fields
-    //------------------------------------------------------------------------------
-
-             // create pointer to input field
-             auto tField = tHMR.create_field( "LevelSet", 0, 0 );
-
-             // evaluate function at nodes
-             tField->evaluate_scalar_function( LevelSetFunction );
-
-             uint tOutputOrder = 1;
-
-             // map input to output
-             tHMR.map_field_to_output_union( tField, tOutputOrder );
-
-             auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
-
-             // calculate exact value
-             auto tExact = tOutputMesh->create_field( "Exact", 0 );
-
-             tExact->evaluate_scalar_function( LevelSetFunction );
-    //------------------------------------------------------------------------------
-    //   Test error
-    //------------------------------------------------------------------------------
-
-             // determine coefficient of determination
-             moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
-
-             // perform test
-             REQUIRE( tR2 > 0.99 );
+            // manually refine, do not reset pattern
+            tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
+
+        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+
+        // manually select output pattern
+        tDatabase->set_activation_pattern( 1 );
+
+        // refine the last element three times
+        // fixme: change this to 2
+        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        {
+            //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+
+            // manually refine, do not reset pattern
+            tDatabase->get_background_mesh()->perform_refinement( 1 );
+        }
+
+        // manually create union
+        tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+
+        tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+        //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+        // calculate T-Matrices etc
+        tDatabase->finalize();
+
+        //------------------------------------------------------------------------------
+        //  Fields
+        //------------------------------------------------------------------------------
+
+        // create pointer to input field
+        auto tField = tHMR.create_field( "LevelSet", 0, 0 );
+
+        // evaluate function at nodes
+        tField->evaluate_scalar_function( LevelSetFunction );
+
+        uint tOutputOrder = 1;
+
+        // map input to output
+        tHMR.map_field_to_output_union( tField, tOutputOrder );
+
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
+
+        // calculate exact value
+        auto tExact = tOutputMesh->create_field( "Exact", 0 );
+
+        tExact->evaluate_scalar_function( LevelSetFunction );
+        //------------------------------------------------------------------------------
+        //   Test error
+        //------------------------------------------------------------------------------
+
+        // determine coefficient of determination
+        moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+
+        // perform test
+        REQUIRE( tR2 > 0.99 );
+    }
 }
 
 TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
@@ -886,142 +891,142 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
     // do this test for 2 and 3 dimensions
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-    for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
-    {
-        for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
         {
-    //------------------------------------------------------------------------------
-    //  HMR Parameters setup
-    //------------------------------------------------------------------------------
-
-            // The parameter object controls the behavior of HMR.
-            moris::hmr::Parameters tParameters;
-
-            // set values to parameters
-            moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-            // set element size
-            if( moris::par_size() == 1 )
+            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
             {
-                tNumberOfElements.set_size( tDimension, 1, 2 );
+                //------------------------------------------------------------------------------
+                //  HMR Parameters setup
+                //------------------------------------------------------------------------------
+
+                // The parameter object controls the behavior of HMR.
+                moris::hmr::Parameters tParameters;
+
+                // set values to parameters
+                moris::Matrix< moris::DDLUMat > tNumberOfElements;
+
+                // set element size
+                if( moris::par_size() == 1 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 2 );
+                }
+                else if ( moris::par_size() == 2 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                }
+                else if ( moris::par_size() == 4 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                }
+
+                tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+
+                // B-Spline truncation is turned on by default.
+                // It is recommended to leave this setting as is.
+                tParameters.set_bspline_truncation( true );
+
+                tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
+                tParameters.set_lagrange_patterns({ {0}, {1} });
+
+                tParameters.set_bspline_orders   ( { {tOrder}, {2}, {tOrder}, {2} } );
+                tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+
+                tParameters.set_union_pattern( 2 );
+
+                tParameters.set_staircase_buffer( tOrder );
+
+                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+                tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
+                tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+
+                tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+                //------------------------------------------------------------------------------
+                //  HMR Initialization
+                //------------------------------------------------------------------------------
+
+                // create the HMR object by passing the settings to the constructor
+                moris::hmr::HMR tHMR( tParameters );
+
+                // std::shared_ptr< Database >
+                auto tDatabase = tHMR.get_database();
+
+                // manually select output pattern
+                tDatabase->set_activation_pattern( 0 );
+
+                // refine the first element three times
+                // fixme: change this to 3
+                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                {
+                    //            tDatabase->flag_element( 0 );
+                    tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+                    // manually refine, do not reset pattern
+                    tDatabase->get_background_mesh()->perform_refinement(0 );
+                }
+
+                //           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+
+                // manually select output pattern
+                tDatabase->set_activation_pattern( 1 );
+
+                // refine the last element three times
+                // fixme: change this to 2
+                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                {
+                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+
+                    // manually refine, do not reset pattern
+                    tDatabase->get_background_mesh()->perform_refinement(1);
+                }
+
+                // manually create union
+                //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+
+                //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+                //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+
+                tDatabase->update_bspline_meshes();
+                tDatabase->update_lagrange_meshes();
+                // calculate T-Matrices etc
+                tDatabase->finalize();
+
+                //------------------------------------------------------------------------------
+                //  Fields
+                //------------------------------------------------------------------------------
+
+                // create pointer to input field
+                auto tField = tHMR.create_field( "LevelSet", 0, 0 );
+
+                // evaluate function at nodes
+                tField->evaluate_scalar_function( LevelSetFunction );
+
+                uint tOutputMeshIndex = 1;
+                uint tBsplineMeshIndex = 0;
+                // map input to output
+                tHMR.map_field_to_output( tField,
+                        tOutputMeshIndex,
+                        tBsplineMeshIndex);
+
+                //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
+
+                auto tOutputMesh = tHMR.create_mesh( 1 );        // Mesh index
+
+                // calculate exact value
+                auto tExact = tOutputMesh->create_field( "Exact", 0 );
+
+                tExact->evaluate_scalar_function( LevelSetFunction );
+                //------------------------------------------------------------------------------
+                //   Test error
+                //------------------------------------------------------------------------------
+
+                // determine coefficient of determination
+                moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+
+                // perform test
+                REQUIRE( tR2 > 0.99 );
             }
-            else if ( moris::par_size() == 2 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
-            else if ( moris::par_size() == 4 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
-
-            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
-
-            // B-Spline truncation is turned on by default.
-            // It is recommended to leave this setting as is.
-            tParameters.set_bspline_truncation( true );
-
-            tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
-            tParameters.set_lagrange_patterns({ {0}, {1} });
-
-            tParameters.set_bspline_orders   ( { {tOrder}, {2}, {tOrder}, {2} } );
-            tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
-
-            tParameters.set_union_pattern( 2 );
-
-            tParameters.set_staircase_buffer( tOrder );
-
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-            tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-    //------------------------------------------------------------------------------
-    //  HMR Initialization
-    //------------------------------------------------------------------------------
-
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
-
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
-
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 0 );
-
-            // refine the first element three times
-            // fixme: change this to 3
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-    //            tDatabase->flag_element( 0 );
-                tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
-
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement(0 );
-            }
-
-//           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
-
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 1 );
-
-            // refine the last element three times
-            // fixme: change this to 2
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-                tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
-
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement(1);
-            }
-
-            // manually create union
-            //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
-
-            //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-            //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
-
-            tDatabase->update_bspline_meshes();
-            tDatabase->update_lagrange_meshes();
-            // calculate T-Matrices etc
-            tDatabase->finalize();
-
-    //------------------------------------------------------------------------------
-    //  Fields
-    //------------------------------------------------------------------------------
-
-             // create pointer to input field
-             auto tField = tHMR.create_field( "LevelSet", 0, 0 );
-
-             // evaluate function at nodes
-             tField->evaluate_scalar_function( LevelSetFunction );
-
-             uint tOutputMeshIndex = 1;
-             uint tBsplineMeshIndex = 0;
-             // map input to output
-             tHMR.map_field_to_output( tField,
-                                       tOutputMeshIndex,
-                                       tBsplineMeshIndex);
-
-             //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
-
-             auto tOutputMesh = tHMR.create_mesh( 1 );        // Mesh index
-
-             // calculate exact value
-             auto tExact = tOutputMesh->create_field( "Exact", 0 );
-
-             tExact->evaluate_scalar_function( LevelSetFunction );
-    //------------------------------------------------------------------------------
-    //   Test error
-    //------------------------------------------------------------------------------
-
-             // determine coefficient of determination
-             moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
-
-             // perform test
-             REQUIRE( tR2 > 0.99 );
         }
-    }
     }
 }
 
@@ -1032,143 +1037,143 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
     // do this test for 2 and 3 dimensions
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-    for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
-    {
-    for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
-    {
-    //------------------------------------------------------------------------------
-    //  HMR Parameters setup
-    //------------------------------------------------------------------------------
-
-            // The parameter object controls the behavior of HMR.
-            moris::hmr::Parameters tParameters;
-
-            // set values to parameters
-            moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-            // set element size
-            if( moris::par_size() == 1 )
+        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        {
+            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
             {
-                tNumberOfElements.set_size( tDimension, 1, 2 );
+                //------------------------------------------------------------------------------
+                //  HMR Parameters setup
+                //------------------------------------------------------------------------------
+
+                // The parameter object controls the behavior of HMR.
+                moris::hmr::Parameters tParameters;
+
+                // set values to parameters
+                moris::Matrix< moris::DDLUMat > tNumberOfElements;
+
+                // set element size
+                if( moris::par_size() == 1 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 2 );
+                }
+                else if ( moris::par_size() == 2 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                }
+                else if ( moris::par_size() == 4 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                }
+
+                tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+
+                // B-Spline truncation is turned on by default.
+                // It is recommended to leave this setting as is.
+                tParameters.set_bspline_truncation( true );
+
+                tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
+                tParameters.set_lagrange_patterns({ {0}, {1} });
+
+                tParameters.set_bspline_orders   ( { {1}, {tOrder}, {1}, {tOrder} } );
+                tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+
+                tParameters.set_union_pattern( 2 );
+
+                tParameters.set_staircase_buffer( tOrder );
+
+                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+                tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
+                tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+
+                tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+                //------------------------------------------------------------------------------
+                //  HMR Initialization
+                //------------------------------------------------------------------------------
+
+                // create the HMR object by passing the settings to the constructor
+                moris::hmr::HMR tHMR( tParameters );
+
+                // std::shared_ptr< Database >
+                auto tDatabase = tHMR.get_database();
+
+                // manually select output pattern
+                tDatabase->set_activation_pattern( 0 );
+
+                // refine the first element three times
+                // fixme: change this to 3
+                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                {
+                    //            tDatabase->flag_element( 0 );
+                    tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+                    // manually refine, do not reset pattern
+                    tDatabase->get_background_mesh()->perform_refinement(0);
+                }
+
+                tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+
+                // manually select output pattern
+                tDatabase->set_activation_pattern( 1 );
+
+                // refine the last element three times
+                // fixme: change this to 2
+                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                {
+                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+
+                    // manually refine, do not reset pattern
+                    tDatabase->get_background_mesh()->perform_refinement(1);
+                }
+
+                // manually create union
+                //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+
+                //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+                //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+
+                tDatabase->update_bspline_meshes();
+                tDatabase->update_lagrange_meshes();
+                // calculate T-Matrices etc
+                tDatabase->finalize();
+
+                //------------------------------------------------------------------------------
+                //  Fields
+                //------------------------------------------------------------------------------
+
+                // create pointer to input field
+                auto tField = tHMR.create_field( "LevelSet", 0, 1 );
+
+                // evaluate function at nodes
+                tField->evaluate_scalar_function( LevelSetFunction );
+
+                uint tOutputMeshIndex = 1;
+                uint tBsplineMeshIndex = 1;
+
+                // map input to output
+                tHMR.map_field_to_output( tField,
+                        tOutputMeshIndex,
+                        tBsplineMeshIndex);
+
+                //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
+
+                auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
+
+                // calculate exact value
+                auto tExact = tOutputMesh->create_field( "Exact", 1 );
+
+                tExact->evaluate_scalar_function( LevelSetFunction );
+                //------------------------------------------------------------------------------
+                //   Test error
+                //------------------------------------------------------------------------------
+
+                // determine coefficient of determination
+                moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+
+                // perform test
+                REQUIRE( tR2 > 0.99 );
             }
-            else if ( moris::par_size() == 2 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
-            else if ( moris::par_size() == 4 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
-
-            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
-
-            // B-Spline truncation is turned on by default.
-            // It is recommended to leave this setting as is.
-            tParameters.set_bspline_truncation( true );
-
-            tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
-            tParameters.set_lagrange_patterns({ {0}, {1} });
-
-            tParameters.set_bspline_orders   ( { {1}, {tOrder}, {1}, {tOrder} } );
-            tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
-
-            tParameters.set_union_pattern( 2 );
-
-            tParameters.set_staircase_buffer( tOrder );
-
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-            tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-    //------------------------------------------------------------------------------
-    //  HMR Initialization
-    //------------------------------------------------------------------------------
-
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
-
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
-
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 0 );
-
-            // refine the first element three times
-            // fixme: change this to 3
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-    //            tDatabase->flag_element( 0 );
-                tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
-
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement(0);
-            }
-
-           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
-
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 1 );
-
-            // refine the last element three times
-            // fixme: change this to 2
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-                tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
-
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement(1);
-            }
-
-            // manually create union
-            //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
-
-            //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-            //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
-
-            tDatabase->update_bspline_meshes();
-            tDatabase->update_lagrange_meshes();
-            // calculate T-Matrices etc
-            tDatabase->finalize();
-
-    //------------------------------------------------------------------------------
-    //  Fields
-    //------------------------------------------------------------------------------
-
-             // create pointer to input field
-             auto tField = tHMR.create_field( "LevelSet", 0, 1 );
-
-             // evaluate function at nodes
-             tField->evaluate_scalar_function( LevelSetFunction );
-
-             uint tOutputMeshIndex = 1;
-             uint tBsplineMeshIndex = 1;
-
-             // map input to output
-             tHMR.map_field_to_output( tField,
-                                       tOutputMeshIndex,
-                                       tBsplineMeshIndex);
-
-             //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
-
-             auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
-
-             // calculate exact value
-             auto tExact = tOutputMesh->create_field( "Exact", 1 );
-
-             tExact->evaluate_scalar_function( LevelSetFunction );
-    //------------------------------------------------------------------------------
-    //   Test error
-    //------------------------------------------------------------------------------
-
-             // determine coefficient of determination
-             moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
-
-             // perform test
-             REQUIRE( tR2 > 0.99 );
-    }
-    }
+        }
     }
 }
 
@@ -1179,155 +1184,263 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
     // do this test for 2 and 3 dimensions
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-    for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        {
+            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+            {
+                //------------------------------------------------------------------------------
+                //  HMR Parameters setup
+                //------------------------------------------------------------------------------
+
+                // The parameter object controls the behavior of HMR.
+                moris::hmr::Parameters tParameters;
+
+                // set values to parameters
+                moris::Matrix< moris::DDLUMat > tNumberOfElements;
+
+                // set element size
+                if( moris::par_size() == 1 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 2 );
+                }
+                else if ( moris::par_size() == 2 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                }
+                else if ( moris::par_size() == 4 )
+                {
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                }
+
+                tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+
+                // B-Spline truncation is turned on by default.
+                // It is recommended to leave this setting as is.
+                tParameters.set_bspline_truncation( true );
+
+                tParameters.set_lagrange_orders  ( { {1}, {tOrder} });
+                tParameters.set_lagrange_patterns({ {0}, {1} });
+
+                tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {tOrder} } );
+                tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+
+                tParameters.set_union_pattern( 2 );
+
+                tParameters.set_staircase_buffer( tOrder );
+
+                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+                tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
+                tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+
+                tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+                //------------------------------------------------------------------------------
+                //  HMR Initialization
+                //------------------------------------------------------------------------------
+
+                // create the HMR object by passing the settings to the constructor
+                moris::hmr::HMR tHMR( tParameters );
+
+                // std::shared_ptr< Database >
+                auto tDatabase = tHMR.get_database();
+
+                // manually select output pattern
+                tDatabase->set_activation_pattern( 0 );
+
+                // refine the first element three times
+                // fixme: change this to 3
+                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                {
+                    //            tDatabase->flag_element( 0 );
+                    tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+                    // manually refine, do not reset pattern
+                    tDatabase->get_background_mesh()->perform_refinement(0);
+                }
+
+                //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
+
+                // manually select output pattern
+                tDatabase->set_activation_pattern( 1 );
+
+                // refine the last element three times
+                // fixme: change this to 2
+                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                {
+                    //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+
+                    // manually refine, do not reset pattern
+                    tDatabase->get_background_mesh()->perform_refinement(1);
+                }
+
+                // manually create union
+                //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+
+                //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi2.vtk");
+                //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+
+                tDatabase->update_bspline_meshes();
+                tDatabase->update_lagrange_meshes();
+                // calculate T-Matrices etc
+                tDatabase->finalize();
+
+                //------------------------------------------------------------------------------
+                //  Fields
+                //------------------------------------------------------------------------------
+
+                // create pointer to input field
+                auto tField = tHMR.create_field( "LevelSet", 0, 1 );
+
+                // evaluate function at nodes
+                tField->evaluate_scalar_function( LevelSetFunction );
+
+                uint tOutputMeshIndex = 1;
+                uint tBsplineMeshIndex = 1;
+
+                // map input to output
+                tHMR.map_field_to_output( tField,
+                        tOutputMeshIndex,
+                        tBsplineMeshIndex);
+
+                //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSetPresi.exo" );
+
+                auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
+
+                // calculate exact value
+                auto tExact = tOutputMesh->create_field( "Exact", 1 );
+
+                tExact->evaluate_scalar_function( LevelSetFunction );
+                //------------------------------------------------------------------------------
+                //   Test error
+                //------------------------------------------------------------------------------
+
+                // determine coefficient of determination
+                moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+
+                // perform test
+                if( moris::par_size() == 1 )
+                {
+                    REQUIRE( tR2 > 0.95 );
+                }
+                else if( moris::par_size() == 2 )
+                {
+                    REQUIRE( tR2 > 0.96 );
+                }
+                else if( moris::par_size() == 4 )
+                {
+                    REQUIRE( tR2 > 0.94 );
+                }
+            }
+        }
+    }
+}
+
+TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
+{
+    //    gLogger.set_severity_level( 0 );
+    // can only perform test for 1, 2 or 4 procs
+    // do this test for 2 and 3 dimensions
+    if( moris::par_size() == 1 )
     {
-    for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
-    {
-    //------------------------------------------------------------------------------
-    //  HMR Parameters setup
-    //------------------------------------------------------------------------------
+        moris::uint tDimension=2;
 
-            // The parameter object controls the behavior of HMR.
-            moris::hmr::Parameters tParameters;
+        //------------------------------------------------------------------------------
+        //  HMR Parameters setup
+        //------------------------------------------------------------------------------
 
-            // set values to parameters
-            moris::Matrix< moris::DDLUMat > tNumberOfElements;
+        // The parameter object controls the behavior of HMR.
+        moris::hmr::Parameters tParameters;
 
-            // set element size
-            if( moris::par_size() == 1 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 2 );
-            }
-            else if ( moris::par_size() == 2 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
-            else if ( moris::par_size() == 4 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
+        // set values to parameters
+        moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
-            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+        // set element size
+        tNumberOfElements.set_size( tDimension, 1, 2 );
 
-            // B-Spline truncation is turned on by default.
-            // It is recommended to leave this setting as is.
-            tParameters.set_bspline_truncation( true );
+        tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
 
-            tParameters.set_lagrange_orders  ( { {1}, {tOrder} });
-            tParameters.set_lagrange_patterns({ {0}, {1} });
+        // B-Spline truncation is turned on by default.
+        // It is recommended to leave this setting as is.
+        tParameters.set_bspline_truncation( true );
 
-            tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {tOrder} } );
-            tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-            tParameters.set_union_pattern( 2 );
+        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_patterns ( { {1} } );
 
-            tParameters.set_staircase_buffer( tOrder );
+        tParameters.set_union_pattern( 2 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-            tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+        tParameters.set_staircase_buffer( 2 );
 
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+        tParameters.set_initial_refinement( { {1} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
-    //------------------------------------------------------------------------------
-    //  HMR Initialization
-    //------------------------------------------------------------------------------
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
 
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
+        //------------------------------------------------------------------------------
+        //  HMR Initialization
+        //------------------------------------------------------------------------------
 
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 0 );
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
 
-            // refine the first element three times
-            // fixme: change this to 3
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-    //            tDatabase->flag_element( 0 );
-                tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+        tHMR.perform_initial_refinement();
 
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement(0);
-            }
+        auto tDatabase = tHMR.get_database();
 
-           //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
+        // calculate T-Matrices etc
+        tDatabase->finalize();
 
-            // manually select output pattern
-            tDatabase->set_activation_pattern( 1 );
+        //------------------------------------------------------------------------------
+        //  Fields
+        //------------------------------------------------------------------------------
 
-            // refine the last element three times
-            // fixme: change this to 2
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
-            {
-    //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-                tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+        // create pointer to input field
+        auto tField = tHMR.create_field( "LevelSet", 0, 0 );
 
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement(1);
-            }
+        // evaluate function at nodes
+        tField->evaluate_scalar_function( LevelSetFunction );
 
-            // manually create union
-            //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( 0 );
 
-            //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi2.vtk");
-            //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+        // Create integration mesh
+        mtk::Integration_Mesh* tIntegrationMesh =
+                tHMR.create_integration_mesh( 0, tInterpolationMesh );
 
-            tDatabase->update_bspline_meshes();
-            tDatabase->update_lagrange_meshes();
-            // calculate T-Matrices etc
-            tDatabase->finalize();
+        // Create mesh manager
+        std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
 
-    //------------------------------------------------------------------------------
-    //  Fields
-    //------------------------------------------------------------------------------
+        // Register mesh pair
+        uint tMeshIndex = tMeshManager->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
 
-             // create pointer to input field
-             auto tField = tHMR.create_field( "LevelSet", 0, 1 );
+        mtk::Field tField_proxy( tMeshManager, tMeshIndex );
 
-             // evaluate function at nodes
-             tField->evaluate_scalar_function( LevelSetFunction );
+        tField_proxy.set_nodal_values( tField->get_node_values() );
 
-             uint tOutputMeshIndex = 1;
-             uint tBsplineMeshIndex = 1;
+        mtk::Mapper tMapper;
 
-             // map input to output
-             tHMR.map_field_to_output( tField,
-                                       tOutputMeshIndex,
-                                       tBsplineMeshIndex);
+        tMapper.perform_mapping(
+                &tField_proxy,
+                EntityRank::NODE,
+                EntityRank::BSPLINE);
 
-             //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSetPresi.exo" );
+        tField->get_coefficients() = tField_proxy.get_coefficients();
 
-             auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
+        tField->evaluate_nodal_values( tField->get_coefficients() );
 
-             // calculate exact value
-             auto tExact = tOutputMesh->create_field( "Exact", 1 );
+        print( tField->get_coefficients(),"bs");
+        print( tField->get_node_values(),"ns");
 
-             tExact->evaluate_scalar_function( LevelSetFunction );
-    //------------------------------------------------------------------------------
-    //   Test error
-    //------------------------------------------------------------------------------
 
-             // determine coefficient of determination
-             moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
+        tHMR.save_to_exodus( 0, "LevelSetPresi.exo" );
 
-             // perform test
-             if( moris::par_size() == 1 )
-             {
-                 REQUIRE( tR2 > 0.95 );
-             }
-             else if( moris::par_size() == 2 )
-             {
-                 REQUIRE( tR2 > 0.96 );
-             }
-             else if( moris::par_size() == 4 )
-             {
-                 REQUIRE( tR2 > 0.94 );
-             }
+
     }
-    }
-    }
+
 }
 

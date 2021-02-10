@@ -1750,7 +1750,7 @@ namespace moris
 
             mtk::Field tFieldUnion( tMeshManager, tMeshPairIndex );
 
-            tFieldUnion.get_node_values() = tUnionField->get_node_values();
+            tFieldUnion.set_nodal_values( tUnionField->get_node_values() );
 
             // create mapper
             mtk::Mapper tMapper;
