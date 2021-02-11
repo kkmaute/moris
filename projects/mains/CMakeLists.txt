@@ -71,14 +71,32 @@ set(SO_TPLS
 ${ARMADILLO_EIGEN}
 )
 
-# get list of INT subfolders
-get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
+# List header dependencies                                                                                                                                                                                                                                                     
+set(INT_INCLUDES
+	"CORE"
+    "ELEM"
+    "IP"
+    "IG"
+	"MM"
+	"CM"
+    "SP"
+	"IWG"
+    "IQI")
+
+set(INT_INTERNAL_INCLUDES)
+
+# Include depedency directories
+foreach(INT_INCLUDES ${INT_INCLUDES})
+    list(APPEND INT_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES}")
+	include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES})
+endforeach()
+
 
 SET(SO_INCLUDES
 	${Boost_INCLUDE_DIRS}
 	${Trilinos_INCLUDE_DIRS}
 	${MORIS_PACKAGE_DIR}/ALG/src
-    ${INT_SRC_LIST}
+    ${INT_INTERNAL_INCLUDES}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
