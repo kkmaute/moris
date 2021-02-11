@@ -89,6 +89,22 @@ namespace moris
                 }
             }
 
+            // reset material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+
             // reset constitutive models
             for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
@@ -269,6 +285,19 @@ namespace moris
 
                     // set the fem set pointe for the CM
                     tCM->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the material models
+            for( const std::shared_ptr< Material_Model > & tMM : this->get_material_models( aIsMaster ) )
+            {
+                if ( tMM != nullptr )
+                {
+                    // set the field interpolator manager for the CM
+                    tMM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointe for the CM
+                    tMM->set_set_pointer( mSet );
                 }
             }
 
@@ -536,6 +565,52 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_material_model(
+                std::shared_ptr< Material_Model > aMaterialModel,
+                std::string                       aMaterialModelString,
+                mtk::Master_Slave                 aIsMaster  )
+        {
+            // check that aConstitutiveString makes sense
+            MORIS_ERROR( mMaterialMap.find( aMaterialModelString ) != mMaterialMap.end(),
+                    "IWG::set_material_model - IWG %s - Unknown aMaterialModelString: %s ",
+                    mName.c_str(),
+                    aMaterialModelString.c_str() );
+
+            // set the CM in the CM pointer cell
+            this->get_material_models( aIsMaster )( mMaterialMap[ aMaterialModelString ] ) = aMaterialModel;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::Cell< std::shared_ptr< Material_Model > > & IWG::get_material_models(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master property pointers
+                    return mMasterMM;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave property pointers
+                    return mSlaveMM;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_material_models - can only be master or slave." );
+                    return mMasterMM;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                 aConstitutiveString,
@@ -671,6 +746,37 @@ namespace moris
                 }
             }
 
+            // loop over master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
+                }
+            }
+
+            // loop over slave material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof and dv counters
+                    tSlaveDofCounter += tActiveDofTypes.size();
+                }
+            }
+
             // loop over master constitutive models
             for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
@@ -803,6 +909,36 @@ namespace moris
                     // populate the dof and dv lists
                     aDofTypes( 1 ).append( tActiveDofTypes );
                     aDvTypes( 1 ).append( tActiveDvTypes );
+                }
+            }
+
+            // loop over the master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
+                }
+            }
+
+            // loop over the slave material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
                 }
             }
 
@@ -959,6 +1095,35 @@ namespace moris
                             mMasterGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+                }
+            }
+
+            // get dof type from master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get dof types for material model
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tMM->get_global_dof_type_list();
+
+                    // loop on property dof type
+                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
+                    {
+                        // get set index for dof type
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+
+                        // if dof enum not in the list
+                        if ( tDofCheckList( tDofTypeIndex) != 1 )
+                        {
+                            // put the dof type in the check list
+                            tDofCheckList( tDofTypeIndex ) = 1;
+
+                            // put the dof type in the global type list
+                            mMasterGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
+                        }
+                    }
+                    // skip loop on material model dv type - not implemented
                 }
             }
 
@@ -1145,6 +1310,35 @@ namespace moris
                             mSlaveGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+                }
+            }
+
+            // get dof type from slave material models
+            for ( std::shared_ptr< Material_Model > tMM : mSlaveMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get dof types for constitutive model
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tMM->get_global_dof_type_list();
+
+                    // loop on property dof type
+                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
+                    {
+                        // get set index for dof type
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+
+                        // if dof enum not in the list
+                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
+                        {
+                            // put the dof type in the check list
+                            tDofCheckList( tDofTypeIndex ) = 1;
+
+                            // put the dof type in the global type list
+                            mSlaveGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
+                        }
+                    }
+                    // skip loop on material dv type - not implemented
                 }
             }
 

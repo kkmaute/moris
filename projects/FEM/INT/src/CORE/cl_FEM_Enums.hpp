@@ -237,6 +237,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        enum class Variable_Set
+        {
+                UNDEFINED,
+                CONSERVATIVE,
+                DENSITY_PRIMITIVE,
+                PRESSURE_PRIMITIVE,
+                ENTROPY,
+                END_CONSTITUTIVE_TYPE
+        };
+
+        //------------------------------------------------------------------------------
+
         enum class Model_Type
         {
                 UNDEFINED,

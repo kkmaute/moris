@@ -91,6 +91,13 @@ namespace moris
                 // local string to int map for properties
                 std::map< std::string, uint > mPropertyMap;
 
+                // master and slave material models
+                moris::Cell< std::shared_ptr< fem::Material_Model > > mMasterMM;
+                moris::Cell< std::shared_ptr< fem::Material_Model > > mSlaveMM;
+
+                // Local string to int map for material models
+                std::map< std::string, uint > mMaterialMap;
+
                 // master and slave constitutive models
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mMasterCM;
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mSlaveCM;
@@ -484,6 +491,27 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set material model
+                 * @param[ in ] aMaterialModel       a material model pointer
+                 * @param[ in ] aMaterialModelString a string defining the material model
+                 * @param[ in ] aIsMaster            an enum for master or slave
+                 */
+                void set_material_model(
+                        std::shared_ptr< Material_Model > aMaterialModel,
+                        std::string                       aMaterialModelString,
+                        mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get material models
+                 * @param[ in ]  aIsMaster           enum master or slave
+                 * @param[ out ] aMaterialModels     cell of material model pointers
+                 */
+                moris::Cell< std::shared_ptr< Material_Model > > & get_material_models(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
                  * set constitutive model
                  * @param[ in ] aConstitutiveModel  a constitutive model pointer
                  * @param[ in ] aConstitutiveString a string defining the constitutive model
@@ -502,7 +530,6 @@ namespace moris
                  */
                 moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
 
                 //------------------------------------------------------------------------------
                 /**
