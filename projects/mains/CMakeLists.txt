@@ -71,16 +71,16 @@ set(SO_TPLS
 ${ARMADILLO_EIGEN}
 )
 
-# List header dependencies                                                                                                                                                                                                                                                     
+# List header dependencies in /FEM/INT/src                                                                                                                                                                                                                                                    
 set(INT_INCLUDES
-	"CORE"
+    "CORE"
     "ELEM"
     "IP"
     "IG"
-	"MM"
-	"CM"
+    "MM"
+    "CM"
     "SP"
-	"IWG"
+    "IWG"
     "IQI")
 
 set(INT_INTERNAL_INCLUDES)
@@ -88,14 +88,12 @@ set(INT_INTERNAL_INCLUDES)
 # Include depedency directories
 foreach(INT_INCLUDES ${INT_INCLUDES})
     list(APPEND INT_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES}")
-	include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES})
 endforeach()
 
-
 SET(SO_INCLUDES
-	${Boost_INCLUDE_DIRS}
-	${Trilinos_INCLUDE_DIRS}
-	${MORIS_PACKAGE_DIR}/ALG/src
+    ${Boost_INCLUDE_DIRS}
+    ${Trilinos_INCLUDE_DIRS}
+    ${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_INTERNAL_INCLUDES}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
