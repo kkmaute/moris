@@ -82,7 +82,20 @@ namespace moris
             mTemperatureDofEval.fill( true );
             mTemperatureDotDofEval.fill( true );          
             mdTemperaturedxDofEval.fill( true );
-            md2Temperaturedx2DofEval.fill( true );                      
+            md2Temperaturedx2DofEval.fill( true );     
+
+            // reset eval flags for thermodynamic quantities
+            mAlphaPEval = true;
+            mBetaTEval = true;
+            mCvEval = true;
+            mCpEval = true;
+            mGammaEval = true;
+
+            mAlphaPDofEval.fill( true );
+            mBetaTDofEval.fill( true );
+            mCvDofEval.fill( true );
+            mCpDofEval.fill( true );
+            mGammaDofEval.fill( true );           
 
             // reset underlying properties
             for( const std::shared_ptr< Property > & tProp : mProperties )
@@ -358,7 +371,21 @@ namespace moris
             mTemperatureDof.resize( tNumGlobalDofTypes );
             mTemperatureDotDof.resize( tNumGlobalDofTypes );
             mdTemperaturedxDof.resize( tNumGlobalDofTypes );
-            md2Temperaturedx2Dof.resize( tNumGlobalDofTypes );                
+            md2Temperaturedx2Dof.resize( tNumGlobalDofTypes );
+
+            // set flags for evaluation
+            mAlphaPDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mBetaTDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mCvDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mCpDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mGammaDofEval.set_size( tNumGlobalDofTypes, 1, true );
+
+            // set storage for evaluation
+            mAlphaPDof.resize( tNumGlobalDofTypes );
+            mBetaTDof.resize( tNumGlobalDofTypes );
+            mCvDof.resize( tNumGlobalDofTypes );
+            mCpDof.resize( tNumGlobalDofTypes );    
+            mGammaDof.resize( tNumGlobalDofTypes );                
 
             // initialize storage variables specific to child MMs
             this->initialize_spec_storage_vars_and_eval_flags();

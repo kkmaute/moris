@@ -104,7 +104,6 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mdTemperaturedxDof;
                 moris::Cell< Matrix< DDRMat > > md2Temperaturedx2Dof;                                
                              
-
                 // storage for specific internal energy (computed using 1st EOS)
                 Matrix< DDRMat > mEint;
                 Matrix< DDRMat > mEintDot;
@@ -115,6 +114,21 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mEintDotDof;
                 moris::Cell< Matrix< DDRMat > > mdEintdxDof;
                 moris::Cell< Matrix< DDRMat > > md2Eintdx2Dof;
+
+                // storage for other material properties
+                Matrix< DDRMat > mAlphaP;
+                Matrix< DDRMat > mBetaT;
+                Matrix< DDRMat > mCv;
+                Matrix< DDRMat > mCp;
+                Matrix< DDRMat > mGamma;
+
+                moris::Cell< Matrix< DDRMat > > mAlphaPDof;
+                moris::Cell< Matrix< DDRMat > > mBetaTDof;
+
+                // FIXME: for now assume these dof derivs are 0
+                moris::Cell< Matrix< DDRMat > > mCvDof;
+                moris::Cell< Matrix< DDRMat > > mCpDof;
+                moris::Cell< Matrix< DDRMat > > mGammaDof;
 
                 // constitutive model name for input and debug
                 std::string mName = "Undefined";
@@ -169,6 +183,26 @@ namespace moris
                 moris::Matrix< DDBMat > mdEintdxDofEval;
                 moris::Matrix< DDBMat > md2Eintdx2DofEval;
 
+                // flags for other variables
+                bool mAlphaPEval = true;
+                bool mBetaTEval = true;
+                bool mCvEval = true;
+                bool mCpEval = true;
+                bool mGammaEval = true;
+
+                moris::Matrix< DDBMat > mAlphaPDofEval;
+                moris::Matrix< DDBMat > mBetaTDofEval;
+
+                // FIXME: for now assume these dof derivs are 0
+                moris::Matrix< DDBMat > mCvDofEval;
+                moris::Matrix< DDBMat > mCpDofEval;
+                moris::Matrix< DDBMat > mGammaDofEval;
+
+                // booleans indicating dependent 
+                bool mCvIsDependent = true;
+                bool mCpIsDependent = true;
+                bool mGammaIsDependent = true;
+
                 // booleans indicating dependent variables
                 bool mDensityIsDependent = true;
                 bool mPressureIsDependent = true;
@@ -219,7 +253,23 @@ namespace moris
                 const Matrix< DDRMat > & ( Material_Model:: * m_get_TemperatureDotDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) = 
                     &Material_Model::TemperatureDotDOF_dep;
                 const Matrix< DDRMat > & ( Material_Model:: * m_get_dnTemperaturedxnDof )( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder ) = 
-                    &Material_Model::dnTemperaturedxnDOF_dep;                    
+                    &Material_Model::dnTemperaturedxnDOF_dep;  
+
+                // function pointers for cv and cp (FIXME: for now, cv is given, cp and gamma are dependent)
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_Cv )() = 
+                    &Material_Model::Cv_triv;   
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_Cp )() = 
+                    &Material_Model::Cp_dep;    
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_Gamma )() = 
+                    &Material_Model::Gamma_dep;   
+
+                // function pointers for cv and cp (FIXME: for now, cv is given, cp and gamma are dependent)
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_CvDof )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) = 
+                    &Material_Model::CvDOF_triv;   
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_CpDof )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) = 
+                    &Material_Model::CpDOF_dep;    
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_GammaDof )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) = 
+                    &Material_Model::GammaDOF_dep;                                                                        
 
                 //------------------------------------------------------------------------------
             public :
@@ -801,7 +851,124 @@ namespace moris
 
                 const Matrix< DDRMat > & TemperatureDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
                 const Matrix< DDRMat > & TemperatureDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnTemperaturedxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );  
+                const Matrix< DDRMat > & dnTemperaturedxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder ); 
+
+                //------------------------------------------------------------------------------
+                // THERMODYNAMIC QUANTITIES
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the thermodynamic quantities
+                 */
+                virtual void eval_VolumeExpansivity()
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_VolumeExpansivity - This function does nothing. " );
+                };
+
+                virtual void eval_IsothermalCompressibility()
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_IsothermalCompressibility - This function does nothing. " );
+                };
+
+                virtual void eval_Cv()
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_Cv - This function does nothing. " );
+                };
+
+                virtual void eval_Cp()
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_Cp - This function does nothing. " );
+                };   
+
+                virtual void eval_Gamma()
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_Gamma - This function does nothing. " );
+                };
+            
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the thermodynamic quantity derivatives wrt to the dof types
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                virtual void eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_VolumeExpansivityDOF - This function does nothing. " );
+                };
+
+                virtual void eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_IsothermalCompressibilityDOF - This function does nothing. " );
+                };
+
+                virtual void eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_CvDOF - This function does nothing. " );
+                };
+
+                virtual void eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_CpDOF - This function does nothing. " );
+                };   
+
+                virtual void eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, " Material_Model::eval_GammaDOF - This function does nothing. " );
+                };
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * get the thermodynamic quantities
+                 * @param[ in ] aOrder order of the derivative (only for x-derivs)
+                 * @param[ out ] tQuantity thermodynamic quantity
+                 */
+                const Matrix< DDRMat > & AlphaP();
+                const Matrix< DDRMat > & BetaT();
+
+                const Matrix< DDRMat > & Cv(){ return ( this->*m_get_Cv )(); };
+                const Matrix< DDRMat > & Cp(){ return ( this->*m_get_Cp )(); };
+                const Matrix< DDRMat > & Gamma(){ return ( this->*m_get_Gamma )(); };
+
+                const Matrix< DDRMat > & Cv_dep();
+                const Matrix< DDRMat > & Cp_dep();
+                const Matrix< DDRMat > & Gamma_dep();     
+  
+                const Matrix< DDRMat > & Cv_triv();
+                const Matrix< DDRMat > & Cp_triv();
+                const Matrix< DDRMat > & Gamma_triv();   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the thermodynamic quantities and their derivatives wrt to the DoF types
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aOrder order of the derivative (only for x-derivs)
+                 * @param[ out ] aQuantityDOF thermodynamic quantity and derivatives
+                 */
+                const Matrix< DDRMat > & AlphaPDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & BetaTDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                const Matrix< DDRMat > & CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, "Material_Model::CvDOF - DOF derivs of thermodynamic quantities not implemented yet." );
+                    return mCvDof( 0 );
+                };
+                const Matrix< DDRMat > & CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, "Material_Model::CpDOF - DOF derivs of thermodynamic quantities not implemented yet." );
+                    return mCpDof( 0 );
+                };
+                const Matrix< DDRMat > & GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, "Material_Model::GammaDOF - DOF derivs of thermodynamic quantities not implemented yet." );
+                    return mGammaDof( 0 );
+                };
+
+                const Matrix< DDRMat > & CvDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & CpDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & GammaDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );     
+                
+                const Matrix< DDRMat > & CvDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & CpDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & GammaDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes );                 
 
                 //------------------------------------------------------------------------------
                 // FINITE DIFFERENCE FUNCTIONS FOR COMPUTING DOF DERIVATIVES

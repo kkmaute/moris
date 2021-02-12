@@ -308,6 +308,7 @@ set(LIB_SOURCES
     MM/cl_FEM_Material_Model_Density_Functions.cpp
     MM/cl_FEM_Material_Model_Pressure_Functions.cpp
     MM/cl_FEM_Material_Model_Temperature_Functions.cpp
+    MM/cl_FEM_Material_Model_Thermodynamic_Quantities.cpp
 
     MM/cl_FEM_MM_Perfect_Gas.cpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.cpp
