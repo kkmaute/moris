@@ -31,8 +31,7 @@ namespace moris
                      Matrix<DDUMat>   aADVIndices,
                      Matrix<DDRMat>   aConstants,
                      Field_Parameters aParameters)
-                : mtk::Field(aParameters.mBSplineMeshIndex, aParameters.mName)
-                , mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
+                : mFieldVariables(aFieldVariableIndices.length() + aConstants.length())
                 , mSensitivities(1, aFieldVariableIndices.length() + aConstants.length())
                 , mConstants(aConstants)
                 , mParameters(aParameters)
@@ -57,8 +56,7 @@ namespace moris
 
         Field::Field(const Matrix<DDSMat>&  aSharedADVIds,
                      std::shared_ptr<Field> aField)
-                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_label())
-                , mFieldVariables(aSharedADVIds.length())
+                : mFieldVariables(aSharedADVIds.length())
                 , mSensitivities(1, aSharedADVIds.length())
                 , mParameters(aField->mParameters)
                 , mDeterminingADVIds(aSharedADVIds)
@@ -85,8 +83,7 @@ namespace moris
 
         Field::Field(Matrix<DDRMat>   aConstants,
                      Field_Parameters aParameters)
-                : mtk::Field(aParameters.mBSplineMeshIndex, aParameters.mName)
-                , mFieldVariables(aConstants.length())
+                : mFieldVariables(aConstants.length())
                 , mSensitivities(1, aConstants.length())
                 , mConstants(aConstants)
                 , mParameters(aParameters)
@@ -100,8 +97,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(std::shared_ptr<Field> aField)
-                : mtk::Field(aField->get_discretization_mesh_index(), aField->get_label())
-                , mParameters(aField->mParameters)
+                : mParameters(aField->mParameters)
                 , mDependsOnADVs(aField->mDependsOnADVs)
         {
         }
@@ -159,16 +155,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::store_field_values()
+        bool Field::storage_intention()
         {
-            return (mParameters.mBSplineMeshIndex > -2);
+            return (mParameters.mDiscretizationMeshIndex > -2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::conversion_to_bsplines()
+        bool Field::discretization_intention()
         {
-            return (mParameters.mBSplineMeshIndex > -1);
+            return (mParameters.mDiscretizationMeshIndex > -1);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -183,6 +179,13 @@ namespace moris
         bool Field::depends_on_advs()
         {
             return mDependsOnADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        std::string Field::get_name()
+        {
+            return mParameters.mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -208,16 +211,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field::get_bspline_lower_bound()
+        uint Field::get_discretization_mesh_index()
         {
-            return mParameters.mBSplineLowerBound;
+            MORIS_ASSERT(mParameters.mDiscretizationMeshIndex >= 0,
+                    "A discretization is not intended for this field. Check this with discretization_intention() first.");
+            return mParameters.mDiscretizationMeshIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field::get_bspline_upper_bound()
+        real Field::get_discretization_lower_bound()
         {
-            return mParameters.mBSplineUpperBound;
+            return mParameters.mDiscretizationLowerBound;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Field::get_discretization_upper_bound()
+        {
+            return mParameters.mDiscretizationUpperBound;
         }
 
         //--------------------------------------------------------------------------------------------------------------

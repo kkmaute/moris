@@ -1,7 +1,6 @@
 #ifndef MORIS_CL_GEN_Field_HPP
 #define MORIS_CL_GEN_Field_HPP
 
-#include "cl_MTK_Field.hpp"
 #include "st_GEN_Field_Parameters.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -10,7 +9,7 @@ namespace moris
 {
     namespace ge
     {
-        class Field : public mtk::Field
+        class Field
         {
 
         protected:
@@ -83,6 +82,17 @@ namespace moris
             ~Field();
 
             /**
+             * Given a node index or coordinate, returns the field value.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Vector of coordinate values
+             * @return Field value
+             */
+            virtual real get_field_value(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates) = 0;
+
+            /**
              * Given a node index or coordinate, returns a matrix of all sensitivities.
              *
              * @param aNodeIndex Node index
@@ -92,16 +102,6 @@ namespace moris
             virtual const Matrix<DDRMat>& get_field_sensitivities(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
-
-            void set_mesh( std::shared_ptr<mtk::Mesh_Manager> aMeshManager )
-            {
-                mMeshManager = aMeshManager;
-            }
-
-            void set_mesh_index( uint aMeshIndex )
-            {
-                mMeshIndex = aMeshIndex;
-            }
 
             /**
              * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -137,14 +137,14 @@ namespace moris
              *
              * @return Logic for storing field values
              */
-            bool store_field_values();
+            bool storage_intention();
 
             /**
              * Gets if this field is to be used for seeding a B-spline field.
              *
              * @return Logic for B-spline creation
              */
-            virtual bool conversion_to_bsplines();
+            virtual bool discretization_intention();
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -161,6 +161,13 @@ namespace moris
              * @return if this field has ADV indices
              */
             bool depends_on_advs();
+
+            /**
+             * Gets the name of this field.
+             *
+             * @return Name
+             */
+            std::string get_name();
 
             /**
              * This function will return true when called less than the number of refinements set for this field,
@@ -180,18 +187,25 @@ namespace moris
             sint get_refinement_function_index();
 
             /**
-             * Gets the lower bound for the B-spline field.
+             * Gets a discretization mesh index for a discretized field.
+             *
+             * @return Mesh index
+             */
+            uint get_discretization_mesh_index();
+
+            /**
+             * Gets the lower bound for a discretized field.
              *
              * @return Lower bound
              */
-            real get_bspline_lower_bound();
+            real get_discretization_lower_bound();
 
             /**
-             * Get the upper bound for the B-spline field.
+             * Get the upper bound for a discretized field.
              *
              * @return Upper bound
              */
-            real get_bspline_upper_bound();
+            real get_discretization_upper_bound();
 
         private:
 

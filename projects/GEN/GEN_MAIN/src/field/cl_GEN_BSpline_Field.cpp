@@ -1,7 +1,8 @@
 #include "cl_GEN_BSpline_Field.hpp"
 #include "st_MTK_Mesh_Pair.hpp"
-#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Field.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
@@ -29,11 +30,6 @@ namespace moris
                 , Field_Discrete_Integration(aMesh->get_num_nodes())
                 , mMesh(aMesh)
         {
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPair = aField->get_mesh_pair();
-
-            this->set_mesh( tMeshPair.second );
-            this->set_mesh_index( tMeshPair.first );
-
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
 
@@ -161,7 +157,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool BSpline_Field::conversion_to_bsplines()
+        bool BSpline_Field::discretization_intention()
         {
             return false;
         }
@@ -170,23 +166,36 @@ namespace moris
 
         Matrix<DDRMat> BSpline_Field::map_to_bsplines(std::shared_ptr<Field> aField)
         {
-            // Tracer
-            Tracer tTracer("GEN", "Levelset", "L2Mapping");
-
             // Create source field
-            mNodalValues.set_size(mNumOriginalNodes, 1);
+            Matrix<DDRMat> tNodalValues(mNumOriginalNodes, 1);
             for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
             {
-                mNodalValues(tNodeIndex) =
+                tNodalValues(tNodeIndex) =
                         aField->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
             }
 
+            // Create mesh pair
+            mtk::Mesh_Pair tMeshPair;
+            tMeshPair.mInterpolationMesh = mMesh;
+            tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            tMeshManager->register_mesh_pair(tMeshPair);
+            mtk::Field* tField = new mtk::Field(tMeshManager, 0, this->get_discretization_mesh_index());
+
             // Use mapper
             mtk::Mapper tMapper;
-            tMapper.perform_mapping(this, EntityRank::NODE, EntityRank::BSPLINE);
+            tField->set_nodal_values(tNodalValues);
+            tMapper.perform_mapping(tField, EntityRank::NODE, EntityRank::BSPLINE);
+
+            // Get coefficients
+            Matrix<DDRMat> tCoefficients = tField->get_coefficients();
+
+            // Clean up
+            delete tMeshPair.mIntegrationMesh;
+            delete tField;
 
             // Return mapped field
-            return mCoefficients;
+            return tCoefficients;
         }
 
         //--------------------------------------------------------------------------------------------------------------

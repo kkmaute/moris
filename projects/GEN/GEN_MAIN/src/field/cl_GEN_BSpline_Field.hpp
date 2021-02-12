@@ -79,7 +79,7 @@ namespace moris
              *
              * @return false
              */
-            bool conversion_to_bsplines();
+            bool discretization_intention();
 
         private:
 

@@ -13,13 +13,13 @@ namespace moris
          */
         struct Field_Parameters
         {
-            std::string    mName = "";                    //! Name of this field for identification
-            Matrix<DDSMat> mNumRefinements = {{}};        //! The number of refinement steps to use for this field
-            Matrix<DDSMat> mRefinementMeshIndices = {{}}; //! Indices of meshes to perform refinement on
-            sint           mRefinementFunctionIndex = -1; //! Index of a user-defined refinement function (-1 = default)
-            sint           mBSplineMeshIndex = -2;        //! Index of a B-spline mesh for discretization (-2 = none, -1 = store nodal values)
-            real           mBSplineLowerBound = -1.0;     //! Lower bound for the B-spline coefficients in this field
-            real           mBSplineUpperBound = 1.0;      //! Upper bound for the B-spline coefficients in this field
+            std::string    mName = "";                       //! Name of this field for identification
+            Matrix<DDSMat> mNumRefinements = {{}};           //! The number of refinement steps to use for this field
+            Matrix<DDSMat> mRefinementMeshIndices = {{}};    //! Indices of meshes to perform refinement on
+            sint           mRefinementFunctionIndex = -1;    //! Index of a user-defined refinement function (-1 = default)
+            sint           mDiscretizationMeshIndex = -2;    //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+            real           mDiscretizationLowerBound = -1.0; //! Lower bound for the B-spline coefficients in this field
+            real           mDiscretizationUpperBound = 1.0;  //! Upper bound for the B-spline coefficients in this field
         };
     }
 }

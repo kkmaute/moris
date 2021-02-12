@@ -42,7 +42,7 @@ namespace moris
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
                 tCircleParameterList.set("type", "circle");
                 tCircleParameterList.set("constant_parameters", "-0.25, 0.0, 0.7499999999");
-                tCircleParameterList.set("bspline_mesh_index", 0);
+                tCircleParameterList.set("discretization_mesh_index", 0);
 
                 // Plane
                 ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
@@ -58,9 +58,6 @@ namespace moris
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries =
                         create_geometries({tCircleParameterList, tPlaneParameterList}, tADVs);
-                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
-                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
-
                 Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
@@ -358,7 +355,7 @@ namespace moris
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
                 tCircleParameterList.set("type", "circle");
                 tCircleParameterList.set("constant_parameters", "-0.25, 0.0, 0.7499999999");
-                tCircleParameterList.set("bspline_mesh_index", 0);
+                tCircleParameterList.set("discretization_mesh_index", 0);
                 tCircleParameterList.set("multilinear_intersections", true);
                 Matrix<DDRMat> tADVs(0, 0);
 
@@ -370,9 +367,6 @@ namespace moris
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = create_geometries({tCircleParameterList}, tADVs);
-                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
-                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
-
                 Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Solution for is_intersected() per geometry and per element

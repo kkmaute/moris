@@ -343,9 +343,9 @@ namespace moris
 
         if (tIsOpt)
         {
-        tParameterlist( 1 )( tGeoCounter ).set("bspline_mesh_index",   0);
-        tParameterlist( 1 )( tGeoCounter ).set("bspline_lower_bound", -tBsplineLimit);
-        tParameterlist( 1 )( tGeoCounter ).set("bspline_upper_bound",  tBsplineLimit);
+        tParameterlist( 1 )( tGeoCounter ).set("discretization_mesh_index",   0);
+        tParameterlist( 1 )( tGeoCounter ).set("discretization_lower_bound", -tBsplineLimit);
+        tParameterlist( 1 )( tGeoCounter ).set("discretization_upper_bound",  tBsplineLimit);
         tGeoCounter++;
         }
     }
