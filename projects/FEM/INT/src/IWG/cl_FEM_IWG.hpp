@@ -789,6 +789,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * reset evaluation flags specific to child IWG
+                 */
+                virtual void reset_spec_eval_flags(){};
+
+                //------------------------------------------------------------------------------
+                /**
                  * build a list of dof types requested by the solver and owned by the IWG
                  * @param[ in ] aIsResidual bool true if residual evaluation
                  */

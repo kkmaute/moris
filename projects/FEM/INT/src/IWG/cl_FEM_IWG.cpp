@@ -129,6 +129,9 @@ namespace moris
                     tSP->reset_eval_flags();
                 }
             }
+
+            // reset evaluation flags specific to child implementations
+            this->reset_spec_eval_flags();
         }
 
         //------------------------------------------------------------------------------
