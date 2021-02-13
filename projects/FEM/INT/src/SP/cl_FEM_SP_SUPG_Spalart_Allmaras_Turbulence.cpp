@@ -184,7 +184,7 @@ namespace moris
             Matrix< DDRMat > tdtauSdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity && tNormA > 0.0 )
+            if( aDofTypes( 0 ) == mMasterDofVelocity && tNormA > MORIS_REAL_MIN )
             {
                 // add contribution to dSPdu
                 tdtauAdu +=
@@ -192,7 +192,7 @@ namespace moris
             }
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofViscosity && tNormA > 0.0 )
+            if( aDofTypes( 0 ) == mMasterDofViscosity && tNormA > MORIS_REAL_MIN )
             {
                 // evaluate dadu
                 tdtauAdu -=
@@ -709,7 +709,7 @@ namespace moris
             real tS = this->compute_s();
 
             // if s is greater than zero
-            if( tS > 0.0 )
+            if( tS > MORIS_REAL_MIN )
             {
                 // compute wij
                 Matrix< DDRMat > tWij;

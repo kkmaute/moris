@@ -102,7 +102,7 @@ namespace moris
 
             // compute hugn
             real tHugn = 1.0;
-            if( tAbs > 0.0 && tNorm > 0.0 )
+            if( tAbs > MORIS_REAL_MIN && tNorm > MORIS_REAL_MIN )
             {
                 tHugn = 2.0 * tNorm / tAbs;
             }
@@ -166,7 +166,7 @@ namespace moris
 
             // compute hugn
             real tHugn = 1.0;
-            if( tAbs > 0.0 && tNorm > 0.0 )
+            if( tAbs > MORIS_REAL_MIN && tNorm > MORIS_REAL_MIN )
             {
                 tHugn = 2.0 * tNorm / tAbs;
             }
@@ -181,7 +181,7 @@ namespace moris
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // if tAbs and tNorm > 0.0
-                if( tAbs > 0.0 && tNorm > 0.0 )
+                if( tAbs > MORIS_REAL_MIN && tNorm > MORIS_REAL_MIN )
                 {
                     // compute derivative of hugn wrt velocity dof
                     Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
@@ -198,9 +198,14 @@ namespace moris
                     {
                         Matrix< DDRMat > tAdd =
                                 trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-                        tdAbsdu +=
-                                tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
-                                tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
+
+                        // handle case that tAdd( 0, 0 ) is smaller than threshold
+                        if ( std::abs( tAdd( 0, 0 ) ) > MORIS_REAL_MIN )
+                        {
+                            tdAbsdu +=
+                                    tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
+                                    tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
+                        }
                     }
 
                     // compute derivative of hugn
@@ -214,6 +219,21 @@ namespace moris
                     // compute dtau2du
                     tdTau2dDof -=
                             8.0 * tPropConductivity->val()( 0 ) * tdHugndu / std::pow( tHugn, 3 );
+                }
+                else
+                {
+                    uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+                     for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+                     {
+                         const Matrix< DDRMat > ref = {{-1.970012468827930e-03,  +2.500000000000001e-05}};
+                         const Matrix< DDRMat > & act = mMasterFIManager->get_IP_geometry_interpolator()->valx();
+
+                         if ( norm(act-ref) < 1e-6 )
+                         {
+                             std::cout << "iNode " << iNode << std::endl;
+                             print(mMasterFIManager->get_IP_geometry_interpolator()->valx(),"valx");
+                         }
+                     }
                 }
             }
 
@@ -231,6 +251,11 @@ namespace moris
             // scale dSPdu
             mdPPdMasterDof( tDofIndex ) -= 0.5 * std::pow( tTau( 0 ), 3 ) *
                     ( 2.0 * tTau1 * tdTau1dDof + 2.0 * tTau2 * tdTau2dDof );
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mdPPdMasterDof( tDofIndex ) ),
+                    "SP_SUPG_Advection::eval_dSPdMasterDOF - mdPPdMasterDof contains NAN or INF, exiting for tDofIndex = %d !\n",
+                    tDofIndex);
         }
 
         //------------------------------------------------------------------------------
