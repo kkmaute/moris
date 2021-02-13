@@ -1,5 +1,6 @@
 #include "catch.hpp"
-#include "cl_FEM_Integrator.hpp" //FEM//INT//src
+#include "IG/cl_MTK_Integrator.hpp" //FEM//INT//src
+#include "fn_FEM_Check.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -12,26 +13,26 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // space time integrator for space bar and time bar
         //------------------------------------------------------------------------------
         // create a space time integration rule
-        Integration_Rule tFieldIntegRule( mtk::Geometry_Type::LINE,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::BAR_5,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::BAR_5);
+        mtk::Integration_Rule tFieldIntegRule( mtk::Geometry_Type::LINE,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::BAR_5,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::BAR_5);
 
         // create an integrator
-        Integrator tFieldIntegrator( tFieldIntegRule );
+        mtk::Integrator tFieldIntegrator( tFieldIntegRule );
 
         // space HEX2x2x2 for comparison
         //------------------------------------------------------------------------------
         // create a space integration rule
-        Integration_Order tSpaceIntOrder  = Integration_Order::QUAD_5x5;
-        Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::QUAD,
-                                          Integration_Type::GAUSS,
+        mtk::Integration_Order tSpaceIntOrder  = mtk::Integration_Order::QUAD_5x5;
+        mtk::Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::QUAD,
+                                          mtk::Integration_Type::GAUSS,
                                           tSpaceIntOrder,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::BAR_1);
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::BAR_1);
         // create an integrator
-        Integrator tSpaceIntegrator( tSpaceIntegRule );
+        mtk::Integrator tSpaceIntegrator( tSpaceIntegRule );
 
         // check integrator
         //------------------------------------------------------------------------------
@@ -51,7 +52,7 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         Matrix< DDRMat > tSpaceIntegWeights2 = tSpaceIntegWeights;
         switch ( tSpaceIntOrder )
         {
-            case ( Integration_Order::QUAD_2x2 ) :
+            case ( mtk::Integration_Order::QUAD_2x2 ) :
             {
                 tSpaceIntegPoints2( 0, 2 ) = tSpaceIntegPoints( 0, 3 );
                 tSpaceIntegPoints2( 1, 2 ) = tSpaceIntegPoints( 1, 3 );
@@ -62,7 +63,7 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
                 tSpaceIntegWeights2( 3 ) = tSpaceIntegWeights( 2 );
                 break;
              }
-            case ( Integration_Order::QUAD_3x3 ) :
+            case ( mtk::Integration_Order::QUAD_3x3 ) :
             {
                 tSpaceIntegPoints2( 0, 1 ) = tSpaceIntegPoints( 0, 4 );
                 tSpaceIntegPoints2( 1, 1 ) = tSpaceIntegPoints( 1, 4 );
@@ -88,11 +89,11 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
                 tSpaceIntegWeights2( 8 ) = tSpaceIntegWeights( 2 );
                 break;
             }
-            case ( Integration_Order::QUAD_4x4 ) :
+            case ( mtk::Integration_Order::QUAD_4x4 ) :
             {
                 break;
             }
-            case ( Integration_Order::QUAD_5x5 ) :
+            case ( mtk::Integration_Order::QUAD_5x5 ) :
             {
                 break;
             }
@@ -135,25 +136,25 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // space time integrator for space QUAD2x2 and time bar2
         //------------------------------------------------------------------------------
         // create a space time integration rule
-        Integration_Rule tFieldIntegRule( mtk::Geometry_Type::QUAD,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::QUAD_3x3,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::BAR_3 );
+        mtk::Integration_Rule tFieldIntegRule( mtk::Geometry_Type::QUAD,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::QUAD_3x3,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::BAR_3 );
 
         // create an integrator
-        Integrator tFieldIntegrator( tFieldIntegRule );
+        mtk::Integrator tFieldIntegrator( tFieldIntegRule );
 
         // space HEX2x2x2 for comparison
         //------------------------------------------------------------------------------
         // create a space integration rule
-        Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::HEX,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::HEX_3x3x3,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::BAR_1 );
+        mtk::Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::HEX,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::HEX_3x3x3,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::BAR_1 );
         // create an integrator
-        Integrator tSpaceIntegrator( tSpaceIntegRule );
+        mtk::Integrator tSpaceIntegrator( tSpaceIntegRule );
 
         // check integrator
         //------------------------------------------------------------------------------
@@ -197,14 +198,14 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // space time integrator for space HEX2x2x2 and time bar2
         //------------------------------------------------------------------------------
         // create a space time integration rule
-        Integration_Rule tFieldIntegRule( mtk::Geometry_Type::HEX,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::HEX_2x2x2,
-                                          Integration_Type::GAUSS,
-                                          Integration_Order::BAR_2);
+        mtk::Integration_Rule tFieldIntegRule( mtk::Geometry_Type::HEX,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::HEX_2x2x2,
+                                          mtk::Integration_Type::GAUSS,
+                                          mtk::Integration_Order::BAR_2);
 
         // create an integrator
-        Integrator tFieldIntegrator( tFieldIntegRule );
+        mtk::Integrator tFieldIntegrator( tFieldIntegRule );
 
         // check integrator
         //------------------------------------------------------------------------------
@@ -221,5 +222,3 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         tFieldIntegrator.get_weights( tFieldIntegWeights );
     }
 }
-
-

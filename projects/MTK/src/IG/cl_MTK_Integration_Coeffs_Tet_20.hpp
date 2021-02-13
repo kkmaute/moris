@@ -1,5 +1,5 @@
 /*
- * cl_FEM_Integration_Coeffs_Tet_20.hpp
+ * cl_MTK_Integration_Coeffs_Tet_20.hpp
  * from
  * Symmetric quadrature rules for tetrahedra based on a cubic close-packed lattice arrangement
  * by LeeShunn & FrankHam
@@ -8,21 +8,21 @@
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_20_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_20_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_20_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_20_HPP_
 
 //MRS/COR/src
 #include "typedefs.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//FEM/INT/src
-#include "cl_FEM_Enums.hpp"
-#include "cl_FEM_Integration_Coeffs.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+#include "IG/cl_MTK_Integration_Coeffs.hpp"
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 
         //------------------------------------------------------------------------------
@@ -184,6 +184,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_20_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_20_HPP_ */

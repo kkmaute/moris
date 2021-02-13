@@ -1,23 +1,23 @@
 /*
- * cl_FEM_Integration_Coeffs_Point.hpp
+ * cl_MTK_Integration_Coeffs_Point.hpp
  *
  *  Created on: Jul 19, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_POINT_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_POINT_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_POINT_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_POINT_HPP_
 
-#include "cl_FEM_Integration_Coeffs.hpp"
+#include "IG/cl_MTK_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -63,6 +63,6 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_POINT_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_POINT_HPP_ */

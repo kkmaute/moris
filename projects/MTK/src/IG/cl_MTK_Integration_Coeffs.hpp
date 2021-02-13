@@ -1,24 +1,24 @@
 /*
- * cl_Integration_Coeffs.hpp
+ * cl_MTK_Integration_Coeffs.hpp
  *
  *  Created on: Jul 19, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_HPP_
 
 #include "assert.hpp"
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Base.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
+#include "IG/cl_MTK_Integration_Coeffs_Base.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
     template< Integration_Type        T,
@@ -115,7 +115,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_HPP_ */

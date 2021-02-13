@@ -148,6 +148,17 @@ public:
 
     //------------------------------------------------------------------------------
 
+    /**
+     * returns the integration order of the element
+     */
+    mtk::Integration_Order
+    get_integration_order() const
+    {
+        return mCellInfo->get_cell_integration_order();
+    }
+
+    //------------------------------------------------------------------------------
+
     moris::Cell<moris::mtk::Vertex const *>
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 

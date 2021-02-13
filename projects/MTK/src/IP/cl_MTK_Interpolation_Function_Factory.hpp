@@ -1,22 +1,22 @@
 /*
- * cl_FEM_Interpolation_Function_Factory.hpp
+ * cl_MTK_Interpolation_Function_Factory.hpp
  *
  *  Created on: Jul 9, 2018
  *      Author: messe
  */
 
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_FACTORY_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_FACTORY_HPP_
+#ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_
+#define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_
 
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -51,9 +51,9 @@ namespace moris
              * creates an interpolation function according to a given rule
              */
             Interpolation_Function_Base *  create_interpolation_function(
-                    const mtk::Geometry_Type       & aGeometryType,
+                    const Geometry_Type       & aGeometryType,
                     const Interpolation_Type       & aInterpolationType,
-                    const mtk::Interpolation_Order & aInterpolationOrder );
+                    const Interpolation_Order & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
@@ -62,43 +62,43 @@ namespace moris
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_quad( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_quad( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_hex( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_hex( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_bar( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_tri( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_tri( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_tet( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_tet( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_constant_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_constant_bar( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_constant_point( const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_constant_point( const Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
 
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_FACTORY_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_ */

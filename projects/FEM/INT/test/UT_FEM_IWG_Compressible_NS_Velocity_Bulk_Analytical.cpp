@@ -130,10 +130,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal_Analytic",
     //------------------------------------------------------------------------------
     // space and time geometry interpolators
     // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( tGeometryType,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGIRule( tGeometryType,
+            mtk::Interpolation_Type::LAGRANGE,
             tGIInterpolationOrder,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space time geometry interpolator
@@ -149,19 +149,19 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal_Analytic",
     //------------------------------------------------------------------------------
     // integration points
     // get an integration order
-    fem::Integration_Order tIntegrationOrder = fem::Integration_Order::QUAD_2x2;
+    mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::QUAD_2x2;
 
     // create an integration rule
-    fem::Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             tGeometryType,
-            Integration_Type::GAUSS,
+            mtk::Integration_Type::GAUSS,
             tIntegrationOrder,
             mtk::Geometry_Type::LINE,
-            Integration_Type::GAUSS,
-            fem::Integration_Order::BAR_2 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::BAR_2 );
 
     // create an integrator
-    fem::Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tIntegPoints;
@@ -182,11 +182,11 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal_Analytic",
     int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
 
     //create a space time interpolation rule
-    Interpolation_Rule tFIRule (
+    mtk::Interpolation_Rule tFIRule (
             tGeometryType,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             tInterpolationOrder,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // fill coefficients for master FI
@@ -461,10 +461,10 @@ TEST_CASE("IWG_Compressible_NS_Velocity_Bulk_VdW_Analytic",
         //------------------------------------------------------------------------------
         // space and time geometry interpolators
         // create a space geometry interpolation rule
-        Interpolation_Rule tGIRule(tGeometryType,
-                                   Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGIRule(tGeometryType,
+                                   mtk::Interpolation_Type::LAGRANGE,
                                    tGIInterpolationOrder,
-                                   Interpolation_Type::LAGRANGE,
+                                   mtk::Interpolation_Type::LAGRANGE,
                                    mtk::Interpolation_Order::LINEAR);
 
         // create a space time geometry interpolator
@@ -480,19 +480,19 @@ TEST_CASE("IWG_Compressible_NS_Velocity_Bulk_VdW_Analytic",
         //------------------------------------------------------------------------------
         // integration points
         // get an integration order
-        fem::Integration_Order tIntegrationOrder = fem::Integration_Order::QUAD_3x3;
+        mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
 
         // create an integration rule
-        fem::Integration_Rule tIntegrationRule(
+        mtk::Integration_Rule tIntegrationRule(
             tGeometryType,
-            Integration_Type::GAUSS,
+            mtk::Integration_Type::GAUSS,
             tIntegrationOrder,
             mtk::Geometry_Type::LINE,
-            Integration_Type::GAUSS,
-            fem::Integration_Order::BAR_3);
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::BAR_3);
 
         // create an integrator
-        fem::Integrator tIntegrator(tIntegrationRule);
+        mtk::Integrator tIntegrator(tIntegrationRule);
 
         // get integration points
         Matrix<DDRMat> tIntegPoints;
@@ -515,11 +515,11 @@ TEST_CASE("IWG_Compressible_NS_Velocity_Bulk_VdW_Analytic",
         int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
 
         //create a space time interpolation rule
-        Interpolation_Rule tFIRule(
+        mtk::Interpolation_Rule tFIRule(
             tGeometryType,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             tInterpolationOrder,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR);
 
         // fill coefficients for master FI

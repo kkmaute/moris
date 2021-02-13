@@ -1,21 +1,18 @@
 /*
- * cl_FEM_Geometry_Interpolator.hpp
+ * cl_MTK_Space_Interpolator.hpp
  *
- *  Created on: Jan 31, 2019
- *      Author: noel
+ *  Created on: Jan 11, 2019
+ *      Author: gates
  */
 
-#ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
-#define SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
+#ifndef SRC_MTK_CL_MTK_SPACE_INTERPOLATOR_HPP_
+#define SRC_MTK_CL_MTK_SPACE_INTERPOLATOR_HPP_
 
 //MRS/COR/src
 #include "typedefs.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "IP/cl_MTK_Interpolation_Rule.hpp"
-#include "IP/cl_MTK_Space_Interpolator.hpp"
-//FEM/INT/src
-#include "cl_FEM_Enums.hpp"
 //LINALG/src
 #include "linalg_typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -28,98 +25,108 @@
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
         //------------------------------------------------------------------------------
         /**
-         * \brief a special interpolation class for geometry
+         * \brief a special interpolation class for Space
          */
-        class Geometry_Interpolator
+        class Space_Interpolator
         {
                 // tolerance for check
                 const real mEpsilon = 1e-12;
 
-                // pointer to space interpolator object
-                mtk::Space_Interpolator * mSpaceInterpolator = nullptr;
-
                 // pointer to space interpolation function object
-                mtk::Interpolation_Function_Base * mSpaceInterpolation = nullptr;
-
-                // pointer to time interpolation function object
-                mtk::Interpolation_Function_Base * mTimeInterpolation = nullptr;
+                Interpolation_Function_Base * mSpaceInterpolation = nullptr;
 
                 // number of space bases, number of physical and parametric dimensions
+                uint mNumSpaceBases;
+                uint mNumSpaceDim;
                 uint mNumSpaceParamDim;
 
-                // number of time bases and dimensions
-                uint mNumTimeBases;
-                uint mNumTimeDim;
-
                 // matrix of space coefficients xHat
-                // and matrix of time coefficients tHat
-                Matrix < DDRMat > mTHat;
+                Matrix < DDRMat > mXHat;
 
                 // matrix of space param coefficients xiHat in the interpolation param space
-                // and matrix of time param coefficients tauHat in the interpolation param space
-                Matrix < DDRMat > mTauHat;
+                Matrix < DDRMat > mXiHat;
 
                 // matrix of space param coords Xi in the local param space
-                // and matrix of time param coords Tau in the local param space
-                Matrix< DDRMat > mTauLocal;
+                Matrix< DDRMat > mXiLocal;
 
                 // element geometry type
-                mtk::Geometry_Type mGeometryType;
-                mtk::Geometry_Type mTimeGeometryType;
+                Geometry_Type mGeometryType;
+
+                // element shape
+                bool mRectangular = false;
 
                 // boolean true if side interpolation
                 bool mSpaceSideset = false;
 
-                // boolean true if time side interpolation
-                bool mTimeSideset = false;
-
                 // flag for evaluation
-                bool mValtEval    = true;
+                bool mValxEval    = true;
 
-                bool mNTauEval     = true;
-                bool mdNdTauEval   = true;
-                bool md2NdTau2Eval = true;
-                bool md3NdTau3Eval = true;
+                bool mNXiEval     = true;
+                bool mdNdXiEval   = true;
+                bool md2NdXi2Eval = true;
+                bool md3NdXi3Eval = true;
 
-                bool mTimeDetJEval    = true;
-                bool mTimeJacEval     = true;
-                bool mInvTimeJacEval  = true;
+                bool mSpaceDetJEval   = true;
+                bool mSpaceJacEval    = true;
+                bool mInvSpaceJacEval = true;
 
                 // storage
-                Matrix< DDRMat > mValt;
+                Matrix< DDRMat > mValx;
 
-                Matrix< DDRMat > mNTau;
-                Matrix< DDRMat > mdNdTau;
-                Matrix< DDRMat > md2NdTau2;
-                Matrix< DDRMat > md3NdTau3;
+                Matrix< DDRMat > mNXi;
+                Matrix< DDRMat > mdNdXi;
+                Matrix< DDRMat > md2NdXi2;
+                Matrix< DDRMat > md3NdXi3;
 
-                Matrix< DDRMat > mTimeJac;
-                Matrix< DDRMat > mInvTimeJac;
-                real mTimeDetJ;
+                Matrix< DDRMat > mSpaceJac;
+                Matrix< DDRMat > mInvSpaceJac;
+                real mSpaceDetJ;
 
                 Matrix< DDRMat > mMappedPoint;
 
                 // flag for mapping evaluation point
                 bool mMapFlag = false;
 
-                // pointer to function for time detJ
-                real (  Geometry_Interpolator:: * mTimeDetJFunc )(
-                        const Matrix< DDRMat > & aTimeJt ) = nullptr;
+                // pointer to function for space detJ
+                real ( Space_Interpolator:: * mSpaceDetJFunc )(
+                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
-                // point to function for inverse of time Jacobian
-                void ( Geometry_Interpolator:: * mInvTimeJacFunc )() = nullptr;
+                // pointer to function for space detJ
+                real ( Space_Interpolator:: * mSpaceDetJRectFunc )(
+                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
-                // pointer to function for time second derivative
-                void ( * mSecondDerivativeMatricesTime )(
+                // point to function for inverse of space Jacobian
+                void ( Space_Interpolator:: * mInvSpaceJacFunc )() = nullptr;
+
+                // point to function for inverse of space Jacobian
+                void ( Space_Interpolator:: * mInvSpaceJacRectFunc )() = nullptr;
+
+                // pointer to function for normal
+                void (  Space_Interpolator:: * mNormalFunc )(
+                        Matrix< DDRMat > & aTangent,
+                        Matrix< DDRMat > & aNormal ) = nullptr;
+
+                // pointer to function for space second derivative
+                void ( * mSecondDerivativeMatricesSpace )(
                         const Matrix< DDRMat > & aJt,
                         Matrix< DDRMat >       & aKt,
                         Matrix< DDRMat >       & aLt,
-                        const Matrix< DDRMat > & ad2NdTau2,
-                        const Matrix< DDRMat > & aTHat );
+                        const Matrix< DDRMat > & ad2NdXi2,
+                        const Matrix< DDRMat > & aXHat );
+
+                // pointer to function for space third derivatives
+                void ( * mThirdDerivativeMatricesSpace )(
+                        const Matrix< DDRMat > & aJt,
+                        const Matrix< DDRMat > & aJ2bt,
+                        Matrix< DDRMat >       & aJ3at,
+                        Matrix< DDRMat >       & aJ3bt,
+                        Matrix< DDRMat >       & aJ3ct,
+                        const Matrix< DDRMat > & ad3NdXi3,
+                        const Matrix< DDRMat > & aXHat );
 
                 //------------------------------------------------------------------------------
             public:
@@ -140,7 +147,7 @@ namespace moris
                 /**
                  * trivial constructor
                  */
-                Geometry_Interpolator(){};
+                Space_Interpolator(){};
 
                 /**
                  * constructor
@@ -148,16 +155,15 @@ namespace moris
                  * @param[ in ] flag true if side interpolation
                  * @param[ in ] flag true if time side interpolation
                  */
-                Geometry_Interpolator(
+                Space_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
-                        const bool                      aSpaceSideset = false,
-                        const bool                      aTimeSideset  = false );
+                        const bool                      aSpaceSideset = false );
 
                 //------------------------------------------------------------------------------
                 /**
                  * destructor
                  */
-                ~Geometry_Interpolator();
+                ~Space_Interpolator();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -177,36 +183,18 @@ namespace moris
                 /**
                  * returns the order of the space interpolation
                  */
-                mtk::Interpolation_Order get_space_interpolation_order() const
+                Interpolation_Order get_space_interpolation_order() const
                 {
                     return mSpaceInterpolation->get_interpolation_order();
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * returns the order of the time interpolation
-                 */
-                mtk::Interpolation_Order get_time_interpolation_order() const
-                {
-                    return mTimeInterpolation->get_interpolation_order();
-                }
-
-                //------------------------------------------------------------------------------
-                /**
                  * returns the type of the space interpolation
                  */
-                mtk::Interpolation_Type get_space_interpolation_type() const
+                Interpolation_Type get_space_interpolation_type() const
                 {
                     return mSpaceInterpolation->get_interpolation_type();
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * returns the type of the time interpolation
-                 */
-                mtk::Interpolation_Type get_time_interpolation_type() const
-                {
-                    return mTimeInterpolation->get_interpolation_type();
                 }
 
                 //------------------------------------------------------------------------------
@@ -220,15 +208,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * returns the number of time dimensions
-                 */
-                uint get_number_of_time_dimensions() const
-                {
-                    return mTimeInterpolation->get_number_of_dimensions();
-                }
-
-                //------------------------------------------------------------------------------
-                /**
                  * returns the number of bases for the space function
                  */
                 uint get_number_of_space_bases() const
@@ -238,31 +217,22 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * returns the number of bases for the space function
-                 */
-                uint get_number_of_time_bases() const
-                {
-                    return mTimeInterpolation->get_number_of_bases();
-                }
-
-                //------------------------------------------------------------------------------
-                /**
                  * returns the space geometry type
                  */
-                mtk::Geometry_Type get_space_geometry_type()
+                Geometry_Type get_space_geometry_type()
                 {
                     return mGeometryType;
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set the space and time coefficients of the geometry field xHat, tHat
-                 * @param[ in ] space coefficients
-                 * @param[ in ] time coefficients
+                 * set the geometry shape for specialization
+                 * @param[ in ] boolean rectangular
                  */
-                void set_coeff(
-                        const Matrix< DDRMat > & aXHat,
-                        const Matrix< DDRMat > & aTHat );
+                void set_rectangular( bool & aRectangular )
+                {
+                    mRectangular = aRectangular;
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -273,38 +243,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set the time coefficients of the geometry field tHat
-                 * @param[ in ] time coefficients
-                 */
-                void set_time_coeff( const Matrix< DDRMat > & aTHat );
-
-                //------------------------------------------------------------------------------
-                /**
                  * get the space coefficients of the geometry field xHat
                  */
                 const Matrix< DDRMat > & get_space_coeff() const
                 {
-                    return mSpaceInterpolator->get_space_coeff();
+                    // check that mXHat is set
+                    MORIS_ASSERT( mXHat.numel() > 0,
+                            "Space_Interpolator::get_space_coeff - mXHat is not set." );
+
+                    return mXHat;
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the time coefficients of the geometry field tHat
-                 */
-                const Matrix< DDRMat > & get_time_coeff() const
-                {
-                    // check that mTHat is set
-                    MORIS_ASSERT( mTHat.numel() > 0,
-                            "Geometry_Interpolator::get_time_coeff - mTHat is not set." );
-
-                    return mTHat;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the time step delta t
-                 */
-                real get_time_step();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -313,11 +261,6 @@ namespace moris
                  */
                 // default implementation
                 void set_param_coeff();
-
-                // set implementation
-                void set_param_coeff(
-                        const Matrix< DDRMat > & aXiHat,
-                        const Matrix< DDRMat > & aTauHat );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -328,32 +271,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set the time param coefficients of the geometry field tHat
-                 * @param[ in ] time coefficients
-                 */
-                void set_time_param_coeff( const Matrix< DDRMat > & aTauHat );
-
-                //------------------------------------------------------------------------------
-                /**
                  * get the space parametric coefficients of the geometry field xiHat
                  */
                 const Matrix< DDRMat > & get_space_param_coeff() const
                 {
-                    // call space interpolator
-                    return mSpaceInterpolator->get_space_param_coeff();
-                }
+                    // check that mXiHat is set
+                    MORIS_ASSERT( mXiHat.numel() > 0,
+                            "Space_Interpolator::get_space_param_coeff - mXiHat is not set." );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get the time parametric coefficients of the geometry field tauHat
-                 */
-                const Matrix< DDRMat > & get_time_param_coeff() const
-                {
-                    // check that mTauHat is set
-                    MORIS_ASSERT( mTauHat.numel() > 0,
-                            "Geometry_Interpolator::get_time_param_coeff - mTauHat is not set." );
-
-                    return mTauHat;
+                    return mXiHat;
                 }
 
                 //------------------------------------------------------------------------------
@@ -363,17 +289,12 @@ namespace moris
                  */
                 void set_space_time( const Matrix< DDRMat > & aParamPoint );
                 void set_space( const Matrix< DDRMat > & aSpaceParamPoint );
-                void set_time( const Matrix< DDRMat > & aTimeParamPoint );
 
                 void get_space_time( Matrix< DDRMat > & aParamPoint )
                 {
                     aParamPoint.set_size( mNumSpaceParamDim + 1, 1 );
 
-                   // setting space portion
-                    mSpaceInterpolator->get_space_time( aParamPoint );
-
-                    // setting time portion
-                    aParamPoint( mNumSpaceParamDim )          = mTauLocal( 0 );
+                    aParamPoint( { 0, mNumSpaceParamDim-1 } ) = mXiLocal.matrix_data();
                 }
 
                 //------------------------------------------------------------------------------
@@ -383,17 +304,10 @@ namespace moris
                  */
                 const Matrix< DDRMat > & NXi();
 
-                //------------------------------------------------------------------------------
                 /**
-                 * gets the time shape functions at a given evaluation point
-                 * @param[ out ] aNTau shape functions ( 1 x <number of nodes> )
+                 * evaluates the space shape functions at a given evaluation point
                  */
-                const Matrix< DDRMat > & NTau();
-
-                /**
-                 * evaluates the time shape functions at a given evaluation point
-                 */
-                void eval_NTau();
+                void eval_NXi();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -403,19 +317,11 @@ namespace moris
                  */
                 const Matrix< DDRMat > & dNdXi();
 
-                //------------------------------------------------------------------------------
                 /**
-                 * gets the first derivatives of the time shape functions
-                 * wrt parametric coordinates at a given evaluation point
-                 * @param[ out ] adNdTau first order derivatives ( <number of dimensions> x <number of nodes> )
-                 */
-                const Matrix< DDRMat > & dNdTau();
-
-                /**
-                 * evaluates the first derivatives of the time shape functions
+                 * evaluates the first derivatives of the space shape functions
                  * wrt parametric coordinates at a given evaluation point
                  */
-                void eval_dNdTau();
+                void eval_dNdXi();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -425,6 +331,12 @@ namespace moris
                  */
                 const Matrix< DDRMat > & d2NdXi2();
 
+                /**
+                 * evaluates the second derivatives of the space shape functions
+                 * wrt parametric coordinates at a given evaluation point
+                 */
+                void eval_d2NdXi2();
+
                 //------------------------------------------------------------------------------
                 /**
                  * gets the third derivatives of the space shape functions
@@ -433,19 +345,11 @@ namespace moris
                  */
                 const Matrix< DDRMat > & d3NdXi3();
 
-                //------------------------------------------------------------------------------
                 /**
-                 * gets the second derivatives of the time shape functions
-                 * wrt parametric coordinates at a given evaluation point
-                 * @param[ in ] ad2NdTau2 second order derivatives ( <number of dimensions> x <number of nodes> )
-                 */
-                const Matrix< DDRMat > & d2NdTau2();
-
-                /**
-                 * evaluates the second derivatives of the time shape functions
+                 * evaluates the third derivatives of the space shape functions
                  * wrt parametric coordinates at a given evaluation point
                  */
-                void eval_d2NdTau2();
+                void eval_d3NdXi3();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -454,6 +358,11 @@ namespace moris
                  */
                 const Matrix< DDRMat > & space_jacobian();
 
+                /**
+                 * evaluates the geometry Jacobian in space
+                 */
+                void eval_space_jacobian();
+
                 //------------------------------------------------------------------------------
 
                 /**
@@ -461,6 +370,11 @@ namespace moris
                  * @param[ out ] mInvSpaceJac inverse of the transposed of geometry Jacobian in space
                  */
                 const Matrix< DDRMat > & inverse_space_jacobian();
+
+                /**
+                 * evaluates the inverse of the geometry Jacobian in space
+                 */
+                void eval_inverse_space_jacobian();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -478,36 +392,10 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the geometry Jacobian in time
-                 * @param[ out ] mTimeJac transposed of geometry Jacobian in time
-                 */
-                const Matrix< DDRMat > & time_jacobian();
-
-                /**
-                 * evaluates the geometry Jacobian in time
-                 */
-                void eval_time_jacobian();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the inverse of the geometry Jacobian in time
-                 * @param[ out ] mInvTimeJac inverse of the transposed of geometry Jacobian in time
-                 */
-                const Matrix< DDRMat > & inverse_time_jacobian();
-
-                /**
-                 * evaluates the inverse of the geometry Jacobian in time
-                 */
-                void eval_inverse_time_jacobian();
-
-                //------------------------------------------------------------------------------
-                /**
                  * evaluates the determinant of the Jacobian mapping
                  * at given space and time evaluation point
                  */
-                real det_J();
                 const real & space_det_J();
-                const real & time_det_J();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -535,25 +423,6 @@ namespace moris
                         Matrix< DDRMat > & aLt,
                         const Matrix< DDRMat > & adNdXi,
                         const Matrix< DDRMat > & ad2NdXi2 );
-
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluates the geometry Jacobian and the matrices needed for the second
-                 * derivatives wrt to time in physical space
-                 * @param[ in ]  aJt       transposed of geometry Jacobian
-                 * @param[ out ] aKt       matrix for second derivatives in physical space
-                 * @param[ out ] aLt       matrix for second derivatives in physical space
-                 * @param[ in ]  adNdTau   first derivatives of N in parameter space
-                 * @param[ in ]  ad2NdTau2 second derivatives of N in parameter space
-                 *
-                 */
-                void time_jacobian_and_matrices_for_second_derivatives(
-                        Matrix< DDRMat > & aJt,
-                        Matrix< DDRMat > & aKt,
-                        Matrix< DDRMat > & aLt,
-                        const Matrix< DDRMat > & adNdTau,
-                        const Matrix< DDRMat > & ad2NdTau2 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -588,12 +457,6 @@ namespace moris
                  */
                 const Matrix< DDRMat > & valx();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluates the space geometry field at a given evaluation point in time
-                 * @param[ out ] aT   location in time
-                 */
-                const Matrix< DDRMat > & valt();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -614,6 +477,81 @@ namespace moris
                         Matrix< DDRMat > & aParamCoordinates );
 
                 //------------------------------------------------------------------------------
+                /**
+                 * evaluates matrices that are needed for the second derivative
+                 * in space, 2D version. It is
+                 *
+                 * \f[
+                 *      \mathbf{L}^T \, \mathbf{\frac{\partial^2 N}{\partial x^2}}
+                 *      = \mathbf{\frac{\partial^2 N}{\partial \xi^2}}
+                 *      - K^T \, mathbf{\frac{\partial N}{\partial x}}
+                 * \f]
+                 *
+                 * @param[ in ]  aJt          transposed of geometry Jacobian
+                 * @param[ out ] aKt          transposed help matrix K
+                 * @param[ out ] aLt          transposed help matrix L
+                 * @param[ in ]  adNdXi       first derivatives in parameter space
+                 * @param[ in ]  ad2NdX2i     second derivatives in parameter space
+                 *
+                 */
+                static void eval_matrices_for_second_derivative_1d(
+                        const Matrix< DDRMat > & aJt,
+                        Matrix< DDRMat > & aKt,
+                        Matrix< DDRMat > & aLt,
+                        const Matrix< DDRMat > & ad2NdXi2,
+                        const Matrix< DDRMat > & aXHat );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates matrices that are needed for the second derivative
+                 * in space, 2D version. It is
+                 *
+                 * \f[
+                 *      \mathbf{L}^T \, \mathbf{\frac{\partian^2 N}{\partial x^2}}
+                 *      = \mathbf{\frac{\partian^2 N}{\partial \xi^2}}
+                 *      - K^T \, mathbf{\frac{\partian N}{\partial x}}
+                 * \f]
+                 *
+                 * @param[ in ]  aJt          transposed of geometry Jacobian
+                 * @param[ out ] aKt          transposed help matrix K
+                 * @param[ out ] aLt          transposed help matrix L
+                 * @param[ in ]  adNdXi       first derivatives in parameter space
+                 * @param[ in ]  ad2NdX2i     second derivatives in parameter space
+                 *
+                 */
+                static void eval_matrices_for_second_derivative_2d(
+                        const Matrix< DDRMat > & aJt,
+                        Matrix< DDRMat > & aKt,
+                        Matrix< DDRMat > & aLt,
+                        const Matrix< DDRMat > & ad2NdXi2,
+                        const Matrix< DDRMat > & aXHat );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates matrices that are needed for the second derivative
+                 * in space, 3D version. It is
+                 *
+                 * \f[
+                 *      \mathbf{L}^T \, \mathbf{\frac{\partian^2 N}{\partial x^2}}
+                 *      = \mathbf{\frac{\partian^2 N}{\partial \xi^2}}
+                 *      - K^T \, mathbf{\frac{\partian N}{\partial x}}
+                 * \f]
+                 *
+                 * @param[ in ]  aJt          transposed of geometry Jacobian
+                 * @param[ out ] aKt          transposed help matrix K
+                 * @param[ out ] aLt          transposed help matrix L
+                 * @param[ in ]  adNdXi       first derivatives in parameter space
+                 * @param[ in ]  ad2NdX2i     second derivatives in parameter space
+                 *
+                 */
+                static void eval_matrices_for_second_derivative_3d(
+                        const Matrix< DDRMat > & aJt,
+                        Matrix< DDRMat > & aKt,
+                        Matrix< DDRMat > & aLt,
+                        const Matrix< DDRMat > & ad2NdXi2,
+                        const Matrix< DDRMat > & aXHat );
+
+                //------------------------------------------------------------------------------
             private:
                 //------------------------------------------------------------------------------
                 /**
@@ -623,22 +561,119 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate time detJ
+                 * evaluate space detJ
                  */
-                real eval_time_detJ_side( const Matrix< DDRMat > & aTimeJt );
-                real eval_time_detJ_bulk( const Matrix< DDRMat > & aTimeJt );
+                real eval_space_detJ_side_line( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_tri ( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_quad( const Matrix< DDRMat > & aSpaceJt );
+
+                real eval_space_detJ_bulk_line( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_quad( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_quad_rect( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_hex ( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_hex_rect ( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri_param_2( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri_param_3( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet_param_3( const Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet_param_4( const Matrix< DDRMat > & aSpaceJt );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate time Jacobians
+                 * evaluate space Jacobians
                  */
-                void eval_inverse_time_jacobian_1d();
-                void eval_inverse_time_jacobian_2d();
-                void eval_inverse_time_jacobian_3d();
+                void eval_inverse_space_jacobian_1d();
+                void eval_inverse_space_jacobian_2d();
+                void eval_inverse_space_jacobian_3d();
+                void eval_inverse_space_jacobian_2d_rect();
+                void eval_inverse_space_jacobian_3d_rect();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate normal to side
+                 */
+                void eval_normal_side_line(
+                        Matrix< DDRMat > & aRealTangents,
+                        Matrix< DDRMat > & aNormal );
+                void eval_normal_side_quad(
+                        Matrix< DDRMat > & aRealTangents,
+                        Matrix< DDRMat > & aNormal );
+                void eval_normal_side_tri(
+                        Matrix< DDRMat > & aRealTangents,
+                        Matrix< DDRMat > & aNormal );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the geometry Jacobian and the matrices needed for the second
+                 * derivatives wrt to space in 1D physical space
+                 * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+                 * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+                 *
+                 * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+                 * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+                 * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+                 *
+                 * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+                 *
+                 */
+                static void eval_matrices_for_third_derivative_1d(
+                        const Matrix< DDRMat > & aJt,
+                        const Matrix< DDRMat > & aJ2bt,
+                        Matrix< DDRMat > & aJ3at,
+                        Matrix< DDRMat > & aJ3bt,
+                        Matrix< DDRMat > & aJ3ct,
+                        const Matrix< DDRMat > & ad3NdXi3,
+                        const Matrix< DDRMat > & aXHat );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the geometry Jacobian and the matrices needed for the second
+                 * derivatives wrt to space in 2D physical space
+                 * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+                 * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+                 *
+                 * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+                 * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+                 * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+                 *
+                 * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+                 *
+                 */
+                static void eval_matrices_for_third_derivative_2d(
+                        const Matrix< DDRMat > & aJt,
+                        const Matrix< DDRMat > & aJ2bt,
+                        Matrix< DDRMat > & aJ3at,
+                        Matrix< DDRMat > & aJ3bt,
+                        Matrix< DDRMat > & aJ3ct,
+                        const Matrix< DDRMat > & ad3NdXi3,
+                        const Matrix< DDRMat > & aXHat );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the geometry Jacobian and the matrices needed for the second
+                 * derivatives wrt to space in 3D physical space
+                 * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+                 * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+                 *
+                 * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+                 * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+                 * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+                 *
+                 * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+                 *
+                 */
+                static void eval_matrices_for_third_derivative_3d(
+                        const Matrix< DDRMat > & aJt,
+                        const Matrix< DDRMat > & aJ2bt,
+                        Matrix< DDRMat > & aJ3at,
+                        Matrix< DDRMat > & aJ3bt,
+                        Matrix< DDRMat > & aJ3ct,
+                        const Matrix< DDRMat > & ad3NdXi3,
+                        const Matrix< DDRMat > & aXHat );
         };
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_ */
+#endif /* SRC_MTK_CL_MTK_SPACE_INTERPOLATOR_HPP_ */
+

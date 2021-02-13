@@ -10,9 +10,9 @@
 #include "fn_norm.hpp"
 #include "fn_sum.hpp"
 //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp"
-#include "cl_FEM_Integration_Rule.hpp"
-#include "cl_FEM_Integrator.hpp"
+#include "IP/cl_MTK_Interpolation_Rule.hpp"
+#include "IG/cl_MTK_Integration_Rule.hpp"
+#include "IG/cl_MTK_Integrator.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"
 #include "fn_FEM_Check.hpp"
 
@@ -25,15 +25,15 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
     //------------------------------------------------------------------------------
 
     // create an interpolation rule - space only lagrange cubic triangle TRI3
-    Interpolation_Rule tRule(
+    mtk::Interpolation_Rule tRule(
             mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object
-    Interpolation_Function_Base* tFunction =
+    mtk::Interpolation_Function_Base* tFunction =
             tRule.create_space_interpolation_function();
 
     //------------------------------------------------------------------------------
@@ -46,15 +46,15 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
 
     // use the integration points as test points
     // create an integration rule
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TRI,
-            Integration_Type::GAUSS,
-            Integration_Order::TRI_1,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TRI_1,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tZeta;
@@ -242,15 +242,15 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
     //------------------------------------------------------------------------------
 
     // create an interpolation rule - space only lagrange cubic triangle TRI6
-    Interpolation_Rule tRule(
+    mtk::Interpolation_Rule tRule(
             mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object
-    Interpolation_Function_Base* tFunction =
+    mtk::Interpolation_Function_Base* tFunction =
             tRule.create_space_interpolation_function();
 
     //------------------------------------------------------------------------------
@@ -263,15 +263,15 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
 
     // use the integration points as test points
     // create an integration rule
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TRI,
-            Integration_Type::GAUSS,
-            Integration_Order::TRI_3,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TRI_3,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tZeta;
@@ -463,14 +463,14 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
     //------------------------------------------------------------------------------
 
     // create an interpolation rule - space only lagrange cubic triangle TRI10
-    Interpolation_Rule tRule( mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tRule( mtk::Geometry_Type::TRI,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object
-    Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
 
     //------------------------------------------------------------------------------
 
@@ -482,15 +482,15 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
 
     // use the integration points as test points
     // create an integration rule
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TRI,
-            Integration_Type::GAUSS,
-            Integration_Order::TRI_6,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TRI_6,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tZeta;
@@ -680,15 +680,15 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
     //------------------------------------------------------------------------------
 
     // create an interpolation rule - space only lagrange cubic triangle TET4
-    Interpolation_Rule tRule(
+    mtk::Interpolation_Rule tRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object
-    Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
 
     //------------------------------------------------------------------------------
 
@@ -700,15 +700,15 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
 
     // use the integration points as test points
     // create an integration rule
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TET,
-            Integration_Type::GAUSS,
-            Integration_Order::TET_1,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TET_1,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tZeta;
@@ -908,15 +908,15 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
     //------------------------------------------------------------------------------
 
     // create an interpolation rule - space only lagrange cubic triangle TET10
-    Interpolation_Rule tRule(
+    mtk::Interpolation_Rule tRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object
-    Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
 
     //------------------------------------------------------------------------------
 
@@ -928,15 +928,15 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
 
     // use the integration points as test points
     // create an integration rule
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TET,
-            Integration_Type::GAUSS,
-            Integration_Order::TET_4,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TET_4,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tZeta;
@@ -1137,15 +1137,15 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
     //------------------------------------------------------------------------------
 
     // create an interpolation rule - space only lagrange cubic triangle TET20
-    Interpolation_Rule tRule(
+    mtk::Interpolation_Rule tRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object
-    Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tFunction = tRule.create_space_interpolation_function();
 
     // create matrix that contains the second derivative
     Matrix< DDRMat > td2NdXi2;
@@ -1160,15 +1160,15 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
 
     // use the integration points as test points
     // create an integration rule
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TET,
-            Integration_Type::GAUSS,
-            Integration_Order::TET_5,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TET_5,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     // get integration points
     Matrix< DDRMat > tZeta;
@@ -1379,11 +1379,11 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     real tExpectedVolume = 2.0 * 1.0 / 6.0;
 
     // define an interpolation rule for the TET4
-    Interpolation_Rule tGeomRule(
+    mtk::Interpolation_Rule tGeomRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create the element geometry intepolator
@@ -1392,15 +1392,15 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     tGeoInterpolator.set_coeff( tXHat, tTHat );
 
     // create an integration rule - space only lagrange linear triangle TRI3
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TET,
-            Integration_Type::GAUSS,
-            Integration_Order::TET_5,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TET_5,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     //get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -1456,11 +1456,11 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     real tExpectedVolume = 2 * 0.5 / 3.0;
 
     // define an interpolation rule for the TET10
-    Interpolation_Rule tGeomRule(
+    mtk::Interpolation_Rule tGeomRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create the element geometry interpolator and set coefficients
@@ -1468,15 +1468,15 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     tGeoInterpolator.set_coeff( tXHat, tTHat );
 
     // create an integration rule - space only lagrange linear triangle TET_4
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TET,
-            Integration_Type::GAUSS,
-            Integration_Order::TET_5,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TET_5,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     //get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -1547,11 +1547,11 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     real tExpectedVolume = 2 * 0.5 / 3.0;
 
     // define an interpolation rule for the TET20
-    Interpolation_Rule tGeomRule(
+    mtk::Interpolation_Rule tGeomRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create the element geometry intepolator
@@ -1560,15 +1560,15 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     tGeoInterpolator.set_coeff( tXHat, tTHat );
 
     // create an integration rule - space only lagrange linear triangle TRI3
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TET,
-            Integration_Type::GAUSS,
-            Integration_Order::TET_15,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TET_15,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     //get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -1615,11 +1615,11 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     real tExpectedVolume = 3;
 
     // define an interpolation rule for the TRI3
-    Interpolation_Rule tGeomRule(
+    mtk::Interpolation_Rule tGeomRule(
             mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create the element geometry intepolator
@@ -1628,15 +1628,15 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     tGeoInterpolator.set_coeff( tXHat, tTHat );
 
     // create an integration rule - space only lagrange linear triangle TRI3
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TRI,
-            Integration_Type::GAUSS,
-            Integration_Order::TRI_1,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TRI_1,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     //get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -1687,11 +1687,11 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
     real tExpectedVolume = 3;
 
     // define an interpolation rule for the TRI10
-    Interpolation_Rule tGeomRule(
+    mtk::Interpolation_Rule tGeomRule(
             mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create the element geometry intepolator
@@ -1700,15 +1700,15 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
     tGeoInterpolator.set_coeff( tXHat, tTHat );
 
     // create an integration rule - space only lagrange linear triangle TRI6
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TRI,
-            Integration_Type::GAUSS,
-            Integration_Order::TRI_3,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TRI_3,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     //get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -1763,11 +1763,11 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     real tExpectedVolume = 3;
 
     // define an interpolation rule for the TRI10
-    Interpolation_Rule tGeomRule(
+    mtk::Interpolation_Rule tGeomRule(
             mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create the element geometry intepolator
@@ -1776,15 +1776,15 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     tGeoInterpolator.set_coeff( tXHat, tTHat );
 
     // create an integration rule - space only lagrange linear triangle TRI3
-    Integration_Rule tIntegrationRule(
+    mtk::Integration_Rule tIntegrationRule(
             mtk::Geometry_Type::TRI,
-            Integration_Type::GAUSS,
-            Integration_Order::TRI_6,
-            Integration_Type::GAUSS,
-            Integration_Order:: BAR_1 );
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order::TRI_6,
+            mtk::Integration_Type::GAUSS,
+            mtk::Integration_Order:: BAR_1 );
 
     // create an integrator
-    Integrator tIntegrator( tIntegrationRule );
+    mtk::Integrator tIntegrator( tIntegrationRule );
 
     //get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -1814,4 +1814,3 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     }
     REQUIRE( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
 }
-

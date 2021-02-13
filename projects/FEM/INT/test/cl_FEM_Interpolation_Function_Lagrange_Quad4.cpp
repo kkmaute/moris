@@ -12,7 +12,7 @@
 #include "fn_norm.hpp" //LNA/src
 #include "fn_sum.hpp" //LNA/src
 
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
+#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
 #include "fn_FEM_Check.hpp"
 
 using namespace moris;
@@ -57,10 +57,10 @@ TEST_CASE( "Lagrange QUAD4", "[moris],[fem],[Quad4LagInterpolation]" )
     // step 2 create function and interpolation matrices
 
     // create rule
-    Interpolation_Rule tRule( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tRule( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create shape function object

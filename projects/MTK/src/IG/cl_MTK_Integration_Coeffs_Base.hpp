@@ -1,21 +1,21 @@
 /*
- * cl_FEM_Integrator.cpp
+ * cl_MTK_Integrator.cpp
  *
  *  Created on: Jul 19, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_BASE_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_BASE_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BASE_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BASE_HPP_
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 
 //------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_BASE_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BASE_HPP_ */

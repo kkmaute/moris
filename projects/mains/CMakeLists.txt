@@ -76,7 +76,6 @@ set(INT_INCLUDES
     "CORE"
     "ELEM"
     "IP"
-    "IG"
     "MM"
     "CM"
     "SP"

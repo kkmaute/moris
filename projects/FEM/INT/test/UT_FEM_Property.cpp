@@ -121,11 +121,11 @@ using namespace fem;
 TEST_CASE( "Property", "[moris],[fem],[Property]" )
 {
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule(
+    mtk::Interpolation_Rule tGeomInterpRule(
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     //create a space and a time geometry interpolator
@@ -211,10 +211,10 @@ TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]
     tTHat( 1 ) = 5.0;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     //create a space and a time geometry interpolator
@@ -255,10 +255,10 @@ TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]
     tProperty.set_dv_derivative_functions( tDvDerFunc );
 
     // create an interpolation rule
-    Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
     // create a TEMP field interpolator
     uint tNumberOfFields = 1;
@@ -336,10 +336,10 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
     tTHat( 1 ) = 5.0;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     //create a space and a time geometry interpolator
@@ -380,10 +380,10 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
     tProperty.set_dv_derivative_functions( tDvDerFunc );
 
     // create an interpolation rule
-    Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
     // create a dof field interpolators
     uint tNumberOfFields = 1;
@@ -501,10 +501,10 @@ TEST_CASE( "Property_geometry", "[moris],[fem],[Property_geometry]" )
     tTHat( 1 ) = 5.0;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     //create a space and a time geometry interpolator

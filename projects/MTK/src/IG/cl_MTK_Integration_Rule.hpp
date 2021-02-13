@@ -1,21 +1,21 @@
 /*
- * cl_FEM_Integration_Rule.cpp
+ * cl_MTK_Integration_Rule.cpp
  *
  *  Created on: Jul 18, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRAITION_RULE_HPP_
-#define SRC_FEM_CL_FEM_INTEGRAITION_RULE_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRAITION_RULE_HPP_
+#define SRC_MTK_CL_MTK_INTEGRAITION_RULE_HPP_
 
 #include "cl_MTK_Enums.hpp"                   //MTK/src
 
-#include "cl_FEM_Enums.hpp"                   //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Base.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp"                   //MTK/src
+#include "IG/cl_MTK_Integration_Coeffs_Base.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 
 //------------------------------------------------------------------------------
@@ -24,11 +24,11 @@ namespace moris
      */
     class Integration_Rule
     {
-        const mtk::Geometry_Type        mGeometryType;
+        const Geometry_Type        mGeometryType;
         const Integration_Type          mSpaceIntegrationType;
         const Integration_Order         mSpaceIntegrationOrder;
 
-        const mtk::Geometry_Type        mTimeGeometryType;
+        const Geometry_Type        mTimeGeometryType;
         const Integration_Type          mTimeIntegrationType;
         const Integration_Order         mTimeIntegrationOrder;
 
@@ -45,16 +45,16 @@ namespace moris
          * @param[ in ] aTimeIntegrationOrder     eg. 2x2, 3x3 ...
          *
          */
-        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+        Integration_Rule( const Geometry_Type  & aGeometryType,
                           const Integration_Type    & aSpaceIntegrationType,
                           const Integration_Order   & aSpaceIntegrationOrder,
                           const Integration_Type    & aTimeIntegrationType,
                           const Integration_Order   & aTimeIntegrationOrder );
 
-        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+        Integration_Rule( const Geometry_Type  & aGeometryType,
                           const Integration_Type    & aSpaceIntegrationType,
                           const Integration_Order   & aSpaceIntegrationOrder,
-                          const mtk::Geometry_Type  & aTimeGeometryType,
+                          const Geometry_Type  & aTimeGeometryType,
                           const Integration_Type    & aTimeIntegrationType,
                           const Integration_Order   & aTimeIntegrationOrder );
 
@@ -68,7 +68,7 @@ namespace moris
         /**
          * returns the integration primitive
          */
-        mtk::Geometry_Type get_geometry_type() const
+        Geometry_Type get_geometry_type() const
         {
             return mGeometryType;
         }
@@ -77,7 +77,7 @@ namespace moris
         /**
          * returns the integration primitive
          */
-        mtk::Geometry_Type get_time_geometry_type() const
+        Geometry_Type get_time_geometry_type() const
         {
             return mTimeGeometryType;
         }
@@ -85,7 +85,7 @@ namespace moris
         /**
          * returns the space integration order
          */
-        fem::Integration_Order get_space_integration_order() const
+        Integration_Order get_space_integration_order() const
         {
             return mSpaceIntegrationOrder;
         }
@@ -94,7 +94,7 @@ namespace moris
         /**
          * returns the time integration order
          */
-        fem::Integration_Order get_time_integration_order() const
+        Integration_Order get_time_integration_order() const
         {
             return mTimeIntegrationOrder;
         }
@@ -103,7 +103,7 @@ namespace moris
         /**
          * returns the space integration type
          */
-        fem::Integration_Type get_space_integration_type() const
+        Integration_Type get_space_integration_type() const
         {
             return mSpaceIntegrationType;
         }
@@ -112,7 +112,7 @@ namespace moris
         /**
          * returns the time integration type
          */
-        fem::Integration_Type get_time_integration_type() const
+        Integration_Type get_time_integration_type() const
         {
             return mTimeIntegrationType;
         }
@@ -135,7 +135,7 @@ namespace moris
         /**
          * the factory function
          */
-        Integration_Coeffs_Base * create_coeffs( const mtk::Geometry_Type & aGeometryType,
+        Integration_Coeffs_Base * create_coeffs( const Geometry_Type & aGeometryType,
                                                  const Integration_Type   & aIntegrationType,
                                                  const Integration_Order  & aIntegrationOrder ) const;
 
@@ -168,7 +168,7 @@ namespace moris
     };
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_RULE_CPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_RULE_CPP_ */

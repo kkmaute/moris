@@ -1,16 +1,16 @@
 /*
- * cl_FEM_Integration_Coeffs_Quad_2x2.hpp
+ * cl_MTK_Integration_Coeffs_Quad_2x2.hpp
  *
  *  Created on: Jul 19, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_QUAD_2X2_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_QUAD_2X2_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_2X2_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_2X2_HPP_
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_QUAD_2X2_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_2X2_HPP_ */

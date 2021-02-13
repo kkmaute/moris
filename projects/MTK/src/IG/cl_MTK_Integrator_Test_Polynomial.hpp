@@ -1,5 +1,5 @@
 /*
- * cl_FEM_Integrator_Test_Polynomial.hpp
+ * cl_MTK_Integrator_Test_Polynomial.hpp
  *
  *  Created on: Jul 20, 2018
  *      Author: messe
@@ -10,12 +10,12 @@
 #include "linalg_typedefs.hpp" //LNA/src
 
 
-#ifndef SRC_FEM_CL_FEM_POLYNOMIAL_FOR_TEST_HPP_
-#define SRC_FEM_CL_FEM_POLYNOMIAL_FOR_TEST_HPP_
+#ifndef SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_
+#define SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
         /**
@@ -76,8 +76,8 @@ namespace moris
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
-     } /* namespace fem */
+     } /* namespace mtk */
 } /* namespace moris */
 
 
-#endif /* SRC_FEM_CL_FEM_POLYNOMIAL_FOR_TEST_HPP_ */
+#endif /* SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_ */

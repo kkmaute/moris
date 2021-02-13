@@ -1,22 +1,22 @@
 /*
- * cl_FEM_Integrator.hpp
+ * cl_MTK_Integrator.hpp
  *
  *  Created on: Jul 19, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATOR_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATOR_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATOR_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 
 #include "typedefs.hpp"                  //MRS/COR/src
 #include "cl_Matrix.hpp"                 //LNA/src
-#include "cl_FEM_Enums.hpp"              //FEM/INT/src
-#include "cl_FEM_Integration_Rule.hpp"   //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp"              //MTK/src
+#include "IG/cl_MTK_Integration_Rule.hpp"   //MTK/src
+#include "IG/cl_MTK_Integration_Coeffs.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ namespace moris
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRATOR_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATOR_HPP_ */

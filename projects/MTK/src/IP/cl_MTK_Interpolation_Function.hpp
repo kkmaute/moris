@@ -1,22 +1,22 @@
 /*
- * cl_FEM_Interpolation_Function.hpp
+ * cl_MTK_Interpolation_Function.hpp
  *
  *  Created on: Jul 9, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_HPP_
+#ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_HPP_
+#define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_HPP_
 
 #include "assert.hpp"
 
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Base.hpp" //MTK/src
 #include "cl_Matrix.hpp"   //LINALG/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ namespace moris
          * N : Dimension
          * B : Number of Basis
          */
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         class Interpolation_Function : public Interpolation_Function_Base
         {
 //------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ namespace moris
             /**
              * returns the interpolation order
              */
-            mtk::Interpolation_Order get_interpolation_order() const;
+            Interpolation_Order get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::eval_N( const Matrix< DDRMat > & aXi,
                                                                 Matrix< DDRMat > & aNXi ) const
         {
@@ -163,7 +163,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::eval_dNdXi( const Matrix< DDRMat > & aXi,
                                                                     Matrix< DDRMat > & adNdXi ) const
         {
@@ -172,7 +172,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::eval_d2NdXi2 ( const Matrix< DDRMat > & aXi,
                                                                        Matrix< DDRMat > & ad2NdXi2 ) const
         {
@@ -181,7 +181,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::eval_d3NdXi3 ( const Matrix< DDRMat > & aXi,
                                                                        Matrix< DDRMat > & ad3NdXi3 ) const
         {
@@ -190,7 +190,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
             MORIS_ERROR( false, "get_param_coords not implemented for this interpolation function" );
@@ -198,16 +198,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
-        mtk::Interpolation_Order Interpolation_Function< G, T, N, B>::get_interpolation_order() const
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        Interpolation_Order Interpolation_Function< G, T, N, B>::get_interpolation_order() const
         {
             MORIS_ERROR( false, "get_interpolation_order implemented for this interpolation function" );
-            return mtk::Interpolation_Order::UNDEFINED;
+            return Interpolation_Order::UNDEFINED;
         }
 
 //------------------------------------------------------------------------------
 
-        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         uint Interpolation_Function< G, T, N, B>::get_number_of_param_dimensions() const
         {
             MORIS_ERROR( false, "get_number_of_param_dimensions - not implemented for this interpolation function" );
@@ -215,8 +215,8 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
 
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_HPP_ */

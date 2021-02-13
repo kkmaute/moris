@@ -58,9 +58,9 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
-            fem::Integration_Order::QUAD_2x2,
-            fem::Integration_Order::HEX_2x2x2 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+            mtk::Integration_Order::QUAD_2x2,
+            mtk::Integration_Order::HEX_2x2x2 };
 
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
@@ -182,10 +182,10 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
         // space and time geometry interpolators
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
-        Interpolation_Rule tGIRule( tGeometryType,
-                Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGIRule( tGeometryType,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
@@ -206,19 +206,19 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
-            fem::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
+            mtk::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
 
             // create an integration rule
-            fem::Integration_Rule tIntegrationRule(
+            mtk::Integration_Rule tIntegrationRule(
                     tGeometryType,
-                    Integration_Type::GAUSS,
+                    mtk::Integration_Type::GAUSS,
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
-                    Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_1 );
+                    mtk::Integration_Type::GAUSS,
+                    mtk::Integration_Order::BAR_1 );
 
             // create an integrator
-            fem::Integrator tIntegrator( tIntegrationRule );
+            mtk::Integrator tIntegrator( tIntegrationRule );
 
             // get integration points
             Matrix< DDRMat > tIntegPoints;
@@ -236,10 +236,10 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             int tNumDofTEMP = tNumCoeff;
 
             //create a space time interpolation rule
-            Interpolation_Rule tFIRule ( tGeometryType,
-                    Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tFIRule ( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
@@ -400,10 +400,10 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
     // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space time geometry interpolator
@@ -431,10 +431,10 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     // field interpolators
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
     // create random coefficients

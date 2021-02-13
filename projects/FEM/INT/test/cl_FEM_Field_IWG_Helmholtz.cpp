@@ -19,8 +19,8 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_Helmholtz]" )
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-                                        Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                        mtk::Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR );
 
 
@@ -44,8 +44,8 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_Helmholtz]" )
     // field interpolator
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
-                                            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+                                            mtk::Interpolation_Type::LAGRANGE,
                                             mtk::Interpolation_Order::LINEAR );
 
     //set the number of interpolated fields

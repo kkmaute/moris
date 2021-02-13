@@ -71,8 +71,8 @@ namespace moris
         moris::Cell<bool> test_IWG_Diffusion_Phase_Change_GGLS(
                 Matrix< DDRMat > aXHat,
                 Matrix< DDRMat > aTHat,
-                Interpolation_Rule aGIRule,
-                Interpolation_Rule aFIRule,
+                mtk::Interpolation_Rule aGIRule,
+                mtk::Interpolation_Rule aFIRule,
                 Matrix< DDRMat > aDOFHat,
                 Matrix< DDRMat > aParamPoint,
                 uint aNumDOFs,
@@ -308,18 +308,18 @@ namespace moris
             tTHat( 1 ) = 1.1e-3;
 
             //create a space geometry interpolation rule
-            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
-                    Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
             // create an interpolation rule
-            Interpolation_Rule tIPRule (
+            mtk::Interpolation_Rule tIPRule (
                     mtk::Geometry_Type::HEX,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
             // set coefficients for field interpolators
@@ -367,18 +367,18 @@ namespace moris
             tTHat( 1 ) = 1.10e-3;
 
             //create a space geometry interpolation rule
-            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
-                    Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC );
 
             // create an interpolation rule
-            Interpolation_Rule tIPRule (
+            mtk::Interpolation_Rule tIPRule (
                     mtk::Geometry_Type::HEX,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC );
 
             // set coefficients for field interpolators
@@ -409,4 +409,3 @@ namespace moris
 
     } // end namespace fem
 } // end namespace moris
-

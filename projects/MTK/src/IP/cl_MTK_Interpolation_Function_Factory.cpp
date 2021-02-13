@@ -1,42 +1,42 @@
 #include "assert.hpp"
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Factory.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Factory.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Base.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function.hpp" //MTK/src
 
-#include "cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Bar2.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Bar3.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Bar4.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Quad4.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Quad8.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Quad9.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Quad16.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Hex8.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Hex20.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Hex27.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Hex64.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Tri3.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Tri6.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Tri10.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Tet4.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Lagrange_Tet20.hpp" //FEM/INT/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar1.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar2.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar3.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar4.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad9.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex20.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex64.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tri3.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tri6.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tri10.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tet4.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tet10.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tet20.hpp" //MTK/src
 
-#include "cl_FEM_Interpolation_Function_Constant_Bar2.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Constant_Point.hpp" //FEM/INT/src
+#include "IP/cl_MTK_Interpolation_Function_Constant_Bar2.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Constant_Point.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
     Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function
-        ( const mtk::Geometry_Type       & aGeometryType,
+        ( const Geometry_Type       & aGeometryType,
           const Interpolation_Type       & aInterpolationType,
-          const mtk::Interpolation_Order & aInterpolationOrder )
+          const Interpolation_Order & aInterpolationOrder )
         {
             // select type
             switch ( aInterpolationType )
@@ -45,27 +45,27 @@ namespace moris
                 {
                     switch ( aGeometryType )
                     {
-                        case( mtk::Geometry_Type::LINE ) :
+                        case( Geometry_Type::LINE ) :
                         {
                             return this->create_lagrange_bar( aInterpolationOrder );
                             break;
                         }
-                        case( mtk::Geometry_Type::QUAD ) :
+                        case( Geometry_Type::QUAD ) :
                         {
                            return this->create_lagrange_quad( aInterpolationOrder );
                            break;
                         }
-                        case( mtk::Geometry_Type::HEX ) :
+                        case( Geometry_Type::HEX ) :
                         {
                             return this->create_lagrange_hex( aInterpolationOrder );
                             break;
                         }
-                        case( mtk::Geometry_Type::TRI ) :
+                        case( Geometry_Type::TRI ) :
                         {
                             return this->create_lagrange_tri( aInterpolationOrder );
                             break;
                         }
-                        case( mtk::Geometry_Type::TET ) :
+                        case( Geometry_Type::TET ) :
                         {
                             return this->create_lagrange_tet( aInterpolationOrder );
                             break;
@@ -84,12 +84,12 @@ namespace moris
                 {
                     switch ( aGeometryType )
                     {
-                        case( mtk::Geometry_Type::POINT ) :
+                        case( Geometry_Type::POINT ) :
                         {
                             return this->create_constant_point( aInterpolationOrder );
                             break;
                         }
-                        case( mtk::Geometry_Type::LINE ) :
+                        case( Geometry_Type::LINE ) :
                         {
                             return this->create_constant_bar( aInterpolationOrder );
                             break;
@@ -115,28 +115,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_quad( const mtk::Interpolation_Order  & aInterpolationOrder )
+    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_quad( const Interpolation_Order  & aInterpolationOrder )
         {
             switch ( aInterpolationOrder )
             {
-                case ( mtk::Interpolation_Order::LINEAR ) :
+                case ( Interpolation_Order::LINEAR ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >();
+                    return new Interpolation_Function< Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::SERENDIPITY ) :
+                case ( Interpolation_Order::SERENDIPITY ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >();
+                    return new Interpolation_Function< Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::QUADRATIC ) :
+                case ( Interpolation_Order::QUADRATIC ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >();
+                    return new Interpolation_Function< Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::CUBIC ) :
+                case ( Interpolation_Order::CUBIC ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >();
+                    return new Interpolation_Function< Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >();
                     break;
                 }
                 default :
@@ -150,29 +150,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_hex( const mtk::Interpolation_Order  & aInterpolationOrder )
+    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_hex( const Interpolation_Order  & aInterpolationOrder )
         {
 
             switch ( aInterpolationOrder )
             {
-                case ( mtk::Interpolation_Order::LINEAR ) :
+                case ( Interpolation_Order::LINEAR ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >();
+                    return new Interpolation_Function< Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::SERENDIPITY ) :
+                case ( Interpolation_Order::SERENDIPITY ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >();
+                    return new Interpolation_Function< Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::QUADRATIC ) :
+                case ( Interpolation_Order::QUADRATIC ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27 >();
+                    return new Interpolation_Function< Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::CUBIC ) :
+                case ( Interpolation_Order::CUBIC ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >();
+                    return new Interpolation_Function< Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >();
                     break;
                 }
                 default :
@@ -186,26 +186,26 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_bar( const mtk::Interpolation_Order  & aInterpolationOrder)
+    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_bar( const Interpolation_Order  & aInterpolationOrder)
         {
             switch ( aInterpolationOrder )
             {
-                case( mtk::Interpolation_Order::LINEAR ) :
+                case( Interpolation_Order::LINEAR ) :
                 {
                     // bar2
-                    return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >();
+                    return new Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >();
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ) :
+                case( Interpolation_Order::QUADRATIC ) :
                 {
                     // bar3
-                    return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >();
+                    return new Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >();
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ) :
+                case( Interpolation_Order::CUBIC ) :
                 {
                     // bar4
-                    return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >();
+                    return new Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >();
                     break;
                 }
                 default :
@@ -219,23 +219,23 @@ namespace moris
 //------------------------------------------------------------------------------
 
     Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_tri
-        ( const mtk::Interpolation_Order  & aInterpolationOrder )
+        ( const Interpolation_Order  & aInterpolationOrder )
         {
             switch ( aInterpolationOrder )
             {
-                case ( mtk::Interpolation_Order::LINEAR ) :
+                case ( Interpolation_Order::LINEAR ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >();
+                    return new Interpolation_Function< Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::QUADRATIC ) :
+                case ( Interpolation_Order::QUADRATIC ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >();
+                    return new Interpolation_Function< Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >();
                     break;
                 }
-                case ( mtk::Interpolation_Order::CUBIC ) :
+                case ( Interpolation_Order::CUBIC ) :
                 {
-                    return new Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 10 >();
+                    return new Interpolation_Function< Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 10 >();
                     break;
                 }
                 default :
@@ -250,23 +250,23 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_tet
-            ( const mtk::Interpolation_Order  & aInterpolationOrder )
+            ( const Interpolation_Order  & aInterpolationOrder )
             {
                 switch ( aInterpolationOrder )
                 {
-                    case ( mtk::Interpolation_Order::LINEAR ) :
+                    case ( Interpolation_Order::LINEAR ) :
                     {
-                        return new Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 4 >();
+                        return new Interpolation_Function< Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 4 >();
                         break;
                     }
-                    case ( mtk::Interpolation_Order::QUADRATIC ) :
+                    case ( Interpolation_Order::QUADRATIC ) :
                     {
-                        return new Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >();
+                        return new Interpolation_Function< Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >();
                         break;
                     }
-                    case ( mtk::Interpolation_Order::CUBIC ) :
+                    case ( Interpolation_Order::CUBIC ) :
                     {
-                        return new Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >();
+                        return new Interpolation_Function< Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >();
                         break;
                     }
                     default :
@@ -281,21 +281,21 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Interpolation_Function_Base *
-        Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order & aInterpolationOrder )
+        Interpolation_Function_Factory::create_constant_bar( const Interpolation_Order & aInterpolationOrder )
         {
             // bar 2 with one constant shape function
-            return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >();
+            return new Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >();
         }
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            Interpolation_Function_Factory::create_constant_point( const mtk::Interpolation_Order & aInterpolationOrder )
+            Interpolation_Function_Factory::create_constant_point( const Interpolation_Order & aInterpolationOrder )
             {
                 // point with one constant shape function
-                return new Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1 >();
+                return new Interpolation_Function< Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1 >();
             }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */

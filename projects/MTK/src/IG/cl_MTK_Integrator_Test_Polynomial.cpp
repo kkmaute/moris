@@ -1,10 +1,10 @@
 
 #include "fn_load_matrix_from_binary_file.hpp" //LNA/src
-#include "cl_FEM_Integrator_Test_Polynomial.hpp" //FEM/INT/src
+#include "IG/cl_MTK_Integrator_Test_Polynomial.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -77,5 +77,5 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */

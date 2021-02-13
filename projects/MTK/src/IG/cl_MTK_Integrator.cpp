@@ -1,6 +1,6 @@
-//FEM/INT/src
-#include "cl_FEM_Integration_Rule.hpp"
-#include "cl_FEM_Integrator.hpp"
+//MTK/src
+#include "IG/cl_MTK_Integration_Rule.hpp"
+#include "IG/cl_MTK_Integrator.hpp"
 //LINALG/src
 #include "op_times.hpp"
 #include "fn_trans.hpp"
@@ -9,7 +9,7 @@
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
         //------------------------------------------------------------------------------
 
@@ -107,5 +107,5 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */

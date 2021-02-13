@@ -1,26 +1,26 @@
 /*
- * cl_FEM_Interpolation_Function_Lagrange_Bar4.hpp
+ * cl_MTK_Interpolation_Function_Lagrange_Bar4.hpp
  *
  *  Created on: Apr 11, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR4_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR4_HPP_
+#ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_BAR4_HPP_
+#define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_BAR4_HPP_
 
 #include "assert.h"
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
+#include "IP/cl_MTK_Interpolation_Function.hpp" //MTK/src
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
         template<>
         uint
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_number_of_param_dimensions() const
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_number_of_param_dimensions() const
         {
             return 1;
         }
@@ -28,17 +28,17 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        mtk::Interpolation_Order
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_interpolation_order()  const
+        Interpolation_Order
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_interpolation_order()  const
         {
-            return mtk::Interpolation_Order::CUBIC;
+            return Interpolation_Order::CUBIC;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
         void
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
             aXiHat.set_size( 1, 4, 0.0 );
             aXiHat( 0 ) = -1.000000;
@@ -51,7 +51,7 @@ namespace moris
 
         template<>
         void
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_N( const Matrix< DDRMat > & aXi,
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_N( const Matrix< DDRMat > & aXi,
                                                                                                               Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
@@ -71,7 +71,7 @@ namespace moris
 
         template<>
         void
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
                                                                                                                   Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
@@ -94,7 +94,7 @@ namespace moris
 
         template<>
         void
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
                                                                                                                     Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
@@ -114,7 +114,7 @@ namespace moris
 
         template<>
         void
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+        Interpolation_Function< Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
                                                                                                                     Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
@@ -130,7 +130,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 //------------------------------------------------------------------------------
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR4_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_BAR4_HPP_ */

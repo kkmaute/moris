@@ -1,53 +1,53 @@
-//FEM/INT/src
-#include "cl_FEM_Integration_Rule.hpp"
-#include "cl_FEM_Integration_Coeffs.hpp"
-#include "cl_FEM_Integration_Coeffs_Point.hpp"
+//MTK/src
+#include "IG/cl_MTK_Integration_Rule.hpp"
+#include "IG/cl_MTK_Integration_Coeffs.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Point.hpp"
 //bar
-#include "cl_FEM_Integration_Coeffs_Bar_1.hpp"
-#include "cl_FEM_Integration_Coeffs_Bar_2.hpp"
-#include "cl_FEM_Integration_Coeffs_Bar_3.hpp"
-#include "cl_FEM_Integration_Coeffs_Bar_4.hpp"
-#include "cl_FEM_Integration_Coeffs_Bar_5.hpp"
-#include "cl_FEM_Integration_Coeffs_Bar_6.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Bar_1.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Bar_2.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Bar_3.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Bar_4.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Bar_5.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Bar_6.hpp"
 //quad
-#include "cl_FEM_Integration_Coeffs_Quad_2x2.hpp"
-#include "cl_FEM_Integration_Coeffs_Quad_3x3.hpp"
-#include "cl_FEM_Integration_Coeffs_Quad_4x4.hpp"
-#include "cl_FEM_Integration_Coeffs_Quad_5x5.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Quad_2x2.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Quad_3x3.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Quad_4x4.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Quad_5x5.hpp"
 //tri
-#include "cl_FEM_Integration_Coeffs_Tri_1.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_3.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_4.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_6.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_7.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_12.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_13.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_16.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_19.hpp"
-#include "cl_FEM_Integration_Coeffs_Tri_25.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_1.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_3.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_4.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_6.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_7.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_12.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_13.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_16.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_19.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tri_25.hpp"
 //tet
-#include "cl_FEM_Integration_Coeffs_Tet_1.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_4.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_5.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_11.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_15.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_20.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_35.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_56.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_1.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_4.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_5.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_11.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_15.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_20.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_35.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Tet_56.hpp"
 //hex
-#include "cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp"
-#include "cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp"
-#include "cl_FEM_Integration_Coeffs_Hex_4x4x4.hpp"
-#include "cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Hex_2x2x2.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Hex_3x3x3.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Hex_4x4x4.hpp"
+#include "IG/cl_MTK_Integration_Coeffs_Hex_5x5x5.hpp"
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
         //------------------------------------------------------------------------------
 
         Integration_Rule::Integration_Rule(
-                const mtk::Geometry_Type & aGeometryType,
+                const Geometry_Type & aGeometryType,
                 const Integration_Type   & aSpaceIntegrationType,
                 const Integration_Order  & aSpaceIntegrationOrder,
                 const Integration_Type   & aTimeIntegrationType,
@@ -55,16 +55,16 @@ namespace moris
         : mGeometryType( aGeometryType ),
           mSpaceIntegrationType( aSpaceIntegrationType ),
           mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
-          mTimeGeometryType( mtk::Geometry_Type::LINE ),
+          mTimeGeometryType( Geometry_Type::LINE ),
           mTimeIntegrationType( aTimeIntegrationType ),
           mTimeIntegrationOrder( aTimeIntegrationOrder )
         {}
 
         Integration_Rule::Integration_Rule(
-                const mtk::Geometry_Type & aGeometryType,
+                const Geometry_Type & aGeometryType,
                 const Integration_Type   & aSpaceIntegrationType,
                 const Integration_Order  & aSpaceIntegrationOrder,
-                const mtk::Geometry_Type & aTimeGeometryType,
+                const Geometry_Type & aTimeGeometryType,
                 const Integration_Type   & aTimeIntegrationType,
                 const Integration_Order  & aTimeIntegrationOrder )
         : mGeometryType( aGeometryType ),
@@ -98,7 +98,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Integration_Coeffs_Base * Integration_Rule::create_coeffs(
-                const mtk::Geometry_Type & aGeometryType,
+                const Geometry_Type & aGeometryType,
                 const Integration_Type   & aIntegrationType,
                 const Integration_Order  & aIntegrationOrder ) const
         {
@@ -108,22 +108,22 @@ namespace moris
                 {
                     switch( aGeometryType )
                     {
-                        case mtk::Geometry_Type::POINT :
+                        case Geometry_Type::POINT :
                             return this->create_coeffs_gauss_point( aIntegrationOrder );
 
-                        case mtk::Geometry_Type::LINE :
+                        case Geometry_Type::LINE :
                             return this->create_coeffs_gauss_bar( aIntegrationOrder );
 
-                        case mtk::Geometry_Type::QUAD :
+                        case Geometry_Type::QUAD :
                             return this->create_coeffs_gauss_quad( aIntegrationOrder );
 
-                        case mtk::Geometry_Type::HEX :
+                        case Geometry_Type::HEX :
                             return this->create_coeffs_gauss_hex( aIntegrationOrder );
 
-                        case mtk::Geometry_Type::TRI :
+                        case Geometry_Type::TRI :
                             return this->create_coeffs_gauss_tri( aIntegrationOrder );
 
-                        case mtk::Geometry_Type::TET :
+                        case Geometry_Type::TET :
                             return this->create_coeffs_gauss_tet( aIntegrationOrder );
 
                         default :
@@ -395,5 +395,5 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */

@@ -1,22 +1,22 @@
 /*
- * cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp
+ * cl_MTK_Integration_Coeffs_Hex_5x5x5.hpp
  *
  *  Created on: Jul 19, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_HEX_5x5x5_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_HEX_5x5x5_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_HEX_5x5x5_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_HEX_5x5x5_HPP_
 
-#include "cl_FEM_Integration_Coeffs.hpp"
+#include "IG/cl_MTK_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -574,6 +574,6 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_HEX_5X5X5_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_HEX_5X5X5_HPP_ */

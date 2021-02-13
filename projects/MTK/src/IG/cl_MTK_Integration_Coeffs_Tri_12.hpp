@@ -1,25 +1,25 @@
 /*
- * cl_FEM_Integration_Coeffs_Tri_12.hpp
+ * cl_MTK_Integration_Coeffs_Tri_12.hpp
  *
  *  Created on: Jul 15, 2020
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_12_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_12_HPP_
+#ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_12_HPP_
+#define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_12_HPP_
 
 //MRS/COR/src
 #include "typedefs.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//FEM/INT/src
-#include "cl_FEM_Enums.hpp"
-#include "cl_FEM_Integration_Coeffs.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+#include "IG/cl_MTK_Integration_Coeffs.hpp"
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 
         //------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_12_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_12_HPP_ */

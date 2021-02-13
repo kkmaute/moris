@@ -56,9 +56,9 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
-            fem::Integration_Order::QUAD_2x2,
-            fem::Integration_Order::HEX_2x2x2 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+            mtk::Integration_Order::QUAD_2x2,
+            mtk::Integration_Order::HEX_2x2x2 };
 
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
@@ -215,10 +215,10 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
         // space and time geometry interpolators
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
-        Interpolation_Rule tGIRule( tGeometryType,
-                Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGIRule( tGeometryType,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
@@ -236,19 +236,19 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
-            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+            mtk::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
             // create an integration rule
-            fem::Integration_Rule tIntegrationRule(
+            mtk::Integration_Rule tIntegrationRule(
                     tGeometryType,
-                    Integration_Type::GAUSS,
+                    mtk::Integration_Type::GAUSS,
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
-                    Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    mtk::Integration_Type::GAUSS,
+                    mtk::Integration_Order::BAR_2 );
 
             // create an integrator
-            fem::Integrator tIntegrator( tIntegrationRule );
+            mtk::Integrator tIntegrator( tIntegrationRule );
 
             // get integration points
             Matrix< DDRMat > tIntegPoints;
@@ -260,10 +260,10 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
             //create a space time interpolation rule
-            Interpolation_Rule tFIRule ( tGeometryType,
-                    Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tFIRule ( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
@@ -476,4 +476,3 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
         }
     }
 }/*END_TEST_CASE*/
-

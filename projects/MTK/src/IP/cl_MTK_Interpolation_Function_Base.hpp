@@ -1,20 +1,20 @@
 /*
- * cl_FEM_Interpolation_Function.hpp
+ * cl_MTK_Interpolation_Function.hpp
  *
  *  Created on: Jul 9, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_BASE_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_BASE_HPP_
+#ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_BASE_HPP_
+#define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_BASE_HPP_
 
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_Matrix.hpp"   //LINALG/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 
 //------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ namespace moris
             /**
              * returns the interpolation order
              */
-            virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
+            virtual Interpolation_Order get_interpolation_order() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -147,8 +147,8 @@ namespace moris
         };
 //------------------------------------------------------------------------------
 
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
 
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_BASE_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_BASE_HPP_ */

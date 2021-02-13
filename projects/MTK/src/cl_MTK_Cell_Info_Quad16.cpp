@@ -38,6 +38,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        enum Integration_Order
+        Cell_Info_Quad16::get_cell_integration_order() const
+        {
+            return Integration_Order::QUAD_5x5;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         uint
         Cell_Info_Quad16::get_num_verts() const
         {
@@ -242,14 +250,14 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
-        Cell_Info_Quad16::compute_cell_size( moris::mtk::Cell const * aCell ) const
+        Cell_Info_Quad16::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
         {
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
 
             Matrix<DDRMat> tNodeCoords0 = tVertices(0)->get_coords();
             Matrix<DDRMat> tNodeCoords2 = tVertices(2)->get_coords();
 
-            MORIS_ASSERT(tNodeCoords0.numel() == 2,"Cell_Info_Quad16::compute_cell_size only works in 2D.\n");
+            MORIS_ASSERT(tNodeCoords0.numel() == 2,"Cell_Info_Quad16::compute_cell_size_special only works in 2D.\n");
 
             // FIXME: only works for rectangular cells
             real tLx = std::abs(tNodeCoords0(0) - tNodeCoords2(0));

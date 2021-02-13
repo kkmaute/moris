@@ -31,6 +31,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        enum Integration_Order
+        Cell_Info_Hex27::get_cell_integration_order() const
+        {
+            return Integration_Order::HEX_4x4x4;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         uint
         Cell_Info_Hex27::get_num_verts() const
         {
@@ -249,7 +257,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
-        Cell_Info_Hex27::compute_cell_size( moris::mtk::Cell const * aCell ) const
+         Cell_Info_Hex27::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
         {
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
 
@@ -336,4 +344,3 @@ namespace moris
         }
     }
 }
-

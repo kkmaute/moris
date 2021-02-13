@@ -16,7 +16,7 @@
 
 
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
-#include "cl_MTK_Enums.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 
 #include <iostream>
 
@@ -29,7 +29,7 @@ namespace moris
 
         Field_Interpolator::Field_Interpolator(
                 const uint                         & aNumberOfFields,
-                const Interpolation_Rule           & aFieldInterpolationRule,
+                const mtk::Interpolation_Rule           & aFieldInterpolationRule,
                 Geometry_Interpolator              * aGeometryInterpolator,
                 const moris::Cell< MSI::Dof_Type >   aDofType )
         : mNumberOfFields( aNumberOfFields ),
@@ -72,7 +72,7 @@ namespace moris
 
         Field_Interpolator::Field_Interpolator(
                 const uint                         & aNumberOfFields,
-                const Interpolation_Rule           & aFieldInterpolationRule,
+                const mtk::Interpolation_Rule           & aFieldInterpolationRule,
                 Geometry_Interpolator              * aGeometryInterpolator,
                 const moris::Cell< PDV_Type >          aDvType )
         : mNumberOfFields( aNumberOfFields ),
@@ -977,4 +977,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

@@ -1,24 +1,24 @@
 /*
- * cl_FEM_Interpolation_Rule.cpp
+ * cl_MTK_Interpolation_Rule.hpp
  *
  *  Created on: Jul 18, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_
+#ifndef SRC_MTK_CL_MTK_INTERPOLATION_RULE_HPP_
+#define SRC_MTK_CL_MTK_INTERPOLATION_RULE_HPP_
 
 #include "cl_Matrix.hpp"   //LINALG/src
 
 #include "cl_MTK_Enums.hpp" //MTK/src
 
-#include "cl_FEM_Enums.hpp"                          //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Base.hpp"    //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Factory.hpp" //FEM/INT/src
+#include "cl_MTK_Enums.hpp"                          //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Base.hpp"    //MTK/src
+#include "IP/cl_MTK_Interpolation_Function_Factory.hpp" //MTK/src
 
 namespace moris
 {
-    namespace fem
+    namespace mtk
     {
 //------------------------------------------------------------------------------
 
@@ -32,12 +32,12 @@ namespace moris
          */
         class Interpolation_Rule
         {
-            const mtk::Geometry_Type       mGeometryType;
+            const Geometry_Type       mGeometryType;
             const Interpolation_Type       mSpaceInterpolationType;
-            const mtk::Interpolation_Order mSpaceInterpolationOrder;
-            const mtk::Geometry_Type       mTimeGeometryType;
+            const Interpolation_Order mSpaceInterpolationOrder;
+            const Geometry_Type       mTimeGeometryType;
             const Interpolation_Type       mTimeInterpolationType;
-            const mtk::Interpolation_Order mTimeInterpolationOrder;
+            const Interpolation_Order mTimeInterpolationOrder;
 
 //------------------------------------------------------------------------------
         public:
@@ -53,11 +53,11 @@ namespace moris
          * @param[ in ] aTimeInterpolationOrder   eg. CONSTANT, LINEAR, SERENDIPITY, QUADRATIC
          *
          */
-        Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
+        Interpolation_Rule( const Geometry_Type       & aGeometryType,
                             const Interpolation_Type       & aSpaceInterpolationType,
-                            const mtk::Interpolation_Order & aSpaceInterpolationOrder,
+                            const Interpolation_Order & aSpaceInterpolationOrder,
                             const Interpolation_Type       & aTimeInterpolationType,
-                            const mtk::Interpolation_Order & aTimeInterpolationOrder);
+                            const Interpolation_Order & aTimeInterpolationOrder);
 
         /**
          * constructs an interpolation rule
@@ -69,12 +69,12 @@ namespace moris
          * @param[ in ] aTimeInterpolationOrder   eg. CONSTANT, LINEAR, SERENDIPITY, QUADRATIC
          *
          */
-        Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
+        Interpolation_Rule( const Geometry_Type       & aGeometryType,
                             const Interpolation_Type       & aSpaceInterpolationType,
-                            const mtk::Interpolation_Order & aSpaceInterpolationOrder,
-                            const mtk::Geometry_Type       & aTimeGeometryType,
+                            const Interpolation_Order & aSpaceInterpolationOrder,
+                            const Geometry_Type       & aTimeGeometryType,
                             const Interpolation_Type       & aTimeInterpolationType,
-                            const mtk::Interpolation_Order & aTimeInterpolationOrder);
+                            const Interpolation_Order & aTimeInterpolationOrder);
 
 //------------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ namespace moris
         /**
          * returns the interpolation primitive
          */
-        mtk::Geometry_Type get_geometry_type() const
+        Geometry_Type get_geometry_type() const
         {
             return mGeometryType;
         }
@@ -112,7 +112,7 @@ namespace moris
         /**
          * returns the interpolation primitive
          */
-        mtk::Geometry_Type get_time_geometry_type() const
+        Geometry_Type get_time_geometry_type() const
         {
             return mTimeGeometryType;
         }
@@ -130,7 +130,7 @@ namespace moris
         /**
          * returns the interpolation order in space
          */
-        mtk::Interpolation_Order get_space_interpolation_order() const
+        Interpolation_Order get_space_interpolation_order() const
         {
             return mSpaceInterpolationOrder;
         }
@@ -148,7 +148,7 @@ namespace moris
         /**
          * returns the interpolation order in time
          */
-        mtk::Interpolation_Order get_time_interpolation_order() const
+        Interpolation_Order get_time_interpolation_order() const
         {
             return mTimeInterpolationOrder;
         }
@@ -156,7 +156,7 @@ namespace moris
     };
 
 //------------------------------------------------------------------------------
-    } /* namespace fem */
+    } /* namespace mtk */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_ */
+#endif /* SRC_MTK_CL_MTK_INTERPOLATION_RULE_HPP_ */

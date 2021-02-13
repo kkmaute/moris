@@ -107,10 +107,10 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
     // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-                                Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
+                                mtk::Interpolation_Type::LAGRANGE,
                                 mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::LAGRANGE,
+                                mtk::Interpolation_Type::LAGRANGE,
                                 mtk::Interpolation_Order::LINEAR );
 
     // create a space time geometry interpolator
@@ -132,10 +132,10 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // field interpolators
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-                                 Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
+                                 mtk::Interpolation_Type::LAGRANGE,
                                  mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::LAGRANGE,
+                                 mtk::Interpolation_Type::LAGRANGE,
                                  mtk::Interpolation_Order::LINEAR );
 
     // create random coefficients
