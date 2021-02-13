@@ -414,7 +414,7 @@ namespace moris
                     "Space determinate (2D) close to zero or negative: %e\n", this->space_det_J());
 
             // compute inverse
-            mInvSpaceJac.set_size(2,2);
+            mInvSpaceJac.set_size(2,2,0.0);
 
             // reciprocals
             mInvSpaceJac(0, 0) =  1.0 / tSpacJac(0, 0);
@@ -463,7 +463,7 @@ namespace moris
                     "Space determinate (3D) close to zero or negative: %e\n", this->space_det_J());
 
             // compute inverse
-            mInvSpaceJac.set_size(3,3);
+            mInvSpaceJac.set_size(3,3,0.0);
 
             // reciprocals
             mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
