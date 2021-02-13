@@ -141,8 +141,10 @@ namespace moris
             mtk::Mesh_Pair tMeshPair;
             tMeshPair.mInterpolationMesh = mMesh;
             tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
+
             std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
             tMeshManager->register_mesh_pair(tMeshPair);
+
             mtk::Field* tField = new mtk::Field(tMeshManager, 0, this->get_discretization_mesh_index());
 
             // Use mapper
