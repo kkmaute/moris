@@ -60,13 +60,13 @@ namespace moris
 
                 // Determine if to add to multigeometry
                 bool tMultigeometryFound = false;
-                std::string tGeometryName = tGeometry->get_label();
+                std::string tGeometryName = tGeometry->get_name();
                 if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_label() == tGeometryName)
+                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -79,7 +79,7 @@ namespace moris
                     {
                         for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
                         {
-                            if (tGeometries(tCreatedGeometryIndex)->get_label() == tGeometryName)
+                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
                             {
                                 tMultigeometryFound = true;
                                 tMultigeometries.push_back(std::make_shared<Multigeometry>(
@@ -203,9 +203,9 @@ namespace moris
             tParameters.mNumRefinements = aGeometryParameterList.get<std::string>("number_of_refinements");
             tParameters.mRefinementMeshIndices = aGeometryParameterList.get<std::string>("refinement_mesh_index");
             tParameters.mRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
-            tParameters.mBSplineMeshIndex = aGeometryParameterList.get<sint>("bspline_mesh_index");
-            tParameters.mBSplineLowerBound = aGeometryParameterList.get<real>("bspline_lower_bound");
-            tParameters.mBSplineUpperBound = aGeometryParameterList.get<real>("bspline_upper_bound");
+            tParameters.mDiscretizationMeshIndex = aGeometryParameterList.get<sint>("discretization_mesh_index");
+            tParameters.mDiscretizationLowerBound = aGeometryParameterList.get<real>("discretization_lower_bound");
+            tParameters.mDiscretizationUpperBound = aGeometryParameterList.get<real>("discretization_upper_bound");
 
             // Build Geometry
             if (tGeometryType == "circle")

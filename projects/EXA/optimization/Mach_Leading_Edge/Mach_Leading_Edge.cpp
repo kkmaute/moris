@@ -683,9 +683,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_x_holes",     tNumSeedFinsX );        // Number of holes in the x direction
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_y_holes",     tNumSeedFinsY );        // Number of holes in the y direction
 
-        tParameterlist( 1 )( tGeoCounter ).set( "bspline_mesh_index",   0 );     // Index of B-spline mesh to create level set field on (-1 = none)
-        tParameterlist( 1 )( tGeoCounter ).set( "bspline_lower_bound", -0.0025);   // Lower bound of level set field (if bspline_mesh_index >= 0)
-        tParameterlist( 1 )( tGeoCounter ).set( "bspline_upper_bound",  0.0025);   // Upper bound of level set field (if bspline_mesh_index >= 0)
+        tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index",   0 );     // Index of B-spline mesh to create level set field on (-1 = none)
+        tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -0.0025);   // Lower bound of level set field (if bspline_mesh_index >= 0)
+        tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound",  0.0025);   // Upper bound of level set field (if bspline_mesh_index >= 0)
         tGeoCounter++;       
     }
 

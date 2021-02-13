@@ -54,11 +54,6 @@ namespace moris
              */
             virtual const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates) = 0;
 
-            uint get_discretization_mesh_index() const
-            {
-                return mDiscretizationMeshIndex;
-            }
-
         };
     }
 }
