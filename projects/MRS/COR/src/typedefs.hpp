@@ -5,8 +5,9 @@
 #include <cstddef>
 #include <vector>
 #include <complex>
-#include <climits>
 #include <limits>
+#include <cfloat>
+#include <climits>
 /**
  * @morisdescription
  */
@@ -95,12 +96,14 @@ namespace moris
 #define MORIS_REAL_MAX   LDBL_MAX
 #define MORIS_REAL_MIN   LDBL_MIN
 #define MORIS_SINT_MAX   INT_MAX
+#define MORIS_REAL_EPS   LDBL_EPSILON
 #else
 #define MORIS_LINT_MAX   INT_MAX
 #define MORIS_UINT_MAX   UINT_MAX
-#define MORIS_REAL_MAX   std::numeric_limits<moris::real>::max()
+#define MORIS_REAL_MAX   DBL_MAX
 #define MORIS_REAL_MIN   DBL_MIN
 #define MORIS_SINT_MAX   INT_MAX
+#define MORIS_REAL_EPS   DBL_EPSILON
 #endif
 
     // define maximum capacity (in bytes) of moris containers
