@@ -29,7 +29,7 @@ void check_results(
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
-    if (true)
+    if (false)
     {
         std::cout << "Test case index: " << aTestCaseIndex << std::endl;
 
@@ -46,8 +46,8 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2};
-    Cell<uint> tReferenceNumNodes = {2451};
-    Cell<uint> tReferenceNumElems = {1875};
+    Cell<uint> tReferenceNumNodes = {11293};
+    Cell<uint> tReferenceNumElems = {9755};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -92,33 +92,33 @@ TEST_CASE("SIMP",
     // Checks
 }
 
-//TEST_CASE("LevelSet_BoxBeam_LinQuad",
-//        "[moris],[example],[optimization],[levelset_boxbeam]")
-//{
-//    if( moris::par_size() == 1 )
-//    {
-//        // define command line call
-//        int argc = 2;
-//
-//        char tString1[] = "";
-//        char tString2[] = "Levelset_Boxbeam_Lin_Quad_LevelSet.so";
-//
-//        char * argv[2] = {tString1,tString2};
-//
-//        // call to performance manager main interface
-//        int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-//
-//        // catch test statements should follow
-//        REQUIRE( tRet ==  0 );
-//
-//        // set test case index
-//        uint tTestCaseIndex = 0;
-//
-//        // Read Exodus file
-//        //moris::mtk::Exodus_IO_Helper tExoIO("levelset_boxbeam.exo", 0, false, false);
-//
-//        // Checks
-//        // perform check for Test Case 0
-//        check_results("Levelset_Boxbeam_Lin_Quad_LevelSet.exo.e-s.0002",tTestCaseIndex);
-//    }
-//}
+TEST_CASE("LevelSet_BoxBeam_LinQuad",
+        "[moris],[example],[optimization],[levelset_boxbeam]")
+{
+    if( moris::par_size() == 1 )
+    {
+        // define command line call
+        int argc = 2;
+
+        char tString1[] = "";
+        char tString2[] = "Levelset_Boxbeam_Lin_Quad_LevelSet.so";
+
+        char * argv[2] = {tString1,tString2};
+
+        // call to performance manager main interface
+        int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+        // catch test statements should follow
+        REQUIRE( tRet ==  0 );
+
+        // set test case index
+        uint tTestCaseIndex = 0;
+
+        // Read Exodus file
+        //moris::mtk::Exodus_IO_Helper tExoIO("levelset_boxbeam.exo", 0, false, false);
+
+        // Checks
+        // perform check for Test Case 0
+        check_results("Levelset_Boxbeam_Lin_Quad_LevelSet.exo.e-s.0002",tTestCaseIndex);
+    }
+}

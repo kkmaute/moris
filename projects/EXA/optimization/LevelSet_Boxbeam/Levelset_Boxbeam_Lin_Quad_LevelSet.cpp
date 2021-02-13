@@ -104,7 +104,7 @@ namespace moris
     // Derived problem paramters
 
     std::string tOutputFileName = tName + ".exo";
-    std::string tLibraryName    = tName +"so";
+    std::string tLibraryName    = tName + ".so";
     std::string tGENOutputFile  = "GEN_" + tName + ".exo";
 
     std::string tFrameSets        = "HMR_dummy_n_p2,HMR_dummy_c_p2";
