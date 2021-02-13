@@ -406,7 +406,7 @@ namespace moris
             tCircleParameterList.set("bspline_upper_bound", 1.0);
 
             // Loop over possible cases
-            for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
+            for (uint tCaseNumber = 0; tCaseNumber < 3; tCaseNumber++)
             {
                 // Determine mesh orders
                 uint tLagrangeOrder = 1;
@@ -419,11 +419,6 @@ namespace moris
                         break;
                     }
                     case 2:
-                    {
-                        tBSplineOrder = 2;
-                        break;
-                    }
-                    case 3:
                     {
                         tLagrangeOrder = 2;
                         tBSplineOrder = 2;

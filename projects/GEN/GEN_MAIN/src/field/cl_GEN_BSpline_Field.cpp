@@ -134,21 +134,30 @@ namespace moris
             // Reset evaluated field
             mOwnedNodalValues->vec_put_scalar(0);
 
+            for( uint Ik = 0; Ik<mFieldVariables.size(); Ik++)
+            {
+                mCoefficients( Ik ) = *mFieldVariables( Ik );
+            }
+
+            mtk::Mapper tMapper;
+            tMapper.perform_mapping(this,EntityRank::BSPLINE,EntityRank::NODE);
+
             // Evaluate field at owned nodes
             for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
             {
-                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, this->get_discretization_mesh_index()))
+                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE ))
                 {
                     sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,
-                            EntityRank::NODE,
-                            this->get_discretization_mesh_index());
-                    Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
-                    Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
-                    for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
-                    {
-                        (*mOwnedNodalValues)(tNodeID) += tMatrix(tBSpline) * (*mFieldVariables(tBSplineIndices(tBSpline)));
-                    }
+                            EntityRank::NODE );
+//                    Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
+//                    Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
+//                    for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
+//                    {
+                        //(*mOwnedNodalValues)(tNodeID) = tMatrix(tBSpline) * (*mFieldVariables(tBSplineIndices(tBSpline)));
+                    MORIS_ASSERT(mNodalValues( tNodeIndex ) != MORIS_REAL_MAX, "value is MORIS_REAL_MAX, check mapper");
+                        (*mOwnedNodalValues)(tNodeID) = mNodalValues( tNodeIndex );
+//                    }
                 }
             }
 
@@ -181,9 +190,13 @@ namespace moris
                         aField->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
             }
 
+            //this->save_field_to_exodus( "Field_before.exo");
+
             // Use mapper
             mtk::Mapper tMapper;
-            tMapper.perform_mapping(this, EntityRank::NODE, EntityRank::BSPLINE);
+            //tMapper.perform_mapping(this, EntityRank::NODE, EntityRank::BSPLINE);
+            tMapper.map_input_field_to_output_field_2( this );
+
 
             // Return mapped field
             return mCoefficients;
