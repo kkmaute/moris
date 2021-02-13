@@ -18,6 +18,9 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
+#include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Reader_Exodus.hpp"
+
 #include "fn_dot.hpp"
 
 namespace moris
@@ -174,6 +177,36 @@ namespace moris
 
             save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
         }
+
+        //------------------------------------------------------------------------------
+
+        void Field::save_field_to_exodus( const std::string & aFileName )
+        {
+            mtk::Mesh * tMesh = mMeshManager->get_interpolation_mesh( mMeshIndex );
+
+            moris::mtk::Writer_Exodus tExodusWriter( tMesh );
+
+            tExodusWriter.write_mesh(
+                    "./",
+                    aFileName,
+                    "./",
+                    "bla");
+
+            // set standard field names
+            moris::Cell<std::string> tNodalFieldNames( 1 );
+
+            tNodalFieldNames( 0 ) = "Field";
+
+            // pass nodal field names to writer
+            tExodusWriter.set_nodal_fields( tNodalFieldNames );
+
+            tExodusWriter.set_time( 0.0 );
+
+            tExodusWriter.write_nodal_field( tNodalFieldNames( 0 ), mNodalValues );
+
+            tExodusWriter.save_mesh( );
+        }
+
 
         //------------------------------------------------------------------------------
     } /* namespace hmr */
