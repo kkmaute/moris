@@ -83,6 +83,8 @@ namespace moris
                         mtk::Field * aFieldSource,
                         mtk::Field * aFieldTarget );
 
+                void map_input_field_to_output_field_2( mtk::Field * aFieldSource);
+
                 //------------------------------------------------------------------------------
 
                 void perform_mapping(

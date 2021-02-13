@@ -194,6 +194,105 @@ namespace moris
                     EntityRank::NODE);
         }
 
+        void Mapper::map_input_field_to_output_field_2( mtk::Field * aFieldSource )
+        {
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
+
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+
+            MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
+
+            std::shared_ptr< hmr::Database > tHMRDatabase = tSourceMesh->get_HMR_database();
+
+            // grab orders of meshes
+            uint tSourceLagrangeOrder = tSourceMesh->get_order();
+            uint tTargetOrder = aFieldSource->get_discretization_order();
+
+            // get order of Union Mesh
+            uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tTargetOrder );
+
+            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+            uint tTargetBSPattern = tSourceMesh->
+                    get_HMR_lagrange_mesh()->
+                    get_bspline_pattern( aFieldSource->get_discretization_mesh_index() );
+
+            // create union pattern
+            tHMRDatabase->create_union_pattern(
+                    tSourcePattern,
+                    tTargetPattern,
+                    tUnionPattern );
+
+            // create union mesh
+            hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                    tHMRDatabase,
+                    tLagrangeOrder,
+                    tUnionPattern,
+                    tTargetOrder,
+                    tTargetBSPattern); // order, Lagrange pattern, bspline pattern
+
+            //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                    tLagrangeOrder,
+                    tUnionPattern,
+                    tUnionInterpolationMesh);
+
+            // Create mesh manager
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
+            // Register mesh pair
+            uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+
+            mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+
+            // map source Lagrange field to target Lagrange field
+            if( tSourceLagrangeOrder >= tTargetOrder )
+            {
+                // interpolate field onto union mesh
+                this->interpolate_field(
+                        aFieldSource,
+                        &tFieldUnion );
+            }
+            else
+            {
+                // create union mesh. Bspline order will not be used
+                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tLagrangeOrder,
+                        tSourcePattern,
+                        tLagrangeOrder,
+                        tSourcePattern); // order, Lagrange pattern, bspline order, bspline pattern
+
+                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, nullptr );
+
+                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndexUnion );
+
+                this->change_field_order( aFieldSource, &tFieldHigerOrder );
+
+                // interpolate field onto union mesh
+                this->interpolate_field(
+                        &tFieldHigerOrder,
+                        &tFieldUnion );
+            }
+
+            // project field to union
+            this->perform_mapping(
+                    &tFieldUnion,
+                    EntityRank::NODE,
+                    EntityRank::BSPLINE);
+
+            // move coefficients to output field
+            aFieldSource->set_coefficients( tFieldUnion.get_coefficients() );
+
+            //                    this->perform_mapping(
+            //                            mFieldOut,
+            //                            EntityRank::BSPLINE,
+            //                            EntityRank::NODE);
+        }
+
         // -----------------------------------------------------------------------------
 
         // interpolate field values from source Lagrange to target Lagrange mesh
@@ -606,39 +705,138 @@ namespace moris
             // get number of nodes on block
             uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
 
-            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
+            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1, MORIS_REAL_MAX );
 
             const Matrix< DDRMat > & tCoefficients = aField->get_coefficients();
+
+
+            //-------------------------------------
+
+            MORIS_ERROR( tInterpolationMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
+
+            std::shared_ptr< hmr::Database > tHMRDatabase = tInterpolationMesh->get_HMR_database();
+
+            // grab orders of meshes
+            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
+            uint tOrder = aField->get_discretization_order();
+
+            // get order of Union Mesh
+            //uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tOrder );
+
+            uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            //uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tPattern = 0;
+
+            // map source Lagrange field to target Lagrange field
+            if( tSourceLagrangeOrder >= tOrder )
+            {
+
+            }
+            else
+            {
+                // create union mesh. Bspline order will not be used
+                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tOrder,
+                        tSourcePattern,
+                        tOrder,
+                        tPattern); // order, Lagrange pattern, bspline order, bspline pattern
+
+                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                //                hmr::Integration_Mesh_HMR* tHigherOrderIntegrationMesh = new hmr::Integration_Mesh_HMR(
+                //                        tOrder,
+                //                        tSourcePattern,
+                //                        tHigherOrderInterpolationMesh);
+
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
+                uint tMeshIndex = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, nullptr );
+
+                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndex );
+
+                //--------------------------------------------------
+
+                uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+                // create union pattern
+                tHMRDatabase->create_union_pattern(
+                        tSourcePattern,
+                        tSourcePattern,
+                        tUnionPattern );
+
+                // create union mesh
+                hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tOrder,
+                        tUnionPattern,
+                        tOrder,
+                        tPattern); // order, Lagrange pattern, bspline pattern
+
+                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                        tOrder,
+                        tUnionPattern,
+                        tUnionInterpolationMesh);
+
+                // Register mesh pair
+                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+
+                mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+
+
+                tFieldUnion.set_coefficients( aField->get_coefficients() );
+
+                // project field to union
+                this->perform_mapping(
+                        &tFieldUnion,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
+
+                tFieldUnion.save_field_to_exodus( "Field_after1.exo");
+
+                tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
+
+                this->change_field_order( &tFieldHigerOrder, aField );
+
+                return;
+            }
+
+            //---------------------------------------------------------
 
             for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
             {
                 // get pointer to node
                 auto tNode = &tInterpolationMesh->get_mtk_vertex( Ik );
 
-                // get PDOFs from node
-                auto tBSplines = tNode->
-                        get_interpolation( tDescritizationIndex )->
-                        get_coefficients();
-
-                // get T-Matrix
-                const Matrix< DDRMat > & tTMatrix = *tNode->
-                        get_interpolation( tDescritizationIndex )->
-                        get_weights();
-
-                // get number of coefficients
-                uint tNumberOfCoeffs = tTMatrix.length();
-
-                MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
-
-                // fill coeffs vector
-                Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
-                for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                if ((uint) par_rank() == tInterpolationMesh->get_entity_owner(Ik, EntityRank::NODE ) )
                 {
-                    tCoeffs( Ii ) = tCoefficients( tBSplines( Ii )->get_index() );
-                }
+                    // get PDOFs from node
+                    auto tBSplines = tNode->
+                            get_interpolation( tDescritizationIndex )->
+                            get_coefficients();
 
-                // write value into solution
-                tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
+                    // get T-Matrix
+                    const Matrix< DDRMat > & tTMatrix = *tNode->
+                            get_interpolation( tDescritizationIndex )->
+                            get_weights();
+
+                    // get number of coefficients
+                    uint tNumberOfCoeffs = tTMatrix.length();
+
+                    MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
+
+                    // fill coeffs vector
+                    Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
+                    for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                    {
+                        tCoeffs( Ii ) = tCoefficients( tBSplines( Ii )->get_index() );
+                    }
+
+                    // write value into solution
+                    tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
+
+                }
             }
 
             aField->set_nodal_values( tNodalValues );
