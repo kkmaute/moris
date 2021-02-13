@@ -117,7 +117,7 @@ namespace moris
 
         Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
-            return mMesh->get_bspline_ids_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index());
+            return mMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ namespace moris
                             tNodeIndex,
                             EntityRank::NODE,
                             this->get_discretization_mesh_index());
-                    Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
+                    Matrix<IndexMat> tBSplineIndices = mMesh->get_coefficient_indices_of_node(tNodeIndex, this->get_discretization_mesh_index());
                     Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, this->get_discretization_mesh_index());
                     for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
                     {

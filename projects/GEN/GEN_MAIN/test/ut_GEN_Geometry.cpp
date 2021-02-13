@@ -522,7 +522,7 @@ namespace moris
                         check_equal(tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
                         check_equal(
                                 tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
+                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                     }
                 }
 

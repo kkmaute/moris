@@ -122,7 +122,7 @@ namespace moris
 
             //FIXME: IMPLEMENT THIS FUNCTION IN XTK
             virtual Matrix< IndexMat >
-            get_bspline_inds_of_node_loc_ind(
+            get_coefficient_indices_of_node(
                     const moris_index aNodeIndex,
                     const EntityRank  aBSplineRank )
                     {

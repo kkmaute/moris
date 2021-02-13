@@ -220,7 +220,7 @@ namespace moris
                 moris_id          aEntityId,
                 enum EntityRank   aInputEntityRank,
                 enum EntityRank   aOutputEntityRank,
-                const moris_index aBSplineMeshIndex) const
+                const moris_index aDiscretizationMeshIndex) const
         {
             MORIS_ERROR(0,"Entered function in Mesh base class, (function is not implemented)");
             return Matrix<IdMat>(0,0);
@@ -416,7 +416,7 @@ namespace moris
 
         moris_id
         Mesh::get_max_entity_id( enum EntityRank aEntityRank,
-                           const moris_index     aBSplineMeshIndex) const
+                           const moris_index     aDiscretizationMeshIndex) const
         {
             MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
             return 0;
@@ -667,18 +667,29 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        uint
-        Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
+
+        Matrix<DDSMat> Mesh::get_shared_discretization_coefficient_IDs(
+                const Matrix<DDUMat>& aNodeIndices,
+                uint                  aDiscretizationIndex)
         {
-            return this->get_num_nodes();
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Mesh::node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex)
+        Matrix<DDSMat> Mesh::get_owned_discretization_coefficient_IDs(
+                const Matrix<DDUMat>& aNodeIndices,
+                uint                  aDiscretizationIndex)
         {
-            return false;
+            return {{}};
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        uint
+        Mesh::get_num_coeffs(uint aDiscretizationMeshIndex) const
+        {
+            return this->get_num_nodes();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -686,7 +697,7 @@ namespace moris
         const Matrix< DDRMat > &
         Mesh::get_t_matrix_of_node_loc_ind(
                 uint aNodeIndex,
-                uint aBSplineMeshIndex)
+                uint aDiscretizationMeshIndex)
         {
             mDummyMatrix.set_size(1, 1, 1.0);
             return mDummyMatrix;
@@ -695,9 +706,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix< IndexMat >
-        Mesh::get_bspline_inds_of_node_loc_ind(
+        Mesh::get_coefficient_indices_of_node(
                 uint aNodeIndex,
-                uint aBSplineMeshIndex )
+                uint aDiscretizationMeshIndex )
         {
             return {{(sint)aNodeIndex}};
         }
@@ -705,9 +716,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix< IdMat >
-        Mesh::get_bspline_ids_of_node_loc_ind(
+        Mesh::get_coefficient_IDs_of_node(
                 uint aNodeIndex,
-                uint aBSplineMeshIndex )
+                uint aDiscretizationMeshIndex )
         {
             return {{get_glb_entity_id_from_entity_loc_index(aNodeIndex, EntityRank::NODE)}};
         }
@@ -1022,10 +1033,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Mesh::get_discretization_order( moris_index aBSplineMeshIndex )
+        uint Mesh::get_discretization_order( moris_index aDiscretizationMeshIndex )
         {
             MORIS_ERROR( this->get_mesh_type() == MeshType::HMR,"get_order only implemented for HMR meshes");
-            return mMesh->get_bspline_order( aBSplineMeshIndex );
+            return mMesh->get_bspline_order( aDiscretizationMeshIndex );
         }
 
 #ifdef DEBUG
