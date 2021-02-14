@@ -65,8 +65,7 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
+                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
                             trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() +
                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
 
@@ -123,46 +122,43 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
+                // get sub-matrix
+                auto jac = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
                 // if velocity dof type
                 // FIXME protect dof type
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFITemp->N() ) * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
-                                    tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) );
+                    // add contribution to Jacobian
+                    jac += aWStar * (
+                            trans( tFITemp->N() ) * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
+                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) );
                 }
 
                 // if diffusion CM depends on dof type
                 if( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar *
+                    // add contribution to Jacobian
+                    jac += aWStar *
                             ( trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                 }
 
-                // compute the jacobian strong form
+                // compute the Jacobian strong form
                 Matrix< DDRMat > tJT;
                 this->compute_jacobian_strong_form( tDofType, tJT );
 
-                // compute the jacobian contribution from strong form
-                mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
+                // compute the Jacobian contribution from strong form
+                jac += aWStar * (
+                        tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
 
                 // if SUPG stabilization parameter depends on dof type
                 if( tSPSUPG->check_dof_dependency( tDofType ) )
                 {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                    // add contribution to Jacobian
+                    jac += aWStar * (
+                            trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
                 }
             }
 
@@ -228,7 +224,7 @@ namespace moris
             // if CM diffusion depends on dof type
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
-                // compute contribution to jacobian strong form
+                // compute contribution to Jacobian strong form
                 aJT +=
                         tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
                         trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
