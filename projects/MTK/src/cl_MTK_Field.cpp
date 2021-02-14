@@ -190,7 +190,7 @@ namespace moris
                     "./",
                     aFileName,
                     "./",
-                    "bla");
+                    "field_temp");
 
             // set standard field names
             moris::Cell<std::string> tNodalFieldNames( 1 );

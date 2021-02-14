@@ -629,7 +629,6 @@ namespace moris
 
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )(0).set("SOL_TPL_Type"               , static_cast< uint >( sol::MapType::Epetra ) );
-            tParameterlist( 6 )(0).set("SOL_save_operator_to_matlab", "L2map.mat" );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 
@@ -761,7 +760,6 @@ namespace moris
 
                 mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
 
-
                 tFieldUnion.set_coefficients( aField->get_coefficients() );
 
                 // project field to union
@@ -770,7 +768,7 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldUnion.save_field_to_exodus( "Field_after1.exo");
+                //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
 
                 tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
 
