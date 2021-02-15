@@ -85,6 +85,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+               mtk::Integration_Order get_integration_order() const;
+
+//------------------------------------------------------------------------------
+
                const mtk::Vertex * get_vertex( const uint & aIndex ) const
                {
                    return mVertices[ aIndex ];
@@ -134,6 +138,16 @@ namespace moris
                MORIS_ERROR( false,
                     "get_interpolation_order() not implemented for this Lagrange_Facet.");
                return mtk::Interpolation_Order::UNDEFINED;
+           }
+
+//------------------------------------------------------------------------------
+
+           template< uint N, uint D >
+           mtk::Integration_Order Lagrange_Facet< N, D >::get_integration_order() const
+           {
+               MORIS_ERROR( false,
+                       "Lagrange_Facet::get_integration_order() not implemented.");
+               return mtk::Integration_Order::UNDEFINED;
            }
 
 //------------------------------------------------------------------------------

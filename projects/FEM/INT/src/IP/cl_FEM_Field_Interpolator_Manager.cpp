@@ -127,9 +127,9 @@ namespace moris
                 uint tDofIndex = mEquationSet->get_dof_index_for_type_1( mDofTypes( iDof )( 0 ), mIsMaster );
 
                 // create the field interpolation rule for the dof type group
-                Interpolation_Rule tFieldInterpolationRule(
+                mtk::Interpolation_Rule tFieldInterpolationRule(
                         reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
-                        Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Type::LAGRANGE,
                         reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
                         reinterpret_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
                         // If interpolation type CONSTANT, iInterpolation order is not used
@@ -161,9 +161,9 @@ namespace moris
                 uint tDvIndex = mEquationSet->get_dv_index_for_type_1( mDvTypes( iDv )( 0 ), mIsMaster );
 
                 // create the field interpolation rule for the dv type group
-                Interpolation_Rule tFieldInterpolationRule(
+                mtk::Interpolation_Rule tFieldInterpolationRule(
                         reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
-                        Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Type::LAGRANGE,
                         reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
                         reinterpret_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
                         // If interpolation type CONSTANT, iInterpolation order is not used
@@ -197,31 +197,31 @@ namespace moris
                     ( tElementType != fem::Element_Type::TIME_SIDESET );
 
             // create geometry interpolation rule for IP elements
-            Interpolation_Rule tIPGeometryInterpolationRule(
+            mtk::Interpolation_Rule tIPGeometryInterpolationRule(
                     reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
                     mtk::Geometry_Type::LINE,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR ); // FIXME not linear?
 
             // FIXME default should be given by the MSI
             mtk::Geometry_Type       tIGTimeGeometryType = mtk::Geometry_Type::LINE;
-            fem::Interpolation_Type  tIGTimeInterpType   = fem::Interpolation_Type::LAGRANGE;
+            mtk::Interpolation_Type  tIGTimeInterpType   = mtk::Interpolation_Type::LAGRANGE;
             mtk::Interpolation_Order tIGTimeInterpOrder  = mtk::Interpolation_Order::LINEAR;
 
             // if time sideset
             if ( tIsTimeSide )
             {
                 tIGTimeGeometryType = mtk::Geometry_Type::POINT;
-                tIGTimeInterpType   = fem::Interpolation_Type::CONSTANT;
+                tIGTimeInterpType   = mtk::Interpolation_Type::CONSTANT;
                 tIGTimeInterpOrder  = mtk::Interpolation_Order::CONSTANT;
             }
 
             // create geometry interpolation rule for IG elements
-            Interpolation_Rule tIGGeometryInterpolationRule(
+            mtk::Interpolation_Rule tIGGeometryInterpolationRule(
                     reinterpret_cast< Set* >( mEquationSet )->mIGGeometryType,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     reinterpret_cast< Set* >( mEquationSet )->mIGSpaceInterpolationOrder,
                     tIGTimeGeometryType,
                     tIGTimeInterpType,
@@ -362,4 +362,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

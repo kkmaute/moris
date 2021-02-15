@@ -128,6 +128,13 @@ namespace fem
             return mInterpolationOrder;
         };
 
+                //------------------------------------------------------------------------------
+        mtk::Integration_Order get_integration_order() const
+        {
+            MORIS_ERROR( false, " ElementProxy::get_integration_order - not available for this element. " );
+            return mtk::Integration_Order::UNDEFINED;
+        };
+
 	};
 
 }/* namespace fem */

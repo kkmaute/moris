@@ -80,7 +80,7 @@ namespace moris
 
             uint get_order();
 
-            uint get_discretization_order( moris_index aBSplineMeshIndex );
+            uint get_discretization_order( moris_index aDiscretizationIndex );
 
             // FIXME This should be default, individual calls should be virtual
             /**
@@ -163,7 +163,7 @@ namespace moris
              * @param aEntityIndex Input entity index
              * @param aInputEntityRank Input entity rank
              * @param aOutputEntityRank Output entity rank
-             * @param aBSplineMeshIndex B-spline mesh index
+             * @param aDiscretizationIndex discretization mesh index
              * @return Output entity indices
              */
             virtual
@@ -172,7 +172,7 @@ namespace moris
                     moris_index        aEntityIndex,
                     enum EntityRank    aInputEntityRank,
                     enum EntityRank    aOutputEntityRank,
-                    const moris_index  aBSplineMeshIndex = 0) const = 0;
+                    const moris_index  aDiscretizationIndex = 0) const = 0;
 
             /**
              * Since the connectivity between entities of the same rank are considered
@@ -323,7 +323,7 @@ namespace moris
              *
              * @param aEntityIndex Local entity index
              * @param aEntityRank Entity rank
-             * @param aBSplineMeshIndex B-spline mesh Index
+             * @param aDiscretizationIndex discretization mesh Index
              * @return Global entity ID
              */
             virtual
@@ -331,7 +331,7 @@ namespace moris
             get_glb_entity_id_from_entity_loc_index(
                     moris_index        aEntityIndex,
                     enum EntityRank    aEntityRank,
-                    const moris_index  aBSplineMeshIndex = 0) const = 0;
+                    const moris_index  aDiscretizationIndex = 0) const = 0;
 
             virtual
             std::unordered_map<moris_id,moris_index>
@@ -349,7 +349,7 @@ namespace moris
              *
              * @param aEntityId Global entity ID
              * @param aEntityRank Entity rank
-             * @param aBSplineMeshIndex B-spline mesh index
+             * @param aDiscretizationIndex discretization mesh index
              * @return Local entity index
              */
             virtual
@@ -357,7 +357,7 @@ namespace moris
             get_loc_entity_ind_from_entity_glb_id(
                     moris_id           aEntityId,
                     enum EntityRank    aEntityRank,
-                    const moris_index  aBSplineMeshIndex = 0) const;
+                    const moris_index  aDiscretizationIndex = 0) const;
 
             /**
              * Get a facet ordinal from a face index and cell index.
@@ -406,7 +406,7 @@ namespace moris
                     moris_id          aEntityId,
                     enum EntityRank   aInputEntityRank,
                     enum EntityRank   aOutputEntityRank,
-                    const moris_index aBSPlineMeshIndex = 0) const;
+                    const moris_index aDiscretizationMeshIndex = 0) const;
 
             /**
              * Since the connectivity between entities of the same rank are considered
@@ -633,13 +633,13 @@ namespace moris
              * Gets the max entity ID for a given entity rank.
              *
              * @param aEntityRank Entity rank
-             * @param aBSplineMeshIndex B-spline mesh index
+             * @param aDiscretizationIndex discretization mesh index
              * @return Max entity ID
              */
             virtual
             moris_id
             get_max_entity_id( enum EntityRank aEntityRank,
-                               const moris_index     aBSplineMeshIndex = 0 ) const;
+                               const moris_index     aDiscretizationIndex = 0 ) const;
 
             //##############################################
             // Entity Ownership Functions
@@ -666,13 +666,13 @@ namespace moris
              *
              * @param aEntityIndex Entity index
              * @param aEntityRank Entity rank
-             * @param aBSPlineMeshIndex B-spline mesh index
+             * @param aDiscretizationMeshIndex discretization mesh index
              * @return Entity owner
              */
             virtual uint get_entity_owner(
                     moris_index       aEntityIndex,
                     enum EntityRank   aEntityRank,
-                    const moris_index aBSPlineMeshIndex = 0) const;
+                    const moris_index aDiscretizationMeshIndex = 0) const;
 
             // FIXME pure virtual or default implementation
             /**
@@ -754,13 +754,13 @@ namespace moris
              * Return the number of fields on this mesh.
              *
              * @param aEntityRank Entity rank
-             * @param aBSPlineMeshIndex B-spline mesh index
+             * @param aDiscretizationMeshIndex discretization mesh index
              * @return Number of fields
              */
             virtual uint
             get_num_fields(
                     const enum EntityRank aEntityRank,
-                    const moris_index     aBSPlineMeshIndex = 0) const;
+                    const moris_index     aDiscretizationMeshIndex = 0) const;
 
             /**
              * return the index of the field of this label
@@ -797,7 +797,7 @@ namespace moris
                     const moris_index     aFieldIndex,
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex,
-                    const moris_index     aBSPlineMeshIndex = 0);
+                    const moris_index     aDiscretizationMeshIndex = 0);
 
             /**
              * get value of entity ( const version )
@@ -807,7 +807,7 @@ namespace moris
                     const moris_index     aFieldIndex,
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex,
-                    const moris_index     aBSPlineMeshIndex = 0) const;
+                    const moris_index     aDiscretizationMeshIndex = 0) const;
 
             /**
              * fixme: need opinion: sould we always return a DDRMat?
@@ -837,7 +837,7 @@ namespace moris
             virtual Matrix<DDRMat> &
             get_field( const moris_index  aFieldIndex,
                        const enum EntityRank aEntityRank,
-                       const moris_index     aBSPlineMeshIndex =0);
+                       const moris_index     aDiscretizationMeshIndex =0);
 
             //##############################################
             //  Multigrid
@@ -847,27 +847,27 @@ namespace moris
              * Gets the max level of an entity.
              *
              * @param aEntityRank Entity rank
-             * @param aBSPlineMeshIndex B-spline mesh index
+             * @param aDiscretizationMeshIndex discretization mesh index
              * @return Max level
              */
             virtual uint
             get_max_level_of_entity(
                     const enum EntityRank aEntityRank,
-                    const moris_index     aBSPlineMeshIndex = 0);
+                    const moris_index     aDiscretizationMeshIndex = 0);
 
             /**
              * Gets the level of an entity.
              *
              * @param aEntityRank Entity rank
              * @param aEntityIndex Entity index
-             * @param aBSPlineMeshIndex B-spline mesh index
+             * @param aDiscretizationMeshIndex discretization mesh index
              * @return
              */
             virtual uint
             get_level_of_entity_loc_ind(
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex,
-                    const moris_index     aBSPlineMeshIndex = 0);
+                    const moris_index     aDiscretizationMeshIndex = 0);
 
             // FIXME breaks inheritance
             std::shared_ptr< hmr::Database > get_HMR_database( );
@@ -876,57 +876,72 @@ namespace moris
             hmr::Lagrange_Mesh_Base * get_HMR_lagrange_mesh( );
 
             /**
-             * Gets the number of B-spline coefficients on a B-spline mesh.
+             * Gets the shared IDs of the coefficients which define a discretization.
              *
-             * @param aBSplineMeshIndex B-spline mesh index
-             * @return Number of B-spline coefficients
+             * Note that the return type can be made a constant reference, but I will still have to make a copy anyways.
+             *
+             * @param aNodeIndices Node indices to check for coefficients
+             * @param aDiscretizationIndex Index of the specific discretization
+             * @return Shared coefficient IDs
              */
-            virtual uint
-            get_num_coeffs(const uint aBSplineMeshIndex) const;
+            virtual Matrix<DDSMat> get_shared_discretization_coefficient_IDs(
+                    const Matrix<DDUMat>& aNodeIndices,
+                    uint                  aDiscretizationIndex);
 
             /**
-             * Returns if this node has information about B-spline interpolation or not.
+             * Gets the owned IDs of the coefficients which define a discretization.
              *
-             * @param aNodeIndex Node index
-             * @param aBSplineMeshIndex B-spline mesh index
-             * @return If interpolation exists
+             * Note that the return type can be made a constant reference, but I will still have to make a copy anyways.
+             *
+             * @param aNodeIndices Node indices to check for coefficients
+             * @param aDiscretizationIndex Index of the specific discretization
+             * @return Owned coefficient IDs
              */
-            virtual bool node_has_interpolation(
-                    uint aNodeIndex,
-                    uint aBSplineMeshIndex);
+            virtual Matrix<DDSMat> get_owned_discretization_coefficient_IDs(
+                    const Matrix<DDUMat>& aNodeIndices,
+                    uint                  aDiscretizationIndex);
+
+            /**
+             * Gets the number of discretization coefficients on a discretization mesh.
+             *
+             * @param aDiscretizationIndex discretization mesh index
+             * @return Number of discretization coefficients
+             */
+            virtual uint
+            get_num_coeffs(uint aDiscretizationIndex) const;
 
             /**
              * Get the T-matrix of a node.
              *
              * @param aNodeIndex Node index
-             * @param aBSplineMeshIndex B-spline mesh index
+             * @param aDiscretizationIndex discretization mesh index
              * @return T-matrix
              */
             virtual const Matrix< DDRMat > & get_t_matrix_of_node_loc_ind(
                     uint aNodeIndex,
-                    uint aBSplineMeshIndex);
+                    uint aDiscretizationIndex);
 
             /**
-             * Get the indices of the B-spline coefficients of a node.
+             * Get the indices of the discretization coefficients of a node.
              *
              * @param aNodeIndex Node index
-             * @param aBSplineMeshIndex B-spline mesh index
-             * @return B-spline coefficient indices
+             * @param aDiscretizationIndex discretization mesh index
+             * @return discretization coefficient indices
              */
-            virtual Matrix< IndexMat > get_bspline_inds_of_node_loc_ind(
+            virtual Matrix< IndexMat > get_coefficient_indices_of_node(
                     uint aNodeIndex,
-                    uint aBSplineMeshIndex );
+                    uint aDiscretizationIndex );
 
             /**
-             * Get the IDs of the B-spline coefficients of a node.
+             * Get the IDs of the discretization coefficients of a node.
              *
              * @param aNodeIndex Node index
-             * @param aBSplineMeshIndex B-spline mesh index
-             * @return B-spline coefficient indices
+             * @param aDiscretizationIndex discretization mesh index
+             * @return discretization coefficient indices
              */
-            virtual Matrix< IdMat > get_bspline_ids_of_node_loc_ind(
+            virtual Matrix< IdMat > get_coefficient_IDs_of_node(
                     uint aNodeIndex,
-                    uint aBSplineMeshIndex );
+                    uint aDiscretizationIndex );
 
             /**
              * Gets the number of basis functions. For Lagrange meshes, the number of basis functions and the number of
@@ -944,7 +959,7 @@ namespace moris
             /**
              * Get the adof map.
              *
-             * @param aBSplineIndex B-spline index
+             * @param aBSplineIndex discretization index
              * @param aAdofMap Adof map
              */
             void

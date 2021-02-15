@@ -694,7 +694,7 @@ namespace moris
              * @param[ in ]  aInterpolationOrder an interpolation order
              * @param[ out ] aIntegrationOrder   an integration order
              */
-            fem::Integration_Order get_auto_integration_order(
+            mtk::Integration_Order get_auto_integration_order(
                     const fem::Element_Type        aElementType,
                     const mtk::Geometry_Type       aGeometryType,
                     const mtk::Interpolation_Order aInterpolationOrder );
@@ -715,7 +715,7 @@ namespace moris
              * auto detect time interpolation scheme
              * @param[ in ] aNumVertices number of vertices for a line
              */
-            fem::Interpolation_Type get_auto_time_interpolation_type(
+            mtk::Interpolation_Type get_auto_time_interpolation_type(
                     const moris::uint aNumVertices );
 
             //------------------------------------------------------------------------------

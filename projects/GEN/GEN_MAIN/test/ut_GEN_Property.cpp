@@ -109,9 +109,9 @@ namespace moris
             ParameterList tPropertyParameterList = prm::create_gen_property_parameter_list();
             tPropertyParameterList.set("type", "constant");
             tPropertyParameterList.set("constant_parameters", "1.0");
-            tPropertyParameterList.set("bspline_mesh_index", 0);
-            tPropertyParameterList.set("bspline_lower_bound", -2.0);
-            tPropertyParameterList.set("bspline_upper_bound", 2.0);
+            tPropertyParameterList.set("discretization_mesh_index", 0);
+            tPropertyParameterList.set("discretization_lower_bound", -2.0);
+            tPropertyParameterList.set("discretization_upper_bound", 2.0);
 
             // Loop over possible cases
             for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
@@ -167,9 +167,6 @@ namespace moris
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mProperties = {tBSplineProperty};
-                tGeometryEngineParameters.mProperties(0)->set_mesh( tMeshManager );
-                tGeometryEngineParameters.mProperties(0)->set_mesh_index( 0 );
-
                 Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds
@@ -213,7 +210,7 @@ namespace moris
                         check_equal(tBSplineProperty->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
                         check_equal(
                                 tBSplineProperty->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
+                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                     }
                 }
 

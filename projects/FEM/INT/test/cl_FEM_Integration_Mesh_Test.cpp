@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "cl_FEM_Integrator.hpp" //FEM/INT/sr
+#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
 
 using namespace moris;
 using namespace fem;
@@ -25,10 +25,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Matrix< DDRMat > tTauHatIP = {{ -1.0 }, { 1.0 }, { 0.0 }};
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::QUAD,
-                                             Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::QUAD,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::LINEAR,
-                                             Interpolation_Type::LAGRANGE,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::QUADRATIC );
 
         // create a space and time geometry interpolator
@@ -43,8 +43,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         tGeoInterpIP.set_time_param_coeff(  tTauHatIP );
 
         // space and time geometry interpolations
-        Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
-        Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
+        mtk::Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
+        mtk::Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
         uint tNumTimeBases     = tTimeInterpolation->get_number_of_bases();
         uint tNumTimeDim       = tTimeInterpolation->get_number_of_dimensions();
@@ -65,10 +65,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
         // integration mesh interpolation rule
-        Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                             Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::LINEAR,
-                                             Interpolation_Type::LAGRANGE,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::QUADRATIC );
 
         // create a space and time geometry interpolator fot the integration element
@@ -83,19 +83,19 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         tGeoInterpIG.set_time_param_coeff(  tTauHatIG );
 
         // space geometry interpolations for integration mesh
-        Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
+        mtk::Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
         uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
         uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
         // create a integration rule
-        Integration_Rule tIntegrationRule( tGeoTypeIG,
-                                           Integration_Type::GAUSS,
-                                           Integration_Order::QUAD_3x3,
-                                           Integration_Type::GAUSS,
-                                           Integration_Order::BAR_3 );
+        mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
+                                           mtk::Integration_Type::GAUSS,
+                                           mtk::Integration_Order::QUAD_3x3,
+                                           mtk::Integration_Type::GAUSS,
+                                           mtk::Integration_Order::BAR_3 );
 
         // create a side integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -240,10 +240,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            Matrix< DDRMat > tTauHatIP = {{ -1.0 }, { 1.0 }, { 0.0 }};
 
            // create a space and time geometry interpolation rule
-           Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::QUAD,
-                                               Interpolation_Type::LAGRANGE,
+           mtk::Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::QUAD,
+                                               mtk::Interpolation_Type::LAGRANGE,
                                                mtk::Interpolation_Order::LINEAR,
-                                               Interpolation_Type::LAGRANGE,
+                                               mtk::Interpolation_Type::LAGRANGE,
                                                mtk::Interpolation_Order::QUADRATIC );
 
            // create a space and time geometry interpolator
@@ -258,8 +258,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            tGeoInterpIP.set_time_param_coeff(  tTauHatIP );
 
            // space and time geometry interpolations
-           Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
-           Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
+           mtk::Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
+           mtk::Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
            uint tNumTimeBases  = tTimeInterpolation->get_number_of_bases();
            uint tNumTimeDim    = tTimeInterpolation->get_number_of_dimensions();
@@ -271,10 +271,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            mtk::Geometry_Type tGeoTypeIG = mtk::Geometry_Type::TRI;
 
            // integration mesh interpolation rule
-           Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                                Interpolation_Type::LAGRANGE,
+           mtk::Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::LINEAR,
-                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::QUADRATIC );
 
            // define a TRI3 integration element, i.e. space param coordinates xiHat
@@ -297,19 +297,19 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            tGeoInterpIG.set_time_param_coeff(  tTauHatIG );
 
            // space geometry interpolations for integration mesh
-           Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
+           mtk::Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
            uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
            uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
            // create a integration rule
-           Integration_Rule tIntegrationRule( tGeoTypeIG,
-                                              Integration_Type::GAUSS,
-                                              Integration_Order::TRI_3,
-                                              Integration_Type::GAUSS,
-                                              Integration_Order::BAR_3 );
+           mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
+                                              mtk::Integration_Type::GAUSS,
+                                              mtk::Integration_Order::TRI_3,
+                                              mtk::Integration_Type::GAUSS,
+                                              mtk::Integration_Order::BAR_3 );
 
            // create a side integrator
-           Integrator tIntegrator( tIntegrationRule );
+           mtk::Integrator tIntegrator( tIntegrationRule );
 
            //get number of integration points, integration points and weights
            uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -464,10 +464,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Matrix< DDRMat > tTauHatIP = {{-1.0}, {1.0}, {0.0}};
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::HEX,
-                                             Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::HEX,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::LINEAR,
-                                             Interpolation_Type::LAGRANGE,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::QUADRATIC );
 
         // create a space and time geometry interpolator
@@ -482,8 +482,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         tGeoInterpIP.set_time_param_coeff(  tTauHatIP );
 
         // space and time geometry interpolations
-        Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
-        Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
+        mtk::Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
+        mtk::Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
         uint tNumTimeBases     = tTimeInterpolation->get_number_of_bases();
         uint tNumTimeDim       = tTimeInterpolation->get_number_of_dimensions();
@@ -515,10 +515,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
         // integration mesh interpolation rule
-        Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                             Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::LINEAR,
-                                             Interpolation_Type::LAGRANGE,
+                                             mtk::Interpolation_Type::LAGRANGE,
                                              mtk::Interpolation_Order::QUADRATIC );
 
         // create a space and time geometry interpolator fot the integration element
@@ -533,19 +533,19 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         tGeoInterpIG.set_time_param_coeff(  tTauHatIG );
 
         // space geometry interpolations for integration mesh
-        Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
+        mtk::Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
         uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
         uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
         // create a integration rule
-        Integration_Rule tIntegrationRule( tGeoTypeIG,
-                                           Integration_Type::GAUSS,
-                                           Integration_Order::HEX_3x3x3,
-                                           Integration_Type::GAUSS,
-                                           Integration_Order::BAR_3 );
+        mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
+                                           mtk::Integration_Type::GAUSS,
+                                           mtk::Integration_Order::HEX_3x3x3,
+                                           mtk::Integration_Type::GAUSS,
+                                           mtk::Integration_Order::BAR_3 );
 
         // create a side integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -702,10 +702,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            Matrix< DDRMat > tTauHatIP = {{-1.0}, {1.0}, {0.0}};
 
            // create a space and time geometry interpolation rule
-           Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::HEX,
-                                                Interpolation_Type::LAGRANGE,
+           mtk::Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::HEX,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::LINEAR,
-                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::QUADRATIC );
 
            // create a space and time geometry interpolator
@@ -720,8 +720,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            tGeoInterpIP.set_time_param_coeff(  tTauHatIP );
 
            // space and time geometry interpolations
-           Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
-           Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
+           mtk::Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
+           mtk::Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
            uint tNumTimeBases  = tTimeInterpolation->get_number_of_bases();
            uint tNumTimeDim    = tTimeInterpolation->get_number_of_dimensions();
@@ -733,10 +733,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            mtk::Geometry_Type tGeoTypeIG = mtk::Geometry_Type::TET;
 
            // integration mesh interpolation rule
-           Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                                Interpolation_Type::LAGRANGE,
+           mtk::Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::LINEAR,
-                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::QUADRATIC );
 
            // define a TET4 integration element, i.e. space param coordinates xiHat
@@ -759,19 +759,19 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            tGeoInterpIG.set_time_param_coeff(  tTauHatIG );
 
            // space geometry interpolations for integration mesh
-           Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
+           mtk::Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
            uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
            uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
            // create a integration rule
-           Integration_Rule tIntegrationRule( tGeoTypeIG,
-                                              Integration_Type::GAUSS,
-                                              Integration_Order::TET_5,
-                                              Integration_Type::GAUSS,
-                                              Integration_Order::BAR_3 );
+           mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
+                                              mtk::Integration_Type::GAUSS,
+                                              mtk::Integration_Order::TET_5,
+                                              mtk::Integration_Type::GAUSS,
+                                              mtk::Integration_Order::BAR_3 );
 
            // create a side integrator
-           Integrator tIntegrator( tIntegrationRule );
+           mtk::Integrator tIntegrator( tIntegrationRule );
 
            //get number of integration points, integration points and weights
            uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -904,4 +904,3 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
        }
 }
-

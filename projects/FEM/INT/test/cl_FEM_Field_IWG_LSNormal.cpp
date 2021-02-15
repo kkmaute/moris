@@ -23,10 +23,10 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-                                        Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                        mtk::Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR,
-                                        Interpolation_Type::LAGRANGE,
+                                        mtk::Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR );
 
     //create a space and a time geometry interpolator
@@ -50,10 +50,10 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
     // field interpolator
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
-                                            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+                                            mtk::Interpolation_Type::LAGRANGE,
                                             mtk::Interpolation_Order::LINEAR,
-                                            Interpolation_Type::LAGRANGE,
+                                            mtk::Interpolation_Type::LAGRANGE,
                                             mtk::Interpolation_Order::LINEAR );
 
     //create a field interpolator

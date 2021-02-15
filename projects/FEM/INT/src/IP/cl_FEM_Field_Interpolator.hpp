@@ -15,7 +15,7 @@
 //LNA/src
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp"
+#include "IP/cl_MTK_Interpolation_Rule.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -38,8 +38,8 @@ namespace moris
                 const uint mNumberOfFields;
 
                 // pointer to space and time interpolation objects
-                Interpolation_Function_Base * mSpaceInterpolation = nullptr;
-                Interpolation_Function_Base * mTimeInterpolation  = nullptr;
+                mtk::Interpolation_Function_Base * mSpaceInterpolation = nullptr;
+                mtk::Interpolation_Function_Base * mTimeInterpolation  = nullptr;
 
                 // space and time geometry interpolator
                 Geometry_Interpolator * mGeometryInterpolator = nullptr;
@@ -134,7 +134,7 @@ namespace moris
                  */
                 Field_Interpolator(
                         const uint                         & aNumberOfFields,
-                        const Interpolation_Rule           & aFieldInterpolationRule,
+                        const mtk::Interpolation_Rule           & aFieldInterpolationRule,
                         Geometry_Interpolator              * aGeometryInterpolator,
                         const moris::Cell< MSI::Dof_Type >   aDofType );
 
@@ -147,7 +147,7 @@ namespace moris
                  */
                 Field_Interpolator(
                         const uint                         & aNumberOfFields,
-                        const Interpolation_Rule           & aFieldInterpolationRule,
+                        const mtk::Interpolation_Rule           & aFieldInterpolationRule,
                         Geometry_Interpolator              * aGeometryInterpolator,
                         const moris::Cell< PDV_Type >        aDvType );
 

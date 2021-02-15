@@ -26,6 +26,7 @@
 #include "cl_MSI_Solver_Interface.hpp"
 
 #include "cl_SOL_Warehouse.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -84,7 +85,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
-            mFieldIn = aFieldSource;
+            mFieldIn  = aFieldSource;
             mFieldOut = aFieldTarget;
 
             std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = mFieldIn->get_mesh_pair();
@@ -192,6 +193,105 @@ namespace moris
                     mFieldOut,
                     EntityRank::BSPLINE,
                     EntityRank::NODE);
+        }
+
+        void Mapper::map_input_field_to_output_field_2( mtk::Field * aFieldSource )
+        {
+            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
+
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+
+            MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
+
+            std::shared_ptr< hmr::Database > tHMRDatabase = tSourceMesh->get_HMR_database();
+
+            // grab orders of meshes
+            uint tSourceLagrangeOrder = tSourceMesh->get_order();
+            uint tTargetOrder = aFieldSource->get_discretization_order();
+
+            // get order of Union Mesh
+            uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tTargetOrder );
+
+            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+            uint tTargetBSPattern = tSourceMesh->
+                    get_HMR_lagrange_mesh()->
+                    get_bspline_pattern( aFieldSource->get_discretization_mesh_index() );
+
+            // create union pattern
+            tHMRDatabase->create_union_pattern(
+                    tSourcePattern,
+                    tTargetPattern,
+                    tUnionPattern );
+
+            // create union mesh
+            hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                    tHMRDatabase,
+                    tLagrangeOrder,
+                    tUnionPattern,
+                    tTargetOrder,
+                    tTargetBSPattern); // order, Lagrange pattern, bspline pattern
+
+            //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                    tLagrangeOrder,
+                    tUnionPattern,
+                    tUnionInterpolationMesh);
+
+            // Create mesh manager
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
+            // Register mesh pair
+            uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+
+            mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+
+            // map source Lagrange field to target Lagrange field
+            if( tSourceLagrangeOrder >= tTargetOrder )
+            {
+                // interpolate field onto union mesh
+                this->interpolate_field(
+                        aFieldSource,
+                        &tFieldUnion );
+            }
+            else
+            {
+                // create union mesh. Bspline order will not be used
+                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tLagrangeOrder,
+                        tSourcePattern,
+                        tLagrangeOrder,
+                        tSourcePattern); // order, Lagrange pattern, bspline order, bspline pattern
+
+                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, nullptr );
+
+                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndexUnion );
+
+                this->change_field_order( aFieldSource, &tFieldHigerOrder );
+
+                // interpolate field onto union mesh
+                this->interpolate_field(
+                        &tFieldHigerOrder,
+                        &tFieldUnion );
+            }
+
+            // project field to union
+            this->perform_mapping(
+                    &tFieldUnion,
+                    EntityRank::NODE,
+                    EntityRank::BSPLINE);
+
+            // move coefficients to output field
+            aFieldSource->set_coefficients( tFieldUnion.get_coefficients() );
+
+            //                    this->perform_mapping(
+            //                            mFieldOut,
+            //                            EntityRank::BSPLINE,
+            //                            EntityRank::NODE);
         }
 
         // -----------------------------------------------------------------------------
@@ -505,70 +605,45 @@ namespace moris
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::L2 );
+            // define time, nonlinear and linear solver
+            sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 1: create linear solver and algortihm
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+            for( uint Ik = 0; Ik < 7; Ik ++)
+            {
+            tParameterlist( Ik ).resize(1);
+            }
 
-            dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm =
-                    tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+            tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-            dla::Linear_Solver tLinSolver;
+            tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
 
-            tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+            tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "L2" );
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create nonlinear solver and algorithm
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "L2" );
 
-            NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm =
-                    tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 )(0).set("SOL_TPL_Type"               , static_cast< uint >( sol::MapType::Epetra ) );
 
-            tNonlinearSolverAlgorithm->set_param("NLA_max_iter")                = 2;
-            tNonlinearSolverAlgorithm->set_param("NLA_hard_break")              = false;
-            tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-            tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian")        = true;
+            tSolverWarehouse.set_parameterlist( tParameterlist );
 
-            tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
-
-            NLA::Nonlinear_Solver tNonlinearSolver;
-
-            tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 3: create time Solver and algorithm
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            tsa::Time_Solver_Factory tTimeSolverFactory;
-            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm =
-                    tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
-
-            tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
-
-            tsa::Time_Solver tTimeSolver;
-
-            tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
-
-            sol::SOL_Warehouse tSolverWarehouse;
-
-            tSolverWarehouse.set_solver_interface(mModel->get_solver_interface());
-
-            tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
-            tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
-
-            tNonlinearSolver.set_dof_type_list( tDofTypes1 );
-            tTimeSolver.set_dof_type_list( tDofTypes1 );
+            tSolverWarehouse.initialize();
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 4: Solve and check
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            tTimeSolver.solve();
+            tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
+            tTimeSolver->solve();
+            
             Matrix<DDRMat> tSolution;
-            tTimeSolver.get_full_solution( tSolution );
+            tTimeSolver->get_full_solution( tSolution );
 
             aField->set_coefficients( tSolution );
         }
@@ -606,39 +681,137 @@ namespace moris
             // get number of nodes on block
             uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
 
-            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
+            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1, MORIS_REAL_MAX );
 
             const Matrix< DDRMat > & tCoefficients = aField->get_coefficients();
+
+
+            //-------------------------------------
+
+            MORIS_ERROR( tInterpolationMesh->get_mesh_type() == MeshType::HMR,
+                    "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
+
+            std::shared_ptr< hmr::Database > tHMRDatabase = tInterpolationMesh->get_HMR_database();
+
+            // grab orders of meshes
+            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
+            uint tOrder = aField->get_discretization_order();
+
+            // get order of Union Mesh
+            //uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tOrder );
+
+            uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            //uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tPattern = 0;
+
+            // map source Lagrange field to target Lagrange field
+            if( tSourceLagrangeOrder >= tOrder )
+            {
+
+            }
+            else
+            {
+                // create union mesh. Bspline order will not be used
+                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tOrder,
+                        tSourcePattern,
+                        tOrder,
+                        tPattern); // order, Lagrange pattern, bspline order, bspline pattern
+
+                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                //                hmr::Integration_Mesh_HMR* tHigherOrderIntegrationMesh = new hmr::Integration_Mesh_HMR(
+                //                        tOrder,
+                //                        tSourcePattern,
+                //                        tHigherOrderInterpolationMesh);
+
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
+                uint tMeshIndex = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, nullptr );
+
+                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndex );
+
+                //--------------------------------------------------
+
+                uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+                // create union pattern
+                tHMRDatabase->create_union_pattern(
+                        tSourcePattern,
+                        tSourcePattern,
+                        tUnionPattern );
+
+                // create union mesh
+                hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tOrder,
+                        tUnionPattern,
+                        tOrder,
+                        tPattern); // order, Lagrange pattern, bspline pattern
+
+                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                        tOrder,
+                        tUnionPattern,
+                        tUnionInterpolationMesh);
+
+                // Register mesh pair
+                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+
+                mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+
+                tFieldUnion.set_coefficients( aField->get_coefficients() );
+
+                // project field to union
+                this->perform_mapping(
+                        &tFieldUnion,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
+
+                //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
+
+                tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
+
+                this->change_field_order( &tFieldHigerOrder, aField );
+
+                return;
+            }
+
+            //---------------------------------------------------------
 
             for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
             {
                 // get pointer to node
                 auto tNode = &tInterpolationMesh->get_mtk_vertex( Ik );
 
-                // get PDOFs from node
-                auto tBSplines = tNode->
-                        get_interpolation( tDescritizationIndex )->
-                        get_coefficients();
-
-                // get T-Matrix
-                const Matrix< DDRMat > & tTMatrix = *tNode->
-                        get_interpolation( tDescritizationIndex )->
-                        get_weights();
-
-                // get number of coefficients
-                uint tNumberOfCoeffs = tTMatrix.length();
-
-                MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
-
-                // fill coeffs vector
-                Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
-                for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                if ((uint) par_rank() == tInterpolationMesh->get_entity_owner(Ik, EntityRank::NODE ) )
                 {
-                    tCoeffs( Ii ) = tCoefficients( tBSplines( Ii )->get_index() );
-                }
+                    // get PDOFs from node
+                    auto tBSplines = tNode->
+                            get_interpolation( tDescritizationIndex )->
+                            get_coefficients();
 
-                // write value into solution
-                tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
+                    // get T-Matrix
+                    const Matrix< DDRMat > & tTMatrix = *tNode->
+                            get_interpolation( tDescritizationIndex )->
+                            get_weights();
+
+                    // get number of coefficients
+                    uint tNumberOfCoeffs = tTMatrix.length();
+
+                    MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
+
+                    // fill coeffs vector
+                    Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
+                    for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                    {
+                        tCoeffs( Ii ) = tCoefficients( tBSplines( Ii )->get_index() );
+                    }
+
+                    // write value into solution
+                    tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
+
+                }
             }
 
             aField->set_nodal_values( tNodalValues );

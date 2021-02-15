@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "cl_FEM_Integrator.hpp" //FEM/INT/sr
+#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
 
 using namespace moris;
 using namespace fem;
@@ -94,11 +94,11 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
         Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 }};
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::QUAD,
-                                               Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::QUAD,
+                                               mtk::Interpolation_Type::LAGRANGE,
                                                tSpaceInterpolationOrder,
                                                mtk::Geometry_Type::POINT,
-                                               Interpolation_Type::CONSTANT,
+                                               mtk::Interpolation_Type::CONSTANT,
                                                mtk::Interpolation_Order::UNDEFINED );
 
         // create a space and time geometry interpolator
@@ -108,15 +108,15 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
         Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
 
         // create a side integration
-        Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::QUAD,
-                                             Integration_Type::GAUSS,
-                                             Integration_Order::QUAD_3x3,
+        mtk::Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::QUAD,
+                                             mtk::Integration_Type::GAUSS,
+                                             mtk::Integration_Order::QUAD_3x3,
                                              mtk::Geometry_Type::POINT,
-                                             Integration_Type::GAUSS,
-                                             Integration_Order::UNDEFINED );
+                                             mtk::Integration_Type::GAUSS,
+                                             mtk::Integration_Order::UNDEFINED );
 
         // create a side integrator
-        Integrator tTimeSideIntegrator( tTimeSideIntegRule );
+        mtk::Integrator tTimeSideIntegrator( tTimeSideIntegRule );
 
         //get number of integration points, integration points and weights
         uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
@@ -232,11 +232,11 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[f
         Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 } };
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::TRI,
-                                               Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::TRI,
+                                               mtk::Interpolation_Type::LAGRANGE,
                                                tSpaceInterpolationOrder,
                                                mtk::Geometry_Type::POINT,
-                                               Interpolation_Type::CONSTANT,
+                                               mtk::Interpolation_Type::CONSTANT,
                                                mtk::Interpolation_Order::UNDEFINED );
 
        // create a space and time geometry interpolator
@@ -246,15 +246,15 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[f
        Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
 
        // create a side integration
-       Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::TRI,
-                                            Integration_Type::GAUSS,
-                                            Integration_Order::TRI_6,
+       mtk::Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::TRI,
+                                            mtk::Integration_Type::GAUSS,
+                                            mtk::Integration_Order::TRI_6,
                                             mtk::Geometry_Type::POINT,
-                                            Integration_Type::GAUSS,
-                                            Integration_Order::UNDEFINED );
+                                            mtk::Integration_Type::GAUSS,
+                                            mtk::Integration_Order::UNDEFINED );
 
        // create a side integrator
-       Integrator tTimeSideIntegrator( tTimeSideIntegRule );
+       mtk::Integrator tTimeSideIntegrator( tTimeSideIntegRule );
 
        //get number of integration points, integration points and weights
        uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
@@ -382,11 +382,11 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
          Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 } };
 
          // create a space and time geometry interpolation rule
-         Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::TET,
-                                                Interpolation_Type::LAGRANGE,
+         mtk::Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::TET,
+                                                mtk::Interpolation_Type::LAGRANGE,
                                                 tSpaceInterpolationOrder,
                                                 mtk::Geometry_Type::POINT,
-                                                Interpolation_Type::CONSTANT,
+                                                mtk::Interpolation_Type::CONSTANT,
                                                 mtk::Interpolation_Order::UNDEFINED );
 
          // create a space and time geometry interpolator
@@ -396,15 +396,15 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
          Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
 
          // create a side integration
-         Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::TET,
-                                              Integration_Type::GAUSS,
-                                              Integration_Order::TET_5,
+         mtk::Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::TET,
+                                              mtk::Integration_Type::GAUSS,
+                                              mtk::Integration_Order::TET_5,
                                               mtk::Geometry_Type::POINT,
-                                              Integration_Type::GAUSS,
-                                              Integration_Order::UNDEFINED );
+                                              mtk::Integration_Type::GAUSS,
+                                              mtk::Integration_Order::UNDEFINED );
 
          // create a side integrator
-         Integrator tTimeSideIntegrator( tTimeSideIntegRule );
+         mtk::Integrator tTimeSideIntegrator( tTimeSideIntegRule );
 
          //get number of integration points, integration points and weights
          uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
@@ -488,11 +488,11 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
         Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 } };
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::HEX,
-                                               Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tSideGeoInterpRule( mtk::Geometry_Type::HEX,
+                                               mtk::Interpolation_Type::LAGRANGE,
                                                tSpaceInterpolationOrder,
                                                mtk::Geometry_Type::POINT,
-                                               Interpolation_Type::CONSTANT,
+                                               mtk::Interpolation_Type::CONSTANT,
                                                mtk::Interpolation_Order::UNDEFINED );
 
         // create a space and time geometry interpolator
@@ -502,15 +502,15 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
         Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
 
         // create a side integration
-        Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::HEX,
-                                             Integration_Type::GAUSS,
-                                             Integration_Order::HEX_3x3x3,
+        mtk::Integration_Rule tTimeSideIntegRule( mtk::Geometry_Type::HEX,
+                                             mtk::Integration_Type::GAUSS,
+                                             mtk::Integration_Order::HEX_3x3x3,
                                              mtk::Geometry_Type::POINT,
-                                             Integration_Type::GAUSS,
-                                             Integration_Order::UNDEFINED );
+                                             mtk::Integration_Type::GAUSS,
+                                             mtk::Integration_Order::UNDEFINED );
 
         // create a side integrator
-        Integrator tTimeSideIntegrator( tTimeSideIntegRule );
+        mtk::Integrator tTimeSideIntegrator( tTimeSideIntegRule );
 
         //get number of integration points, integration points and weights
         uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
@@ -560,4 +560,3 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
         }
     }
 }
-

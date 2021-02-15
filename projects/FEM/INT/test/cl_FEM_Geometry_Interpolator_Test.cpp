@@ -34,11 +34,11 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         tTauHat( 1 ) =  1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeoInterpRule(
+        mtk::Interpolation_Rule tGeoInterpRule(
                 mtk::Geometry_Type::LINE,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
@@ -67,10 +67,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeoInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check space interpolation type
-        REQUIRE( tGeoInterpolator.get_space_interpolation_type() == Interpolation_Type::LAGRANGE );
+        REQUIRE( tGeoInterpolator.get_space_interpolation_type() == mtk::Interpolation_Type::LAGRANGE );
 
         // check time interpolation type
-        REQUIRE( tGeoInterpolator.get_time_interpolation_type() == Interpolation_Type::LAGRANGE );
+        REQUIRE( tGeoInterpolator.get_time_interpolation_type() == mtk::Interpolation_Type::LAGRANGE );
 
         // check number of space dimensions
         REQUIRE( tGeoInterpolator.get_number_of_space_dimensions() == 1 );
@@ -244,10 +244,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         tTauHat( 1 ) =  1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeoInterpRule( mtk::Geometry_Type::QUAD,
-                Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGeoInterpRule( mtk::Geometry_Type::QUAD,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
@@ -278,10 +278,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeoInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check space interpolation type
-        REQUIRE( tGeoInterpolator.get_space_interpolation_type() == Interpolation_Type::LAGRANGE );
+        REQUIRE( tGeoInterpolator.get_space_interpolation_type() == mtk::Interpolation_Type::LAGRANGE );
 
         // check time interpolation type
-        REQUIRE( tGeoInterpolator.get_time_interpolation_type() == Interpolation_Type::LAGRANGE );
+        REQUIRE( tGeoInterpolator.get_time_interpolation_type() == mtk::Interpolation_Type::LAGRANGE );
 
         // check number of space dimensions
         REQUIRE( tGeoInterpolator.get_number_of_space_dimensions() == 2 );
@@ -515,11 +515,11 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         tTauHat( 1 ) =  1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule(
+        mtk::Interpolation_Rule tGeomInterpRule(
                 mtk::Geometry_Type::HEX,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
@@ -549,10 +549,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeoInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check space interpolation type
-        REQUIRE( tGeoInterpolator.get_space_interpolation_type() == Interpolation_Type::LAGRANGE );
+        REQUIRE( tGeoInterpolator.get_space_interpolation_type() == mtk::Interpolation_Type::LAGRANGE );
 
         // check time interpolation type
-        REQUIRE( tGeoInterpolator.get_time_interpolation_type() == Interpolation_Type::LAGRANGE );
+        REQUIRE( tGeoInterpolator.get_time_interpolation_type() == mtk::Interpolation_Type::LAGRANGE );
 
         // check number of space dimensions
         REQUIRE( tGeoInterpolator.get_number_of_space_dimensions() == 3 );
@@ -778,5 +778,3 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
     //------------------------------------------------------------------------------
 }
-
-

@@ -401,12 +401,12 @@ namespace moris
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
             tCircleParameterList.set("type", "circle");
             tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-            tCircleParameterList.set("bspline_mesh_index", 0);
-            tCircleParameterList.set("bspline_lower_bound", -1.0);
-            tCircleParameterList.set("bspline_upper_bound", 1.0);
+            tCircleParameterList.set("discretization_mesh_index", 0);
+            tCircleParameterList.set("discretization_lower_bound", -1.0);
+            tCircleParameterList.set("discretization_upper_bound", 1.0);
 
             // Loop over possible cases
-            for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
+            for (uint tCaseNumber = 0; tCaseNumber < 3; tCaseNumber++)
             {
                 // Determine mesh orders
                 uint tLagrangeOrder = 1;
@@ -419,11 +419,6 @@ namespace moris
                         break;
                     }
                     case 2:
-                    {
-                        tBSplineOrder = 2;
-                        break;
-                    }
-                    case 3:
                     {
                         tLagrangeOrder = 2;
                         tBSplineOrder = 2;
@@ -459,9 +454,6 @@ namespace moris
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = {tBSplineCircle};
-                tGeometryEngineParameters.mGeometries(0)->set_mesh( tMeshManager );
-                tGeometryEngineParameters.mGeometries(0)->set_mesh_index( 0 );
-
                 Geometry_Engine_Test tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // Get ADVs and upper/lower bounds
@@ -525,7 +517,7 @@ namespace moris
                         check_equal(tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
                         check_equal(
                                 tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
+                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                     }
                 }
 
@@ -568,7 +560,7 @@ namespace moris
             tCircleParameterList.set("type", "circle");
             tCircleParameterList.set("field_variable_indices", "0, 1, 2");
             tCircleParameterList.set("adv_indices", "0, 1, 2");
-            tCircleParameterList.set("bspline_mesh_index", -1);
+            tCircleParameterList.set("discretization_mesh_index", -1);
 
             // Set up geometry
             Matrix<DDRMat> tADVs = {{0.0, 0.0, 0.5}};

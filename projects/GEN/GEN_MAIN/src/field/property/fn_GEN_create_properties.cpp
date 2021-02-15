@@ -102,7 +102,7 @@ namespace moris
                                 for (uint tCheckFieldIndex = 0; tCheckFieldIndex < aGeometries.size(); tCheckFieldIndex++)
                                 {
                                     // Name match found
-                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == aGeometries(tCheckFieldIndex)->get_label())
+                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == aGeometries(tCheckFieldIndex)->get_name())
                                     {
                                         tNeededFields(tBuildPropertyIndex)(tDependencyIndex) = aGeometries(tCheckFieldIndex);
                                     }
@@ -200,9 +200,9 @@ namespace moris
             tParameters.mNumRefinements = aPropertyParameterList.get<std::string>("number_of_refinements");
             tParameters.mRefinementMeshIndices = aPropertyParameterList.get<std::string>("refinement_mesh_index");
             tParameters.mRefinementFunctionIndex = aPropertyParameterList.get<sint>("refinement_function_index");
-            tParameters.mBSplineMeshIndex = aPropertyParameterList.get<sint>("bspline_mesh_index");
-            tParameters.mBSplineLowerBound = aPropertyParameterList.get<real>("bspline_lower_bound");
-            tParameters.mBSplineUpperBound = aPropertyParameterList.get<real>("bspline_upper_bound");
+            tParameters.mDiscretizationMeshIndex = aPropertyParameterList.get<sint>("discretization_mesh_index");
+            tParameters.mDiscretizationLowerBound = aPropertyParameterList.get<real>("discretization_lower_bound");
+            tParameters.mDiscretizationUpperBound = aPropertyParameterList.get<real>("discretization_upper_bound");
 
             map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
             tParameters.mPDVType = tPDVTypeMap[aPropertyParameterList.get<std::string>("pdv_type")];

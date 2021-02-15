@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "cl_FEM_Integrator.hpp" //FEM/INT/sr
+#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
 
 using namespace moris;
 using namespace fem;
@@ -11,13 +11,13 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Cell< fem::Integration_Order > tIntegrationOrderList = {
-            Integration_Order::BAR_1,
-            Integration_Order::BAR_2,
-            Integration_Order::BAR_3,
-            Integration_Order::BAR_4,
-            Integration_Order::BAR_5,
-            Integration_Order::BAR_6 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrderList = {
+            mtk::Integration_Order::BAR_1,
+            mtk::Integration_Order::BAR_2,
+            mtk::Integration_Order::BAR_3,
+            mtk::Integration_Order::BAR_4,
+            mtk::Integration_Order::BAR_5,
+            mtk::Integration_Order::BAR_6 };
 
     // create a space quad element
     Matrix<DDRMat > tXHat  = {{  0.0 }, { 1.0 }};
@@ -31,11 +31,11 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
     Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpRule(
+    mtk::Interpolation_Rule tGeoInterpRule(
             mtk::Geometry_Type::LINE,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space and time geometry interpolator
@@ -56,19 +56,19 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
         bool tSurfaceCheck = true;
 
         // get integration order
-        fem::Integration_Order tIntegrationOrder =
+        mtk::Integration_Order tIntegrationOrder =
                 tIntegrationOrderList( iRule );
 
         // create an integration rule
-        Integration_Rule tIntegrationRule(
+        mtk::Integration_Rule tIntegrationRule(
                 mtk::Geometry_Type::LINE,
-                Integration_Type::GAUSS,
+                mtk::Integration_Type::GAUSS,
                 tIntegrationOrder,
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::BAR_1 );
 
         // create an integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint tNumOfIntegPoints =
@@ -112,12 +112,12 @@ TEST_CASE("Integration_Rule_QUAD", "[moris],[fem],[Integration_Rule_QUAD]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Cell< fem::Integration_Order > tIntegrationOrderList = {
+    moris::Cell< mtk::Integration_Order > tIntegrationOrderList = {
             //Integration_Order::QUAD_1x1,
-            Integration_Order::QUAD_2x2,
-            Integration_Order::QUAD_3x3,
-            Integration_Order::QUAD_4x4,
-            Integration_Order::QUAD_5x5 };
+            mtk::Integration_Order::QUAD_2x2,
+            mtk::Integration_Order::QUAD_3x3,
+            mtk::Integration_Order::QUAD_4x4,
+            mtk::Integration_Order::QUAD_5x5 };
 
     // create a space quad element
     Matrix<DDRMat > tXHat  = {{  0.0,  0.0 }, { 1.0,  0.0 }, { 1.0, 1.0 }, {  0.0, 1.0 }};
@@ -131,11 +131,11 @@ TEST_CASE("Integration_Rule_QUAD", "[moris],[fem],[Integration_Rule_QUAD]")
     Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpRule(
+    mtk::Interpolation_Rule tGeoInterpRule(
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space and time geometry interpolator
@@ -156,19 +156,19 @@ TEST_CASE("Integration_Rule_QUAD", "[moris],[fem],[Integration_Rule_QUAD]")
         bool tSurfaceCheck = true;
 
         // get integration order
-        fem::Integration_Order tIntegrationOrder =
+        mtk::Integration_Order tIntegrationOrder =
                 tIntegrationOrderList( iRule );
 
         // create an integration rule
-        Integration_Rule tIntegrationRule(
+        mtk::Integration_Rule tIntegrationRule(
                 mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
+                mtk::Integration_Type::GAUSS,
                 tIntegrationOrder,
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::BAR_1 );
 
         // create an integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint tNumOfIntegPoints =
@@ -212,12 +212,12 @@ TEST_CASE("Integration_Rule_HEX", "[moris],[fem],[Integration_Rule_HEX]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Cell< fem::Integration_Order > tIntegrationOrderList = {
+    moris::Cell< mtk::Integration_Order > tIntegrationOrderList = {
             //Integration_Order::HEX_1x1x1,
-            Integration_Order::HEX_2x2x2,
-            Integration_Order::HEX_3x3x3,
-            Integration_Order::HEX_4x4x4,
-            Integration_Order::HEX_5x5x5 };
+            mtk::Integration_Order::HEX_2x2x2,
+            mtk::Integration_Order::HEX_3x3x3,
+            mtk::Integration_Order::HEX_4x4x4,
+            mtk::Integration_Order::HEX_5x5x5 };
 
     // create a space hex element
     Matrix< DDRMat > tXHat = {
@@ -235,11 +235,11 @@ TEST_CASE("Integration_Rule_HEX", "[moris],[fem],[Integration_Rule_HEX]")
     Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpRule(
+    mtk::Interpolation_Rule tGeoInterpRule(
             mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space and time geometry interpolator
@@ -260,19 +260,19 @@ TEST_CASE("Integration_Rule_HEX", "[moris],[fem],[Integration_Rule_HEX]")
         bool tSurfaceCheck = true;
 
         // get integration order
-        fem::Integration_Order tIntegrationOrder =
+        mtk::Integration_Order tIntegrationOrder =
                 tIntegrationOrderList( iRule );
 
         // create an integration rule
-        Integration_Rule tIntegrationRule(
+        mtk::Integration_Rule tIntegrationRule(
                 mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
+                mtk::Integration_Type::GAUSS,
                 tIntegrationOrder,
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::BAR_1 );
 
         // create an integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint tNumOfIntegPoints =
@@ -316,17 +316,17 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Cell< fem::Integration_Order > tIntegrationOrderList = {
-            Integration_Order::TRI_1,
-            Integration_Order::TRI_3,
-            Integration_Order::TRI_4,
-            Integration_Order::TRI_6,
-            Integration_Order::TRI_7,
-            Integration_Order::TRI_12,
-            Integration_Order::TRI_13,
-            Integration_Order::TRI_16,
-            Integration_Order::TRI_19,
-            Integration_Order::TRI_25 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrderList = {
+            mtk::Integration_Order::TRI_1,
+            mtk::Integration_Order::TRI_3,
+            mtk::Integration_Order::TRI_4,
+            mtk::Integration_Order::TRI_6,
+            mtk::Integration_Order::TRI_7,
+            mtk::Integration_Order::TRI_12,
+            mtk::Integration_Order::TRI_13,
+            mtk::Integration_Order::TRI_16,
+            mtk::Integration_Order::TRI_19,
+            mtk::Integration_Order::TRI_25 };
 
     // create a space quad element
     Matrix<DDRMat > tXHat  = {{ 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }};
@@ -340,11 +340,11 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
     Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpRule(
+    mtk::Interpolation_Rule tGeoInterpRule(
             mtk::Geometry_Type::TRI,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space and time geometry interpolator
@@ -365,19 +365,19 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
         bool tSurfaceCheck = true;
 
         // get integration order
-        fem::Integration_Order tIntegrationOrder =
+        mtk::Integration_Order tIntegrationOrder =
                 tIntegrationOrderList( iRule );
 
         // create an integration rule
-        Integration_Rule tIntegrationRule(
+        mtk::Integration_Rule tIntegrationRule(
                 mtk::Geometry_Type::TRI,
-                Integration_Type::GAUSS,
+                mtk::Integration_Type::GAUSS,
                 tIntegrationOrder,
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::BAR_1 );
 
         // create an integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint tNumOfIntegPoints =
@@ -421,15 +421,15 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Cell< fem::Integration_Order > tIntegrationOrderList = {
+    moris::Cell< mtk::Integration_Order > tIntegrationOrderList = {
             //Integration_Order::TET_1,
-            Integration_Order::TET_4,
-            Integration_Order::TET_5,
-            Integration_Order::TET_11,
-            Integration_Order::TET_15,
-            Integration_Order::TET_20,
-            Integration_Order::TET_35,
-            Integration_Order::TET_56 };
+            mtk::Integration_Order::TET_4,
+            mtk::Integration_Order::TET_5,
+            mtk::Integration_Order::TET_11,
+            mtk::Integration_Order::TET_15,
+            mtk::Integration_Order::TET_20,
+            mtk::Integration_Order::TET_35,
+            mtk::Integration_Order::TET_56 };
 
     // create a space quad element
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 0.0,  0.0, 1.0 }};
@@ -447,11 +447,11 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
     Matrix< DDRMat > tTauHat = {{ -1.0 }, { 1.0 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpRule(
+    mtk::Interpolation_Rule tGeoInterpRule(
             mtk::Geometry_Type::TET,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create a space and time geometry interpolator
@@ -472,19 +472,19 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
         bool tSurfaceCheck = true;
 
         // get integration order
-        fem::Integration_Order tIntegrationOrder =
+        mtk::Integration_Order tIntegrationOrder =
                 tIntegrationOrderList( iRule );
 
         // create an integration rule
-        Integration_Rule tIntegrationRule(
+        mtk::Integration_Rule tIntegrationRule(
                 mtk::Geometry_Type::TET,
-                Integration_Type::GAUSS,
+                mtk::Integration_Type::GAUSS,
                 tIntegrationOrder,
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::BAR_1 );
 
         // create an integrator
-        Integrator tIntegrator( tIntegrationRule );
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
         //get number of integration points, integration points and weights
         uint tNumOfIntegPoints =

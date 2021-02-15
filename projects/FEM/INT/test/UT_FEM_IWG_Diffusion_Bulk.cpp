@@ -76,8 +76,8 @@ using namespace fem;
 moris::Cell<bool> test_IWG_Diffusion_Bulk(
         Matrix< DDRMat > aXHat,
         Matrix< DDRMat > aTHat,
-        Interpolation_Rule aGIRule,
-        Interpolation_Rule aFIRule,
+        mtk::Interpolation_Rule aGIRule,
+        mtk::Interpolation_Rule aFIRule,
         Matrix< DDRMat > aDOFHat,
         Matrix< DDRMat > aParamPoint,
         uint aNumDOFs,
@@ -279,18 +279,18 @@ TEST_CASE( "IWG_Diffusion_Bulk_HEX8", "[moris],[fem],[IWG_Diffusion_Bulk_HEX8]" 
     tTHat( 1 ) = 1.1e-3;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create an interpolation rule
-    Interpolation_Rule tIPRule (
+    mtk::Interpolation_Rule tIPRule (
             mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // set coefficients for field interpolators
@@ -338,18 +338,18 @@ TEST_CASE( "IWG_Diffusion_Bulk_HEX27", "[moris],[fem],[IWG_Diffusion_Bulk_HEX27]
     tTHat( 1 ) = 1.10e-3;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC );
 
     // create an interpolation rule
-    Interpolation_Rule tIPRule (
+    mtk::Interpolation_Rule tIPRule (
             mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC );
 
     // set coefficients for field interpolators
@@ -433,10 +433,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
     // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-                                Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
+                                mtk::Interpolation_Type::LAGRANGE,
                                 mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::LAGRANGE,
+                                mtk::Interpolation_Type::LAGRANGE,
                                 mtk::Interpolation_Order::LINEAR );
 
     // create a space time geometry interpolator
@@ -464,10 +464,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // field interpolators
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-                                 Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
+                                 mtk::Interpolation_Type::LAGRANGE,
                                  mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
+                                 mtk::Interpolation_Type::CONSTANT,
                                  mtk::Interpolation_Order::CONSTANT );
 
     // create random coefficients
@@ -593,10 +593,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    // space and time geometry interpolators
 //    //------------------------------------------------------------------------------
 //    // create a space geometry interpolation rule
-//    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-//                                Interpolation_Type::LAGRANGE,
+//    mtk::Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
+//                                mtk::Interpolation_Type::LAGRANGE,
 //                                mtk::Interpolation_Order::LINEAR,
-//                                Interpolation_Type::LAGRANGE,
+//                                mtk::Interpolation_Type::LAGRANGE,
 //                                mtk::Interpolation_Order::LINEAR );
 //
 //    // create a space time geometry interpolator
@@ -620,10 +620,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    // field interpolators
 //    //------------------------------------------------------------------------------
 //    //create a space time interpolation rule
-//    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-//                                 Interpolation_Type::LAGRANGE,
+//    mtk::Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
+//                                 mtk::Interpolation_Type::LAGRANGE,
 //                                 mtk::Interpolation_Order::LINEAR,
-//                                 Interpolation_Type::CONSTANT,
+//                                 mtk::Interpolation_Type::CONSTANT,
 //                                 mtk::Interpolation_Order::CONSTANT );
 //
 //    // create random coefficients
@@ -739,4 +739,3 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    tDvFIs.clear();
 
 }/* END_TEST_CASE */
-

@@ -13,7 +13,8 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
+#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
+#include "fn_FEM_Check.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -59,10 +60,10 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex20LagInterpolation]" )
         // step 2 create function and interpolation matrices
 
         // create rule
-        Interpolation_Rule tRule( mtk::Geometry_Type::HEX,
-                                  Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tRule( mtk::Geometry_Type::HEX,
+                                  mtk::Interpolation_Type::LAGRANGE,
                                   mtk::Interpolation_Order::SERENDIPITY,
-                                  Interpolation_Type::CONSTANT,
+                                  mtk::Interpolation_Type::CONSTANT,
                                   mtk::Interpolation_Order::CONSTANT );
 
         // create shape function object

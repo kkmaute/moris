@@ -34,7 +34,7 @@ set(TEST_DEPENDENCIES
     ${ALG}-lib
     ${GEN_MAIN}-lib
     ${INT}-lib
-    ${SOL_CORE}-lib
+    ${DLA}-lib
 	${HMR}-lib
 	${MORIS_BASE_LIBS}
 	${PRM}-lib

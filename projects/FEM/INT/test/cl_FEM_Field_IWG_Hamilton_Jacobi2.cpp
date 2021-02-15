@@ -18,10 +18,10 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-                                        Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                        mtk::Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR,
-                                        Interpolation_Type::LAGRANGE,
+                                        mtk::Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR );
 
     //create a space time geometry interpolator
@@ -43,10 +43,10 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
 
     // interpolator for velocity field----------------------------------------------
     // create a space time interpolation rule
-    Interpolation_Rule tVNInterRule ( mtk::Geometry_Type::QUAD,
-                                      Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tVNInterRule ( mtk::Geometry_Type::QUAD,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR,
-                                      Interpolation_Type::CONSTANT,
+                                      mtk::Interpolation_Type::CONSTANT,
                                       mtk::Interpolation_Order::CONSTANT );
     //create a field interpolator
     uint tNVNFields = 1;
@@ -71,10 +71,10 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
 
     // interpolator for level set field----------------------------------------------
     // create a space time interpolation rule
-    Interpolation_Rule tPhiInterRule ( mtk::Geometry_Type::QUAD,
-                                       Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tPhiInterRule ( mtk::Geometry_Type::QUAD,
+                                       mtk::Interpolation_Type::LAGRANGE,
                                        mtk::Interpolation_Order::LINEAR,
-                                       Interpolation_Type::LAGRANGE,
+                                       mtk::Interpolation_Type::LAGRANGE,
                                        mtk::Interpolation_Order::LINEAR );
 
     //create a field interpolator

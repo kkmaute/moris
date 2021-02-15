@@ -609,6 +609,13 @@ namespace moris
                 return mtk::Interpolation_Order::UNDEFINED;
             }
 
+//------------------------------------------------------------------------------
+
+            virtual mtk::Integration_Order get_integration_order() const
+            {
+                MORIS_ERROR( false, "Element::get_integration_order() not available for this element.");
+                return mtk::Integration_Order::UNDEFINED;
+            }
 
 //-------------------------------------------------------------------------------
         };

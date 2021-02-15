@@ -28,6 +28,7 @@ set(TEST_SOURCES
 	UT_MTK_Connectivity.cpp
 	UT_MTK_Mesh_Comm_Maps.cpp
 	UT_MTK_Field.cpp
+	UT_MTK_Cell_Area.cpp
 	MTK_Test_Proxy/cl_MTK_Field_Proxy.cpp )
 
 # List additional includes

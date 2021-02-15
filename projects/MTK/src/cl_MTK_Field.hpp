@@ -101,11 +101,6 @@ namespace moris
                     return mNumberOfDimensions;
                 }
 
-                virtual moris::real get_field_value(  uint aNodeIndex, const Matrix< DDRMat > & aCoordinates)
-                {
-                    return mNodalValues( aNodeIndex );
-                }
-
                 //------------------------------------------------------------------------------
                 /**
                  * returns the interpolation order of the Lagrange Mesh
@@ -212,6 +207,10 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 void save_node_values_to_binary( const std::string & aFilePath );
+
+                //------------------------------------------------------------------------------
+
+                void save_field_to_exodus( const std::string & aFileName );
 
                 //------------------------------------------------------------------------------
         };

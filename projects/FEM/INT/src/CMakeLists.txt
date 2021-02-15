@@ -9,7 +9,6 @@ set(INT_INCLUDES
 	"CORE"
     "ELEM"
     "IP"
-    "IG"
 	"MM"
 	"CM"
     "SP"
@@ -61,75 +60,10 @@ set(HEADERS
     ELEM/cl_FEM_Element_Time_Boundary.hpp
 
 
-
-    IP/cl_FEM_Interpolation_Function_Base.hpp
-    IP/cl_FEM_Interpolation_Function_Factory.hpp
-    IP/cl_FEM_Interpolation_Function.hpp
-    IP/cl_FEM_Interpolation_Rule.hpp
-    IP/cl_FEM_Interpolation_Element.hpp
-    
     IP/cl_FEM_Geometry_Interpolator.hpp
     IP/cl_FEM_Field_Interpolator.hpp
     IP/cl_FEM_Field_Interpolator_Manager.hpp
 
-    IP/cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Bar2.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Bar3.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Bar4.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Hex27.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Hex64.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Hex8.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Quad16.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Quad4.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Quad8.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Quad9.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Tri3.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Tri6.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Tri10.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Tet4.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp
-    IP/cl_FEM_Interpolation_Function_Lagrange_Tet20.hpp
-    IP/cl_FEM_Interpolation_Function_Constant_Bar2.hpp
-    IP/cl_FEM_Interpolation_Function_Constant_Point.hpp
-
-    IG/cl_FEM_Integration_Coeffs.hpp  
-    IG/cl_FEM_Integration_Rule.hpp
-    IG/cl_FEM_Integrator.hpp
-    IG/cl_FEM_Integrator_Test_Polynomial.hpp
-
-    IG/cl_FEM_Integration_Coeffs_Bar_1.hpp
-    IG/cl_FEM_Integration_Coeffs_Bar_2.hpp
-    IG/cl_FEM_Integration_Coeffs_Bar_3.hpp
-    IG/cl_FEM_Integration_Coeffs_Bar_4.hpp
-    IG/cl_FEM_Integration_Coeffs_Bar_5.hpp
-    IG/cl_FEM_Integration_Coeffs_Bar_6.hpp
-    IG/cl_FEM_Integration_Coeffs_Base.hpp
-    IG/cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp
-    IG/cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp
-    IG/cl_FEM_Integration_Coeffs_Hex_4x4x4.hpp
-    IG/cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp
-    IG/cl_FEM_Integration_Coeffs_Quad_2x2.hpp
-    IG/cl_FEM_Integration_Coeffs_Quad_3x3.hpp
-    IG/cl_FEM_Integration_Coeffs_Quad_4x4.hpp
-    IG/cl_FEM_Integration_Coeffs_Quad_5x5.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_1.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_3.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_4.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_6.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_7.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_12.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_13.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_16.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_19.hpp
-    IG/cl_FEM_Integration_Coeffs_Tri_25.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_1.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_4.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_5.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_11.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_15.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_20.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_35.hpp
-    IG/cl_FEM_Integration_Coeffs_Tet_56.hpp
 
     MM/cl_FEM_Material_Model.hpp
     MM/cl_FEM_MM_Factory.hpp
@@ -290,17 +224,10 @@ set(LIB_SOURCES
     ELEM/cl_FEM_Element_Time_Boundary.cpp
 
 
-    IP/cl_FEM_Interpolation_Function_Factory.cpp
-    IP/cl_FEM_Interpolation_Rule.cpp
     IP/cl_FEM_Geometry_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator_Manager.cpp
     IP/cl_FEM_Interpolation_Element.cpp
-
-
-    IG/cl_FEM_Integration_Rule.cpp
-    IG/cl_FEM_Integrator.cpp
-    IG/cl_FEM_Integrator_Test_Polynomial.cpp
 
 
     MM/cl_FEM_Material_Model.cpp

@@ -33,11 +33,11 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         tTHat( 1 ) = 1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule(
+        mtk::Interpolation_Rule tGeomInterpRule(
                 mtk::Geometry_Type::QUAD,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::QUADRATIC,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
@@ -175,10 +175,10 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         tTHat( 1 ) = 1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
-                Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::QUADRATIC,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
@@ -329,5 +329,3 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
 
     //------------------------------------------------------------------------------
 }
-
-

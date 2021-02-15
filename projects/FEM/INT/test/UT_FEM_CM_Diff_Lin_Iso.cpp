@@ -46,8 +46,8 @@ using namespace fem;
 moris::Cell<bool> test_diffusion_constitutive_model(
         Matrix< DDRMat > aXHat,
         Matrix< DDRMat > aTHat,
-        Interpolation_Rule aGeomInterpRule,
-        Interpolation_Rule aIPRule,
+        mtk::Interpolation_Rule aGeomInterpRule,
+        mtk::Interpolation_Rule aIPRule,
         Matrix< DDRMat > aUHat0,
         Matrix< DDRMat > aParametricPoint,
         uint aSpatialDim = 2)
@@ -329,19 +329,19 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD4]" )
     tTHat( 1 ) = 1.1e-3;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule(
+    mtk::Interpolation_Rule tGeomInterpRule(
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // create an interpolation rule
-    Interpolation_Rule tIPRule (
+    mtk::Interpolation_Rule tIPRule (
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     // set coefficients for field interpolators
@@ -397,19 +397,19 @@ TEST_CASE( "CM_Diff_Lin_Iso_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_HEX27]" )
     tTHat( 1 ) = 1.10e-3;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule(
+    mtk::Interpolation_Rule tGeomInterpRule(
             mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC );
 
     // create an interpolation rule
-    Interpolation_Rule tIPRule (
+    mtk::Interpolation_Rule tIPRule (
             mtk::Geometry_Type::HEX,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC );
 
 
@@ -479,18 +479,18 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
     tTHat( 1 ) = 1.15e-3;
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC );
 
     // create an interpolation rule
-    Interpolation_Rule tIPRule (
+    mtk::Interpolation_Rule tIPRule (
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC );
 
 
@@ -526,4 +526,3 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
     REQUIRE( tCheckGradEnergyDot );
     REQUIRE( tCheckGradDivFlux );
 }
-

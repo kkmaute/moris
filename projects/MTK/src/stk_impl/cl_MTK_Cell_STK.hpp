@@ -256,6 +256,16 @@ public:
     //------------------------------------------------------------------------------
 
     moris::real
+    compute_cell_measure_general() const
+    {
+       return mCellInfo->compute_cell_size_general(this);
+    }
+
+    //------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
+
+    moris::real
     compute_cell_side_measure(moris_index const & aCellSideOrd) const
     {
         return mCellInfo->compute_cell_side_size(this,aCellSideOrd);
@@ -281,6 +291,17 @@ public:
     get_interpolation_order() const
     {
         return mCellInfo->get_cell_interpolation_order();
+    }
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * returns the order of the element
+     */
+    Integration_Order
+    get_integration_order() const
+    {
+        return mCellInfo->get_cell_integration_order();
     }
 
     //------------------------------------------------------------------------------

@@ -7,9 +7,9 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator_Test_Polynomial.hpp" //FEM/INT/src
+#include "IG/cl_MTK_Integration_Rule.hpp" //MTK/src
+#include "IG/cl_MTK_Integrator.hpp" //MTK/src
+#include "IG/cl_MTK_Integrator_Test_Polynomial.hpp" //MTK/src
 
 #include "paths.hpp"
 using namespace moris;
@@ -33,17 +33,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
 
 
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_quad_2x2.bin" );
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_2x2 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::QUAD_2x2 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -77,17 +77,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS QUAD_3x3" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_quad_3x3.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_3x3 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::QUAD_3x3 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -121,17 +121,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS QUAD_4x4" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_quad_4x4.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_4x4 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::QUAD_4x4 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -165,17 +165,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS QUAD_5x5" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_quad_5x5.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_5x5 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::QUAD_5x5 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -209,17 +209,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS HEX_2x2x2" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_hex_2x2x2.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_2x2x2 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::HEX_2x2x2 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -253,17 +253,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS HEX_3x3x3" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_hex_3x3x3.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_3x3x3 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::HEX_3x3x3 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -297,17 +297,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS HEX_4x4x4" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_hex_4x4x4.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_4x4x4 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::HEX_4x4x4 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
@@ -341,17 +341,17 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     SECTION( "GAUSS HEX_5x5x5" )
     {
         // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
+        mtk::Integrator_Test_Polynomial tPoly(
                 tPrefix+ "integrate_hex_5x5x5.bin");
 
         // create integration rule
-        Integration_Rule tRule(
+        mtk::Integration_Rule tRule(
                 mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_5x5x5 );
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::HEX_5x5x5 );
 
         // create integrator
-        Integrator tIntegrator( tRule );
+        mtk::Integrator tIntegrator( tRule );
 
         // get number of points
         uint tNumberOfPoints = tIntegrator.get_number_of_points();

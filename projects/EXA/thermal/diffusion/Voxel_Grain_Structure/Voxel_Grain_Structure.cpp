@@ -273,7 +273,7 @@ extern "C"
             tParameterlist( 1 )( 0 ).set( "domain_offset", "-2.0,-2.0,-2.0" );
             tParameterlist( 1 )( 0 ).set( "number_of_refinements", "0");
             tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0");
-            tParameterlist( 1 )( 0 ).set( "bspline_mesh_index", -1);
+            tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1);
         }
 
         void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )

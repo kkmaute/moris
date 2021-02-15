@@ -789,17 +789,6 @@ namespace moris
             // allocate proximity data
             this->setup_initial_geometric_proximities(aMesh);
 
-            for( uint Ik = 0; Ik <mGeometries.size(); Ik++ )
-            {
-                mGeometries( Ik )->set_mesh( aMeshManager );
-                mGeometries( Ik )->set_mesh_index( 0 );
-            }
-            for( uint Ik = 0; Ik <mProperties.size(); Ik++ )
-            {
-                mProperties( Ik )->set_mesh( aMeshManager );
-                mProperties( Ik )->set_mesh_index( 0 );
-            }
-
             // Gather all fields
             Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
             std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
@@ -817,7 +806,7 @@ namespace moris
                 for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
                     // Determine if level set will be created
-                    if (tFields(tFieldIndex)->conversion_to_bsplines())
+                    if (tFields(tFieldIndex)->discretization_intention())
                     {
                         // Get number of coefficients
                         sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
@@ -878,11 +867,11 @@ namespace moris
                 for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
                     // Determine if level set will be created
-                    if (tFields(tFieldIndex)->conversion_to_bsplines())
+                    if (tFields(tFieldIndex)->discretization_intention())
                     {
                         // Get bounds
-                        real tBSplineLowerBound = tFields(tFieldIndex)->get_bspline_lower_bound();
-                        real tBSplineUpperBound = tFields(tFieldIndex)->get_bspline_upper_bound();
+                        real tBSplineLowerBound = tFields(tFieldIndex)->get_discretization_lower_bound();
+                        real tBSplineUpperBound = tFields(tFieldIndex)->get_discretization_upper_bound();
 
                         // Get number of coefficients
                         sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
@@ -965,7 +954,7 @@ namespace moris
                     mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
 
                     // Convert to B-spline field
-                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                    if (mGeometries(tGeometryIndex)->discretization_intention())
                     {
                         // Always have shape sensitivities if B-spline field
                         mShapeSensitivities = true;
@@ -981,7 +970,7 @@ namespace moris
                     }
 
                     // Store field values if needed
-                    else if (mGeometries(tGeometryIndex)->store_field_values())
+                    else if (mGeometries(tGeometryIndex)->storage_intention())
                     {
                         // Create stored geometry
                         mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
@@ -994,7 +983,7 @@ namespace moris
                 for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
                 {
                     // Convert to B-spline field
-                    if (mProperties(tPropertyIndex)->conversion_to_bsplines())
+                    if (mProperties(tPropertyIndex)->discretization_intention())
                     {
                         // Create B-spline property FIXME Multiple B-spline fields
                         mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
@@ -1117,7 +1106,7 @@ namespace moris
                 for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
                     // Determine if level set will be created
-                    if (tFields(tFieldIndex)->conversion_to_bsplines())
+                    if (tFields(tFieldIndex)->discretization_intention())
                     {
                         // Get number of coefficients
                         sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
@@ -1178,11 +1167,11 @@ namespace moris
                 for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
                     // Determine if level set will be created
-                    if (tFields(tFieldIndex)->conversion_to_bsplines())
+                    if (tFields(tFieldIndex)->discretization_intention())
                     {
                         // Get bounds
-                        real tBSplineLowerBound = tFields(tFieldIndex)->get_bspline_lower_bound();
-                        real tBSplineUpperBound = tFields(tFieldIndex)->get_bspline_upper_bound();
+                        real tBSplineLowerBound = tFields(tFieldIndex)->get_discretization_lower_bound();
+                        real tBSplineUpperBound = tFields(tFieldIndex)->get_discretization_upper_bound();
 
                         // Get number of coefficients
                         sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
@@ -1265,7 +1254,7 @@ namespace moris
                     mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
 
                     // Convert to B-spline field
-                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                    if (mGeometries(tGeometryIndex)->discretization_intention())
                     {
                         // Always have shape sensitivities if B-spline field
                         mShapeSensitivities = true;
@@ -1281,7 +1270,7 @@ namespace moris
                     }
 
                     // Store field values if needed
-                    else if (mGeometries(tGeometryIndex)->store_field_values())
+                    else if (mGeometries(tGeometryIndex)->storage_intention())
                     {
                         // Create stored geometry
                         mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
@@ -1294,7 +1283,7 @@ namespace moris
                 for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
                 {
                     // Convert to B-spline field
-                    if (mProperties(tPropertyIndex)->conversion_to_bsplines())
+                    if (mProperties(tPropertyIndex)->discretization_intention())
                     {
                         // Create B-spline property FIXME Multiple B-spline fields
                         mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
@@ -1433,7 +1422,7 @@ namespace moris
                 // Geometry field names
                 for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
-                    tFieldNames(tGeometryIndex) = mGeometries(tGeometryIndex)->get_label();
+                    tFieldNames(tGeometryIndex) = mGeometries(tGeometryIndex)->get_name();
                     if (tFieldNames(tGeometryIndex) == "")
                     {
                         tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
@@ -1443,7 +1432,7 @@ namespace moris
                 // Property field names
                 for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
                 {
-                    tFieldNames(tNumGeometries + tPropertyIndex) = mProperties(tPropertyIndex)->get_label();
+                    tFieldNames(tNumGeometries + tPropertyIndex) = mProperties(tPropertyIndex)->get_name();
                     if (tFieldNames(tNumGeometries + tPropertyIndex) == "")
                     {
                         tFieldNames(tNumGeometries + tPropertyIndex) = "Property " + std::to_string(tPropertyIndex);

@@ -1,7 +1,6 @@
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_
 
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_comp_abs.hpp"
@@ -12,15 +11,15 @@ namespace moris
 {
     namespace ge
     {
-
         /*
          * Compute the surface normal of a triangle (Note this hasn't been fully optimized)
          * @param[in] aTriangleNodes - Nodes of the triangle
          */
-        void compute_tri_surface_normal( moris::Matrix< moris::IndexMat > const & aTriangleNodes,
-                                         moris::Matrix< moris::DDRMat >   const & aNodeCoordinates,
-                                         moris::Matrix< moris::DDRMat >         & aSurfaceNormal,
-                                         bool aPosDirection = false)
+        void compute_tri_surface_normal(
+                moris::Matrix< moris::IndexMat > const & aTriangleNodes,
+                moris::Matrix< moris::DDRMat >   const & aNodeCoordinates,
+                moris::Matrix< moris::DDRMat >         & aSurfaceNormal,
+                bool aPosDirection = false)
         {
             moris::Matrix< moris::DDRMat > tVec1(1,3,0);
             moris::Matrix< moris::DDRMat > tVec2(1,3,0);
@@ -33,11 +32,9 @@ namespace moris
             tVec1(0,1) = aNodeCoordinates(tN3,1) - aNodeCoordinates(tN1,1);
             tVec1(0,2) = aNodeCoordinates(tN3,2) - aNodeCoordinates(tN1,2);
 
-
             tVec2(0,0) = aNodeCoordinates(tN2,0) - aNodeCoordinates(tN1,0);
             tVec2(0,1) = aNodeCoordinates(tN2,1) - aNodeCoordinates(tN1,1);
             tVec2(0,2) = aNodeCoordinates(tN2,2) - aNodeCoordinates(tN1,2);
-
 
             // Compute cross products
             aSurfaceNormal(0,0) = tVec1(0,1) * tVec2(0,2) - tVec1(0,2) * tVec2(0,1);
@@ -48,9 +45,9 @@ namespace moris
             moris::real tLenSquared3 = std::pow( aSurfaceNormal(0,0) , 2) + std::pow( aSurfaceNormal(1,0) , 2) + std::pow( aSurfaceNormal(2,0) , 2);
             moris::real tLen3 = std::pow(tLenSquared3,0.5);
 
-            MORIS_ASSERT(tLen3>0.000005,"Dividing by near zero value");
+            MORIS_ASSERT(tLen3>MORIS_REAL_MIN,"Dividing by near zero value");
 
-            moris::real tLenInv = 1/tLen3;
+            moris::real tLenInv = 1.0/tLen3;
 
             if(!aPosDirection)
             {
@@ -60,13 +57,14 @@ namespace moris
             {
                 aSurfaceNormal = tLenInv*comp_abs(aSurfaceNormal);
             }
-
-
         }
 
+        //-----------------------------------------------------------------------
+
         moris::real
-        compute_volume_for_multiple_tets(moris::Matrix< moris::DDRMat >   const & aAllNodeCoords,
-                                         moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
+        compute_volume_for_multiple_tets(
+                moris::Matrix< moris::DDRMat >   const & aAllNodeCoords,
+                moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
         {
             size_t tNumTets = aElementToNodeConnectivity.n_rows();
             moris::Matrix< moris::DDRMat > tCoords(aElementToNodeConnectivity.n_cols(),3);
@@ -86,12 +84,14 @@ namespace moris
                 }
                 k=0;
                 tSingleVolume=xtk::vol_tetrahedron(tCoords);
-//        std::cout<<"    i = "<<i<<" tSingleVolume = "<<tSingleVolume<<std::endl;
+                //        std::cout<<"    i = "<<i<<" tSingleVolume = "<<tSingleVolume<<std::endl;
                 tTotalVolume+=tSingleVolume;
             }
 
             return tTotalVolume;
         }
+
+        //-----------------------------------------------------------------------
 
         template< typename Real_Matrix>
         moris::Matrix< Real_Matrix >
@@ -102,12 +102,14 @@ namespace moris
 
             return tValMat;
         }
-
     }
 
+    //-----------------------------------------------------------------------
+
     moris::real
-    compute_area_for_multiple_triangles(moris::Matrix< moris::DDRMat > 	 const & aAllNodeCoords,
-                                        moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
+    compute_area_for_multiple_triangles(
+            moris::Matrix< moris::DDRMat >   const & aAllNodeCoords,
+            moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
     {
         size_t tNumTriangles = aElementToNodeConnectivity.n_rows();
         size_t tSpacialDimension = aElementToNodeConnectivity.n_cols();
@@ -133,7 +135,6 @@ namespace moris
 
         return tTotalArea;
     }
-
 }
 
 #endif /* PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_ */
