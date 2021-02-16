@@ -124,7 +124,7 @@ namespace moris
         // trivial operation: get values from property
         const Matrix< DDRMat > & Material_Model::Cv_triv()
         {
-            // get the specific gas constant
+            // get the spedific isochoric heat capacity
             return get_property( "IsochoricHeatCapacity" )->val();
         }
 
@@ -157,8 +157,28 @@ namespace moris
         // trivial operation: get values from property
         const Matrix< DDRMat > & Material_Model::CvDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // get the specific gas constant
-            return get_property( "IsochoricHeatCapacity" )->dPropdDOF( aDofTypes );
+            // get the specific isochorich heat capacity
+            const std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
+
+            // check DoF dependency
+            if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
+            {
+                return tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
+            }
+            else // no dependency of property on DoF type
+            {
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+                // initialize zero matrix
+                // FIXME: this is slow
+                mCvDof( tDofIndex ).set_size( 1,
+                                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+
+                // return zero matrix
+                return mCvDof( tDofIndex );
+            }
         }
 
         //------------------------------------------------------------------------------ 
@@ -182,7 +202,7 @@ namespace moris
         // trivial operation: get values from property
         const Matrix< DDRMat > & Material_Model::Cp_triv()
         {
-            // get the specific gas constant
+            // get the specific isobaric heat capacity
             return get_property( "IsobaricHeatCapacity" )->val();
         }
 
@@ -215,8 +235,28 @@ namespace moris
         // trivial operation: get values from property
         const Matrix< DDRMat > & Material_Model::CpDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // get the specific gas constant
-            return get_property( "IsobaricHeatCapacity" )->dPropdDOF( aDofTypes );
+            // get the specific isobaric heat capcity
+            const std::shared_ptr< Property > tPropIsobaricHeatCapacity = get_property( "IsobaricHeatCapacity" );
+
+            // check DoF dependency
+            if ( tPropIsobaricHeatCapacity->check_dof_dependency( aDofTypes ) )
+            {
+                return tPropIsobaricHeatCapacity->dPropdDOF( aDofTypes );
+            }
+            else // no dependency of property on DoF type
+            {
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+                // initialize zero matrix
+                // FIXME: this is slow
+                mCpDof( tDofIndex ).set_size( 1,
+                                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+
+                // return zero matrix
+                return mCpDof( tDofIndex );
+            }
         }      
 
         //------------------------------------------------------------------------------ 
@@ -240,7 +280,7 @@ namespace moris
         // trivial operation: get values from property
         const Matrix< DDRMat > & Material_Model::Gamma_triv()
         {
-            // get the specific gas constant
+            // get the ratio of the specific heat capacities
             return get_property( "SpecificHeatRatio" )->val();
         }
 
@@ -273,8 +313,28 @@ namespace moris
         // trivial operation: get values from property
         const Matrix< DDRMat > & Material_Model::GammaDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // get the specific gas constant
-            return get_property( "SpecificHeatRatio" )->dPropdDOF( aDofTypes );
+            // get the ratio of the specific heat capacities
+            const std::shared_ptr< Property > tPropGamma = get_property( "SpecificHeatRatio" );
+
+            // check DoF dependency
+            if ( tPropGamma->check_dof_dependency( aDofTypes ) )
+            {
+                return tPropGamma->dPropdDOF( aDofTypes );
+            }
+            else // no dependency of property on DoF type
+            {
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+                // initialize zero matrix
+                // FIXME: this is slow
+                mGammaDof( tDofIndex ).set_size( 1,
+                                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                                get_number_of_space_time_coefficients(), 0.0 );
+
+                // return zero matrix
+                return mGammaDof( tDofIndex );
+            }
         }             
 
         //-----------------------------------------------------------------------------
