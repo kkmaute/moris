@@ -150,12 +150,10 @@ namespace moris
             // Use mapper
             mtk::Mapper tMapper;
             tField->set_coefficients(tCoeff);
-            tMapper.perform_mapping(tField,EntityRank::BSPLINE,EntityRank::NODE);
+            tMapper.perform_mapping(tField, EntityRank::BSPLINE, EntityRank::NODE);
 
             // Get coefficients
             Matrix<DDRMat> tNodalValues = tField->get_nodal_values();
-
-            //tField->save_field_to_exodus( "Field_before.exo");
 
             // Clean up
             delete tMeshPair.mIntegrationMesh;
@@ -223,14 +221,12 @@ namespace moris
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tField->get_coefficients();
 
-            //tField->save_field_to_exodus( "Field_before.exo");
-
             // Clean up
             delete tMeshPair.mIntegrationMesh;
             delete tField;
 
             // Return mapped field
-            return tCoefficients  ;
+            return tCoefficients;
         }
 
         //--------------------------------------------------------------------------------------------------------------

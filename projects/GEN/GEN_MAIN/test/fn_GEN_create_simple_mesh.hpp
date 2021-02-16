@@ -17,9 +17,7 @@ namespace moris
          * @param aBSplineOrder Order of the B-spline mesh
          * @return HMR mesh pointer
          */
-        void create_simple_mesh(
-                mtk::Interpolation_Mesh* & aIPMesh,
-                mtk::Integration_Mesh* & aIGMesh,
+        mtk::Interpolation_Mesh* create_simple_mesh(
                 uint aNumXElements,
                 uint aNumYElements,
                 uint aLagrangeOrder = 1,
