@@ -520,6 +520,93 @@ namespace moris
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Temperaturedx2DOF - Not implemented yet." );
         }          
 
+        //------------------------------------------------------------------------------
+        // THERMODYNAMIC QUANTITIES
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_VolumeExpansivity()
+        {
+            // compute value 1/T
+            mAlphaP = { 1.0 / this->temperature()( 0 ) };
+        }     
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // compute value -N/T^2
+            mAlphaPDof( tDofIndex ) = -1.0 * this->TemperatureDOF( aDofTypes ) / std::pow( this->temperature()( 0 ), 2.0 );
+        }   
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_IsothermalCompressibility()
+        {
+            // compute value 1/p
+            mBetaT = { 1.0 / this->pressure()( 0 ) };
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // compute value -N/p^2
+            mBetaTDof( tDofIndex ) = -1.0 * this->PressureDOF( aDofTypes ) / std::pow( this->pressure()( 0 ), 2.0 );
+        }   
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_Cv()
+        {
+            MORIS_ERROR( false, " MM_Perfect_Gas::eval_Cv - This function is not implemented yet. " );
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            MORIS_ERROR( false, " MM_Perfect_Gas::eval_CvDOF - This function is not implemented yet. " );
+        }     
+
+        //------------------------------------------------------------------------------  
+
+        // Cp as function of Cv
+        void MM_Perfect_Gas::eval_Cp()
+        {
+            // evaluate Cp
+            mCp = this->Cv() + mPropIsochoricHeatCapacity->val();
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            MORIS_ERROR( false, " MM_Perfect_Gas::eval_CpDOF - This function is not implemented yet. " );
+        }   
+
+        //------------------------------------------------------------------------------  
+
+        // Cp as function of Cv
+        void MM_Perfect_Gas::eval_Gamma()
+        {
+            // evaluate Gamma
+            mGamma = ( this->Cv() + mPropIsochoricHeatCapacity->val() ) / ( this->Cv()( 0 ) );
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            MORIS_ERROR( false, " MM_Perfect_Gas::eval_GammaDOF - This function is not implemented yet. " );
+        }     
+
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
