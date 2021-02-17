@@ -102,6 +102,21 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                moris::real get_field_value( const uint & aNodeIndex )
+                {
+                    return mNodalValues( aNodeIndex );
+                }
+
+                //------------------------------------------------------------------------------
+
+                void set_field_value( const uint & aFieldIndex,
+                                      const real & aFieldValue )
+                {
+                    mNodalValues( aFieldIndex ) = aFieldValue;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * returns the interpolation order of the Lagrange Mesh
                  */
