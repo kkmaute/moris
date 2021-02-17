@@ -30,6 +30,7 @@
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris
 {
@@ -68,7 +69,7 @@ namespace mtk
             MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges )
     {
-
+        Tracer tTracer( "STK", "Build" );
         // make a shared pointer of the stk mesh data
         mSTKMeshData = std::make_shared<Mesh_Data_STK>();
 
@@ -84,6 +85,8 @@ namespace mtk
 
         // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData;
+
+        MORIS_LOG("Construct Bulk Data");
         stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option());
 
         // Set member variables as pointers to meta_data and bulk_data
@@ -91,16 +94,19 @@ namespace mtk
         mSTKMeshData->mMtkMeshBulkData = ( meshBulk );
 
         // Use STK IO to populate a STK Mesh
+        MORIS_LOG("Mesh Reader Initialize");
         mSTKMeshData->mMeshReader = new stk::io::StkMeshIoBroker( aCommunicator );
 
         // Create mesh database using the IO broker
         mSTKMeshData->mMeshReader->set_bulk_data( *meshBulk );
+        MORIS_LOG("Read mesh from file");
         mSTKMeshData->mMeshReader->add_mesh_database( aFileName, stk::io::READ_MESH );
         mSTKMeshData->mMeshReader->create_input_mesh();
 
         mSTKMeshData->mNumDims = mSTKMeshData->mMtkMeshMetaData->spatial_dimension();
 
         // Include mesh fields and populate the database
+        MORIS_LOG("Add Mesh Fields");
         mSTKMeshData->mMeshReader->add_all_mesh_fields_as_input_fields( stk::io::MeshField::CLOSEST );
         // Declare supplementary fields
         if(aSuppMeshData != nullptr)
@@ -114,12 +120,14 @@ namespace mtk
         // Create nodesets and sidesets
         mSTKMeshData->mSetNames.resize( 3 ); // Number of ranks for sets
 
+        MORIS_LOG("Populate Bulk Data");
         mSTKMeshData->mMeshReader->populate_bulk_data();
 
         // Determine number of time increments on input database in region
         Teuchos::RCP<Ioss::Region> tIo_region = mSTKMeshData->mMeshReader->get_input_io_region();
         int tTimestep_count                   = tIo_region->get_property( "state_count" ).get_int();
 
+        MORIS_LOG("Read Input Fields");
         // Loop over all time increments and get field data
         for ( int step=1; step <= tTimestep_count; step++ )
         {
@@ -128,6 +136,7 @@ namespace mtk
 
         if( aCreateFacesAndEdges )
         {
+            MORIS_LOG("Create Edges and Faces");
             // Create mesh edge entities
             stk::mesh::create_edges( *mSTKMeshData->mMtkMeshBulkData );
             mSTKMeshData->mCreatedEdges = true;
@@ -137,6 +146,7 @@ namespace mtk
             mSTKMeshData->mCreatedFaces = true;
         }
 
+        MORIS_LOG("Communicate fields on aura");
         const stk::mesh::FieldVector& fields = mSTKMeshData->mMtkMeshMetaData->get_fields();
         std::vector<const stk::mesh::FieldBase*> const_fields(fields.size());
         for(size_t i=0; i<fields.size(); ++i) {
@@ -147,6 +157,8 @@ namespace mtk
             stk::mesh::communicate_field_data(*(mSTKMeshData->mMtkMeshBulkData->ghostings()[ghost_i]), const_fields);
         }
 
+
+        MORIS_LOG("Create local to global maps");
         // Create communication tables in parallel.
         // NOTE1: the information to be created in the function below duplicates communication-related data
         // already created in the STK mesh database. However, one can access that data on a 1 by 1 case scenario
@@ -162,6 +174,7 @@ namespace mtk
         create_communication_lists_and_local_to_global_map( EntityRank::FACE );
         create_communication_lists_and_local_to_global_map( EntityRank::ELEMENT );
 
+        MORIS_LOG("Create global to local maps");
         // Initialize global to local map
         mSTKMeshData->mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
         setup_entity_global_to_local_map(EntityRank::NODE);
@@ -169,12 +182,15 @@ namespace mtk
         setup_entity_global_to_local_map(EntityRank::FACE);
         setup_entity_global_to_local_map(EntityRank::ELEMENT);
 
+        MORIS_LOG("Setup vertex pairing");
         // setup vertex pairing
         setup_parallel_vertex_pairing();
 
+        MORIS_LOG("Setup cell sharing");
         // setup cell sharing
         setup_parallel_cell_sharing();
 
+        MORIS_LOG("Setup vertices and cells");
         setup_vertices_and_cell();
 
         if(mVerbose)
@@ -1588,7 +1604,7 @@ namespace mtk
             // at this point we have collected the sharing information needed
             // so time to communicate
             moris::communicate_mats( tProcsWithCommunicationMat,tCellsMatsWithAdditionalSharing, tReceivedCellSharing);
-        }
+       }
 
         return tReceivedCellSharing;
     }

@@ -269,6 +269,12 @@ namespace xtk
             void
             register_new_downward_inheritance(Cell<std::pair<moris::moris_index,moris::moris_index>> const & aNewElementToChildMeshPairs);
 
+            /*
+            * used after clean up of child mesh and deletion of child meshes to recompute the downward inheritance
+            */
+            void
+            setup_downward_inheritance(Cut_Mesh & aCutMesh);
+
             /*!
              * returns whether a given entity has any children entities
              */

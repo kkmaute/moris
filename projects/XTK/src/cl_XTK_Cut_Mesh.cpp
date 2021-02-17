@@ -44,9 +44,19 @@ namespace xtk
     {
         for(moris::size_t i = 0; i <aNumSimpleMesh; i++)
         {
-            mChildrenMeshes(i) = Child_Mesh();
+            mChildrenMeshes(i) = new Child_Mesh();
         }
     }
+
+    Cut_Mesh::~Cut_Mesh()
+    {
+        for(moris::size_t i = 0; i <mChildrenMeshes.size(); i++)
+        {
+            delete mChildrenMeshes(i);
+        }
+    }
+    
+
     // ----------------------------------------------------------------------------------
     void
     Cut_Mesh::inititalize_new_child_meshes(
@@ -54,7 +64,7 @@ namespace xtk
             moris::size_t aModelDim)
     {
         mNumberOfChildrenMesh = aNumNewChildMesh + mNumberOfChildrenMesh;
-        mChildrenMeshes.resize(mNumberOfChildrenMesh);
+        mChildrenMeshes.resize(mNumberOfChildrenMesh,nullptr);
     }
     // ----------------------------------------------------------------------------------
     void
@@ -63,7 +73,7 @@ namespace xtk
             enum TemplateType aTemplate)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds. Consider allocating more space");
-        mChildrenMeshes(aChildMeshIndex).modify_child_mesh(aTemplate);
+        mChildrenMeshes(aChildMeshIndex)->modify_child_mesh(aTemplate);
 
         // Meshes have changed so counts are wrong
         mConsistentCounts = false;
@@ -75,7 +85,7 @@ namespace xtk
     {
         for (moris::size_t i = 0; i < mNumberOfChildrenMesh; i++)
         {
-            mChildrenMeshes(i).modify_child_mesh(aTemplate);
+            mChildrenMeshes(i)->modify_child_mesh(aTemplate);
         }
 
         // Meshes have changed so counts are wrong
@@ -89,7 +99,7 @@ namespace xtk
     {
         for (moris::size_t i = 0; i < aChildMeshIndices.n_cols(); i++)
         {
-            mChildrenMeshes(aChildMeshIndices(0,i)).modify_child_mesh(aTemplate);
+            mChildrenMeshes(aChildMeshIndices(0,i))->modify_child_mesh(aTemplate);
         }
 
         // Meshes have changed so counts are wrong
@@ -101,7 +111,7 @@ namespace xtk
     {
         for(moris::size_t i = 0; i<get_num_child_meshes(); i++)
         {
-            mChildrenMeshes(i).convert_tet4_to_tet10_child();
+            mChildrenMeshes(i)->convert_tet4_to_tet10_child();
         }
 
         mChildElementTopo = CellTopology::TET10;
@@ -147,7 +157,7 @@ namespace xtk
 
         // Note for this: child mesh node indices, parent node indices, and element to node connectivity are
         // the same thing. This is why aNodeIndices appears 3 times in this call.
-        mChildrenMeshes(aChildMeshIndex) = Child_Mesh(
+        mChildrenMeshes(aChildMeshIndex) = new Child_Mesh(
                 mSpatialDim,
                 aParentEntities(3)(0,0),
                 aNodeIndices,
@@ -162,7 +172,7 @@ namespace xtk
 
         if(mModel->get_background_mesh().get_mesh_data().get_mesh_type() == MeshType::HMR)
         {
-            mChildrenMeshes(aChildMeshIndex).mark_as_hmr_child_mesh();
+            mChildrenMeshes(aChildMeshIndex)->mark_as_hmr_child_mesh();
         }
 
         // set parent element parametric coordinate
@@ -181,8 +191,8 @@ namespace xtk
                     {-1.0,  1.0,  1.0}});
 
                 // Add hex 8 parametric coordinates
-                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(8,3);
-                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
+                mChildrenMeshes(aChildMeshIndex)->allocate_parametric_coordinates(8,3);
+                mChildrenMeshes(aChildMeshIndex)->add_node_parametric_coordinate(aNodeIndices,tParamCoords);
 
 
                 break;
@@ -196,8 +206,8 @@ namespace xtk
                     { 0.0, 0.0, 0.0, 1.0}});
 
                 // Add tetra parametric coordinates
-                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(4,4);
-                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
+                mChildrenMeshes(aChildMeshIndex)->allocate_parametric_coordinates(4,4);
+                mChildrenMeshes(aChildMeshIndex)->add_node_parametric_coordinate(aNodeIndices,tParamCoords);
                 break;
             }
             case TemplateType::QUAD_4:
@@ -209,8 +219,8 @@ namespace xtk
                         {-1.0,  1.0}};
 
                 // Add quad 4 parametric coordinates
-                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(4, 2);
-                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
+                mChildrenMeshes(aChildMeshIndex)->allocate_parametric_coordinates(4, 2);
+                mChildrenMeshes(aChildMeshIndex)->add_node_parametric_coordinate(aNodeIndices,tParamCoords);
 
                 break;
             }
@@ -228,7 +238,7 @@ namespace xtk
             enum TemplateType aTemplate)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        mChildrenMeshes(aChildMeshIndex).modify_child_mesh(aTemplate);
+        mChildrenMeshes(aChildMeshIndex)->modify_child_mesh(aTemplate);
 
         // Meshes have changed so counts are wrong
         mConsistentCounts = false;
@@ -242,7 +252,7 @@ namespace xtk
             moris::size_t aReturnType)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        mChildrenMeshes(aChildMeshIndex).add_entity_to_intersect_connectivity(aDPrime1Ind, aDPrime2Ind, aReturnType);
+        mChildrenMeshes(aChildMeshIndex)->add_entity_to_intersect_connectivity(aDPrime1Ind, aDPrime2Ind, aReturnType);
     }
     // ----------------------------------------------------------------------------------
     void
@@ -316,7 +326,7 @@ namespace xtk
             Matrix< IndexMat >  & aNodeInd)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        mChildrenMeshes(aChildMeshIndex).add_node_indices(aNodeInd);
+        mChildrenMeshes(aChildMeshIndex)->add_node_indices(aNodeInd);
 
         // Meshes have changed so counts are wrong
         mConsistentCounts = false;
@@ -328,7 +338,7 @@ namespace xtk
             moris::Matrix< moris::IdMat > & aNodeIds)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        mChildrenMeshes(aChildMeshIndex).set_node_ids(aNodeIds);
+        mChildrenMeshes(aChildMeshIndex)->set_node_ids(aNodeIds);
 
         // Meshes have changed so counts are wrong and need to be updated before use
         mConsistentCounts = false;
@@ -340,7 +350,7 @@ namespace xtk
             Matrix< IdMat >     & aNodeIds)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        mChildrenMeshes(aChildMeshIndex).add_node_ids(aNodeIds);
+        mChildrenMeshes(aChildMeshIndex)->add_node_ids(aNodeIds);
 
         // Meshes have changed so counts are wrong and need to be updated before use
         mConsistentCounts = false;
@@ -351,7 +361,7 @@ namespace xtk
             moris::size_t const &   aChildMeshIndex,
             moris::moris_id & aElementIdOffset )
     {
-        mChildrenMeshes(aChildMeshIndex).set_child_element_ids(aElementIdOffset);
+        mChildrenMeshes(aChildMeshIndex)->set_child_element_ids(aElementIdOffset);
     }
     // ----------------------------------------------------------------------------------
     void
@@ -359,14 +369,14 @@ namespace xtk
             moris::size_t const & aChildMeshIndex,
             moris::moris_index &  aElementIndOffset )
     {
-        mChildrenMeshes(aChildMeshIndex).set_child_element_inds(aElementIndOffset);
+        mChildrenMeshes(aChildMeshIndex)->set_child_element_inds(aElementIndOffset);
     }
     // ----------------------------------------------------------------------------------
     moris::Matrix< moris::IdMat > const &
     Cut_Mesh::get_element_ids(
             moris::size_t const & aChildMeshIndex)
     {
-        return  mChildrenMeshes(aChildMeshIndex).get_element_ids();
+        return  mChildrenMeshes(aChildMeshIndex)->get_element_ids();
     }
     // ----------------------------------------------------------------------------------
     moris::Matrix< moris::IdMat >
@@ -451,14 +461,14 @@ namespace xtk
     Cut_Mesh::get_element_inds(
             moris::size_t const & aChildMeshIndex) const
     {
-        return  mChildrenMeshes(aChildMeshIndex).get_element_inds();
+        return  mChildrenMeshes(aChildMeshIndex)->get_element_inds();
     }
     // ----------------------------------------------------------------------------------
     moris::Matrix< moris::IndexMat > const &
     Cut_Mesh::get_node_indices(moris::size_t aChildMeshIndex)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        return mChildrenMeshes(aChildMeshIndex).get_node_indices();
+        return mChildrenMeshes(aChildMeshIndex)->get_node_indices();
     }
 
     // ----------------------------------------------------------------------------------
@@ -486,7 +496,7 @@ namespace xtk
             enum EntityRank aEntityRank) const
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        return mChildrenMeshes(aChildMeshIndex).get_num_entities(aEntityRank);
+        return mChildrenMeshes(aChildMeshIndex)->get_num_entities(aEntityRank);
     }
     // ----------------------------------------------------------------------------------
     moris::size_t
@@ -507,7 +517,7 @@ namespace xtk
             moris::size_t aChildMeshIndex)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        return mChildrenMeshes(aChildMeshIndex).get_parent_element_index();
+        return mChildrenMeshes(aChildMeshIndex)->get_parent_element_index();
     }
     // ----------------------------------------------------------------------------------
     void
@@ -518,7 +528,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat > & aChildrenElementCMInd,
             moris::Matrix< moris::IndexMat > & aFaceOrdinal) const
     {
-        mChildrenMeshes(aChildMeshIndex).get_child_elements_connected_to_parent_facet(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
+        mChildrenMeshes(aChildMeshIndex)->get_child_elements_connected_to_parent_facet(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
     }
     // ----------------------------------------------------------------------------------
     void
@@ -529,7 +539,7 @@ namespace xtk
             Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const
     {
 
-        mChildrenMeshes(aMeshIndex).pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
+        mChildrenMeshes(aMeshIndex)->pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
     }
     // ----------------------------------------------------------------------------------
     moris::Matrix< moris::IdMat >
@@ -547,7 +557,7 @@ namespace xtk
         uint tNumElemsFromCM = 0;
         for(uint i = 0; i <this->get_num_child_meshes(); i++)
         {
-            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides(aGeometryIndex,aPhaseIndex0,aPhaseIndex1,aIndexFlag);
+            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i)->pack_interface_sides(aGeometryIndex,aPhaseIndex0,aPhaseIndex1,aIndexFlag);
 
             tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
             if(tNumElemsFromCM!=0)
@@ -574,7 +584,7 @@ namespace xtk
         uint tNumElemsFromCM = 0;
         for(uint i = 0; i <this->get_num_child_meshes(); i++)
         {
-            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides_loc_inds();
+            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i)->pack_interface_sides_loc_inds();
 
             tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
             if(tNumElemsFromCM!=0)
@@ -608,7 +618,7 @@ namespace xtk
         moris::size_t tCount = 0;
         for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
-            moris::Matrix<moris::IdMat> tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
+            moris::Matrix<moris::IdMat> tElementToNodeIdsCM = mChildrenMeshes(i)->get_element_to_node_global();
             for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
             {
                 tElementToNodeIds.set_row(tCount, tElementToNodeIdsCM.get_row(j));
@@ -626,7 +636,7 @@ namespace xtk
         moris::Matrix<moris::IdMat> tElementToNodeInds;
         if(mChildrenMeshes.size() > 0)
         {
-            moris::mtk::Cell_Info const * tCellInfo = mChildrenMeshes(0).get_cell_info();
+            moris::mtk::Cell_Info const * tCellInfo = mChildrenMeshes(0)->get_cell_info();
 
             moris::size_t  tNumElements = this->get_num_entities(EntityRank::ELEMENT);
             moris::uint    tNumNodesPerElem = tCellInfo->get_num_verts();
@@ -635,7 +645,7 @@ namespace xtk
             moris::size_t tCount = 0;
             for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
             {
-                moris::Matrix<moris::IdMat> tElementToNodeIndsCM = mChildrenMeshes(i).get_element_to_node();
+                moris::Matrix<moris::IdMat> tElementToNodeIndsCM = mChildrenMeshes(i)->get_element_to_node();
                 for(moris::size_t j = 0; j<tElementToNodeIndsCM.n_rows(); j++)
                 {
                     tElementToNodeInds.set_row(tCount, tElementToNodeIndsCM.get_row(j));
@@ -673,8 +683,8 @@ namespace xtk
 
         for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
-            moris::Matrix< moris::IdMat >  tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
-            moris::Matrix<moris::IndexMat> tElementPhase       = mChildrenMeshes(i).get_element_phase_indices();
+            moris::Matrix< moris::IdMat >  tElementToNodeIdsCM = mChildrenMeshes(i)->get_element_to_node_global();
+            moris::Matrix<moris::IndexMat> tElementPhase       = mChildrenMeshes(i)->get_element_phase_indices();
             for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
             {
                 tElementToNodeIdsByPhase(tElementPhase(j)).set_row(tCount(tElementPhase(j)), tElementToNodeIdsCM.get_row(j));
@@ -696,14 +706,14 @@ namespace xtk
     Cut_Mesh::get_child_mesh(
             moris::size_t const & aChildMeshIndex) const
     {
-        return mChildrenMeshes(aChildMeshIndex);
+        return *mChildrenMeshes(aChildMeshIndex);
     }
     // ----------------------------------------------------------------------------------
     Child_Mesh &
     Cut_Mesh::get_child_mesh(
             moris::size_t const & aChildMeshIndex)
     {
-        return mChildrenMeshes(aChildMeshIndex);
+        return *mChildrenMeshes(aChildMeshIndex);
     }
     // ----------------------------------------------------------------------------------
     void
@@ -791,7 +801,7 @@ namespace xtk
         //sum up all child mesh data
         for (moris::uint i = 0; i < tNumChildMeshes; i++)
         {
-            tMemoryMapCMs = tMemoryMapCMs + mChildrenMeshes(i).get_memory_usage();
+            tMemoryMapCMs = tMemoryMapCMs + mChildrenMeshes(i)->get_memory_usage();
         }
     
         tMemoryMap.mMemoryMapData["Child Meshes"] = tMemoryMapCMs.sum();
@@ -825,7 +835,7 @@ namespace xtk
     {
         moris_index tChildMeshIndex   = mSubPhaseIndexToChildMesh(aSubphaseIndex);
         moris_index tChildMeshSPIndex = mSubPhaseIndexToChildMeshSubphaseIndex(aSubphaseIndex);
-        return mChildrenMeshes(tChildMeshIndex).get_subphase_ids()(tChildMeshSPIndex);
+        return mChildrenMeshes(tChildMeshIndex)->get_subphase_ids()(tChildMeshSPIndex);
     }
     // ----------------------------------------------------------------------------------
     void
@@ -856,6 +866,41 @@ namespace xtk
     {
         return mNotOwnedOwningProc;
     }
+
+    void
+    Cut_Mesh::remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
+                                                   Cell<moris::uint> const & aMeshesToDelete)
+    {
+        Cell<Child_Mesh*> tCMToKeep(aMeshesToKeep.size());
+
+        // collect a temporary list then populate member data
+        for(moris::uint iCM = 0; iCM < aMeshesToKeep.size(); iCM++)
+        {
+            tCMToKeep(iCM) = mChildrenMeshes(aMeshesToKeep(iCM));
+        }
+
+        // delete the others
+        for(moris::uint iCM = 0; iCM < aMeshesToDelete.size(); iCM++)
+        {
+            delete mChildrenMeshes(aMeshesToDelete(iCM));
+        }
+
+        mChildrenMeshes.resize(aMeshesToKeep.size());
+        for(moris::uint iCM = 0; iCM < tCMToKeep.size(); iCM++)
+        {
+            mChildrenMeshes(iCM) = tCMToKeep(iCM);
+        }
+
+        mNumberOfChildrenMesh = mChildrenMeshes.size();
+
+        std::cout<<"Num Subphase = "<<this->get_num_subphases()<<std::endl;
+
+        // recount the mesh
+        mConsistentCounts = false;
+        this->get_entity_counts();
+
+    }
+
     // ----------------------------------------------------------------------------------
     void
     Cut_Mesh::get_entity_counts() const
@@ -879,7 +924,7 @@ namespace xtk
                 tRank = static_cast<EntityRank>(iR);
                 for(moris::size_t m = 0; m<mNumberOfChildrenMesh; m++)
                 {
-                    tCount += mChildrenMeshes(m).get_num_entities(tRank);
+                    tCount += mChildrenMeshes(m)->get_num_entities(tRank);
                 }
                 mNumEntities(iR) = tCount;
             }
