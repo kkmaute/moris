@@ -82,7 +82,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         tParameters.set_domain_offset({ {-1.0}, {-0.5} });
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });

@@ -109,9 +109,9 @@ namespace moris
             ParameterList tPropertyParameterList = prm::create_gen_property_parameter_list();
             tPropertyParameterList.set("type", "constant");
             tPropertyParameterList.set("constant_parameters", "1.0");
-            tPropertyParameterList.set("bspline_mesh_index", 0);
-            tPropertyParameterList.set("bspline_lower_bound", -2.0);
-            tPropertyParameterList.set("bspline_upper_bound", 2.0);
+            tPropertyParameterList.set("discretization_mesh_index", 0);
+            tPropertyParameterList.set("discretization_lower_bound", -2.0);
+            tPropertyParameterList.set("discretization_upper_bound", 2.0);
 
             // Loop over possible cases
             for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
@@ -145,7 +145,11 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                mtk::Interpolation_Mesh* tMesh = nullptr;
+                mtk::Integration_Mesh* tIGMesh = nullptr;
+                create_simple_mesh(
+                        tMesh,
+                        tIGMesh,
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
@@ -154,6 +158,11 @@ namespace moris
                 // Set up property
                 Matrix<DDRMat> tADVs(0, 0);
                 std::shared_ptr<Property> tBSplineProperty = create_property(tPropertyParameterList, tADVs);
+
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                          std::make_shared< mtk::Mesh_Manager >();
+
+                  tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -201,7 +210,7 @@ namespace moris
                         check_equal(tBSplineProperty->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
                         check_equal(
                                 tBSplineProperty->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
+                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                     }
                 }
 

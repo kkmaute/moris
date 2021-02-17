@@ -33,7 +33,7 @@
 
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-#include "../../INT/src/cl_FEM_Element_Bulk.hpp"
+#include "cl_FEM_Element_Bulk.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
@@ -69,7 +69,7 @@ namespace moris
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -285,7 +285,7 @@ namespace moris
 //                 tExact->get_node_values() = tField->get_node_values();
 //
 //                 // create mapper
-//                 moris::mapper::Mapper tMapper( tMesh );
+//                 moris::mtk::Mapper tMapper( tMesh );
 //
 //                 // call mapping function
 //                 tMapper.perform_mapping(
@@ -294,7 +294,7 @@ namespace moris
 //                         tField->get_label(),
 //                         tField->get_bspline_rank() );
 //
-//                 tField->evaluate_node_values();
+//                 tField->evaluate_nodal_values();
 //
 //                 // save field to hdf5
 //                 tField->save_field_to_hdf5("Circle.hdf5");

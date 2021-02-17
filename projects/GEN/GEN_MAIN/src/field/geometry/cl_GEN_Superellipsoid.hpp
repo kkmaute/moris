@@ -27,12 +27,13 @@ namespace moris
              */
             template <typename Vector_Type>
             Superellipsoid(
-                    Vector_Type&     aADVs,
-                    Matrix<DDUMat>   aGeometryVariableIndices,
-                    Matrix<DDUMat>   aADVIndices,
-                    Matrix<DDRMat>   aConstants,
-                    Field_Parameters aParameters = {})
+                    Vector_Type&              aADVs,
+                    Matrix<DDUMat>            aGeometryVariableIndices,
+                    Matrix<DDUMat>            aADVIndices,
+                    Matrix<DDRMat>            aConstants,
+                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
             {
                 MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
                             "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constants).");
@@ -53,14 +54,14 @@ namespace moris
              * @param aParameters Additional parameters
              */
             Superellipsoid(
-                    real             aXCenter,
-                    real             aYCenter,
-                    real             aZCenter,
-                    real             aXSemidiameter,
-                    real             aYSemidiameter,
-                    real             aZSemidiameter,
-                    real             aExponent,
-                    Field_Parameters aParameters = {});
+                    real                      aXCenter,
+                    real                      aYCenter,
+                    real                      aZCenter,
+                    real                      aXSemidiameter,
+                    real                      aYSemidiameter,
+                    real                      aZSemidiameter,
+                    real                      aExponent,
+                    Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

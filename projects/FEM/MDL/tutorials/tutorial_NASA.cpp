@@ -72,7 +72,7 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 #include "banner.hpp" // COR/src
 
@@ -162,7 +162,7 @@ main( int    argc,
     tParameters.set_domain_dimensions( tDimensons );
     tParameters.set_domain_offset( tOffset );
     tParameters.set_bspline_truncation( true );
-    tParameters.set_output_meshes( { {0} } );
+    tParameters.set_output_meshes( {{ {0} }} );
     tParameters.set_lagrange_orders  ( { {tLagrangeOrder} });
     tParameters.set_lagrange_patterns({ {0} });
     tParameters.set_bspline_orders   ( { {tBsplineOrder} } );

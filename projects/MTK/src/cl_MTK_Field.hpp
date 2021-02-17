@@ -46,11 +46,35 @@ namespace moris
                 //! //FIXME right now only scalar field
                 const uint mNumberOfDimensions = 1;
 
+                //! Nodal field values
+                Matrix< DDRMat > mNodalValues;
+
+                //! Coefficients values
+                Matrix< DDRMat > mCoefficients;
+
                 //------------------------------------------------------------------------------
             public :
                 //------------------------------------------------------------------------------
 
                 Field()
+                {};
+
+                //------------------------------------------------------------------------------
+
+                Field(
+                        std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
+                        uint const                         & aMeshIndex,
+                        uint const                         & aDiscretizationMeshIndex =0)
+                : mMeshManager( aMeshManager ),
+                  mMeshIndex( aMeshIndex ),
+                  mDiscretizationMeshIndex( aDiscretizationMeshIndex )
+                {};
+
+                Field(
+                        uint const     & aDiscretizationMeshIndex,
+                        std::string const    & aName)
+                : mDiscretizationMeshIndex( aDiscretizationMeshIndex ),
+                  mLabel( aName )
                 {};
 
                 //------------------------------------------------------------------------------
@@ -90,7 +114,12 @@ namespace moris
                 /**
                  * returns the discretazion order. When using HMR this is the BSpline order
                  */
-                virtual uint get_discretization_order() const = 0;
+                virtual uint get_discretization_order() const
+                {
+                    return mMeshManager->
+                            get_interpolation_mesh( mMeshIndex )->
+                            get_discretization_order( mDiscretizationMeshIndex );
+                };
 
                 //------------------------------------------------------------------------------
 
@@ -108,31 +137,39 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual Matrix< DDRMat > & get_node_values() = 0;
+                virtual const Matrix< DDRMat > & get_nodal_values() const
+                {
+                    return mNodalValues;
+                };
 
                 //------------------------------------------------------------------------------
 
-                virtual const Matrix< DDRMat > & get_node_values() const = 0;
+                virtual void set_nodal_values( const Matrix< DDRMat > & aNodalValues )
+                {
+                    mNodalValues = aNodalValues;
+                };
 
                 //------------------------------------------------------------------------------
 
-                virtual Matrix< DDRMat > & get_coefficients() = 0;
+                virtual const Matrix< DDRMat > & get_coefficients() const
+                {
+                    return mCoefficients;
+                };
 
                 //------------------------------------------------------------------------------
 
-                virtual const Matrix< DDRMat > & get_coefficients() const = 0;
+                virtual void set_coefficients( const Matrix< DDRMat > & aCoefficients )
+                {
+                    mCoefficients = aCoefficients;
+                };
 
                 //------------------------------------------------------------------------------
 
-                uint get_discretization_mesh_index() const
+                virtual uint get_discretization_mesh_index() const
                 {
                     MORIS_ASSERT( mDiscretizationMeshIndex != -1, "get_discretization_mesh_index() Discretization index not set");
                     return mDiscretizationMeshIndex;
                 }
-
-                //------------------------------------------------------------------------------
-
-                virtual void evaluate_node_values() = 0;
 
                 //------------------------------------------------------------------------------
                 //
@@ -170,6 +207,10 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 void save_node_values_to_binary( const std::string & aFilePath );
+
+                //------------------------------------------------------------------------------
+
+                void save_field_to_exodus( const std::string & aFileName );
 
                 //------------------------------------------------------------------------------
         };

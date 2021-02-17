@@ -14,6 +14,13 @@
 #include "HDF5_Tools.hpp"
 
 #include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+
+#include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Reader_Exodus.hpp"
+
 #include "fn_dot.hpp"
 
 namespace moris
@@ -125,7 +132,7 @@ namespace moris
 
             save_matrix_to_hdf5_file( tFileID,
                     this->get_label(),
-                    this->get_node_values(),
+                    this->get_nodal_values(),
                     tStatus );
 
             // close file
@@ -140,10 +147,13 @@ namespace moris
         {
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
+            Matrix<DDRMat> tMat;
             load_matrix_from_hdf5_file( tFile,
                     this->get_label(),
-                    this->get_coefficients(),
+                    tMat,
                     tStatus );
+
+            this->set_coefficients( tMat );
 
             tStatus = close_hdf5_file( tFile );
         }
@@ -155,7 +165,7 @@ namespace moris
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
 
-            save_matrix_to_binary_file( this->get_node_values(), tFilePath );
+            save_matrix_to_binary_file( this->get_nodal_values(), tFilePath );
         }
 
         //------------------------------------------------------------------------------
@@ -167,6 +177,36 @@ namespace moris
 
             save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
         }
+
+        //------------------------------------------------------------------------------
+
+        void Field::save_field_to_exodus( const std::string & aFileName )
+        {
+            mtk::Mesh * tMesh = mMeshManager->get_interpolation_mesh( mMeshIndex );
+
+            moris::mtk::Writer_Exodus tExodusWriter( tMesh );
+
+            tExodusWriter.write_mesh(
+                    "./",
+                    aFileName,
+                    "./",
+                    "field_temp");
+
+            // set standard field names
+            moris::Cell<std::string> tNodalFieldNames( 1 );
+
+            tNodalFieldNames( 0 ) = "Field";
+
+            // pass nodal field names to writer
+            tExodusWriter.set_nodal_fields( tNodalFieldNames );
+
+            tExodusWriter.set_time( 0.0 );
+
+            tExodusWriter.write_nodal_field( tNodalFieldNames( 0 ), mNodalValues );
+
+            tExodusWriter.save_mesh( );
+        }
+
 
         //------------------------------------------------------------------------------
     } /* namespace hmr */

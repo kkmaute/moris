@@ -24,7 +24,7 @@ namespace moris
              * @return Field value
              */
             real get_field_value(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
@@ -43,7 +43,7 @@ namespace moris
              * @return Matrix of sensitivities
              */
             const Matrix<DDRMat>& get_field_sensitivities(
-                    uint aNodeIndex,
+                    uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**

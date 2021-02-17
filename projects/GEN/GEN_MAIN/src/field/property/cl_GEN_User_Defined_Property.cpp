@@ -1,0 +1,23 @@
+#include "cl_GEN_User_Defined_Property.hpp"
+
+namespace moris
+{
+    namespace ge
+    {
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        User_Defined_Property::User_Defined_Property(
+                Matrix<DDRMat>            aConstants,
+                Field_Function            aFieldFunction,
+                Property_Field_Parameters aParameters)
+                : Field(aConstants, aParameters)
+                , User_Defined_Field(aConstants, aFieldFunction, aParameters)
+                , Property(aParameters)
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+    }
+}

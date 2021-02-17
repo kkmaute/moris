@@ -27,12 +27,13 @@ namespace moris
              */
             template <typename Vector_Type>
             Superellipse(
-                    Vector_Type&     aADVs,
-                    Matrix<DDUMat>   aGeometryVariableIndices,
-                    Matrix<DDUMat>   aADVIndices,
-                    Matrix<DDRMat>   aConstants,
-                    Field_Parameters aParameters = {})
+                    Vector_Type&              aADVs,
+                    Matrix<DDUMat>            aGeometryVariableIndices,
+                    Matrix<DDUMat>            aADVIndices,
+                    Matrix<DDRMat>            aConstants,
+                    Geometry_Field_Parameters aParameters = {})
                     : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters)
+                    , Geometry(aParameters)
             {
                 MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
                             "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constants).");
@@ -55,15 +56,15 @@ namespace moris
              * @param aParameters Additional parameters
              */
             Superellipse(
-                    real             aXCenter,
-                    real             aYCenter,
-                    real             aXSemidiameter,
-                    real             aYSemidiameter,
-                    real             aExponent,
-                    real             aScaling,
-                    real             aRegularization,
-                    real             aShift,
-                    Field_Parameters aParameters = {});
+                    real                      aXCenter,
+                    real                      aYCenter,
+                    real                      aXSemidiameter,
+                    real                      aYSemidiameter,
+                    real                      aExponent,
+                    real                      aScaling,
+                    real                      aRegularization,
+                    real                      aShift,
+                    Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node coordinate, returns the field value.

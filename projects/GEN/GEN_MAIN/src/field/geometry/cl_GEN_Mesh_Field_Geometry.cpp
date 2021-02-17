@@ -10,8 +10,9 @@ namespace moris
         Mesh_Field_Geometry::Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                                  std::string aFieldName,
                                                  EntityRank  aEntityRank,
-                                                 Field_Parameters aParameters)
+                                                 Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>(1, 1, 0.0), aParameters)
+                , Geometry(aParameters)
                 , Field_Discrete_Integration(aMesh->get_num_nodes())
                 , mMesh(aMesh)
                 , mFieldName(aFieldName)

@@ -7,14 +7,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(real             aXCenter,
-                     real             aYCenter,
-                     real             aZCenter,
-                     real             aXNormal,
-                     real             aYNormal,
-                     real             aZNormal,
-                     Field_Parameters aParameters)
+        Plane::Plane(real                      aXCenter,
+                     real                      aYCenter,
+                     real                      aZCenter,
+                     real                      aXNormal,
+                     real                      aYNormal,
+                     real                      aZNormal,
+                     Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}), aParameters)
+                , Geometry(aParameters)
         {
             m_eval_field = &Plane::eval_field_3d;
             m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -22,8 +23,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
     
-        Plane::Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal, Field_Parameters aParameters)
+        Plane::Plane(
+                real                      aXCenter,
+                real                      aYCenter,
+                real                      aXNormal,
+                real                      aYNormal,
+                Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}), aParameters)
+                , Geometry(aParameters)
         {
             m_eval_field = &Plane::eval_field_2d;
             m_eval_sensitivity = &Plane::eval_sensitivity_2d;

@@ -37,8 +37,10 @@ set(TEST_SOURCES
 	fn_reshape.cpp
 	fn_save_and_load_matrix_binary_file.cpp
 	fn_sort.cpp
+	fn_sqrtmat.cpp
 	fn_sum.cpp
 	fn_svd.cpp
+	fn_sylvester.cpp
 	fn_trans.cpp
 	fn_unique.cpp
 	LINALG_Tutorial.cpp

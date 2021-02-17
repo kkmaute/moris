@@ -42,7 +42,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 
 #include "fn_norm.hpp"
 
@@ -119,7 +119,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tParameters.set_bspline_orders   ( { {iOrder} } );
             tParameters.set_bspline_patterns ( { {0} } );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
             //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
             tParameters.set_staircase_buffer( 1 );
@@ -184,7 +184,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             }
 
             Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             size_t tModelDimension = 3;
 

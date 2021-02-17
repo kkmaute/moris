@@ -3,7 +3,7 @@
 
 // MRS
 #include "cl_Param_List.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 #include "fn_trans.hpp"
 
 // WRK
@@ -82,14 +82,10 @@ namespace moris
             std::shared_ptr<Library_IO> mLibrary;
 
             size_t mActiveGeometryIndex = 0;
-            Cell<ParameterList> mGeometryParameterLists;
             std::string mGeometryFieldFile;
             std::string mOutputMeshFile;
             bool mShapeSensitivities = false;
             real mTimeOffset;
-
-            // Properties
-            Cell<ParameterList> mPropertyParameterLists;
 
             // PDVs
             Pdv_Host_Manager mPdvHostManager;
@@ -355,6 +351,8 @@ namespace moris
              */
             void distribute_advs(mtk::Interpolation_Mesh* aMesh);
 
+            void distribute_advs( std::shared_ptr< mtk::Mesh_Manager> aMeshManager );
+
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
              * Uses output locations and file names stored from a parameter list or previous call to an output function.
@@ -470,7 +468,7 @@ namespace moris
             static Phase_Table create_phase_table(
                     uint                     aNumGeometries,
                     Matrix<DDUMat>           aBulkPhases,
-                    MORIS_GEN_PHASE_FUNCTION aPhaseFunction = nullptr,
+                    PHASE_FUNCTION aPhaseFunction = nullptr,
                     uint                     aNumPhases = 1);
         };
     }

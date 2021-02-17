@@ -321,11 +321,11 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void evaluate_node_values();
+                void evaluate_nodal_values();
 
                 //------------------------------------------------------------------------------
 
-                void evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
+                void evaluate_nodal_values( const Matrix< DDRMat > & aCoefficients );
 
                 //------------------------------------------------------------------------------
 

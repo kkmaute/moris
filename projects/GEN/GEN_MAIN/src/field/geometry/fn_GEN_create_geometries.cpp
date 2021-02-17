@@ -1,5 +1,5 @@
 #include "fn_GEN_create_geometries.hpp"
-#include "st_GEN_Field_Parameters.hpp"
+#include "st_GEN_Geometry_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Circle.hpp"
@@ -7,13 +7,12 @@
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
-#include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 
 namespace moris
@@ -199,14 +198,14 @@ namespace moris
             }
 
             // Geometry parameters
-            Field_Parameters tParameters;
+            Geometry_Field_Parameters tParameters;
             tParameters.mName = aGeometryParameterList.get<std::string>("name");
             tParameters.mNumRefinements = aGeometryParameterList.get<std::string>("number_of_refinements");
             tParameters.mRefinementMeshIndices = aGeometryParameterList.get<std::string>("refinement_mesh_index");
             tParameters.mRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
-            tParameters.mBSplineMeshIndex = aGeometryParameterList.get<sint>("bspline_mesh_index");
-            tParameters.mBSplineLowerBound = aGeometryParameterList.get<real>("bspline_lower_bound");
-            tParameters.mBSplineUpperBound = aGeometryParameterList.get<real>("bspline_upper_bound");
+            tParameters.mDiscretizationMeshIndex = aGeometryParameterList.get<sint>("discretization_mesh_index");
+            tParameters.mDiscretizationLowerBound = aGeometryParameterList.get<real>("discretization_lower_bound");
+            tParameters.mDiscretizationUpperBound = aGeometryParameterList.get<real>("discretization_upper_bound");
 
             // Build Geometry
             if (tGeometryType == "circle")
@@ -241,16 +240,16 @@ namespace moris
 
                 // Get sensitivity function if needed
                 std::string tSensitivityFunctionName = aGeometryParameterList.get<std::string>("sensitivity_function_name");
-                MORIS_GEN_SENSITIVITY_FUNCTION tSensitivityFunction =
-                        (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
+                Sensitivity_Function tSensitivityFunction =
+                        (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_function<Sensitivity_Function>(tSensitivityFunctionName));
 
                 // Create user-defined geometry
-                return std::make_shared<User_Defined_Field>(
+                return std::make_shared<User_Defined_Geometry>(
                         aADVs,
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstants,
-                        aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                        aLibrary->load_function<Field_Function>(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
                         tParameters);
             }

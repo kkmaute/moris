@@ -41,10 +41,6 @@ namespace moris
                 Matrix<DDRMat> mCriteria;   // vector of criteria values
 
             public:
-                bool mUpdateObjectives          = true;  // whether or not to compute new objectives when requested
-                bool mUpdateConstraints         = true;  // whether or not to compute new constraints when requested
-                bool mUpdateObjectiveGradients  = true;  // "                 " objective gradients
-                bool mUpdateConstraintGradients = true;  // "                 " constraint gradients
 
                 /**
                  * Constructor
@@ -99,11 +95,17 @@ namespace moris
                 }
 
                 /**
-                 * Sets the ADV vector. Note that this also indicates to the interface that values need to be recomputed.
+                 * Sets the ADV vector. Note that this also indicates to the interface that criteria values need to be
+                 * recomputed.
                  *
                  * @param vector of ADV values
                  */
-                void set_advs(const Matrix<DDRMat> & aNewADVs);
+                void trigger_criteria_solve(const Matrix<DDRMat> & aNewADVs);
+
+                /**
+                 * Computes the criteria gradients
+                 */
+                void trigger_dcriteria_dadv_solve();
 
                 /**
                  * Get reference to the adv upper bounds

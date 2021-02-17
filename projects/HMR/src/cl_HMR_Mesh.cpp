@@ -63,8 +63,8 @@ namespace moris
             // copy database pointer
             mDatabase = aDatabase;
 
-            MORIS_ASSERT( aLagrangeMeshIndex <= mDatabase->get_number_of_lagrange_meshes(),
-                    "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes.", aLagrangeMeshIndex );
+            MORIS_ASSERT( aLagrangeMeshIndex < mDatabase->get_number_of_lagrange_meshes(),
+                    "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes. Check input file", aLagrangeMeshIndex );
 
             mMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
@@ -411,13 +411,6 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        bool Mesh::node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex)
-        {
-            return mMesh->get_node_by_index(aNodeIndex)->has_interpolation(aBSplineMeshIndex);
-        }
-
-        //-----------------------------------------------------------------------------
-
         const Matrix< DDRMat > & Mesh::get_t_matrix_of_node_loc_ind(
                 uint aNodeIndex,
                 uint aBSplineMeshIndex)
@@ -427,7 +420,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat > Mesh::get_bspline_inds_of_node_loc_ind(
+        Matrix< IndexMat > Mesh::get_coefficient_indices_of_node(
                 uint aNodeIndex,
                 uint aBSplineMeshIndex )
         {
@@ -436,7 +429,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        Matrix< IdMat > Mesh::get_bspline_ids_of_node_loc_ind(
+        Matrix< IdMat > Mesh::get_coefficient_IDs_of_node(
                 uint aNodeIndex,
                 uint aBSplineMeshIndex )
         {

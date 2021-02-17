@@ -259,7 +259,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -372,7 +372,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -486,7 +486,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -784,7 +784,7 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
         //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
         tParameters.set_staircase_buffer( 2 );
@@ -951,7 +951,7 @@ TEST_CASE("Lagrange_Mesh_trivial","[moris],[hmr],[Lagrange_Mesh_trivial],[lagran
         tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
         //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
         tParameters.set_staircase_buffer( 2 );
@@ -1060,7 +1060,7 @@ TEST_CASE("Lagrange_Mesh_initial_refinement","[moris],[hmr],[Lagrange_Mesh_Initi
         tParameters.set_bspline_orders   ( { {1, 1} } );
         tParameters.set_bspline_patterns ( { {0, 1} } );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_staircase_buffer( 2 );
 
@@ -1159,7 +1159,7 @@ TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_re
 
             tCoeffs( k ) = 1.0;
 
-            tField->evaluate_node_values();
+            tField->evaluate_nodal_values();
 
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
@@ -1221,7 +1221,7 @@ TEST_CASE("Lagrange_Mesh_4_proc_problem","[moris],[hmr],[Lagrange_Mesh_4_proc_pr
         tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_staircase_buffer( 0 );
 
@@ -1322,7 +1322,7 @@ TEST_CASE("Lagrange_Mesh_4_proc_meshes","[moris],[hmr],[Lagrange_Mesh_4_proc_mes
         tParameters.set_bspline_orders   ( { {1} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
 
         tParameters.set_staircase_buffer( 0 );
 

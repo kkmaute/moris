@@ -97,7 +97,7 @@ namespace moris
             // set order of this field
             mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, mInputBSplineIndex );
 
-            this->evaluate_node_values();
+            this->evaluate_nodal_values();
         }
 
         //------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
+        void Field::evaluate_nodal_values( const Matrix< DDRMat > & aCoefficients )
         {
             // ask mesh for number of nodes
             uint tNumberOfNodes = mMesh->get_num_nodes();
@@ -292,9 +292,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::evaluate_node_values()
+        void Field::evaluate_nodal_values()
         {
-            this->evaluate_node_values( this->get_coefficients() );
+            this->evaluate_nodal_values( this->get_coefficients() );
         }
 
         //------------------------------------------------------------------------------

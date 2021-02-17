@@ -29,11 +29,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         tTHat( 1 ) = 5.0;
 
         //create a space geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule(
+        mtk::Interpolation_Rule tGeomInterpRule(
                 mtk::Geometry_Type::LINE,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         //create a space and a time geometry interpolator
@@ -45,11 +45,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         // field interpolator
         //------------------------------------------------------------------------------
         //create a space time interpolation rule
-        Interpolation_Rule tInterpolationRule (
+        mtk::Interpolation_Rule tInterpolationRule (
                 mtk::Geometry_Type::LINE,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         //create a field interpolator
@@ -61,9 +61,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
                 { MSI::Dof_Type::UX } );
 
         //create scalar field discretized value tUHat
-        Interpolation_Function_Base * tSpaceInterpolation =
+        mtk::Interpolation_Function_Base * tSpaceInterpolation =
                 tInterpolationRule.create_space_interpolation_function();
-        Interpolation_Function_Base * tTimeInterpolation  =
+        mtk::Interpolation_Function_Base * tTimeInterpolation  =
                 tInterpolationRule.create_time_interpolation_function();
 
         Matrix< DDRMat > tSpaceParamCoord;
@@ -167,11 +167,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         tTHat( 1 ) = 5.0;
 
         //create a space geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule(
+        mtk::Interpolation_Rule tGeomInterpRule(
                 mtk::Geometry_Type::QUAD,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         //create a space and a time geometry interpolator
@@ -183,11 +183,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         // field interpolator
         //------------------------------------------------------------------------------
         //create a space time interpolation rule
-        Interpolation_Rule tInterpolationRule (
+        mtk::Interpolation_Rule tInterpolationRule (
                 mtk::Geometry_Type::QUAD,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
         //create a field interpolator
         uint tNumberOfFields = 1;
@@ -247,10 +247,10 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         tCheckTHat( 1 ) = 5.0;
 
         //create a space geometry interpolation rule
-        Interpolation_Rule tCheckGeomRule ( mtk::Geometry_Type::HEX,
-                Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tCheckGeomRule ( mtk::Geometry_Type::HEX,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         //create a space geometry interpolator
@@ -260,11 +260,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         tCheckGeomInterpolator.set_coeff( tCheckXHat, tCheckTHat );
 
         //create a space interpolation rule
-        Interpolation_Rule tCheckFieldRule (
+        mtk::Interpolation_Rule tCheckFieldRule (
                 mtk::Geometry_Type::HEX,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Type::CONSTANT,
                 mtk::Interpolation_Order::CONSTANT );
 
 
@@ -348,11 +348,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         tTHat( 1 ) = 5.0;
 
         //create a space geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule(
+        mtk::Interpolation_Rule tGeomInterpRule(
                 mtk::Geometry_Type::LINE,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR);
 
         //create a space and a time geometry interpolator
@@ -364,11 +364,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         // create space time field interpolator
         //------------------------------------------------------------------------------
         //create a space time interpolation rule
-        Interpolation_Rule tInterpolationRule (
+        mtk::Interpolation_Rule tInterpolationRule (
                 mtk::Geometry_Type::LINE,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::QUADRATIC,
-                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR );
 
         //create a field interpolator
@@ -380,9 +380,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
                 { MSI::Dof_Type::UX } );
 
         //create scalar field discretized value tUHat
-        Interpolation_Function_Base * tSpaceInterpolation =
+        mtk::Interpolation_Function_Base * tSpaceInterpolation =
                 tInterpolationRule.create_space_interpolation_function();
-        Interpolation_Function_Base * tTimeInterpolation  =
+        mtk::Interpolation_Function_Base * tTimeInterpolation  =
                 tInterpolationRule.create_time_interpolation_function();
 
         Matrix< DDRMat > tSpaceParamCoord;
@@ -493,11 +493,11 @@ TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
     Matrix< DDRMat > tParamPoint = { {  0.35 }, { -0.25 }, {  0.70 }};
 
     //create a space geometry interpolation rule
-    Interpolation_Rule tGeomInterpRule(
+    mtk::Interpolation_Rule tGeomInterpRule(
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
 
     //create a geometry interpolator
@@ -513,11 +513,11 @@ TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
     // field interpolator
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
-    Interpolation_Rule tInterpolationRule (
+    mtk::Interpolation_Rule tInterpolationRule (
             mtk::Geometry_Type::QUAD,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR,
-            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::LINEAR );
     //create a field interpolator
     uint tNumberOfFields = 2;
@@ -569,5 +569,3 @@ TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
     }
     REQUIRE( tCheckTestN );
 }
-
-

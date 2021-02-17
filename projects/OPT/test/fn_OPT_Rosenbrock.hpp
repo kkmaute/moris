@@ -40,20 +40,7 @@ namespace moris
         {
             if (par_rank() == 0)
             {
-                // Initial Guess
-                aADVs.set_size(2, 1);
-                aADVs(0) = 0.8;
-                aADVs(1) = 1.2;
-
-                // Lower Bounds
-                aLowerBounds.set_size(2, 1);
-                aLowerBounds(0) = -2.0;
-                aLowerBounds(1) = -2.0;
-
-                // Upper Bounds
-                aUpperBounds.set_size(2, 1);
-                aUpperBounds(0) = 2.0;
-                aUpperBounds(1) = 2.0;
+                initialize_rosenbrock(aADVs, aLowerBounds, aUpperBounds);
             }
         }
 
@@ -74,40 +61,16 @@ namespace moris
         Matrix<DDRMat> get_criteria_rosenbrock_1(const Matrix<DDRMat>& aADVs)
         {
             barrier("criteria");
-
-            Matrix<DDRMat> tCriteria(2, 1);
-
             if (par_rank() == 0)
             {
-                tCriteria(0) = 1 - aADVs(0);
-                tCriteria(1) = aADVs(1) - pow(aADVs(0), 2);
+                return get_criteria_rosenbrock(aADVs);
             }
-
-            return tCriteria;
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> get_dcriteria_dadv_rosenbrock(const Matrix<DDRMat>& aADVs)
-        {
-            barrier("dcriteria");
-
-            Matrix<DDRMat> tDCriteria(2, 2, 0.0);
-
-            if (par_rank() == 0)
-            {
-                tDCriteria(0, 0) = -1;
-                tDCriteria(0, 1) = 0;
-                tDCriteria(1, 0) = -2 * aADVs(0);
-                tDCriteria(1, 1) = 1;
-            }
-
-            return tDCriteria;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> get_dcriteria_dadv_rosenbrock_1(const Matrix<DDRMat>& aADVs)
         {
             barrier("dcriteria");
 

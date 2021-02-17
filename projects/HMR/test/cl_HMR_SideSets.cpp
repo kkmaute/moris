@@ -68,7 +68,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
             tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
-            tParameters.set_output_meshes( { {0} });
+            tParameters.set_output_meshes( {{ {0} }});
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -206,7 +206,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
           tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
 
-          tParameters.set_output_meshes( { {0} });
+          tParameters.set_output_meshes( {{ {0} }});
 
           tParameters.set_lagrange_orders  ( { {1} });
           tParameters.set_lagrange_patterns({ {0} });
@@ -349,7 +349,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 
             tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
-            tParameters.set_output_meshes( { {0} });
+            tParameters.set_output_meshes( {{ {0} }});
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -487,7 +487,7 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 
           tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
 
-          tParameters.set_output_meshes( { {0} });
+          tParameters.set_output_meshes( {{ {0} }});
 
           tParameters.set_lagrange_orders  ( { {1} });
           tParameters.set_lagrange_patterns({ {0} });

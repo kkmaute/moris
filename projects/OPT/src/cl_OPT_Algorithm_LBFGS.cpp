@@ -149,9 +149,6 @@ namespace moris
             // Recruit help from other procs and solve for criteria
             this->criteria_solve(tADVs);
 
-            // Call to update objectives and constraints
-            mProblem->mUpdateObjectives = true;
-
             // Convert outputs from type MORIS
             aObjval = mProblem->get_objectives()(0);
         }
@@ -160,9 +157,6 @@ namespace moris
 
         void Algorithm_LBFGS::grad(double* aAdv, double* aD_Obj )
         {
-            // Call to update derivatives of objectives
-            mProblem->mUpdateObjectiveGradients = true;
-
             auto tD_Obj = mProblem->get_objective_gradients().data();
             std::copy(tD_Obj, tD_Obj + mProblem->get_num_advs(), aD_Obj);
         }

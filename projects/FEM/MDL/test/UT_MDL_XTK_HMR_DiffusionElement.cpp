@@ -90,7 +90,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 
 namespace moris
 {
@@ -189,7 +189,7 @@ namespace moris
             tParameters.set_bspline_truncation( true );
             tParameters.set_side_sets({ {5}, {6} });
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -443,7 +443,7 @@ namespace moris
             tParameters.set_bspline_truncation( true );
             tParameters.set_side_sets({ {5}, {6} });
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -732,7 +732,7 @@ namespace moris
 
             tParameters.set_multigrid( true );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -783,7 +783,7 @@ namespace moris
             tic tTimer_XTK;
 
             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -1040,7 +1040,7 @@ namespace moris
 
             tParameters.set_multigrid( true );
 
-            tParameters.set_output_meshes( { {0} } );
+            tParameters.set_output_meshes( {{ {0} }} );
 
             tParameters.set_lagrange_orders  ( { {1} });
             tParameters.set_lagrange_patterns({ {0} });
@@ -1091,7 +1091,7 @@ namespace moris
             tic tTimer_XTK;
 
             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), LevelSetSphereCylinderGeometry);
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), LevelSetSphereCylinderGeometry);
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

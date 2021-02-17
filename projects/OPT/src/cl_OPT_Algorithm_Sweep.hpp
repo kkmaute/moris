@@ -35,10 +35,10 @@ namespace moris
 
         private:
             bool mIncludeBounds; // whether or not to include upper/lower bounds in the sweep
-            bool mUpdateObjectives; // whether or not to compute new objectives when requested
-            bool mUpdateConstraints; // whether or not to compute new constraints when requested
-            bool mUpdateObjectiveGradients; // "                 " objective gradients
-            bool mUpdateConstraintGradients; // "                 " constraint gradients
+            bool mEvaluateObjectives; // whether or not to compute new objectives when requested
+            bool mEvaluateConstraints; // whether or not to compute new constraints when requested
+            bool mEvaluateObjectiveGradients; // "                 " objective gradients
+            bool mEvaluateConstraintGradients; // "                 " constraint gradients
             bool mSave; // If saving the results of the sweep to an hdf5 file
             bool mPrint; // If printing the results of the sweep to the screen
             hid_t mFileID; // Fild id for hdf5 file

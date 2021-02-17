@@ -207,24 +207,13 @@ namespace moris
             uint get_num_coeffs( const uint aBSplineMeshIndex ) const;
 
             /**
-             * Returns if this node has information about B-spline interpolation or not.
-             *
-             * @param aNodeIndex Node index
-             * @param aBSplineMeshIndex B-spline mesh index
-             * @return If interpolation exists
-             */
-            bool node_has_interpolation(
-                    uint aNodeIndex,
-                    uint aBSplineMeshIndex );
-
-            /**
              * Gets the indices of the B-splines which form the basis of the given node.
              *
              * @param aNodeIndex Node index
              * @param aBSplineMeshIndex B-spline mesh index
              * @return B-spline indices
              */
-            Matrix< IndexMat > get_bspline_inds_of_node_loc_ind(
+            Matrix< IndexMat > get_coefficient_indices_of_node(
                     uint aNodeIndex,
                     uint aBSplineMeshIndex );
 
@@ -235,7 +224,7 @@ namespace moris
              * @param aBSplineMeshIndex B-spline mesh index
              * @return B-spline IDs
              */
-            Matrix< IdMat > get_bspline_ids_of_node_loc_ind(
+            Matrix< IdMat > get_coefficient_IDs_of_node(
                     uint aNodeIndex,
                     uint aBSplineMeshIndex );
 

@@ -16,32 +16,33 @@ namespace moris
 {
     namespace mtk
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class Cell_Proxy : public Cell
         {
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         public:
-            moris::moris_id          mId       = gNoID;
-            moris::moris_index       mIndex    = gNoIndex;
-            moris::moris_id          mOwner    = gNoID;
+            moris::moris_id mId = gNoID;
+            moris::moris_index mIndex = gNoIndex;
+            moris::moris_id mOwner = gNoID;
             //moris::uint              mNumVerts = MORIS_UNIT_MAX;
 
-            moris::Cell< Vertex* >   mVertices;
-            moris::uint              mSpatialDim   = 3;
-            enum Geometry_Type       mGeometryType = Geometry_Type::UNDEFINED;
-            enum Interpolation_Order mInterpOrder  = Interpolation_Order::UNDEFINED;
-            moris::mtk::Cell_Info*   mCellInfo;
+            moris::Cell<Vertex *> mVertices;
+            moris::uint mSpatialDim = 3;
+            enum Geometry_Type mGeometryType = Geometry_Type::UNDEFINED;
+            enum Interpolation_Order mInterpOrder = Interpolation_Order::UNDEFINED;
+            enum Integration_Order mIntegOrder = Integration_Order::UNDEFINED;
+            moris::mtk::Cell_Info *mCellInfo;
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-            Cell_Proxy (){};
+            Cell_Proxy(){};
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-            ~Cell_Proxy (){};
+            ~Cell_Proxy(){};
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns the domain wide id of the cell
@@ -51,12 +52,12 @@ namespace moris
             moris_id
             get_id() const
             {
-                MORIS_ASSERT( mId != gNoID,"Cell ID not initialized");
+                MORIS_ASSERT(mId != gNoID, "Cell ID not initialized");
 
                 return mId;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns the local index of the cell
@@ -66,12 +67,12 @@ namespace moris
             moris_index
             get_index() const
             {
-                MORIS_ASSERT( mIndex != gNoIndex,"Cell index not initialized");
+                MORIS_ASSERT(mIndex != gNoIndex, "Cell index not initialized");
 
                 return mIndex;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * tells how many vertices are connected to this cell
@@ -82,7 +83,7 @@ namespace moris
                 return mVertices.size();
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns the proc id of the owner of this cell
@@ -91,33 +92,33 @@ namespace moris
             moris_id
             get_owner() const
             {
-                MORIS_ASSERT( mOwner != gNoID,"Cell ownership not initialized");
+                MORIS_ASSERT(mOwner != gNoID, "Cell ownership not initialized");
 
                 return mOwner;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            moris::Cell< Vertex* >
+            moris::Cell<Vertex *>
             get_vertex_pointers() const
             {
                 return mVertices;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns a Mat with IDs of connected vertices
              */
-            Matrix< IdMat >
+            Matrix<IdMat>
             get_vertex_ids() const
             {
-                Matrix<IdMat> tVertexIds(mVertices.size(),1);
+                Matrix<IdMat> tVertexIds(mVertices.size(), 1);
 
-                for(moris::uint  i = 0 ; i < this->get_number_of_vertices(); i++)
+                for (moris::uint i = 0; i < this->get_number_of_vertices(); i++)
                 {
                     tVertexIds(i) = mVertices(i)->get_id();
                 }
@@ -125,44 +126,43 @@ namespace moris
                 return tVertexIds;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns a Mat with indices of connected vertices
              */
-             Matrix< IndexMat >
+            Matrix<IndexMat>
             get_vertex_inds() const
             {
-                 Matrix<IndexMat> tVertexInd(mVertices.size(),1);
+                Matrix<IndexMat> tVertexInd(mVertices.size(), 1);
 
-                 for(moris::uint  i = 0 ; i < this->get_number_of_vertices(); i++)
-                 {
-                     tVertexInd(i) = mVertices(i)->get_index();
-                 }
+                for (moris::uint i = 0; i < this->get_number_of_vertices(); i++)
+                {
+                    tVertexInd(i) = mVertices(i)->get_index();
+                }
 
-                 return tVertexInd;
+                return tVertexInd;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns a Mat of dimension
              * < number of vertices * number of dimensions >
              */
-            Matrix< DDRMat >
+            Matrix<DDRMat>
             get_vertex_coords() const
             {
                 size_t tNumVertices = this->get_number_of_vertices();
-                Matrix< DDRMat > tVertexCoords(tNumVertices, mSpatialDim);
-                for(size_t i = 0; i<tNumVertices; i++)
+                Matrix<DDRMat> tVertexCoords(tNumVertices, mSpatialDim);
+                for (size_t i = 0; i < tNumVertices; i++)
                 {
-                    tVertexCoords.set_row(i,mVertices(i)->get_coords());
+                    tVertexCoords.set_row(i, mVertices(i)->get_coords());
                 }
                 return tVertexCoords;
-
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns an enum that defines the geometry type of the element
@@ -173,7 +173,7 @@ namespace moris
                 return mGeometryType;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * returns the order of the element
@@ -184,28 +184,34 @@ namespace moris
                 return mInterpOrder;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+            /**
+             * returns the integration order of the element
+             */
+            Integration_Order
+            get_integration_order() const
+            {
+                return mIntegOrder;
+            }
+
+            //------------------------------------------------------------------------------
             moris::real
             compute_cell_measure() const
             {
-               return mCellInfo->compute_cell_size(this);
+                return mCellInfo->compute_cell_size(this);
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             moris::real
-            compute_cell_side_measure(moris_index const & aSideOrdinal) const
+            compute_cell_side_measure(moris_index const &aSideOrdinal) const
             {
-               return mCellInfo->compute_cell_side_size(this,aSideOrdinal);
+                return mCellInfo->compute_cell_side_size(this, aSideOrdinal);
             }
-
-
-
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         };
-
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace mtk */
-}
-
+} // namespace moris
 
 #endif /* PROJECTS_MTK_TEST_CL_MTK_CELL_PROXY_HPP_ */

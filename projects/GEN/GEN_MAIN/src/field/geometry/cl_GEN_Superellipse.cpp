@@ -8,17 +8,18 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(
-                real             aXCenter,
-                real             aYCenter,
-                real             aXSemidiameter,
-                real             aYSemidiameter,
-                real             aExponent,
-                real             aScaling,
-                real             aRegularization,
-                real             aShift,
-                Field_Parameters aParameters)
-        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}),
-                aParameters)
+                real                      aXCenter,
+                real                      aYCenter,
+                real                      aXSemidiameter,
+                real                      aYSemidiameter,
+                real                      aExponent,
+                real                      aScaling,
+                real                      aRegularization,
+                real                      aShift,
+                Geometry_Field_Parameters aParameters)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}),
+                        aParameters)
+                , Geometry(aParameters)
         {
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
                     "A GEN Super-ellipse must be created with positive semi-diameters.");

@@ -4,207 +4,202 @@
 # Set version
 set(${INT}_VERSION ${MORIS_VERSION})
 
+# List header dependencies                                                                                                                                                                                                                                                     
+set(INT_INCLUDES
+	"CORE"
+    "ELEM"
+    "IP"
+	"MM"
+	"CM"
+    "SP"
+	"IWG"
+    "IQI")
+
+set(INT_INTERNAL_INCLUDES)
+
+# Include depedency directories
+foreach(INT_INCLUDES ${INT_INCLUDES})
+    list(APPEND INT_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${INT_INCLUDES}")
+	include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES})
+endforeach()
+
+# create global list for .../INT/src/ includes
+set_property(GLOBAL PROPERTY INT_SRC_LIST "${INT_INTERNAL_INCLUDES}")
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# INT Library
+
 # List header files
 set(HEADERS
-    cl_FEM_Element_Factory.hpp
-    cl_FEM_ElementProxy.hpp
-    cl_FEM_NodeProxy.hpp
-    cl_FEM_Cluster.hpp
-    cl_FEM_Element.hpp
-    cl_FEM_Element_Bulk.hpp
-    cl_FEM_Set.hpp
-    cl_FEM_Element_Sideset.hpp
-    cl_FEM_Element_Double_Sideset.hpp
-    cl_FEM_Element_Time_Sideset.hpp
-    cl_FEM_Element_Time_Boundary.hpp
-    cl_FEM_IWG_Factory.hpp
-    cl_FEM_IWG.hpp
-    cl_FEM_IWG_L2.hpp
+
+    CORE/cl_FEM_Cluster.hpp
+    CORE/cl_FEM_Set.hpp
+    CORE/cl_FEM_NodeProxy.hpp
+    CORE/cl_FEM_Cluster.hpp
+    CORE/cl_FEM_Enums.hpp
+    CORE/cl_FEM_Node_Base.hpp
+    CORE/cl_FEM_Node.hpp
+    CORE/cl_FEM_Field.hpp        
+    CORE/fn_FEM_Rotation_Matrix.hpp
+    CORE/cl_FEM_Property.hpp
+    CORE/cl_FEM_Set_User_Info.hpp
+    CORE/cl_FEM_Phase_User_Info.hpp
+    CORE/cl_FEM_Model.hpp
+    CORE/fn_FEM_Check.hpp
+    CORE/fn_FEM_FD_Scheme.hpp
+
+
+    ELEM/cl_FEM_Element_Factory.hpp
+    ELEM/cl_FEM_ElementProxy.hpp
+    ELEM/cl_FEM_Element.hpp
+
+    ELEM/cl_FEM_Element_Bulk.hpp
+    ELEM/cl_FEM_Element_Sideset.hpp
+    ELEM/cl_FEM_Element_Double_Sideset.hpp
+    ELEM/cl_FEM_Element_Time_Sideset.hpp
+    ELEM/cl_FEM_Element_Time_Boundary.hpp
+
+
+    IP/cl_FEM_Geometry_Interpolator.hpp
+    IP/cl_FEM_Field_Interpolator.hpp
+    IP/cl_FEM_Field_Interpolator_Manager.hpp
+
+
+    MM/cl_FEM_Material_Model.hpp
+    MM/cl_FEM_MM_Factory.hpp
+
+    MM/cl_FEM_MM_Perfect_Gas.hpp
+    #MM/cl_FEM_MM_Van_Der_Waals_Fluid.hpp
+
+
+    CM/cl_FEM_Constitutive_Model.hpp
+    CM/cl_FEM_CM_Factory.hpp
+
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
+    CM/fn_FEM_CM_Phase_State_Functions.hpp
+
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.hpp
+
+    CM/cl_FEM_CM_Fluid_Incompressible.hpp
+    CM/cl_FEM_CM_Fluid_Turbulence.hpp
+
+    CM/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
+    CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
+    CM/cl_FEM_CM_Compressible_Newtonian_Fluid.hpp
+
+
+    SP/cl_FEM_Stabilization_Parameter.hpp
+    SP/cl_FEM_SP_Factory.hpp
+
+    SP/cl_FEM_SP_Dirichlet_Nitsche.hpp
+    SP/cl_FEM_SP_Nitsche_Interface.hpp
+    SP/cl_FEM_SP_Reciprocal_Total_Volume.hpp
+    SP/cl_FEM_SP_Time_Velocity_Ghost.hpp 
+    SP/cl_FEM_SP_Convective_Ghost.hpp  
+    SP/cl_FEM_SP_SUPG_Advection.hpp
+    SP/cl_FEM_SP_GGLS_Diffusion.hpp
+    SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
+    SP/cl_FEM_SP_Pressure_Ghost.hpp
+    SP/cl_FEM_SP_Incompressible_Flow.hpp
+    SP/cl_FEM_SP_Viscous_Ghost.hpp
+    SP/cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp
+    SP/cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp   
+    SP/cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp  
+    SP/cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp   
+    SP/cl_FEM_SP_Ghost_Displacement.hpp
+    SP/cl_FEM_SP_Ghost_Virtual_Work.hpp 
+    SP/cl_FEM_SP_Stab_Penalty_Contact.hpp
+    SP/cl_FEM_SP_Penalty_Contact.hpp 
+
+
+    IWG/cl_FEM_IWG_Factory.hpp
+    IWG/cl_FEM_IWG.hpp
+
+    IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
+    IWG/cl_FEM_IWG_Time_Continuity_Dof.hpp
+    IWG/cl_FEM_IWG_Ghost_Normal_Field.hpp
+    IWG/cl_FEM_IWG_L2.hpp
+    #IWG/cl_FEM_IWG_LSNormal_Bulk.hpp
+    #IWG/cl_FEM_IWG_Olsson_CLS_Bulk.hpp
+    #IWG/cl_FEM_IWG_Olsson_CLS_Interface.hpp
+
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
+
+    IWG/cl_FEM_IWG_Advection_Bulk.hpp
+    IWG/cl_FEM_IWG_Diffusion_Bulk.hpp
+    IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
+    IWG/cl_FEM_IWG_Diffusion_Neumann.hpp
+    IWG/cl_FEM_IWG_Diffusion_Robin.hpp
+    IWG/cl_FEM_IWG_Diffusion_Radiation.hpp
+    IWG/cl_FEM_IWG_Diffusion_Interface.hpp
+    IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
+
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     
-    cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Traction_Neumann.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
     
-    cl_FEM_IWG_Diffusion_Bulk.hpp
-    cl_FEM_IWG_Advection_Bulk.hpp
-    cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
-    cl_FEM_IWG_Diffusion_Neumann.hpp
-    cl_FEM_IWG_Diffusion_Robin.hpp
-    cl_FEM_IWG_Diffusion_Radiation.hpp
-    cl_FEM_IWG_Diffusion_Interface.hpp
-    cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
+    IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
+    IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
+    IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
+
+    #IWG/cl_FEM_IWG_Helmholtz_Bulk.hpp
+    #IWG/cl_FEM_IWG_Helmholtz_Bulk2.hpp
+    #IWG/cl_FEM_IWG_Helmholtz_Interface.hpp
+
+    #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
+    #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
+    IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
+
+
+    IQI/cl_FEM_IQI.hpp
+    IQI/cl_FEM_IQI_Factory.hpp
     
-    cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
-    cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
-    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
-    cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
+    IQI/cl_FEM_IQI_Volume.hpp
+    IQI/cl_FEM_IQI_Strain_Energy.hpp
+    IQI/cl_FEM_IQI_Stress.hpp
+    IQI/cl_FEM_IQI_Dof.hpp
+    IQI/cl_FEM_IQI_Max_Dof.hpp
+    IQI/cl_FEM_IQI_Max_Stress.hpp
+    IQI/cl_FEM_IQI_Property.hpp
+    IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
+    IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
+    IQI/cl_FEM_IQI_H1_Semi_Error.hpp
+    IQI/cl_FEM_IQI_J_Integral.hpp
+    IQI/cl_FEM_IQI_Volume_Fraction.hpp
+    IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
+    IQI/cl_FEM_IQI_Latent_Heat_Absorption.hpp
+    IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
+    IQI/cl_FEM_IQI_Total_Pressure.hpp
+    IQI/cl_FEM_IQI_Mass_Flow.hpp
+    IQI/cl_FEM_IQI_Thermal_Energy.hpp   
     
-    cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
-    cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
-    cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
-    cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.hpp
-    cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.hpp
-    cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp
-    cl_FEM_IWG_Compressible_NS_Traction_Neumann.hpp
-    cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
-    cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
-    cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
-    
-    cl_FEM_IWG_FS_Struc_Interface.hpp
-    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
-    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
-    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
-    cl_FEM_IWG_Time_Continuity_Dof.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp
-    cl_FEM_IWG_Ghost_Normal_Field.hpp
-    #cl_FEM_IWG_Helmholtz_Bulk.hpp
-    #cl_FEM_IWG_Helmholtz_Bulk2.hpp
-    #cl_FEM_IWG_Helmholtz_Interface.hpp
-    #cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
-    #cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
-    #cl_FEM_IWG_LSNormal_Bulk.hpp
-    #cl_FEM_IWG_Olsson_CLS_Bulk.hpp
-    #cl_FEM_IWG_Olsson_CLS_Interface.hpp
-    cl_FEM_Enums.hpp
-    cl_FEM_Geometry_Interpolator.hpp
-    
-    cl_FEM_Integration_Coeffs_Bar_1.hpp
-    cl_FEM_Integration_Coeffs_Bar_2.hpp
-    cl_FEM_Integration_Coeffs_Bar_3.hpp
-    cl_FEM_Integration_Coeffs_Bar_4.hpp
-    cl_FEM_Integration_Coeffs_Bar_5.hpp
-    cl_FEM_Integration_Coeffs_Bar_6.hpp
-    cl_FEM_Integration_Coeffs_Base.hpp
-    cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp
-    cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp
-    cl_FEM_Integration_Coeffs_Hex_4x4x4.hpp
-    cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp
-    cl_FEM_Integration_Coeffs.hpp
-    cl_FEM_Integration_Coeffs_Quad_2x2.hpp
-    cl_FEM_Integration_Coeffs_Quad_3x3.hpp
-    cl_FEM_Integration_Coeffs_Quad_4x4.hpp
-    cl_FEM_Integration_Coeffs_Quad_5x5.hpp
-    cl_FEM_Integration_Coeffs_Tri_1.hpp
-    cl_FEM_Integration_Coeffs_Tri_3.hpp
-    cl_FEM_Integration_Coeffs_Tri_4.hpp
-    cl_FEM_Integration_Coeffs_Tri_6.hpp
-    cl_FEM_Integration_Coeffs_Tri_7.hpp
-    cl_FEM_Integration_Coeffs_Tri_12.hpp
-    cl_FEM_Integration_Coeffs_Tri_13.hpp
-    cl_FEM_Integration_Coeffs_Tri_16.hpp
-    cl_FEM_Integration_Coeffs_Tri_19.hpp
-    cl_FEM_Integration_Coeffs_Tri_25.hpp
-    cl_FEM_Integration_Coeffs_Tet_1.hpp
-    cl_FEM_Integration_Coeffs_Tet_4.hpp
-    cl_FEM_Integration_Coeffs_Tet_5.hpp
-    cl_FEM_Integration_Coeffs_Tet_11.hpp
-    cl_FEM_Integration_Coeffs_Tet_15.hpp
-    cl_FEM_Integration_Coeffs_Tet_20.hpp
-    cl_FEM_Integration_Coeffs_Tet_35.hpp
-    cl_FEM_Integration_Coeffs_Tet_56.hpp
-    cl_FEM_Integration_Rule.hpp
-    cl_FEM_Integrator.hpp
-    cl_FEM_Integrator_Test_Polynomial.hpp
-    cl_FEM_Interpolation_Function_Base.hpp
-    cl_FEM_Interpolation_Function_Factory.hpp
-    cl_FEM_Interpolation_Function.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Bar2.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Bar3.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Bar4.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex27.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex64.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex8.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Quad16.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Quad4.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Quad8.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Quad9.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Tri3.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Tri6.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Tri10.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Tet4.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp
-    cl_FEM_Interpolation_Function_Lagrange_Tet20.hpp
-    cl_FEM_Interpolation_Function_Constant_Bar2.hpp
-    cl_FEM_Interpolation_Function_Constant_Point.hpp
-    cl_FEM_Interpolation_Rule.hpp
-    cl_FEM_Node_Base.hpp
-    cl_FEM_Node.hpp
-    cl_FEM_Field_Interpolator.hpp
-    cl_FEM_Field_Interpolator_Manager.hpp
-    fn_FEM_Rotation_Matrix.hpp
-    cl_FEM_Property.hpp
-    
-    cl_FEM_Constitutive_Model.hpp
-    cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
-    cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
-    cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
-    cl_FEM_CM_Fluid_Incompressible.hpp
-    cl_FEM_CM_Fluid_Turbulence.hpp
-    cl_FEM_CM_Fluid_Compressible_Ideal.hpp
-    cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
-    cl_FEM_CM_Factory.hpp
-    
-    cl_FEM_IQI.hpp
-    cl_FEM_IQI_Factory.hpp
-    cl_FEM_IQI_Volume.hpp
-    cl_FEM_IQI_Strain_Energy.hpp
-    cl_FEM_IQI_Stress.hpp
-    cl_FEM_IQI_Dof.hpp
-    cl_FEM_IQI_Max_Dof.hpp
-    cl_FEM_IQI_Max_Stress.hpp
-    cl_FEM_IQI_Property.hpp
-    cl_FEM_IQI_L2_Error_Analytic.hpp
-    cl_FEM_IQI_H1_Error_Analytic.hpp
-    cl_FEM_IQI_H1_Semi_Error.hpp
-    cl_FEM_IQI_J_Integral.hpp
-    cl_FEM_IQI_Volume_Fraction.hpp
-    cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
-    cl_FEM_IQI_Latent_Heat_Absorption.hpp
-    cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
-    cl_FEM_IQI_Total_Pressure.hpp
-    cl_FEM_IQI_Mass_Flow.hpp
-    cl_FEM_IQI_Thermal_Energy.hpp
-    
-    cl_FEM_Stabilization_Parameter.hpp
-    cl_FEM_SP_Factory.hpp
-    cl_FEM_SP_Dirichlet_Nitsche.hpp
-    cl_FEM_SP_Nitsche_Interface.hpp
-    cl_FEM_SP_Reciprocal_Total_Volume.hpp
-    cl_FEM_SP_Ghost_Displacement.hpp
-    cl_FEM_SP_Ghost_Virtual_Work.hpp
-    cl_FEM_SP_Incompressible_Flow.hpp
-    cl_FEM_SP_Viscous_Ghost.hpp
-    cl_FEM_SP_Convective_Ghost.hpp
-    cl_FEM_SP_Pressure_Ghost.hpp
-    cl_FEM_SP_Time_Velocity_Ghost.hpp
-    cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
-    cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp
-    cl_FEM_SP_SUPG_Advection.hpp
-    cl_FEM_SP_GGLS_Diffusion.hpp
-    cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
-    cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp
-    cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp
-    cl_FEM_SP_Stab_Penalty_Contact.hpp
-    cl_FEM_SP_Penalty_Contact.hpp
-    
-    cl_FEM_Set_User_Info.hpp
-    cl_FEM_Phase_User_Info.hpp
-    cl_FEM_Interpolation_Element.hpp
-    cl_FEM_Model.hpp
-    fn_FEM_CM_Phase_State_Functions.hpp
-    fn_FEM_Check.hpp
-    fn_FEM_FD_Scheme.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -212,142 +207,170 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-    cl_FEM_Set.cpp
-    cl_FEM_Cluster.cpp
-    cl_FEM_Element_Factory.cpp
-    cl_FEM_Element_Bulk.cpp
-    cl_FEM_Element_Sideset.cpp
-    cl_FEM_Element_Double_Sideset.cpp
-    cl_FEM_Element_Time_Sideset.cpp
-    cl_FEM_Element_Time_Boundary.cpp
+
+
+    CORE/cl_FEM_Set.cpp
+    CORE/cl_FEM_Cluster.cpp
+    CORE/cl_FEM_Property.cpp
+    CORE/cl_FEM_Model.cpp
+    CORE/cl_FEM_Field.cpp 
+
+
+    ELEM/cl_FEM_Element_Factory.cpp
+    ELEM/cl_FEM_Element_Bulk.cpp
+    ELEM/cl_FEM_Element_Sideset.cpp
+    ELEM/cl_FEM_Element_Double_Sideset.cpp
+    ELEM/cl_FEM_Element_Time_Sideset.cpp
+    ELEM/cl_FEM_Element_Time_Boundary.cpp
+
+
+    IP/cl_FEM_Geometry_Interpolator.cpp
+    IP/cl_FEM_Field_Interpolator.cpp
+    IP/cl_FEM_Field_Interpolator_Manager.cpp
+    IP/cl_FEM_Interpolation_Element.cpp
+
+
+    MM/cl_FEM_Material_Model.cpp
+    MM/cl_FEM_MM_Factory.cpp
+    MM/cl_FEM_Material_Model_Density_Functions.cpp
+    MM/cl_FEM_Material_Model_Pressure_Functions.cpp
+    MM/cl_FEM_Material_Model_Temperature_Functions.cpp
+
+    MM/cl_FEM_MM_Perfect_Gas.cpp
+    #MM/cl_FEM_MM_Van_Der_Waals_Fluid.cpp
+
+
+    CM/cl_FEM_Constitutive_Model.cpp
+    CM/cl_FEM_CM_Factory.cpp
+
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
+
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
+
+    CM/cl_FEM_CM_Fluid_Incompressible.cpp
+    CM/cl_FEM_CM_Fluid_Turbulence.cpp
+
+    CM/cl_FEM_CM_Fluid_Compressible_Ideal.cpp
+    CM/cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp
+    CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
+    CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
+    CM/cl_FEM_CM_Compressible_Newtonian_Fluid.cpp
+    CM/cl_FEM_CM_Compressible_Newtonian_Fluid_Test_Tractions.cpp  
+
+
+    SP/cl_FEM_Stabilization_Parameter.cpp
+    SP/cl_FEM_SP_Factory.cpp
+
+    SP/cl_FEM_SP_Dirichlet_Nitsche.cpp
+    SP/cl_FEM_SP_Nitsche_Interface.cpp
+    SP/cl_FEM_SP_Reciprocal_Total_Volume.cpp
+    SP/cl_FEM_SP_Convective_Ghost.cpp
+    SP/cl_FEM_SP_Time_Velocity_Ghost.cpp   
+    SP/cl_FEM_SP_SUPG_Advection.cpp
+    SP/cl_FEM_SP_GGLS_Diffusion.cpp
+    SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
+    SP/cl_FEM_SP_Pressure_Ghost.cpp
+    SP/cl_FEM_SP_Incompressible_Flow.cpp
+    SP/cl_FEM_SP_Viscous_Ghost.cpp
+    SP/cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.cpp
+    SP/cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp   
+    SP/cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp  
+    SP/cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp   
+    SP/cl_FEM_SP_Ghost_Displacement.cpp
+    SP/cl_FEM_SP_Ghost_Virtual_Work.cpp 
+    SP/cl_FEM_SP_Stab_Penalty_Contact.cpp
+    SP/cl_FEM_SP_Penalty_Contact.cpp  
+
+
+    IWG/cl_FEM_IWG.cpp
+    IWG/cl_FEM_IWG_Factory.cpp
+
+    IWG/cl_FEM_IWG_L2.cpp
+    IWG/cl_FEM_IWG_Time_Continuity_Dof.cpp
+    IWG/cl_FEM_IWG_Ghost_Normal_Field.cpp
+    #IWG/cl_FEM_IWG_LSNormal_Bulk.cpp
+    #IWG/cl_FEM_IWG_Olsson_CLS_Bulk.cpp
+    #IWG/cl_FEM_IWG_Olsson_CLS_Interface.cpp
+
+    IWG/cl_FEM_IWG_FS_Struc_Interface.cpp
+
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
     
-    cl_FEM_IWG_Factory.cpp
-    cl_FEM_IWG_L2.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
+    IWG/cl_FEM_IWG_Advection_Bulk.cpp
+    IWG/cl_FEM_IWG_Diffusion_Bulk.cpp
+    IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Diffusion_Neumann.cpp
+    IWG/cl_FEM_IWG_Diffusion_Robin.cpp
+    IWG/cl_FEM_IWG_Diffusion_Radiation.cpp
+    IWG/cl_FEM_IWG_Diffusion_Interface.cpp
+    IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
     
-    cl_FEM_IWG_Diffusion_Bulk.cpp
-    cl_FEM_IWG_Advection_Bulk.cpp
-    cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
-    cl_FEM_IWG_Diffusion_Neumann.cpp
-    cl_FEM_IWG_Diffusion_Robin.cpp
-    cl_FEM_IWG_Diffusion_Radiation.cpp
-    cl_FEM_IWG_Diffusion_Interface.cpp
-    cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     
-    cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
-    cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
-    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
-    cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Traction_Neumann.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
     
-    cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
-    cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
-    cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
-    cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.cpp
-    cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.cpp
-    cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.cpp
-    cl_FEM_IWG_Compressible_NS_Traction_Neumann.cpp
-    cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
-    cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
-    cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
+    IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
+    IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
+
+    #IWG/cl_FEM_IWG_Helmholtz_Bulk.cpp
+    #IWG/cl_FEM_IWG_Helmholtz_Bulk2.cpp
+    #IWG/cl_FEM_IWG_Helmholtz_Interface.cpp
+
+    #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
+    #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
+    IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
+
     
-    cl_FEM_IWG_FS_Struc_Interface.cpp
-    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
-    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
-    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
-    cl_FEM_IWG_Time_Continuity_Dof.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
-    cl_FEM_IWG_Ghost_Normal_Field.cpp
-    #cl_FEM_IWG_Helmholtz_Bulk.cpp
-    #cl_FEM_IWG_Helmholtz_Bulk2.cpp
-    #cl_FEM_IWG_Helmholtz_Interface.cpp
-    #cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
-    #cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
-    #cl_FEM_IWG_LSNormal_Bulk.cpp
-    #cl_FEM_IWG_Olsson_CLS_Bulk.cpp
-    #cl_FEM_IWG_Olsson_CLS_Interface.cpp
-    cl_FEM_IWG.cpp
+    IQI/cl_FEM_IQI.cpp
+    IQI/cl_FEM_IQI_Factory.cpp
+    IQI/cl_FEM_IQI_Volume.cpp
+    IQI/cl_FEM_IQI_Strain_Energy.cpp
+    IQI/cl_FEM_IQI_Stress.cpp
+    IQI/cl_FEM_IQI_Dof.cpp
+    IQI/cl_FEM_IQI_Max_Dof.cpp
+    IQI/cl_FEM_IQI_Max_Stress.cpp
+    IQI/cl_FEM_IQI_Property.cpp
+    IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
+    IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
+    IQI/cl_FEM_IQI_H1_Semi_Error.cpp
+    IQI/cl_FEM_IQI_J_Integral.cpp
+    IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
+    IQI/cl_FEM_IQI_Volume_Fraction.cpp
+    IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
+    IQI/cl_FEM_IQI_Latent_Heat_Absorption.cpp
+    IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
+    IQI/cl_FEM_IQI_Total_Pressure.cpp
+    IQI/cl_FEM_IQI_Mass_Flow.cpp
+    IQI/cl_FEM_IQI_Thermal_Energy.cpp
     
-    cl_FEM_Interpolation_Function_Factory.cpp
-    cl_FEM_Interpolation_Rule.cpp
-    cl_FEM_Geometry_Interpolator.cpp
-    cl_FEM_Field_Interpolator.cpp
-    cl_FEM_Field_Interpolator_Manager.cpp
-    cl_FEM_Integration_Rule.cpp
-    cl_FEM_Integrator.cpp
-    cl_FEM_Integrator_Test_Polynomial.cpp
-    cl_FEM_Property.cpp
-    
-    cl_FEM_Constitutive_Model.cpp
-    cl_FEM_CM_Factory.cpp
-    cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
-    cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
-    cl_FEM_CM_Struc_Linear_Isotropic.cpp
-    cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
-    cl_FEM_CM_Fluid_Incompressible.cpp
-    cl_FEM_CM_Fluid_Turbulence.cpp
-    cl_FEM_CM_Fluid_Compressible_Ideal.cpp
-    cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp
-    cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
-    cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
-    
-    cl_FEM_Stabilization_Parameter.cpp
-    cl_FEM_SP_Factory.cpp
-    cl_FEM_SP_Dirichlet_Nitsche.cpp
-    cl_FEM_SP_Nitsche_Interface.cpp
-    cl_FEM_SP_Reciprocal_Total_Volume.cpp
-    cl_FEM_SP_Ghost_Displacement.cpp
-    cl_FEM_SP_Ghost_Virtual_Work.cpp
-    cl_FEM_SP_Incompressible_Flow.cpp
-    cl_FEM_SP_Viscous_Ghost.cpp
-    cl_FEM_SP_Convective_Ghost.cpp
-    cl_FEM_SP_Pressure_Ghost.cpp
-    cl_FEM_SP_Time_Velocity_Ghost.cpp
-    cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
-    cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.cpp
-    cl_FEM_SP_SUPG_Advection.cpp
-    cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
-    cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp
-    cl_FEM_SP_GGLS_Diffusion.cpp
-    cl_FEM_SP_Stab_Penalty_Contact.cpp
-    cl_FEM_SP_Penalty_Contact.cpp
-    cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp
-    
-    cl_FEM_IQI.cpp
-    cl_FEM_IQI_Factory.cpp
-    cl_FEM_IQI_Volume.cpp
-    cl_FEM_IQI_Strain_Energy.cpp
-    cl_FEM_IQI_Stress.cpp
-    cl_FEM_IQI_Dof.cpp
-    cl_FEM_IQI_Max_Dof.cpp
-    cl_FEM_IQI_Max_Stress.cpp
-    cl_FEM_IQI_Property.cpp
-    cl_FEM_IQI_L2_Error_Analytic.cpp
-    cl_FEM_IQI_H1_Error_Analytic.cpp
-    cl_FEM_IQI_H1_Semi_Error.cpp
-    cl_FEM_IQI_J_Integral.cpp
-    cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
-    cl_FEM_IQI_Volume_Fraction.cpp
-    cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
-    cl_FEM_IQI_Latent_Heat_Absorption.cpp
-    cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
-    cl_FEM_IQI_Total_Pressure.cpp
-    cl_FEM_IQI_Mass_Flow.cpp
-    cl_FEM_IQI_Thermal_Energy.cpp
-    
-    cl_FEM_Interpolation_Element.cpp
-    cl_FEM_Model.cpp
     )
 
 # List library dependencies
@@ -367,7 +390,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Create library
 add_library(${INT}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${INT}-lib PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${INT_INTERNAL_INCLUDES};>"
 	$<INSTALL_INTERFACE:${${INT}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${INT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${INT}-lib PROPERTIES OUTPUT_NAME ${INT})

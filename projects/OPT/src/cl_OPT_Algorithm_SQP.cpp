@@ -356,13 +356,12 @@ namespace moris
 
                 // Recruit help from other procs and solve for criteria
                 this->criteria_solve(tADVs);
+                mProblem->trigger_dcriteria_dadv_solve();
 
                 // set update for objectives and constraints
-                mProblem->mUpdateObjectives = true;
-
-                if(needG)
+                if (needG)
                 {
-                    mProblem->mUpdateConstraints = true;
+                    // FIXME figure out a way to move dcriteria_dadv_solve here while still having parallel work
                 }
 
                 ++mOptIter;

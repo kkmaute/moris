@@ -15,7 +15,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real Field_Discrete_Integration::get_field_value(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
@@ -34,7 +34,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix<DDRMat>& Field_Discrete_Integration::get_field_sensitivities(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
@@ -53,7 +53,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDSMat> Field_Discrete_Integration::get_determining_adv_ids(
-                uint aNodeIndex,
+                uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)

@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include "fn_Parsing_Tools.hpp"
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 #include "fn_trans.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -358,7 +358,7 @@ namespace moris
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
-            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Field>(
+            std::shared_ptr<Geometry> tUserDefinedGeometry = std::make_shared<User_Defined_Geometry>(
                     tADVs,
                     Matrix<DDUMat>({{1, 0}}),
                     Matrix<DDUMat>({{0, 1}}),
@@ -401,12 +401,12 @@ namespace moris
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
             tCircleParameterList.set("type", "circle");
             tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-            tCircleParameterList.set("bspline_mesh_index", 0);
-            tCircleParameterList.set("bspline_lower_bound", -1.0);
-            tCircleParameterList.set("bspline_upper_bound", 1.0);
+            tCircleParameterList.set("discretization_mesh_index", 0);
+            tCircleParameterList.set("discretization_lower_bound", -1.0);
+            tCircleParameterList.set("discretization_upper_bound", 1.0);
 
             // Loop over possible cases
-            for (uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++)
+            for (uint tCaseNumber = 0; tCaseNumber < 3; tCaseNumber++)
             {
                 // Determine mesh orders
                 uint tLagrangeOrder = 1;
@@ -420,11 +420,6 @@ namespace moris
                     }
                     case 2:
                     {
-                        tBSplineOrder = 2;
-                        break;
-                    }
-                    case 3:
-                    {
                         tLagrangeOrder = 2;
                         tBSplineOrder = 2;
                         break;
@@ -437,11 +432,20 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                mtk::Interpolation_Mesh* tMesh = nullptr;
+                mtk::Integration_Mesh* tIGMesh = nullptr;
+                create_simple_mesh(
+                        tMesh,
+                        tIGMesh,
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
                         tBSplineOrder);
+
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
+                        std::make_shared< mtk::Mesh_Manager >();
+
+                tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -513,7 +517,7 @@ namespace moris
                         check_equal(tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
                         check_equal(
                                 tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
+                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                     }
                 }
 
@@ -547,14 +551,16 @@ namespace moris
         TEST_CASE("Stored Geometry", "[gen], [geometry], [stored geometry]")
         {
             // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
+            mtk::Interpolation_Mesh* tMesh = nullptr;
+            mtk::Integration_Mesh* tIGMesh = nullptr;
+            create_simple_mesh(tMesh,tIGMesh,6, 6);
 
             // Level set circle parameter list
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
             tCircleParameterList.set("type", "circle");
             tCircleParameterList.set("field_variable_indices", "0, 1, 2");
             tCircleParameterList.set("adv_indices", "0, 1, 2");
-            tCircleParameterList.set("bspline_mesh_index", -1);
+            tCircleParameterList.set("discretization_mesh_index", -1);
 
             // Set up geometry
             Matrix<DDRMat> tADVs = {{0.0, 0.0, 0.5}};

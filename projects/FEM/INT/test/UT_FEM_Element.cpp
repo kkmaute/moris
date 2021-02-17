@@ -45,10 +45,10 @@ namespace moris
             Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
             // integration mesh interpolation rule
-            Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                                 Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
+                                                 mtk::Interpolation_Type::LAGRANGE,
                                                  mtk::Interpolation_Order::LINEAR,
-                                                 Interpolation_Type::LAGRANGE,
+                                                 mtk::Interpolation_Type::LAGRANGE,
                                                  mtk::Interpolation_Order::QUADRATIC );
 
             // create a space and time geometry interpolator fot the integration element
@@ -66,14 +66,14 @@ namespace moris
             reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
 
             // create a integration rule
-            Integration_Rule tIntegrationRule( tGeoTypeIG,
-                                               Integration_Type::GAUSS,
-                                               Integration_Order::QUAD_3x3,
-                                               Integration_Type::GAUSS,
-                                               Integration_Order::BAR_3 );
+            mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
+                                               mtk::Integration_Type::GAUSS,
+                                               mtk::Integration_Order::QUAD_3x3,
+                                               mtk::Integration_Type::GAUSS,
+                                               mtk::Integration_Order::BAR_3 );
 
             // create a side integrator
-            Integrator tIntegrator( tIntegrationRule );
+            mtk::Integrator tIntegrator( tIntegrationRule );
 
             //get number of integration points, integration points and weights
             uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -126,10 +126,10 @@ namespace moris
             Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
             // integration mesh interpolation rule
-            Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                                 Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
+                                                 mtk::Interpolation_Type::LAGRANGE,
                                                  mtk::Interpolation_Order::LINEAR,
-                                                 Interpolation_Type::LAGRANGE,
+                                                 mtk::Interpolation_Type::LAGRANGE,
                                                  mtk::Interpolation_Order::QUADRATIC );
 
             // create a space and time geometry interpolator fot the integration element
@@ -147,14 +147,14 @@ namespace moris
             reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
 
             // create a integration rule
-            Integration_Rule tIntegrationRule( tGeoTypeIG,
-                                               Integration_Type::GAUSS,
-                                               Integration_Order::QUAD_3x3,
-                                               Integration_Type::GAUSS,
-                                               Integration_Order::BAR_3 );
+            mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
+                                               mtk::Integration_Type::GAUSS,
+                                               mtk::Integration_Order::QUAD_3x3,
+                                               mtk::Integration_Type::GAUSS,
+                                               mtk::Integration_Order::BAR_3 );
 
             // create a side integrator
-            Integrator tIntegrator( tIntegrationRule );
+            mtk::Integrator tIntegrator( tIntegrationRule );
 
             //get number of integration points, integration points and weights
             uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();

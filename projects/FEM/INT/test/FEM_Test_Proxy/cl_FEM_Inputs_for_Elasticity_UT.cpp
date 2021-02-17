@@ -2,6 +2,8 @@
 #include "linalg_typedefs.hpp"
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
+#include "fn_dot.hpp"
+#include "fn_norm.hpp"
 
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -13,6 +15,45 @@ void tConstValFunc_Elast(
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
+}
+
+// calculates the outward normal vector for distance from rotation axis to point of interest
+// and the radius so aPropMatrix = {{2*pi*r},{r},{n1},{n2}}
+void tAxisymRotAxisFunc_Elast(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    MORIS_ASSERT(aParameters(0).n_cols() == 2 and aParameters(0).n_rows() == 2,
+            "Axisymmetric rotation axis incorrectly defined. use {{x1,y1},{x2,y2}}.");
+
+    // vector from point 1 to point 2
+    moris::Matrix< moris::DDRMat > tRotVec =
+    {{ aParameters( 0 )(1,0) - aParameters( 0 )(0,0) },
+            { aParameters( 0 )(1,1) - aParameters( 0 )(0,1) }};
+
+    // spatial location of interest
+    moris::Matrix< moris::DDRMat > tX = aFIManager->get_IG_geometry_interpolator()->valx();
+
+    // vector from point 1 to location of interest
+    moris::Matrix< moris::DDRMat > tPntVec =
+    {{ tX(0) - aParameters( 0 )(0,0) }, { tX(1) - aParameters( 0 )(0,1) }};
+
+    // minimum distance vector from line to point of interest
+    moris::Matrix< moris::DDRMat > tRadVec = tPntVec - dot( tPntVec, tRotVec) * tRotVec /
+            ( tRotVec(0)*tRotVec(0) + tRotVec(1)*tRotVec(1) );
+
+    // init aPropMatrixSize
+    aPropMatrix.set_size( 4, 1, 0.0 );
+
+    // radius
+    aPropMatrix( 1 ) = norm(tRadVec);
+
+    // 2*pi*r for IWG
+    aPropMatrix( 0 ) = aPropMatrix( 1 ) * 2 * std::acos(0);
+
+    // outward radial normal vector
+    aPropMatrix( {2,3} ) = tRadVec / aPropMatrix( 1 );
 }
 
 void tUXFIValFunc_Elast(

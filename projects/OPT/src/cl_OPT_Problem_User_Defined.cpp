@@ -16,13 +16,13 @@ namespace moris
             moris::Library_IO tLibrary(aParameterList.get<std::string>("library"));
 
             // Set user-defined functions
-            get_constraint_types_user_defined          = tLibrary.load_constraint_types_function    ("get_constraint_types");
-            compute_objectives_user_defined            = tLibrary.load_objective_constraint_function("compute_objectives");
-            compute_constraints_user_defined           = tLibrary.load_objective_constraint_function("compute_constraints");
-            compute_dobjective_dadv_user_defined       = tLibrary.load_objective_constraint_function("compute_dobjective_dadv");
-            compute_dobjective_dcriteria_user_defined  = tLibrary.load_objective_constraint_function("compute_dobjective_dcriteria");
-            compute_dconstraint_dadv_user_defined      = tLibrary.load_objective_constraint_function("compute_dconstraint_dadv");
-            compute_dconstraint_dcriteria_user_defined = tLibrary.load_objective_constraint_function("compute_dconstraint_dcriteria");
+            get_constraint_types_user_defined          = tLibrary.load_function<Constraint_Types_Function>    ("get_constraint_types");
+            compute_objectives_user_defined            = tLibrary.load_function<Objective_Constraint_Function>("compute_objectives");
+            compute_constraints_user_defined           = tLibrary.load_function<Objective_Constraint_Function>("compute_constraints");
+            compute_dobjective_dadv_user_defined       = tLibrary.load_function<Objective_Constraint_Function>("compute_dobjective_dadv");
+            compute_dobjective_dcriteria_user_defined  = tLibrary.load_function<Objective_Constraint_Function>("compute_dobjective_dcriteria");
+            compute_dconstraint_dadv_user_defined      = tLibrary.load_function<Objective_Constraint_Function>("compute_dconstraint_dadv");
+            compute_dconstraint_dcriteria_user_defined = tLibrary.load_function<Objective_Constraint_Function>("compute_dconstraint_dcriteria");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -30,13 +30,13 @@ namespace moris
         Problem_User_Defined::Problem_User_Defined(
                 ParameterList                       aParameterList,
                 std::shared_ptr<Criteria_Interface> aInterface,
-                MORIS_CONSTRAINT_TYPES_FUNCTION     aConstraintTypesFunction,
-                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveFunction,
-                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintFunction,
-                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveADVGradientFunction,
-                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveCriteriaGradientFunction,
-                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintADVGradientFunction,
-                MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintCriteriaGradientFunction)
+                Constraint_Types_Function     aConstraintTypesFunction,
+                Objective_Constraint_Function aObjectiveFunction,
+                Objective_Constraint_Function aConstraintFunction,
+                Objective_Constraint_Function aObjectiveADVGradientFunction,
+                Objective_Constraint_Function aObjectiveCriteriaGradientFunction,
+                Objective_Constraint_Function aConstraintADVGradientFunction,
+                Objective_Constraint_Function aConstraintCriteriaGradientFunction)
         : Problem(aParameterList, aInterface),
           get_constraint_types_user_defined(aConstraintTypesFunction),
           compute_objectives_user_defined(aObjectiveFunction),

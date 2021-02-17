@@ -251,9 +251,9 @@ namespace moris
         tParameterlist( 2 )( 0 ).set("type", "constant");
         tParameterlist( 2 )( 0 ).set("name", "density");
         tParameterlist( 2 )( 0 ).set("constant_parameters", "0.4");
-        tParameterlist( 2 )( 0 ).set("bspline_mesh_index", 0);
-        tParameterlist( 2 )( 0 ).set("bspline_lower_bound", 0.001);
-        tParameterlist( 2 )( 0 ).set("bspline_upper_bound", 1.0);
+        tParameterlist( 2 )( 0 ).set("discretization_mesh_index", 0);
+        tParameterlist( 2 )( 0 ).set("discretization_lower_bound", 0.001);
+        tParameterlist( 2 )( 0 ).set("discretization_upper_bound", 1.0);
         tParameterlist( 2 )( 0 ).set("pdv_type", "DENSITY");
         tParameterlist( 2 )( 0 ).set("pdv_mesh_set_names", "HMR_dummy_n_p0,SideSet_4_n_p0,SideSet_2_n_p0");
         tParameterlist( 2 )( 0 ).set("pdv_mesh_set_indices", "");

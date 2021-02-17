@@ -8,12 +8,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         User_Defined_Field::User_Defined_Field(
-                Matrix<DDRMat>           aConstants,
-                MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                Field_Parameters         aParameters)
+                Matrix<DDRMat>   aConstants,
+                Field_Function   aFieldFunction,
+                Field_Parameters aParameters)
                 : Field(aConstants, aParameters)
         {
-            this->set_user_defined_functions(aFieldEvaluationFunction, nullptr);
+            this->set_user_defined_functions(aFieldFunction, nullptr);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -34,18 +34,18 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void User_Defined_Field::set_user_defined_functions(
-                MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
+                Field_Function       aFieldFunction,
+                Sensitivity_Function aSensitivityFunction)
         {
             // Set field evaluation function
-            get_field_value_user_defined = aFieldEvaluationFunction;
+            get_field_value_user_defined = aFieldFunction;
 
             // Check field evaluation function
             MORIS_ERROR(std::isfinite(this->get_field_value_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables)),
                     "There is an error in a user-defined geometry field (field evaluates to nan/infinity).");
 
             // Set sensitivity evaluation function
-            if (aSensitivityEvaluationFunction == nullptr)
+            if (aSensitivityFunction == nullptr)
             {
                 // Sensitivity function was not provided
                 get_field_sensitivities_user_defined = &(User_Defined_Field::no_sensitivities);
@@ -53,7 +53,7 @@ namespace moris
             else
             {
                 // Sensitivity function was provided
-                get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
+                get_field_sensitivities_user_defined = aSensitivityFunction;
 
                 // Check sensitivity function
                 this->get_field_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, mSensitivities);

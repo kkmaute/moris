@@ -29,7 +29,7 @@ namespace moris
             Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                 std::string aFieldName,
                                 EntityRank  aEntityRank = EntityRank::NODE,
-                                Field_Parameters aParameters = {});
+                                Geometry_Field_Parameters aParameters = {});
 
             /**
              * Given a node index, returns the field value.

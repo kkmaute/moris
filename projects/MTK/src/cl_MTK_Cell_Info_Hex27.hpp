@@ -34,6 +34,11 @@ public:
 
     //-----------------------------------------------------------------------------
 
+    enum Integration_Order
+    get_cell_integration_order() const;
+
+    //-----------------------------------------------------------------------------
+
     uint
     get_num_verts() const;
 
@@ -110,7 +115,7 @@ public:
     //-----------------------------------------------------------------------------
 
     moris::real
-    compute_cell_size( moris::mtk::Cell const * aCell ) const;
+    compute_cell_size_special( moris::mtk::Cell const * aCell ) const;
 
     //-----------------------------------------------------------------------------
 

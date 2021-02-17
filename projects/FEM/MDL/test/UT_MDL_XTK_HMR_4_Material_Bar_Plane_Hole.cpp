@@ -79,7 +79,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Field.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_norm.hpp"
 
 moris::real
@@ -262,7 +262,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tParameters.set_domain_dimensions({ {6}, {2} });
         tParameters.set_domain_offset({ {-3.0}, {-1.0} });
         tParameters.set_bspline_truncation( true );
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
         tParameters.set_lagrange_orders  ( { {tLagrangeOrder} });
         tParameters.set_lagrange_patterns({ {0} });
         tParameters.set_bspline_orders   ( { {tBsplineOrder} } );
@@ -722,7 +722,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tParameters.set_domain_dimensions({ {6}, {2}, {2} });
         tParameters.set_domain_offset({ {-3.0}, {-1.0},{-1} });
         tParameters.set_bspline_truncation( true );
-        tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( {{ {0} }} );
         tParameters.set_lagrange_orders  ( { {tLagrangeOrder} });
         tParameters.set_lagrange_patterns({ {0} });
         tParameters.set_bspline_orders   ( { {tBsplineOrder} } );
@@ -743,7 +743,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Field>(Matrix<DDRMat>(0, 0), &(MultiMat3dCylGeometry));
+        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiMat3dCylGeometry));
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 0.1, 1.0, 0.0, 0.0);
 
         size_t tModelDimension = 3;

@@ -126,10 +126,10 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         // space and time geometry interpolators
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
-        Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
+        mtk::Interpolation_Rule tGIRule( tGeometryType,
+                                    mtk::Interpolation_Type::LAGRANGE,
                                     mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
+                                    mtk::Interpolation_Type::LAGRANGE,
                                     mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
@@ -227,10 +227,10 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             }
 
             //create a space time interpolation rule
-            Interpolation_Rule tFIRule ( tGeometryType,
-                                         Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Rule tFIRule ( tGeometryType,
+                                         mtk::Interpolation_Type::LAGRANGE,
                                          tInterpolationOrder,
-                                         Interpolation_Type::CONSTANT,
+                                         mtk::Interpolation_Type::CONSTANT,
                                          mtk::Interpolation_Order::CONSTANT );
 
             // fill random coefficients for master FI

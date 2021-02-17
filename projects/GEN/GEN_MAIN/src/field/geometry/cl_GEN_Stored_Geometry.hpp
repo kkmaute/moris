@@ -25,7 +25,9 @@ namespace moris
              * @param aMesh The mesh pointer where node information can be obtained
              * @param aGeometry Geometry for obtaining field values to store
              */
-            Stored_Geometry(mtk::Mesh* aMesh, std::shared_ptr<Geometry> aGeometry);
+            Stored_Geometry(
+                    mtk::Mesh*                aMesh,
+                    std::shared_ptr<Geometry> aGeometry);
 
             /**
              * Given a node index or coordinate, returns the field value.

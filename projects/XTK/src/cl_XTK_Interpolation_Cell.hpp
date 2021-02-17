@@ -73,6 +73,9 @@ public:
     mtk::Interpolation_Order
     get_interpolation_order() const{ return mCellInfo->get_cell_interpolation_order();};
 
+    mtk::Integration_Order
+    get_integration_order() const{ return mCellInfo->get_cell_integration_order();};
+
     void set_id(moris_id aId);
 
     moris::mtk::Cell_Info const *

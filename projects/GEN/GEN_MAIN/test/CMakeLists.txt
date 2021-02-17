@@ -34,7 +34,7 @@ set(TEST_DEPENDENCIES
     ${ALG}-lib
     ${GEN_MAIN}-lib
     ${INT}-lib
-    ${SOL_CORE}-lib
+    ${DLA}-lib
 	${HMR}-lib
 	${MORIS_BASE_LIBS}
 	${PRM}-lib
@@ -66,11 +66,14 @@ set(SO_TPLS
 ${ARMADILLO_EIGEN}
 )
 
-SET(SO_INCLUDES 
+# get list of INT subfolders
+get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
+
+SET(SO_INCLUDES
 	${Boost_INCLUDE_DIRS}
 	${Trilinos_INCLUDE_DIRS}
 	${MORIS_PACKAGE_DIR}/ALG/src
-	${MORIS_PACKAGE_DIR}/FEM/INT/src 
+    ${INT_SRC_LIST}
 	${MORIS_PACKAGE_DIR}/FEM/MSI/src 
 	${MORIS_PACKAGE_DIR}/FEM/VIS/src 
 	${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 

@@ -1,6 +1,6 @@
 #include "catch.hpp"
-#include "cl_FEM_Integrator.hpp" //FEM/INT/sr
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
+#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
+#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
 #include "fn_FEM_Rotation_Matrix.hpp"
 
 #include "fn_norm.hpp"
@@ -31,34 +31,34 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
                                      {  1.0,  1.0 }, { -1.0,  1.0 }};
 
     // interpolation rule for the volume
-    Interpolation_Rule tInterpIGRule( tGeoTypeIG,
-                                      Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpIGRule( tGeoTypeIG,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR,
-                                      Interpolation_Type::LAGRANGE,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR );
 
     // create a space interpolation function
-    Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
-    Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule for the side
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_2,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_1 );
+    mtk::Integration_Rule tSideIntegRule( tSideGeoTypeIG,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::BAR_2,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::BAR_1 );
 
     // create a side integrator
-    Integrator tSideIntegrator( tSideIntegRule );
+    mtk::Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
@@ -246,34 +246,34 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
     Matrix< DDRMat > tParamCoords = {{ 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, {  0.0, 0.0, 1.0 }};
 
     // interpolation rule for the volume
-    Interpolation_Rule tInterpIGRule( tGeoTypeIG,
-                                      Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpIGRule( tGeoTypeIG,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR,
-                                      Interpolation_Type::LAGRANGE,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR );
 
     // create a space interpolation function
-    Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
-    Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule for the side
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_2,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_1 );
+    mtk::Integration_Rule tSideIntegRule( tSideGeoTypeIG,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::BAR_2,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::BAR_1 );
 
     // create a side integrator
-    Integrator tSideIntegrator( tSideIntegRule );
+    mtk::Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
@@ -457,34 +457,34 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
                                      { 0.0, 0.0, 1.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 }};
 
     // interpolation rule for the volume
-    Interpolation_Rule tInterpIGRule( tGeoTypeIG,
-                                      Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpIGRule( tGeoTypeIG,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR,
-                                      Interpolation_Type::LAGRANGE,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR );
 
     // create a space interpolation function
-    Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
-    Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule for the side
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::TRI_3,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_1 );
+    mtk::Integration_Rule tSideIntegRule( tSideGeoTypeIG,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::TRI_3,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::BAR_1 );
 
     // create a side integrator
-    Integrator tSideIntegrator( tSideIntegRule );
+    mtk::Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
@@ -701,34 +701,34 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                                         {  1.0,  1.0,  1.0 }, { -1.0,  1.0,  1.0 }};
 
     // interpolation rule for the volume
-    Interpolation_Rule tInterpIGRule( tGeoTypeIG,
-                                      Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tInterpIGRule( tGeoTypeIG,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR,
-                                      Interpolation_Type::LAGRANGE,
+                                      mtk::Interpolation_Type::LAGRANGE,
                                       mtk::Interpolation_Order::LINEAR );
 
     // create a space interpolation function
-    Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSpaceInterp = tInterpIGRule.create_space_interpolation_function();
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
+    mtk::Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
+                                          mtk::Interpolation_Type::LAGRANGE,
                                           mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
-    Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
+    mtk::Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule for the side
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::QUAD_5x5,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_1 );
+    mtk::Integration_Rule tSideIntegRule( tSideGeoTypeIG,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::QUAD_5x5,
+                                     mtk::Integration_Type::GAUSS,
+                                     mtk::Integration_Order::BAR_1 );
 
     // create a side integrator
-    Integrator tSideIntegrator( tSideIntegRule );
+    mtk::Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();

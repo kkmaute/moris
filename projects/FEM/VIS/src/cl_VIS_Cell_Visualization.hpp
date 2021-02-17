@@ -220,6 +220,15 @@ public:
         return  mIntegrationcell->get_interpolation_order();
     }
 
+    //------------------------------------------------------------------------------
+    /**
+     * returns the integration order of the element
+     */
+    mtk::Integration_Order get_integration_order() const
+    {
+        return  mIntegrationcell->get_integration_order();
+    }
+
 };
 
 //------------------------------------------------------------------------------

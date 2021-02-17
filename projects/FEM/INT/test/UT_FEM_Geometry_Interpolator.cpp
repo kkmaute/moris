@@ -24,11 +24,11 @@ namespace moris
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
             // create a space geometry interpolation rule
-            Interpolation_Rule tGIRule(
+            mtk::Interpolation_Rule tGIRule(
                     mtk::Geometry_Type::QUAD,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR,
-                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
             // create a space time geometry interpolator

@@ -37,6 +37,7 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Field.hpp"          //HMR/src
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -153,20 +154,40 @@ namespace moris
         {
             this->finalize();
 
-            const Matrix< DDUMat > & OutputMeshIndex = mParameters->get_output_mesh();
+            const Cell< Matrix< DDUMat > > & OutputMeshIndex = mParameters->get_output_mesh();
 
-            MORIS_ERROR( OutputMeshIndex.numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
+            MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
 
-            uint tLagrangeMeshIndex = OutputMeshIndex( 0, 0 );
+            uint tLagrangeMeshIndex = OutputMeshIndex( 0 )( 0 );
 
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
                     this->create_interpolation_mesh( tLagrangeMeshIndex );
 
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
-            
+
             // register HMR interpolation and integration meshes
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
+
+            if( OutputMeshIndex.size() == 2 )
+            {
+                for( uint Ik = 0; Ik < OutputMeshIndex( 1 ).numel(); Ik++ )
+                {
+                    uint tLagrangeMeshIndexSecundary = OutputMeshIndex( 1 )( Ik );
+
+                    MORIS_ERROR(tLagrangeMeshIndex!=tLagrangeMeshIndexSecundary,
+                            "it is not recommended to base a secondary output mesh on the same mesh index than the main output mesh. This might cause weird behaviors in parallel because of a numbered aura");
+
+                    moris::hmr::Interpolation_Mesh_HMR * tInterpolationMeshSecondary =
+                            this->create_interpolation_mesh( tLagrangeMeshIndex );
+
+                    moris::hmr::Integration_Mesh_HMR * tIntegrationMeshSecondary =
+                            this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
+
+                    // register HMR interpolation and integration meshes
+                    mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true );
+                }
+            }
         }
 
         // -----------------------------------------------------------------------------
@@ -307,7 +328,7 @@ namespace moris
 
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                                                      + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
             +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel
@@ -651,7 +672,7 @@ namespace moris
 
         void HMR::perform_refinement( const uint aPattern )
         {
-			// get max level on this mesh
+            // get max level on this mesh
             uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
 
             if( mParameters->get_refinement_buffer() > 0 )
@@ -663,7 +684,7 @@ namespace moris
                     mDatabase->create_extra_refinement_buffer_for_level( tLevel );
                 }
             }
-			
+
             // refine database and remember flag
             mDatabase->get_background_mesh()->perform_refinement( aPattern );
 
@@ -964,7 +985,7 @@ namespace moris
             aField->get_node_values().set_size( tNumberOfNodes, 1 );
 
             // evaluate node values
-            aField->evaluate_node_values();
+            aField->evaluate_nodal_values();
 
             // return the pointer
             return aField;
@@ -1411,19 +1432,22 @@ namespace moris
             Cell< hmr::Element* > tRefinementList;
 
             // get candidates for surface
-            this->get_candidates_for_refinement( tCandidates,
+            this->get_candidates_for_refinement(
+                    tCandidates,
                     aLagrangeMeshIndex);
 
             // call refinement manager and get intersected cells
             if (aFunctionIndex < 0)
             {
-                this->find_cells_intersected_by_levelset( tRefinementList,
+                this->find_cells_intersected_by_levelset(
+                        tRefinementList,
                         tCandidates,
                         aFieldValues );
             }
             else
             {
-                this->user_defined_flagging(tRefinementList,
+                this->user_defined_flagging(
+                        tRefinementList,
                         tCandidates,
                         aFieldValues,
                         uint(aFunctionIndex));
@@ -1438,6 +1462,53 @@ namespace moris
 
             // return number of flagged elements
             return aElementCounter;
+        }
+
+        // -----------------------------------------------------------------------------
+
+        uint HMR::based_on_field_put_low_level_elements_on_queue(
+                const Matrix< DDRMat > & aFieldValues,
+                uint                     aLagrangeMeshIndex,
+                sint                     aFunctionIndex)
+        {
+            uint tElementCounter = 0;
+
+            if( mParameters->use_refinement_for_low_level_elements() )
+            {
+                // candidates for refinement
+                Cell< hmr::Element* > tCandidates;
+
+                // elements to be flagged for refinement
+                Cell< hmr::Element* > tRefinementList;
+
+                // get candidates for surface
+                this->get_candidates_for_refinement(
+                        tCandidates,
+                        aLagrangeMeshIndex);
+
+                // call refinement manager and get intersected cells
+                if (aFunctionIndex < 0)
+                {
+                    this->find_low_level_cells_intersected_by_levelset(
+                            tRefinementList,
+                            tCandidates,
+                            aFieldValues );
+                }
+                else
+                {
+                    MORIS_ERROR( false, "the behavior of this function is not tested when using a refinement function.");
+                }
+
+
+                // add length of list to counter
+                tElementCounter += tRefinementList.size();
+
+                // flag elements in HMR
+                this->put_elements_on_refinment_queue( tRefinementList );
+            }
+
+            // return number of flagged elements
+            return tElementCounter;
         }
 
         // ----------------------------------------------------------------------------
@@ -1540,7 +1611,7 @@ namespace moris
         //                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
         //
         //                // create mapper
-        //                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex );
+        //                tMappers( m ) = new mtk::Mapper( &tMeshManager,tMeshPairIndex );
         //            }
         //
         //            // - - - - - - - - - - - - - - - - - - - - - -
@@ -1697,21 +1768,18 @@ namespace moris
             std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
             moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
+            mtk::Field tFieldUnion( tMeshManager, tMeshPairIndex );
+
+            tFieldUnion.set_nodal_values( tUnionField->get_node_values() );
+
             // create mapper
-            mapper::Mapper tMapper(
-                    tMeshManager,
-                    tMeshPairIndex,
-                    aBsplineMeshIndex );
+            mtk::Mapper tMapper;
 
             // project field to union
-            tMapper.perform_mapping( aField->get_label(),
+            tMapper.perform_mapping(
+                    &tFieldUnion,
                     EntityRank::NODE,
-                    aField->get_label(),
-                    tUnionField->get_bspline_rank() );
-
-            // a small sanity test
-            //            MORIS_ASSERT( tUnionField->get_coefficients().length() == tUnionInterpolationMesh->get_num_coeffs( aBsplineMeshIndex ),
-            //                            "Number of B-Splines does not match" );
+                    EntityRank::BSPLINE );
 
             // get pointer to output mesh
             std::shared_ptr< Mesh > tOutputMesh = this->create_mesh(
@@ -1724,13 +1792,13 @@ namespace moris
                     aBsplineMeshIndex );     // BSplineIndex
 
             // move coefficients to output field
-            tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
+            tOutputField->get_coefficients() = std::move( tFieldUnion.get_coefficients() );
 
             // allocate nodes for output
             tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
 
             // evaluate nodes
-            tOutputField->evaluate_node_values();
+            tOutputField->evaluate_nodal_values();
 
             // make this field point to the output mesh
             aField->change_mesh( tOutputField->get_mesh(),
@@ -1845,6 +1913,66 @@ namespace moris
             // shrink output to fit
             aCells.resize( tCount );
         }
+
+        // ----------------------------------------------------------------------------
+
+        void HMR::find_low_level_cells_intersected_by_levelset(
+                Cell< hmr::Element * >   & aCells,
+                Cell< hmr::Element * >   & aCandidates,
+                const  Matrix< DDRMat >  & aVertexValues,
+                const  real                aLowerBound,
+                const  real                aUpperBound )
+        {
+            // make sure that input makes sense
+            MORIS_ASSERT( aLowerBound <= aUpperBound,
+                    "find_cells_intersected_by_levelset() : aLowerBound bound must be less or equal aUpperBound" );
+
+            // make sure that the field is a scalar field
+            MORIS_ASSERT( aVertexValues.n_cols() == 1,
+                    "find_cells_within_levelset() can only be performed on scalar fields" );
+
+            auto mMaxBackgroundMeshLevel = mDatabase->get_background_mesh()->get_max_level();
+
+            // initialize output cell
+            aCells.resize( aCandidates.size(), nullptr );
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over all candidates
+            for( hmr::Element * tCell : aCandidates )
+            {
+                // get cell of vertex pointers
+                Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
+
+                // get number of vertices on this element
+                uint tNumberOfVertices = tVertices.size();
+
+                // assign matrix with vertex values
+                Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
+
+                // loop over all vertices and extract scalar field
+                for( uint k=0; k<tNumberOfVertices; ++k )
+                {
+                    // copy value from field into element local matrix
+                    tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                }
+
+                // test if cell is inside
+                if ( tCellValues.min() <= aUpperBound &&
+                        tCellValues.max() >= aLowerBound &&
+                        tCell->get_level() < mMaxBackgroundMeshLevel )
+                {
+                    // copy pointer to output
+                    aCells( tCount++ ) = tCell;
+                }
+            }
+
+            // shrink output to fit
+            aCells.resize( tCount );
+        }
+
+        // ----------------------------------------------------------------------------
 
         void HMR::find_cells_within_levelset(
                 Cell< hmr::Element * >   & aCells,

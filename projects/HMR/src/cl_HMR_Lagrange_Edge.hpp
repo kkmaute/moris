@@ -47,6 +47,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+            mtk::Integration_Order get_integration_order() const;
+
+// ----------------------------------------------------------------------------
+
             const Basis * get_basis( const uint aIndex ) const
             {
                 return mVertices[ aIndex ];
@@ -73,6 +77,15 @@ namespace moris
         {
             MORIS_ERROR( false, "get_interpolation_order() not implemented for this Lagrange_Edge.");
             return mtk::Interpolation_Order::UNDEFINED;
+        }
+
+//------------------------------------------------------------------------------
+
+        template< uint D >
+        mtk::Integration_Order Lagrange_Edge< D >::get_integration_order() const
+        {
+            MORIS_ERROR( false, "get_integration_order() not implemented for this Lagrange_Edge.");
+            return mtk::Integration_Order::UNDEFINED;
         }
 
 //------------------------------------------------------------------------------

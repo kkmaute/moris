@@ -154,7 +154,12 @@ namespace moris
 
             string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
-            string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+            string_to_cell_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+
+            MORIS_ERROR( mOutputMeshes( 0 ).numel() <=1, "only one main output mesh allowed right now");
+            MORIS_ERROR( mOutputMeshes.size() <=2,
+                    "Output mesh list can only have one list of main output meshes and one list of secondary output meshes");
+
             string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
             string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
             string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
@@ -195,6 +200,8 @@ namespace moris
             // get multigrid parameter
             this->set_number_aura( aParameterList.get< sint >("use_number_aura") == 1 );
 
+            this->set_refinement_for_low_level_elements( aParameterList.get< bool >("use_refine_low_level_elements") );
+
             this->set_write_background_mesh( aParameterList.get< std::string >("write_background_mesh") );
 
             this->set_write_output_lagrange_mesh( aParameterList.get< std::string >("write_lagrange_output_mesh") );
@@ -205,7 +212,7 @@ namespace moris
                     "User-defined refinement function names were provided without a library to load them from.");
             for (uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++)
             {
-                mRefinementFunctions.push_back(aLibrary->load_user_defined_refinement_functions(tFunctionNames(tFunctionIndex)));
+                mRefinementFunctions.push_back(aLibrary->load_function<Refinement_Function>(tFunctionNames(tFunctionIndex)));
             }
 
             this->update_max_polynomial_and_truncated_buffer();
@@ -770,14 +777,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Parameters::set_refinement_functions( Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> aRefinementFunctions )
+        void Parameters::set_refinement_functions( Cell<Refinement_Function> aRefinementFunctions )
         {
             mRefinementFunctions = aRefinementFunctions;
         }
 
         //--------------------------------------------------------------------------------
 
-        MORIS_USER_DEFINED_REFINEMENT_FUNCTION Parameters::get_refinement_function( uint aFunctionIndex )
+        Refinement_Function Parameters::get_refinement_function( uint aFunctionIndex )
         {
             MORIS_ASSERT(aFunctionIndex < mRefinementFunctions.size(),
                     ("A user-defined refinement function with index " + std::to_string(aFunctionIndex) +
@@ -790,13 +797,13 @@ namespace moris
 
         bool Parameters::is_output_mesh( const uint aMeshIndex ) const
         {
-            const Matrix< DDUMat > & tOutputMeshes = this->get_output_mesh();
+            const Cell< Matrix< DDUMat > > & tOutputMeshes = this->get_output_mesh();
 
             bool tIsOutputMesh = false;
 
-            for( uint k=0; k<tOutputMeshes.numel(); ++k )
+            for( uint k=0; k<tOutputMeshes( 0 ).numel(); ++k )
             {
-                if( aMeshIndex == tOutputMeshes( k ) )
+                if( aMeshIndex == tOutputMeshes( 0 )( k ) )
                 {
                     tIsOutputMesh = true;
                     break;

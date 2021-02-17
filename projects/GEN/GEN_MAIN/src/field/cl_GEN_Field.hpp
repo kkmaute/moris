@@ -104,6 +104,15 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
+             * Sets the ADVs and grabs the field variables needed from the ADV vector
+             *
+             * @tparam Vector_Type Type of vector where ADVs are stored
+             * @param aADVs ADVs
+             */
+            template <typename Vector_Type>
+            void set_advs(Vector_Type& aADVs);
+
+            /**
              * Imports the local ADVs required from the full owned ADV distributed vector.
              *
              * @param aOwnedADVs Full owned distributed ADV vector
@@ -128,14 +137,14 @@ namespace moris
              *
              * @return Logic for storing field values
              */
-            bool store_field_values();
+            bool storage_intention();
 
             /**
              * Gets if this field is to be used for seeding a B-spline field.
              *
              * @return Logic for B-spline creation
              */
-            virtual bool conversion_to_bsplines();
+            virtual bool discretization_intention();
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -156,7 +165,7 @@ namespace moris
             /**
              * Gets the name of this field.
              *
-             * @return Field name
+             * @return Name
              */
             std::string get_name();
 
@@ -178,25 +187,25 @@ namespace moris
             sint get_refinement_function_index();
 
             /**
-             * Gets the index of a B-Spline mesh for creating a B-Spline discretization for this field
+             * Gets a discretization mesh index for a discretized field.
              *
-             * @return B-Spline mesh index (undefined behavior if B-spline discretization is not being created)
+             * @return Mesh index
              */
-            uint get_bspline_mesh_index();
+            uint get_discretization_mesh_index();
 
             /**
-             * Gets the lower bound for the B-spline field.
+             * Gets the lower bound for a discretized field.
              *
              * @return Lower bound
              */
-            real get_bspline_lower_bound();
+            real get_discretization_lower_bound();
 
             /**
-             * Get the upper bound for the B-spline field.
+             * Get the upper bound for a discretized field.
              *
              * @return Upper bound
              */
-            real get_bspline_upper_bound();
+            real get_discretization_upper_bound();
 
         private:
 

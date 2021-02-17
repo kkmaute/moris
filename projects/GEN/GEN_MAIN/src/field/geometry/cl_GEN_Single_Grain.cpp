@@ -14,8 +14,9 @@ namespace moris
                 Matrix<DDRMat>            aConstants,
                 std::shared_ptr<Geometry> aVoxelGeometry,
                 uint                      aIndex,
-                Field_Parameters          aParameters)
+                Geometry_Field_Parameters aParameters)
                 : Field(aConstants, aParameters)
+                , Geometry(aParameters)
                 , mVoxelGeometry(aVoxelGeometry)
                 , mIndex(aIndex)
         {

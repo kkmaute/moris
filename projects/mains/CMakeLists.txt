@@ -71,11 +71,29 @@ set(SO_TPLS
 ${ARMADILLO_EIGEN}
 )
 
-SET(SO_INCLUDES 
+# List header dependencies in /FEM/INT/src                                                                                                                                                                                                                                                    
+set(INT_INCLUDES
+    "CORE"
+    "ELEM"
+    "IP"
+    "MM"
+    "CM"
+    "SP"
+    "IWG"
+    "IQI")
+
+set(INT_INTERNAL_INCLUDES)
+
+# Include depedency directories
+foreach(INT_INCLUDES ${INT_INCLUDES})
+    list(APPEND INT_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES}")
+endforeach()
+
+SET(SO_INCLUDES
     ${Boost_INCLUDE_DIRS}
     ${Trilinos_INCLUDE_DIRS}
     ${MORIS_PACKAGE_DIR}/ALG/src
-    ${MORIS_PACKAGE_DIR}/FEM/INT/src 
+    ${INT_INTERNAL_INCLUDES}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
@@ -89,19 +107,12 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/COM/src 
     ${MORIS_PACKAGE_DIR}/MTK/src
     ${MORIS_PACKAGE_DIR}/HMR/src
-    ${MORIS_PACKAGE_DIR}/XTK/src/assert
-    ${MORIS_PACKAGE_DIR}/XTK/src/containers
-    ${MORIS_PACKAGE_DIR}/XTK/src/core
-    ${MORIS_PACKAGE_DIR}/XTK/src/geomeng
-    ${MORIS_PACKAGE_DIR}/XTK/src/geometry
-    ${MORIS_PACKAGE_DIR}/XTK/src/ios
-    ${MORIS_PACKAGE_DIR}/XTK/src/linalg
-    ${MORIS_PACKAGE_DIR}/XTK/src/mesh
-    ${MORIS_PACKAGE_DIR}/XTK/src/tools
-    ${MORIS_PACKAGE_DIR}/XTK/src/topology
-    ${MORIS_PACKAGE_DIR}/XTK/src/xtk
+    ${MORIS_PACKAGE_DIR}/XTK/src/
     ${MORIS_PACKAGE_DIR}/PRM/src 
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
+
+# make SO_INCLUDES available as global list
+set_property(GLOBAL PROPERTY INT_SRC_LIST "${SO_INCLUDES}")
     
 foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)

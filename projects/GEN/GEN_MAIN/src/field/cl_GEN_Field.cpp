@@ -46,10 +46,7 @@ namespace moris
             this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
             // Fill with pointers to ADVs
-            for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
-            {
-                mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = get_address(aADVs, aADVIndices(tADVFillIndex));
-            }
+            this->set_advs(aADVs);
             
             // Fill constant parameters
             this->fill_constant_parameters();
@@ -122,6 +119,20 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        template <typename Vector_Type>
+        void Field::set_advs(Vector_Type& aADVs)
+        {
+            for (uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++)
+            {
+                if (mDeterminingADVIds(tVariableIndex) > -1)
+                {
+                    mFieldVariables(tVariableIndex) = get_address(aADVs, mDeterminingADVIds(tVariableIndex));
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Field::import_advs(sol::Dist_Vector* aOwnedADVs)
         {
             if (mSharedADVs)
@@ -144,16 +155,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::store_field_values()
+        bool Field::storage_intention()
         {
-            return (mParameters.mBSplineMeshIndex > -2);
+            return (mParameters.mDiscretizationMeshIndex > -2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::conversion_to_bsplines()
+        bool Field::discretization_intention()
         {
-            return (mParameters.mBSplineMeshIndex > -1);
+            return (mParameters.mDiscretizationMeshIndex > -1);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -200,23 +211,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Field::get_bspline_mesh_index()
+        uint Field::get_discretization_mesh_index()
         {
-            return (uint)mParameters.mBSplineMeshIndex;
+            MORIS_ASSERT(mParameters.mDiscretizationMeshIndex >= 0,
+                    "A discretization is not intended for this field. Check this with discretization_intention() first.");
+            return mParameters.mDiscretizationMeshIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field::get_bspline_lower_bound()
+        real Field::get_discretization_lower_bound()
         {
-            return mParameters.mBSplineLowerBound;
+            return mParameters.mDiscretizationLowerBound;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field::get_bspline_upper_bound()
+        real Field::get_discretization_upper_bound()
         {
-            return mParameters.mBSplineUpperBound;
+            return mParameters.mDiscretizationUpperBound;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -267,6 +280,12 @@ namespace moris
                      Matrix<DDUMat>     aADVIndices,
                      Matrix<DDRMat>     aConstants,
                      Field_Parameters   aParameters);
+
+        template
+        void Field::set_advs(Matrix<DDRMat>& aADVs);
+
+        template
+        void Field::set_advs(sol::Dist_Vector*& aADVs);
 
         //--------------------------------------------------------------------------------------------------------------
 

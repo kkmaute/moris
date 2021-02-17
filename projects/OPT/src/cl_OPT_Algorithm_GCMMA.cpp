@@ -140,12 +140,8 @@ void opt_alg_gcmma_func_wrap(
     // Write restart file
     aOptAlgGCMMA->write_advs_to_file(tADVs);
 
-    // Recruit help from other procs and solve for criteria
+    // Update for objectives and constraints
     aOptAlgGCMMA->criteria_solve(tADVs);
-
-    // Set update for objectives and constraints
-    aOptAlgGCMMA->mProblem->mUpdateObjectives  = true;
-    aOptAlgGCMMA->mProblem->mUpdateConstraints = true;
 
     // Convert outputs from type MORIS
     aObjval = aOptAlgGCMMA->mProblem->get_objectives()(0);
@@ -168,9 +164,8 @@ void opt_alg_gcmma_grad_wrap(
     // Update the vector of active constraints flag
     aOptAlgGCMMA->mActive = Matrix< DDSMat >(*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
 
-    // Set an update for the gradients
-    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients  = true;
-    aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
+    // Update gradients
+    aOptAlgGCMMA->mProblem->trigger_dcriteria_dadv_solve();
 
     // copy objective gradient
     auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();

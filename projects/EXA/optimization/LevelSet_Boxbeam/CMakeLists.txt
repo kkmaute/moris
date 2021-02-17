@@ -1,5 +1,6 @@
 set(EXAMPLE_MAIN Main_Levelset_Boxbeam)
-set(EXAMPLE_FILE Levelset_Boxbeam)
+#set(EXAMPLE_FILE Levelset_Boxbeam Levelset_Boxbeam_Lin_Quad_LevelSet)
+set(EXAMPLE_FILE Levelset_Boxbeam )
 set(EXAMPLE_PROCS 1 3)
 
 # List source files
@@ -50,11 +51,14 @@ set(SO_TPLS
 ${ARMADILLO_EIGEN}
 )
 
-SET(SO_INCLUDES 
-    ${Boost_INCLUDE_DIRS}
-    ${Trilinos_INCLUDE_DIRS}
-    ${MORIS_PACKAGE_DIR}/ALG/src
-    ${MORIS_PACKAGE_DIR}/FEM/INT/src 
+# get list of INT subfolders
+get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
+
+SET(SO_INCLUDES
+	${Boost_INCLUDE_DIRS}
+	${Trilinos_INCLUDE_DIRS}
+	${MORIS_PACKAGE_DIR}/ALG/src
+    ${INT_SRC_LIST}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
@@ -67,17 +71,7 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/COM/src 
     ${MORIS_PACKAGE_DIR}/MTK/src
     ${MORIS_PACKAGE_DIR}/HMR/src
-    ${MORIS_PACKAGE_DIR}/XTK/src/assert
-    ${MORIS_PACKAGE_DIR}/XTK/src/containers
-    ${MORIS_PACKAGE_DIR}/XTK/src/core
-    ${MORIS_PACKAGE_DIR}/XTK/src/geomeng
-    ${MORIS_PACKAGE_DIR}/XTK/src/geometry
-    ${MORIS_PACKAGE_DIR}/XTK/src/ios
-    ${MORIS_PACKAGE_DIR}/XTK/src/linalg
-    ${MORIS_PACKAGE_DIR}/XTK/src/mesh
-    ${MORIS_PACKAGE_DIR}/XTK/src/tools
-    ${MORIS_PACKAGE_DIR}/XTK/src/topology
-    ${MORIS_PACKAGE_DIR}/XTK/src/xtk      
+    ${MORIS_PACKAGE_DIR}/XTK/src    
     ${MORIS_PACKAGE_DIR}/PRM/src 
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
@@ -91,7 +85,7 @@ dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCL
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs
+        add_test(NAME Levelset_Boxbeam-${PROCS}-procs
         COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()

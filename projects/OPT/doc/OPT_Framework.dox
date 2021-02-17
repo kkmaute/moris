@@ -77,27 +77,27 @@ OPT does not rely on any of these other modules and can be used outside of a MOR
 Since each optimization problem is defined with a single method for computing objectives and constraints, the
 user-defined functions in the shared object file must have specific names. This also maintains simplicity over having
 to give function names as well. These are as follows:
-    - get_constraint_types (\ref moris::MORIS_CONSTRAINT_TYPES_FUNCTION):
+    - get_constraint_types (\ref moris::opt::Constraint_Types_Function):
         Returns a vector of constraint types in the same order that the constraints themselves are provided. 0 Indicates
         an equality constraint, while 1 indicates an inequality constraint. Note that for compatibility reasons with our
         algorithms, right now all equality constraints must be indexed before the inequality constraints.
-    - compute_objectives (\ref moris::MORIS_OBJECTIVE_CONSTRAINT_FUNCTION):
+    - compute_objectives (\ref moris::opt::Objective_Constraint_Function):
         Evaluates the objective. Note that MORIS does not right now support multi-objective optimization, but a single
         objective is still returned in matrix format to make it consistent for HDF5 output as well as to reduce
         additional function types.
-    - compute_constraints (\ref moris::MORIS_OBJECTIVE_CONSTRAINT_FUNCTION):
+    - compute_constraints (\ref moris::opt::Objective_Constraint_Function):
         Evaluates all of the constraints in a vector.
-    - compute_dobjective_dadv (\ref moris::MORIS_OBJECTIVE_CONSTRAINT_FUNCTION):
+    - compute_dobjective_dadv (\ref moris::opt::Objective_Constraint_Function):
         Evaluates the explicit gradient of the objective with respect to the ADVs;
         \f$ \frac {\partial f}{\partial \mathbf s} \f$
-    - compute_dobjective_dcriteria (\ref moris::MORIS_OBJECTIVE_CONSTRAINT_FUNCTION)
+    - compute_dobjective_dcriteria (\ref moris::opt::Objective_Constraint_Function)
         Evaluates the gradient of the objective with respect to the criteria;
         \f$ \frac {\partial f}{\partial \mathbf q} \f$
-    - compute_dconstraint_dadv (\ref moris::MORIS_OBJECTIVE_CONSTRAINT_FUNCTION)
+    - compute_dconstraint_dadv (\ref moris::opt::Objective_Constraint_Function)
         Evaluates the explicit gradient of the constraints with respect to the ADVs;
         \f$ \frac {\partial \mathbf g }{\partial \mathbf s} \f$ and
         \f$ \frac {\partial \mathbf h }{\partial \mathbf s} \f$
-    - compute_dconstraint_dcriteria (\ref moris::MORIS_OBJECTIVE_CONSTRAINT_FUNCTION)
+    - compute_dconstraint_dcriteria (\ref moris::opt::Objective_Constraint_Function)
         Evaluates the gradient of the constraints with respect to the criteria;
         \f$ \frac {\partial \mathbf g }{\partial \mathbf q} \f$ and
         \f$ \frac {\partial \mathbf h }{\partial \mathbf q} \f$
@@ -170,11 +170,11 @@ different than that of other MORIS modules and the OPT Problem.
 
 Following the same pattern as the OPT Problem, the user-defined functions in the shared object file must have specific
 names. These are:
-- initialize (\ref moris::MORIS_CRITERIA_INITIALIZE_FUNCTION):
+- initialize (\ref moris::opt::Criteria_Initialize_Function):
     Fills 3 matrix references, one for the initial ADVs, one for the lower bounds, and one for the upper bounds.
-- get_criteria (\ref moris::MORIS_CRITERIA_FUNCTION):
+- get_criteria (\ref moris::opt::Criteria_Function):
     Evaluates a vector of criteria. This vector can be any length, and they will all be given to the OPT Problem.
-- get_dcriteria_dadv (\ref moris::MORIS_CRITERIA_FUNCTION):
+- get_dcriteria_dadv (\ref moris::opt::Criteria_Function):
     Evaluates the gradient of the criteria with respect to the advs;
     \f$ \frac {\partial \mathbf q }{\partial \mathbf s} \f$
 

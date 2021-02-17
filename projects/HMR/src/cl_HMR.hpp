@@ -12,7 +12,7 @@
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Field_Param.hpp"
 #include "cl_HMR_Parameters.hpp"     //HMR/src
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
@@ -68,6 +68,13 @@ namespace moris
                  * @param[in] aUpperBound   - upper bound of LS
                  */
                 void find_cells_intersected_by_levelset(
+                        Cell< hmr::Element * >   & aCells,
+                        Cell< hmr::Element * >   & aCandidates,
+                        const  Matrix< DDRMat >  & aVertexValues,
+                        const  real                aLowerBound = -0.0001,
+                        const  real                aUpperBound =  0.0001);
+
+                void find_low_level_cells_intersected_by_levelset(
                         Cell< hmr::Element * >   & aCells,
                         Cell< hmr::Element * >   & aCandidates,
                         const  Matrix< DDRMat >  & aVertexValues,
@@ -385,6 +392,11 @@ namespace moris
                         const Matrix< DDRMat > & aFieldValues,
                         uint                     aLagrangeMeshIndex,
                         sint                     aFunctionIndex = -1);
+
+                uint based_on_field_put_low_level_elements_on_queue(
+                        const Matrix< DDRMat > & aFieldValues,
+                        uint                     aLagrangeMeshIndex,
+                        sint                     aFunctionIndex);
 
                 // -----------------------------------------------------------------------------
 

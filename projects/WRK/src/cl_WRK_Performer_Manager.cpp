@@ -25,13 +25,12 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 
-#include "fn_Exec_load_user_library.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
     namespace wrk
     {
-        //------------------------------------------------------------------------------
 
         Performer_Manager::Performer_Manager( std::shared_ptr< Library_IO > aLibrary )
         : mLibrary(aLibrary)
