@@ -35,6 +35,7 @@ namespace moris
         class Mesh_Manager;
         class Interpolation_Mesh;
         class Integration_Mesh;
+        class Field;
     }
 
     namespace fem
@@ -93,11 +94,12 @@ namespace moris
                 uint mSpaceDim;
 
                 // fixme remove ?
-                moris::Cell< std::shared_ptr< fem::Property > > mProperties;
-                moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mCMs;
+                moris::Cell< std::shared_ptr< fem::Property > >                mProperties;
+                moris::Cell< std::shared_ptr< mtk::Field > >                   mFields;
+                moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      mCMs;
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
-                moris::Cell< std::shared_ptr< fem::IWG > > mIWGs;
-                moris::Cell< std::shared_ptr< fem::IQI > > mIQIs;
+                moris::Cell< std::shared_ptr< fem::IWG > >                     mIWGs;
+                moris::Cell< std::shared_ptr< fem::IQI > >                     mIQIs;
 
                 //! requested IQI Names
                 moris::Cell< std::string > mRequestedIQINames;
@@ -411,6 +413,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * create a list of field pointers
+                 */
+                void create_fields();
+
+                //------------------------------------------------------------------------------
+                /**
                  * create a list of constitutive model pointers
                  * @param[ in ] aPropertyMap   a map from property name to property index
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
@@ -570,6 +578,10 @@ namespace moris
                  * create fem set info
                  */
                 void create_fem_set_info();
+
+                //------------------------------------------------------------------------------
+
+                //void populate_fields();
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */
