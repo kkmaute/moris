@@ -66,23 +66,23 @@ namespace moris
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
             {
-                mADVs        = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
+                mInitialPrimitiveADVs = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
                 mLowerBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
                 mUpperBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
             }
             else
             {
-                mADVs        = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
+                mInitialPrimitiveADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
                 mLowerBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"));
                 mUpperBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"));
 
                 // check that advs and bounds are vectors
-                MORIS_ERROR ( isvector(mADVs),        "ADVs need to be of type vector.\n");
+                MORIS_ERROR ( isvector(mInitialPrimitiveADVs),        "ADVs need to be of type vector.\n");
                 MORIS_ERROR ( isvector(mLowerBounds), "ADV lower bounds need to be of type vector.\n");
                 MORIS_ERROR ( isvector(mUpperBounds), "ADV upper bounds need to be of type vector.\n");
 
                 // ensure that advs and bounds are column vectors
-                mADVs        = mADVs.n_rows()        == 1 ? trans(mADVs) : mADVs;
+                mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows()        == 1 ? trans(mInitialPrimitiveADVs) : mInitialPrimitiveADVs;
                 mLowerBounds = mLowerBounds.n_rows() == 1 ? trans(mLowerBounds) : mLowerBounds;
                 mUpperBounds = mUpperBounds.n_rows() == 1 ? trans(mUpperBounds) : mUpperBounds;
             }
@@ -90,7 +90,7 @@ namespace moris
             // Geometries
             mGeometries = create_geometries(
                     aParameterLists(1),
-                    mADVs,
+                    mInitialPrimitiveADVs,
                     mLibrary,
                     aMTKMesh == nullptr ? nullptr : aMTKMesh->get_interpolation_mesh(0));
 
@@ -102,7 +102,7 @@ namespace moris
             // Properties
             mProperties = create_properties(
                     aParameterLists(2),
-                    mADVs,
+                    mInitialPrimitiveADVs,
                     mGeometries,
                     mLibrary);
 
@@ -774,9 +774,6 @@ namespace moris
             // Tracer
             Tracer tTracer("GEN", "Distribute ADVs");
 
-            // Reset mesh information
-            this->reset_mesh_information(aMesh);
-
             // Gather all fields
             Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
             std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
@@ -791,7 +788,7 @@ namespace moris
             for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
             {
                 // Determine if level set will be created
-                if (tFields(tFieldIndex)->discretization_intention())
+                if (tFields(tFieldIndex)->intended_discretization())
                 {
                     // Get number of coefficients
                     sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
@@ -814,12 +811,12 @@ namespace moris
             uint tNumOwnedADVs = tNumNewOwnedADVs;
             if (par_rank() == 0)
             {
-                tNumOwnedADVs += mADVs.length();
+                tNumOwnedADVs += mInitialPrimitiveADVs.length();
             }
 
             // Set primitive IDs
-            Matrix<DDSMat> tPrimitiveADVIds(mADVs.length(), 1);
-            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+            Matrix<DDSMat> tPrimitiveADVIds(mInitialPrimitiveADVs.length(), 1);
+            for (uint tADVIndex = 0; tADVIndex < mInitialPrimitiveADVs.length(); tADVIndex++)
             {
                 tPrimitiveADVIds(tADVIndex) = tADVIndex;
             }
@@ -847,12 +844,12 @@ namespace moris
             Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size() + mProperties.size());
 
             // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
-            uint tOwnedADVIndex = mADVs.length();
+            uint tOwnedADVIndex = mInitialPrimitiveADVs.length();
             uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple B-spline fields
             for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
             {
                 // Determine if level set will be created
-                if (tFields(tFieldIndex)->discretization_intention())
+                if (tFields(tFieldIndex)->intended_discretization())
                 {
                     // Get bounds
                     real tBSplineLowerBound = tFields(tFieldIndex)->get_discretization_lower_bound();
@@ -904,23 +901,23 @@ namespace moris
             sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
             // Create vectors
-            mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
+            sol::Dist_Vector* tNewOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
             mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
 
             // Assign primitive ADVs
             if (par_rank() == 0)
             {
-                mOwnedADVs->replace_global_values(tPrimitiveADVIds, mADVs);
+                tNewOwnedADVs->replace_global_values(tPrimitiveADVIds, mInitialPrimitiveADVs);
             }
 
             // Global assembly
-            mOwnedADVs->vector_global_assembly();
+            tNewOwnedADVs->vector_global_assembly();
 
             // Get primitive ADVs from owned vector
-            mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
+            mPrimitiveADVs->import_local_to_global(*tNewOwnedADVs);
 
             // Set field ADVs using distributed vector
-            if (mADVs.length() > 0)
+            if (mInitialPrimitiveADVs.length() > 0)
             {
                 for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
@@ -939,14 +936,14 @@ namespace moris
                 mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
 
                 // Convert to B-spline field
-                if (mGeometries(tGeometryIndex)->discretization_intention())
+                if (mGeometries(tGeometryIndex)->intended_discretization())
                 {
                     // Always have shape sensitivities if B-spline field
                     mShapeSensitivities = true;
 
                     // Create B-spline geometry FIXME Multiple B-spline fields
                     mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
-                            mOwnedADVs,
+                            tNewOwnedADVs,
                             tOwnedADVIds,
                             tSharedADVIds(tGeometryIndex),
                             tPrimitiveADVIds.length(),
@@ -955,7 +952,7 @@ namespace moris
                 }
 
                 // Store field values if needed
-                else if (mGeometries(tGeometryIndex)->storage_intention())
+                else if (mGeometries(tGeometryIndex)->intended_storage())
                 {
                     // Create stored geometry
                     mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
@@ -968,11 +965,11 @@ namespace moris
             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 // Convert to B-spline field
-                if (mProperties(tPropertyIndex)->discretization_intention())
+                if (mProperties(tPropertyIndex)->intended_discretization())
                 {
                     // Create B-spline property FIXME Multiple B-spline fields
                     mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
-                            mOwnedADVs,
+                            tNewOwnedADVs,
                             tOwnedADVIds,
                             tSharedADVIds(mGeometries.size() + tPropertyIndex),
                             tPrimitiveADVIds.length(),
@@ -980,6 +977,9 @@ namespace moris
                             mProperties(tPropertyIndex));
                 }
             }
+
+            // Save new owned ADVs
+            mOwnedADVs = tNewOwnedADVs;
 
             //----------------------------------------//
             // Communicate all ADV IDs to processor 0 //
@@ -1057,6 +1057,9 @@ namespace moris
                 mLowerBounds.set_size(0, 0);
                 mUpperBounds.set_size(0, 0);
             }
+
+            // Reset mesh information
+            this->reset_mesh_information(aMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------

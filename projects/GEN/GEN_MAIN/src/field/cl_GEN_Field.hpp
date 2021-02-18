@@ -4,6 +4,7 @@
 #include "st_GEN_Field_Parameters.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -137,14 +138,14 @@ namespace moris
              *
              * @return Logic for storing field values
              */
-            bool storage_intention();
+            bool intended_storage();
 
             /**
              * Gets if this field is to be used for seeding a B-spline field.
              *
              * @return Logic for B-spline creation
              */
-            virtual bool discretization_intention();
+            bool intended_discretization();
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -206,6 +207,13 @@ namespace moris
              * @return Upper bound
              */
             real get_discretization_upper_bound();
+
+            /**
+             * Gets the mesh that this field depends on.
+             *
+             * @return Mesh, default nullptr
+             */
+            virtual mtk::Interpolation_Mesh* get_mesh();
 
         private:
 

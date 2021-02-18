@@ -66,6 +66,7 @@ namespace moris
             uint mNumSpatialDimensions;
 
             // ADVs
+            Matrix<DDRMat> mInitialPrimitiveADVs;
             Matrix<DDRMat> mADVs;
             Matrix<DDSMat> mFullADVIds;
             sol::Dist_Vector* mOwnedADVs = nullptr;

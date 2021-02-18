@@ -82,7 +82,6 @@ namespace moris
 
             // Import ADVs and assign nodal values
             this->import_advs(aOwnedADVs);
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -117,7 +116,7 @@ namespace moris
 
         Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
-            return mMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index());
+            return trans( mMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -188,42 +187,73 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool BSpline_Field::discretization_intention()
+        mtk::Interpolation_Mesh* BSpline_Field::get_mesh()
         {
-            return false;
+            return mMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> BSpline_Field::map_to_bsplines(std::shared_ptr<Field> aField)
         {
-            // Create source field
-            Matrix<DDRMat> tNodalValues(mNumOriginalNodes, 1);
-            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            // Mapper
+            mtk::Mapper tMapper;
+
+            // Output field
+            mtk::Mesh_Pair tOutputMeshPair;
+            tOutputMeshPair.mInterpolationMesh = mMesh;
+            tOutputMeshPair.mIntegrationMesh =
+                    create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tOutputMeshPair.mInterpolationMesh);
+            std::shared_ptr<mtk::Mesh_Manager> tOutputMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            tOutputMeshManager->register_mesh_pair(tOutputMeshPair);
+            mtk::Field* tOutputField = new mtk::Field(tOutputMeshManager, 0, this->get_discretization_mesh_index());
+
+            // Input mesh
+            mtk::Interpolation_Mesh* tInputMesh = aField->get_mesh();
+            if (not tInputMesh)
+            {
+                tInputMesh = mMesh;
+            }
+
+            // Nodal values
+            Matrix<DDRMat> tNodalValues(tInputMesh->get_num_nodes(), 1);
+            for (uint tNodeIndex = 0; tNodeIndex < tInputMesh->get_num_nodes(); tNodeIndex++)
             {
                 tNodalValues(tNodeIndex) =
                         aField->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
             }
 
-            // Create mesh pair
-            mtk::Mesh_Pair tMeshPair;
-            tMeshPair.mInterpolationMesh = mMesh;
-            tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-            tMeshManager->register_mesh_pair(tMeshPair);
-            mtk::Field* tField = new mtk::Field(tMeshManager, 0, this->get_discretization_mesh_index());
+            // Interpolation not needed
+            if (tInputMesh == mMesh)
+            {
+                tOutputField->set_nodal_values(tNodalValues);
+                tMapper.map_input_field_to_output_field_2(tOutputField);
+            }
+            // Interpolation needed
+            else
+            {
+                // Input field
+                mtk::Mesh_Pair tInputMeshPair;
+                tInputMeshPair.mInterpolationMesh = tInputMesh;
+                tInputMeshPair.mIntegrationMesh =
+                        create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tInputMeshPair.mInterpolationMesh);
+                std::shared_ptr<mtk::Mesh_Manager> tInputMeshManager = std::make_shared<mtk::Mesh_Manager>();
+                tInputMeshManager->register_mesh_pair(tInputMeshPair);
+                mtk::Field* tInputField = new mtk::Field(tInputMeshManager, 0, aField->get_discretization_mesh_index());
 
-            // Use mapper
-            mtk::Mapper tMapper;
-            tField->set_nodal_values(tNodalValues);
-            tMapper.map_input_field_to_output_field_2( tField );
+                // Do interpolation
+                tInputField->set_nodal_values(tNodalValues);
+                tMapper.map_input_field_to_output_field(tInputField, tOutputField);
+
+                delete tInputMeshPair.mIntegrationMesh;
+            }
 
             // Get coefficients
-            Matrix<DDRMat> tCoefficients = tField->get_coefficients();
+            Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
 
             // Clean up
-            delete tMeshPair.mIntegrationMesh;
-            delete tField;
+            delete tOutputMeshPair.mIntegrationMesh;
+            delete tOutputField;
 
             // Return mapped field
             return tCoefficients;

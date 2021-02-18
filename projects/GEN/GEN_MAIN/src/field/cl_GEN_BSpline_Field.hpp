@@ -2,8 +2,6 @@
 #define MORIS_CL_GEN_BSPLINE_FIELD_HPP
 
 #include "cl_GEN_Field_Discrete_Integration.hpp"
-#include "cl_MTK_Mesh_Core.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -74,12 +72,14 @@ namespace moris
              */
             void import_advs(sol::Dist_Vector* aOwnedADVs);
 
+        protected:
+
             /**
-             * Function for determining if this geometry is to be used for seeding a B-spline level set field.
+             * Gets the mesh that this field depends on.
              *
-             * @return false
+             * @return Mesh, default nullptr
              */
-            bool discretization_intention();
+            mtk::Interpolation_Mesh* get_mesh();
 
         private:
 
