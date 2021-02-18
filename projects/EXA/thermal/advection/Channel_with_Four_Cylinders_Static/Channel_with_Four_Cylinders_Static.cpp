@@ -187,14 +187,15 @@ extern "C"
         void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
         {
             // create a cell of cell of parameter list for fem
-            tParameterList.resize( 7 );
+            tParameterList.resize( 8 );
             uint tPropIndex  = 0;
             uint tCMIndex    = 1;
             uint tSPIndex    = 2;
             uint tIWGIndex   = 3;
             uint tIQIIndex   = 4;
             uint tFEMIndex   = 5;
-            uint tPhaseIndex = 6;
+            //uint tFieldIndex   = 6;
+            uint tPhaseIndex = 7;
 
             //------------------------------------------------------------------------------
             // phase info
