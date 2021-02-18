@@ -16,7 +16,7 @@ namespace moris
 {
     namespace mtk
     {
-        class Mesh_Manager
+        class Mesh_Manager : public std::enable_shared_from_this< Mesh_Manager >
         {
         private:
             moris::Cell<Mesh_Pair> mMeshPairs;
@@ -70,6 +70,13 @@ namespace moris
             Integration_Mesh*
             get_integration_mesh(moris_index aMeshIndex);
             
+            //--------------------------------------------------------------------
+
+            std::shared_ptr< Mesh_Manager > get_pointer()
+            {
+                return shared_from_this();
+            }
+
         };
     }
 }
