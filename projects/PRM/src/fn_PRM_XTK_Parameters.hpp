@@ -36,6 +36,9 @@ namespace moris
         tParameterList.insert( "decompose", true );
         tParameterList.insert( "decomposition_type", "conformal" );
 
+        // cleanup
+        tParameterList.insert( "cleanup_cut_mesh", false );
+
         // enrichment and enrichment related parameters
         tParameterList.insert( "enrich", false );
         tParameterList.insert( "basis_rank","node" );

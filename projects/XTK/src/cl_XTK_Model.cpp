@@ -198,10 +198,14 @@ namespace xtk
 
         if(mParameterList.get<bool>("decompose"))
         {
+            if(mParameterList.get<bool>("cleanup_cut_mesh"))
+            {
+                mCleanupMesh = true;
+            }
+
             Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
             this->decompose(tSubdivisionMethods);
         }
-
 
         if(mParameterList.get<bool>("enrich"))
         {
@@ -2127,8 +2131,41 @@ namespace xtk
         // Sort the children meshes into groups
         this->sort_children_meshes_into_groups();
 
+        // assign child element indices ( seperated to facilitate mesh cleanup)
+        this->assign_child_element_indices(false);
+
+        // Compute the child element phase using the geometry engine
+        // a case where the phase may not be set is when we only do a
+        // non-conformal decomposition
+        this->set_element_phases();
+
+
+        // identify local subphases in child mesh
+        this->identify_local_subphase_clusters_in_child_meshes();
+
+
+        // cleanup the mesh
+        if(mCleanupMesh)
+        {
+            this->cleanup_cut_mesh();
+        }
+
+        // Sort the children meshes into groups
+        this->sort_children_meshes_into_groups();
+
+        // do it again because we have removed cells
+        this->assign_child_element_indices(true);
+
         // give each child cell its id (parallel consistent) and index (not parallel consistent)
-        this->assign_child_element_identifiers();
+        this->assign_child_element_ids();
+
+        // Compute the child element phase using the geometry engine
+        // a case where the phase may not be set is when we only do a
+        // non-conformal decomposition
+        this->set_element_phases();
+
+        // identify local subphases in child mesh
+        this->identify_local_subphase_clusters_in_child_meshes();
 
         // add child element to local to global map
         this->add_child_elements_to_local_to_global_map();
@@ -2145,38 +2182,25 @@ namespace xtk
         // set the glb to loc map for all cells
         this->setup_cell_glb_to_local_map();
 
-        // Compute the child element phase using the geometry engine
-        // a case where the phase may not be set is when we only do a
-        // non-conformal decomposition
-        this->set_element_phases();
-
-        // identify local subphases in child mesh
-        this->identify_local_subphase_clusters_in_child_meshes();
-
         // assign subphase ids
         this->assign_subphase_glob_ids();
 
         // setup global to local subphase map
         this->setup_glob_to_loc_subphase_map();
+
     }
 
     // ----------------------------------------------------------------------------------
-
     void
-    Model::assign_child_element_identifiers()
+    Model::assign_child_element_indices( bool aUpdateAvailable )
     {
-        // Set child element ids and indices
-        moris::size_t tNumElementsInCutMesh = mCutMesh.get_num_entities(EntityRank::ELEMENT);
-
         // Allocate global element ids (these need to be give to the children meshes)
-        moris_id    tElementIdOffset = mBackgroundMesh.allocate_entity_ids(tNumElementsInCutMesh, moris::EntityRank::ELEMENT);
         moris_index tElementIndOffset = mBackgroundMesh.get_first_available_index(EntityRank::ELEMENT);
 
         // set child elements ids in the children meshes which I own and dont share
         Cell<Child_Mesh*> const & tOwnedChildMeshes = mCutMesh.get_owned_child_meshes();
         for(moris::size_t i = 0; i<tOwnedChildMeshes.size(); i++)
         {
-            tOwnedChildMeshes(i)->set_child_element_ids(tElementIdOffset);
             tOwnedChildMeshes(i)->set_child_element_inds(tElementIndOffset);
         }
 
@@ -2186,6 +2210,28 @@ namespace xtk
         for(moris::size_t i = 0; i<tNotOwnedChildMeshes.size(); i++)
         {
             tNotOwnedChildMeshes(i)->set_child_element_inds(tElementIndOffset);
+        }
+
+        if(aUpdateAvailable)
+        {
+            // tell the background mesh about the new first available index
+            mBackgroundMesh.update_first_available_index(tElementIndOffset,EntityRank::ELEMENT);
+        }
+    }
+    void
+    Model::assign_child_element_ids()
+    {
+        // Set child element ids and indices
+        moris::size_t tNumElementsInCutMesh = mCutMesh.get_num_entities(EntityRank::ELEMENT);
+
+        // Allocate global element ids (these need to be give to the children meshes)
+        moris_id    tElementIdOffset = mBackgroundMesh.allocate_entity_ids(tNumElementsInCutMesh, moris::EntityRank::ELEMENT);
+
+        // set child elements ids in the children meshes which I own and dont share
+        Cell<Child_Mesh*> const & tOwnedChildMeshes = mCutMesh.get_owned_child_meshes();
+        for(moris::size_t i = 0; i<tOwnedChildMeshes.size(); i++)
+        {
+            tOwnedChildMeshes(i)->set_child_element_ids(tElementIdOffset);
         }
 
         // prepare outward requests
@@ -2227,10 +2273,7 @@ namespace xtk
         this->inward_receive_request_answers(tMPITag+2,1,tProcRanks,tReceivedChildIdOffsets);
 
         // add child cell ids to not owned child meshes
-        this->handle_received_child_cell_id_request_answers(tNotOwnedChildMeshesToProcs,tReceivedChildIdOffsets,tElementIndOffset);
-
-        // tell the background mesh about the new first available index
-        mBackgroundMesh.update_first_available_index(tElementIndOffset,EntityRank::ELEMENT);
+        this->handle_received_child_cell_id_request_answers(tNotOwnedChildMeshesToProcs,tReceivedChildIdOffsets);
 
         barrier();
     }
@@ -2373,8 +2416,7 @@ namespace xtk
     void
     Model::handle_received_child_cell_id_request_answers(
             Cell<Cell<moris_index>> const & aChildMeshesInInNotOwned,
-            Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
-            moris::moris_id               & aCellInd)
+            Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset)
     {
         Cell<Child_Mesh*> const & tNotOwnedChildMeshes = mCutMesh.get_not_owned_child_meshes();
 
@@ -2490,10 +2532,11 @@ namespace xtk
     void
     Model::set_element_phases()
     {
-        // Set element phase indices
-        mBackgroundMesh.initialize_element_phase_indices(this->get_num_elements_total());
-
+        
         moris::size_t tNumElem = mBackgroundMesh.get_mesh_data().get_num_entities(EntityRank::ELEMENT);
+
+        // Set element phase indices
+        mBackgroundMesh.initialize_element_phase_indices(tNumElem + mCutMesh.get_num_entities(EntityRank::ELEMENT));
 
         for(moris::size_t i = 0; i<tNumElem; i++)
         {
@@ -3074,6 +3117,37 @@ namespace xtk
             mGlobalToLocalSubphaseMap[tSubphaseId] = i;
         }
     }
+    
+    // ----------------------------------------------------------------------------------
+    // Clean up cut mesh source code
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::cleanup_cut_mesh()
+    {   
+        moris::uint tNumCutMeshes = mCutMesh.get_num_child_meshes();
+        moris::Cell<moris::uint> tChildMeshesToKeep;
+        moris::Cell<moris::uint> tChildMeshesToDelete;
+
+        for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
+        {
+            Child_Mesh & tCM = mCutMesh.get_child_mesh(iCM);
+
+            Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
+            if(tSubphasebinBulkPhase.size() > 1)
+            {
+                tChildMeshesToKeep.push_back(iCM);
+            }
+            else
+            {
+                tChildMeshesToDelete.push_back(iCM);
+            }
+        }
+
+        mCutMesh.remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete);
+
+        mBackgroundMesh.setup_downward_inheritance(mCutMesh);
+    }
 
     // ----------------------------------------------------------------------------------
     // Unzipping Child Mesh Source code
@@ -3502,49 +3576,31 @@ namespace xtk
 
         for(moris::uint i = 0; i < tBGCellIds.numel(); i++)
         {
-            Tracer tTracer( "XTK", "BG Cell Probe","Cell Id " + std::to_string(tBGCellIds(i)) );
-            // supress errors from procs that dont have the probed cell
-            // try
-            // {
-                moris_index tIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tBGCellIds(i),EntityRank::ELEMENT);
-                mtk::Cell & tCell = mBackgroundMesh.get_mesh_data().get_mtk_cell(tIndex);
-                Matrix<IndexMat> tVertexIds = tCell.get_vertex_ids();
-                moris::Cell< mtk::Vertex* > tVertexPtrs = tCell.get_vertex_pointers();
-                Matrix<IndexMat> tVertexOwner(1,tVertexPtrs.size());
+            Tracer tTracer("XTK", "BG Cell Probe", "Cell Id " + std::to_string(tBGCellIds(i)));
 
-                Matrix< DDRMat > tFieldVals(1,tVertexPtrs.size());
-                std::string tFieldName = "levelset";
+            moris_index tIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tBGCellIds(i), EntityRank::ELEMENT);
+            mtk::Cell &tCell = mBackgroundMesh.get_mesh_data().get_mtk_cell(tIndex);
+            Matrix<IndexMat> tVertexIds = tCell.get_vertex_ids();
+            moris::Cell<mtk::Vertex *> tVertexPtrs = tCell.get_vertex_pointers();
+            Matrix<IndexMat> tVertexOwner(1, tVertexPtrs.size());
 
-                for(moris::uint iV = 0; iV < tVertexPtrs.size(); iV++)
+            MORIS_LOG_SPEC("Cell Id", tBGCellIds(i));
+            MORIS_LOG_SPEC("Cell Index", tIndex);
+            MORIS_LOG_SPEC("Cell Owner", tCell.get_owner());
+            MORIS_LOG_SPEC("Vertex Ids", ios::stringify_log(tVertexIds));
+            MORIS_LOG_SPEC("Vertex Owners", ios::stringify_log(tVertexOwner));
+
+            // collect geometric info
+            uint tNumGeom = mGeometryEngine->get_num_geometries();
+            Cell<Matrix<DDRMat>> tVertexGeomVals(tNumGeom, Matrix<DDRMat>(1, tVertexPtrs.size()));
+            for (moris::uint iG = 0; iG < tNumGeom; iG++)
+            {
+                for (moris::uint iV = 0; iV < tVertexPtrs.size(); iV++)
                 {
-                    tVertexOwner(iV) = tVertexPtrs(iV)->get_owner();
-                    tFieldVals(iV) = mBackgroundMesh.get_mesh_data().get_entity_field_value_real_scalar({{tVertexPtrs(iV)->get_index()}},tFieldName,EntityRank::NODE)(0);
-                    
-                }   
-
-                MORIS_LOG_SPEC("Cell Id",tBGCellIds(i));
-                MORIS_LOG_SPEC("Cell Index",tIndex);
-                MORIS_LOG_SPEC("Cell Owner",tCell.get_owner());
-                MORIS_LOG_SPEC("Vertex Ids",ios::stringify_log(tVertexIds));
-                MORIS_LOG_SPEC("Vertex Owners",ios::stringify_log(tVertexOwner));
-                MORIS_LOG_SPEC("Mesh Field",ios::stringify_log(tFieldVals));
-
-                // collect geometric info
-                uint tNumGeom = mGeometryEngine->get_num_geometries();
-                Cell<Matrix<DDRMat>> tVertexGeomVals(tNumGeom,Matrix<DDRMat>(1,tVertexPtrs.size()));
-                for(moris::uint iG = 0; iG < tNumGeom; iG++)
-                {
-                    for(moris::uint iV = 0; iV < tVertexPtrs.size(); iV++)
-                    {
-                        tVertexGeomVals(iG)(iV) = mGeometryEngine->get_field_value(iG,(uint)tVertexPtrs(iV)->get_index(),tVertexPtrs(iV)->get_coords());
-                    }
-                    MORIS_LOG_SPEC("Geom Field " + std::to_string(iG) + " Vals",ios::stringify_log(tVertexGeomVals(iG)));
+                    tVertexGeomVals(iG)(iV) = mGeometryEngine->get_field_value(iG, (uint)tVertexPtrs(iV)->get_index(), tVertexPtrs(iV)->get_coords());
                 }
-            // }
-            // catch (...)
-            // {
-            //     MORIS_LOG_INFO("Not on proc");
-            // }
+                MORIS_LOG_SPEC("Geom Field " + std::to_string(iG) + " Vals", ios::stringify_log(tVertexGeomVals(iG)));
+            }
         }
 
     }

@@ -175,6 +175,13 @@ namespace xtk
 
             //--------------------------------------------------------------------------------
             /*!
+            * Remove child meshes that have an intersection but all cells are in the same bulk phase
+            */
+            void
+            set_cleanup_cut_mesh_flag( bool aCleanupMesh );
+
+            //--------------------------------------------------------------------------------
+            /*!
              * @return Timing data
              */
             Matrix<DDRMat>
@@ -550,6 +557,9 @@ namespace xtk
             bool mUnzipped          = false; // Model has been unzipped
             bool mGhost             = false; // Model has setup ghost stabilization
 
+            // Flag to cleanup mesh at end of decomposition
+            bool mCleanupMesh = false; // Model has setup ghost stabilization
+
             // cell map
             std::map< moris_id, moris_index> mCellGlbToLocalMap;
 
@@ -847,11 +857,17 @@ namespace xtk
 
              //------------------------------------------------------------------------------
 
+            /*!
+            * assign child element indices
+            */
+            void
+            assign_child_element_indices(bool aUpdateAvailable );
+
              /*!
-              * assign child element identifiers
+              * assign child element global ids
               */
              void
-             assign_child_element_identifiers();
+             assign_child_element_ids();
 
              //------------------------------------------------------------------------------
 
@@ -875,8 +891,7 @@ namespace xtk
              void
              handle_received_child_cell_id_request_answers(
                      Cell<Cell<moris_index>> const & aChildMeshesInInNotOwned,
-                     Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
-                     moris::moris_id               & aCellId);
+                     Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset);
 
              //------------------------------------------------------------------------------
 
@@ -1236,6 +1251,11 @@ namespace xtk
                       moris::moris_index         aFacetIndex,
                       Cell<moris::moris_index> & aCellSubphaseIndices,
                       Cell<moris::moris_index> & aCellSubphaseBulkIndices);
+                      
+              //------------------------------------------------------------------------------
+              void
+              cleanup_cut_mesh();
+
 
 
     };
