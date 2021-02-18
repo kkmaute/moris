@@ -241,8 +241,8 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set coefficients for field interpolator with specific dof type
-                 * @param[ in ] aDofType a dof type for which the coeff will be set
+                 * set coefficients for field interpolator with specific dv type
+                 * @param[ in ] aDvType a dv type for which the coeff will be set
                  * @param[ in ] aCoeff   coefficients to be set
                  */
                 void set_coeff_for_type(
