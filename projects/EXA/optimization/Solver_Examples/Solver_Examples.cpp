@@ -348,9 +348,11 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();  
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp_1,IQIMaxTemp_2,IQIStrainEnergy_1,IQIStrainEnergy_2,IQIVolume_1" );            
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile ); 
-		tParameterlist( 0 )( 0 ).set("initial_advs"      , std::to_string( 0.4 ) );
+        tParameterlist( 0 )( 0 ).set("initial_advs"      , std::to_string( 0.4 ) );
         tParameterlist( 0 )( 0 ).set("lower_bounds"      , std::to_string( 0.1 ) );
         tParameterlist( 0 )( 0 ).set("upper_bounds"      , std::to_string( 0.7 ) ); 
+
+        tParameterlist( 0 )( 0 ).set("isocontour_tolerance", 0.0);      // Interface tolerance based on geometry value
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -1276,6 +1278,7 @@ namespace moris
 		}
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
     }
 
     void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
