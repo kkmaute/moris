@@ -222,7 +222,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

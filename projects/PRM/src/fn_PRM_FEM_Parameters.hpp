@@ -50,6 +50,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
         /*
+         * creates a field parameter list with default inputs
+         * @param [ out ] ParameterList a property parameter list
+         */
+        ParameterList create_fem_field_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert( "field_name",             std::string( "undefined" ) );
+            tParameterList.insert( "field_type",             std::string( "" ) );
+            tParameterList.insert( "field_create_from_file", std::string( "" ) );
+            tParameterList.insert( "IQI_Name",               std::string( "" ) );
+            tParameterList.insert( "field_output_to_file",   std::string( "" ) );
+
+            return tParameterList;
+        }
+
+        //------------------------------------------------------------------------------
+        /*
          * creates a constitutive model parameter list with default inputs
          * @param [ out ] ParameterList a CM parameter list
          */

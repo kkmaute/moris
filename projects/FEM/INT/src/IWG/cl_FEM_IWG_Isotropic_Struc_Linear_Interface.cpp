@@ -161,7 +161,6 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
-
             real tNitsche      = tSPNitsche->val()( 0 );
             real tMasterWeight = tSPNitsche->val()( 1 );
             real tSlaveWeight  = tSPNitsche->val()( 2 );
@@ -183,36 +182,37 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
+                // extract sub-matrices
+                auto tJacMM = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
+                auto tJacSM =  mSet->get_jacobian()(
+                        { tSlaveResStartIndex,  tSlaveResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
                 // compute jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    + mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tFIMaster->N()
-                                    + tNitsche * trans( tFIMaster->N() ) * tFIMaster->N() );
+                    tJacMM += aWStar * (
+                            + mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tFIMaster->N()
+                            + tNitsche * trans( tFIMaster->N() ) * tFIMaster->N() );
 
-                    mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tFIMaster->N()
-                                    - tNitsche * trans( tFISlave->N() ) * tFIMaster->N() );
+                    tJacSM += aWStar * (
+                            + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tFIMaster->N()
+                            - tNitsche * trans( tFISlave->N() ) * tFIMaster->N() );
                 }
 
                 // if dependency on the dof type
                 if ( tCMMasterElasticity->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    - trans( tFIMaster->N() ) * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
+                    tJacMM += aWStar * (
+                            - trans( tFIMaster->N() ) * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
                     //+ mBeta * tMasterWeight * tCMMasterElasticity->dTestTractiondDOF( tDofType, mNormal ) * tJump;
 
-                    mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFISlave->N() ) * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
+                    tJacSM += aWStar * (
+                            trans( tFISlave->N() ) * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
                 }
 
                 // if dependency of stabilization parameters on the dof type
@@ -229,19 +229,15 @@ namespace moris
                             tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
 
                     // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    - trans( tFIMaster->N() ) * tTractionDer
-                                    + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tMasterWeightDer
-                                    + trans( tFIMaster->N() ) * tJump * tNitscheDer );
+                    tJacMM += aWStar * (
+                            - trans( tFIMaster->N() ) * tTractionDer
+                            + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tMasterWeightDer
+                            + trans( tFIMaster->N() ) * tJump * tNitscheDer );
 
-                    mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    + trans( tFISlave->N() ) * tTractionDer
-                                    + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tSlaveWeightDer
-                                    - trans( tFISlave->N() ) * tJump * tNitscheDer );
+                    tJacSM += aWStar * (
+                            + trans( tFISlave->N() ) * tTractionDer
+                            + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tSlaveWeightDer
+                            - trans( tFISlave->N() ) * tJump * tNitscheDer );
                 }
             }
 
@@ -257,35 +253,36 @@ namespace moris
                 uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
                 uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
 
+                // extract sub-matrices
+                auto tJacMS = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tSlaveDepStartIndex,  tSlaveDepStopIndex  } );
+
+                auto tJacSS = mSet->get_jacobian()(
+                        { tSlaveResStartIndex, tSlaveResStopIndex },
+                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+
                 // if dof type is residual dof type
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
-                                    - mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tFISlave->N()
-                                    - tNitsche * trans( tFIMaster->N() ) * tFISlave->N() );
+                    tJacMS += aWStar * (
+                            - mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tFISlave->N()
+                            - tNitsche * trans( tFIMaster->N() ) * tFISlave->N() );
 
-                    mSet->get_jacobian()(
-                            { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    - mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tFISlave->N()
-                                    + tNitsche * trans( tFISlave->N() ) * tFISlave->N() );
+                    tJacSS += aWStar * (
+                            - mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tFISlave->N()
+                            + tNitsche * trans( tFISlave->N() ) * tFISlave->N() );
                 }
 
                 // if dependency on the dof type
                 if ( tCMSlaveElasticity->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
-                                    - trans( tFIMaster->N() ) * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
+                    tJacMS += aWStar * (
+                            - trans( tFIMaster->N() ) * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
 
-                    mSet->get_jacobian()(
-                            { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    + trans( tFISlave->N() ) * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
+                    tJacSS += aWStar * (
+                            + trans( tFISlave->N() ) * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
                     //+ mBeta * tSlaveWeight * tCMSlaveDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tJump );
                 }
 
@@ -303,26 +300,22 @@ namespace moris
                             tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
 
                     // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
-                                    - trans( tFIMaster->N() ) * tTractionDer
-                                    + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tMasterWeightDer
-                                    + trans( tFIMaster->N() ) * tJump * tNitscheDer );
+                    tJacMS += aWStar * (
+                            - trans( tFIMaster->N() ) * tTractionDer
+                            + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tMasterWeightDer
+                            + trans( tFIMaster->N() ) * tJump * tNitscheDer );
 
-                    mSet->get_jacobian()(
-                            { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    + trans( tFISlave->N() ) * tTractionDer
-                                    + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tSlaveWeightDer
-                                    - trans( tFISlave->N() ) * tJump * tNitscheDer );
+                    tJacSS += aWStar * (
+                            + trans( tFISlave->N() ) * tTractionDer
+                            + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tSlaveWeightDer
+                            - trans( tFISlave->N() ) * tJump * tNitscheDer );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
-        }
+             MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                     "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+         }
 
         //------------------------------------------------------------------------------
 

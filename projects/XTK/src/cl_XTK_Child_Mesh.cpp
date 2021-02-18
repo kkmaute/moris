@@ -1304,8 +1304,6 @@ namespace xtk
     void
     Child_Mesh::set_child_element_inds(moris::moris_index & aElementInd)
     {
-        MORIS_ASSERT(mChildElementInds.n_cols() == 0, "Element Inds already set");
-
         moris::size_t tNumElements = get_num_entities(EntityRank::ELEMENT);
         mChildElementInds = moris::Matrix< moris::IndexMat >(1,tNumElements);
 

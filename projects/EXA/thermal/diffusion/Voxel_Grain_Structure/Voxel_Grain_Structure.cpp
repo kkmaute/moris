@@ -280,7 +280,7 @@ extern "C"
         {
             Name_func();
             // create a cell of cell of parameter list for fem
-            tParameterList.resize( 6 );
+            tParameterList.resize( 7 );
 
             //------------------------------------------------------------------------------
             // fill the property part of the parameter list
