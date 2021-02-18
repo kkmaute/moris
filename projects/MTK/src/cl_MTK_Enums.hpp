@@ -122,6 +122,12 @@ namespace moris
             UNDEFINED
         };
 
+        enum class Field_Type
+        {
+            FIELD_1,
+            UNDEFINED
+        };
+
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */

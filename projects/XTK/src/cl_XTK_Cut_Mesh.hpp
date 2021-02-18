@@ -51,7 +51,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        ~Cut_Mesh() {}
+        ~Cut_Mesh();
 
         // ----------------------------------------------------------------------------------
 
@@ -499,6 +499,10 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
+        void
+        remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
+                                             Cell<moris::uint> const & aMeshesToDelete);
+
         friend Model;
 
     private:
@@ -512,12 +516,12 @@ namespace xtk
         moris::size_t mNumberOfChildrenMesh;
 
         // All children meshes
-        Cell<Child_Mesh> mChildrenMeshes;
+        Cell<Child_Mesh*> mChildrenMeshes;
 
         // Groupings of children meshes determined by parent cell information (pointers to the mChildrenMeshes data)
         Cell<Child_Mesh *> mOwnedChildrenMeshes;    /* All children meshes which are fully owned by this processor and not shared with another processor */
         Cell<Child_Mesh *> mNotOwnedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
-        Cell<moris_id> mNotOwnedOwningProc;         /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
+        Cell<moris_id>     mNotOwnedOwningProc;         /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
 
         // Interface elements
         Cell<Interface_Element> mInterfaceElements;

@@ -27,6 +27,7 @@
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_IQI_Factory.hpp"
+#include "cl_FEM_Field.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -867,6 +868,49 @@ namespace moris
                     }
                 }
                 mProperties( iProp )->set_dv_derivative_functions( tDvDerFunctions );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::create_fields()
+        {
+            // get the property parameter list
+            moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
+
+            // get the number of properties
+            uint tNumFields = tFieldParameterList.size();
+
+            // create a list of property pointers
+            mFields.resize( tNumFields, nullptr );
+
+            //FIXME this should either be a shared ptr or a raw but not changing all the time
+            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
+
+            // loop over the parameter lists
+            for ( uint iFields = 0; iFields < tNumFields; iFields++ )
+            {
+                // get property parameter list
+                ParameterList tFieldParameter = tFieldParameterList( iFields );
+
+                // get property name from parameter list
+                std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
+
+                // create a property pointer
+                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
+
+                // set a name for the property
+                tField->set_label( tFieldName );
+
+                // set field type
+                tField->set_field_type( tFieldParameter.get< uint >( "field_type" ) );
+
+               if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
+               {
+                   tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+               }
+
+               mFields( iFields ) = tField;
             }
         }
 
@@ -2891,6 +2935,37 @@ namespace moris
                 }
             }
         }
+        //-------------------------------------------------------------------------------------------------
+
+//        void FEM_Model::populate_fields()
+//        {
+//            mFields.resize( mIQIs.size(), nullptr );
+//
+//            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
+//
+//            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
+//            {
+//                mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
+//
+//                mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
+//            }
+//
+//            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
+//            {
+//                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
+//                {
+//                    mFemSets( Ik )->create_fields( mFields );
+//                }
+//            }
+//
+//            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
+//            {
+//                    mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
+//
+//                    //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
+//            }
+//        }
+
         //-------------------------------------------------------------------------------------------------
 
     } /* namespace mdl */
