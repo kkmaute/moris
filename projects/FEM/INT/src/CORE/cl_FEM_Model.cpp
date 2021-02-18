@@ -629,11 +629,15 @@ namespace moris
             switch( mParameterList.size() )
             {
                 // without phase
-                case 6:
+                case 7:
                 {
                     // create properties
                     std::map< std::string, uint > tPropertyMap;
                     this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
+
+                    // create fields
+                    std::map< std::string, uint > tFieldMap;
+                    this->create_fields( tFieldMap );
 
                     // create constitutive models
                     std::map< std::string, uint > tCMMap;
@@ -657,7 +661,7 @@ namespace moris
                     break;
                 }
                 // with phase
-                case 7:
+                case 8:
                 {
                     // create phases
                     this->create_phases();
@@ -665,6 +669,10 @@ namespace moris
                     // create properties
                     std::map< std::string, uint > tPropertyMap;
                     this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
+
+                    // create fields
+                    std::map< std::string, uint > tFieldMap;
+                    this->create_fields( tFieldMap );
 
                     // create constitutive models
                     this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
@@ -873,7 +881,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void FEM_Model::create_fields()
+        void FEM_Model::create_fields(
+                std::map< std::string, uint > & aFieldMap )
         {
             // get the property parameter list
             moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
@@ -884,9 +893,6 @@ namespace moris
             // create a list of property pointers
             mFields.resize( tNumFields, nullptr );
 
-            //FIXME this should either be a shared ptr or a raw but not changing all the time
-            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
-
             // loop over the parameter lists
             for ( uint iFields = 0; iFields < tNumFields; iFields++ )
             {
@@ -896,11 +902,17 @@ namespace moris
                 // get property name from parameter list
                 std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
+                //FIXME this should either be a shared ptr or a raw but not changing all the time. will be changed
+                std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
+
                 // create a property pointer
                 std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
 
                 // set a name for the property
                 tField->set_label( tFieldName );
+
+                // fill property map
+                aFieldMap[ tFieldName ] = iFields;
 
                 // set field type
                 tField->set_field_type( tFieldParameter.get< uint >( "field_type" ) );
@@ -1622,7 +1634,7 @@ namespace moris
         void FEM_Model::create_phases()
         {
             // get the phase parameter list
-            moris::Cell< ParameterList > tPhaseParameterList = mParameterList( 6 );
+            moris::Cell< ParameterList > tPhaseParameterList = mParameterList( 7 );
 
             // get number of phases
             uint tNumPhases = tPhaseParameterList.size();
