@@ -756,6 +756,22 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * check if ig node still inside ip element after perturbation in a specific
+                 * space direction, if not adapt the finite difference scheme used
+                 * @param[ in ] aPerturbation         provided perturbation size from input
+                 * @param[ in ] aCoefficientToPerturb coefficient to perturb
+                 * @param[ in ] aSpatialDirection     spatial direction in which we perturb
+                 * @param[ in ] aUsedFDScheme         FD scheme to be used, updated
+                 * @param[ out ] aDeltaH              perturbation size built for finite difference
+                 */
+                real check_ig_coordinates_inside_ip_element(
+                        		const real & aPerturbation,
+                                const real & aCoefficientToPerturb,
+								const uint & aSpatialDirection,
+                                fem::FDScheme_Type & aUsedFDScheme );
+
+                //------------------------------------------------------------------------------
+                /**
                  * reset evaluation flags
                  */
                 void reset_eval_flags();
