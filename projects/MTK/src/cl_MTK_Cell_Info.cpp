@@ -184,5 +184,22 @@ namespace moris
 
             return tArea;
         }
+
+        moris::real
+        Cell_Info::compute_cell_size_straight(moris::mtk::Cell const *aCell) const
+        {
+            MORIS_ERROR(false,"Cell_Info::compute_cell_size_straight not implemented for this cell");
+            return 0.0;
+        }
+
+        moris::real
+        Cell_Info::compute_cell_size_deriv(moris::mtk::Cell const *aCell,
+                                                    uint aLocalVertexID, uint aDirection) const
+        {
+            MORIS_ERROR(false,"Cell_Info::compute_cell_size_deriv_straight not implemented for this cell");
+            return 0.0;
+        }
+
+        
     } // namespace mtk
 } // namespace moris

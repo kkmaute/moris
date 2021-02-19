@@ -16,6 +16,7 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
+#include "cl_MTK_Cell_Info_Tri3.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell_Info.hpp"
@@ -230,11 +231,12 @@ namespace moris
                 Integration_Order tIntegOrder = tCell.get_integration_order();
                 CHECK(tIntegOrder == Integration_Order::QUAD_2x2);
 
-                CHECK(tCell.compute_cell_measure_general() == 1.53);
+                CHECK(tCell.compute_cell_measure_general() == Approx(1.53));
+                CHECK(tCell.compute_cell_measure_general() == tCell.compute_cell_measure_straight());
             }
         }
 
-        TEST_CASE("MTK Cell Area Integration Hex", "[MTK],[Area_Integration],[Area_Hex8]")
+        TEST_CASE("MTK Cell Area Integration Hex", "[MTK],[Area_Integration],[Volume_Hex8]")
         {
             if (par_size() <= 1)
             {
@@ -303,5 +305,156 @@ namespace moris
             }
         }
 
+        TEST_CASE("MTK Quad4 Area Derivative", "[MTK],[Area_Deriv],[Area_Deriv_Quad4]")
+        {
+            if (par_size() <= 1)
+            {
+                //create a 2D MORIS mesh of quad4's using MTK database
+                //------------------------------------------------------------------------------
+                uint tNumDim = 2; // specify number of spatial dimensions
+
+                // Node coordinate matrix
+                Matrix<DDRMat> tCoords = {{0.0, 0.0},
+                                          {1.0, 0.0},
+                                          {1.0, 1.0},
+                                          {0.0, 1.0}};
+
+                Matrix<IndexMat> tNodeIndices = {{0, 1, 2, 3}};
+                Matrix<IndexMat> tNodeIds = {{1, 2, 3, 4}};
+
+                // specify element connectivity of quad for mesh
+                Matrix<IdMat> tElementConnQuad = {{1, 2, 3, 4}};
+
+                // specify the local to global element map for quads
+                Matrix<IdMat> tElemLocalToGlobalQuad = {{1}};
+
+                // specify the local to global map
+                //Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }};
+
+                //------------------------------------------------------------------------------
+                // create MORIS mesh using MTK database
+                MtkMeshData aMeshData;
+                aMeshData.CreateAllEdgesAndFaces = true;
+                aMeshData.SpatialDim = &tNumDim;
+                aMeshData.ElemConn(0) = &tElementConnQuad;
+                aMeshData.CellTopology(0) = CellTopology::QUAD4;
+                aMeshData.NodeCoords = &tCoords;
+                aMeshData.LocaltoGlobalElemMap(0) = &tElemLocalToGlobalQuad;
+                //aMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
+
+                Mesh *tMesh = create_interpolation_mesh(MeshType::STK, aMeshData);
+
+                CHECK(tMesh->get_num_elems() == 1);
+
+                // Setup Node Vertices (note: this data structure will be in the STK_Implementation
+                moris::Cell<Vertex *> tElementVertices;
+                for (size_t i = 0; i < tNodeIndices.numel(); i++)
+                {
+                    tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));
+                }
+
+                // Setup cell associated with element index 0
+                Cell_Info_Quad4 tQuad4;
+                Cell_STK tCell(&tQuad4, 1, 0, tElementVertices, tMesh);
+
+                // Some checks on the cell
+                CHECK(tCell.get_id() == 1);
+                CHECK(tCell.get_index() == 0);
+                CHECK(tCell.get_owner() == (moris_id)par_rank());
+                CHECK(tCell.get_number_of_vertices() == 4);
+                Interpolation_Order tInterpOrder = tCell.get_interpolation_order();
+                CHECK(tInterpOrder == Interpolation_Order::LINEAR);
+
+                Integration_Order tIntegOrder = tCell.get_integration_order();
+                CHECK(tIntegOrder == Integration_Order::QUAD_2x2);
+
+                // checking derivative of 0 vertex in the 0 direction
+                CHECK(tCell.compute_cell_measure_deriv(0,0) == Approx(-0.5));
+
+                // checking derivative of 0 vertex in the 1 direction
+                CHECK(tCell.compute_cell_measure_deriv(0,1) == Approx(-0.5));
+
+                // checking other nodes
+                CHECK(tCell.compute_cell_measure_deriv(1,0) == Approx(0.5));
+                CHECK(tCell.compute_cell_measure_deriv(1,1) == Approx(-0.5));
+                CHECK(tCell.compute_cell_measure_deriv(2,0) == Approx(0.5));
+                CHECK(tCell.compute_cell_measure_deriv(2,1) == Approx(0.5));
+                CHECK(tCell.compute_cell_measure_deriv(3,0) == Approx(-0.5));
+                CHECK(tCell.compute_cell_measure_deriv(3,1) == Approx(0.5));
+            }
+        }
+
+        TEST_CASE("MTK Tri3 Area Derivative", "[MTK],[Area_Deriv],[Area_Deriv_Tri3]")
+        {
+            if (par_size() <= 1)
+            {
+                //create a 2D MORIS mesh of quad4's using MTK database
+                //------------------------------------------------------------------------------
+                uint tNumDim = 2; // specify number of spatial dimensions
+
+                // Node coordinate matrix
+                Matrix<DDRMat> tCoords = {{0.0, 0.0},
+                                          {1.0, 0.0},
+                                          {0.0, 1.0}};
+
+                Matrix<IndexMat> tNodeIndices = {{0, 1, 2}};
+                Matrix<IndexMat> tNodeIds = {{1, 2, 3}};
+
+                // specify element connectivity of quad for mesh
+                Matrix<IdMat> tElementConnQuad = {{1, 2, 3}};
+
+                // specify the local to global element map for quads
+                Matrix<IdMat> tElemLocalToGlobalQuad = {{1}};
+
+                // specify the local to global map
+                //Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }};
+
+                //------------------------------------------------------------------------------
+                // create MORIS mesh using MTK database
+                MtkMeshData aMeshData;
+                aMeshData.CreateAllEdgesAndFaces = true;
+                aMeshData.SpatialDim = &tNumDim;
+                aMeshData.ElemConn(0) = &tElementConnQuad;
+                aMeshData.CellTopology(0) = CellTopology::TRI3;
+                aMeshData.NodeCoords = &tCoords;
+                aMeshData.LocaltoGlobalElemMap(0) = &tElemLocalToGlobalQuad;
+                //aMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
+
+                Mesh *tMesh = create_interpolation_mesh(MeshType::STK, aMeshData);
+
+                CHECK(tMesh->get_num_elems() == 1);
+
+                // Setup Node Vertices (note: this data structure will be in the STK_Implementation
+                moris::Cell<Vertex *> tElementVertices;
+                for (size_t i = 0; i < tNodeIndices.numel(); i++)
+                {
+                    tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));
+                }
+
+                // Setup cell associated with element index 0
+                Cell_Info_Tri3 tTri3;
+                Cell_STK tCell(&tTri3, 1, 0, tElementVertices, tMesh);
+
+                // Some checks on the cell
+                CHECK(tCell.get_id() == 1);
+                CHECK(tCell.get_index() == 0);
+                CHECK(tCell.get_owner() == (moris_id)par_rank());
+                CHECK(tCell.get_number_of_vertices() == 3);
+                Interpolation_Order tInterpOrder = tCell.get_interpolation_order();
+                CHECK(tInterpOrder == Interpolation_Order::LINEAR);
+
+                // checking derivative of 0 vertex in the 0 direction
+                CHECK(tCell.compute_cell_measure_deriv(0,0) == Approx(-0.5));
+
+                // checking derivative of 0 vertex in the 1 direction
+                CHECK(tCell.compute_cell_measure_deriv(0,1) == Approx(-0.5));
+
+                // checking other nodes
+                CHECK(tCell.compute_cell_measure_deriv(1,0) == Approx(0.5));
+                CHECK(tCell.compute_cell_measure_deriv(1,1) == Approx(0.0));
+                CHECK(tCell.compute_cell_measure_deriv(2,0) == Approx(0.0));
+                CHECK(tCell.compute_cell_measure_deriv(2,1) == Approx(0.5));
+            }
+        }
     } // namespace mtk
 } // namespace moris
