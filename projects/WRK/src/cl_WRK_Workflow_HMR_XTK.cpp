@@ -1,7 +1,5 @@
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
-#include "fn_WRK_perform_refinement.hpp"
-
 #include "cl_HMR.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -12,6 +10,7 @@
 #include "cl_Tracer.hpp"
 
 #include "cl_Stopwatch.hpp"
+#include "cl_WRK_perform_refinement.hpp"
 
 #include "fn_norm.hpp"
 
@@ -89,7 +88,8 @@ namespace moris
                 mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
                 // HMR refined by GE
-                perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
+                Refinement_Mini_Performer tRefinementPerfomer;
+                tRefinementPerfomer.perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();
