@@ -1,6 +1,5 @@
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_XTK.hpp"
-#include "fn_WRK_perform_refinement.hpp"
 #include "cl_Param_List.hpp"
 
 #include "cl_MTK_Integration_Mesh.hpp"

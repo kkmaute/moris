@@ -11,7 +11,8 @@ set(HEADERS
     cl_WRK_Workflow.hpp
     cl_WRK_Workflow_Factory.hpp
     cl_WRK_Workflow_HMR_XTK.hpp
-    fn_WRK_perform_refinement.hpp
+    cl_WRK_perform_refinement.hpp
+    cl_WRK_perform_remeshing.hpp
     )
  
 set(GEN_INCLUDES
@@ -37,7 +38,8 @@ set(LIB_SOURCES
     cl_WRK_Workflow_HMR_XTK.cpp
     cl_WRK_Workflow_STK_XTK.cpp
     fn_WRK_Workflow_Main_Interface.cpp
-    fn_WRK_perform_refinement.cpp
+    cl_WRK_perform_refinement.cpp
+    cl_WRK_perform_remeshing.cpp
     )
 
 # List library dependencies

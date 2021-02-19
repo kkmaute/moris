@@ -108,6 +108,12 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
+                void load_refinement_pattern(
+                        Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                        moris::Cell< Matrix< DDLUMat > > & aElementPerPattern);
+
+                // -----------------------------------------------------------------------------
+
                 /**
                  * sets the flag that the parameter object must be deleted
                  * by the destructor
