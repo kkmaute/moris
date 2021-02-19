@@ -1,5 +1,5 @@
-#ifndef MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
-#define MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
+#ifndef MORIS_FN_WRK_PERFORM_REMESCHING_HPP
+#define MORIS_FN_WRK_PERFORM_REMESCHING_HPP
 
 #include "cl_Matrix.hpp"
 
@@ -25,10 +25,10 @@ namespace moris
                 Cell< std::string > mFieldNames;
 
                 //! Refinement level
-                Matrix< DDUMat >    mRefinementLevel;
+                Cell< Matrix< DDUMat > >    mRefinementLevel;
 
                 //! Refinement Pattern
-                Matrix< DDUMat >    mRefinementPattern;
+                Cell< Matrix< DDUMat > >    mRefinementPattern;
         };
 
         class Refinement_Mini_Performer
@@ -47,7 +47,7 @@ namespace moris
 
                 Refinement_Mini_Performer(
                         ParameterList                 & aParameterlist,
-                        std::shared_ptr< Library_IO >   aLibrary );
+                        std::shared_ptr< Library_IO >   aLibrary = nullptr );
 
                 //--------------------------------------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ namespace moris
                 //--------------------------------------------------------------------------------------------------------------
 
                 void perform_refinement(
-                        Cell< mtk::Field >       & aFields,
+                        Cell< mtk::Field* >       & aFields,
                         std::shared_ptr<hmr::HMR>   aHMR );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -109,4 +109,4 @@ namespace moris
     }
 }
 
-#endif //MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
+#endif //MORIS_FN_WRK_PERFORM_REMESCHING_HPP

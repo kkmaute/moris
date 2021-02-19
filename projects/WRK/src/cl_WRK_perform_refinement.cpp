@@ -27,16 +27,16 @@ namespace moris
             mParameters.mFieldNames = tFieldNames;
 
             // set refinement level
-            Matrix< DDUMat > tRefinementLevel;
-            string_to_mat(
+            Cell< Matrix< DDUMat > > tRefinementLevel;
+            string_to_cell_mat(
                     aParameterlist.get< std::string >( "levels_of_refinement" ),
                     tRefinementLevel );
 
             mParameters.mRefinementLevel = tRefinementLevel;
 
             // set refinementpattern
-            Matrix< DDUMat > tRefinementPattern;
-            string_to_mat(
+            Cell< Matrix< DDUMat > >  tRefinementPattern;
+            string_to_cell_mat(
                     aParameterlist.get< std::string >( "refinement_pattern" ),
                     tRefinementPattern );
 
@@ -47,11 +47,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
-                Cell< mtk::Field >       & aFields,
+                Cell< mtk::Field* >       & aFields,
                 std::shared_ptr<hmr::HMR>  aHMR )
         {
 
+
+
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+
 
         //--------------------------------------------------------------------------------------------------------------
 
