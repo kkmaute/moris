@@ -1,26 +1,48 @@
-#include "fn_WRK_perform_remeshing.hpp"
-#include "cl_WRK_Performer.hpp"
+
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_File.hpp"
-#include "HMR_Globals.hpp"
-#include "cl_MTK_Field.hpp"
-#include "cl_MTK_Mapper.hpp"
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
+#include "HMR_Globals.hpp"
+
+#include "cl_MTK_Field.hpp"
+#include "cl_MTK_Mapper.hpp"
+
+#include "cl_WRK_perform_remeshing.hpp"
+#include "cl_Param_List.hpp"
 
 #include <memory>
+
 
 namespace moris
 {
     namespace wrk
     {
 
+        Remeshing_Mini_Performer::Remeshing_Mini_Performer(
+                ParameterList                 & aParameterlist,
+                std::shared_ptr< Library_IO >   aLibrary )
+        : mLibrary( aLibrary )
+        {
+            mParameters.mMode = aParameterlist.get< std::string >( "mode" );
+
+            moris::map< std::string, moris::uint > tModeMap;
+            tModeMap["ab_initio"] = 0;
+            tModeMap["previous"] = 1;
+
+            MORIS_ERROR( tModeMap.key_exists( mParameters.mMode ),
+                    "Remeshing_Mini_Performer::Remeshing_Mini_Performer(), Mode name does not exist" );
+
+            mParameters.mModeIndex = tModeMap.find( mParameters.mMode );
+
+
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void perform_remeshing(
+        void Remeshing_Mini_Performer::perform_remeshing(
                 mtk::Field                                 * aSourceField,
                 moris::Cell< std::shared_ptr< hmr::HMR > > & aHMRPerformers )
         {
@@ -65,14 +87,6 @@ namespace moris
                     aElementCounterPerLevelAndPattern,
                     aElementPerPattern);
 
-
-
-
-
-
-
-
-
             // create union mesh
             hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                     tHMRDatabaseNew,
@@ -97,6 +111,49 @@ namespace moris
 
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Remeshing_Mini_Performer::perform_refinement(
+                std::shared_ptr< hmr::HMR >   aHMRPerformer,
+                mtk::Field                  * aSourceField )
+        {
+            // switch based on mode index
+            switch ( mParameters.mModeIndex )
+            {
+                case 0 :
+                {
+                    this->perform_refinement_mode_0( aHMRPerformer, aSourceField );
+
+                    break;
+                }
+                case 1 :
+                {
+                    this->perform_refinement_mode_1( aHMRPerformer, aSourceField );
+
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false, "Remeshing_Mini_Performer::perform_refinement() - Refinement mode does not exist" );
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Remeshing_Mini_Performer::perform_refinement_mode_0(
+                std::shared_ptr< hmr::HMR >   aHMRPerformer,
+                mtk::Field                  * aSourceField )
+        {
+
+        }
+
+
+        //--------------------------------------------------------------------------------------------------------------
+        void Remeshing_Mini_Performer::perform_refinement_mode_1(
+                std::shared_ptr< hmr::HMR >   aHMRPerformer,
+                mtk::Field                  * aSourceField )
+        {
+
+        }
 
     }
 }
