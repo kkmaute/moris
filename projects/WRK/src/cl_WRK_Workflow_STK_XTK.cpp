@@ -116,7 +116,7 @@ namespace moris
             this->create_xtk();
 
             // Compute level set data in GEN
-            mPerformerManager->mGENPerformer( 0 )->distribute_advs(
+            mPerformerManager->mGENPerformer( 0 )->reset_mesh_information(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // Output GEN fields, if requested

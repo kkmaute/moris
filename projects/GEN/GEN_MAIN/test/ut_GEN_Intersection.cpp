@@ -31,9 +31,7 @@ namespace moris
             if (par_size() == 1)
             {
                 // Create mesh
-                mtk::Interpolation_Mesh* tMesh = nullptr;
-                mtk::Integration_Mesh* tIGMesh = nullptr;
-                create_simple_mesh(tMesh,tIGMesh, 2, 2);
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -48,11 +46,6 @@ namespace moris
                 ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
                 tPlaneParameterList.set("type", "plane");
                 tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
-
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
-                        std::make_shared< mtk::Mesh_Manager >();
-
-                tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -347,9 +340,7 @@ namespace moris
             if (par_size() == 1)
             {
                 // Create mesh
-                mtk::Interpolation_Mesh* tMesh = nullptr;
-                mtk::Integration_Mesh* tIGMesh = nullptr;
-                create_simple_mesh(tMesh,tIGMesh,2, 2);
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
 
                 // Set up circle
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
@@ -358,11 +349,6 @@ namespace moris
                 tCircleParameterList.set("discretization_mesh_index", 0);
                 tCircleParameterList.set("multilinear_intersections", true);
                 Matrix<DDRMat> tADVs(0, 0);
-
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
-                          std::make_shared< mtk::Mesh_Manager >();
-
-                  tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;

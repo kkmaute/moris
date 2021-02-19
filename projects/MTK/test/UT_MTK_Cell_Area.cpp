@@ -299,7 +299,7 @@ namespace moris
                 CHECK(tCell.get_index() == 0);
                 CHECK(tCell.get_owner() == (moris_id)par_rank());
                 CHECK(tCell.get_number_of_vertices() == 8);
-                CHECK(tCell.compute_cell_measure_general() == 1);
+                CHECK(tCell.compute_cell_measure_general() == Approx(1.0));
             }
         }
 
