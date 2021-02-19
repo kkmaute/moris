@@ -557,6 +557,7 @@ namespace moris
         tParameterlist.resize(7);
 
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        tParameterlist( 0 )( 0 ).set("Solver_Type", "Amesos_Umfpack" );
 
         tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
