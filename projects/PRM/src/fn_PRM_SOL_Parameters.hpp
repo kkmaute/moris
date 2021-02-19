@@ -270,6 +270,8 @@ namespace moris
 
             tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
 
+            tLinAlgorithmParameterList.insert( "Solver_Type" , "Amesos_Pardiso" );
+
             return tLinAlgorithmParameterList;
         }
 
