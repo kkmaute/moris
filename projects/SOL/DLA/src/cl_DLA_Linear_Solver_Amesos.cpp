@@ -9,6 +9,10 @@
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
 
+#include "fn_PRM_SOL_Parameters.hpp"
+
+#include "Amesos_Umfpack.h"
+
 #include "cl_Tracer.hpp"
 
 using namespace moris;
@@ -31,6 +35,12 @@ Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem )
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;
 
+    // Set chosen solver options
+    this->set_solver_parameters();
+}
+
+Linear_Solver_Amesos::Linear_Solver_Amesos()
+{
     // Set chosen solver options
     this->set_solver_parameters();
 }
@@ -62,6 +72,8 @@ void Linear_Solver_Amesos::set_solver_parameters()
     // set symbolic factorization
     // options are true, false
     //    mParameterList.insert( "symbolic_factorization" , false );
+
+    mParameterList = prm::create_linear_algorithm_parameter_list_amesos();
 }
 
 //-----------------------------------------------------------------------------
@@ -129,9 +141,24 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
     mEpetraProblem.SetRHS( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector() );
     mEpetraProblem.SetLHS( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
 
+//    Teuchos::ParameterList tAmesosParameterlist;
+//
+//    tAmesosParameterlist.set("RcondThreshold", 0.0 );
+//    tAmesosParameterlist.set("OutputLevel", 2 );
+//    tAmesosParameterlist.set("PrintStatus", true );
+//    tAmesosParameterlist.set("PrintTiming", true );
+//    tAmesosParameterlist.set("DebugLevel", 0 );
+
+
     Amesos tAmesosFactory;
 
-    mAmesosSolver = tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
+    std::string tSolverType = mParameterList.get< std::string >( "Solver_Type" );
+
+    //mAmesosSolver = tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
+    mAmesosSolver = tAmesosFactory.Create( tSolverType, mEpetraProblem );
+
+    //mAmesosSolver->SetParameters( tAmesosParameterlist );
+
 
     sint error = 0;
     moris::real startSolTime     = 0.0;
@@ -166,6 +193,13 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
 
     // Get chosen times from solver
     mAmesosSolver->GetTiming( timingsList );
+
+    if( tSolverType == "Amesos_Umfpack" )
+    {
+        real tConditionNumber = reinterpret_cast< Amesos_Umfpack* >( mAmesosSolver )->GetRcond();
+
+        MORIS_LOG_SPEC( "Condition Number" , tConditionNumber );
+    }
 
     const moris::real endSolTime     = Teuchos::getParameter< moris::real >( timingsList, "Total solve time" );
     const moris::real endSymFactTime = ( mAmesosSolver->NumSymbolicFact() > 0 ) ? Teuchos::getParameter< moris::real >( timingsList, "Total symbolic factorization time" ) : 0.0;
