@@ -10,6 +10,10 @@ namespace moris
         class HMR;
         class Mesh;
     }
+    namespace mtk
+    {
+        class Field;
+    }
 
     namespace wrk
     {
@@ -51,6 +55,14 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
 
+                void perform_refinement(
+                        Cell< mtk::Field >       & aFields,
+                        std::shared_ptr<hmr::HMR>   aHMR );
+
+                //--------------------------------------------------------------------------------------------------------------
+                // FIXME stuff below this line will be deleted soon
+                //----------------------------------------------------------------------------------------------------------------
+
                 /**
                  * Performs refinement using HMR based on the information provided by the cell of performers
                  *
@@ -59,7 +71,7 @@ namespace moris
                  * @param aSimultaneous If true (default), refinement steps are generated using all performers simultaneously.
                  * If false, one performer will have all refinement steps performed before moving to the next performer.
                  */
-                void perform_refinement(
+                void perform_refinement_old(
                         std::shared_ptr<hmr::HMR>          aHMR,
                         Cell< std::shared_ptr<Performer> > aPerformers,
                         bool                               aSimultaneous =  true);

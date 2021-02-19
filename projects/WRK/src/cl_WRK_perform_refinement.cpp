@@ -4,6 +4,8 @@
 #include "cl_WRK_perform_refinement.hpp"
 #include "HMR_Globals.hpp"
 
+#include "cl_MTK_Field.hpp"
+
 #include "cl_Param_List.hpp"
 
 namespace moris
@@ -45,6 +47,15 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
+                Cell< mtk::Field >       & aFields,
+                std::shared_ptr<hmr::HMR>  aHMR )
+        {
+
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::perform_refinement_old(
                 std::shared_ptr<hmr::HMR>          aHMR,
                 Cell< std::shared_ptr<Performer> > aPerformers,
                 bool                               aSimultaneous)
