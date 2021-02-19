@@ -92,6 +92,14 @@ namespace moris
              */
             void save_refinement_pattern( Lagrange_Mesh_Base * aLagrangeMesh );
 
+            //-------------------------------------------------------------------------------
+
+            void save_refinement_pattern(
+                    Lagrange_Mesh_Base * aLagrangeMesh,
+                    const uint aDiscretizationMeshIndex,
+                    Matrix< DDLUMat > & aElementCounterPerLevelAndPattern,
+                    moris::Cell< Matrix< DDLUMat > > & aElementPerPattern );
+
 //-------------------------------------------------------------------------------
 
             /**
@@ -104,6 +112,11 @@ namespace moris
              */
             void load_refinement_pattern(       Background_Mesh_Base * aMesh,
                                           const bool                   aMode );
+
+            void load_refinement_pattern(
+                    Background_Mesh_Base             * aMesh,
+                    Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                    moris::Cell< Matrix< DDLUMat > > & aElementPerPattern);
 
 //-------------------------------------------------------------------------------
 

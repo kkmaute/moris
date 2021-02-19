@@ -9,9 +9,7 @@ namespace moris
 {
     namespace ge
     {
-        void create_simple_mesh(
-                mtk::Interpolation_Mesh * & aIPMesh,
-                mtk::Integration_Mesh * & aIGMesh,
+        mtk::Interpolation_Mesh* create_simple_mesh(
                 uint aNumXElements,
                 uint aNumYElements,
                 uint aLagrangeOrder,
@@ -20,7 +18,7 @@ namespace moris
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension",
-                    std::to_string(aNumXElements) + ", " + std::to_string(aNumYElements));
+                             std::to_string(aNumXElements) + ", " + std::to_string(aNumYElements));
             tParameters.set( "domain_dimensions", "2, 2");
             tParameters.set( "domain_offset", "-1.0, -1.0");
             tParameters.set( "domain_sidesets", "1,2,3,4");
@@ -45,8 +43,7 @@ namespace moris
             tHMR.perform_initial_refinement();
             tHMR.finalize();
 
-            aIPMesh = tHMR.create_interpolation_mesh(0);
-            aIGMesh = tHMR.create_integration_mesh(0, reinterpret_cast<moris::hmr::Interpolation_Mesh_HMR*>(aIPMesh) );
+            return tHMR.create_interpolation_mesh(0);
         }
     }
 }

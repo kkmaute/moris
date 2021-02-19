@@ -66,6 +66,7 @@ namespace moris
             uint mNumSpatialDimensions;
 
             // ADVs
+            Matrix<DDRMat> mInitialPrimitiveADVs;
             Matrix<DDRMat> mADVs;
             Matrix<DDSMat> mFullADVIds;
             sol::Dist_Vector* mOwnedADVs = nullptr;
@@ -128,7 +129,7 @@ namespace moris
             ~Geometry_Engine();
 
             /**
-             * Sets new advs for the geometry engine
+             * Sets new ADVs for the geometry engine.
              *
              * @param aNewADVs vector of new advs to use
              */
@@ -345,13 +346,18 @@ namespace moris
                     uint aRefinementIndex);
 
             /**
-             * Geometry fields which are set to be parameterized by a B-spline level field are done so on the given mesh.
+             * Discretize GEN fields on the given mesh and distribute parallel ADVs based on these fields.
              *
-             * @param aMesh Mesh for computing level set data
+             * @param aMesh Mesh for discretizing fields
              */
             void distribute_advs(mtk::Interpolation_Mesh* aMesh);
 
-            void distribute_advs( std::shared_ptr< mtk::Mesh_Manager> aMeshManager );
+            /**
+             * Resets the information that the geometry engine stores about a mesh.
+             *
+             * @param aMesh Mesh for computing level set data
+             */
+            void reset_mesh_information(mtk::Interpolation_Mesh* aMesh);
 
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
