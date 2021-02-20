@@ -52,6 +52,8 @@ namespace moris
                 //! Coefficients values
                 Matrix< DDRMat > mCoefficients;
 
+                bool mFieldIsLocked = false;
+
                 //------------------------------------------------------------------------------
             public :
                 //------------------------------------------------------------------------------
@@ -152,6 +154,17 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                /**
+                 * Expert user function. Allows for the unerlying mesh as well as the nodal and coefficients values to be changed.
+                 * Such a change can result in an unwanted behavior.
+                 */
+                void unlock_field()
+                {
+                    mFieldIsLocked = false;
+                };
+
+                //------------------------------------------------------------------------------
+
                 virtual const Matrix< DDRMat > & get_nodal_values() const
                 {
                     return mNodalValues;
@@ -161,7 +174,11 @@ namespace moris
 
                 virtual void set_nodal_values( const Matrix< DDRMat > & aNodalValues )
                 {
+                    this->error_if_locked();
+
                     mNodalValues = aNodalValues;
+
+                    mFieldIsLocked = true;
                 };
 
                 //------------------------------------------------------------------------------
@@ -175,7 +192,11 @@ namespace moris
 
                 virtual void set_coefficients( const Matrix< DDRMat > & aCoefficients )
                 {
+                    this->error_if_locked();
+
                     mCoefficients = aCoefficients;
+
+                    mFieldIsLocked = true;
                 };
 
                 //------------------------------------------------------------------------------
@@ -228,6 +249,9 @@ namespace moris
                 void save_field_to_exodus( const std::string & aFileName );
 
                 //------------------------------------------------------------------------------
+
+                void error_if_locked(  ) const;
+
         };
 
         //------------------------------------------------------------------------------

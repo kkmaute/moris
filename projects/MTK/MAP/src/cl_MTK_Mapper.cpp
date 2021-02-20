@@ -286,6 +286,7 @@ namespace moris
                     EntityRank::BSPLINE);
 
             // move coefficients to output field
+            aFieldSource->unlock_field();
             aFieldSource->set_coefficients( tFieldUnion.get_coefficients() );
 
             //                    this->perform_mapping(
@@ -505,6 +506,7 @@ namespace moris
                 }
             }
 
+            aFieldTarget->unlock_field();
             aFieldTarget->set_nodal_values( tTargetValues );
         }
 
@@ -645,6 +647,7 @@ namespace moris
             Matrix<DDRMat> tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
+            aField->unlock_field();
             aField->set_coefficients( tSolution );
         }
 
@@ -813,6 +816,8 @@ namespace moris
 
                 }
             }
+
+            aField->unlock_field();
 
             aField->set_nodal_values( tNodalValues );
         }

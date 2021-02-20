@@ -207,6 +207,14 @@ namespace moris
             tExodusWriter.save_mesh( );
         }
 
+        //------------------------------------------------------------------------------
+
+        void Field::error_if_locked() const
+        {
+            MORIS_ERROR( !mFieldIsLocked,
+                    "Field is locked. You are not allowed to change the mesh as well as the field or coefficient vector");
+        }
+
 
         //------------------------------------------------------------------------------
     } /* namespace hmr */
