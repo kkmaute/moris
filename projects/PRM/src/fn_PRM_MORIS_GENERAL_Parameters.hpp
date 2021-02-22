@@ -48,7 +48,7 @@ namespace moris
 
     void create_remeshing_parameterlist( ParameterList & aParameterlist )
     {
-        // Remeshing mode. Options are "ab_initio", "previous"
+        // Remeshing mode. Options are "ab_initio", "former"
         aParameterlist.insert( "mode" , "" );
 
         // modde "ab_initio"

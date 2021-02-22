@@ -12,13 +12,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Field::Field( std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
-                      uint const                         & aMeshIndex,
-                      uint const                         & aDiscretizationMeshIndex )
-        : mtk::Field( aMeshManager, aMeshIndex, aDiscretizationMeshIndex )
+        Field::Field( mtk::Mesh_Pair * aMeshPair,
+                      uint const     & aDiscretizationMeshIndex )
+        : mtk::Field( aMeshPair, aDiscretizationMeshIndex )
         {
-            mtk::Interpolation_Mesh* tInterpolationMesh =
-                    mMeshManager->get_interpolation_mesh( mMeshIndex );
+            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair->mInterpolationMesh;
 
             // get number of nodes on block
             uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();

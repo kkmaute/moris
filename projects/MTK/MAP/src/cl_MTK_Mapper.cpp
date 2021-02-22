@@ -88,11 +88,11 @@ namespace moris
             mFieldIn  = aFieldSource;
             mFieldOut = aFieldTarget;
 
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = mFieldIn->get_mesh_pair();
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = mFieldOut->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairIn = mFieldIn->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairOut = mFieldOut->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
-            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn->mInterpolationMesh;
+            moris::mtk::Mesh * tTargetMesh = tMeshPairOut->mInterpolationMesh;
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -136,13 +136,11 @@ namespace moris
                     tUnionPattern,
                     tUnionInterpolationMesh);
 
-            // Create mesh manager
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            mtk::Mesh_Pair tMeshPairUnion;
+            tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
+            tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
 
-            // Register mesh pair
-            uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
-
-            mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+            mtk::Field tFieldUnion( &tMeshPairUnion );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
@@ -168,9 +166,11 @@ namespace moris
                         tSourcePattern,
                         tHigherOrderInterpolationMesh);
 
-                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh );
+                mtk::Mesh_Pair tMeshPairHigherOrder;
+                tMeshPairHigherOrder.mInterpolationMesh = tHigherOrderInterpolationMesh;
+                tMeshPairHigherOrder.mIntegrationMesh   = tHigherOrderIntegrationMesh;
 
-                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndexUnion );
+                mtk::Field tFieldHigerOrder( &tMeshPairHigherOrder );
 
                 this->change_field_order( aFieldSource, &tFieldHigerOrder );
 
@@ -197,9 +197,9 @@ namespace moris
 
         void Mapper::map_input_field_to_output_field_2( mtk::Field * aFieldSource )
         {
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairIn = aFieldSource->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn->mInterpolationMesh;
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -241,13 +241,11 @@ namespace moris
                     tUnionPattern,
                     tUnionInterpolationMesh);
 
-            // Create mesh manager
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            mtk::Mesh_Pair tMeshPairUnion;
+            tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
+            tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
 
-            // Register mesh pair
-            uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
-
-            mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+            mtk::Field tFieldUnion( &tMeshPairUnion );
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tTargetOrder )
@@ -267,9 +265,10 @@ namespace moris
                         tLagrangeOrder,
                         tSourcePattern); // order, Lagrange pattern, bspline order, bspline pattern
 
-                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, nullptr );
+                mtk::Mesh_Pair tMeshPairHigherOrder;
+                tMeshPairHigherOrder.mInterpolationMesh = tHigherOrderInterpolationMesh;
 
-                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndexUnion );
+                mtk::Field tFieldHigerOrder( &tMeshPairHigherOrder );
 
                 this->change_field_order( aFieldSource, &tFieldHigerOrder );
 
@@ -302,11 +301,11 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairIn = aFieldSource->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairOut = aFieldTarget->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
-            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn->mInterpolationMesh;
+            moris::mtk::Mesh * tTargetMesh = tMeshPairOut->mInterpolationMesh;
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::interpolate_field() Source mesh is not and HMR mesh" );
@@ -428,11 +427,11 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aFieldSource->get_mesh_pair();
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairOut = aFieldTarget->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairIn = aFieldSource->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairOut = aFieldTarget->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
-            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.second->get_interpolation_mesh( tMeshPairOut.first );
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn->mInterpolationMesh;
+            moris::mtk::Mesh * tTargetMesh = tMeshPairOut->mInterpolationMesh;
 
             // pointer to mesh that is linked to input field
             hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
@@ -515,6 +514,12 @@ namespace moris
                 mtk::Field * aField,
                 const real aAlpha )
         {
+            mtk::Mesh_Pair * tMeshPair = aField->get_mesh_pair();
+
+            mtk::Mesh_Manager tMeshManager;
+
+            uint MeshPairIndex = tMeshManager.register_mesh_pair( *tMeshPair );
+
             if( ! mHaveIwgAndModel )
             {
                 // create a L2 IWG
@@ -530,18 +535,20 @@ namespace moris
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
-                std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aField->get_mesh_pair();
-
                 // create model
                 mModel = new mdl::Model(
-                        tMeshPairIn.second.get(),
+                        &tMeshManager,
                         aField->get_discretization_mesh_index(),
                         tSetInfo,
-                        tMeshPairIn.first );
+                        MeshPairIndex );
 
                 // set bool for building IWG and model to true
                 mHaveIwgAndModel = true;
             }
+            // set weak bcs from field
+            mModel->set_weak_bcs( aField->get_nodal_values() );
+
+            this->map_node_to_bspline( aField );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -661,10 +668,7 @@ namespace moris
             // create the model if it has not been created yet
             this->create_iwg_and_model( aField );
 
-            // set weak bcs from field
-            mModel->set_weak_bcs( aField->get_nodal_values() );
 
-            this->map_node_to_bspline( aField );
         }
 
         //------------------------------------------------------------------------------
@@ -675,9 +679,9 @@ namespace moris
             // Tracer
             Tracer tTracer("MTK", "Mapper", "Map Bspline-to-Node");
 
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPair = aField->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPair = aField->get_mesh_pair();
 
-            moris::mtk::Mesh * tInterpolationMesh = tMeshPair.second->get_interpolation_mesh( tMeshPair.first );
+            moris::mtk::Mesh * tInterpolationMesh = tMeshPair->mInterpolationMesh;
 
             moris_index tDescritizationIndex= aField->get_discretization_mesh_index();
 
@@ -728,11 +732,11 @@ namespace moris
                 //                        tSourcePattern,
                 //                        tHigherOrderInterpolationMesh);
 
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
 
-                uint tMeshIndex = tMeshManager->register_mesh_pair( tHigherOrderInterpolationMesh, nullptr );
+                mtk::Mesh_Pair tMeshPairHigherOrder;
+                tMeshPairHigherOrder.mInterpolationMesh = tHigherOrderInterpolationMesh;
 
-                mtk::Field tFieldHigerOrder( tMeshManager, tMeshIndex );
+                mtk::Field tFieldHigerOrder( &tMeshPairHigherOrder );
 
                 //--------------------------------------------------
 
@@ -758,10 +762,11 @@ namespace moris
                         tUnionPattern,
                         tUnionInterpolationMesh);
 
-                // Register mesh pair
-                uint tMeshIndexUnion = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+                mtk::Mesh_Pair tMeshPairUnion;
+                tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
+                tMeshPairUnion.mIntegrationMesh = tIntegrationUnionMesh;
 
-                mtk::Field tFieldUnion( tMeshManager, tMeshIndexUnion );
+                mtk::Field tFieldUnion( &tMeshPairUnion );
 
                 tFieldUnion.set_coefficients( aField->get_coefficients() );
 

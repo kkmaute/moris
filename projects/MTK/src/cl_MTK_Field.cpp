@@ -37,6 +37,28 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Mesh_Pair * Field::get_mesh_pair()
+        {
+            MORIS_ERROR( mMeshPair != nullptr, " Field::get_mesh_pair()(), Mesh_Manager not set" );
+
+            return mMeshPair;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::set_mesh_pair( Mesh_Pair * aMeshPair)
+        {
+            this->error_if_locked();
+
+            mMeshPair = aMeshPair;
+
+            this->compute_nodal_values();
+
+            mFieldIsLocked = true;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Field::save_field_to_hdf5(
                 const std::string & aFilePath,
                 const bool          aCreateNewFile )
@@ -182,7 +204,7 @@ namespace moris
 
         void Field::save_field_to_exodus( const std::string & aFileName )
         {
-            mtk::Mesh * tMesh = mMeshManager->get_interpolation_mesh( mMeshIndex );
+            mtk::Mesh * tMesh = mMeshPair->mInterpolationMesh;
 
             moris::mtk::Writer_Exodus tExodusWriter( tMesh );
 

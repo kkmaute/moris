@@ -33,7 +33,7 @@ namespace moris
 
             moris::map< std::string, moris::uint > tModeMap;
             tModeMap["ab_initio"] = 0;
-            tModeMap["previous"] = 1;
+            tModeMap["former"] = 1;
 
             MORIS_ERROR( tModeMap.key_exists( mParameters.mMode ),
                     "Remeshing_Mini_Performer::Remeshing_Mini_Performer(), Mode name does not exist" );
@@ -67,9 +67,9 @@ namespace moris
                 mtk::Field                                 * aSourceField,
                 moris::Cell< std::shared_ptr< hmr::HMR > > & aHMRPerformers )
         {
-            std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > tMeshPairIn = aSourceField->get_mesh_pair();
+            mtk::Mesh_Pair * tMeshPairIn = aSourceField->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn .second->get_interpolation_mesh( tMeshPairIn .first );
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn->mInterpolationMesh;
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -117,12 +117,12 @@ namespace moris
                     tDiscretizationOrder,
                     6); // order, Lagrange pattern, bspline pattern
 
-            // Create mesh manager register mesh pair
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-            uint tMeshIndexOld = tMeshManager->register_mesh_pair( tOldInterpolationMesh, nullptr );
+            // Create  mesh pair
+            mtk::Mesh_Pair tMeshPairOld;
+            tMeshPairOld.mInterpolationMesh = tOldInterpolationMesh;
 
-            // build field wir mesh
-            mtk::Field tFieldOld( tMeshManager, tMeshIndexOld );
+            // build field with mesh
+            mtk::Field tFieldOld( &tMeshPairOld );
 
             // copy values from input mesh to New/Old mesh ( this mesh is build based on the new HMR performer )
             tFieldOld.set_nodal_values( aSourceField->get_nodal_values() );
@@ -199,14 +199,11 @@ namespace moris
                             tDiscretizationOrder,
                             tPattern);
 
-                    // Create mesh manager
-                    std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-
-                    // Register mesh pair
-                    uint tMeshIndex = tMeshManager->register_mesh_pair( tInterpolationMesh, nullptr );
+                    mtk::Mesh_Pair tMeshPair;
+                    tMeshPair.mInterpolationMesh = tInterpolationMesh;
 
                     // create field object for this mesh
-                    mtk::Field tFieldOnPattern( tMeshManager, tMeshIndex );
+                    mtk::Field tFieldOnPattern( &tMeshPair );
                     tFieldOnPattern.set_label( "Field_for_refinement" );
 
                     // create mapper and map input field to new field
