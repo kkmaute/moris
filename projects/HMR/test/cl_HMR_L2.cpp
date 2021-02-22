@@ -1412,13 +1412,12 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         mtk::Integration_Mesh* tIntegrationMesh =
                 tHMR.create_integration_mesh( 0, tInterpolationMesh );
 
-        // Create mesh manager
-        std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+        mtk::Mesh_Pair tMeshPair;
+        tMeshPair.mInterpolationMesh = tInterpolationMesh;
+        tMeshPair.mIntegrationMesh = tIntegrationMesh;
 
-        // Register mesh pair
-        uint tMeshIndex = tMeshManager->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
 
-        mtk::Field tField_proxy( tMeshManager, tMeshIndex );
+        mtk::Field tField_proxy( &tMeshPair );
 
         tField_proxy.set_nodal_values( tField->get_node_values() );
 

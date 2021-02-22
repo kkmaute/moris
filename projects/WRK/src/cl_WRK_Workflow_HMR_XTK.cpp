@@ -89,7 +89,7 @@ namespace moris
 
                 // HMR refined by GE
                 Refinement_Mini_Performer tRefinementPerfomer;
-                tRefinementPerfomer.perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
+                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();

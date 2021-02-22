@@ -902,11 +902,10 @@ namespace moris
                 // get property name from parameter list
                 std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
-                //FIXME this should either be a shared ptr or a raw but not changing all the time. will be changed
-                std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
+                mtk::Mesh_Pair tMeshPair = mMeshManager->get_mesh_pair( mMeshPairIndex );
 
                 // create a property pointer
-                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
+                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >( &tMeshPair, -1 );
 
                 // set a name for the property
                 tField->set_label( tFieldName );

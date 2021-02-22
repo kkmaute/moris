@@ -141,10 +141,7 @@ namespace moris
             tMeshPair.mInterpolationMesh = mMesh;
             tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
 
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-            tMeshManager->register_mesh_pair(tMeshPair);
-
-            mtk::Field* tField = new mtk::Field(tMeshManager, 0, this->get_discretization_mesh_index());
+            mtk::Field* tField = new mtk::Field( &tMeshPair, this->get_discretization_mesh_index());
 
             // Use mapper
             mtk::Mapper tMapper;
@@ -204,9 +201,8 @@ namespace moris
             tOutputMeshPair.mInterpolationMesh = mMesh;
             tOutputMeshPair.mIntegrationMesh =
                     create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tOutputMeshPair.mInterpolationMesh);
-            std::shared_ptr<mtk::Mesh_Manager> tOutputMeshManager = std::make_shared<mtk::Mesh_Manager>();
-            tOutputMeshManager->register_mesh_pair(tOutputMeshPair);
-            mtk::Field* tOutputField = new mtk::Field(tOutputMeshManager, 0, this->get_discretization_mesh_index());
+
+            mtk::Field* tOutputField = new mtk::Field( &tOutputMeshPair, this->get_discretization_mesh_index());
 
             // Input mesh
             mtk::Interpolation_Mesh* tInputMesh = aField->get_mesh();
@@ -237,9 +233,8 @@ namespace moris
                 tInputMeshPair.mInterpolationMesh = tInputMesh;
                 tInputMeshPair.mIntegrationMesh =
                         create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tInputMeshPair.mInterpolationMesh);
-                std::shared_ptr<mtk::Mesh_Manager> tInputMeshManager = std::make_shared<mtk::Mesh_Manager>();
-                tInputMeshManager->register_mesh_pair(tInputMeshPair);
-                mtk::Field* tInputField = new mtk::Field(tInputMeshManager, 0, aField->get_discretization_mesh_index());
+
+                mtk::Field* tInputField = new mtk::Field( &tInputMeshPair, aField->get_discretization_mesh_index());
 
                 // Do interpolation
                 tInputField->set_nodal_values(tNodalValues);
