@@ -1,7 +1,5 @@
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
-#include "fn_WRK_perform_refinement.hpp"
-
 #include "cl_HMR.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -12,6 +10,7 @@
 #include "cl_Tracer.hpp"
 
 #include "cl_Stopwatch.hpp"
+#include "cl_WRK_perform_refinement.hpp"
 
 #include "fn_norm.hpp"
 
@@ -89,7 +88,8 @@ namespace moris
                 mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
                 // HMR refined by GE
-                perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
+                Refinement_Mini_Performer tRefinementPerfomer;
+                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();
@@ -101,7 +101,7 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 ) );
+                        mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
@@ -124,8 +124,8 @@ namespace moris
             this->create_xtk();
 
             // Compute level set data in GEN
-            mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                    mPerformerManager->mMTKPerformer( 0 ) );
+            mPerformerManager->mGENPerformer( 0 )->reset_mesh_information(
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(

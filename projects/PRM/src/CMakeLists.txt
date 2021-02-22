@@ -14,6 +14,7 @@ set(HEADERS
         fn_PRM_SOL_Parameters.hpp
         fn_PRM_VIS_Parameters.hpp
         fn_PRM_XTK_Parameters.hpp
+        fn_PRM_MORIS_GENERAL_Parameters.hpp
      )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

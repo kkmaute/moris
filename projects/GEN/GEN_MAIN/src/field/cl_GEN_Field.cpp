@@ -155,14 +155,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::storage_intention()
+        bool Field::intended_storage()
         {
             return (mParameters.mDiscretizationMeshIndex > -2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::discretization_intention()
+        bool Field::intended_discretization()
         {
             return (mParameters.mDiscretizationMeshIndex > -1);
         }
@@ -214,7 +214,7 @@ namespace moris
         uint Field::get_discretization_mesh_index()
         {
             MORIS_ASSERT(mParameters.mDiscretizationMeshIndex >= 0,
-                    "A discretization is not intended for this field. Check this with discretization_intention() first.");
+                    "A discretization is not intended for this field. Check this with intended_discretization() first.");
             return mParameters.mDiscretizationMeshIndex;
         }
 
@@ -230,6 +230,13 @@ namespace moris
         real Field::get_discretization_upper_bound()
         {
             return mParameters.mDiscretizationUpperBound;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        mtk::Interpolation_Mesh* Field::get_mesh()
+        {
+            return nullptr;
         }
 
         //--------------------------------------------------------------------------------------------------------------

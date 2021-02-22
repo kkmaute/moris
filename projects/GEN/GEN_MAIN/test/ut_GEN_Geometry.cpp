@@ -432,20 +432,11 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = nullptr;
-                mtk::Integration_Mesh* tIGMesh = nullptr;
-                create_simple_mesh(
-                        tMesh,
-                        tIGMesh,
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
                         tBSplineOrder);
-
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
-                        std::make_shared< mtk::Mesh_Manager >();
-
-                tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Set up geometry
                 Matrix<DDRMat> tADVs(0, 0);
@@ -514,10 +505,9 @@ namespace moris
                     if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
                     {
                         Matrix<DDRMat> tMatrix = trans(tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
+                        Matrix<DDSMat> tIDs = trans(tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                         check_equal(tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
-                        check_equal(
-                                tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
+                        check_equal(tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}), tIDs);
                     }
                 }
 
@@ -551,9 +541,7 @@ namespace moris
         TEST_CASE("Stored Geometry", "[gen], [geometry], [stored geometry]")
         {
             // Create mesh
-            mtk::Interpolation_Mesh* tMesh = nullptr;
-            mtk::Integration_Mesh* tIGMesh = nullptr;
-            create_simple_mesh(tMesh,tIGMesh,6, 6);
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
 
             // Level set circle parameter list
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
@@ -596,6 +584,7 @@ namespace moris
             // Set new ADVs
             tADVs = {{1.0, 1.0, 1.0}};
             tGeometryEngine.set_advs(tADVs);
+            tGeometryEngine.reset_mesh_information(tMesh);
 
             // Check field values at all nodes again
             for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)

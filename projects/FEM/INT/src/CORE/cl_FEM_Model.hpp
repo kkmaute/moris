@@ -414,8 +414,10 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * create a list of field pointers
+                 * * @param[ in ] aFieldNameToIndexMap  Map which maps the field name to an index
                  */
-                void create_fields();
+                void create_fields(
+                        std::map< std::string, uint > & aFieldMap );
 
                 //------------------------------------------------------------------------------
                 /**

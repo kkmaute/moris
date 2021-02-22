@@ -1,18 +1,67 @@
-#include "fn_WRK_perform_refinement.hpp"
 #include "cl_WRK_Performer.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_WRK_perform_refinement.hpp"
 #include "HMR_Globals.hpp"
+
+#include "cl_MTK_Field.hpp"
+
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
     namespace wrk
     {
 
+        Refinement_Mini_Performer::Refinement_Mini_Performer(
+                ParameterList                 & aParameterlist,
+                std::shared_ptr< Library_IO >   aLibrary )
+        : mLibrary( aLibrary )
+        {
+            // set field names
+            moris::Cell< std::string > tFieldNames;
+            string_to_cell(
+                    aParameterlist.get< std::string >( "field_names" ),
+                    tFieldNames );
+
+            mParameters.mFieldNames = tFieldNames;
+
+            // set refinement level
+            Cell< Matrix< DDUMat > > tRefinementLevel;
+            string_to_cell_mat(
+                    aParameterlist.get< std::string >( "levels_of_refinement" ),
+                    tRefinementLevel );
+
+            mParameters.mRefinementLevel = tRefinementLevel;
+
+            // set refinementpattern
+            Cell< Matrix< DDUMat > >  tRefinementPattern;
+            string_to_cell_mat(
+                    aParameterlist.get< std::string >( "refinement_pattern" ),
+                    tRefinementPattern );
+
+            mParameters.mRefinementPattern = tRefinementPattern;
+
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void perform_refinement(
+        void Refinement_Mini_Performer::perform_refinement(
+                Cell< mtk::Field* >       & aFields,
+                std::shared_ptr<hmr::HMR>  aHMR )
+        {
+
+
+
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::perform_refinement_old(
                 std::shared_ptr<hmr::HMR>          aHMR,
                 Cell< std::shared_ptr<Performer> > aPerformers,
                 bool                               aSimultaneous)
@@ -69,6 +118,7 @@ namespace moris
                 while ( true )
                 {
                     // Create mesh //FIXME
+                    std::cout<<"MeshIndex: "<<tMeshIndex<<std::endl;
                     std::shared_ptr<hmr::Mesh> tMesh = aHMR->create_mesh( tMeshIndex );
 
                     uint tLagrangeMeshPattern = tMesh->get_lagrange_mesh_pattern();
@@ -105,7 +155,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void queue_single_refinement(std::shared_ptr<hmr::HMR>  aHMR,
+        void Refinement_Mini_Performer::queue_single_refinement(std::shared_ptr<hmr::HMR>  aHMR,
                 std::shared_ptr<hmr::Mesh> aMesh,
                 std::shared_ptr<Performer> aPerformer,
                 sint                       aRefinementNumber,
@@ -143,7 +193,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint queue_low_level_elements_for_refinement(
+        uint Refinement_Mini_Performer::queue_low_level_elements_for_refinement(
                 std::shared_ptr<hmr::HMR>  aHMR,
                 std::shared_ptr<hmr::Mesh> aMesh,
                 std::shared_ptr<Performer> aPerformer,
@@ -178,7 +228,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::sint get_max_refinement_level( const Cell< std::shared_ptr<Performer> > & aPerformers )
+        moris::sint Refinement_Mini_Performer::get_max_refinement_level( const Cell< std::shared_ptr<Performer> > & aPerformers )
         {
             sint tMaxNumRefinements = 0;
 
@@ -203,7 +253,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void get_all_refinement_mesh_indices(
+        void Refinement_Mini_Performer::get_all_refinement_mesh_indices(
                 const Cell< std::shared_ptr<Performer> > & aPerformers,
                 moris::Matrix< DDSMat >                  & aAllPatternMap,
                 moris::uint                              & aNumPattern )

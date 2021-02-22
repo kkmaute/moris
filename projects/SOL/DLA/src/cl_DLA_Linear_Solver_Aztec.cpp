@@ -412,7 +412,7 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(
         mSolTime           = mAztecSolver->SolveTime();
 
         const double * tStatus = mAztecSolver->GetAztecStatus();
-        MORIS_LOG_SPEC("Condition Number for RHS " + std::to_string(ir), tStatus[AZ_condnum]);
+        MORIS_LOG_SPEC("Condition Number of Operator: ", tStatus[AZ_condnum]);
     }
 
     // Delete solver
