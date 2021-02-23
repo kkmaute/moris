@@ -110,6 +110,18 @@ namespace moris
             // ----------------------------------------------------------------------------------
             moris::real
             compute_cell_size_special(moris::mtk::Cell const *aCell) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * Computes the cell size if this isn't a rectangular cell
+             * @param[in] aCell          MTK cell to compute size of.
+             * 
+             * @return return the cell size.
+            */
+            moris::real
+            compute_cell_size_straight(moris::mtk::Cell const *aCell) const;
+
             // ----------------------------------------------------------------------------------
             moris::real
             compute_cell_side_size(moris::mtk::Cell const *aCell,

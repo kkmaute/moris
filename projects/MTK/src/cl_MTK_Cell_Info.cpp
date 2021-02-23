@@ -167,7 +167,7 @@ namespace moris
             uint tNumIntegPoints = tIntegWeights.numel();
 
             // init the surface of the integration mesh
-            real tArea = 0;
+            real tCellSize = 0;
 
             // loop over the integration points
             for (uint iGP = 0; iGP < tNumIntegPoints; iGP++)
@@ -178,11 +178,11 @@ namespace moris
                 // set the treated integration point location in the surface ref space for the geometry interp
                 tSpaceInterpolator.set_space(tIntegPointI);
 
-                // add to area
-                tArea += tSpaceInterpolator.space_det_J() * tIntegWeights(iGP);
+                // add to cell size
+                tCellSize += tSpaceInterpolator.space_det_J() * tIntegWeights(iGP);
             }
 
-            return tArea;
+            return tCellSize;
         }
 
         moris::real
@@ -196,10 +196,75 @@ namespace moris
         Cell_Info::compute_cell_size_deriv(moris::mtk::Cell const *aCell,
                                                     uint aLocalVertexID, uint aDirection) const
         {
-            MORIS_ERROR(false,"Cell_Info::compute_cell_size_deriv_straight not implemented for this cell");
-            return 0.0;
+            return this->compute_cell_size_deriv_general( aCell, aLocalVertexID, aDirection);
         }
 
+        moris::real
+        Cell_Info::compute_cell_size_deriv_general(moris::mtk::Cell const *aCell,
+                                                    uint aLocalVertexID, uint aDirection) const
+        {
+            // pulling geometry
+            Geometry_Type tGeoType = aCell->get_geometry_type();
+            Interpolation_Order tIPOrder = aCell->get_interpolation_order();
+
+            // creating interpolation rule
+            Interpolation_Rule tInterpolationRule(tGeoType,
+                                                  Interpolation_Type::LAGRANGE,
+                                                  tIPOrder,
+                                                  Interpolation_Type::LAGRANGE,
+                                                  Interpolation_Order::LINEAR);
+
+            // create a space interpolator
+            Space_Interpolator tSpaceInterpolator(tInterpolationRule);
+
+            // get the coefficients xHat and XiHat
+            Matrix<DDRMat> tXHat = aCell->get_vertex_coords();
+            Interpolation_Function_Base *tInterpFunction = tInterpolationRule.create_space_interpolation_function();
+            Matrix<DDRMat> tXiHat;
+            tInterpFunction->get_param_coords(tXiHat);
+            tXiHat = trans(tXiHat);
+
+            // setting space coefficients
+            tSpaceInterpolator.set_space_coeff(tXHat);
+            tSpaceInterpolator.set_space_param_coeff(tXiHat);
+
+            // create a integration rule
+            Integration_Order tIGOrder = aCell->get_integration_order();
+
+            Integration_Rule tIntegrationRule(tGeoType,
+                                              Integration_Type::GAUSS,
+                                              tIGOrder,
+                                              Integration_Type::GAUSS,
+                                              Integration_Order::BAR_1);
+
+            // create space rule
+            Integration_Coeffs_Base *tSpaceCoeffs = tIntegrationRule.create_space_coeffs();
+
+            //get number of integration points, integration points and weights
+            Matrix<DDRMat> tIntegPoints;
+            tSpaceCoeffs->get_points(tIntegPoints);
+            Matrix<DDRMat> tIntegWeights;
+            tSpaceCoeffs->get_weights(tIntegWeights);
+            uint tNumIntegPoints = tIntegWeights.numel();
+
+            // init the surface of the integration mesh
+            real tCellSizeDeriv = 0;
+
+            // loop over the integration points
+            for (uint iGP = 0; iGP < tNumIntegPoints; iGP++)
+            {
+                // get the treated integration point location in integration space
+                Matrix<DDRMat> tIntegPointI = tIntegPoints.get_column(iGP);
+
+                // set the treated integration point location in the surface ref space for the geometry interp
+                tSpaceInterpolator.set_space(tIntegPointI);
+
+                // add to area
+                tCellSizeDeriv += tSpaceInterpolator.space_det_J_deriv(aLocalVertexID, aDirection) * tIntegWeights(iGP);
+            }
+
+            return tCellSizeDeriv;
+        }
         
     } // namespace mtk
 } // namespace moris

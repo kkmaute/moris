@@ -265,6 +265,20 @@ namespace moris
             compute_cell_size_deriv(moris::mtk::Cell const *aCell,
                                              uint aLocalVertexID, uint aDirection) const;
 
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * Computes the cell size derivative wrt to a single dof using numerical integration
+             * @param[in] aCell           MTK cell to compute size of.
+             * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, or 3).
+             * @param[in] aDirection      Direction to take derivative (0,1, or 2).
+             * 
+             * @return return the cell size.
+            */
+            virtual moris::real
+            compute_cell_size_deriv_general(moris::mtk::Cell const *aCell,
+                                             uint aLocalVertexID, uint aDirection) const;
+
             // ---------------------------------------------------------------------------------
             /*!
              * Compute the side surface area of 3D cell or the side length of 2d cell
