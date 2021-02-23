@@ -222,7 +222,7 @@ namespace moris
 
                     // create refinement mini performer and perform refinement
                     wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist );
-                    tRefinementMiniPerformer.perform_refinement( tFields, aHMRPerformer );
+                    //tRefinementMiniPerformer.perform_refinement( tFields, aHMRPerformer );
 
                     delete tInterpolationMesh;
                 }
