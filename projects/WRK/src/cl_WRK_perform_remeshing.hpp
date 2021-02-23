@@ -1,5 +1,5 @@
 #ifndef MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
-#define MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
+#define MORIS_FN_WRK_PERFORM_REMESHING_HPP
 
 #include "cl_Matrix.hpp"
 
@@ -24,6 +24,10 @@ namespace moris
 
                 //! Mode index. Transleted based in mode name
                 uint        mModeIndex;
+
+                //mode ab_initio
+                Matrix< DDUMat > mRefinementsMode_0;
+                Matrix< DDUMat > mRefinementPatternMode_0;
         };
 
         class Remeshing_Mini_Performer
@@ -57,6 +61,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                /**
+                 * Refinement before creating the new mesh.
+                 * This mode assumes a uniformly, refined starting mesh for all used pattern.
+                 * Pattern are refined separately up to the specific level.
+                 *
+                 */
                 void perform_refinement_mode_0(
                         std::shared_ptr< hmr::HMR >   aHMRPerformer,
                         mtk::Field                  * aSourceField );

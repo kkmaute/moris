@@ -1,5 +1,5 @@
 
-#include "../MTK_Test_Proxy/cl_MTK_Field_Proxy.hpp"
+#include "cl_MTK_Field_Analytic.hpp"
 
 #include "fn_dot.hpp"
 
@@ -9,7 +9,7 @@ namespace moris
 {
     namespace mtk
     {
-        Field_Proxy::Field_Proxy(
+        Field_Analytic::Field_Analytic(
                 mtk::Mesh_Pair * aMeshPairs,
                 uint const     & aDiscretizationMeshIndex )
         : Field( aMeshPairs,
@@ -19,7 +19,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        Field_Proxy::~Field_Proxy()
+        Field_Analytic::~Field_Analytic()
         {
 
         }

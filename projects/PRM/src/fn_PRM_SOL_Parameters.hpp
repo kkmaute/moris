@@ -264,11 +264,36 @@ namespace moris
         // creates a parameter list with default inputs
         ParameterList create_linear_algorithm_parameter_list_amesos( )
         {
+            // ASSIGN DEFAULT PARAMETER VALUES
+            // Amesos 2.0 Reference Guide, SANDIA REPORT, SAND2004-4820, https://trilinos.org/oldsite/packages/amesos/AmesosReferenceGuide.pdf
+
             ParameterList tLinAlgorithmParameterList;
 
             enum moris::sol::SolverType tType = moris::sol::SolverType::AMESOS_IMPL;
 
             tLinAlgorithmParameterList.insert( "Solver_Implementation" , static_cast< uint >( tType ) );
+
+            tLinAlgorithmParameterList.insert( "Solver_Type" , "Amesos_Pardiso" );
+
+            tLinAlgorithmParameterList.insert( "PrintStatus" , false);
+
+            tLinAlgorithmParameterList.insert( "PrintTiming" , false );
+
+            tLinAlgorithmParameterList.insert( "ComputeVectorNorms" , false );
+
+            tLinAlgorithmParameterList.insert( "ComputeTrueResidual" , false );
+
+            tLinAlgorithmParameterList.insert( "Reindex" , false );
+
+            tLinAlgorithmParameterList.insert( "Refactorize" , false );
+
+            tLinAlgorithmParameterList.insert( "AddZeroToDiag" , false );
+
+            tLinAlgorithmParameterList.insert( "RcondThreshold" , -1.0 );
+
+            tLinAlgorithmParameterList.insert( "OutputLevel" , INT_MAX );
+
+            tLinAlgorithmParameterList.insert( "DebugLevel" , INT_MAX );
 
             return tLinAlgorithmParameterList;
         }

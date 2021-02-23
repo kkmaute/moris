@@ -161,15 +161,16 @@ namespace moris
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_Out, tLagrangeMeshIndex_Out );
 
                 // Create mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+                mtk::Mesh_Pair tMeshPair_In;
+                tMeshPair_In.mInterpolationMesh = tInterpolationMesh;
+                tMeshPair_In.mIntegrationMesh = tIntegrationMesh;
 
-                // Register mesh pair
-                uint tMeshIndex_In = tMeshManager->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
-                uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
+                mtk::Mesh_Pair tMeshPair_Out;
+                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
+                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
 
-
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out );
+                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In );
+                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out );
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Out )->evaluate_scalar_function( LevelSetPlainFunction );
@@ -278,12 +279,16 @@ namespace moris
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_In, tLagrangeMeshIndex_2 );
 
                 // Create mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-                uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
-                uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
+                mtk::Mesh_Pair tMeshPair_In;
+                tMeshPair_In.mInterpolationMesh = tInterpolationMesh_In;
+                tMeshPair_In.mIntegrationMesh = tIntegrationMesh_In;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Mesh_Pair tMeshPair_Out;
+                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
+                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+
+                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In, 0 );
+                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
@@ -304,7 +309,7 @@ namespace moris
 
                 //tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Field * tField_Ref = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 125));
@@ -409,13 +414,16 @@ namespace moris
                 mtk::Integration_Mesh* tIntegrationMesh_In =
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_In, tLagrangeMeshIndex_2 );
 
-                // Create mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-                uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
-                uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
+                mtk::Mesh_Pair tMeshPair_In;
+                tMeshPair_In.mInterpolationMesh = tInterpolationMesh_In;
+                tMeshPair_In.mIntegrationMesh = tIntegrationMesh_In;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Mesh_Pair tMeshPair_Out;
+                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
+                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+
+                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In, 0 );
+                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
@@ -436,7 +444,7 @@ namespace moris
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Field * tField_Ref = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 133));
@@ -541,13 +549,16 @@ namespace moris
                 mtk::Integration_Mesh* tIntegrationMesh_In =
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_In, tLagrangeMeshIndex_2 );
 
-                // Create mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-                uint tMeshIndex_Out = tMeshManager->register_mesh_pair( tInterpolationMesh_Out, tIntegrationMesh_Out );
-                uint tMeshIndex_In  = tMeshManager->register_mesh_pair( tInterpolationMesh_In, tIntegrationMesh_In );
+                mtk::Mesh_Pair tMeshPair_In;
+                tMeshPair_In.mInterpolationMesh = tInterpolationMesh_In;
+                tMeshPair_In.mIntegrationMesh = tIntegrationMesh_In;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( tMeshManager, tMeshIndex_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Mesh_Pair tMeshPair_Out;
+                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
+                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+
+                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In, 0 );
+                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
 
                 reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
 
@@ -568,7 +579,7 @@ namespace moris
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( tMeshManager, tMeshIndex_Out, 0 );
+                mtk::Field * tField_Ref = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
                 reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 465));

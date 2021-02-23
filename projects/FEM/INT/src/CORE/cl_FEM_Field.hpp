@@ -39,8 +39,7 @@ namespace moris
             public :
                 //------------------------------------------------------------------------------
 
-                Field( std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
-                       uint const                         & aMeshIndex,
+                Field( mtk::Mesh_Pair * aMeshPair,
                        uint const                         & aDiscretizationMeshIndex =0 );
 
                 //------------------------------------------------------------------------------

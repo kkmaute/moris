@@ -127,11 +127,12 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 2: create union meshes and mappers
             // - - - - - - - - - - - - - - - - - - - - - -
-            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
             Cell< Interpolation_Mesh_HMR * > tUnionInterpMeshes;
             Cell< Integration_Mesh_HMR * >   tUnionIntegMeshes;
             Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
             Cell< Integration_Mesh_HMR * >   tInputIntegMeshes;
+            Cell< mtk::Mesh_Pair * > tMeshPairs( tNumberOfMappers, nullptr );
             Cell< mtk::Mapper * > tMappers( tNumberOfMappers, nullptr );
             Cell<mtk::Field*> tFieldUnion( tNumberOfMappers,nullptr );
 
@@ -172,15 +173,14 @@ namespace moris
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
-                // add pairs to mesh manager
-                moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair(
-                        tUnionInterpMeshes(m),
-                        tUnionIntegMeshes(m));
+                tMeshPairs( m ) = new mtk::Mesh_Pair;
+                tMeshPairs( m )->mInterpolationMesh = tUnionInterpMeshes(m);
+                tMeshPairs( m )->mIntegrationMesh = tUnionIntegMeshes(m);
 
                 // create mapper
                 tMappers( m ) = new mtk::Mapper();
 
-                tFieldUnion( m )=new mtk::Field( tMeshManager, tMeshPairIndex );
+                tFieldUnion( m )=new mtk::Field( tMeshPairs( m ) );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -
@@ -333,6 +333,10 @@ namespace moris
             for( mtk::Mapper * tMapper : tMappers )
             {
                 delete tMapper;
+            }
+            for( mtk::Mesh_Pair * tMeshPair1 : tMeshPairs )
+            {
+                delete tMeshPair1;
             }
         }
 

@@ -14,8 +14,9 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
+
 
 namespace moris
 {
@@ -30,10 +31,8 @@ namespace moris
         class Field
         {
             protected:
-                std::shared_ptr<mtk::Mesh_Manager> mMeshManager = nullptr;
 
-                //! Mesh Index for Mesh Manager
-                moris_index mMeshIndex = -1;
+                mtk::Mesh_Pair * mMeshPair = nullptr;
 
                 //! Discretization Index
                 moris_index mDiscretizationMeshIndex = -1;
@@ -52,6 +51,8 @@ namespace moris
                 //! Coefficients values
                 Matrix< DDRMat > mCoefficients;
 
+                bool mFieldIsLocked = false;
+
                 //------------------------------------------------------------------------------
             public :
                 //------------------------------------------------------------------------------
@@ -62,17 +63,15 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 Field(
-                        std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
-                        uint const                         & aMeshIndex,
-                        uint const                         & aDiscretizationMeshIndex =0)
-                : mMeshManager( aMeshManager ),
-                  mMeshIndex( aMeshIndex ),
+                        mtk::Mesh_Pair * aMeshPair,
+                        uint const     & aDiscretizationMeshIndex =0 )
+                : mMeshPair( aMeshPair ),
                   mDiscretizationMeshIndex( aDiscretizationMeshIndex )
                 {};
 
                 Field(
-                        uint const     & aDiscretizationMeshIndex,
-                        std::string const    & aName)
+                        uint        const & aDiscretizationMeshIndex,
+                        std::string const & aName)
                 : mDiscretizationMeshIndex( aDiscretizationMeshIndex ),
                   mLabel( aName )
                 {};
@@ -83,13 +82,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> > get_mesh_pair()
-                {
-                    MORIS_ERROR( mMeshIndex != -1, " Field::get_mesh_pair()(), Mesh pair index not set" );
-                    MORIS_ERROR( mMeshManager != nullptr, " Field::get_mesh_pair()(), Mesh_Manager not set" );
+                Mesh_Pair * get_mesh_pair();
 
-                    return std::pair< moris_index, std::shared_ptr<mtk::Mesh_Manager> >( mMeshIndex, mMeshManager );
-                };
+                //------------------------------------------------------------------------------
+
+                void set_mesh_pair( Mesh_Pair * aMeshPair);
+
+                //------------------------------------------------------------------------------
+
+                virtual void compute_nodal_values()
+                {
+                    MORIS_ERROR( false, "Field::compute_nodal_values(), Child implementation missing. ");
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -99,6 +103,15 @@ namespace moris
                 {
                     //FIXME right now only scalar field
                     return mNumberOfDimensions;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * returns the number of nodes
+                 */
+                uint get_number_of_nodes() const
+                {
+                    return mNodalValues.numel();
                 }
 
                 //------------------------------------------------------------------------------
@@ -117,12 +130,19 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                Matrix< DDRMat > get_node_coordinate( const moris_index & aNodeIndex ) const
+                {
+                    return mMeshPair->mInterpolationMesh->get_node_coordinate( aNodeIndex );
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * returns the interpolation order of the Lagrange Mesh
                  */
                 virtual uint get_lagrange_order() const
                 {
-                    return mMeshManager->get_interpolation_mesh( mMeshIndex )->get_order();
+                    return mMeshPair->mInterpolationMesh->get_order();
                 }
 
                 //------------------------------------------------------------------------------
@@ -131,8 +151,8 @@ namespace moris
                  */
                 virtual uint get_discretization_order() const
                 {
-                    return mMeshManager->
-                            get_interpolation_mesh( mMeshIndex )->
+                    return mMeshPair->
+                            mInterpolationMesh->
                             get_discretization_order( mDiscretizationMeshIndex );
                 };
 
@@ -152,6 +172,17 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                /**
+                 * Expert user function. Allows for the unerlying mesh as well as the nodal and coefficients values to be changed.
+                 * Such a change can result in an unwanted behavior.
+                 */
+                void unlock_field()
+                {
+                    mFieldIsLocked = false;
+                };
+
+                //------------------------------------------------------------------------------
+
                 virtual const Matrix< DDRMat > & get_nodal_values() const
                 {
                     return mNodalValues;
@@ -161,7 +192,11 @@ namespace moris
 
                 virtual void set_nodal_values( const Matrix< DDRMat > & aNodalValues )
                 {
+                    this->error_if_locked();
+
                     mNodalValues = aNodalValues;
+
+                    mFieldIsLocked = true;
                 };
 
                 //------------------------------------------------------------------------------
@@ -175,7 +210,11 @@ namespace moris
 
                 virtual void set_coefficients( const Matrix< DDRMat > & aCoefficients )
                 {
+                    this->error_if_locked();
+
                     mCoefficients = aCoefficients;
+
+                    mFieldIsLocked = true;
                 };
 
                 //------------------------------------------------------------------------------
@@ -228,6 +267,9 @@ namespace moris
                 void save_field_to_exodus( const std::string & aFileName );
 
                 //------------------------------------------------------------------------------
+
+                void error_if_locked(  ) const;
+
         };
 
         //------------------------------------------------------------------------------

@@ -17,23 +17,38 @@
 
 namespace moris
 {
+    // User-defined field functions
+    typedef real ( *Analytic_Field_Function ) (
+            const moris::Matrix< DDRMat >     & aCoordinates,
+            const moris::Cell< moris::real* > & aParameters );
+    typedef void ( *Analytic_Derivative_Function ) (
+            const moris::Matrix< DDRMat >     & aCoordinates,
+            const moris::Cell< moris::real* > & aParameters,
+            moris::Matrix< DDRMat >           & aReturnValue);
+
     namespace mtk
     {
-        class Field_Proxy : public Field
+        class Field_Analytic : public Field
         {
             private:
+
+            protected:
+                Analytic_Field_Function      mAnalyticFieldValueFunction = nullptr;
+                Analytic_Derivative_Function mAnalyticDerivativeFunction = nullptr;
 
             public :
 
                 // ----------------------------------------------------------------------------------------------
 
-                Field_Proxy(
+                Field_Analytic(
                         mtk::Mesh_Pair * aMeshPairs,
                         uint const     & aDiscretizationMeshIndex = 0 );
 
                 // ----------------------------------------------------------------------------------------------
 
-                ~Field_Proxy();
+                ~Field_Analytic();
+
+                // ----------------------------------------------------------------------------------------------
 
                 // ----------------------------------------------------------------------------------------------
 

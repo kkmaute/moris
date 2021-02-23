@@ -1,5 +1,5 @@
-#ifndef MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
-#define MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
+#ifndef MORIS_FN_WRK_PERFORM_REMESCHING_HPP
+#define MORIS_FN_WRK_PERFORM_REMESCHING_HPP
 
 #include "cl_Matrix.hpp"
 
@@ -9,6 +9,10 @@ namespace moris
     {
         class HMR;
         class Mesh;
+    }
+    namespace mtk
+    {
+        class Field;
     }
 
     namespace wrk
@@ -21,10 +25,10 @@ namespace moris
                 Cell< std::string > mFieldNames;
 
                 //! Refinement level
-                Matrix< DDUMat >    mRefinementLevel;
+                Cell< Matrix< DDSMat > >    mRefinementLevel;
 
                 //! Refinement Pattern
-                Matrix< DDUMat >    mRefinementPattern;
+                Cell< Matrix< DDSMat > >    mRefinementPattern;
         };
 
         class Refinement_Mini_Performer
@@ -43,13 +47,38 @@ namespace moris
 
                 Refinement_Mini_Performer(
                         ParameterList                 & aParameterlist,
-                        std::shared_ptr< Library_IO >   aLibrary );
+                        std::shared_ptr< Library_IO >   aLibrary = nullptr );
 
                 //--------------------------------------------------------------------------------------------------------------
 
                 ~Refinement_Mini_Performer(){};
 
                 //--------------------------------------------------------------------------------------------------------------
+
+                void perform_refinement(
+                        Cell< mtk::Field* >                    & aFields,
+                        moris::map< std::string, moris_index >   aFieldNameToIndexMap,
+                        std::shared_ptr<hmr::HMR>                aHMR );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                /**
+                 * This function reorganizes the input data. The input data is structured such that it allows for an intuitive use by the user.
+                 * However, the structure provided by this function allows for more straight forward use in the refinement functin
+                 *
+                 * @param aPatternForRefinement Pattern which will be refined
+                 * @param tFieldsForRefinement  Fields which are used to refined each pattern
+                 * @param tRefinemets           Refinements for each field per pattern
+                 */
+                void prepare_input_for_refinement(
+                        Cell< moris_index >                      & aPatternForRefinement,
+                        moris::Cell<moris::Cell< std::string > > & aFieldsForRefinement,
+                        moris::Cell< moris::Cell< uint > >       & aRefinements,
+                        moris::Cell< sint >                      & aMaxRefinementPerPattern );
+
+                //--------------------------------------------------------------------------------------------------------------
+                // FIXME stuff below this line will be deleted soon
+                //----------------------------------------------------------------------------------------------------------------
 
                 /**
                  * Performs refinement using HMR based on the information provided by the cell of performers
@@ -59,7 +88,7 @@ namespace moris
                  * @param aSimultaneous If true (default), refinement steps are generated using all performers simultaneously.
                  * If false, one performer will have all refinement steps performed before moving to the next performer.
                  */
-                void perform_refinement(
+                void perform_refinement_old(
                         std::shared_ptr<hmr::HMR>          aHMR,
                         Cell< std::shared_ptr<Performer> > aPerformers,
                         bool                               aSimultaneous =  true);
@@ -97,4 +126,4 @@ namespace moris
     }
 }
 
-#endif //MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
+#endif //MORIS_FN_WRK_PERFORM_REMESCHING_HPP
