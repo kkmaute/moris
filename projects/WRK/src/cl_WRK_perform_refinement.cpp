@@ -27,7 +27,7 @@ namespace moris
             mParameters.mFieldNames = tFieldNames;
 
             // set refinement level
-            Cell< Matrix< DDUMat > > tRefinementLevel;
+            Cell< Matrix< DDSMat > > tRefinementLevel;
             string_to_cell_mat(
                     aParameterlist.get< std::string >( "levels_of_refinement" ),
                     tRefinementLevel );
@@ -35,7 +35,7 @@ namespace moris
             mParameters.mRefinementLevel = tRefinementLevel;
 
             // set refinementpattern
-            Cell< Matrix< DDUMat > >  tRefinementPattern;
+            Cell< Matrix< DDSMat > >  tRefinementPattern;
             string_to_cell_mat(
                     aParameterlist.get< std::string >( "refinement_pattern" ),
                     tRefinementPattern );
@@ -47,15 +47,155 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
-                Cell< mtk::Field* >       & aFields,
-                std::shared_ptr<hmr::HMR>  aHMR )
+                Cell< mtk::Field* >                    & aFields,
+                moris::map< std::string, moris_index >   aFieldNameToIndexMap,
+                std::shared_ptr<hmr::HMR>                aHMR )
         {
+
+//            Cell< mtk::Field* > tRefinementFields( mParameters.mFieldNames.size(), nullptr );
+//
+//            for( uint Ik = 0; Ik< mParameters.mFieldNames.size(); Ik++ )
+//            {
+//                std::string tFieldName = mParameters.mFieldNames( Ik );
+//
+//                MORIS_ERROR( aFieldNameToIndexMap.key_exists( tFieldName ),
+//                        "Refinement_Mini_Performer::perform_refinement() Field for requested field name %s does not exist", tFieldName);
+//
+//                tRefinementFields( Ik ) = aFields( aFieldNameToIndexMap.find( tFieldName ) );
+//
+//
+//            }
+
+//            Cell< moris_index >                       tPattern;
+//            moris::Cell< moris::Cell< std::string > > tFieldNames;
+//            moris::Cell< moris::Cell< uint > >        tRefinements;
+//            moris::Cell< uint >                       tMaxRefinementPerLevel;
+//
+//            this->prepare_input_for_refinement(
+//                    tPattern,
+//                    tFieldNames,
+//                    tRefinements,
+//                    tMaxRefinementPerLevel);
+//
+//            for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
+//            {
+//                // get pattern
+//                uint tPattern = tPattern( Ik );
+//
+//                for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
+//                {
+//                    // Mesh has changed after first refinement and therefore has to be rebuilt
+//                    // This will only work with analytic fields. When remeshing the L2 id done in the remesh mini performer
+//                    if( Ii > 0 )
+//                    {
+//                        Interpolation_Mesh_HMR * tInterpolationMesh = aHMR->create_interpolation_mesh( 1, tPattern, tPattern );
+//
+//                        mtk::Mesh_Pair
+//
+//                        for( uint Ia = 0; Ia< tFieldNames.size(); Ia++ )
+//                        {
+//                            mtk::Field * tField = aFields( aFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
+//
+//                            tField->
+//                        }
+//                    }
+//
+//                }
+//
+//            }
+//
+//
+//
+//
+//            // Loop over fields
+//            for (uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++)
+//            {
+//                const moris::Matrix< DDSMat > & tNumRefinements      = aPerformer->get_num_refinements( Ik );
+//                const moris::Matrix< DDSMat > & tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
+//
+//                // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
+//                for (uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++)
+//                {
+//                    if( tLagrangeMeshIndices( Ii ) == aMeshIndex )
+//                    {
+//                        if( tNumRefinements( Ii ) > aRefinementNumber )
+//                        {
+//                            // Loop over nodes and get field values
+//                            Matrix<DDRMat> tFieldValues(aMesh->get_num_nodes(), 1);
+//                            for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+//                            {
+//                                tFieldValues(tNodeIndex) = aPerformer->get_field_value(Ik, tNodeIndex, aMesh->get_node_coordinate(tNodeIndex));
+//                            }
+//
+//                            // Put elements on queue and set flag for refinement
+//                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, 0, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
+//                        }
+//                    }
+//                }
+//            }
+
+
 
 
 
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::prepare_input_for_refinement(
+                Cell< moris_index >                       & aPatternForRefinement,
+                moris::Cell< moris::Cell< std::string > > & aFieldsForRefinement,
+                moris::Cell< moris::Cell< uint > >        & aRefinements,
+                moris::Cell< sint >                       & aMaxRefinementPerPattern )
+        {
+
+            // produce unique list of pattern which will be refined
+            for( uint Ik = 0; Ik< mParameters.mRefinementPattern.size(); Ik++ )
+            {
+                for( uint Ii = 0; Ii< mParameters.mRefinementPattern( Ik ).numel(); Ii++ )
+                {
+                    aPatternForRefinement.push_back( mParameters.mRefinementPattern( Ik )( Ii ) );
+                }
+            }
+
+            // Sort this created list
+            std::sort( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
+
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
+            auto last = std::unique( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
+            auto pos  = std::distance( ( aPatternForRefinement.data() ).data(), last );
+
+            aPatternForRefinement.resize( pos );
+
+            uint tNumberOfRefinementPattern = aPatternForRefinement.size();
+
+            // resize
+            aFieldsForRefinement    .resize( tNumberOfRefinementPattern );
+            aRefinements            .resize( tNumberOfRefinementPattern );
+            aMaxRefinementPerPattern.resize( tNumberOfRefinementPattern, 0 );
+
+            // create list with field pointers and refinements per pattern
+            for( uint Ik = 0; Ik< tNumberOfRefinementPattern; Ik++ )
+            {
+                moris_index tPattern = aPatternForRefinement( Ik );
+
+                // loop over all fields and corresponding patterns. Find the pattern which corresponds to tPattern and put it in list.
+                // This is kind of a brute force algorithm. however there will be only a few fields
+                for( uint Ii = 0; Ii< mParameters.mRefinementPattern.size(); Ii++ )
+                {
+                    for( uint Ia = 0; Ia< mParameters.mRefinementPattern( Ii ).numel(); Ia++ )
+                    {
+                        if( tPattern == mParameters.mRefinementPattern( Ii )( Ia ) )
+                        {
+                            aFieldsForRefinement( Ik ).push_back( mParameters.mFieldNames( Ii ) );
+                            aRefinements( Ik )        .push_back( mParameters.mRefinementLevel( Ii )( Ia ) );
+
+                            aMaxRefinementPerPattern( Ik ) = std::max( aMaxRefinementPerPattern( Ik ), mParameters.mRefinementLevel( Ii )( Ia ) );
+                        }
+                    }
+                }
+            }
+        }
 
 
 

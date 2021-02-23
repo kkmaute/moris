@@ -106,6 +106,15 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+                /**
+                 * returns the number of nodes
+                 */
+                uint get_number_of_nodes() const
+                {
+                    return mNodalValues.numel();
+                }
+
+                //------------------------------------------------------------------------------
 
                 moris::real get_field_value( const uint & aNodeIndex )
                 {
@@ -118,6 +127,13 @@ namespace moris
                                       const real & aFieldValue )
                 {
                     mNodalValues( aFieldIndex ) = aFieldValue;
+                }
+
+                //------------------------------------------------------------------------------
+
+                Matrix< DDRMat > get_node_coordinate( const moris_index & aNodeIndex ) const
+                {
+                    return mMeshPair->mInterpolationMesh->get_node_coordinate( aNodeIndex );
                 }
 
                 //------------------------------------------------------------------------------
