@@ -2,13 +2,14 @@
 #define MORIS_CL_GEN_SCALED_FIELD_HPP
 
 #include "cl_GEN_Property.hpp"
+#include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Scaled_Field : public Property
+        class Scaled_Field : public Property, public Field_Discrete_Interpolation
         {
 
         private:
@@ -50,7 +51,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Property value
              */
-            real get_field_value(
+            real get_base_field_value(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
@@ -62,7 +63,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(
+            const Matrix<DDRMat>& get_base_field_sensitivities(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
@@ -73,11 +74,12 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
-            Matrix<DDSMat> get_determining_adv_ids(
+            Matrix<DDSMat> get_base_determining_adv_ids(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
         private:
+
             /**
              * Sets the dependencies of this property after they have been found by update_dependencies(). By default
              * does nothing.

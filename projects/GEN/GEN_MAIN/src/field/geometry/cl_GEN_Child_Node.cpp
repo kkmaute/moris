@@ -63,8 +63,6 @@ namespace moris
                 const Matrix<DDRMat>& tAncestorSensitivities = mBasisValues(tAncestorNode) * aField->get_field_sensitivities(
                         mAncestorNodeIndices(tAncestorNode),
                         mAncestorNodeCoordinates(tAncestorNode));
-
-                print(tAncestorSensitivities, "ancestor sensitivities");
                 
                 // Join sensitivities
                 uint tJoinedSensitivityLength = mJoinedSensitivities.n_cols();
@@ -73,8 +71,6 @@ namespace moris
                 {
                     mJoinedSensitivities(tJoinedSensitivityLength + tAncestorSensitivity) = tAncestorSensitivities(tAncestorSensitivity);
                 }
-
-                print(mJoinedSensitivities, "joined sensitivities");
             }
 
             return mJoinedSensitivities;
@@ -96,9 +92,6 @@ namespace moris
                 Matrix<DDSMat> tAncestorDependingADVs = aField->get_determining_adv_ids(
                         mAncestorNodeIndices(tAncestorNode),
                         mAncestorNodeCoordinates(tAncestorNode));
-
-                print(tAncestorDependingADVs, "ancestor ADVs");
-
                 // Join sensitivities
                 uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
                 tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tAncestorDependingADVs.length());
@@ -106,7 +99,6 @@ namespace moris
                 {
                     tJoinedDeterminingADVs(tJoinedADVLength + tAncestorADV) = tAncestorDependingADVs(tAncestorADV);
                 }
-                print(tJoinedDeterminingADVs, "joined ADVs");
             }
 
             return tJoinedDeterminingADVs;

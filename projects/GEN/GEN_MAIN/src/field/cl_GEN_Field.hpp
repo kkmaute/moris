@@ -121,7 +121,7 @@ namespace moris
             virtual void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
-             * Add a new child node for evaluation, implemented for discrete fields
+             * Add a new child node for evaluation, implemented for discrete integration fields.
              *
              * @param aNodeIndex Index of the child node
              * @param aChildNode Contains information about how the child node was created
@@ -129,9 +129,18 @@ namespace moris
             virtual void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
 
             /**
-             * Resets all nodal information, called when a new XTK mesh is being created.
+             * In relevant derived classes, uses additional information from the given interpolation mesh to define
+             * potentially new nodes on the field. Implemented for discrete interpolation fields.
+             *
+             * @param aMesh Interpolation mesh with additional nodes
              */
-            virtual void reset_nodal_information();
+            virtual void add_nodal_data(mtk::Interpolation_Mesh* aMesh);
+
+            /**
+             * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
+             * created.
+             */
+            virtual void reset_nodal_data();
 
             /**
              * Gets if this field is to be turned into a stored geometry/property, in order to store field values.

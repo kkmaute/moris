@@ -56,7 +56,7 @@ namespace moris
             /**
              * Resets all nodal information about geometry field values.
              */
-            void reset_nodal_information();
+            void reset_nodal_data();
 
         private:
 

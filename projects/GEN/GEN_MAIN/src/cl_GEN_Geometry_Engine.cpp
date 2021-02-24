@@ -97,6 +97,13 @@ namespace moris
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
 
+            // Properties
+            mProperties = create_properties(
+                    aParameterLists(2),
+                    mInitialPrimitiveADVs,
+                    mGeometries,
+                    mLibrary);
+
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
             map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
@@ -705,6 +712,7 @@ namespace moris
                 // Assign PDVs
                 if (mProperties(tPropertyIndex)->is_interpolation_pdv())
                 {
+                    mProperties(tPropertyIndex)->add_nodal_data(tInterpolationMesh);
                     this->assign_property_to_pdv_hosts(
                             mProperties(tPropertyIndex),
                             tPDVTypeGroup(0),
@@ -1079,11 +1087,11 @@ namespace moris
             mActiveGeometryIndex = 0;
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                mGeometries(tGeometryIndex)->reset_nodal_information();
+                mGeometries(tGeometryIndex)->reset_nodal_data();
             }
             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
-                mProperties(tPropertyIndex)->reset_nodal_information();
+                mProperties(tPropertyIndex)->reset_nodal_data();
             }
         }
 
@@ -1296,9 +1304,9 @@ namespace moris
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
                         // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
-                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_inds();
-                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_ids();
-                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_owners();
+                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
+                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_vertex_ids();
+                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_vertex_owners();
 
                         // FIXME don't undersand this resize. it's really slow
                         tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
@@ -1403,7 +1411,7 @@ namespace moris
                     mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
 
                     // get the vertices from IP cell
-                    Cell< mtk::Vertex * > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
+                    Cell< mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
 
                     // get the number of vertices on IP cell
                     uint tNumVerts = tVertices.size();

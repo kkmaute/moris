@@ -87,7 +87,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete_Integration::reset_nodal_information()
+        void Field_Discrete_Integration::reset_nodal_data()
         {
             mChildNodes.resize(0);
         }
