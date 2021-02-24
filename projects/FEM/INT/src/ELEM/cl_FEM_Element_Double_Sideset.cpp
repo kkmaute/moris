@@ -444,7 +444,7 @@ namespace moris
                     ( this->*m_compute_jacobian )( tReqIWG, tWStar );
                 }
 
-                mSet->mFemModel->mDoubleSidedSitsetsGaussPoints++;
+                mSet->mFemModel->mDoubleSidedSideSetsGaussPoints++;
             }
         }
 

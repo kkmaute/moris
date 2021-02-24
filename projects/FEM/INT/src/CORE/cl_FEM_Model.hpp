@@ -110,7 +110,7 @@ namespace moris
                 //! Gauss point information. Only used for output
                 uint mBulkGaussPoints               = 0;
                 uint mSideSetsGaussPoints           = 0;
-                uint mDoubleSidedSitsetsGaussPoints = 0;
+                uint mDoubleSidedSideSetsGaussPoints = 0;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -196,7 +196,7 @@ namespace moris
                 {
                     mBulkGaussPoints               = 0;
                     mSideSetsGaussPoints           = 0;
-                    mDoubleSidedSitsetsGaussPoints = 0;
+                    mDoubleSidedSideSetsGaussPoints = 0;
                 };
 
                 //------------------------------------------------------------------------------
@@ -208,7 +208,7 @@ namespace moris
                 {
                     MORIS_LOG_SPEC( "Number of Bulk Gauss Points", sum_all(mBulkGaussPoints) );
                     MORIS_LOG_SPEC( "Number of SideSet Gauss Points", sum_all(mSideSetsGaussPoints) );
-                    MORIS_LOG_SPEC( "Number of DoubleSidedSiteset Gauss Points", sum_all(mDoubleSidedSitsetsGaussPoints) );
+                    MORIS_LOG_SPEC( "Number of DoubleSidedSideset Gauss Points", sum_all(mDoubleSidedSideSetsGaussPoints) );
                 };
 
                 //------------------------------------------------------------------------------
