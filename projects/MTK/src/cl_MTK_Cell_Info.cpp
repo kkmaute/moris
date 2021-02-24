@@ -205,6 +205,7 @@ namespace moris
         Cell_Info::compute_cell_size_deriv_general(moris::mtk::Cell const *aCell,
                                                     uint aLocalVertexID, uint aDirection) const
         {
+            // eventually this will be the non-virtual portion of "compute_cell_size_deriv"
             // pulling geometry
             Geometry_Type tGeoType = aCell->get_geometry_type();
             Interpolation_Order tIPOrder = aCell->get_interpolation_order();

@@ -208,6 +208,8 @@ namespace moris
 
             /*
              * Derivative of the Volume in 3D, Surface Area in 2D wrt to a single dof
+             * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, 3, etc).
+             * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              */
             virtual moris::real
             compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const;

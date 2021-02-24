@@ -71,7 +71,7 @@ namespace xtk
     moris::real
     Cell_XTK_No_CM::compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const
     {
-       return mCellInfo->compute_cell_size(this, aLocalVertexID, aDirection);
+       return mCellInfo->compute_cell_size_deriv(this, aLocalVertexID, aDirection);
     }
 
     moris::real

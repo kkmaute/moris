@@ -270,7 +270,7 @@ namespace moris
             /**
              * Computes the cell size derivative wrt to a single dof using numerical integration
              * @param[in] aCell           MTK cell to compute size of.
-             * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, or 3).
+             * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, 3 etc.).
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              * 
              * @return return the cell size.
