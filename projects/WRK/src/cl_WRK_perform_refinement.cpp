@@ -48,96 +48,97 @@ namespace moris
 
         void Refinement_Mini_Performer::perform_refinement(
                 Cell< mtk::Field* >                    & aFields,
-                moris::map< std::string, moris_index >   aFieldNameToIndexMap,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
+            // create field name to index map
+            moris::map< std::string, moris_index >   tFieldNameToIndexMap;
 
-//            Cell< mtk::Field* > tRefinementFields( mParameters.mFieldNames.size(), nullptr );
-//
-//            for( uint Ik = 0; Ik< mParameters.mFieldNames.size(); Ik++ )
-//            {
-//                std::string tFieldName = mParameters.mFieldNames( Ik );
-//
-//                MORIS_ERROR( aFieldNameToIndexMap.key_exists( tFieldName ),
-//                        "Refinement_Mini_Performer::perform_refinement() Field for requested field name %s does not exist", tFieldName);
-//
-//                tRefinementFields( Ik ) = aFields( aFieldNameToIndexMap.find( tFieldName ) );
-//
-//
-//            }
+            for( uint Ik = 0; Ik < aFields.size(); Ik++ )
+            {
+                tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
+            }
 
-//            Cell< moris_index >                       tPattern;
-//            moris::Cell< moris::Cell< std::string > > tFieldNames;
-//            moris::Cell< moris::Cell< uint > >        tRefinements;
-//            moris::Cell< uint >                       tMaxRefinementPerLevel;
-//
-//            this->prepare_input_for_refinement(
-//                    tPattern,
-//                    tFieldNames,
-//                    tRefinements,
-//                    tMaxRefinementPerLevel);
-//
-//            for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
-//            {
-//                // get pattern
-//                uint tPattern = tPattern( Ik );
-//
-//                for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
-//                {
-//                    // Mesh has changed after first refinement and therefore has to be rebuilt
-//                    // This will only work with analytic fields. When remeshing the L2 id done in the remesh mini performer
-//                    if( Ii > 0 )
-//                    {
-//                        Interpolation_Mesh_HMR * tInterpolationMesh = aHMR->create_interpolation_mesh( 1, tPattern, tPattern );
-//
-//                        mtk::Mesh_Pair
-//
-//                        for( uint Ia = 0; Ia< tFieldNames.size(); Ia++ )
-//                        {
-//                            mtk::Field * tField = aFields( aFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
-//
-//                            tField->
-//                        }
-//                    }
-//
-//                }
-//
-//            }
-//
-//
-//
-//
-//            // Loop over fields
-//            for (uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++)
-//            {
-//                const moris::Matrix< DDSMat > & tNumRefinements      = aPerformer->get_num_refinements( Ik );
-//                const moris::Matrix< DDSMat > & tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
-//
-//                // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
-//                for (uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++)
-//                {
-//                    if( tLagrangeMeshIndices( Ii ) == aMeshIndex )
-//                    {
-//                        if( tNumRefinements( Ii ) > aRefinementNumber )
-//                        {
-//                            // Loop over nodes and get field values
-//                            Matrix<DDRMat> tFieldValues(aMesh->get_num_nodes(), 1);
-//                            for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
-//                            {
-//                                tFieldValues(tNodeIndex) = aPerformer->get_field_value(Ik, tNodeIndex, aMesh->get_node_coordinate(tNodeIndex));
-//                            }
-//
-//                            // Put elements on queue and set flag for refinement
-//                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, 0, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
-//                        }
-//                    }
-//                }
-//            }
+            Cell< moris_index >                       tPattern;
+            moris::Cell< moris::Cell< std::string > > tFieldNames;
+            moris::Cell< moris::Cell< uint > >        tRefinements;
+            moris::Cell< sint >                       tMaxRefinementPerLevel;
 
+            this->prepare_input_for_refinement(
+                    tPattern,
+                    tFieldNames,
+                    tRefinements,
+                    tMaxRefinementPerLevel);
 
+            for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
+            {
+                // get pattern
+                uint tActivationPattern = tPattern( Ik );
+                uint tOrder = 1;
 
+                for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
+                {
+                    // Mesh has changed after first refinement and therefore has to be rebuilt
+                    // This will only work with analytic fields. When remeshing the L2 id done in the remesh mini performer
+                    if( Ii > 0 )
+                    {
+                        // Interpolation_Mesh_HMR * tInterpolationMesh = aHMR->create_interpolation_mesh( tOrder, tPattern, tPattern );
+                        ////   mtk::Mesh_Pair
 
+                        for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
+                        {
+                            //  mtk::Field * tField = aFields( aFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
+                            //  tField->
+                        }
+                    }
 
+                    for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
+                    {
+                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+
+                        // Put elements on queue and set flag for refinement
+                        aHMR->based_on_field_put_elements_on_queue(
+                                tFieldValues,
+                                tActivationPattern,
+                                tOrder,
+                                -1);    //FieldValues, Patter,Order, function pointer index
+                    }
+                }
+
+                aHMR->perform_refinement( tActivationPattern );
+                aHMR->update_refinement_pattern( tActivationPattern );
+
+                //                while ( true )
+                //                {
+                //                    uint tNumElements = 0;
+                //
+                //                    for( uint Ia = 0; Ia< tFieldNames.size(); Ia++ )
+                //                    {
+                //                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
+                //
+                //                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                //
+                //                        tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue(
+                //                                tFieldValues,
+                //                                tActivationPattern,
+                //                                tOrder,
+                //                                0);
+                //                    }
+                //
+                //                    if( tNumElements == 0 )
+                //                    {
+                //                        break;
+                //                    }
+                //                    else
+                //                    {
+                //                        aHMR->perform_refinement( tActivationPattern );
+                //                        aHMR->update_refinement_pattern( tActivationPattern );
+                //                    }
+                //
+                //                    break;
+                //                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
