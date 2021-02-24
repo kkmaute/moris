@@ -26,6 +26,8 @@ namespace moris
             // copy database pointer
             mDatabase = aDatabase;
 
+            bool tMeshFound = false;
+
             // get number of meshes
             uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
 
@@ -39,8 +41,28 @@ namespace moris
                         tMesh->get_order() == aLagrangeOrder )
                 {
                     mMesh = tMesh;
+                    tMeshFound = true;
 
                     break;
+                }
+            }
+
+            if( !tMeshFound)
+            {
+                tNumberOfMeshes = mDatabase->get_number_of_additional_lagrange_meshes();
+
+                for( uint k=0; k<tNumberOfMeshes; ++k )
+                {
+                    auto tMesh = mDatabase->get_additional_lagrange_mesh_by_index( k );
+
+                    // test if mesh uses active pattern
+                    if ( tMesh->get_activation_pattern() == aLagrangePattern &&           //FIXME
+                            tMesh->get_order() == aLagrangeOrder )
+                    {
+                        mMesh = tMesh;
+                        tMeshFound = true;
+                        break;
+                    }
                 }
             }
 
@@ -1229,7 +1251,7 @@ namespace moris
             {
                 // get pointer to element
                 Background_Element_Base * tBackElement = tNode->get_element( k )
-                                                                                                      ->get_background_element();
+                       ->get_background_element();
 
                 if( tBackElement->is_active( tPattern ) )
                 {

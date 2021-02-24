@@ -355,6 +355,15 @@ namespace moris
             }
 
             mLagrangeMeshes.clear();
+
+            // delete all pointers
+            for( auto tMesh : mAdditionalLagrangeMeshes )
+            {
+                // delete this mesh
+                delete tMesh;
+            }
+
+            mAdditionalLagrangeMeshes.clear();
         }
 
         // -----------------------------------------------------------------------------
@@ -975,18 +984,35 @@ namespace moris
             // pointer to mesh that is linked to input field
             Lagrange_Mesh_Base * tSourceMesh = nullptr;
 
+            bool tMeshFound = false;
             // find pointer to input mesh
             for( Lagrange_Mesh_Base * tMesh : mLagrangeMeshes )
             {
                 if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aSourcePattern )
                 {
                     tSourceMesh = tMesh;
+                    tMeshFound = true;
                     break;
+                }
+            }
+
+            if( !tMeshFound )
+            {
+                // find pointer to input mesh
+                for( Lagrange_Mesh_Base * tMesh : mAdditionalLagrangeMeshes )
+                {
+                    if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aSourcePattern )
+                    {
+                        tSourceMesh = tMesh;
+                        break;
+                    }
                 }
             }
 
             // pointer to mesh that is linked to output field
             Lagrange_Mesh_Base * tTargetMesh = nullptr;
+
+            tMeshFound = false;
 
             // find pointer to output mesh
             for( Lagrange_Mesh_Base *  tMesh : mLagrangeMeshes )
@@ -994,7 +1020,21 @@ namespace moris
                 if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aTargetPattern )
                 {
                     tTargetMesh = tMesh;
+                    tMeshFound = true;
                     break;
+                }
+            }
+
+            if( !tMeshFound )
+            {
+                // find pointer to output mesh
+                for( Lagrange_Mesh_Base *  tMesh : mAdditionalLagrangeMeshes )
+                {
+                    if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aTargetPattern )
+                    {
+                        tTargetMesh = tMesh;
+                        break;
+                    }
                 }
             }
 
