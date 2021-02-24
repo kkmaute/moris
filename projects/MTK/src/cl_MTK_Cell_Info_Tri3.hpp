@@ -96,6 +96,16 @@ namespace moris
             // ----------------------------------------------------------------------------------
 
             moris::real
+            compute_cell_size_straight(moris::mtk::Cell const *aCell) const;
+
+            // ----------------------------------------------------------------------------------
+
+            moris::real
+            compute_cell_size_deriv(moris::mtk::Cell const *aCell, uint aLocalVertexID, uint aDirection) const;
+
+            // ----------------------------------------------------------------------------------
+
+            moris::real
             compute_cell_side_size(moris::mtk::Cell const *aCell,
                                    moris_index const &aSideOrd) const;
         };

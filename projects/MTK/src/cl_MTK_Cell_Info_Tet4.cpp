@@ -249,6 +249,41 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
+        Cell_Info_Tet4::compute_cell_size_straight( moris::mtk::Cell const * aCell ) const
+        {
+            return compute_cell_size_special(aCell);
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Tet4::compute_cell_size_deriv( moris::mtk::Cell const * aCell, uint aLocalVertexID, uint aDirection ) const
+        {
+            moris::Cell<Vertex *> tVertices = aCell->get_vertex_pointers();
+
+            // permutation vectors
+            moris::Matrix<DDUMat> tVertIndexMap = {{3,0,1,2,3,0,1}};
+            moris::Matrix<DDUMat> tDirIndexMap = {{1,2,0,1}};
+
+            // getting appropriate edge vectors
+            const Matrix<DDRMat> tNodeCoords0 = tVertices( tVertIndexMap(aLocalVertexID) )->get_coords();
+            const Matrix<DDRMat> tNodeCoords20 = tVertices( tVertIndexMap(aLocalVertexID + 3) )->get_coords() - tNodeCoords0;
+            const Matrix<DDRMat> tNodeCoords30 = tVertices( tVertIndexMap(aLocalVertexID + 2) )->get_coords() - tNodeCoords0;
+
+            MORIS_ASSERT(tNodeCoords0.numel() == 3,"Cell_Info_Tet4::compute_cell_size_deriv only works in 3D.\n");
+            MORIS_ASSERT( aDirection < 3,"Cell_Info_Tet4::compute_cell_size_deriv directions can only be 0, 1, or 2.\n");
+            MORIS_ASSERT( aLocalVertexID < 4,"Cell_Info_Tet4::compute_cell_size_deriv vertex IDs must be 0, 1, 2, or 3.\n");
+
+            // calculating volume
+            return 1.0/6.0 * std::pow(-1.0,aLocalVertexID) * 
+                        ( tNodeCoords20( tDirIndexMap(aDirection) ) * tNodeCoords30( tDirIndexMap(aDirection + 1) ) -
+                          tNodeCoords20( tDirIndexMap(aDirection + 1) ) * tNodeCoords30( tDirIndexMap(aDirection) ) );
+
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
         Cell_Info_Tet4::compute_cell_side_size(
             moris::mtk::Cell const *aCell,
             moris_index const &aSideOrd) const

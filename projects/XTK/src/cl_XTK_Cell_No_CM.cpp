@@ -69,6 +69,12 @@ namespace xtk
     }
 
     moris::real
+    Cell_XTK_No_CM::compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const
+    {
+       return mCellInfo->compute_cell_size_deriv(this, aLocalVertexID, aDirection);
+    }
+
+    moris::real
     Cell_XTK_No_CM::compute_cell_side_measure(moris_index const & aSideOrdinal) const
     {
        return mCellInfo->compute_cell_side_size(this,aSideOrdinal);

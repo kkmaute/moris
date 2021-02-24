@@ -70,9 +70,11 @@ namespace moris
                 bool md2NdXi2Eval = true;
                 bool md3NdXi3Eval = true;
 
-                bool mSpaceDetJEval   = true;
-                bool mSpaceJacEval    = true;
-                bool mInvSpaceJacEval = true;
+                bool mSpaceDetJEval      = true;
+                bool mSpaceJacEval       = true;
+                bool mInvSpaceJacEval    = true;
+                bool mSpaceJacDerivEval  = true;
+                bool mSpaceDetJDerivEval = true;
 
                 // storage
                 Matrix< DDRMat > mValx;
@@ -85,6 +87,8 @@ namespace moris
                 Matrix< DDRMat > mSpaceJac;
                 Matrix< DDRMat > mInvSpaceJac;
                 real mSpaceDetJ;
+                Matrix< DDRMat > mSpaceJacDeriv;
+                real mSpaceDetJDeriv;
 
                 Matrix< DDRMat > mMappedPoint;
 
@@ -97,6 +101,14 @@ namespace moris
 
                 // pointer to function for space detJ
                 real ( Space_Interpolator:: * mSpaceDetJRectFunc )(
+                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
+                        // pointer to function for space detJ
+
+                // pointers for derivatives of space detJ wrt a single dof
+                real ( Space_Interpolator:: * mSpaceDetJDerivFunc )(
+                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
+
+                real ( Space_Interpolator:: * mSpaceDetJDerivRectFunc )(
                         const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
                 // point to function for inverse of space Jacobian
@@ -178,6 +190,13 @@ namespace moris
                  * local xi, tau coordinates are changed
                  */
                 void reset_eval_flags_coordinates();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * reset evaluation flags when needing to get derivative of same detJ wrt to a
+                 * different dof
+                 */
+                void reset_eval_flags_deriv();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -364,6 +383,26 @@ namespace moris
                 void eval_space_jacobian();
 
                 //------------------------------------------------------------------------------
+                /**
+                 * get the transformation matrix that is used to determine d(detJ)/dxHat_i
+                 * this is not a true derivative of the space jacobian
+                 * @param[ out ] aLocalVertexID local vertex to take derivative wrt
+                 * @param[ out ] aDirection     direction to take derivative wrt (0, 1, or 2)
+                 */
+                const Matrix< DDRMat > & space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection);
+
+                /**
+                 * evaluates the transformation matrix used to determine d(detJ)/dxHat_i.
+                 * In a 2D situation, with a derivative wrt to y_0, this will produce a matrix
+                 * that looks like the following
+                 * { { d[N]/dXi .* [x],  dN_0/dXi },
+                 *   { d[N]/dEta.* [x],  dN_0/dEta}}
+                 * @param[ out ] aLocalVertexID local vertex to take derivative wrt
+                 * @param[ out ] aDirection     direction to take derivative wrt (0, 1, or 2)
+                 */
+                void eval_space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection);
+
+                //------------------------------------------------------------------------------
 
                 /**
                  * get the inverse of the geometry Jacobian in space
@@ -396,6 +435,13 @@ namespace moris
                  * at given space and time evaluation point
                  */
                 const real & space_det_J();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the determinant of the Jacobian Derivative wrt a single dof mapping
+                 * at given space and time evaluation point
+                 */
+                const real & space_det_J_deriv(const uint & aLocalVertexID, const uint & aDirection);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -561,7 +607,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate space detJ
+                 * evaluate space detJ.
                  */
                 real eval_space_detJ_side_line( const Matrix< DDRMat > & aSpaceJt );
                 real eval_space_detJ_side_tri ( const Matrix< DDRMat > & aSpaceJt );
@@ -576,6 +622,25 @@ namespace moris
                 real eval_space_detJ_bulk_tri_param_3( const Matrix< DDRMat > & aSpaceJt );
                 real eval_space_detJ_bulk_tet_param_3( const Matrix< DDRMat > & aSpaceJt );
                 real eval_space_detJ_bulk_tet_param_4( const Matrix< DDRMat > & aSpaceJt );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate derivative of the space detJ wrt to a single dof.
+                 * These functions are very similar to the standard detJ calcs with different asserts
+                 */
+                real eval_space_detJ_deriv_side_line( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_side_tri ( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_side_quad( const Matrix< DDRMat > & aSpaceJDerivt );
+
+                real eval_space_detJ_deriv_bulk_line( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_quad( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_quad_rect( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_hex ( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_hex_rect ( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_tri_param_2( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_tri_param_3( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_tet_param_3( const Matrix< DDRMat > & aSpaceJDerivt );
+                real eval_space_detJ_deriv_bulk_tet_param_4( const Matrix< DDRMat > & aSpaceJDerivt );
 
                 //------------------------------------------------------------------------------
                 /**

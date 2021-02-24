@@ -231,26 +231,59 @@ namespace moris
 
             real tArea = tLx*tLy;
 
-//            // general implementation
-//            const Matrix<DDRMat> tNodeCoords1 = tVertices(1)->get_coords();
-//            const Matrix<DDRMat> tNodeCoords3 = tVertices(3)->get_coords();
-//
-//            real tArea = 0.5 * (
-//                    (
-//                            tNodeCoords0(0) * tNodeCoords1(1) +
-//                            tNodeCoords1(0) * tNodeCoords2(1) +
-//                            tNodeCoords2(0) * tNodeCoords3(1) +
-//                            tNodeCoords3(0) * tNodeCoords0(1)
-//                    ) - (
-//                            tNodeCoords1(0) * tNodeCoords0(1) +
-//                            tNodeCoords2(0) * tNodeCoords1(1) +
-//                            tNodeCoords3(0) * tNodeCoords2(1) +
-//                            tNodeCoords0(0) * tNodeCoords3(1)
-//                    ));
-//
-//            MORIS_ASSERT(tArea>0,"Area of quad is smaller than zero.\n");
+            return tArea;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Quad4::compute_cell_size_straight( moris::mtk::Cell const * aCell ) const
+        {
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            const Matrix<DDRMat> tNodeCoords0 = tVertices(0)->get_coords();
+            const Matrix<DDRMat> tNodeCoords1 = tVertices(1)->get_coords();
+            const Matrix<DDRMat> tNodeCoords2 = tVertices(2)->get_coords();
+            const Matrix<DDRMat> tNodeCoords3 = tVertices(3)->get_coords();
+
+            MORIS_ASSERT(tNodeCoords0.numel() == 2,"Cell_Info_Quad4::compute_cell_size_straight only works in 2D.\n");
+
+            // computes the cross product of the 2 triangles and adds them. some simplifications made.
+            real tArea = 0.5 * ( tNodeCoords0(0) *   tNodeCoords1(1) +
+                                 tNodeCoords1(0) * ( tNodeCoords2(1) - tNodeCoords0(0) ) - 
+                                 tNodeCoords2(0) *   tNodeCoords1(1) +
+                                 tNodeCoords2(0) *   tNodeCoords3(1) +
+                                 tNodeCoords3(0) * ( tNodeCoords0(1) - tNodeCoords2(1) ) -
+                                 tNodeCoords0(0) *   tNodeCoords3(1) );
 
             return tArea;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Quad4::compute_cell_size_deriv( moris::mtk::Cell const * aCell, uint aLocalVertexID, uint aDirection ) const
+        {
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // permutation vector used to index correct vertices
+            moris::Matrix< DDUMat > tVertIndexMap = {{1,2,3,0,1,2}};
+            moris::Matrix< DDUMat > tDirIndexMap = {{1,0}};
+
+            // Getting adjacent vertices to vertex of interest
+            const Matrix<DDRMat> tNodeCoordsA = tVertices( tVertIndexMap( aLocalVertexID ))->get_coords();
+            const Matrix<DDRMat> tNodeCoordsB = tVertices( tVertIndexMap( aLocalVertexID + 2 ))->get_coords();
+
+            MORIS_ASSERT(tNodeCoordsA.numel() == 2,"Cell_Info_Quad4::compute_cell_size_deriv only works in 2D.\n");
+            MORIS_ASSERT( aDirection < 2,"Cell_Info_Quad4::compute_cell_size_deriv directions can only be 0 or 1.\n");
+            MORIS_ASSERT( aLocalVertexID < 4,"Cell_Info_Quad4::compute_cell_size_deriv vertex IDs must be 0, 1, 2, or 3.\n");
+
+            // computes the derivative of the area wrt to the single dof/direction.
+            moris::real tAreaDeriv = 0.5 * std::pow(-1.0, aDirection) *
+                                           ( tNodeCoordsA( tDirIndexMap( aDirection ) ) -
+                                             tNodeCoordsB( tDirIndexMap( aDirection ) ) );
+
+            return tAreaDeriv;
         }
 
         // ----------------------------------------------------------------------------------

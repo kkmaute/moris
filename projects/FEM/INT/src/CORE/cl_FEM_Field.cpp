@@ -41,7 +41,17 @@ namespace moris
 
         void Field::set_field_from_file( const std::string & aString )
         {
+             // detect file type
+             std::string tType = aString.substr( aString.find_last_of(".")+1, aString.length() );
 
+             if( tType == "hdf5" || tType == "h5" )
+             {
+                 this->load_nodal_values_from_hdf5( aString );
+             }
+             else
+             {
+                 MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here.");
+             }
         }
 
         //------------------------------------------------------------------------------

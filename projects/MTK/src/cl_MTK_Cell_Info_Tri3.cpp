@@ -200,6 +200,40 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        moris::real Cell_Info_Tri3::compute_cell_size_straight(moris::mtk::Cell const *aCell) const
+        {
+            return compute_cell_size_special(aCell);
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Tri3::compute_cell_size_deriv( moris::mtk::Cell const * aCell, uint aLocalVertexID, uint aDirection ) const
+        {
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // permutation vector used to index correct vertices
+            moris::Matrix< DDUMat > tVertIndexMap = {{1,2,0,1}};
+            moris::Matrix< DDUMat > tDirIndexMap = {{1,0}};
+
+            // Getting adjacent vertices to vertex of interest
+            const Matrix<DDRMat> tNodeCoordsA = tVertices( tVertIndexMap( aLocalVertexID ))->get_coords();
+            const Matrix<DDRMat> tNodeCoordsB = tVertices( tVertIndexMap( aLocalVertexID + 1 ))->get_coords();
+
+            MORIS_ASSERT(tNodeCoordsA.numel() == 2,"Cell_Info_Tri3::compute_cell_size_deriv only works in 2D.\n");
+            MORIS_ASSERT( aDirection < 2,"Cell_Info_Tri3::compute_cell_size_deriv directions can only be 0 or 1.\n");
+            MORIS_ASSERT( aLocalVertexID < 3,"Cell_Info_Tri3::compute_cell_size_deriv vertex IDs must be 0, 1, or 2.\n");
+
+            // computes the derivative of the area wrt to the single dof/direction.
+            moris::real tAreaDeriv = 0.5 * std::pow(-1.0, aDirection) *
+                                           ( tNodeCoordsA( tDirIndexMap( aDirection ) ) -
+                                             tNodeCoordsB( tDirIndexMap( aDirection ) ) );
+
+            return tAreaDeriv;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         moris::real
         Cell_Info_Tri3::compute_cell_side_size(
             moris::mtk::Cell const *aCell,

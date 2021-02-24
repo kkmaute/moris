@@ -263,6 +263,28 @@ public:
 
     //------------------------------------------------------------------------------
 
+    moris::real
+    compute_cell_measure_straight() const
+    {
+       return mCellInfo->compute_cell_size_straight(this);
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    compute_cell_measure_deriv(uint aVertexID, uint aDirection ) const
+    {
+       return mCellInfo->compute_cell_size_deriv(this, aVertexID, aDirection);
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    compute_cell_measure_deriv_general(uint aVertexID, uint aDirection ) const
+    {
+       return mCellInfo->compute_cell_size_deriv_general(this, aVertexID, aDirection);
+    }
+
     //------------------------------------------------------------------------------
 
     moris::real

@@ -176,6 +176,11 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         moris::real
+        compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const;
+
+        //------------------------------------------------------------------------------
+
+        moris::real
         compute_cell_side_measure(moris_index const &aSideOrdinal) const;
 
         //------------------------------------------------------------------------------

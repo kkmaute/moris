@@ -65,20 +65,32 @@ namespace moris
             md2NdXi2Eval  = true;
             md3NdXi3Eval  = true;
 
-            mSpaceDetJEval   = true;
-            mSpaceJacEval    = true;
-            mInvSpaceJacEval = true;
+            mSpaceDetJEval      = true;
+            mSpaceJacEval       = true;
+            mInvSpaceJacEval    = true;
+            mSpaceJacDerivEval  = true;
+            mSpaceDetJDerivEval = true;
         }
 
         //------------------------------------------------------------------------------
 
         void Space_Interpolator::reset_eval_flags_coordinates()
         {
-            mValxEval        = true;
+            mValxEval           = true;
 
-            mSpaceDetJEval   = true;
-            mSpaceJacEval    = true;
-            mInvSpaceJacEval = true;
+            mSpaceDetJEval      = true;
+            mSpaceJacEval       = true;
+            mInvSpaceJacEval    = true;
+            mSpaceJacDerivEval  = true;
+            mSpaceDetJDerivEval = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Space_Interpolator::reset_eval_flags_deriv()
+        {
+            mSpaceJacDerivEval  = true;
+            mSpaceDetJDerivEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -328,6 +340,47 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat > & Space_Interpolator::space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        {
+            // if space Jacobian needs to be evaluated
+            if( mSpaceJacDerivEval )
+            {
+                // evaluate the space Jacobian
+                this->eval_space_jacobian_deriv(aLocalVertexID, aDirection);
+
+                // set bool for evaluation
+                mSpaceJacDerivEval = false;
+            }
+
+            // return member value
+            return mSpaceJacDeriv;
+        }
+
+        void Space_Interpolator::eval_space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        {
+            // check that mXHat is set
+            MORIS_ASSERT( mXHat.numel() > 0, "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
+
+            // check inputs wrt to xHat
+            MORIS_ASSERT( aDirection < mXHat.n_cols(), "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
+            MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(), "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
+            
+            // get derivative of space coefficient. Note that only one element of this matrix will have a value
+            Matrix< DDRMat > tXHatDeriv = mXHat;
+            Matrix< DDRMat > tZeroVector(mXHat.n_rows(),1,0.0);
+
+            // set all other elements in the derivative direction to 0
+            tXHatDeriv( {0,mXHat.n_rows()-1}, {aDirection, aDirection} ) = tZeroVector( {0,mXHat.n_rows()-1}, {0, 0} );
+
+            // what dof are we taking a derivative wrt? this will be the only used value in that column
+            tXHatDeriv( aLocalVertexID, aDirection ) = 1.0;
+
+            // compute the Jacobian derivative
+            mSpaceJacDeriv = this->dNdXi() * tXHatDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Space_Interpolator::inverse_space_jacobian()
         {
             // if inverse of the space Jacobian needs to be evaluated
@@ -534,6 +587,39 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const real & Space_Interpolator::space_det_J_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        {
+            // if determinant of space Jacobian derivative needs to be evaluated
+            if( mSpaceDetJDerivEval )
+            {
+                // get the space Jacobian
+                const Matrix< DDRMat > & tSpaceJtDeriv = this->space_jacobian_deriv(aLocalVertexID, aDirection);
+
+                // filter between
+                if (mRectangular)
+                {
+                    // Rectangular check only works for Quad or Hex elements
+                    MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
+                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
+                                    "Rectangular calcs only applicable for QUAD or HEX");
+
+                    mSpaceDetJDeriv = ( this->*mSpaceDetJDerivRectFunc )( tSpaceJtDeriv );
+                }
+                else
+                {
+                    mSpaceDetJDeriv = ( this->*mSpaceDetJDerivFunc )( tSpaceJtDeriv );
+                }
+
+                // set bool for evaluation
+                mSpaceDetJDerivEval = false;
+            }
+
+            // return member value
+            return mSpaceDetJDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         real Space_Interpolator::eval_space_detJ_side_line(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -543,6 +629,16 @@ namespace moris
                     "Space determinant (side line) close to zero or negative: %e\n", tDetJ);
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_side_line(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = norm( aSpaceJDerivt );
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -563,6 +659,19 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real Space_Interpolator::eval_space_detJ_deriv_side_tri(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv =
+                    norm( cross(
+                            aSpaceJDerivt.get_row( 0 ) - aSpaceJDerivt.get_row( 2 ),
+                            aSpaceJDerivt.get_row( 1 ) - aSpaceJDerivt.get_row( 2 ) ) ) / 2.0;
+
+            return tDetJDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         real Space_Interpolator::eval_space_detJ_side_quad(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -572,6 +681,16 @@ namespace moris
                     "Space determinant (side quad) close to zero or negative: %e\n", tDetJ);
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_side_quad(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = norm( cross( aSpaceJDerivt.get_row( 0 ), aSpaceJDerivt.get_row( 1 ) ) );
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -593,6 +712,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_line(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = aSpaceJDerivt(0,0);
+
+            return tDetJDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         real Space_Interpolator::eval_space_detJ_bulk_quad(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -610,6 +739,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_quad(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1)-aSpaceJDerivt(0,1)*aSpaceJDerivt(1,0);
+
+            return tDetJDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         real Space_Interpolator::eval_space_detJ_bulk_quad_rect(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -623,6 +762,16 @@ namespace moris
                     tDetJ,det(aSpaceJt));
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_quad_rect(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1);
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -647,6 +796,19 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_hex(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv =
+                    +aSpaceJDerivt(0,0)*(aSpaceJDerivt(1,1)*aSpaceJDerivt(2,2)-aSpaceJDerivt(2,1)*aSpaceJDerivt(1,2))
+                    -aSpaceJDerivt(0,1)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,2)-aSpaceJDerivt(1,2)*aSpaceJDerivt(2,0))
+                    +aSpaceJDerivt(0,2)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,1)-aSpaceJDerivt(1,1)*aSpaceJDerivt(2,0));
+
+            return tDetJDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         real Space_Interpolator::eval_space_detJ_bulk_hex_rect(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -660,6 +822,16 @@ namespace moris
                     tDetJ,det(aSpaceJt));
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_hex_rect(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1)*aSpaceJDerivt(2,2);
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -681,6 +853,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_2(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = (aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1)-aSpaceJDerivt(0,1)*aSpaceJDerivt(1,0))/ 2.0;
+
+            return tDetJDeriv;
+        }
+
+        //------------------------------------------------------------------------------
+
         real Space_Interpolator::eval_space_detJ_bulk_tri_param_3(
                 const Matrix< DDRMat > & aSpaceJt )
         {
@@ -693,6 +875,19 @@ namespace moris
                     "Space determinant (Tri-P3) close to zero or negative: %e\n", tDetJ);
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_3(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = (
+                    +(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,1)-aSpaceJDerivt(1,1)*aSpaceJDerivt(2,0))
+                    -(aSpaceJDerivt(0,0)*aSpaceJDerivt(2,1)-aSpaceJDerivt(0,1)*aSpaceJDerivt(2,0))
+                    +(aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1)-aSpaceJDerivt(0,1)*aSpaceJDerivt(1,0))) / 2.0;
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -713,6 +908,19 @@ namespace moris
                     tDetJ,det(aSpaceJt));
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_3(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tDetJDeriv = (
+                    +aSpaceJDerivt(0,0)*(aSpaceJDerivt(1,1)*aSpaceJDerivt(2,2)-aSpaceJDerivt(2,1)*aSpaceJDerivt(1,2))
+                    -aSpaceJDerivt(0,1)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,2)-aSpaceJDerivt(1,2)*aSpaceJDerivt(2,0))
+                    +aSpaceJDerivt(0,2)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,1)-aSpaceJDerivt(1,1)*aSpaceJDerivt(2,0))) / 6.0;
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -746,6 +954,36 @@ namespace moris
                     "Space determinant (Tet-P4) close to zero or negative: %e\n", tDetJ);
 
             return tDetJ;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_4(
+                const Matrix< DDRMat > & aSpaceJDerivt )
+        {
+            real tSubDet1 =
+                    +aSpaceJDerivt(1,0)*(aSpaceJDerivt(2,1)*aSpaceJDerivt(3,2)-aSpaceJDerivt(2,2)*aSpaceJDerivt(3,1))
+                    -aSpaceJDerivt(1,1)*(aSpaceJDerivt(2,0)*aSpaceJDerivt(3,2)-aSpaceJDerivt(2,2)*aSpaceJDerivt(3,0))
+                    +aSpaceJDerivt(1,2)*(aSpaceJDerivt(2,0)*aSpaceJDerivt(3,1)-aSpaceJDerivt(2,1)*aSpaceJDerivt(3,0));
+
+            real tSubDet2 =
+                    +aSpaceJDerivt(0,0)*(aSpaceJDerivt(2,1)*aSpaceJDerivt(3,2)-aSpaceJDerivt(2,2)*aSpaceJDerivt(3,1))
+                    -aSpaceJDerivt(0,1)*(aSpaceJDerivt(2,0)*aSpaceJDerivt(3,2)-aSpaceJDerivt(2,2)*aSpaceJDerivt(3,0))
+                    +aSpaceJDerivt(0,2)*(aSpaceJDerivt(2,0)*aSpaceJDerivt(3,1)-aSpaceJDerivt(2,1)*aSpaceJDerivt(3,0));
+
+            real tSubDet3 =
+                    +aSpaceJDerivt(0,0)*(aSpaceJDerivt(1,1)*aSpaceJDerivt(3,2)-aSpaceJDerivt(1,2)*aSpaceJDerivt(3,1))
+                    -aSpaceJDerivt(0,1)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(3,2)-aSpaceJDerivt(1,2)*aSpaceJDerivt(3,0))
+                    +aSpaceJDerivt(0,2)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(3,1)-aSpaceJDerivt(1,1)*aSpaceJDerivt(3,0));
+
+            real tSubDet4 =
+                    +aSpaceJDerivt(0,0)*(aSpaceJDerivt(1,1)*aSpaceJDerivt(2,2)-aSpaceJDerivt(1,2)*aSpaceJDerivt(2,1))
+                    -aSpaceJDerivt(0,1)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,2)-aSpaceJDerivt(1,2)*aSpaceJDerivt(2,0))
+                    +aSpaceJDerivt(0,2)*(aSpaceJDerivt(1,0)*aSpaceJDerivt(2,1)-aSpaceJDerivt(1,1)*aSpaceJDerivt(2,0));
+
+            real tDetJDeriv = ( tSubDet1 - tSubDet2 + tSubDet3 - tSubDet4 ) / 6.0;
+
+            return tDetJDeriv;
         }
 
         //------------------------------------------------------------------------------
@@ -1504,6 +1742,7 @@ namespace moris
                     case Geometry_Type::LINE :
                     {
                         mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_side_line;
+                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_line;
                         mNormalFunc    = &Space_Interpolator::eval_normal_side_line;
 
                         // set size for storage
@@ -1514,6 +1753,7 @@ namespace moris
                     case Geometry_Type::TRI :
                     {
                         mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_side_tri;
+                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_tri;
                         mNormalFunc    = &Space_Interpolator::eval_normal_side_tri;
 
                         // set size for storage
@@ -1524,6 +1764,7 @@ namespace moris
                     case Geometry_Type::QUAD :
                     {
                         mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_side_quad;
+                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_quad;
                         mNormalFunc    = &Space_Interpolator::eval_normal_side_quad;
 
                         // set size for storage
@@ -1544,6 +1785,7 @@ namespace moris
                     case Geometry_Type::LINE :
                     {
                         mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_line;
+                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_line;
 
                         // set size for storage
                         mMappedPoint.set_size( 2, 1, 0.0 );
@@ -1554,6 +1796,8 @@ namespace moris
                     {
                         mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_quad;
                         mSpaceDetJRectFunc = &Space_Interpolator::eval_space_detJ_bulk_quad_rect;
+                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_quad;
+                        mSpaceDetJDerivRectFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_quad_rect;
 
                         // set size for storage
                         mMappedPoint.set_size( 3, 1, 0.0 );
@@ -1564,6 +1808,8 @@ namespace moris
                     {
                         mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_hex;
                         mSpaceDetJRectFunc = &Space_Interpolator::eval_space_detJ_bulk_hex_rect;
+                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_hex;
+                        mSpaceDetJDerivRectFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_hex_rect;
 
                         // set size for storage
                         mMappedPoint.set_size( 4, 1, 0.0 );
@@ -1576,9 +1822,11 @@ namespace moris
                         {
                             case 2 :
                                 mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tri_param_2;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_2;
                                 break;
                             case 3 :
                                 mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tri_param_3;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_3;
                                 break;
                             default :
                                 MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
@@ -1595,9 +1843,11 @@ namespace moris
                         {
                             case 3 :
                                 mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tet_param_3;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_3;
                                 break;
                             case 4 :
                                 mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tet_param_4;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_4;
                                 break;
                             default :
                                 MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 3 or 4." );

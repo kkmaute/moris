@@ -104,6 +104,30 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * Computes the cell size if this isn't a rectangular cell
+             * @param[in] aCell          MTK cell to compute size of.
+             * 
+             * @return return the cell size.
+            */
+            moris::real
+            compute_cell_size_straight(moris::mtk::Cell const *aCell) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * Computes the cell size derivative wrt to a single dof
+             * @param[in] aCell           MTK cell to compute size of.
+             * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, or 3).
+             * @param[in] aDirection      Direction to take derivative (0,1, or 2).
+             * 
+             * @return return the cell size.
+            */
+            moris::real
+            compute_cell_size_deriv(moris::mtk::Cell const *aCell, uint aLocalVertexID, uint aDirection) const;
+
+            // ----------------------------------------------------------------------------------
+
             moris::real
             compute_cell_side_size(moris::mtk::Cell const *aCell,
                                    moris_index const &aSideOrd) const;
