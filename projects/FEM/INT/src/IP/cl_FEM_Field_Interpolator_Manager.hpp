@@ -16,6 +16,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"                  //MTK/src
+#include "cl_MTK_Enums.hpp"                  //MTK/src
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"          //FEM/MSI/src
 #include "cl_MSI_Model_Solver_Interface.hpp"//FEM/MSI/src
@@ -70,6 +71,18 @@ namespace moris
 
                 // maximum number of field interpolators
                 moris::uint mMaxNumDvFI;
+
+                // field type list for the FI manager
+                const moris::Cell< moris::Cell< enum mtk::Field_Type > > mFieldTypes;
+
+                // field type map
+                moris::Matrix< DDSMat > mFieldTypeMap;
+
+                // list of field interpolators
+                moris::Cell< Field_Interpolator* > mFieldFI;
+
+                // maximum number of mtk::field field interpolators
+                moris::uint mMaxNumFieldFI;
 
                 // pointer to geometry interpolator for IP element
                 Geometry_Interpolator* mIPGeometryInterpolator = nullptr;

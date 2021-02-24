@@ -251,8 +251,11 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void load_field_from_hdf5( const std::string & aFilePath,
-                        const uint          aBSplineOrder=0 );
+                void load_field_from_hdf5( const std::string & aFilePath );
+
+                //------------------------------------------------------------------------------
+
+                void load_nodal_values_from_hdf5( const std::string & aFilePath );
 
                 //------------------------------------------------------------------------------
 

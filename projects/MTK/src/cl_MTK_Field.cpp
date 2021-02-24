@@ -164,8 +164,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field::load_field_from_hdf5(
-                const std::string & aFilePath,
-                const uint          aBSplineOrder )
+                const std::string & aFilePath )
         {
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
@@ -176,6 +175,25 @@ namespace moris
                     tStatus );
 
             this->set_coefficients( tMat );
+
+            tStatus = close_hdf5_file( tFile );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::load_nodal_values_from_hdf5(
+                const std::string & aFilePath )
+        {
+            hid_t tFile    = open_hdf5_file( aFilePath );
+            herr_t tStatus = 0;
+            Matrix<DDRMat> tMat;
+            load_matrix_from_hdf5_file( tFile,
+                    this->get_label(),
+                    tMat,
+                    tStatus );
+
+            this->unlock_field();
+            this->set_nodal_values( tMat );
 
             tStatus = close_hdf5_file( tFile );
         }
