@@ -205,6 +205,7 @@ namespace moris
             tParameters.mDiscretizationUpperBound = aPropertyParameterList.get<real>("discretization_upper_bound");
 
             map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
+            tParameters.mDependencyNames = string_to_cell<std::string>(aPropertyParameterList.get<std::string>("dependencies"));
             tParameters.mPDVType = tPDVTypeMap[aPropertyParameterList.get<std::string>("pdv_type")];
             tParameters.mPDVMeshSetIndices = string_to_mat<DDUMat>(aPropertyParameterList.get<std::string>("pdv_mesh_set_indices"));
             tParameters.mPDVMeshSetNames = string_to_cell<std::string>(aPropertyParameterList.get<std::string>("pdv_mesh_set_names"));

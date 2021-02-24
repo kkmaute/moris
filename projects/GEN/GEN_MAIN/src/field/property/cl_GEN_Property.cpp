@@ -21,6 +21,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Property::update_dependencies(Cell<std::shared_ptr<Field>> aAllUpdatedFields)
+        {
+            // Set up dependency fields
+            uint tNumDependencies = mParameters.mDependencyNames.size();
+            Cell<std::shared_ptr<Field>> tDependencyFields(tNumDependencies);
+
+            // Grab dependencies
+            for (uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++)
+            {
+                for (uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++)
+                {
+                    if (aAllUpdatedFields(tFieldIndex)->get_name() == mParameters.mDependencyNames(tDependencyIndex))
+                    {
+                        tDependencyFields(tDependencyIndex) = aAllUpdatedFields(tFieldIndex);
+                    }
+                }
+            }
+
+            // Set dependencies
+            this->set_dependencies(tDependencyFields);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         PDV_Type Property::get_pdv_type()
         {
             return mParameters.mPDVType;
@@ -45,6 +69,12 @@ namespace moris
         Cell<std::string> Property::get_pdv_mesh_set_names()
         {
             return mParameters.mPDVMeshSetNames;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Property::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
+        {
         }
 
         //--------------------------------------------------------------------------------------------------------------

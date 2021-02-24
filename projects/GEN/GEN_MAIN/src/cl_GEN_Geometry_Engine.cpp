@@ -94,17 +94,8 @@ namespace moris
                     mLibrary,
                     aMTKMesh == nullptr ? nullptr : aMTKMesh->get_interpolation_mesh(0));
 
-
-
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
-
-            // Properties
-            mProperties = create_properties(
-                    aParameterLists(2),
-                    mInitialPrimitiveADVs,
-                    mGeometries,
-                    mLibrary);
 
             // Get intersection mode
             std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
@@ -976,6 +967,14 @@ namespace moris
                             aMesh,
                             mProperties(tPropertyIndex));
                 }
+            }
+
+            // Update dependencies
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                mProperties(tPropertyIndex)->update_dependencies(tFields);
             }
 
             // Save new owned ADVs
