@@ -1304,9 +1304,9 @@ namespace moris
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
                         // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
-                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
-                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_vertex_ids();
-                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_vertex_owners();
+                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_inds();
+                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_ids();
+                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_owners();
 
                         // FIXME don't undersand this resize. it's really slow
                         tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
@@ -1411,7 +1411,7 @@ namespace moris
                     mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
 
                     // get the vertices from IP cell
-                    Cell< mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+                    Cell< mtk::Vertex * > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
 
                     // get the number of vertices on IP cell
                     uint tNumVerts = tVertices.size();
