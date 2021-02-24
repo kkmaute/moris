@@ -196,7 +196,9 @@ namespace moris
         Cell_Info::compute_cell_size_deriv(moris::mtk::Cell const *aCell,
                                                     uint aLocalVertexID, uint aDirection) const
         {
-            return this->compute_cell_size_deriv_general( aCell, aLocalVertexID, aDirection);
+            MORIS_ERROR(false,"Cell_Info::compute_cell_size_deriv not implemented for this cell. Could you use "
+            "Cell_Info::compute_cell_size_deriv_general for any shape");
+            return 0.0;
         }
 
         moris::real

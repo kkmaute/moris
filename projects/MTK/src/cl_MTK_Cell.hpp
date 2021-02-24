@@ -207,6 +207,14 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /*
+             * Derivative of the Volume in 3D, Surface Area in 2D wrt to a single dof
+             */
+            virtual moris::real
+            compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const;
+
+            //------------------------------------------------------------------------------
+
+            /*
              * Surface Area on side of cell in 3D, line length on side in 2D
              */
             virtual moris::real
