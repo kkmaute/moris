@@ -34,12 +34,12 @@ namespace moris
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
 
             // Get B-spline mesh index
-            uint tBSplineMeshIndex = this->get_discretization_mesh_index();
+            uint tDiscretizationMeshIndex = this->get_discretization_mesh_index();
 
             // Assign ADVs
-            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tDiscretizationMeshIndex); tBSplineIndex++)
             {
-                if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                if ((uint) par_rank() == mMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
                 {
                     // Assign distributed vector element based on B-spline ID and offset
                     (*aOwnedADVs)(aOwnedADVIds(aOwnedADVIdsOffset++)) = tTargetField(tBSplineIndex);
@@ -50,7 +50,7 @@ namespace moris
             uint tOwnedNodeCount = 0;
             for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
             {
-                if ((uint) par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
+                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex))
                 {
                     tOwnedNodeCount++;
                 }
@@ -65,9 +65,9 @@ namespace moris
                 sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                         tNodeIndex,
                         EntityRank::NODE,
-                        tBSplineMeshIndex);
+                        tDiscretizationMeshIndex);
                 tSharedNodeIDs(tNodeIndex) = tNodeID;
-                if ((uint) par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
+                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex))
                 {
                     tOwnedNodeIDs(tOwnedNodeCount++) = tNodeID;
                 }
@@ -245,6 +245,8 @@ namespace moris
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
+            MORIS_ERROR(tCoefficients.length() == mMesh->get_num_coeffs(aField->get_discretization_mesh_index()),
+                    "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
 
             // Clean up
             delete tOutputMeshPair.mIntegrationMesh;
