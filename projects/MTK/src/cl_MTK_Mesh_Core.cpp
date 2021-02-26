@@ -687,7 +687,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         uint
-        Mesh::get_num_coeffs(uint aDiscretizationMeshIndex) const
+        Mesh::get_max_num_coeffs_on_proc(uint aDiscretizationMeshIndex) const
         {
             return this->get_num_nodes();
         }

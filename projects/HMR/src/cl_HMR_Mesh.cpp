@@ -302,7 +302,7 @@ namespace moris
                 }
                 case EntityRank::BSPLINE:
                 {
-                    return this->get_num_coeffs( aIndex );
+                    return this->get_max_num_coeffs_on_proc( aIndex );
                     break;
                 }
                 default :
@@ -426,7 +426,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        uint Mesh::get_num_coeffs( const uint aBsplineMeshIndex ) const
+        uint Mesh::get_max_num_coeffs_on_proc( const uint aBsplineMeshIndex ) const
         {
             return mMesh->get_number_of_bsplines_on_proc( aBsplineMeshIndex );
         }

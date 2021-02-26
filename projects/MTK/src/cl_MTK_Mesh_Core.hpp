@@ -908,7 +908,7 @@ namespace moris
              * @return Number of discretization coefficients
              */
             virtual uint
-            get_num_coeffs(uint aDiscretizationIndex) const;
+            get_max_num_coeffs_on_proc(uint aDiscretizationIndex) const;
 
             /**
              * Get the T-matrix of a node.

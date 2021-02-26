@@ -37,7 +37,7 @@ namespace moris
             uint tBSplineMeshIndex = this->get_discretization_mesh_index();
 
             // Assign ADVs
-            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_max_num_coeffs_on_proc(tBSplineMeshIndex); tBSplineIndex++)
             {
                 if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                 {

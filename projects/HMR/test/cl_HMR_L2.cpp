@@ -1341,8 +1341,8 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( moris::par_size() == 1 )
-    {
+//    if( moris::par_size() == 1 )
+//    {
         moris::uint tDimension=2;
 
         //------------------------------------------------------------------------------
@@ -1439,7 +1439,7 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         tHMR.save_to_exodus( 0, "LevelSetPresi.exo" );
 
 
-    }
+    //}
 
 }
 

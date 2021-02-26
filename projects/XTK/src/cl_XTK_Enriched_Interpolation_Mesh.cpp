@@ -94,7 +94,7 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     uint
-    Enriched_Interpolation_Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
+    Enriched_Interpolation_Mesh::get_max_num_coeffs_on_proc(const uint aBSplineMeshIndex) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aBSplineMeshIndex);
 
