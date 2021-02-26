@@ -205,7 +205,7 @@ namespace moris
                                                                                           tElementBlocks,
                                                                                           tInterpolationMesh->get_communication_table(),
                                                                                           tCoefficientsMap,
-                                                                                          tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
+                                                                                          tInterpolationMesh->get_max_num_coeffs_on_proc( tBSplineMeshIndex ),
                                                                                           tInterpolationMesh );
 
              tElementBlocks( 0 )->finalize( tMSI );
