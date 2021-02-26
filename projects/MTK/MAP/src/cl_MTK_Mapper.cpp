@@ -139,6 +139,7 @@ namespace moris
             mtk::Mesh_Pair tMeshPairUnion;
             tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
             tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
+            tMeshPairUnion.mIsOwned   = true;
 
             mtk::Field tFieldUnion( &tMeshPairUnion );
 
@@ -169,6 +170,7 @@ namespace moris
                 mtk::Mesh_Pair tMeshPairHigherOrder;
                 tMeshPairHigherOrder.mInterpolationMesh = tHigherOrderInterpolationMesh;
                 tMeshPairHigherOrder.mIntegrationMesh   = tHigherOrderIntegrationMesh;
+                tMeshPairHigherOrder.mIsOwned   = true;
 
                 mtk::Field tFieldHigerOrder( &tMeshPairHigherOrder );
 
@@ -244,6 +246,7 @@ namespace moris
             mtk::Mesh_Pair tMeshPairUnion;
             tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
             tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
+            tMeshPairUnion.mIsOwned   = true;
 
             mtk::Field tFieldUnion( &tMeshPairUnion );
 
@@ -735,6 +738,7 @@ namespace moris
 
                 mtk::Mesh_Pair tMeshPairHigherOrder;
                 tMeshPairHigherOrder.mInterpolationMesh = tHigherOrderInterpolationMesh;
+                tMeshPairHigherOrder.mIsOwned   = true;
 
                 mtk::Field tFieldHigerOrder( &tMeshPairHigherOrder );
 
@@ -765,6 +769,7 @@ namespace moris
                 mtk::Mesh_Pair tMeshPairUnion;
                 tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
                 tMeshPairUnion.mIntegrationMesh = tIntegrationUnionMesh;
+                tMeshPairUnion.mIsOwned   = true;
 
                 mtk::Field tFieldUnion( &tMeshPairUnion );
 

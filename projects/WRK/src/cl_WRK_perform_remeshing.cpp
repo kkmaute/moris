@@ -120,6 +120,7 @@ namespace moris
             // Create  mesh pair
             mtk::Mesh_Pair tMeshPairOld;
             tMeshPairOld.mInterpolationMesh = tOldInterpolationMesh;
+            tMeshPairOld.mIsOwned   = true;
 
             // build field with mesh
             mtk::Field tFieldOld( &tMeshPairOld );
@@ -202,6 +203,7 @@ namespace moris
 
                     mtk::Mesh_Pair tMeshPair;
                     tMeshPair.mInterpolationMesh = tInterpolationMesh;
+                    tMeshPair.mIsOwned   = true;
 
                     // create field object for this mesh
                     mtk::Field tFieldOnPattern( &tMeshPair );
@@ -228,8 +230,6 @@ namespace moris
                     tHMRDatabase->get_background_mesh()->update_database();
                     tHMRDatabase->update_bspline_meshes();
                     tHMRDatabase->update_lagrange_meshes();
-
-                    delete tInterpolationMesh;
                 }
             }
         }

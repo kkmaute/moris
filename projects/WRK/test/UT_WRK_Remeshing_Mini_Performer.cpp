@@ -116,6 +116,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
 
          mtk::Mesh_Pair tMeshPair;
          tMeshPair.mInterpolationMesh = tInterpolationMesh;
+         tMeshPair.mIsOwned   = true;
 
          moris::Cell< mtk::Field * > tFields( 1, nullptr );
          tFields( 0 ) = new mtk::Field_Analytic( &tMeshPair );
@@ -139,6 +140,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
                  1,
                  0);
 
+         delete tMeshPair.mInterpolationMesh;
          tMeshPair.mInterpolationMesh = tInterpolationMeshNew;
          reinterpret_cast< mtk::Field_Analytic* >(tFields( 0 ))->evaluate_scalar_function( tCircle_1 );
          //tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
@@ -169,10 +171,13 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
                  1,
                  0);
 
+         delete tMeshPair.mInterpolationMesh;
          tMeshPair.mInterpolationMesh = tInterpolationMeshNewMesh;
          reinterpret_cast< mtk::Field_Analytic* >(tFields( 0 ))->evaluate_scalar_function( tCircle_2 );
          //tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
 
+
+         delete tFields( 0 );
 
 
 
