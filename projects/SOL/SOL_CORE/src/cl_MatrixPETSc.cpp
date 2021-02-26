@@ -249,7 +249,7 @@ void Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
     PetscViewerCreate( PETSC_COMM_WORLD, &tViewer );
     PetscViewerSetType( tViewer, PETSCVIEWERASCII );
     PetscViewerPushFormat( tViewer, PETSC_VIEWER_ASCII_MATLAB );
-    PetscViewerFileSetName( tViewer, "Matrix_petsc.dat" );
+    PetscViewerFileSetName( tViewer, aFilename );
 
     MatView( mPETScMat, tViewer );
 

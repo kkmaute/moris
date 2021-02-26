@@ -105,7 +105,7 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformerNew->get_database();
 
             // refine pattern 5 and 6 with given pattern
-            tHMRDatabase->load_refinement_pattern(
+            tHMRDatabaseNew->load_refinement_pattern(
                     aElementCounterPerLevelAndPattern,
                     aElementPerPattern);
 
@@ -115,17 +115,19 @@ namespace moris
                     tSourceLagrangeOrder,
                     5,
                     tDiscretizationOrder,
-                    6); // order, Lagrange pattern, bspline pattern
+                    5); // order, Lagrange pattern, bspline pattern
 
             // Create  mesh pair
             mtk::Mesh_Pair tMeshPairOld;
             tMeshPairOld.mInterpolationMesh = tOldInterpolationMesh;
+            tMeshPairOld.mIsOwned   = true;
 
             // build field with mesh
             mtk::Field tFieldOld( &tMeshPairOld );
 
             // copy values from input mesh to New/Old mesh ( this mesh is build based on the new HMR performer )
             tFieldOld.set_nodal_values( aSourceField->get_nodal_values() );
+            tFieldOld.unlock_field();
             tFieldOld.set_coefficients( aSourceField->get_coefficients() );
 
             this->perform_refinement( tHMRPerformerNew, &tFieldOld );
@@ -201,6 +203,7 @@ namespace moris
 
                     mtk::Mesh_Pair tMeshPair;
                     tMeshPair.mInterpolationMesh = tInterpolationMesh;
+                    tMeshPair.mIsOwned   = true;
 
                     // create field object for this mesh
                     mtk::Field tFieldOnPattern( &tMeshPair );
@@ -213,18 +216,20 @@ namespace moris
                     // create refinement parameter list
                     moris::ParameterList tRefinementParameterlist;
                     prm::create_refinement_parameterlist( tRefinementParameterlist );
-                    tRefinementParameterlist.insert( "field_names" , "Field_for_refinement" );
-                    tRefinementParameterlist.insert( "levels_of_refinement" , ios::stringify( 1 ) );
-                    tRefinementParameterlist.insert( "refinement_pattern" , ios::stringify( tPattern ) );
+                    tRefinementParameterlist.set( "field_names" , "Field_for_refinement" );
+                    tRefinementParameterlist.set( "levels_of_refinement" , ios::stringify( 1 ) );
+                    tRefinementParameterlist.set( "refinement_pattern" , ios::stringify( tPattern ) );
 
                     // put field pointer in cell
                     Cell< mtk::Field* > tFields( 1, &tFieldOnPattern );
 
                     // create refinement mini performer and perform refinement
                     wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist );
-                    //tRefinementMiniPerformer.perform_refinement( tFields, aHMRPerformer );
+                    tRefinementMiniPerformer.perform_refinement( tFields, aHMRPerformer );
 
-                    delete tInterpolationMesh;
+                    tHMRDatabase->get_background_mesh()->update_database();
+                    tHMRDatabase->update_bspline_meshes();
+                    tHMRDatabase->update_lagrange_meshes();
                 }
             }
         }

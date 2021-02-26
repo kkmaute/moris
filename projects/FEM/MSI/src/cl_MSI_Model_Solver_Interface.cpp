@@ -33,7 +33,7 @@ namespace moris
 
             for( uint Ik = 0; Ik<mMesh->get_num_interpolations(); Ik++)
             {
-                tNumCoeffs = std::max( tNumCoeffs, mMesh->get_num_coeffs( Ik ) );
+                tNumCoeffs = std::max( tNumCoeffs, mMesh->get_max_num_coeffs_on_proc( Ik ) );
             }
 
             mDofMgn.set_max_num_adofs( tNumCoeffs );

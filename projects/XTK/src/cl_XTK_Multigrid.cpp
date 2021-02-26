@@ -184,7 +184,7 @@ namespace xtk
     void Multigrid::build_enriched_coeff_to_background_coeff_map()
     {
         // get num enriched basis
-    	mNumBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
+    	mNumBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_max_num_coeffs_on_proc( 0 );
 
         // set size
         mEnrichedBasisToBackgroundBasis.resize( mNumBasis, -1 );
@@ -358,7 +358,7 @@ namespace xtk
         moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
 
         // get num enriched basis
-        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_coeffs( 0 );
+        uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_max_num_coeffs_on_proc( 0 );
 
 #ifdef DEBUG
         mEnrichedBasisCoords.set_size( tNumEnrichedBasis, mXTKModelPtr->get_spatial_dim() );

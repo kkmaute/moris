@@ -880,6 +880,10 @@ namespace moris
              *
              * Note that the return type can be made a constant reference, but I will still have to make a copy anyways.
              *
+             * Note. This function is pretty much useless and should not be implemented in mtk.
+             * I strongly recommend to not use this function.
+             * I will not take liability for possible foreseeable problems arising from the use of this function
+             *
              * @param aNodeIndices Node indices to check for coefficients
              * @param aDiscretizationIndex Index of the specific discretization
              * @return Shared coefficient IDs
@@ -892,6 +896,10 @@ namespace moris
              * Gets the owned IDs of the coefficients which define a discretization.
              *
              * Note that the return type can be made a constant reference, but I will still have to make a copy anyways.
+             *
+             * Note. This function is pretty much useless and should not be implemented in mtk.
+             * I strongly recommend to not use this function.
+             * I will not take liability for possible foreseeable problems arising from the use of this function
              *
              * @param aNodeIndices Node indices to check for coefficients
              * @param aDiscretizationIndex Index of the specific discretization
@@ -908,7 +916,7 @@ namespace moris
              * @return Number of discretization coefficients
              */
             virtual uint
-            get_num_coeffs(uint aDiscretizationIndex) const;
+            get_max_num_coeffs_on_proc(uint aDiscretizationIndex) const;
 
             /**
              * Get the T-matrix of a node.

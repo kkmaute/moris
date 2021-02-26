@@ -57,7 +57,6 @@ namespace moris
 
                 void perform_refinement(
                         Cell< mtk::Field* >                    & aFields,
-                        moris::map< std::string, moris_index >   aFieldNameToIndexMap,
                         std::shared_ptr<hmr::HMR>                aHMR );
 
                 //--------------------------------------------------------------------------------------------------------------

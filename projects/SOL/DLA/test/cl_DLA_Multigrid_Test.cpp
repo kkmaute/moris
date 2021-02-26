@@ -398,7 +398,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
                                                                                       tElements,
                                                                                       tMesh->get_communication_table(),
                                                                                       tCoefficientsMap,
-                                                                                      tMesh->get_num_coeffs( tOrder ),
+                                                                                      tMesh->get_max_num_coeffs_on_proc( tOrder ),
                                                                                       tMesh.get() );
 
          tMSI->set_param("L2")= (sint)tOrder;
@@ -599,7 +599,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 //         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
 //                                                                                      tMesh->get_communication_table(),
 //                                                                                      tCoefficientsMap,
-//                                                                                      tMesh->get_num_coeffs( tOrder ),
+//                                                                                      tMesh->get_max_num_coeffs_on_proc( tOrder ),
 //                                                                                      tMesh.get() );
 //
 //         tMSI->set_param("L2")= (sint)tOrder;
@@ -801,7 +801,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
                                                                                       tElements,
                                                                                       tMesh->get_communication_table(),
                                                                                       tCoefficientsMap,
-                                                                                      tMesh->get_num_coeffs( tOrder ),
+                                                                                      tMesh->get_max_num_coeffs_on_proc( tOrder ),
                                                                                       tMesh.get() );
 
          tMSI->set_param("L2")= (sint)tOrder;

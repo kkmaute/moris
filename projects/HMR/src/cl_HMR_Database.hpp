@@ -47,6 +47,10 @@ namespace moris
                 //! cell of pointers to Lagrange meshes
                 Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
+                //! cell of pointers to Lagrange meshes.
+                // These Lagrange meshes are created on the flight and not in the input file
+                Cell< Lagrange_Mesh_Base* > mAdditionalLagrangeMeshes;
+
                 //! communication table for this mesh. Created during finalize.
                 Matrix< IdMat > mCommunicationTable;
 
@@ -185,9 +189,15 @@ namespace moris
                     return mLagrangeMeshes( aIndex );
                 }
 
+                Lagrange_Mesh_Base * get_additional_lagrange_mesh_by_index( const uint& aIndex )
+                {
+                    return mAdditionalLagrangeMeshes( aIndex );
+                }
+
+                // -----------------------------------------------------------------------------
                 void add_lagrange_mesh( Lagrange_Mesh_Base * aLagrangeMesh)
                 {
-                    mLagrangeMeshes.push_back( aLagrangeMesh );
+                    mAdditionalLagrangeMeshes.push_back( aLagrangeMesh );
                 }
 
                 // -----------------------------------------------------------------------------
@@ -251,6 +261,13 @@ namespace moris
                 uint get_number_of_lagrange_meshes() const
                 {
                     return mLagrangeMeshes.size();
+                }
+
+                // -----------------------------------------------------------------------------
+
+                uint get_number_of_additional_lagrange_meshes() const
+                {
+                    return mAdditionalLagrangeMeshes.size();
                 }
 
                 // -----------------------------------------------------------------------------

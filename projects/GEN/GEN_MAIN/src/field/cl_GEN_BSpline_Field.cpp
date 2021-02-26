@@ -37,7 +37,7 @@ namespace moris
             uint tDiscretizationMeshIndex = this->get_discretization_mesh_index();
 
             // Assign ADVs
-            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tDiscretizationMeshIndex); tBSplineIndex++)
+            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_max_num_coeffs_on_proc(tDiscretizationMeshIndex); tBSplineIndex++)
             {
                 if ((uint) par_rank() == mMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
                 {
@@ -245,7 +245,7 @@ namespace moris
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
-            MORIS_ERROR(tCoefficients.length() == mMesh->get_num_coeffs(aField->get_discretization_mesh_index()),
+            MORIS_ERROR(tCoefficients.length() == mMesh->get_max_num_coeffs_on_proc(aField->get_discretization_mesh_index()),
                     "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
 
             // Clean up

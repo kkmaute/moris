@@ -103,9 +103,9 @@ namespace moris
              * Get number of B-Spline coefficients
              */
             virtual uint
-            get_num_coeffs(const uint aOrder) const
+            get_max_num_coeffs_on_proc(const uint aOrder) const
             {
-                MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
+                MORIS_ERROR( false, "get_max_num_coeffs_on_proc() not implemented for this mesh" );
                 return 0;
             }
 

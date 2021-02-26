@@ -791,7 +791,7 @@ namespace moris
                 {
                     // Get number of coefficients
                     sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                    uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
+                    uint tNumCoefficients = aMesh->get_max_num_coeffs_on_proc(tBSplineMeshIndex);
 
                     // Loop over B-spline coefficients
                     for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
@@ -856,7 +856,7 @@ namespace moris
 
                     // Get number of coefficients
                     sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                    uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
+                    uint tNumCoefficients = aMesh->get_max_num_coeffs_on_proc(tBSplineMeshIndex);
 
                     // Resize shared ADV IDs
                     tSharedADVIds(tFieldIndex).resize(tNumCoefficients, 1);
