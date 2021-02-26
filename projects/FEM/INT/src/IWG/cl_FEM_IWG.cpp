@@ -490,6 +490,60 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_field_type_list(
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & aDofTypes,
+                mtk::Master_Slave                                   aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    mMasterFieldTypes = aDofTypes;
+                    break;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    mSlaveFieldTypes = aDofTypes;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IQI::set_dof_type_list - can only be MASTER or SLAVE.");
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & IWG::get_field_type_list(
+                mtk::Master_Slave aIsMaster ) const
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterFieldTypes;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveFieldTypes;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IQI::get_dof_type_list - can only be master or slave." );
+                    return mMasterFieldTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
