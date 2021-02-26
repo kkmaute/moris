@@ -626,6 +626,10 @@ namespace moris
             moris::map< std::string, PDV_Type > tMSIDvTypeMap =
                     get_pdv_type_map();
 
+            // get string to dv type map
+            moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                    mtk::get_field_type_map();
+
             switch( mParameterList.size() )
             {
                 // without phase
@@ -649,11 +653,11 @@ namespace moris
 
                     // create IWGs
                     std::map< std::string, uint > tIWGMap;
-                    this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
                     // create IQIs
                     std::map< std::string, uint > tIQIMap;
-                    this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
                     // create FEM set info
                     this->create_fem_set_info();
@@ -1195,9 +1199,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::create_IWGs(
-                std::map< std::string, uint >            & aPropertyMap,
-                std::map< std::string, uint >            & aSPMap,
-                moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap )
+                std::map< std::string, uint >              & aPropertyMap,
+                std::map< std::string, uint >              & aSPMap,
+                moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap )
         {
             // create an IWG factory
             IWG_Factory tIWGFactory;
@@ -2404,12 +2408,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::create_IWGs(
-                std::map< std::string, uint >            & aIWGMap,
-                std::map< std::string, uint >            & aPropertyMap,
-                std::map< std::string, uint >            & aCMMap,
-                std::map< std::string, uint >            & aSPMap,
-                moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      & aDvTypeMap )
+                std::map< std::string, uint >              & aIWGMap,
+                std::map< std::string, uint >              & aPropertyMap,
+                std::map< std::string, uint >              & aCMMap,
+                std::map< std::string, uint >              & aSPMap,
+                std::map< std::string, uint >              & aFieldMap,
+                moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap,
+                moris::map< std::string, PDV_Type >        & aDvTypeMap,
+                moris::map< std::string, mtk::Field_Type > & aFieldTypeMap)
         {
             // create an IWG factory
             IWG_Factory tIWGFactory;
@@ -2487,6 +2493,14 @@ namespace moris
                             tDvTypes,
                             aDvTypeMap );
                     mIWGs( iIWG )->set_dv_type_list( tDvTypes, tIsMaster );
+
+                    // set field types
+                    moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
+                    string_to_cell_of_cell(
+                            tIWGParameter.get< std::string >( tIsMasterString + "_field_types" ),
+                            tFieldTypes,
+                            aFieldTypeMap );
+                    mIWGs( iIWG )->set_field_type_list( tFieldTypes, tIsMaster );
 
                     // set properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
@@ -2585,12 +2599,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::create_IQIs(
-                std::map< std::string, uint >            & aIQIMap,
-                std::map< std::string, uint >            & aPropertyMap,
-                std::map< std::string, uint >            & aCMMap,
-                std::map< std::string, uint >            & aSPMap,
-                moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      & aDvTypeMap )
+                std::map< std::string, uint >              & aIQIMap,
+                std::map< std::string, uint >              & aPropertyMap,
+                std::map< std::string, uint >              & aCMMap,
+                std::map< std::string, uint >              & aSPMap,
+                std::map< std::string, uint >              & aFieldMap,
+                moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap,
+                moris::map< std::string, PDV_Type >        & aDvTypeMap,
+                moris::map< std::string, mtk::Field_Type > & aFieldTypeMap)
         {
             // create an IQI factory
             IQI_Factory tIQIFactory;
@@ -2675,6 +2691,14 @@ namespace moris
                             tDvTypes,
                             aDvTypeMap );
                     mIQIs( iIQI )->set_dv_type_list( tDvTypes, tIsMaster );
+
+                    // set field types
+                    moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
+                    string_to_cell_of_cell(
+                            tIQIParameter.get< std::string >( tIsMasterString + "_field_types" ),
+                            tFieldTypes,
+                            aFieldTypeMap );
+                    mIQIs( iIQI )->set_field_type_list( tFieldTypes, tIsMaster );
 
                     // set properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
