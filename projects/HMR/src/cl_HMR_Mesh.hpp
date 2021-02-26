@@ -204,7 +204,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            uint get_num_coeffs( const uint aBSplineMeshIndex ) const;
+            uint get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const;
 
             /**
              * Gets the indices of the B-splines which form the basis of the given node.
