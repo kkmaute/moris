@@ -46,10 +46,12 @@ namespace moris
             /**
              * Constructor, sets all field variables as consecutive ADVs. A reference field is given for parameters.
              *
+             * @param aFieldVariableIndices Field variable indices for assigning the shared ADV IDs
              * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aField Reference field
              */
-            Field(const Matrix<DDSMat>&  aSharedADVIds,
+            Field(const Matrix<DDUMat>&  aFieldVariableIndices,
+                  const Matrix<DDSMat>&  aSharedADVIds,
                   std::shared_ptr<Field> aField);
 
             /**
@@ -126,7 +128,9 @@ namespace moris
              * @param aNodeIndex Index of the child node
              * @param aChildNode Contains information about how the child node was created
              */
-            virtual void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
+            virtual void add_child_node(
+                    uint                        aNodeIndex,
+                    std::shared_ptr<Child_Node> aChildNode);
 
             /**
              * In relevant derived classes, uses additional information from the given interpolation mesh to define
@@ -163,7 +167,9 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            virtual Matrix<DDSMat> get_determining_adv_ids(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
             /**
              * If this field depends on ADVs

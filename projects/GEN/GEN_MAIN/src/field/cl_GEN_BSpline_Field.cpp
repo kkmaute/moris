@@ -21,28 +21,39 @@ namespace moris
 
         BSpline_Field::BSpline_Field(
                 sol::Dist_Vector*        aOwnedADVs,
+                const Matrix<DDUMat>&    aCoefficientIndices,
                 const Matrix<DDSMat>&    aOwnedADVIds,
                 const Matrix<DDSMat>&    aSharedADVIds,
                 uint                     aOwnedADVIdsOffset,
                 mtk::Interpolation_Mesh* aMesh,
                 std::shared_ptr<Field>   aField)
-                : Field(aSharedADVIds, aField)
+                : Field(aCoefficientIndices, aSharedADVIds, aField)
                 , Field_Discrete_Integration(aMesh->get_num_nodes())
+                , mSharedADVIds(aSharedADVIds)
                 , mMesh(aMesh)
         {
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
+            MORIS_ERROR(tTargetField.length() == aCoefficientIndices.length(),
+                    "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
 
             // Get B-spline mesh index
             uint tDiscretizationMeshIndex = this->get_discretization_mesh_index();
 
             // Assign ADVs
-            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_max_num_coeffs_on_proc(tDiscretizationMeshIndex); tBSplineIndex++)
+            for (uint tCoefficient = 0; tCoefficient < aCoefficientIndices.length(); tCoefficient++)
             {
-                if ((uint) par_rank() == mMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
+                uint tCoefficientIndex = aCoefficientIndices(tCoefficient);
+                if ((uint) par_rank() == mMesh->get_entity_owner(tCoefficientIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
                 {
-                    // Assign distributed vector element based on B-spline ID and offset
-                    (*aOwnedADVs)(aOwnedADVIds(aOwnedADVIdsOffset++)) = tTargetField(tBSplineIndex);
+                    // Calculate ADV ID using offset
+                    sint tADVId = aOwnedADVIdsOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
+                            tCoefficientIndex,
+                            EntityRank::BSPLINE,
+                            tDiscretizationMeshIndex);
+
+                    // Assign distributed vector element based on ID
+                    (*aOwnedADVs)(tADVId) = tTargetField(tCoefficientIndex);
                 }
             }
 
@@ -245,8 +256,6 @@ namespace moris
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
-            MORIS_ERROR(tCoefficients.length() == mMesh->get_max_num_coeffs_on_proc(aField->get_discretization_mesh_index()),
-                    "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
 
             // Clean up
             delete tOutputMeshPair.mIntegrationMesh;

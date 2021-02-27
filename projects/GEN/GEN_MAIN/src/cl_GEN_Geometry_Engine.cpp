@@ -782,37 +782,6 @@ namespace moris
             // Determine owned and shared ADV IDs //
             //------------------------------------//
 
-            // Loop over all geometries to get number of new ADVs
-            uint tNumNewOwnedADVs = 0;
-            for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
-            {
-                // Determine if level set will be created
-                if (tFields(tFieldIndex)->intended_discretization())
-                {
-                    // Get number of coefficients
-                    sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                    uint tNumCoefficients = aMesh->get_max_num_coeffs_on_proc(tBSplineMeshIndex);
-
-                    // Loop over B-spline coefficients
-                    for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
-                    {
-                        // If this processor owns this coefficient
-                        if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
-                        {
-                            // New ADV needs to be created on this processor
-                            tNumNewOwnedADVs++;
-                        }
-                    }
-                }
-            }
-
-            // Set number of total owned ADVs
-            uint tNumOwnedADVs = tNumNewOwnedADVs;
-            if (par_rank() == 0)
-            {
-                tNumOwnedADVs += mInitialPrimitiveADVs.length();
-            }
-
             // Set primitive IDs
             Matrix<DDSMat> tPrimitiveADVIds(mInitialPrimitiveADVs.length(), 1);
             for (uint tADVIndex = 0; tADVIndex < mInitialPrimitiveADVs.length(); tADVIndex++)
@@ -827,61 +796,77 @@ namespace moris
                 tOwnedADVIds = tPrimitiveADVIds;
             }
 
-            // Check for proper dimensions
-            MORIS_ASSERT( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
-                    "ADV lower bound vector needs to be a column vector.\n");
+            // Owned and shared ADVs per field
+            Cell<Matrix<DDUMat>> tSharedCoefficientIndices(tFields.size());
+            Cell<Matrix<DDSMat>> tSharedADVIds(tFields.size());
 
-            MORIS_ASSERT( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
-                    "ADV upper bound vector needs to be a column vector.\n");
+            // Get all node indices from the mesh (for now)
+            uint tNumNodes = aMesh->get_num_nodes();
+            Matrix<DDUMat> tNodeIndices(tNumNodes, 1);
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                tNodeIndices(tNodeIndex) = tNodeIndex;
+            }
 
-            // Resize owned IDs and bounds
-            tOwnedADVIds.resize(tNumOwnedADVs, 1);
-            mLowerBounds.resize(tNumOwnedADVs, 1);
-            mUpperBounds.resize(tNumOwnedADVs, 1);
-
-            // Cell of shared ADV IDs
-            Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size() + mProperties.size());
-
-            // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
-            uint tOwnedADVIndex = mInitialPrimitiveADVs.length();
-            uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple B-spline fields
+            // Loop over all geometries to get number of new ADVs
+            uint tOffsetID = tPrimitiveADVIds.length(); // TODO save this offset for later
             for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
             {
                 // Determine if level set will be created
                 if (tFields(tFieldIndex)->intended_discretization())
                 {
-                    // Get bounds
-                    real tBSplineLowerBound = tFields(tFieldIndex)->get_discretization_lower_bound();
-                    real tBSplineUpperBound = tFields(tFieldIndex)->get_discretization_upper_bound();
+                    // Get discretization mesh index
+                    uint tDiscretizationMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
 
-                    // Get number of coefficients
-                    sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                    uint tNumCoefficients = aMesh->get_max_num_coeffs_on_proc(tBSplineMeshIndex);
+                    // Get owned coefficients
+                    Matrix<DDUMat> tOwnedCoefficients = aMesh->get_owned_discretization_coefficient_indices(
+                            tNodeIndices,
+                            tDiscretizationMeshIndex);
 
-                    // Resize shared ADV IDs
-                    tSharedADVIds(tFieldIndex).resize(tNumCoefficients, 1);
+                    // Get shared coefficients
+                    Matrix<DDUMat> tSharedCoefficients = aMesh->get_shared_discretization_coefficient_indices(
+                            tNodeIndices,
+                            tDiscretizationMeshIndex);
 
-                    // Loop over B-spline coefficients
-                    for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
+                    // Sizes of ID vectors
+                    uint tNumOwnedADVs = tOwnedADVIds.length();
+                    uint tNumOwnedCoefficients = tOwnedCoefficients.length();
+                    uint tNumSharedCoefficients = tSharedCoefficients.length();
+
+                    // Resize ID lists and bounds
+                    tOwnedADVIds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mLowerBounds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mUpperBounds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    tSharedADVIds(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
+                    tSharedCoefficientIndices(tFieldIndex) = tOwnedCoefficients;
+
+                    // Add owned coefficients to lists
+                    for (uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++)
                     {
-                        // Get new ADV ID and set as shared ID
-                        sint tNewADVId = tIdOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
-                                tBSplineIndex,
+                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                                tOwnedCoefficients(tOwnedCoefficient),
                                 EntityRank::BSPLINE,
-                                tBSplineMeshIndex);
-                        tSharedADVIds(tFieldIndex)(tBSplineIndex) = tNewADVId;
-
-                        // If this processor owns this coefficient set to owned list and set bounds
-                        if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
-                        {
-                            // Bounds
-                            mLowerBounds(tOwnedADVIndex) = tBSplineLowerBound;
-                            mUpperBounds(tOwnedADVIndex) = tBSplineUpperBound;
-
-                            // New ADV ID
-                            tOwnedADVIds(tOwnedADVIndex++) = tNewADVId;
-                        }
+                                tDiscretizationMeshIndex);
+                        tOwnedADVIds(tNumOwnedADVs + tOwnedCoefficient) = tADVId;
+                        mLowerBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_lower_bound();
+                        mUpperBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_upper_bound();;
+                        tSharedADVIds(tFieldIndex)(tOwnedCoefficient) = tADVId;
                     }
+
+                    // Add shared coefficients to field-specific list
+                    tSharedCoefficientIndices(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
+                    for (uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++)
+                    {
+                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                                tSharedCoefficients(tSharedCoefficient),
+                                EntityRank::BSPLINE,
+                                tDiscretizationMeshIndex);
+                        tSharedCoefficientIndices(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tSharedCoefficients(tSharedCoefficient);
+                        tSharedADVIds(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tADVId;
+                    }
+
+                    // Update offset based on maximum ID TODO check the info being provided here
+                    tOffsetID += aMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
                 }
             }
 
@@ -943,6 +928,7 @@ namespace moris
                     // Create B-spline geometry FIXME Multiple B-spline fields
                     mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                             tNewOwnedADVs,
+                            tSharedCoefficientIndices(tGeometryIndex),
                             tOwnedADVIds,
                             tSharedADVIds(tGeometryIndex),
                             tPrimitiveADVIds.length(),
@@ -969,6 +955,7 @@ namespace moris
                     // Create B-spline property FIXME Multiple B-spline fields
                     mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
                             tNewOwnedADVs,
+                            tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
                             tOwnedADVIds,
                             tSharedADVIds(mGeometries.size() + tPropertyIndex),
                             tPrimitiveADVIds.length(),

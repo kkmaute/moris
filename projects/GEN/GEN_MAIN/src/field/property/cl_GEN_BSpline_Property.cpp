@@ -9,13 +9,14 @@ namespace moris
 
         BSpline_Property::BSpline_Property(
                 sol::Dist_Vector*         aOwnedADVs,
+                const Matrix<DDUMat>&     aCoefficientIndices,
                 const Matrix<DDSMat>&     aOwnedADVIds,
                 const Matrix<DDSMat>&     aSharedADVIds,
                 uint                      aOwnedADVIdsOffset,
                 mtk::Interpolation_Mesh*  aMesh,
                 std::shared_ptr<Property> aProperty)
-                : Field(aSharedADVIds, aProperty)
-                , BSpline_Field(aOwnedADVs, aOwnedADVIds, aSharedADVIds, aOwnedADVIdsOffset, aMesh, aProperty)
+                : Field(aCoefficientIndices, aSharedADVIds, aProperty)
+                , BSpline_Field(aOwnedADVs, aCoefficientIndices, aOwnedADVIds, aSharedADVIds, aOwnedADVIdsOffset, aMesh, aProperty)
                 , Property(aProperty)
         {
         }

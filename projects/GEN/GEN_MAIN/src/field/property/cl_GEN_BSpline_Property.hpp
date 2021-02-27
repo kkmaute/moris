@@ -23,6 +23,7 @@ namespace moris
              */
             BSpline_Property(
                     sol::Dist_Vector*         aOwnedADVs,
+                    const Matrix<DDUMat>&     aCoefficientIndices,
                     const Matrix<DDSMat>&     aOwnedADVIds,
                     const Matrix<DDSMat>&     aSharedADVIds,
                     uint                      aOwnedADVIdsOffset,

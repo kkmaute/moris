@@ -668,7 +668,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Mesh::get_shared_discretization_coefficient_IDs(
+        Matrix<DDUMat> Mesh::get_shared_discretization_coefficient_indices(
                 const Matrix<DDUMat>& aNodeIndices,
                 uint                  aDiscretizationIndex)
         {
@@ -680,52 +680,50 @@ namespace moris
                 {
                     tCounter += this->get_mtk_vertex( aNodeIndices( Ik ) ).
                             get_interpolation( aDiscretizationIndex )->
-                            get_ids().numel();
+                            get_indices().numel();
                 }
             }
 
-            moris::Cell< moris_id > tIDs;
-            tIDs.reserve( tCounter );
-
-            tCounter = 0;
+            moris::Cell< uint > tIndices;
+            tIndices.reserve( tCounter );
 
             for( uint Ik = 0; Ik < aNodeIndices.numel(); Ik++ )
             {
                 if( this->get_mtk_vertex( aNodeIndices( Ik ) ).has_interpolation( aDiscretizationIndex ) )
                 {
-                    Matrix< IdMat > tInterpolationIds =  this->get_mtk_vertex( aNodeIndices( Ik ) ).
+                    Matrix< IndexMat > tInterpolationIndices =  this->get_mtk_vertex( aNodeIndices( Ik ) ).
                             get_interpolation( aDiscretizationIndex )->
-                            get_ids();
+                            get_indices();
 
                     Matrix< IdMat > tOwner =  this->get_mtk_vertex( aNodeIndices( Ik ) ).
                             get_interpolation( aDiscretizationIndex )->
                             get_owners();
 
-                    for( uint Ii = 0; Ii <tInterpolationIds.numel(); Ii++ )
+                    for( uint Ii = 0; Ii <tInterpolationIndices.numel(); Ii++ )
                     {
                         if( tOwner( Ii ) != moris::par_rank() )
                         {
-                            tIDs.push_back( tInterpolationIds( Ii ) );
+                            tIndices.push_back( tInterpolationIndices( Ii ) );
                         }
                     }
                 }
             }
 
-            tIDs.shrink_to_fit();
+            tIndices.shrink_to_fit();
 
             // Sort this created list
-            std::sort( ( tIDs.data() ).data(), ( tIDs.data() ).data() + tIDs.size() );
+            std::sort( ( tIndices.data() ).data(), ( tIndices.data() ).data() + tIndices.size() );
 
-            auto last = std::unique( ( tIDs.data() ).data(), ( tIDs.data() ).data() + tIDs.size() );
-            auto pos  = std::distance( ( tIDs.data() ).data(), last );
+            auto last = std::unique( ( tIndices.data() ).data(), ( tIndices.data() ).data() + tIndices.size() );
+            auto pos  = std::distance( ( tIndices.data() ).data(), last );
 
-            tIDs.resize( pos );
+            tIndices.resize( pos );
 
-            Matrix< DDSMat > tMat( tIDs.size() , 1, gNoID );
+            Matrix< DDUMat > tMat( tIndices.size() , 1, gNoID );
 
-            for( uint Ii = 0; Ii <tIDs.size(); Ii++ )
+            for( uint Ii = 0; Ii <tIndices.size(); Ii++ )
             {
-                tMat( Ii ) = tIDs( Ii );
+                tMat( Ii ) = tIndices( Ii );
             }
 
             return tMat;
@@ -733,7 +731,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Mesh::get_owned_discretization_coefficient_IDs(
+        Matrix<DDUMat> Mesh::get_owned_discretization_coefficient_indices(
                 const Matrix<DDUMat>& aNodeIndices,
                 uint                  aDiscretizationIndex)
         {
@@ -749,8 +747,8 @@ namespace moris
                 }
             }
 
-            moris::Cell< moris_id > tIDs;
-            tIDs.reserve( tCounter );
+            moris::Cell< uint > tIndices;
+            tIndices.reserve( tCounter );
 
             tCounter = 0;
 
@@ -758,39 +756,39 @@ namespace moris
             {
                 if( this->get_mtk_vertex( aNodeIndices( Ik ) ).has_interpolation( aDiscretizationIndex ) )
                 {
-                    Matrix< IdMat > tInterpolationIds =  this->get_mtk_vertex( aNodeIndices( Ik ) ).
+                    Matrix< IndexMat > tInterpolationIndices =  this->get_mtk_vertex( aNodeIndices( Ik ) ).
                             get_interpolation( aDiscretizationIndex )->
-                            get_ids();
+                            get_indices();
 
                     Matrix< IdMat > tOwner =  this->get_mtk_vertex( aNodeIndices( Ik ) ).
                             get_interpolation( aDiscretizationIndex )->
                             get_owners();
 
-                    for( uint Ii = 0; Ii <tInterpolationIds.numel(); Ii++ )
+                    for( uint Ii = 0; Ii <tInterpolationIndices.numel(); Ii++ )
                     {
                         if( tOwner( Ii ) == moris::par_rank() )
                         {
-                            tIDs.push_back( tInterpolationIds( Ii ) );
+                            tIndices.push_back( tInterpolationIndices( Ii ) );
                         }
                     }
                 }
             }
 
-            tIDs.shrink_to_fit();
+            tIndices.shrink_to_fit();
 
             // Sort this created list
-            std::sort( ( tIDs.data() ).data(), ( tIDs.data() ).data() + tIDs.size() );
+            std::sort( ( tIndices.data() ).data(), ( tIndices.data() ).data() + tIndices.size() );
 
-            auto last = std::unique( ( tIDs.data() ).data(), ( tIDs.data() ).data() + tIDs.size() );
-            auto pos  = std::distance( ( tIDs.data() ).data(), last );
+            auto last = std::unique( ( tIndices.data() ).data(), ( tIndices.data() ).data() + tIndices.size() );
+            auto pos  = std::distance( ( tIndices.data() ).data(), last );
 
-            tIDs.resize( pos );
+            tIndices.resize( pos );
 
-            Matrix< DDSMat > tMat( tIDs.size() , 1, gNoID );
+            Matrix< DDUMat > tMat( tIndices.size() , 1, gNoID );
 
-            for( uint Ii = 0; Ii <tIDs.size(); Ii++ )
+            for( uint Ii = 0; Ii <tIndices.size(); Ii++ )
             {
-                tMat( Ii ) = tIDs( Ii );
+                tMat( Ii ) = tIndices( Ii );
             }
 
             return tMat;

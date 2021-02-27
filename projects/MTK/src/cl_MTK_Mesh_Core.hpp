@@ -878,8 +878,6 @@ namespace moris
             /**
              * Gets the shared IDs of the coefficients which define a discretization.
              *
-             * Note that the return type can be made a constant reference, but I will still have to make a copy anyways.
-             *
              * Note. This function is pretty much useless and should not be implemented in mtk.
              * I strongly recommend to not use this function.
              * I will not take liability for possible foreseeable problems arising from the use of this function
@@ -888,14 +886,12 @@ namespace moris
              * @param aDiscretizationIndex Index of the specific discretization
              * @return Shared coefficient IDs
              */
-            virtual Matrix<DDSMat> get_shared_discretization_coefficient_IDs(
+            virtual Matrix<DDUMat> get_shared_discretization_coefficient_indices(
                     const Matrix<DDUMat>& aNodeIndices,
                     uint                  aDiscretizationIndex);
 
             /**
              * Gets the owned IDs of the coefficients which define a discretization.
-             *
-             * Note that the return type can be made a constant reference, but I will still have to make a copy anyways.
              *
              * Note. This function is pretty much useless and should not be implemented in mtk.
              * I strongly recommend to not use this function.
@@ -905,7 +901,7 @@ namespace moris
              * @param aDiscretizationIndex Index of the specific discretization
              * @return Owned coefficient IDs
              */
-            virtual Matrix<DDSMat> get_owned_discretization_coefficient_IDs(
+            virtual Matrix<DDUMat> get_owned_discretization_coefficient_indices(
                     const Matrix<DDUMat>& aNodeIndices,
                     uint                  aDiscretizationIndex);
 

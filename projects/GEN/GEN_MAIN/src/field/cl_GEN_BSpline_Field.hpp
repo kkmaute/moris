@@ -11,6 +11,7 @@ namespace moris
         {
 
         private:
+            Matrix<DDSMat> mSharedADVIds;
             mtk::Interpolation_Mesh* mMesh;
             sol::Dist_Vector* mOwnedNodalValues = nullptr;
             sol::Dist_Vector* mSharedNodalValues = nullptr;
@@ -28,6 +29,7 @@ namespace moris
              */
             BSpline_Field(
                     sol::Dist_Vector*        aOwnedADVs,
+                    const Matrix<DDUMat>&    aCoefficientIndices,
                     const Matrix<DDSMat>&    aOwnedADVIds,
                     const Matrix<DDSMat>&    aSharedADVIds,
                     uint                     aOwnedADVIdsOffset,
