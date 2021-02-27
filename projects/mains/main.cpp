@@ -39,7 +39,6 @@ int main( int argc, char * argv[] )
     }
 
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
- 
 
     //Kokkos::finalize_all();
 
