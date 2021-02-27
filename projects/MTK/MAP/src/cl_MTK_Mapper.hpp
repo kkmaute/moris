@@ -54,10 +54,7 @@ namespace moris
 
         class Mapper
         {
-                mdl::Model                   * mModel = nullptr;
-
-                mtk::Field * mFieldIn = nullptr;
-                mtk::Field * mFieldOut = nullptr;
+                mdl::Model   * mModel = nullptr;
 
                 bool mHaveIwgAndModel = false;
 
