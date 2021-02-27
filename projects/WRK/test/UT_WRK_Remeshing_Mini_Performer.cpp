@@ -40,14 +40,25 @@
 
 using namespace moris;
 
-moris::real tCircle_1( const Matrix< DDRMat > & aCoords )
+moris::real tCircleForHMR( const Matrix< DDRMat > & aCoords )
 {
-    return norm( aCoords ) - 1.5237 ;
+    return norm( aCoords ) - 1.5237;
 }
 
-moris::real tCircle_2( const Matrix< DDRMat > & aCoords )
+moris::real tCircle( 
+        const Matrix< DDRMat > & aCoords,
+        const Matrix< DDRMat > & aParameters)
 {
-    return norm( aCoords ) - 0.8713 ;
+    return norm( aCoords ) - aParameters(0);
+}
+
+void
+DummyDerivativeFunction (
+        const moris::Matrix< DDRMat > & aCoordinates,
+        const moris::Matrix< DDRMat > & aParameters,
+        moris::Matrix< DDRMat >       & aReturnValue)
+{
+
 }
 
 TEST_CASE("WRK L2 test","[WRK_L2_test]")
@@ -86,7 +97,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
 
          ParameterList tRefinementParameters;
          prm::create_refinement_parameterlist( tRefinementParameters );
-         tRefinementParameters.set( "field_names" , "Circle_1" );
+         tRefinementParameters.set( "field_names" , "Circle" );
          tRefinementParameters.set( "levels_of_refinement" , "1" );
          tRefinementParameters.set( "refinement_pattern" , "0" );
 
@@ -118,12 +129,18 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tMeshPair.mInterpolationMesh = tInterpolationMesh;
          tMeshPair.mIsOwned   = true;
 
+         // Define two analytic MTK fields
          moris::Cell< mtk::Field * > tFields( 1, nullptr );
-         tFields( 0 ) = new mtk::Field_Analytic( &tMeshPair );
-         tFields( 0 )->set_label( "Circle_1" );
-         reinterpret_cast< mtk::Field_Analytic* >(tFields( 0 ))->evaluate_scalar_function( tCircle_1 );
 
-         //tFields( 0 )->save_field_to_exodus( "Remeshing_Field1.exo");
+         tFields( 0 ) = new mtk::Field_Analytic(
+                 tCircle,
+                 DummyDerivativeFunction,
+                 {{1.5237}},
+                 &tMeshPair);
+
+         tFields( 0 )->set_label( "Circle" );
+
+         tFields( 0 )->save_field_to_exodus( "Remeshing_Field1.exo");
 
          wrk::Refinement_Mini_Performer tRefinementPerformer( tRefinementParameters );
          tRefinementPerformer.perform_refinement( tFields, tHMRPerformer );
@@ -142,11 +159,11 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
 
          delete tMeshPair.mInterpolationMesh;
          tMeshPair.mInterpolationMesh = tInterpolationMeshNew;
-         reinterpret_cast< mtk::Field_Analytic* >(tFields( 0 ))->evaluate_scalar_function( tCircle_1 );
-         //tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
-         reinterpret_cast< mtk::Field_Analytic* >(tFields( 0 ))->evaluate_scalar_function( tCircle_2 );
-         //tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
-
+         tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
+         
+         tFields( 0 )->unlock_field();
+         tFields( 0 )->set_coefficients( {{0.8713}} );
+         tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
 
          //print( tFields( 0 )->get_nodal_values(), "Val1");
 
@@ -173,13 +190,6 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
 
          delete tMeshPair.mInterpolationMesh;
          tMeshPair.mInterpolationMesh = tInterpolationMeshNewMesh;
-         reinterpret_cast< mtk::Field_Analytic* >(tFields( 0 ))->evaluate_scalar_function( tCircle_2 );
-         //tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
-
-
-         delete tFields( 0 );
-
-
-
+         tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
     }
 }
