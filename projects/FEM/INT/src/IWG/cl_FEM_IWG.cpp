@@ -490,6 +490,60 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_field_type_list(
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & aDofTypes,
+                mtk::Master_Slave                                   aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    mMasterFieldTypes = aDofTypes;
+                    break;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    mSlaveFieldTypes = aDofTypes;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IQI::set_dof_type_list - can only be MASTER or SLAVE.");
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & IWG::get_field_type_list(
+                mtk::Master_Slave aIsMaster ) const
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterFieldTypes;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveFieldTypes;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IQI::get_dof_type_list - can only be master or slave." );
+                    return mMasterFieldTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -598,15 +652,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::get_non_unique_dof_and_dv_types(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes )
+        void IWG::get_non_unique_dof_dv_and_field_types(
+                moris::Cell< moris::Cell< MSI::Dof_Type > >   & aDofTypes,
+                moris::Cell< moris::Cell< PDV_Type > >        & aDvTypes,
+                moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes )
         {
             // init counters for dof and dv types
-            uint tMasterDofCounter = 0;
-            uint tSlaveDofCounter  = 0;
-            uint tMasterDvCounter  = 0;
-            uint tSlaveDvCounter   = 0;
+            uint tMasterDofCounter   = 0;
+            uint tSlaveDofCounter    = 0;
+            uint tMasterDvCounter    = 0;
+            uint tSlaveDvCounter     = 0;
+            uint tMasterFieldCounter = 0;
+            uint tSlaveFieldCounter  = 0;
 
             // get number of direct master dof dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
@@ -620,6 +677,12 @@ namespace moris
                 tMasterDvCounter += mMasterDvTypes( iDv ).size();
             }
 
+            // get number of direct master field dependencies
+            for ( uint iFi = 0; iFi < mMasterFieldTypes.size(); iFi++ )
+            {
+                tMasterFieldCounter += mMasterFieldTypes( iFi ).size();
+            }
+
             // get number of direct slave dof dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
@@ -630,6 +693,12 @@ namespace moris
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
                 tSlaveDvCounter += mSlaveDvTypes( iDv ).size();
+            }
+
+            // get number of direct slave field dependencies
+            for ( uint iFi = 0; iFi < mSlaveFieldTypes.size(); iFi++ )
+            {
+                tSlaveFieldCounter += mSlaveFieldTypes( iFi ).size();
             }
 
             // loop over the master properties
@@ -732,13 +801,16 @@ namespace moris
             }
 
             // reserve memory for dof and dv type lists
-            aDofTypes.resize( 2 );
-            aDvTypes.resize( 2 );
+            aDofTypes  .resize( 2 );
+            aDvTypes   .resize( 2 );
+            aFieldTypes.resize( 2 );
 
-            aDofTypes( 0 ).reserve( tMasterDofCounter );
-            aDvTypes ( 0 ).reserve( tMasterDvCounter );
-            aDofTypes( 1 ).reserve( tSlaveDofCounter );
-            aDvTypes ( 1 ).reserve( tSlaveDvCounter );
+            aDofTypes  ( 0 ).reserve( tMasterDofCounter   );
+            aDvTypes   ( 0 ).reserve( tMasterDvCounter    );
+            aFieldTypes( 0 ).reserve( tMasterFieldCounter );
+            aDofTypes  ( 1 ).reserve( tSlaveDofCounter    );
+            aDvTypes   ( 1 ).reserve( tSlaveDvCounter     );
+            aFieldTypes( 1 ).reserve( tSlaveFieldCounter  );
 
             // loop over master dof direct dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
@@ -754,6 +826,13 @@ namespace moris
                 aDvTypes( 0 ).append( mMasterDvTypes( iDv ) );
             }
 
+            // loop over master field direct dependencies
+            for ( uint iFi = 0; iFi < mMasterFieldTypes.size(); iFi++ )
+            {
+                // populate the field list
+                aFieldTypes( 0 ).append( mMasterFieldTypes( iFi ) );
+            }
+
             // loop over slave dof direct dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
@@ -764,8 +843,13 @@ namespace moris
             // loop over slave dv direct dependencies
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
-                //populate the dv list
                 aDvTypes( 1 ).append( mSlaveDvTypes( iDv )  );
+            }
+
+            // loop over slave dv direct dependencies
+            for ( uint iFi = 0; iFi < mSlaveFieldTypes.size(); iFi++ )
+            {
+                aFieldTypes( 1 ).append( mSlaveFieldTypes( iFi )  );
             }
 
             // loop over master properties
@@ -1480,6 +1564,35 @@ namespace moris
                 {
                     MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
                     return mMasterGlobalDvTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & IWG::get_global_field_type_list(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterFieldTypes;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveFieldTypes;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
+                    return mMasterFieldTypes;
                 }
             }
         }

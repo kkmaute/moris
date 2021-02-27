@@ -36,6 +36,7 @@ namespace moris
         class Interpolation_Mesh;
         class Integration_Mesh;
         class Field;
+        enum class Field_Type;
     }
 
     namespace fem
@@ -453,9 +454,9 @@ namespace moris
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  */
                 void create_IWGs(
-                        std::map< std::string, uint >            & aPropertyMap,
-                        std::map< std::string, uint >            & aSPMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
+                        std::map< std::string, uint >              & aPropertyMap,
+                        std::map< std::string, uint >              & aSPMap,
+                        moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -547,16 +548,20 @@ namespace moris
                  *                             index in aProperties
                  * @param[ in ] aCMMap         a map from CM name to CM index in aCMs
                  * @param[ in ] aSPMap         a map from SP name to SP index in aSPs
+                 * @param[ in ] aFieldMap      a map from SP name to index in aFields
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
                  */
                 void create_IWGs(
                         std::map< std::string, uint >            & aIWGMap,
                         std::map< std::string, uint >            & aPropertyMap,
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aSPMap,
+                        std::map< std::string, uint >            & aFieldMap,
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap,
+                        moris::map< std::string, mtk::Field_Type > & aFieldTypeMap );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -564,16 +569,20 @@ namespace moris
                  * @param[ in ] aPropertyMap   a map from property name to index in mProperties
                  * @param[ in ] aCMMap         a map from CM name to index in aCMs
                  * @param[ in ] aSPMap         a map from SP name to index in aSPs
+                 * @param[ in ] aFieldMap      a map from SP name to index in aFields
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
                  */
                 void create_IQIs(
                         std::map< std::string, uint >            & aIQIMap,
                         std::map< std::string, uint >            & aPropertyMap,
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aSPMap,
+                        std::map< std::string, uint >            & aFieldMap,
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap,
+                        moris::map< std::string, mtk::Field_Type > & aFieldTypeMap);
 
                 //------------------------------------------------------------------------------
                 /**

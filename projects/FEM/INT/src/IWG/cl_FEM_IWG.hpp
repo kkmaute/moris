@@ -84,6 +84,10 @@ namespace moris
                 moris::Cell< moris::Cell< PDV_Type > > mMasterGlobalDvTypes;
                 moris::Cell< moris::Cell< PDV_Type > > mSlaveGlobalDvTypes;
 
+                // master and slave field type lists
+                moris::Cell< moris::Cell< mtk::Field_Type > > mMasterFieldTypes;
+                moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveFieldTypes;
+
                 // master and slave properties
                 moris::Cell< std::shared_ptr< Property > > mMasterProp;
                 moris::Cell< std::shared_ptr< Property > > mSlaveProp;
@@ -455,6 +459,25 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * return a cell of field types active for the IWG
+                 * @param[ in ]  aIsMaster enum master or slave
+                 * @param[ out ] aFieldTypes a list of group of field types
+                 */
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & get_field_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set IWG active field types
+                 * @param[ in ] aFieldTypes a list of group of field types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_field_type_list(
+                        const moris::Cell< moris::Cell< mtk::Field_Type > > & aDvTypes,
+                              mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
                  * check that field interpolators were assigned
                  * @param[ in ]  aIsMaster enum master or slave
                  */
@@ -538,9 +561,10 @@ namespace moris
                  * IWG, property, constitutive and stabilization dependencies
                  * for both master and slave
                  */
-                void get_non_unique_dof_and_dv_types(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                        moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes );
+                void get_non_unique_dof_dv_and_field_types(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > >   & aDofTypes,
+                        moris::Cell< moris::Cell< PDV_Type > >        & aDvTypes,
+                        moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -558,6 +582,16 @@ namespace moris
                  * @param[ out ] mGlobalDvTypes global list of group of dv types
                  */
                 const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get global field type list. TODO: Field types are only used by the IWG.
+                 * If a user wants to use them in a property or CM this cuntion has to be modified in the same way than get_global_dof_type_list()
+                 * @param[ in ]  aIsMaster    enum master or slave
+                 * @param[ out ] mFieldTypes global list of group of dv types
+                 */
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & get_global_field_type_list(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------

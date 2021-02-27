@@ -94,6 +94,13 @@ namespace moris
             }
             mDvFI.clear();
 
+            // delete the field field interpolator pointers
+            for( Field_Interpolator* tFI : mFieldFI )
+            {
+                delete tFI;
+            }
+            mFieldFI.clear();
+
             // delete the IP geometry interpolator pointer
             if( mIPGeometryInterpolator != nullptr && mGeometryInterpolatorOwned )
             {
@@ -180,6 +187,8 @@ namespace moris
                         mIPGeometryInterpolator,
                         mDvTypes( iDv ) );
             }
+
+            // field field interpolators------------------------------------------
         }
 
         //------------------------------------------------------------------------------
