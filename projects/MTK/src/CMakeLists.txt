@@ -26,6 +26,7 @@ cl_MTK_Exodus_IO_Helper.hpp
 cl_MTK_Facet.hpp
 cl_MTK_Field.hpp
 cl_MTK_Field_Analytic.hpp
+cl_MTK_Field_Discrete.hpp
 cl_MTK_Fields_Info.hpp
 cl_MTK_Cell_Info_Hex8.hpp
 cl_MTK_Cell_Info_Hex27.hpp
@@ -148,6 +149,7 @@ cl_MTK_Mesh_Checker.cpp
 cl_MTK_Exodus_IO_Helper.cpp
 cl_MTK_Field.cpp
 cl_MTK_Field_Analytic.cpp
+cl_MTK_Field_Discrete.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
