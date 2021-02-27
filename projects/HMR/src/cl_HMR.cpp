@@ -40,6 +40,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Field.hpp"          //HMR/src
+#include "cl_MTK_Field_Discrete.hpp"          //HMR/src
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -160,6 +161,7 @@ namespace moris
 
             MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
 
+            // get mesh with numbered aura (aura number is requested)
             uint tLagrangeMeshIndex = OutputMeshIndex( 0 )( 0 );
 
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
@@ -168,7 +170,7 @@ namespace moris
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
-            // register HMR interpolation and integration meshes
+            // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
 
             if( OutputMeshIndex.size() == 2 )
@@ -1849,12 +1851,14 @@ namespace moris
                     mParameters->get_union_pattern() );
 
             // create union mesh
-            Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( tOrder,
+            Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh(
+                    tOrder,
                     mParameters->get_union_pattern(),
                     tTargetPattern );   // order, Lagrange pattern, bspline pattern
 
             // create union field
-            std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),
+            std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field(
+                    aField->get_label(),
                     aBsplineMeshIndex );        //index to 0 so that we only need one mesh
 
             // map source Lagrange field to target Lagrange field
@@ -1875,7 +1879,8 @@ namespace moris
                         aField->get_lagrange_pattern() );
 
                 // first, project field on mesh with correct order
-                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
+                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field(
+                        aField->get_label(),
                         0 );
 
                 mDatabase->change_field_order( aField, tTemporaryField );
@@ -1894,10 +1899,20 @@ namespace moris
             // Add union mesh to mesh manager
             mtk::Mesh_Pair tMeshPairUnion;
             tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
-            tMeshPairUnion.mIntegrationMesh = tIntegrationUnionMesh;
+            tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
 
-            mtk::Field tFieldUnion( &tMeshPairUnion );
+            if ( par_rank() == 0 )
+            {
+                std::cout << "Number of nodes of tUnionInterpolationMesh " << tUnionInterpolationMesh->get_num_nodes() << std::endl;
+                std::cout << "Number of nodes of tIntegrationUnionMesh " << tIntegrationUnionMesh->get_num_nodes() << std::endl;
+                std::cout << "Number of nodes of tUnionField " << tUnionField->get_node_values().n_rows() << std::endl;
 
+                std::string tString="tUnionField->get_node_values(): " + std::to_string(par_rank());
+                print(tUnionField->get_node_values(),tString.c_str());
+            }
+
+            mtk::Field_Discrete tFieldUnion( &tMeshPairUnion, 0 );
+            tFieldUnion.unlock_field();
             tFieldUnion.set_nodal_values( tUnionField->get_node_values() );
 
             // create mapper
