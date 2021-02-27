@@ -56,7 +56,7 @@ namespace moris
 
             void
             get_mesh_pair(
-                    moris_index          aPairIndex,
+                    moris_index            aPairIndex,
                     Interpolation_Mesh * & aInterpolationMesh,
                     Integration_Mesh   * & aIntegrationMesh);
 
@@ -76,7 +76,6 @@ namespace moris
             {
                 return shared_from_this();
             }
-
         };
     }
 }
