@@ -44,6 +44,11 @@ namespace moris
             Tracer tTracer( "OptimizationAlgorithm", "Sweep", "Solve" );
 
             //----------------------------------------------------------------------------------------------------------
+            // Sweep not implemented for parallel
+            //----------------------------------------------------------------------------------------------------------
+            MORIS_ERROR(par_size() == 1, "Sweep algorithm not implemented for parallel.\n");
+
+            //----------------------------------------------------------------------------------------------------------
             // Initialize
             //----------------------------------------------------------------------------------------------------------
             mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
@@ -128,25 +133,30 @@ namespace moris
                 // Construct evaluation points
                 for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
                 {
-                    // Assign ADVs
-                    for (uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++)
+                    if ( tNumADVs > 0 )
                     {
-                        mEvaluationPoints(tADVIndex, tEvaluationIndex) = tADVs(tADVIndex);
-                    }
-
-                    // Update ADVs
-                    tADVs(0) += (tUpperBounds(0) - tLowerBounds(0)) / (mNumEvaluations(0) + 1 - (2 * mIncludeBounds));
-                    tCurrentEvaluations(0) += 1;
-                    for (uint tADVIndex = 0; tADVIndex < tNumADVs - 1; tADVIndex++)
-                    {
-                        if (tCurrentEvaluations(tADVIndex) == mNumEvaluations(tADVIndex))
+                        // Assign ADVs
+                        for (uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++)
                         {
-                            // Reset this ADV to the lower bound and incremement next ADV
-                            tADVs(tADVIndex) = tLowerBounds(tADVIndex);
-                            tCurrentEvaluations(tADVIndex) = 0;
+                            mEvaluationPoints(tADVIndex, tEvaluationIndex) = tADVs(tADVIndex);
+                        }
 
-                            tADVs(tADVIndex + 1) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (mNumEvaluations(tADVIndex) + 1 - (2 * mIncludeBounds));
-                            tCurrentEvaluations(tADVIndex + 1) += 1;
+                        // Update ADVs
+                        tADVs(0) += (tUpperBounds(0) - tLowerBounds(0)) / (mNumEvaluations(0) + 1 - (2 * mIncludeBounds));
+
+                        tCurrentEvaluations(0) += 1;
+
+                        for (uint tADVIndex = 0; tADVIndex < tNumADVs - 1; tADVIndex++)
+                        {
+                            if (tCurrentEvaluations(tADVIndex) == mNumEvaluations(tADVIndex))
+                            {
+                                // Reset this ADV to the lower bound and increment next ADV
+                                tADVs(tADVIndex) = tLowerBounds(tADVIndex);
+                                tCurrentEvaluations(tADVIndex) = 0;
+
+                                tADVs(tADVIndex + 1) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (mNumEvaluations(tADVIndex) + 1 - (2 * mIncludeBounds));
+                                tCurrentEvaluations(tADVIndex + 1) += 1;
+                            }
                         }
                     }
                 }
