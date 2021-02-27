@@ -193,7 +193,12 @@ namespace moris
 
             // Check PDV type
             MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+                         "Interpolation_Pdv_Host::get_pdv_value - Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+
+            //Check whether PDV exists
+            MORIS_ASSERT( mPDVs(tPDVIndex) != nullptr,
+                    "Interpolation_Pdv_Host::get_pdv_value - PDV does not exists at node with index %.\n",
+                    mNodeIndex);
 
             // Return value
             return mPDVs(tPDVIndex)->get_value(mNodeIndex, mCoordinates);
