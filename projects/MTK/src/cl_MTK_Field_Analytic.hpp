@@ -4,10 +4,11 @@
  *  Created on: Jan 20, 2021
  *      Author: schmidt
  */
-#ifndef SRC_MTK_FIELD_PROXY_HPP_
-#define SRC_MTK_FIELD_PROXY_HPP_
+#ifndef SRC_MTK_FIELD_ANALYTIC_HPP_
+#define SRC_MTK_FIELD_ANALYTIC_HPP_
 
 #include "cl_Matrix.hpp"
+#include "cl_Cell.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Field.hpp"
@@ -19,30 +20,49 @@ namespace moris
 {
     // User-defined field functions
     typedef real ( *Analytic_Field_Function ) (
-            const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aParameters );
+            const moris::Matrix< DDRMat > & aCoordinates,
+            const moris::Matrix< DDRMat > & aParameters );   // evaluates function given coordinates and coefficients
     typedef void ( *Analytic_Derivative_Function ) (
-            const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aParameters,
-            moris::Matrix< DDRMat >           & aReturnValue);
+            const moris::Matrix< DDRMat > & aCoordinates,
+            const moris::Matrix< DDRMat > & aParameters,
+            moris::Matrix< DDRMat >       & aReturnValue);   // evaluates derivative of function given coordinates and coefficients
 
     namespace mtk
     {
+        /**
+         * @ brief Implementation of mesh based nodally discretized scalar and vector field, based on mtk::Field class.
+         *
+         * For each field, a function needs to be provided that evaluates the field at a node given the nodal
+         * coordinates and a coefficient vector. In addition, a function needs to be provided that evaluates the
+         * derivatives of nodal field value with respect to all parameters. Finally, the number of coefficients the value
+         * and derivative functions are operating on needs to be provided.
+         *
+         * Note: the value and derivative function operate on the same coefficient vector !
+         * */
+
         class Field_Analytic : public Field
         {
-            private:
-
             protected:
-                Analytic_Field_Function      mAnalyticFieldValueFunction = nullptr;
-                Analytic_Derivative_Function mAnalyticDerivativeFunction = nullptr;
+                moris::Cell<Analytic_Field_Function>      mAnalyticFieldValueFunction;
+                moris::Cell<Analytic_Derivative_Function> mAnalyticDerivativeFunction;
 
             public :
+
+                Field_Analytic(
+                        moris::Cell<Analytic_Field_Function>       aFunction,
+                        moris::Cell<Analytic_Derivative_Function>  aDerivativeFunction,
+                        moris::Matrix<DDRMat>              const & aCoefficients,
+                        Mesh_Pair                                * aMeshPairs,
+                        uint                               const & aNumberOfFields = 1);
 
                 // ----------------------------------------------------------------------------------------------
 
                 Field_Analytic(
-                        mtk::Mesh_Pair * aMeshPairs,
-                        uint const     & aDiscretizationMeshIndex = 0 );
+                        Analytic_Field_Function        aFunction,
+                        Analytic_Derivative_Function   aDerivativeFunction,
+                        moris::Matrix<DDRMat>  const & aCoefficients,
+                        Mesh_Pair                    * aMeshPairs,
+                        uint                   const & aNumberOfFields = 1);
 
                 // ----------------------------------------------------------------------------------------------
 
@@ -50,28 +70,24 @@ namespace moris
 
                 // ----------------------------------------------------------------------------------------------
 
+                /**
+                 * @brief child class implementation: computes and stores nodal values
+                 */
+                virtual void compute_nodal_values();
+
                 // ----------------------------------------------------------------------------------------------
 
-                template<typename T>
-                void evaluate_scalar_function( T aLambda )
-                {
-                    Interpolation_Mesh* tInterpolationMesh =
-                            mMeshPair->mInterpolationMesh;
+                /**
+                 * @brief child class implementation: computes derivatives of nodal values
+                 */
+                virtual void compute_derivatives_of_field_value(
+                        Matrix< DDRMat >       & aDerivatives,
+                        Matrix< IndexMat >     & aCoefIndices,
+                        uint             const & aNodeIndex,
+                        uint             const & aFieldIndex);
 
-                    // get number of nodes on block
-                    uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
-
-                    // set size of node values
-                    mNodalValues.set_size( tNumberOfVertices, 1 );
-
-                    // loop over all vertices
-                    for( uint Ik = 0; Ik < tNumberOfVertices; ++Ik )
-                    {
-                        // evaluate function at vertex coordinates
-                        mNodalValues( Ik ) = aLambda( tInterpolationMesh->get_mtk_vertex( Ik ).get_coords() );
-                    }
-                }
+                // ----------------------------------------------------------------------------------------------
         };
     }
 }
-#endif /* SRC_MTK_FIELD_PROXY_HPP_ */
+#endif /* SRC_MTK_FIELD_ANALYTIC_HPP_ */
