@@ -75,11 +75,19 @@ namespace moris
             moris::Matrix< DDSMat > mMasterDvTypeMap;
             moris::Matrix< DDSMat > mSlaveDvTypeMap;
 
+            // lists of master and slave groups of field types
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mMasterFieldTypes;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mSlaveFieldTypes;
+
+            // maps for the master and slave field type
+            moris::Matrix< DDSMat > mMasterFieldTypeMap;
+            moris::Matrix< DDSMat > mSlaveFieldTypeMap;
+
             // map of master and slave mat pdv types for assembly
-            Cell< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
-            moris::Matrix< DDSMat > mPdvMatAssemblyVector;
+            Cell< moris::Matrix< DDSMat > >                      mPdvMatAssemblyMap;
+            moris::Matrix< DDSMat >                              mPdvMatAssemblyVector;
             std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
-            moris::Matrix< DDSMat > mPdvGeoAssemblyVector;
+            moris::Matrix< DDSMat >                              mPdvGeoAssemblyVector;
             bool mPdvGeoAssemblyFlag = false;
 
             // Map from requested IQI Name to index.
@@ -100,12 +108,14 @@ namespace moris
             Matrix< DDRMat > mTime;
 
             // unique list of dof and dv types
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mUniqueDofTypeListMasterSlave;
-            moris::Cell< moris::Cell< enum PDV_Type > > mUniqueDvTypeListMasterSlave;
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > >   mUniqueDofTypeListMasterSlave;
+            moris::Cell< moris::Cell< enum PDV_Type > >        mUniqueDvTypeListMasterSlave;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListMasterSlave;
 
             // unique list of dof and dv types. Master and Slave are combined
-            moris::Cell< enum MSI::Dof_Type > mUniqueDofTypeList;
-            moris::Cell< enum PDV_Type >      mUniqueDvTypeList;
+            moris::Cell< enum MSI::Dof_Type >  mUniqueDofTypeList;
+            moris::Cell< enum PDV_Type >       mUniqueDvTypeList;
+            moris::Cell< enum mtk::Field_Type >mUniqueFieldTypeList;
 
             // pointer to the model solver interface
             Model_Solver_Interface * mModelSolverInterface = nullptr;
@@ -538,7 +548,7 @@ namespace moris
              * get unique dv type list
              * @param[ out ] mUniqueDvTypeList a unique list of dv type
              */
-            moris::Cell< enum PDV_Type > & get_unique_dv_type_list()
+            const moris::Cell< enum PDV_Type > & get_unique_dv_type_list()
             {
                 return mUniqueDvTypeList;
             }
@@ -550,6 +560,25 @@ namespace moris
             moris::uint get_num_unique_dv_types()
             {
                 return mUniqueDvTypeList.size();
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get unique field type list
+             * @param[ out ] mUniqueFieldTypeList a unique list of field type
+             */
+            const moris::Cell< enum mtk::Field_Type > & get_unique_field_type_list()
+            {
+                return mUniqueFieldTypeList;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of unique field types
+             */
+            moris::uint get_num_unique_field_types()
+            {
+                return mUniqueFieldTypeList.size();
             }
 
             //------------------------------------------------------------------------------

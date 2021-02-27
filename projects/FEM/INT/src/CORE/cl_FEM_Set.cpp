@@ -142,7 +142,7 @@ namespace moris
             this->create_unique_dof_and_dv_type_lists();
 
             // create a unique dof and dv type maps
-            this->create_unique_dof_and_dv_type_maps();
+            this->create_unique_dof_dv_and_field_type_maps();
 
             // create a dof and dv type lists
             this->create_dof_and_dv_type_lists();
@@ -329,23 +329,28 @@ namespace moris
             // init dof and dv type counter
             uint tMasterDofCounter = 0;
             uint tMasterDvCounter  = 0;
+            uint tMasterFieldCounter  = 0;
             uint tSlaveDofCounter = 0;
             uint tSlaveDvCounter  = 0;
+            uint tSlaveFieldCounter  = 0;
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // get an IWG non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
-                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >        tActiveDvType;
+                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
 
-                tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
+                tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // update dof and dv type counters
-                tMasterDofCounter += tActiveDofType( 0 ).size();
-                tMasterDvCounter  += tActiveDvType ( 0 ).size();
-                tSlaveDofCounter  += tActiveDofType( 1 ).size();
-                tSlaveDvCounter   += tActiveDvType ( 1 ).size();
+                tMasterDofCounter    += tActiveDofType( 0 ).size();
+                tMasterDvCounter     += tActiveDvType ( 0 ).size();
+                tMasterFieldCounter  += tActiveFieldType ( 0 ).size();
+                tSlaveDofCounter     += tActiveDofType( 1 ).size();
+                tSlaveDvCounter      += tActiveDvType ( 1 ).size();
+                tSlaveFieldCounter   += tActiveFieldType ( 1 ).size();
             }
 
             // loop over the IQIs
@@ -354,67 +359,85 @@ namespace moris
                 // get an IWG non unique dof and dv types
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
                 moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
-                tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
+                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
+
+                tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // update dof and dv type counter
-                tMasterDofCounter += tActiveDofType( 0 ).size();
-                tMasterDvCounter  += tActiveDvType ( 0 ).size();
-                tSlaveDofCounter  += tActiveDofType( 1 ).size();
-                tSlaveDvCounter   += tActiveDvType ( 1 ).size();
+                tMasterDofCounter    += tActiveDofType( 0 ).size();
+                tMasterDvCounter     += tActiveDvType ( 0 ).size();
+                tMasterFieldCounter  += tActiveFieldType ( 0 ).size();
+                tSlaveDofCounter     += tActiveDofType( 1 ).size();
+                tSlaveDvCounter      += tActiveDvType ( 1 ).size();
+                tSlaveFieldCounter   += tActiveFieldType ( 1 ).size();
             }
 
             mUniqueDofTypeListMasterSlave.resize( 2 );
             mUniqueDvTypeListMasterSlave.resize( 2 );
+            mUniqueFieldTypeListMasterSlave.resize( 2 );
 
-            mUniqueDofTypeListMasterSlave( 0 ).reserve( tMasterDofCounter );
-            mUniqueDofTypeListMasterSlave( 1 ).reserve( tSlaveDofCounter );
-            mUniqueDvTypeListMasterSlave ( 0 ).reserve( tMasterDvCounter );
-            mUniqueDvTypeListMasterSlave ( 1 ).reserve( tSlaveDvCounter );
+            mUniqueDofTypeListMasterSlave  ( 0 ).reserve( tMasterDofCounter );
+            mUniqueDofTypeListMasterSlave  ( 1 ).reserve( tSlaveDofCounter );
+            mUniqueDvTypeListMasterSlave   ( 0 ).reserve( tMasterDvCounter );
+            mUniqueDvTypeListMasterSlave   ( 1 ).reserve( tSlaveDvCounter );
+            mUniqueFieldTypeListMasterSlave( 0 ).reserve( tMasterFieldCounter );
+            mUniqueFieldTypeListMasterSlave( 1 ).reserve( tSlaveFieldCounter );
 
             // set max size for the unique dof and dv type lists
-            mUniqueDofTypeList.reserve( tMasterDofCounter + tSlaveDofCounter );
-            mUniqueDvTypeList.reserve( tMasterDvCounter + tSlaveDvCounter );
+            mUniqueDofTypeList  .reserve( tMasterDofCounter   + tSlaveDofCounter );
+            mUniqueDvTypeList   .reserve( tMasterDvCounter    + tSlaveDvCounter );
+            mUniqueFieldTypeList.reserve( tMasterFieldCounter + tSlaveFieldCounter );
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
             {
                 // get non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
-                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >        tActiveDvType;
+                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
 
-                tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
+                tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // populate the corresponding unique dof and dv type lists
-                mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
-                mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
-                mUniqueDvTypeListMasterSlave ( 0 ).append( tActiveDvType ( 0 ) );
-                mUniqueDvTypeListMasterSlave ( 1 ).append( tActiveDvType ( 1 ) );
+                mUniqueDofTypeListMasterSlave   ( 0 ).append( tActiveDofType  ( 0 ) );
+                mUniqueDofTypeListMasterSlave   ( 1 ).append( tActiveDofType  ( 1 ) );
+                mUniqueDvTypeListMasterSlave    ( 0 ).append( tActiveDvType   ( 0 ) );
+                mUniqueDvTypeListMasterSlave    ( 1 ).append( tActiveDvType   ( 1 ) );
+                mUniqueFieldTypeListMasterSlave ( 0 ).append( tActiveFieldType( 0 ) );
+                mUniqueFieldTypeListMasterSlave ( 1 ).append( tActiveFieldType( 1 ) );
 
-                mUniqueDofTypeList.append( tActiveDofType( 0 ) );
-                mUniqueDofTypeList.append( tActiveDofType( 1 ) );
-                mUniqueDvTypeList.append ( tActiveDvType ( 0 ) );
-                mUniqueDvTypeList.append ( tActiveDvType ( 1 ) );
+                mUniqueDofTypeList  .append( tActiveDofType  ( 0 ) );
+                mUniqueDofTypeList  .append( tActiveDofType  ( 1 ) );
+                mUniqueDvTypeList   .append( tActiveDvType   ( 0 ) );
+                mUniqueDvTypeList   .append( tActiveDvType   ( 1 ) );
+                mUniqueFieldTypeList.append( tActiveFieldType( 0 ) );
+                mUniqueFieldTypeList.append( tActiveFieldType( 1 ) );
             }
 
             // loop over the IQIs
             for ( const std::shared_ptr< IQI > & tIQI : mIQIs )
             {
                 // get non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
-                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >        tActiveDvType;
+                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
 
-                tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
+                tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // populate the corresponding unique dof and dv type lists
-                mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
-                mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
-                mUniqueDvTypeListMasterSlave ( 0 ).append( tActiveDvType ( 0 ) );
-                mUniqueDvTypeListMasterSlave ( 1 ).append( tActiveDvType ( 1 ) );
+                mUniqueDofTypeListMasterSlave   ( 0 ).append( tActiveDofType  ( 0 ) );
+                mUniqueDofTypeListMasterSlave   ( 1 ).append( tActiveDofType  ( 1 ) );
+                mUniqueDvTypeListMasterSlave    ( 0 ).append( tActiveDvType   ( 0 ) );
+                mUniqueDvTypeListMasterSlave    ( 1 ).append( tActiveDvType   ( 1 ) );
+                mUniqueFieldTypeListMasterSlave ( 0 ).append( tActiveFieldType( 0 ) );
+                mUniqueFieldTypeListMasterSlave ( 1 ).append( tActiveFieldType( 1 ) );
 
-                mUniqueDofTypeList.append( tActiveDofType( 0 ) );
-                mUniqueDofTypeList.append( tActiveDofType( 1 ) );
-                mUniqueDvTypeList.append ( tActiveDvType ( 0 ) );
-                mUniqueDvTypeList.append ( tActiveDvType ( 1 ) );
+                mUniqueDofTypeList  .append( tActiveDofType  ( 0 ) );
+                mUniqueDofTypeList  .append( tActiveDofType  ( 1 ) );
+                mUniqueDvTypeList   .append( tActiveDvType   ( 0 ) );
+                mUniqueDvTypeList   .append( tActiveDvType   ( 1 ) );
+                mUniqueFieldTypeList.append( tActiveFieldType( 0 ) );
+                mUniqueFieldTypeList.append( tActiveFieldType( 1 ) );
             }
 
             {
@@ -438,7 +461,7 @@ namespace moris
             }
 
             {
-                // make the dof type list unique
+                // make the dv type list unique
                 std::sort( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(),
                         ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data() + mUniqueDvTypeListMasterSlave( 0 ).size());
                 auto last = std::unique( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(),
@@ -448,13 +471,33 @@ namespace moris
             }
 
             {
-                // make the dof type list unique
+                // make the dv type list unique
                 std::sort( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(),
                         ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data() + mUniqueDvTypeListMasterSlave( 1 ).size());
                 auto last = std::unique( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(),
                         ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data() + mUniqueDvTypeListMasterSlave( 1 ).size() );
                 auto pos  = std::distance( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(), last );
                 mUniqueDvTypeListMasterSlave( 1 ).resize( pos );
+            }
+
+            {
+                // make the field type list unique
+                std::sort( ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data(),
+                        ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 0 ).size());
+                auto last = std::unique( ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data(),
+                        ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 0 ).size() );
+                auto pos  = std::distance( ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data(), last );
+                mUniqueFieldTypeListMasterSlave( 0 ).resize( pos );
+            }
+
+            {
+                // make the field type list unique
+                std::sort( ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data(),
+                        ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 1 ).size());
+                auto last = std::unique( ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data(),
+                        ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 1 ).size() );
+                auto pos  = std::distance( ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data(), last );
+                mUniqueFieldTypeListMasterSlave( 1 ).resize( pos );
             }
 
             {
@@ -476,6 +519,16 @@ namespace moris
                 auto pos  = std::distance( ( mUniqueDvTypeList.data() ).data(), last );
                 mUniqueDvTypeList.resize( pos );
             }
+
+            {
+                // make the field type list unique
+                std::sort( ( mUniqueFieldTypeList.data() ).data(),
+                        ( mUniqueFieldTypeList.data() ).data() + mUniqueFieldTypeList.size());
+                auto last = std::unique( ( mUniqueFieldTypeList.data() ).data(),
+                        ( mUniqueFieldTypeList.data() ).data() + mUniqueFieldTypeList.size() );
+                auto pos  = std::distance( ( mUniqueFieldTypeList.data() ).data(), last );
+                mUniqueFieldTypeList.resize( pos );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -483,20 +536,25 @@ namespace moris
         void Set::create_dof_and_dv_type_lists()
         {
             // get number of dof and dv types
-            uint tNumDofTypes = this->get_num_unique_dof_types();
-            uint tNumDvTypes  = this->get_num_unique_dv_types();
+            uint tNumDofTypes    = this->get_num_unique_dof_types();
+            uint tNumDvTypes     = this->get_num_unique_dv_types();
+            uint tNumFieldTypes  = this->get_num_unique_field_types();
 
             // set size for the global dof type list
-            mMasterDofTypes.reserve( tNumDofTypes );
-            mSlaveDofTypes .reserve( tNumDofTypes );
-            mMasterDvTypes.reserve( tNumDvTypes );
-            mSlaveDvTypes .reserve( tNumDvTypes );
+            mMasterDofTypes  .reserve( tNumDofTypes   );
+            mSlaveDofTypes   .reserve( tNumDofTypes   );
+            mMasterDvTypes   .reserve( tNumDvTypes    );
+            mSlaveDvTypes    .reserve( tNumDvTypes    );
+            mMasterFieldTypes.reserve( tNumFieldTypes );
+            mSlaveFieldTypes .reserve( tNumFieldTypes );
 
             // create a list to check if dof type is already in the list
-            Matrix< DDSMat > tMasterCheckList( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tSlaveCheckList ( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tMasterDvCheckList( tNumDvTypes, 1, -1 );
-            Matrix< DDSMat > tSlaveDvCheckList ( tNumDvTypes, 1, -1 );
+            Matrix< DDSMat > tMasterCheckList     ( tNumDofTypes  , 1, -1 );
+            Matrix< DDSMat > tSlaveCheckList      ( tNumDofTypes  , 1, -1 );
+            Matrix< DDSMat > tMasterDvCheckList   ( tNumDvTypes   , 1, -1 );
+            Matrix< DDSMat > tSlaveDvCheckList    ( tNumDvTypes   , 1, -1 );
+            Matrix< DDSMat > tMasterFieldCheckList( tNumFieldTypes, 1, -1 );
+            Matrix< DDSMat > tSlaveFieldCheckList ( tNumFieldTypes, 1, -1 );
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG > & tIWG : mIWGs )
@@ -504,8 +562,12 @@ namespace moris
                 // get master dof and dv types for the IWG
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeMaster =
                         tIWG->get_global_dof_type_list();
+
                 const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeMaster =
                         tIWG->get_global_dv_type_list();
+
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & tFieldTypeMaster =
+                        tIWG->get_global_field_type_list();
 
                 // loop over the IWG active master dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
@@ -541,12 +603,32 @@ namespace moris
                     }
                 }
 
+                // loop over the IWG active master field type
+                for ( uint iFi = 0; iFi < tFieldTypeMaster.size(); iFi++ )
+                {
+                    // get set index for the treated master dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeMaster( iFi )( 0 ) );
+
+                    // if dv enum not in the list
+                    if ( tMasterFieldCheckList( tFieldTypeindex ) != 1 )
+                    {
+                        // put the dof type in the checklist
+                        tMasterFieldCheckList( tFieldTypeindex ) = 1;
+
+                        // put the dof type in the global type list
+                        mMasterFieldTypes.push_back( tFieldTypeMaster( iFi ) );
+                    }
+                }
+
                 // get slave dof and dv types for the IWG
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeSlave =
                         tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
                 const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeSlave =
                         tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & tFieldTypeSlave =
+                        tIWG->get_global_field_type_list( mtk::Master_Slave::SLAVE );
 
                 // loop over the IWG active slave dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
@@ -581,6 +663,23 @@ namespace moris
                         mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
                     }
                 }
+
+                // loop over the IWG active master field type
+                for ( uint iFi = 0; iFi < tFieldTypeSlave.size(); iFi++ )
+                {
+                    // get set index for the treated master dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeSlave( iFi )( 0 ) );
+
+                    // if dv enum not in the list
+                    if ( tSlaveFieldCheckList( tFieldTypeindex ) != 1 )
+                    {
+                        // put the dof type in the checklist
+                        tSlaveFieldCheckList( tFieldTypeindex ) = 1;
+
+                        // put the dof type in the global type list
+                        mSlaveFieldTypes.push_back( tFieldTypeSlave( iFi ) );
+                    }
+                }
             }
 
             // loop over the IQIs
@@ -592,6 +691,9 @@ namespace moris
 
                 const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeMaster =
                         tIQI->get_global_dv_type_list();
+
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & tFieldTypeMaster =
+                        tIQI->get_global_field_type_list();
 
                 // loop over the IQI active master dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
@@ -627,11 +729,30 @@ namespace moris
                     }
                 }
 
+                // loop over the IWG active master field type
+                for ( uint iFi = 0; iFi < tFieldTypeMaster.size(); iFi++ )
+                {
+                    // get set index for the treated master dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeMaster( iFi )( 0 ) );
+
+                    // if dv enum not in the list
+                    if ( tMasterFieldCheckList( tFieldTypeindex ) != 1 )
+                    {
+                        // put the dof type in the checklist
+                        tMasterFieldCheckList( tFieldTypeindex ) = 1;
+
+                        // put the dof type in the global type list
+                        mMasterFieldTypes.push_back( tFieldTypeMaster( iFi ) );
+                    }
+                }
+
                 // get slave dof and dv types for the IWG
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & tDofTypeSlave =
                         tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
                 const moris::Cell< moris::Cell< PDV_Type > > & tDvTypeSlave =
                         tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & tFieldTypeSlave =
+                        tIQI->get_global_field_type_list( mtk::Master_Slave::SLAVE );
 
                 // loop over the IWG active slave dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
@@ -666,18 +787,37 @@ namespace moris
                         mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
                     }
                 }
+
+                // loop over the IWG active master field type
+                for ( uint iFi = 0; iFi < tFieldTypeSlave.size(); iFi++ )
+                {
+                    // get set index for the treated master dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeSlave( iFi )( 0 ) );
+
+                    // if dv enum not in the list
+                    if ( tSlaveFieldCheckList( tFieldTypeindex ) != 1 )
+                    {
+                        // put the dof type in the checklist
+                        tSlaveFieldCheckList( tFieldTypeindex ) = 1;
+
+                        // put the dof type in the global type list
+                        mSlaveFieldTypes.push_back( tFieldTypeSlave( iFi ) );
+                    }
+                }
             }
 
             // shrink list to fit to number of unique dof and dv types
-            mMasterDofTypes.shrink_to_fit();
-            mSlaveDofTypes .shrink_to_fit();
-            mMasterDvTypes.shrink_to_fit();
-            mSlaveDvTypes .shrink_to_fit();
+            mMasterDofTypes  .shrink_to_fit();
+            mSlaveDofTypes   .shrink_to_fit();
+            mMasterDvTypes   .shrink_to_fit();
+            mSlaveDvTypes    .shrink_to_fit();
+            mMasterFieldTypes.shrink_to_fit();
+            mSlaveFieldTypes .shrink_to_fit();
         }
 
         //------------------------------------------------------------------------------
 
-        void Set::create_unique_dof_and_dv_type_maps()
+        void Set::create_unique_dof_dv_and_field_type_maps()
         {
             // dof types
             //------------------------------------------------------------------------------
@@ -711,7 +851,7 @@ namespace moris
             // dv types
             //------------------------------------------------------------------------------
             // Create temporary dv type list
-            moris::Cell< enum PDV_Type > tDvType = get_unique_dv_type_list();
+            const moris::Cell< enum PDV_Type > & tDvType = get_unique_dv_type_list();
 
             //Get number of unique dvs of this equation object
             moris::uint tNumUniqueDvTypes = tDvType.size();
@@ -736,6 +876,36 @@ namespace moris
             for ( moris::uint Ii = 0; Ii < tNumUniqueDvTypes; Ii++ )
             {
                 mUniqueDvTypeMap( static_cast< int >( tDvType( Ii ) ), 0 ) = Ii;
+            }
+
+            // field types
+            //------------------------------------------------------------------------------
+            // Create temporary field type list
+            const moris::Cell< enum mtk::Field_Type > & tFieldType = get_unique_field_type_list();
+
+            //Get number of unique dvs of this equation object
+            moris::uint tNumUniqueFieldTypes = tFieldType.size();
+
+            // Get maximal dv type enum number
+            moris::sint tMaxFieldTypeEnumNumber = 0;
+
+            // Loop over all dv types to get the highest enum index
+            for ( moris::uint Ii = 0; Ii < tNumUniqueFieldTypes; Ii++ )
+            {
+                tMaxFieldTypeEnumNumber =
+                        std::max( tMaxFieldTypeEnumNumber, static_cast< int >( tFieldType( Ii ) ) );
+            }
+
+            // +1 because c++ is 0 based
+            tMaxFieldTypeEnumNumber++;
+
+            // Set size of mapping matrix
+            mUniqueFieldTypeMap.set_size( tMaxFieldTypeEnumNumber, 1, -1 );
+
+            // Loop over all dv types to create the mapping matrix
+            for ( moris::uint Ii = 0; Ii < tNumUniqueFieldTypes; Ii++ )
+            {
+                mUniqueFieldTypeMap( static_cast< int >( tFieldType( Ii ) ), 0 ) = Ii;
             }
         }
 

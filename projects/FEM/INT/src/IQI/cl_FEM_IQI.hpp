@@ -435,9 +435,10 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * for both master and slave
              */
-            void get_non_unique_dof_and_dv_types(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                    moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes );
+            void get_non_unique_dof_dv_and_field_types(
+                    moris::Cell< moris::Cell< MSI::Dof_Type > >   & aDofTypes,
+                    moris::Cell< moris::Cell< PDV_Type > >        & aDvTypes,
+                    moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -508,6 +509,16 @@ namespace moris
              * @param[ in ] aIsMaster enum master or slave
              */
             const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global field type list. TODO: Field types are only used by the IWG.
+             * If a user wants to use them in a property or CM this cuntion has to be modified in the same way than get_global_dof_type_list()
+             * @param[ in ]  aIsMaster    enum master or slave
+             * @param[ out ] mFieldTypes global list of group of dv types
+             */
+            const moris::Cell< moris::Cell< mtk::Field_Type > > & get_global_field_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
