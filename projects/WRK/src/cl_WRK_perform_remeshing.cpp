@@ -8,6 +8,7 @@
 #include "HMR_Globals.hpp"
 
 #include "cl_MTK_Field.hpp"
+#include "cl_MTK_Field_Discrete.hpp"
 #include "cl_MTK_Mapper.hpp"
 
 #include "cl_WRK_perform_remeshing.hpp"
@@ -81,7 +82,7 @@ namespace moris
             uint tDiscretizationOrder = aSourceField->get_discretization_order();
 
             // extract pattern from mesh on which this field id based on
-            // both lagrange and discretization order if they are not the same
+            // both Lagrange and discretization order if they are not the same
             Matrix< DDLUMat > aElementCounterPerLevelAndPattern;
             moris::Cell< Matrix< DDLUMat > > aElementPerPattern;
 
@@ -126,9 +127,8 @@ namespace moris
             mtk::Field tFieldOld( &tMeshPairOld );
 
             // copy values from input mesh to New/Old mesh ( this mesh is build based on the new HMR performer )
-            tFieldOld.set_nodal_values( aSourceField->get_nodal_values() );
             tFieldOld.unlock_field();
-            tFieldOld.set_coefficients( aSourceField->get_coefficients() );
+            tFieldOld.set_nodal_values( aSourceField->get_nodal_values() );
 
             this->perform_refinement( tHMRPerformerNew, &tFieldOld );
 
@@ -206,7 +206,7 @@ namespace moris
                     tMeshPair.mIsOwned   = true;
 
                     // create field object for this mesh
-                    mtk::Field tFieldOnPattern( &tMeshPair );
+                    mtk::Field_Discrete tFieldOnPattern( &tMeshPair, tPattern );
                     tFieldOnPattern.set_label( "Field_for_refinement" );
 
                     // create mapper and map input field to new field
