@@ -225,7 +225,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tFIManager.mFI = tMasterFIs;

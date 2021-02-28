@@ -290,8 +290,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;
@@ -626,8 +627,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;
@@ -960,8 +962,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;
@@ -1296,8 +1299,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;
