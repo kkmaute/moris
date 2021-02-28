@@ -227,6 +227,14 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get fieldtype map
+             * @param[ in ] aIsMaster enum for master or slave
+             */
+            Matrix< DDSMat > & get_field_type_map(
+                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
              * get dv index for type
              * (return consecutive indices for master/slave,
              * i.e. index for slave starts at max index for master)

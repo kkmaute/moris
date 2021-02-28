@@ -223,6 +223,29 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Matrix< DDSMat > & Equation_Set::get_field_type_map(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    return mMasterFieldTypeMap;
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    return mSlaveFieldTypeMap;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Equation_Set::get_field_type_map - can only be MASTER or SLAVE");
+                    return mMasterFieldTypeMap;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         sint Equation_Set::get_dv_index_for_type(
                 enum PDV_Type     aDvType,
                 mtk::Master_Slave aIsMaster  )
