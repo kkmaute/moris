@@ -115,10 +115,11 @@ namespace moris
                  * @param[ in ] aIsMaster    enum for master or slave
                  */
                 Field_Interpolator_Manager
-                ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+                ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > >         & aDofTypes,
                         const moris::Cell< moris::Cell< enum PDV_Type > >        & aDvTypes,
-                        MSI::Equation_Set                                * aEquationSet,
-                        mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
+                        const moris::Cell< moris::Cell< enum mtk::Field_Type > > & aFieldTypes,
+                        MSI::Equation_Set                                        * aEquationSet,
+                        mtk::Master_Slave                                          aIsMaster = mtk::Master_Slave::MASTER );
 
                 /**
                  * constructor

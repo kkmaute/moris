@@ -28,14 +28,16 @@ namespace moris
         }
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
-                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >  & aDofTypes,
-                const moris::Cell< moris::Cell< enum PDV_Type > > & aDvTypes,
-                MSI::Equation_Set                                 * aEquationSet,
-                mtk::Master_Slave                                   aIsMaster )
+                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >   & aDofTypes,
+                const moris::Cell< moris::Cell< enum PDV_Type > >        & aDvTypes,
+                const moris::Cell< moris::Cell< enum mtk::Field_Type > > & aFieldTypes,
+                MSI::Equation_Set                                        * aEquationSet,
+                mtk::Master_Slave                                          aIsMaster )
         : mDofTypes( aDofTypes ),
           mEquationSet( aEquationSet ),
           mIsMaster( aIsMaster ),
-          mDvTypes( aDvTypes )
+          mDvTypes( aDvTypes ),
+          mFieldTypes( aFieldTypes )
         {
             // set the dof type map
             mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
@@ -47,6 +49,10 @@ namespace moris
             mMaxNumDvFI =  3;          //FIXME FIXME FIXME
 
             mDvTypeMap = mEquationSet->get_dv_type_map( aIsMaster );
+
+            mFieldTypeMap = mEquationSet->get_field_type_map( aIsMaster );
+
+            mMaxNumFieldFI =  mEquationSet->get_num_unique_field_types();
         }
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
