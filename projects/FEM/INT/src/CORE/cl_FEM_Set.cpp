@@ -1026,6 +1026,7 @@ namespace moris
             mMasterFIManager = new Field_Interpolator_Manager(
                     mMasterDofTypes,
                     mMasterDvTypes,
+                    mMasterFieldTypes,
                     this );
 
             // create the geometry interpolators on the master FI manager
@@ -1038,6 +1039,7 @@ namespace moris
             mSlaveFIManager = new Field_Interpolator_Manager(
                     mSlaveDofTypes,
                     mSlaveDvTypes,
+                    mSlaveFieldTypes,
                     this,
                     mtk::Master_Slave::SLAVE );
 
@@ -1054,6 +1056,7 @@ namespace moris
                 mMasterPreviousFIManager = new Field_Interpolator_Manager(
                         mMasterDofTypes,
                         mMasterDvTypes,
+                        mMasterFieldTypes,
                         this );
 
                 // create the geometry interpolators on the master FI manager
