@@ -6,6 +6,7 @@
 
 //LINALG/src
 #include "cl_Map.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
 #include "fn_iscol.hpp"
@@ -558,7 +559,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::reset_integration_xyz_pdv_assembly_indices(
-                        const Matrix< IndexMat > & aNodeIndices )
+                const Matrix< IndexMat > & aNodeIndices )
         {
             // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -607,9 +608,9 @@ namespace moris
         }
 
         void FEM_Model::set_integration_xyz_pdv_assembly_index(
-                                moris_index aNodeIndex,
-                                enum PDV_Type aPdvType,
-                                moris_index aXYZPdvAssemblyIndex )
+                moris_index aNodeIndex,
+                enum PDV_Type aPdvType,
+                moris_index aXYZPdvAssemblyIndex )
         {
             mIGNodes( aNodeIndex )->set_local_xyz_pdv_assembly_index( aXYZPdvAssemblyIndex, aPdvType );
         }
@@ -892,13 +893,13 @@ namespace moris
             moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 
             // get the number of properties
-            uint tNumFields = tFieldParameterList.size();
+            sint tNumFields = tFieldParameterList.size();
 
             // create a list of property pointers
             mFields.resize( tNumFields, nullptr );
 
             // loop over the parameter lists
-            for ( uint iFields = 0; iFields < tNumFields; iFields++ )
+            for ( sint iFields = 0; iFields < tNumFields; iFields++ )
             {
                 // get property parameter list
                 ParameterList tFieldParameter = tFieldParameterList( iFields );
@@ -918,14 +919,19 @@ namespace moris
                 aFieldMap[ tFieldName ] = iFields;
 
                 // set field type
-                tField->set_field_type( tFieldParameter.get< uint >( "field_type" ) );
+                size_t tFieldType = tFieldParameter.get< uint >( "field_type" );
+                tField->set_field_type( tFieldType );
 
-               if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
-               {
-                   tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
-               }
+                mFieldTypeMap.resize( std::max( tFieldType+1, mFieldTypeMap.size() ), -1 );
 
-               mFields( iFields ) = tField;
+                mFieldTypeMap( tFieldType ) = iFields;
+
+                if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
+                {
+                    tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+                }
+
+                mFields( iFields ) = tField;
             }
         }
 
@@ -2970,36 +2976,44 @@ namespace moris
                 }
             }
         }
+
         //-------------------------------------------------------------------------------------------------
 
-//        void FEM_Model::populate_fields()
-//        {
-//            mFields.resize( mIQIs.size(), nullptr );
-//
-//            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
-//
-//            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-//            {
-//                mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
-//
-//                mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
-//            }
-//
-//            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
-//            {
-//                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
-//                {
-//                    mFemSets( Ik )->create_fields( mFields );
-//                }
-//            }
-//
-//            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-//            {
-//                    mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
-//
-//                    //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
-//            }
-//        }
+        const std::shared_ptr< fem::Field > & FEM_Model::get_field( mtk::Field_Type tFieldType )
+        {
+            size_t tIndex = mFieldTypeMap( static_cast< sint >( tFieldType ) );
+            return mFields( tIndex );
+        }
+        //-------------------------------------------------------------------------------------------------
+
+        //        void FEM_Model::populate_fields()
+        //        {
+        //            mFields.resize( mIQIs.size(), nullptr );
+        //
+        //            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
+        //
+        //            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
+        //            {
+        //                mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
+        //
+        //                mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
+        //            }
+        //
+        //            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
+        //            {
+        //                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
+        //                {
+        //                    mFemSets( Ik )->create_fields( mFields );
+        //                }
+        //            }
+        //
+        //            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
+        //            {
+        //                    mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
+        //
+        //                    //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
+        //            }
+        //        }
 
         //-------------------------------------------------------------------------------------------------
 

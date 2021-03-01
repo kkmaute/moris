@@ -50,6 +50,7 @@ namespace moris
         class Stabilization_Parameter;
         class IWG;
         class IQI;
+        class Field;
     }
 
     namespace MSI
@@ -96,11 +97,13 @@ namespace moris
 
                 // fixme remove ?
                 moris::Cell< std::shared_ptr< fem::Property > >                mProperties;
-                moris::Cell< std::shared_ptr< mtk::Field > >                   mFields;
+                moris::Cell< std::shared_ptr< fem::Field > >                   mFields;
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      mCMs;
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
                 moris::Cell< std::shared_ptr< fem::IWG > >                     mIWGs;
                 moris::Cell< std::shared_ptr< fem::IQI > >                     mIQIs;
+
+                moris::Cell< moris::sint > mFieldTypeMap;
 
                 //! requested IQI Names
                 moris::Cell< std::string > mRequestedIQINames;
@@ -589,6 +592,12 @@ namespace moris
                  * create fem set info
                  */
                 void create_fem_set_info();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return field
+                 */
+                const std::shared_ptr< fem::Field > & get_field( mtk::Field_Type tFieldType );
 
                 //------------------------------------------------------------------------------
 
