@@ -125,6 +125,40 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Field::get_nodal_value(
+                Matrix< IndexMat > const & aNodeIndex,
+                Matrix< DDRMat >            & aNodalValues,
+                Matrix< IndexMat > const & aFieldIndex )
+        {
+            // check whether nodal values are updated; if not compute them first
+            if ( this->nodal_values_need_update() )
+            {
+                this->compute_nodal_values();
+
+                // set update flag to false
+                mUpdateNodalValues=false;
+            }
+
+            uint tNumFields = aFieldIndex.numel();
+            uint tNumIndices = aNodeIndex.numel();
+
+            // set size for requested values
+            aNodalValues.resize( tNumIndices, tNumFields );
+
+            // assemble requested values into matrix
+            for( uint Ik = 0; Ik< tNumFields; Ik++ )
+            {
+                uint tFieldIndex = aFieldIndex( Ik );
+
+                for( uint Ii = 0; Ii< tNumIndices; Ii++ )
+                {
+                    aNodalValues( Ii, Ik ) = mNodalValues( aNodeIndex( Ii ), tFieldIndex );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void Field::set_nodal_values( const Matrix< DDRMat > & aNodalValues )
           {
               //check whether field is unlocked

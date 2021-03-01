@@ -261,6 +261,25 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 /**
+                 * @brief returns value of nodes; if nodal value is not updated all nodal values
+                 *        will be computed first
+                 *
+                 *        Note: function will be removed soon as not consistent with child implementation
+                 *
+                 * @param[in]  aNodeIndices - node indices
+                 * @param[in]  aNodalValues - nodal values
+                 * @param[in]  aFieldIndices - field indces
+                 *
+                 * @return nodal value
+                 */
+                void get_nodal_value(
+                        Matrix< IndexMat > const & aNodeIndex,
+                        Matrix< DDRMat >            & aNodalValues,
+                        Matrix< IndexMat > const & aFieldIndex = 0);
+
+                //------------------------------------------------------------------------------
+
+                /**
                  *  @brief return derivatives of  nodal values for all
                  *         coefficients this value depends on
                  *
