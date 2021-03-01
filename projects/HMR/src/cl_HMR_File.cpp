@@ -469,9 +469,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void File::save_refinement_pattern(
-                Lagrange_Mesh_Base * aLagrangeMesh,
-                const uint aDiscretizationMeshIndex,
-                Matrix< DDLUMat > & aElementCounterPerLevelAndPattern,
+                Lagrange_Mesh_Base               * aLagrangeMesh,
+                const uint                         aDiscretizationMeshIndex,
+                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
                 moris::Cell< Matrix< DDLUMat > > & aElementPerPattern )
         {
             Background_Mesh_Base * aBackgroundMesh = aLagrangeMesh->get_background_mesh();

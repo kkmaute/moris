@@ -41,7 +41,7 @@ namespace moris
 
                 Remeshing_Mini_Performer(
                         ParameterList                 & aParameterlist,
-                        std::shared_ptr< Library_IO >   aLibrary );
+                        std::shared_ptr< Library_IO >   aLibrary = nullptr );
 
                 //------------------------------------------------------------------------------
 

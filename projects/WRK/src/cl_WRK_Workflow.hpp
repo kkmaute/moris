@@ -33,6 +33,7 @@ namespace moris
     namespace mtk
     {
         class Mesh_Manager;
+        class Field;
     }
     namespace ge
     {
@@ -57,6 +58,9 @@ namespace moris
             protected:
 
                 wrk::Performer_Manager * mPerformerManager;
+
+                Cell< mtk::Field * >                   Fields;
+                moris::map< std::string, moris_index > tFieldNameTiIndexMap;
 
             public:
 

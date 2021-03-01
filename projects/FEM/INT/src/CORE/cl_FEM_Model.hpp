@@ -36,6 +36,7 @@ namespace moris
         class Interpolation_Mesh;
         class Integration_Mesh;
         class Field;
+        enum class Field_Type;
     }
 
     namespace fem
@@ -49,6 +50,7 @@ namespace moris
         class Stabilization_Parameter;
         class IWG;
         class IQI;
+        class Field;
     }
 
     namespace MSI
@@ -95,11 +97,13 @@ namespace moris
 
                 // fixme remove ?
                 moris::Cell< std::shared_ptr< fem::Property > >                mProperties;
-                moris::Cell< std::shared_ptr< mtk::Field > >                   mFields;
+                moris::Cell< std::shared_ptr< fem::Field > >                   mFields;
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      mCMs;
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
                 moris::Cell< std::shared_ptr< fem::IWG > >                     mIWGs;
                 moris::Cell< std::shared_ptr< fem::IQI > >                     mIQIs;
+
+                moris::Cell< moris::sint > mFieldTypeMap;
 
                 //! requested IQI Names
                 moris::Cell< std::string > mRequestedIQINames;
@@ -110,7 +114,7 @@ namespace moris
                 //! Gauss point information. Only used for output
                 uint mBulkGaussPoints               = 0;
                 uint mSideSetsGaussPoints           = 0;
-                uint mDoubleSidedSitsetsGaussPoints = 0;
+                uint mDoubleSidedSideSetsGaussPoints = 0;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -196,7 +200,7 @@ namespace moris
                 {
                     mBulkGaussPoints               = 0;
                     mSideSetsGaussPoints           = 0;
-                    mDoubleSidedSitsetsGaussPoints = 0;
+                    mDoubleSidedSideSetsGaussPoints = 0;
                 };
 
                 //------------------------------------------------------------------------------
@@ -208,7 +212,7 @@ namespace moris
                 {
                     MORIS_LOG_SPEC( "Number of Bulk Gauss Points", sum_all(mBulkGaussPoints) );
                     MORIS_LOG_SPEC( "Number of SideSet Gauss Points", sum_all(mSideSetsGaussPoints) );
-                    MORIS_LOG_SPEC( "Number of DoubleSidedSiteset Gauss Points", sum_all(mDoubleSidedSitsetsGaussPoints) );
+                    MORIS_LOG_SPEC( "Number of DoubleSidedSideset Gauss Points", sum_all(mDoubleSidedSideSetsGaussPoints) );
                 };
 
                 //------------------------------------------------------------------------------
@@ -453,9 +457,9 @@ namespace moris
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  */
                 void create_IWGs(
-                        std::map< std::string, uint >            & aPropertyMap,
-                        std::map< std::string, uint >            & aSPMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
+                        std::map< std::string, uint >              & aPropertyMap,
+                        std::map< std::string, uint >              & aSPMap,
+                        moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -547,16 +551,20 @@ namespace moris
                  *                             index in aProperties
                  * @param[ in ] aCMMap         a map from CM name to CM index in aCMs
                  * @param[ in ] aSPMap         a map from SP name to SP index in aSPs
+                 * @param[ in ] aFieldMap      a map from SP name to index in aFields
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
                  */
                 void create_IWGs(
                         std::map< std::string, uint >            & aIWGMap,
                         std::map< std::string, uint >            & aPropertyMap,
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aSPMap,
+                        std::map< std::string, uint >            & aFieldMap,
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap,
+                        moris::map< std::string, mtk::Field_Type > & aFieldTypeMap );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -564,22 +572,32 @@ namespace moris
                  * @param[ in ] aPropertyMap   a map from property name to index in mProperties
                  * @param[ in ] aCMMap         a map from CM name to index in aCMs
                  * @param[ in ] aSPMap         a map from SP name to index in aSPs
+                 * @param[ in ] aFieldMap      a map from SP name to index in aFields
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
                  */
                 void create_IQIs(
                         std::map< std::string, uint >            & aIQIMap,
                         std::map< std::string, uint >            & aPropertyMap,
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aSPMap,
+                        std::map< std::string, uint >            & aFieldMap,
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap,
+                        moris::map< std::string, mtk::Field_Type > & aFieldTypeMap);
 
                 //------------------------------------------------------------------------------
                 /**
                  * create fem set info
                  */
                 void create_fem_set_info();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return field
+                 */
+                const std::shared_ptr< fem::Field > & get_field( mtk::Field_Type tFieldType );
 
                 //------------------------------------------------------------------------------
 

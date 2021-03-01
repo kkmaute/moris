@@ -25,10 +25,10 @@ namespace moris
                 Cell< std::string > mFieldNames;
 
                 //! Refinement level
-                Cell< Matrix< DDUMat > >    mRefinementLevel;
+                Cell< Matrix< DDSMat > >    mRefinementLevel;
 
                 //! Refinement Pattern
-                Cell< Matrix< DDUMat > >    mRefinementPattern;
+                Cell< Matrix< DDSMat > >    mRefinementPattern;
         };
 
         class Refinement_Mini_Performer
@@ -56,8 +56,24 @@ namespace moris
                 //--------------------------------------------------------------------------------------------------------------
 
                 void perform_refinement(
-                        Cell< mtk::Field* >       & aFields,
-                        std::shared_ptr<hmr::HMR>   aHMR );
+                        Cell< mtk::Field* >                    & aFields,
+                        std::shared_ptr<hmr::HMR>                aHMR );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                /**
+                 * This function reorganizes the input data. The input data is structured such that it allows for an intuitive use by the user.
+                 * However, the structure provided by this function allows for more straight forward use in the refinement functin
+                 *
+                 * @param aPatternForRefinement Pattern which will be refined
+                 * @param tFieldsForRefinement  Fields which are used to refined each pattern
+                 * @param tRefinemets           Refinements for each field per pattern
+                 */
+                void prepare_input_for_refinement(
+                        Cell< moris_index >                      & aPatternForRefinement,
+                        moris::Cell<moris::Cell< std::string > > & aFieldsForRefinement,
+                        moris::Cell< moris::Cell< uint > >       & aRefinements,
+                        moris::Cell< sint >                      & aMaxRefinementPerPattern );
 
                 //--------------------------------------------------------------------------------------------------------------
                 // FIXME stuff below this line will be deleted soon

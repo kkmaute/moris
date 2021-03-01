@@ -72,6 +72,9 @@ namespace moris
                 // dv type
                 moris::Cell< PDV_Type > mDvType;
 
+                // field type
+                moris::Cell< mtk::Field_Type > mFieldType;
+
                 // flag for evaluation
                 bool mNBuildEval      = true;
                 bool mNEval           = true;
@@ -134,7 +137,7 @@ namespace moris
                  */
                 Field_Interpolator(
                         const uint                         & aNumberOfFields,
-                        const mtk::Interpolation_Rule           & aFieldInterpolationRule,
+                        const mtk::Interpolation_Rule      & aFieldInterpolationRule,
                         Geometry_Interpolator              * aGeometryInterpolator,
                         const moris::Cell< MSI::Dof_Type >   aDofType );
 
@@ -147,9 +150,22 @@ namespace moris
                  */
                 Field_Interpolator(
                         const uint                         & aNumberOfFields,
-                        const mtk::Interpolation_Rule           & aFieldInterpolationRule,
+                        const mtk::Interpolation_Rule      & aFieldInterpolationRule,
                         Geometry_Interpolator              * aGeometryInterpolator,
                         const moris::Cell< PDV_Type >        aDvType );
+
+                /**
+                 * constructor
+                 * @param[ in ] aNumberOfFields           number of interpolated fields
+                 * @param[ in ] aFieldInterpolationRule   field interpolation rule
+                 * @param[ in ] aGeometryInterpolator     pointer to geometry interpolator object
+                 * @param[ in ] aFieldType                field type for the interpolated fields
+                 */
+                Field_Interpolator(
+                        const uint                           & aNumberOfFields,
+                        const mtk::Interpolation_Rule        & aFieldInterpolationRule,
+                        Geometry_Interpolator                * aGeometryInterpolator,
+                        const moris::Cell< mtk::Field_Type >   aDvType );
 
                 /**
                  * trivial constructor for unit test

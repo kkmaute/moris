@@ -291,6 +291,14 @@ namespace moris
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
                 //------------------------------------------------------------------------------
+                /*
+                 * Compute the ip element size (length) master or slave
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                moris::real compute_ip_cell_length_measure(
+                        		const mtk::Master_Slave aIsMaster ) const;
+
+                //------------------------------------------------------------------------------
             protected:
 
                 //------------------------------------------------------------------------------

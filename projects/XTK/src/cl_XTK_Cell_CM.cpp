@@ -149,6 +149,14 @@ namespace xtk
     {
         return mChildMeshPtr->get_cell_info()->compute_cell_size(this);
     }
+
+    // ----------------------------------------------------------------------------------
+    moris::real
+    Cell_XTK_CM::compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const
+    {
+        return mChildMeshPtr->get_cell_info()->compute_cell_size_deriv(this, aLocalVertexID, aDirection);
+    }
+
     // ----------------------------------------------------------------------------------
     moris::real
     Cell_XTK_CM::compute_cell_side_measure(moris_index const &aSideOrdinal) const

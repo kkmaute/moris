@@ -123,6 +123,8 @@ namespace moris
             // map for the dof type
             Matrix< DDSMat > mUniqueDofTypeMap;
             Matrix< DDSMat > mUniqueDvTypeMap;
+            Matrix< DDSMat > mUniqueFieldTypeMap;
+
 
             // map visualization cell id to position in vector
             moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
@@ -211,6 +213,13 @@ namespace moris
              * @param[ in ] aIsResidual bool true if computation of a residual
              */
             void initialize_set( const bool aIsResidual );
+
+            //------------------------------------------------------------------------------
+
+            fem::FEM_Model * get_fem_model()
+            {
+                return  mFemModel;
+            };
 
             //------------------------------------------------------------------------------
             /**
@@ -782,6 +791,16 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /*
+             * get index from unique field type map
+             *@param[ in ] aDofType a dof type enum
+             */
+            moris::sint get_index_from_unique_field_type_map( enum mtk::Field_Type aFieldType )
+            {
+                return mUniqueFieldTypeMap( static_cast< int >( aFieldType ), 0 );
+            }
+
+            //------------------------------------------------------------------------------
+            /*
              * create requested dv assembly map
              */
             void create_requested_dv_assembly_map();
@@ -790,7 +809,7 @@ namespace moris
             /*
              * create dof and dv type map unique
              */
-            void create_unique_dof_and_dv_type_maps();
+            void create_unique_dof_dv_and_field_type_maps();
 
             //------------------------------------------------------------------------------
             /**

@@ -18,7 +18,9 @@ namespace moris
         public:
 
             /**
-             * Trivial constructor, necessary for clean virtual inheritance without default constructor in base class
+             * Constructor
+             *
+             * @param aNumOriginalNodes Number of original nodes on the base integration mesh
              */
             Field_Discrete_Integration(uint aNumOriginalNodes);
 
@@ -34,7 +36,7 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node coordinate, returns the field value
+             * Given a node index, returns the field value
              *
              * @param aNodeIndex Node index
              * @return Field value
@@ -90,7 +92,7 @@ namespace moris
             /**
              * Resets all child nodes, called when a new XTK mesh is being created.
              */
-            void reset_nodal_information();
+            void reset_nodal_data();
 
         };
     }

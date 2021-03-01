@@ -28,14 +28,16 @@ namespace moris
         }
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
-                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >  & aDofTypes,
-                const moris::Cell< moris::Cell< enum PDV_Type > > & aDvTypes,
-                MSI::Equation_Set                                 * aEquationSet,
-                mtk::Master_Slave                                   aIsMaster )
+                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >   & aDofTypes,
+                const moris::Cell< moris::Cell< enum PDV_Type > >        & aDvTypes,
+                const moris::Cell< moris::Cell< enum mtk::Field_Type > > & aFieldTypes,
+                MSI::Equation_Set                                        * aEquationSet,
+                mtk::Master_Slave                                          aIsMaster )
         : mDofTypes( aDofTypes ),
           mEquationSet( aEquationSet ),
           mIsMaster( aIsMaster ),
-          mDvTypes( aDvTypes )
+          mDvTypes( aDvTypes ),
+          mFieldTypes( aFieldTypes )
         {
             // set the dof type map
             mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
@@ -47,6 +49,10 @@ namespace moris
             mMaxNumDvFI =  3;          //FIXME FIXME FIXME
 
             mDvTypeMap = mEquationSet->get_dv_type_map( aIsMaster );
+
+            mFieldTypeMap = mEquationSet->get_field_type_map( aIsMaster );
+
+            mMaxNumFieldFI =  mEquationSet->get_num_unique_field_types();
         }
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
@@ -93,6 +99,13 @@ namespace moris
                 delete tFI;
             }
             mDvFI.clear();
+
+            // delete the field field interpolator pointers
+            for( Field_Interpolator* tFI : mFieldFI )
+            {
+                delete tFI;
+            }
+            mFieldFI.clear();
 
             // delete the IP geometry interpolator pointer
             if( mIPGeometryInterpolator != nullptr && mGeometryInterpolatorOwned )
@@ -179,6 +192,42 @@ namespace moris
                         tFieldInterpolationRule,
                         mIPGeometryInterpolator,
                         mDvTypes( iDv ) );
+            }
+
+            // field field interpolators------------------------------------------
+
+            // set the size of the cell of field interpolators
+            mFieldFI.resize( mMaxNumFieldFI, nullptr );
+
+            // loop over the field type groups
+            for( uint iFi = 0; iFi < mFieldTypes.size(); iFi++ )
+            {
+                // get the number of time level for the dv type group
+                // FIXME where do we get this info
+                uint tNumTimeNodes = 1;
+
+                // get the set index for the dv type group
+                uint tFieldIndex = mEquationSet->get_field_index_for_type_1( mFieldTypes( iFi )( 0 ), mIsMaster );
+
+                // create the field interpolation rule for the dv type group
+                mtk::Interpolation_Rule tFieldInterpolationRule(
+                        reinterpret_cast< Set* >( mEquationSet )->mIPGeometryType,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        reinterpret_cast< Set* >( mEquationSet )->mIPSpaceInterpolationOrder,
+                        reinterpret_cast< Set* >( mEquationSet )->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
+                        // If interpolation type CONSTANT, iInterpolation order is not used
+                        reinterpret_cast< Set* >( mEquationSet )->get_auto_interpolation_order( tNumTimeNodes, mtk::Geometry_Type::LINE ) ); //fixme
+
+                // check if the field interpolator was created previously
+                MORIS_ASSERT( mFieldFI( tFieldIndex ) == nullptr,
+                        "Field_Interpolator_Manager::create_field_interpolators - Field interpolator was created previously." );
+
+                // create a field interpolator for the dof type group
+                mFieldFI( tFieldIndex ) = new Field_Interpolator(
+                        mFieldTypes( iFi ).size(),
+                        tFieldInterpolationRule,
+                        mIPGeometryInterpolator,
+                        mFieldTypes( iFi ) );
             }
         }
 
@@ -295,6 +344,30 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Field_Interpolator * Field_Interpolator_Manager::get_field_interpolators_for_type(
+                enum mtk::Field_Type aFieldType )
+        {
+            // get the set index for the requested dv type
+            sint tFieldIndex =  mEquationSet->get_field_index_for_type_1( aFieldType, mIsMaster );
+
+            // if the index was set for the equation set
+            if( tFieldIndex != -1 )
+            {
+                // check if the FI exists for the FI manager
+                MORIS_ASSERT( (sint)mFieldFI.size() > tFieldIndex,
+                        "Field_Interpolator_Manager::get_field_interpolators_for_type - field interpolator does not exist" );
+
+                // return the FI
+                return mFieldFI( tFieldIndex );
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void Field_Interpolator_Manager::set_space_time(
                 const Matrix< DDRMat > & aParamPoint )
         {
@@ -316,6 +389,16 @@ namespace moris
 
                 // set the evaluation point
                 mDvFI( tDvIndex )->set_space_time( aParamPoint );
+            }
+
+            // loop over the field field interpolators
+            for ( uint iFieldFI = 0; iFieldFI < mFieldTypes.size(); iFieldFI++ )
+            {
+                // get the set index for the field type
+                sint tFieldIndex = mFieldTypeMap( static_cast< uint >( mFieldTypes( iFieldFI )( 0 ) ) );
+
+                // set the evaluation point
+                mFieldFI( tFieldIndex )->set_space_time( aParamPoint );
             }
 
             // IP geometry interpolator
@@ -356,6 +439,16 @@ namespace moris
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aDvType )->set_coeff( aCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator_Manager::set_coeff_for_type(
+                enum mtk::Field_Type   aFieldType,
+                Matrix< DDRMat >     & aCoeff )
+        {
+            // get field interpolator for dof type and set coefficients
+            this->get_field_interpolators_for_type( aFieldType )->set_coeff( aCoeff );
         }
 
         //------------------------------------------------------------------------------

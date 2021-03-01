@@ -245,7 +245,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
 
         auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
+        uint tNumCoeffs = tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
@@ -255,7 +255,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 
@@ -358,7 +358,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
         auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
 
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
+        uint tNumCoeffs = tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
@@ -368,7 +368,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 
@@ -472,7 +472,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         Interpolation_Mesh_HMR * tMesh =  tHMR.create_interpolation_mesh( 3,
                 0 );
 
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
+        uint tNumCoeffs = tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
@@ -482,7 +482,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 
@@ -1085,8 +1085,8 @@ TEST_CASE("Lagrange_Mesh_initial_refinement","[moris],[hmr],[Lagrange_Mesh_Initi
 
         tHMR.save_to_exodus( 0, "tMesh01.g" );
 
-        REQUIRE( tMesh01->get_num_coeffs( 0 )  == 225 );
-        REQUIRE( tMesh01->get_num_coeffs( 1 )  == 45 );
+        REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 0 )  == 225 );
+        REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 1 )  == 45 );
     }
 }
 
@@ -1145,7 +1145,7 @@ TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_re
         //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
 
         auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
+        uint tNumCoeffs = tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
@@ -1155,7 +1155,7 @@ TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_re
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_max_num_coeffs_on_proc( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 
@@ -1272,7 +1272,7 @@ TEST_CASE("Lagrange_Mesh_4_proc_problem","[moris],[hmr],[Lagrange_Mesh_4_proc_pr
         if( par_rank() == 0 )
         {
             REQUIRE( tMesh01->get_num_nodes()  == 137 );
-            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 66 );
+            REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 0 )  == 66 );
             REQUIRE( tMesh01->get_mtk_vertex( 48 ).get_id()  == 43 );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
@@ -1288,7 +1288,7 @@ TEST_CASE("Lagrange_Mesh_4_proc_problem","[moris],[hmr],[Lagrange_Mesh_4_proc_pr
         if( par_rank() == 2 )
         {
             REQUIRE( tMesh01->get_num_nodes()  == 119 );
-            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 64 );
+            REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 0 )  == 64 );
             REQUIRE( tMesh01->get_mtk_vertex( 43 ).get_id()  == 43 );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
@@ -1379,7 +1379,7 @@ TEST_CASE("Lagrange_Mesh_4_proc_meshes","[moris],[hmr],[Lagrange_Mesh_4_proc_mes
         {
             REQUIRE( tMesh01->get_num_nodes()  == 137 );
             REQUIRE( tMesh02->get_num_nodes()  == 83 );
-            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 66 );
+            REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 0 )  == 66 );
             REQUIRE( tMesh01->get_mtk_vertex( 48 ).get_id()  == 43 );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 48 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );
@@ -1398,7 +1398,7 @@ TEST_CASE("Lagrange_Mesh_4_proc_meshes","[moris],[hmr],[Lagrange_Mesh_4_proc_mes
         {
             REQUIRE( tMesh01->get_num_nodes()  == 119 );
             REQUIRE( tMesh02->get_num_nodes()  == 64 );
-            REQUIRE( tMesh01->get_num_coeffs( 0 )  == 64 );
+            REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 0 )  == 64 );
             REQUIRE( tMesh01->get_mtk_vertex( 43 ).get_id()  == 43 );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 0 ), 6.666666666666667e-01, 1.0e+08 ) );
             CHECK( equal_to( tMesh01->get_mtk_vertex( 43 ).get_coords()( 1 ), 1.0, 1.0e+08 ) );

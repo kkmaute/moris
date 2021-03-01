@@ -23,7 +23,9 @@
 
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Factory.hpp"
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -38,6 +40,7 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Field.hpp"          //HMR/src
+#include "cl_MTK_Field_Discrete.hpp"          //HMR/src
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -158,6 +161,7 @@ namespace moris
 
             MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
 
+            // get mesh with numbered aura (aura number is requested)
             uint tLagrangeMeshIndex = OutputMeshIndex( 0 )( 0 );
 
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
@@ -166,7 +170,7 @@ namespace moris
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
-            // register HMR interpolation and integration meshes
+            // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
 
             if( OutputMeshIndex.size() == 2 )
@@ -1333,6 +1337,69 @@ namespace moris
                 }
             }
         }
+
+        // ----------------------------------------------------------------------------
+
+        void HMR::get_candidates_for_refinement(
+                Cell< hmr::Element* > & aCandidates,
+                Lagrange_Mesh_Base    * aMesh )
+        {
+            // reset candidate list
+            aCandidates.clear();
+
+            uint tPattern = aMesh->get_activation_pattern();
+
+            // make sure that input pattern is active
+            mDatabase->set_activation_pattern( tPattern );
+
+            // get pointer to background mesh
+            Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
+
+            uint tMaxLevel = tBackgroundMesh->get_max_level();
+
+            // counter for elements
+            uint tCount = 0;
+
+            // loop over all levels and determine size of Cell
+            for( uint l = 0; l <= tMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base * > tBackgroundElements;
+
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for( Background_Element_Base * tElement : tBackgroundElements )
+                {
+                    // if element  is active or refined but not padding
+                    if( ( tElement->is_active( tPattern ) || tElement->is_refined( tPattern ) ) && ! tElement->is_padding() )
+                    {
+                        // increment counter
+                        ++tCount;
+                    }
+                }
+            }
+
+            // allocate memory for output
+            aCandidates.resize( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+            // loop over all levels
+            for( uint l=0; l<=tMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base * > tBackgroundElements;
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for(  Background_Element_Base * tElement : tBackgroundElements )
+                {
+                    if( ( tElement->is_active( tPattern ) ||  tElement->is_refined( tPattern ) ) && ! tElement->is_padding() )
+                    {
+                        aCandidates( tCount++ ) = aMesh->get_element_by_memory_index( tElement->get_memory_index() );
+                    }
+                }
+            }
+        }
         // -----------------------------------------------------------------------------
 
         uint HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField )
@@ -1460,6 +1527,68 @@ namespace moris
             // flag elements in HMR
             this->put_elements_on_refinment_queue( tRefinementList );
 
+            // return number of flagged elements
+            return aElementCounter;
+        }
+
+        // -----------------------------------------------------------------------------
+
+        uint HMR::based_on_field_put_elements_on_queue(
+                const Matrix< DDRMat > & aFieldValues,
+                uint                     aPattern,
+                uint                     aOrder,
+                sint                     aFunctionIndex)
+        {
+            uint aElementCounter = 0;
+
+            // candidates for refinement
+            Cell< hmr::Element* > tCandidates;
+
+            // elements to be flagged for refinement
+            Cell< hmr::Element* > tRefinementList;
+
+            Cell< BSpline_Mesh_Base * > tBSplineDummy( 1, nullptr );
+
+            moris::hmr::Factory tFactory;
+
+            Lagrange_Mesh_Base * tMesh = tFactory.create_lagrange_mesh(
+                    mParameters,
+                    mDatabase->get_background_mesh(),
+                    tBSplineDummy,
+                    aPattern,
+                    aOrder );
+
+            // get candidates for surface
+            this->get_candidates_for_refinement(
+                    tCandidates,
+                    tMesh );
+
+            // call refinement manager and get intersected cells
+            if (aFunctionIndex < 0)
+            {
+                this->find_cells_intersected_by_levelset(
+                        tRefinementList,
+                        tCandidates,
+                        aFieldValues );
+            }
+            else
+            {
+                this->user_defined_flagging(
+                        tRefinementList,
+                        tCandidates,
+                        aFieldValues,
+                        uint(aFunctionIndex));
+            }
+
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
+            std::cout<<"Elements on refinement List: "<<aElementCounter<<std::endl;
+
+            // flag elements in HMR
+            this->put_elements_on_refinment_queue( tRefinementList );
+
+            delete tMesh;
             // return number of flagged elements
             return aElementCounter;
         }
@@ -1722,12 +1851,14 @@ namespace moris
                     mParameters->get_union_pattern() );
 
             // create union mesh
-            Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( tOrder,
+            Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh(
+                    tOrder,
                     mParameters->get_union_pattern(),
                     tTargetPattern );   // order, Lagrange pattern, bspline pattern
 
             // create union field
-            std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),
+            std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field(
+                    aField->get_label(),
                     aBsplineMeshIndex );        //index to 0 so that we only need one mesh
 
             // map source Lagrange field to target Lagrange field
@@ -1748,7 +1879,8 @@ namespace moris
                         aField->get_lagrange_pattern() );
 
                 // first, project field on mesh with correct order
-                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
+                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field(
+                        aField->get_label(),
                         0 );
 
                 mDatabase->change_field_order( aField, tTemporaryField );
@@ -1767,10 +1899,20 @@ namespace moris
             // Add union mesh to mesh manager
             mtk::Mesh_Pair tMeshPairUnion;
             tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
-            tMeshPairUnion.mIntegrationMesh = tIntegrationUnionMesh;
+            tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
 
-            mtk::Field tFieldUnion( &tMeshPairUnion );
+            if ( par_rank() == 0 )
+            {
+                std::cout << "Number of nodes of tUnionInterpolationMesh " << tUnionInterpolationMesh->get_num_nodes() << std::endl;
+                std::cout << "Number of nodes of tIntegrationUnionMesh " << tIntegrationUnionMesh->get_num_nodes() << std::endl;
+                std::cout << "Number of nodes of tUnionField " << tUnionField->get_node_values().n_rows() << std::endl;
 
+                std::string tString="tUnionField->get_node_values(): " + std::to_string(par_rank());
+                print(tUnionField->get_node_values(),tString.c_str());
+            }
+
+            mtk::Field_Discrete tFieldUnion( &tMeshPairUnion, 0 );
+            tFieldUnion.unlock_field();
             tFieldUnion.set_nodal_values( tUnionField->get_node_values() );
 
             // create mapper

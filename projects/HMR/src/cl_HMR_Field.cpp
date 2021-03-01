@@ -81,7 +81,7 @@ namespace moris
             mInputBSplineIndex = 0;
             for( uint k=1; k<=3; ++k )
             {
-                if( aMesh->get_num_coeffs( k ) == tNumberOfBSplines )
+                if( aMesh->get_max_num_coeffs_on_proc( k ) == tNumberOfBSplines )
                 {
                     mInputBSplineIndex = k;
                     break;

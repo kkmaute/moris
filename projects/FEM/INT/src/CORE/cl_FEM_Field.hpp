@@ -32,7 +32,9 @@ namespace moris
 
         class Field : public mtk::Field
         {
-            protected:
+            private:
+
+                enum mtk::Field_Type mFieldType = mtk::Field_Type::UNDEFINED;
 
 
                 //------------------------------------------------------------------------------
@@ -55,6 +57,35 @@ namespace moris
                 void set_field_from_file( const std::string & aString );
 
                 //-----------------------------------------------------------------------------
+
+                void get_nodal_values(
+                        Matrix< IndexMat > const   & aNodeIndex,
+                        Matrix< DDRMat >              & aNodalValues,
+                        Cell< mtk::Field_Type > const & aFieldTypes);
+
+                //-----------------------------------------------------------------------------
+
+                /**
+                 * @brief child class implementation: computes and stores nodal values
+                 */
+                virtual void compute_nodal_values()
+                {
+                    MORIS_ERROR(false,"fem::Field::compute_nodal_values - not implemented.\n");
+                }
+
+                // ----------------------------------------------------------------------------------------------
+
+                /**
+                 * @brief child class implementation: computes derivatives of nodal values
+                 */
+                virtual void compute_derivatives_of_field_value(
+                        Matrix< DDRMat >       & aDerivatives,
+                        Matrix< DDUMat >       & aCoefIndices,
+                        uint             const & aNodeIndex,
+                        uint             const & aFieldIndex)
+                {
+                    MORIS_ERROR(false,"fem::Field::compute_derivatives_of_field_value - not implemented.\n");
+                }
 
                 //-----------------------------------------------------------------------------
 

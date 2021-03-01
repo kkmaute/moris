@@ -22,7 +22,6 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
-
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR.hpp"
@@ -43,7 +42,9 @@
 
 #define protected public
 #define private   public
-#include "cl_MTK_Field_Proxy.hpp"
+#include "cl_MTK_Field.hpp"
+#include "cl_MTK_Field_Analytic.hpp"
+#include "cl_MTK_Field_Discrete.hpp"
 #include "cl_MTK_Mapper.hpp"
 #undef protected
 #undef private
@@ -51,23 +52,39 @@
 
 namespace moris
 {
+    //---------------------------------------------------------------------------
     moris::real
-    LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+        LevelSetFunctionForHMR( const moris::Matrix< moris::DDRMat > & aPoint )
+        {
+            return norm( aPoint ) - 1.2;
+        }
+
+    moris::real
+    LevelSetFunction(
+            const moris::Matrix< moris::DDRMat > & aPoint,
+            const moris::Matrix< moris::DDRMat > & aParameters)
     {
-        return norm( aPoint ) - 1.2;
+        return norm( aPoint ) - aParameters(0);
     }
 
     moris::real
-    LevelSetFunction1( const moris::Matrix< moris::DDRMat > & aPoint )
+    LevelSetPlaneFunction(
+            const moris::Matrix< moris::DDRMat > & aPoint,
+            const moris::Matrix< moris::DDRMat > & aParameters)
     {
-        return norm( aPoint ) - 0.2;
+        return  aPoint( 0 )  - aParameters(0);
     }
 
-    moris::real
-    LevelSetPlainFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+    void
+    DummyDerivativeFunction (
+            const moris::Matrix< DDRMat > & aCoordinates,
+            const moris::Matrix< DDRMat > & aParameters,
+            moris::Matrix< DDRMat >       & aReturnValue)
     {
-        return  aPoint( 0 )  - 0.2;
+
     }
+
+    //---------------------------------------------------------------------------
 
     namespace mtk
     {
@@ -115,14 +132,14 @@ namespace moris
                 //// create field
                 std::shared_ptr< moris::hmr::Field > tFieldHMR = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-                tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
 
                 for( uint k=0; k<2; ++k )
                 {
                     tHMR.flag_surface_elements_on_working_pattern( tFieldHMR );
                     tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                    tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                    tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
                 }
 
                 // manually select output pattern
@@ -167,15 +184,25 @@ namespace moris
 
                 mtk::Mesh_Pair tMeshPair_Out;
                 tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
-                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+                tMeshPair_Out.mIntegrationMesh   = tIntegrationMesh_Out;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out );
+                // Define two analtyic MTK fields
+                Matrix<DDRMat> tParam = {{0.2}};
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Out )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Analytic * tField_In  = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_In);
 
-                std::cout<<"Field_In size: "<<tField_In->get_nodal_values().numel()<<std::endl;
+                mtk::Field_Analytic * tField_Out = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                         DummyDerivativeFunction,
+                         tParam,
+                        &tMeshPair_Out);
+
+                // Get vector of nodal values and check for correct size
+                std::cout<<"Field_In size:  "<<tField_In->get_nodal_values().numel()<<std::endl;
                 std::cout<<"Field_Out size: "<<tField_Out->get_nodal_values().numel()<<std::endl;
 
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 125));
@@ -233,14 +260,14 @@ namespace moris
                 //// create field
                 std::shared_ptr< moris::hmr::Field > tFieldHMR = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-                tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
 
                 for( uint k=0; k<2; ++k )
                 {
                     tHMR.flag_surface_elements_on_working_pattern( tFieldHMR );
                     tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                    tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                    tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
                 }
 
                 //-------- next mesh ---------------
@@ -287,11 +314,20 @@ namespace moris
                 tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
                 tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
+                // Define analytic MTK field as input field
+                Matrix<DDRMat> tParam = {{0.2}};
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Analytic * tField_In  = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_In);
 
+                // Define discretized MTK field as output field
+                mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
+                        &tMeshPair_Out);
+
+                // check that input field can return vector nodal values and has correct size
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 46));;
 
                 // Use mapper
@@ -309,10 +345,15 @@ namespace moris
 
                 //tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+                // create analytic MTK field on output mesh
+                mtk::Field * tField_Ref = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_Out);
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 125));
+                CHECK(equal_to( tField_Ref->get_nodal_values().numel(), 125));
 
                 for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
@@ -369,14 +410,14 @@ namespace moris
                 //// create field
                 std::shared_ptr< moris::hmr::Field > tFieldHMR = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-                tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
 
                 for( uint k=0; k<2; ++k )
                 {
                     tHMR.flag_surface_elements_on_working_pattern( tFieldHMR );
                     tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                    tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                    tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
                 }
 
                 //-------- next mesh ---------------
@@ -422,10 +463,18 @@ namespace moris
                 tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
                 tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
+                // Define analytic MTK field as input field
+                Matrix<DDRMat> tParam = {{0.2}};
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Analytic * tField_In  = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_In);
+
+                // Define discretized MTK field as output field
+                mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
+                        &tMeshPair_Out);
 
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 217));;
 
@@ -438,16 +487,19 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldHMR->get_node_values() = tField_Out->get_nodal_values();
+                // create analytic MTK field on output mesh
+                mtk::Field * tField_Ref = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_Out);
 
-                tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
-
-                tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
-
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+                tField_In->save_field_to_exodus ( "./mtk_field_test_in.e" );
+                tField_Out->save_field_to_exodus( "./mtk_field_test_out.e" );
+                tField_Ref->save_field_to_exodus( "./mtk_field_test_ref.e" );
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 133));
+                CHECK(equal_to( tField_Ref->get_nodal_values().numel(), 133));
 
                 for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
@@ -504,14 +556,14 @@ namespace moris
                 //// create field
                 std::shared_ptr< moris::hmr::Field > tFieldHMR = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-                tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
 
                 for( uint k=0; k<2; ++k )
                 {
                     tHMR.flag_surface_elements_on_working_pattern( tFieldHMR );
                     tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                    tFieldHMR->evaluate_scalar_function( LevelSetFunction );
+                    tFieldHMR->evaluate_scalar_function( LevelSetFunctionForHMR );
                 }
 
                 //-------- next mesh ---------------
@@ -557,10 +609,18 @@ namespace moris
                 tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
                 tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
 
-                mtk::Field * tField_In = new mtk::Field_Proxy( &tMeshPair_In, 0 );
-                mtk::Field * tField_Out = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
+                // Define analytic MTK field as input field
+                Matrix<DDRMat> tParam = {{0.2}};
 
-                reinterpret_cast< mtk::Field_Proxy* >( tField_In )->evaluate_scalar_function( LevelSetPlainFunction );
+                mtk::Field_Analytic * tField_In  = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_In);
+
+                // Define discretized MTK field as output field
+                mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
+                        &tMeshPair_Out);
 
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 63));;
 
@@ -579,8 +639,12 @@ namespace moris
 
                 tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
 
-                mtk::Field * tField_Ref = new mtk::Field_Proxy( &tMeshPair_Out, 0 );
-                reinterpret_cast< mtk::Field_Proxy* >( tField_Ref )->evaluate_scalar_function( LevelSetPlainFunction );
+                // create analytic MTK field on output mesh
+                mtk::Field * tField_Ref = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_Out);
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 465));
 

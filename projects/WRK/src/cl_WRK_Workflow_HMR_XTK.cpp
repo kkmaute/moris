@@ -124,6 +124,7 @@ namespace moris
             this->create_xtk();
 
             // Compute level set data in GEN
+            // FIXME: HMR stores mesh with aura on 0
             mPerformerManager->mGENPerformer( 0 )->reset_mesh_information(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
 

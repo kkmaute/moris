@@ -133,6 +133,8 @@ namespace moris
             tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
             tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
             tParameterList.insert( "slave_dv_dependencies",      std::string( "" ) );
+            tParameterList.insert( "master_field_types",         std::string( "" ) );
+            tParameterList.insert( "slave_field_types",          std::string( "" ) );
 
             tParameterList.insert( "master_properties",          std::string( "" ) );
             tParameterList.insert( "slave_properties",           std::string( "" ) );
@@ -179,6 +181,8 @@ namespace moris
             tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
             tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
             tParameterList.insert( "slave_dv_dependencies",      std::string( "" ) );
+            tParameterList.insert( "master_field_types",         std::string( "" ) );
+            tParameterList.insert( "slave_field_types",          std::string( "" ) );
 
             tParameterList.insert( "function_parameters",        std::string( "" ) );
 

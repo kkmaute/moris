@@ -25,6 +25,7 @@ namespace moris
         class Field;
         class Database;
         class Mesh;
+        class Lagrange_Mesh_Base;
         class Interpolation_Mesh_HMR;
         class Integration_Mesh_HMR;
         // -----------------------------------------------------------------------------
@@ -353,9 +354,9 @@ namespace moris
                  */
                 // std::shared_ptr< Database >
                 auto get_database() -> decltype ( mDatabase )
-                    {
+                {
                     return mDatabase;
-                    }
+                 }
 
                 // -----------------------------------------------------------------------------
 
@@ -372,6 +373,10 @@ namespace moris
                 void get_candidates_for_refinement(
                         Cell< hmr::Element* > & aCandidates,
                         const uint              aLagrangeMeshIndex);
+
+                void get_candidates_for_refinement(
+                        Cell< hmr::Element* > & aCandidates,
+                        Lagrange_Mesh_Base    * aMesh );
 
 
                 // -----------------------------------------------------------------------------
@@ -392,6 +397,12 @@ namespace moris
                         const Matrix< DDRMat > & aFieldValues,
                         uint                     aLagrangeMeshIndex,
                         sint                     aFunctionIndex = -1);
+
+                uint based_on_field_put_elements_on_queue(
+                        const Matrix< DDRMat > & aFieldValues,
+                        uint                     aPattern,
+                        uint                     aOrder,
+                        sint                     aFunctionIndex);
 
                 uint based_on_field_put_low_level_elements_on_queue(
                         const Matrix< DDRMat > & aFieldValues,

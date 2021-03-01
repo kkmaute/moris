@@ -7,7 +7,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Scaled_Field::get_field_value(
+        real Scaled_Field::get_base_field_value(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
@@ -16,7 +16,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Scaled_Field::get_field_sensitivities(
+        const Matrix<DDRMat>& Scaled_Field::get_base_field_sensitivities(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
@@ -27,11 +27,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Scaled_Field::get_determining_adv_ids(
+        Matrix<DDSMat> Scaled_Field::get_base_determining_adv_ids(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             return mField->get_determining_adv_ids(aNodeIndex, aCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Scaled_Field::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
+        {
+            MORIS_ERROR(aDependencyFields.size() == 1, "A scaled field only depends on one field.");
+            mField = aDependencyFields(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------

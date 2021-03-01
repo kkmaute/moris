@@ -9,6 +9,7 @@
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_MTK_Field.hpp"
+#include "cl_MTK_Field_Discrete.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -247,6 +248,8 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         tLagrangeToBSplineMesh( 1 ) = { {1} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        tParameters.set_number_aura(false);
 
         //------------------------------------------------------------------------------
         //  HMR Initialization
@@ -539,6 +542,8 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
+        tParameters.set_number_aura(false);
+
         //FIXME assign bspline to lagrange mesh
 
         //------------------------------------------------------------------------------
@@ -664,6 +669,8 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        tParameters.set_number_aura(false);
 
         //FIXME assign bspline to lagrange mesh
 
@@ -798,6 +805,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
+        tParameters.set_number_aura(false);
         //FIXME assign bspline to lagrange mesh
 
         //------------------------------------------------------------------------------
@@ -940,6 +948,8 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+                tParameters.set_number_aura(false);
 
                 //------------------------------------------------------------------------------
                 //  HMR Initialization
@@ -1086,6 +1096,8 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+                tParameters.set_number_aura(false);
 
                 //------------------------------------------------------------------------------
                 //  HMR Initialization
@@ -1234,6 +1246,8 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
+                tParameters.set_number_aura(false);
+
                 //------------------------------------------------------------------------------
                 //  HMR Initialization
                 //------------------------------------------------------------------------------
@@ -1299,7 +1313,8 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 uint tBsplineMeshIndex = 1;
 
                 // map input to output
-                tHMR.map_field_to_output( tField,
+                tHMR.map_field_to_output(
+                        tField,
                         tOutputMeshIndex,
                         tBsplineMeshIndex);
 
@@ -1382,6 +1397,8 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
+        tParameters.set_number_aura(false);
+
         //------------------------------------------------------------------------------
         //  HMR Initialization
         //------------------------------------------------------------------------------
@@ -1416,9 +1433,9 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         tMeshPair.mInterpolationMesh = tInterpolationMesh;
         tMeshPair.mIntegrationMesh = tIntegrationMesh;
 
+        mtk::Field_Discrete tField_proxy( &tMeshPair, 0 );
 
-        mtk::Field tField_proxy( &tMeshPair );
-
+        tField_proxy.unlock_field();
         tField_proxy.set_nodal_values( tField->get_node_values() );
 
         mtk::Mapper tMapper;

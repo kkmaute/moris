@@ -27,7 +27,7 @@ namespace moris
             mParameters.mFieldNames = tFieldNames;
 
             // set refinement level
-            Cell< Matrix< DDUMat > > tRefinementLevel;
+            Cell< Matrix< DDSMat > > tRefinementLevel;
             string_to_cell_mat(
                     aParameterlist.get< std::string >( "levels_of_refinement" ),
                     tRefinementLevel );
@@ -35,7 +35,7 @@ namespace moris
             mParameters.mRefinementLevel = tRefinementLevel;
 
             // set refinementpattern
-            Cell< Matrix< DDUMat > >  tRefinementPattern;
+            Cell< Matrix< DDSMat > >  tRefinementPattern;
             string_to_cell_mat(
                     aParameterlist.get< std::string >( "refinement_pattern" ),
                     tRefinementPattern );
@@ -47,15 +47,156 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
-                Cell< mtk::Field* >       & aFields,
-                std::shared_ptr<hmr::HMR>  aHMR )
+                Cell< mtk::Field* >                    & aFields,
+                std::shared_ptr<hmr::HMR>                aHMR )
         {
+            // create field name to index map
+            moris::map< std::string, moris_index >   tFieldNameToIndexMap;
 
+            for( uint Ik = 0; Ik < aFields.size(); Ik++ )
+            {
+                tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
+            }
 
+            Cell< moris_index >                       tPattern;
+            moris::Cell< moris::Cell< std::string > > tFieldNames;
+            moris::Cell< moris::Cell< uint > >        tRefinements;
+            moris::Cell< sint >                       tMaxRefinementPerLevel;
 
+            this->prepare_input_for_refinement(
+                    tPattern,
+                    tFieldNames,
+                    tRefinements,
+                    tMaxRefinementPerLevel);
+
+            for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
+            {
+                // get pattern
+                uint tActivationPattern = tPattern( Ik );
+                uint tOrder = 1;
+
+                for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
+                {
+                    // Mesh has changed after first refinement and therefore has to be rebuilt
+                    // This will only work with analytic fields. When remeshing the L2 id done in the remesh mini performer
+                    if( Ii > 0 )
+                    {
+                        // Interpolation_Mesh_HMR * tInterpolationMesh = aHMR->create_interpolation_mesh( tOrder, tPattern, tPattern );
+                        ////   mtk::Mesh_Pair
+
+                        for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
+                        {
+                            //  mtk::Field * tField = aFields( aFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
+                            //  tField->
+                        }
+                    }
+
+                    for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
+                    {
+                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+
+                        // Put elements on queue and set flag for refinement
+                        aHMR->based_on_field_put_elements_on_queue(
+                                tFieldValues,
+                                tActivationPattern,
+                                tOrder,
+                                -1);    //FieldValues, Patter,Order, function pointer index
+                    }
+                }
+
+                aHMR->perform_refinement( tActivationPattern );
+                aHMR->update_refinement_pattern( tActivationPattern );
+
+                //                while ( true )
+                //                {
+                //                    uint tNumElements = 0;
+                //
+                //                    for( uint Ia = 0; Ia< tFieldNames.size(); Ia++ )
+                //                    {
+                //                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
+                //
+                //                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                //
+                //                        tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue(
+                //                                tFieldValues,
+                //                                tActivationPattern,
+                //                                tOrder,
+                //                                0);
+                //                    }
+                //
+                //                    if( tNumElements == 0 )
+                //                    {
+                //                        break;
+                //                    }
+                //                    else
+                //                    {
+                //                        aHMR->perform_refinement( tActivationPattern );
+                //                        aHMR->update_refinement_pattern( tActivationPattern );
+                //                    }
+                //
+                //                    break;
+                //                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::prepare_input_for_refinement(
+                Cell< moris_index >                       & aPatternForRefinement,
+                moris::Cell< moris::Cell< std::string > > & aFieldsForRefinement,
+                moris::Cell< moris::Cell< uint > >        & aRefinements,
+                moris::Cell< sint >                       & aMaxRefinementPerPattern )
+        {
+
+            // produce unique list of pattern which will be refined
+            for( uint Ik = 0; Ik< mParameters.mRefinementPattern.size(); Ik++ )
+            {
+                for( uint Ii = 0; Ii< mParameters.mRefinementPattern( Ik ).numel(); Ii++ )
+                {
+                    aPatternForRefinement.push_back( mParameters.mRefinementPattern( Ik )( Ii ) );
+                }
+            }
+
+            // Sort this created list
+            std::sort( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
+
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
+            auto last = std::unique( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
+            auto pos  = std::distance( ( aPatternForRefinement.data() ).data(), last );
+
+            aPatternForRefinement.resize( pos );
+
+            uint tNumberOfRefinementPattern = aPatternForRefinement.size();
+
+            // resize
+            aFieldsForRefinement    .resize( tNumberOfRefinementPattern );
+            aRefinements            .resize( tNumberOfRefinementPattern );
+            aMaxRefinementPerPattern.resize( tNumberOfRefinementPattern, 0 );
+
+            // create list with field pointers and refinements per pattern
+            for( uint Ik = 0; Ik< tNumberOfRefinementPattern; Ik++ )
+            {
+                moris_index tPattern = aPatternForRefinement( Ik );
+
+                // loop over all fields and corresponding patterns. Find the pattern which corresponds to tPattern and put it in list.
+                // This is kind of a brute force algorithm. however there will be only a few fields
+                for( uint Ii = 0; Ii< mParameters.mRefinementPattern.size(); Ii++ )
+                {
+                    for( uint Ia = 0; Ia< mParameters.mRefinementPattern( Ii ).numel(); Ia++ )
+                    {
+                        if( tPattern == mParameters.mRefinementPattern( Ii )( Ia ) )
+                        {
+                            aFieldsForRefinement( Ik ).push_back( mParameters.mFieldNames( Ii ) );
+                            aRefinements( Ik )        .push_back( mParameters.mRefinementLevel( Ii )( Ia ) );
+
+                            aMaxRefinementPerPattern( Ik ) = std::max( aMaxRefinementPerPattern( Ik ), mParameters.mRefinementLevel( Ii )( Ia ) );
+                        }
+                    }
+                }
+            }
+        }
 
 
 

@@ -53,11 +53,12 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem * aLin
     {
         MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &tTransposeOperators( Ik ) );
 
-//        if( Ik == 0 )
-//        {
-//            std::string tString = "aaa";
-//            tProlongationList( Ik )->save_matrix_to_matlab_file( tString.c_str() );
-//        }
+        if( Ik == 0 )
+        {
+            std::cout<<"writing interpolation operator"<<std::endl;
+            std::string tString = "Interpolation_Operator";
+            tProlongationList( Ik )->save_matrix_to_matlab_file( tString.c_str() );
+        }
     }
 
     // set restriction operators

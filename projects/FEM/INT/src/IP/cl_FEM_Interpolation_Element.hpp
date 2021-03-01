@@ -27,6 +27,10 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Field;
+    }
     namespace fem
     {
         class Set;
@@ -200,6 +204,10 @@ namespace moris
                 {
                     return mNodalWeakBCs;
                 }
+
+                //------------------------------------------------------------------------------
+
+                void create_fields( moris::Cell< std::shared_ptr< mtk::Field > > & aFields );
 
                 //------------------------------------------------------------------------------
             protected:
