@@ -27,6 +27,10 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Field;
+    }
     namespace fem
     {
         class Set;
