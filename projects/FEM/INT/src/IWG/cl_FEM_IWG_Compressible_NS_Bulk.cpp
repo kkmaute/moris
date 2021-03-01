@@ -13,10 +13,6 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
-// debug
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
-
 namespace moris
 {
     namespace fem
@@ -52,10 +48,6 @@ namespace moris
 
         void IWG_Compressible_NS_Bulk::reset_spec_eval_flags()
         {
-
-// debug
-//std::cout << "Resetting Eval Flags in Comp. Flow IWG. \n" << std::flush;
-
             // reset eval flags
             mFluxAMatEval = true;
             mFluxADofMatEval = true;
@@ -108,9 +100,6 @@ namespace moris
             // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
             // std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
 
-// debug
-//std::cout << "IWG_Compressible_NS_Bulk::compute_residual - Norm of Residual = " << norm( mSet->get_residual()( 0 ) ) << " \n" << std::flush;
-
             // compute the first residual (pressure or density)
             mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes1StopIndex }, { 0, 0 } ) += aWStar * ( tFIFirstDofType->N_trans() * (
                     mA( 0 )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) );
@@ -139,36 +128,9 @@ namespace moris
                         mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) ); 
             }
 
-// debug - finite difference flux jacobians
-// mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes1StartIndex + tNumSpaceDims + 1 }, { 0, 0 } ) += aWStar * (  
-//         trans( mA( 3 )( { 4, 4 }, { 0, tNumSpaceDims + 1 } ) ) );
-
-// mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StartIndex + tNumSpaceDims + 1 }, { 0, 0 } ) += aWStar * (
-//         trans( mA( 0 )( { 1, 1 }, { 0, tNumSpaceDims + 1 } ) ) );
-
-// mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StartIndex + tNumSpaceDims + 1 }, { 0, 0 } ) += aWStar * (
-//         trans( mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) ) );
-
-// print( trans( mSet->get_residual()( 0 ) ), "Residual after assembly" );   
-// MORIS_ASSERT( false, "Stop here by intention." ); 
-
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
-
-// debug - write to hdf5 file
-// std::cout << "aWStar = " << aWStar << " \n" << std::flush;
-// std::string tMorisRoot = moris::get_base_moris_dir();
-// std::string tHdf5FilePath = tMorisRoot + "/tmp/residual_vectors.hdf5";
-// std::cout << "Outputting HDF5 to: " << tHdf5FilePath << " \n" << std::flush;
-// hid_t tFileID = create_hdf5_file( tHdf5FilePath );
-// herr_t tStatus = 0;
-// save_matrix_to_hdf5_file( tFileID, "N_P", tFIFirstDofType->N(), tStatus );
-// save_matrix_to_hdf5_file( tFileID, "N_V", tFIVelocity->N(), tStatus );
-// save_matrix_to_hdf5_file( tFileID, "N_TEMP", tFIThirdDofType->N(), tStatus );
-// save_matrix_to_hdf5_file( tFileID, "mdYdt", mdYdt, tStatus );
-// save_matrix_to_hdf5_file( tFileID, "Residual", mSet->get_residual()( 0 ), tStatus );
-// close_hdf5_file( tFileID );                                   
+                    "IWG_Compressible_NS_Bulk::compute_residual - Residual contains NAN or INF, exiting!");                                 
         }
 
         //------------------------------------------------------------------------------
@@ -227,9 +189,6 @@ namespace moris
             sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterDep1StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofFirstDepIndex, 0 );
             uint tMasterDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofThirdDepIndex, 1 );                
-
-// debug
-//std::cout << "IWG_Compressible_NS_Bulk::compute_jacobian - Norm of Jacobian = " << norm( mSet->get_jacobian() ) << " \n" << std::flush;
 
             // add contribution to first residual dof type
             mSet->get_jacobian()(
@@ -293,37 +252,9 @@ namespace moris
                                 mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdxDOF( iA - 1 ) ) );
             }
 
-// debug - finite difference flux jacobians
-// mSet->get_jacobian()(
-//         { tMasterRes1StartIndex, tMasterRes1StartIndex + tNumSpaceDims + 1 },
-//         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( mADOF( 3 )( 4 ) );
-
-// mSet->get_jacobian()(
-//         { tMasterRes2StartIndex, tMasterRes2StartIndex + tNumSpaceDims + 1 },
-//         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * 0.0 * ( mADOF( 0 )( 1 ) );
-
-// mSet->get_jacobian()(
-//         { tMasterRes3StartIndex, tMasterRes3StartIndex + tNumSpaceDims + 1 },
-//         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( mADOF( 0 )( tNumSpaceDims + 1 ) );   
-                                                              
-// print( mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes1StartIndex + tNumSpaceDims + 1 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } ), 
-//         "Jacobian after assembly" );   
-//MORIS_ASSERT( false, "Stop here by intention." ); 
-
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
-
-// debug - write to hdf5 file
-// std::cout << "aWStar = " << aWStar << " \n" << std::flush;
-// std::string tMorisRoot = moris::get_base_moris_dir();
-// std::string tHdf5FilePath = tMorisRoot + "/tmp/jacobian_matrices.hdf5";
-// std::cout << "Outputting HDF5 to: " << tHdf5FilePath << " \n" << std::flush;
-// hid_t tFileID = create_hdf5_file( tHdf5FilePath );
-// herr_t tStatus = 0;
-// save_matrix_to_hdf5_file( tFileID, "mdYdtDOF", mdYdtDOF, tStatus );
-// save_matrix_to_hdf5_file( tFileID, "Jacobian", mSet->get_jacobian(), tStatus );
-// close_hdf5_file( tFileID );                      
+                    "IWG_Compressible_NS_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");                     
         }
 
         //------------------------------------------------------------------------------

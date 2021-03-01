@@ -28,10 +28,6 @@
 #include "fn_trans.hpp"
 #include "fn_FEM_Check.hpp"
 
-// debug
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
-
 using namespace moris;
 using namespace fem;
 
@@ -403,17 +399,6 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                 Matrix< DDRMat > tJacobianTest;
                 Matrix< DDRMat > tJacobianFD;
 
-
-// debug 
-// tIWG->compute_residual( 1.0 );
-// tIWG->compute_jacobian( 1.0 );
-// std::cout << "Size of the Residual (n_rows): " << tIWG->mSet->mResidual( 0 ).n_rows() << " \n" << std::flush;   
-// std::cout << "Size of the Jacobian (n_rows x n_cols): " <<  tIWG->mSet->mJacobian.n_rows() << " x " << tIWG->mSet->mJacobian.n_cols() << " \n" << std::flush; 
-// print( tIWG->mSet->get_residual()( 0 ), "Residual" ); 
-// print( tIWG->mSet->get_jacobian(), "Jacobian" );
-// std::cout << "Size of the Residual (n_rows): " << tIWG->mSet->mResidual( 0 ).n_rows() << " \n" << std::flush;   
-// std::cout << "Size of the Jacobian (n_rows x n_cols): " <<  tIWG->mSet->mJacobian.n_rows() << " x " << tIWG->mSet->mJacobian.n_cols() << " \n" << std::flush; 
-
                 // check jacobian by FD
                 bool tCheckJacobian = tIWG->check_jacobian_multi_residual(
                         tPerturbation,
@@ -432,17 +417,6 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
                 // require check is true
                 REQUIRE( tCheckJacobian );
-
-// debug - write to hdf5 file
-std::string tMorisRoot = moris::get_base_moris_dir();
-std::string tHdf5FilePath = tMorisRoot + "/tmp/jacobian_matrices.hdf5";
-std::cout << "Outputting HDF5 to: " << tHdf5FilePath << " \n" << std::flush;
-hid_t tFileID = create_hdf5_file( tHdf5FilePath );
-herr_t tStatus = 0;
-save_matrix_to_hdf5_file( tFileID, "Jacobian", tJacobian, tStatus );
-save_matrix_to_hdf5_file( tFileID, "Jacobian_FD", tJacobianFD, tStatus );
-close_hdf5_file( tFileID );
-
             }
 
             // clean up
