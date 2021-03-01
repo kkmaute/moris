@@ -77,6 +77,8 @@ namespace moris
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE,
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
 
+                COMPRESSIBLE_NS_BULK,
+                
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
                 COMPRESSIBLE_NS_TEMPERATURE_BULK,
@@ -170,6 +172,18 @@ namespace moris
                 VAN_DER_WAALS_FLUID,
                 END_CONSTITUTIVE_TYPE
         };        
+
+        //------------------------------------------------------------------------------
+
+        enum class Variable_Set
+        {
+                UNDEFINED,
+                CONSERVATIVE,
+                DENSITY_PRIMITIVE,
+                PRESSURE_PRIMITIVE,
+                ENTROPY,
+                END_CONSTITUTIVE_TYPE
+        };
 
         //------------------------------------------------------------------------------
 

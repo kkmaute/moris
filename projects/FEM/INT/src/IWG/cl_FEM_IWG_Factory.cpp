@@ -43,6 +43,7 @@
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
 //Compressible Fluid
+#include "cl_FEM_IWG_Compressible_NS_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp"
@@ -211,7 +212,12 @@ namespace moris
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
 
-                    //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+
+                case IWG_Type::COMPRESSIBLE_NS_BULK :
+                    return std::make_shared< IWG_Compressible_NS_Bulk >();
+
+                //------------------------------------------------------------------------------
 
                 case IWG_Type::COMPRESSIBLE_NS_DENSITY_BULK :
                     return std::make_shared< IWG_Compressible_NS_Density_Bulk >();

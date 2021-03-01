@@ -274,8 +274,17 @@ namespace moris
                     // switch based on OutputFormat provided
                     if (mDirectOutputFormat == 3)
                     {
-                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
-                                mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n" << std::flush;
+                        // check if Entity Type has been specified, if not use entity base for printing
+                        if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+                        {
+                            std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
+                                    mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n" << std::flush;
+                        }
+                        else // if yes use use entity type for printing
+                        {
+                            std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
+                                    mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n" << std::flush;
+                        }
                     }
                     else if (mDirectOutputFormat == 1)
                     {
@@ -390,12 +399,22 @@ namespace moris
                     if (logger_par_rank() == mOutputRank )
                     {
                         // switch based on OutputFormat provided
-                        if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                        if ( (mDirectOutputFormat == 3) || (mDirectOutputFormat == 2) )
                         {
-                            std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
-                                    << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - "
-                                    << aOutputSpecifier << ": "
-                                    << ios::stringify(aOutputValue) << " \n" << std::flush;
+                            if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+                            {
+                                std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
+                                        << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - "
+                                        << aOutputSpecifier << ": "
+                                        << ios::stringify(aOutputValue) << " \n" << std::flush;
+                            }
+                            else
+                            {
+                                std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
+                                        << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - "
+                                        << aOutputSpecifier << ": "
+                                        << ios::stringify(aOutputValue) << " \n" << std::flush;
+                            }
                         }
                         else
                         {

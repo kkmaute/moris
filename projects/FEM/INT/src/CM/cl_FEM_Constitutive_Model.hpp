@@ -486,6 +486,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get material model
+                 * @param[ out ] mMaterialModel cell of property pointers
+                 */
+                moris::Cell< std::shared_ptr< Material_Model > > & get_material_models()
+                {
+                    return mMaterialModels;
+                };
+
+                //------------------------------------------------------------------------------
+                /**
                  * create a global dof type list including constitutive and property dependencies
                  */
                 void build_global_dof_type_list();

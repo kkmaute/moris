@@ -23,9 +23,8 @@ namespace moris
         BSpline_Field::BSpline_Field(
                 sol::Dist_Vector*        aOwnedADVs,
                 const Matrix<DDUMat>&    aCoefficientIndices,
-                const Matrix<DDSMat>&    aOwnedADVIds,
                 const Matrix<DDSMat>&    aSharedADVIds,
-                uint                     aOwnedADVIdsOffset,
+                uint                     aADVOffsetID,
                 mtk::Interpolation_Mesh* aMesh,
                 std::shared_ptr<Field>   aField)
                 : Field(aCoefficientIndices, aSharedADVIds, aField)
@@ -48,7 +47,7 @@ namespace moris
                 if ((uint) par_rank() == mMesh->get_entity_owner(tCoefficientIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
                 {
                     // Calculate ADV ID using offset
-                    sint tADVId = aOwnedADVIdsOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
+                    sint tADVId = aADVOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
                             tCoefficientIndex,
                             EntityRank::BSPLINE,
                             tDiscretizationMeshIndex);

@@ -184,7 +184,7 @@ namespace moris
                     mName.c_str(),
                     aMaterialModelString.c_str() );
 
-            // set the property in the property cell
+            // set the MM in the MM cell
             mMaterialModels( mMaterialModelMap[ aMaterialModelString ] ) = aMaterialModel;
         }          
 
@@ -390,7 +390,7 @@ namespace moris
             // fill the Dof_Type map
             for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
             {
-                // fill the property map
+                // fill the DoF map
                 mGlobalDofTypeMap( static_cast< int >( mGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
             }
         }
@@ -641,6 +641,16 @@ namespace moris
                     tProp->set_field_interpolator_manager( mFIManager );
                 }
             }
+
+            // loop over the underlying material models
+            for( const std::shared_ptr< Material_Model > & tMM : this->get_material_models() )
+            {
+                if (tMM != nullptr )
+                {
+                    // set the field interpolator manager for the property
+                    tMM->set_field_interpolator_manager( mFIManager );
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -676,6 +686,24 @@ namespace moris
                 }
             }
 
+            // loop over material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMaterialModels )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get MM dof type list
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tMM->get_dof_type_list();
+
+                    // loop over MM dof types
+                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    {
+                        // update counter
+                        tCounter += tActiveDofType( iDOF ).size();
+                    }
+                }
+            }
+
             // reserve memory for the non unique dof type list
             aDofTypes.reserve( tCounter );
 
@@ -696,6 +724,24 @@ namespace moris
                             tProperty->get_dof_type_list();
 
                     // loop over property dof types
+                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    {
+                        // populate te dof type list
+                        aDofTypes.append( tActiveDofType( iDOF ) );
+                    }
+                }
+            }
+
+            // loop over the material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMaterialModels )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get MM dof type list
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                            tMM->get_dof_type_list();
+
+                    // loop over MM dof types
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                     {
                         // populate te dof type list
@@ -746,6 +792,21 @@ namespace moris
                 }
             }
 
+            // loop over material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMaterialModels )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get MM dof type list
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update counter
+                    tDofCounter += tActiveDofTypes.size();
+                }
+            }
+
             // reserve memory for the non unique dof and dv types
             aDofTypes.reserve( tDofCounter );
             aDvTypes.reserve( tDvCounter );
@@ -780,6 +841,21 @@ namespace moris
                     // populate the dof and dv type lists
                     aDofTypes.append( tActiveDofTypes );
                     aDvTypes.append( tActiveDvTypes );
+                }
+            }
+
+            // loop over the MMs
+            for ( const std::shared_ptr< Material_Model > & tMM : mMaterialModels )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get MM dof and dv type list
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // populate the dof type lists
+                    aDofTypes.append( tActiveDofTypes );
                 }
             }
         }

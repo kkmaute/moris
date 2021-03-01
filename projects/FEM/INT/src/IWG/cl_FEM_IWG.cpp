@@ -89,6 +89,22 @@ namespace moris
                 }
             }
 
+            // reset material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+
             // reset constitutive models
             for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
@@ -113,6 +129,9 @@ namespace moris
                     tSP->reset_eval_flags();
                 }
             }
+
+            // reset evaluation flags specific to child implementations
+            this->reset_spec_eval_flags();
         }
 
         //------------------------------------------------------------------------------
@@ -269,6 +288,19 @@ namespace moris
 
                     // set the fem set pointe for the CM
                     tCM->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the material models
+            for( const std::shared_ptr< Material_Model > & tMM : this->get_material_models( aIsMaster ) )
+            {
+                if ( tMM != nullptr )
+                {
+                    // set the field interpolator manager for the CM
+                    tMM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointe for the CM
+                    tMM->set_set_pointer( mSet );
                 }
             }
 
@@ -590,6 +622,52 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_material_model(
+                std::shared_ptr< Material_Model > aMaterialModel,
+                std::string                       aMaterialModelString,
+                mtk::Master_Slave                 aIsMaster  )
+        {
+            // check that aConstitutiveString makes sense
+            MORIS_ERROR( mMaterialMap.find( aMaterialModelString ) != mMaterialMap.end(),
+                    "IWG::set_material_model - IWG %s - Unknown aMaterialModelString: %s ",
+                    mName.c_str(),
+                    aMaterialModelString.c_str() );
+
+            // set the CM in the CM pointer cell
+            this->get_material_models( aIsMaster )( mMaterialMap[ aMaterialModelString ] ) = aMaterialModel;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::Cell< std::shared_ptr< Material_Model > > & IWG::get_material_models(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master property pointers
+                    return mMasterMM;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave property pointers
+                    return mSlaveMM;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_material_models - can only be master or slave." );
+                    return mMasterMM;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                 aConstitutiveString,
@@ -740,6 +818,37 @@ namespace moris
                 }
             }
 
+            // loop over master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
+                }
+            }
+
+            // loop over slave material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof and dv counters
+                    tSlaveDofCounter += tActiveDofTypes.size();
+                }
+            }
+
             // loop over master constitutive models
             for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
@@ -887,6 +996,36 @@ namespace moris
                     // populate the dof and dv lists
                     aDofTypes( 1 ).append( tActiveDofTypes );
                     aDvTypes( 1 ).append( tActiveDvTypes );
+                }
+            }
+
+            // loop over the master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
+                }
+            }
+
+            // loop over the slave material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
                 }
             }
 
@@ -1043,6 +1182,35 @@ namespace moris
                             mMasterGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+                }
+            }
+
+            // get dof type from master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get dof types for material model
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tMM->get_global_dof_type_list();
+
+                    // loop on property dof type
+                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
+                    {
+                        // get set index for dof type
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+
+                        // if dof enum not in the list
+                        if ( tDofCheckList( tDofTypeIndex) != 1 )
+                        {
+                            // put the dof type in the check list
+                            tDofCheckList( tDofTypeIndex ) = 1;
+
+                            // put the dof type in the global type list
+                            mMasterGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
+                        }
+                    }
+                    // skip loop on material model dv type - not implemented
                 }
             }
 
@@ -1229,6 +1397,35 @@ namespace moris
                             mSlaveGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+                }
+            }
+
+            // get dof type from slave material models
+            for ( std::shared_ptr< Material_Model > tMM : mSlaveMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get dof types for constitutive model
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tMM->get_global_dof_type_list();
+
+                    // loop on property dof type
+                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
+                    {
+                        // get set index for dof type
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+
+                        // if dof enum not in the list
+                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
+                        {
+                            // put the dof type in the check list
+                            tDofCheckList( tDofTypeIndex ) = 1;
+
+                            // put the dof type in the global type list
+                            mSlaveGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
+                        }
+                    }
+                    // skip loop on material dv type - not implemented
                 }
             }
 
@@ -2102,6 +2299,195 @@ namespace moris
             // return bool
             return tCheckJacobian;
         }
+
+        //------------------------------------------------------------------------------
+
+        // FIXME: This function needs to go, functionality will be integrated into the usual check jacobian function
+        bool IWG::check_jacobian_multi_residual(
+                real               aPerturbation,
+                real               aEpsilon,
+                real               aWStar,
+                Matrix< DDRMat > & aJacobian,
+                Matrix< DDRMat > & aJacobianFD,
+                bool               aErrorPrint )
+        {
+            // get residual dof type index in set, start and end indices for residual dof type
+            uint tNumResidualDofs = mResidualDofType.size();
+            uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterLastDofIndex = mSet->get_dof_index_for_type( mResidualDofType( tNumResidualDofs - 1 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartRow = mSet->get_res_dof_assembly_map()( tMasterFirstDofIndex )( 0, 0 );
+            uint tMasterResEndRow   = mSet->get_res_dof_assembly_map()( tMasterLastDofIndex )( 0, 1 );
+
+            // get number of master and slave rows
+            uint tNumRows = tMasterResEndRow - tMasterResStartRow + 1;
+
+            // get number of cols for jacobian
+            uint tNumCols = mSet->get_jacobian().n_cols();
+
+            // set size for analytical and FD jacobians
+            aJacobian.set_size( tNumRows, tNumCols, 0.0 );
+            aJacobianFD.set_size( tNumRows, tNumCols, 0.0 );
+
+            // compute jacobian with IWG
+            this->compute_jacobian( aWStar );
+
+            // get the computed jacobian
+            aJacobian =  mSet->get_jacobian();
+
+            // reset the jacobian
+            mSet->get_jacobian().fill( 0.0 );
+
+            // compute jacobian by FD
+            // this->compute_jacobian_FD( aWStar, aPerturbation );
+            {
+                // storage residual value
+                Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
+                // get the FD scheme info
+                moris::Cell< moris::Cell< real > > tFDScheme;
+                fd_scheme( fem::FDScheme_Type::POINT_5, tFDScheme );
+                uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                // get master number of dof types
+                uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
+
+                // reset and evaluate the residual plus
+                mSet->get_residual()( 0 ).fill( 0.0 );
+                this->compute_residual( aWStar );
+                Matrix< DDRMat > tResidual = mSet->get_residual()( 0 );
+
+                // loop over the IWG dof types
+                for( uint iFI = 0; iFI < tMasterNumDofTypes; iFI++ )
+                {
+                    // init dof counter
+                    uint tDofCounter = 0;
+
+                    // get the dof type
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );                                 
+
+                    // get the index for the dof type
+                    sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                    uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterFirstDofIndex )( tMasterDepDofIndex, 0 );
+
+                    // get field interpolator for dependency dof type
+                    Field_Interpolator * tFI =
+                            mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+
+                    // get number of master FI bases and fields
+                    uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                    uint tDerNumFields = tFI->get_number_of_fields();
+
+                    // coefficients for dof type wrt which derivative is computed
+                    Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                    // loop over the coefficient column
+                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                    {
+                        // loop over the coefficient row
+                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
+                        {
+                            // compute the perturbation absolute value
+                            real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // check that perturbation is not zero
+                            if( std::abs( tDeltaH ) < 1e-12 )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
+
+                            // set starting point for FD
+                            uint tStartPoint = 0;
+
+                            // loop over the points for FD
+                            for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                            {
+                                // reset the perturbed coefficients
+                                Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                                // perturb the coefficient
+                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                                // set the perturbed coefficients to FI
+                                tFI->set_coeff( tCoeffPert );
+                                tFI->reset_eval_flags(); // not useful
+
+                                // reset properties, CM and SP for IWG
+                                this->reset_eval_flags();
+
+                                // reset the residual
+                                mSet->get_residual()( 0 ).fill( 0.0 );
+
+                                // compute the residual
+                                this->compute_residual( aWStar );
+
+                                // assemble the Jacobian
+                                mSet->get_jacobian()(
+                                        { tMasterResStartRow, tMasterResEndRow },
+                                        { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
+                                                tFDScheme( 1 )( iPoint ) *
+                                                mSet->get_residual()( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
+                            // update dof counter
+                            tDofCounter++;
+                        }
+                    }
+                    // reset the coefficients values
+                    tFI->set_coeff( tCoeff );
+                }
+
+                // reset the value of the residual
+                mSet->get_residual()( 0 ) = tResidualStore;
+            }
+
+            // get the computed jacobian
+            aJacobianFD = mSet->get_jacobian();
+
+            // check that matrices to compare have same size
+            MORIS_ERROR(
+                    ( aJacobian.n_rows() == aJacobianFD.n_rows() ) &&
+                    ( aJacobian.n_cols() == aJacobianFD.n_cols() ),
+                    "IWG::check_jacobian - matrices to check do not share same dimensions." );
+
+            //define a boolean for check
+            bool tCheckJacobian = true;
+
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
+            for( uint iiJac = 0; iiJac < aJacobian.n_rows(); iiJac++ )
+            {
+                for( uint jjJac = 0; jjJac < aJacobian.n_cols(); jjJac++ )
+                {
+                    // get absolute difference
+                    tAbsolute = std::abs( aJacobian( iiJac, jjJac ) - aJacobianFD( iiJac, jjJac ) );
+
+                    // get relative difference
+                    tRelative = std::abs( ( aJacobianFD( iiJac, jjJac ) - aJacobian( iiJac, jjJac ) ) / aJacobianFD( iiJac, jjJac ) );
+
+                    // update check value
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+
+                    // debug print
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        if( aErrorPrint )
+                        {
+                            std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
+                            std::cout<<"aJacobian( iiJac, jjJac )   "<<std::setprecision( 12 )<<aJacobian( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"aJacobianFD( iiJac, jjJac ) "<<std::setprecision( 12 )<<aJacobianFD( iiJac, jjJac )<<"\n"<<std::flush;
+                            //std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            //std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                        }
+                    }
+                }
+            }
+
+            // return bool
+            return tCheckJacobian;
+        }        
 
         //------------------------------------------------------------------------------
 

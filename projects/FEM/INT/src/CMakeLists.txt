@@ -154,6 +154,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
@@ -235,6 +236,8 @@ set(LIB_SOURCES
     MM/cl_FEM_Material_Model_Density_Functions.cpp
     MM/cl_FEM_Material_Model_Pressure_Functions.cpp
     MM/cl_FEM_Material_Model_Temperature_Functions.cpp
+    MM/cl_FEM_Material_Model_Thermodynamic_Quantities.cpp
+    MM/cl_FEM_Material_Model_FD_Functions.cpp
 
     MM/cl_FEM_MM_Perfect_Gas.cpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.cpp
@@ -325,6 +328,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrix_Dof_Derivs.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
