@@ -2,6 +2,7 @@
 #include <cstdio>
 
 #include "cl_FEM_Field.hpp"
+#include "cl_Matrix.hpp"
 // HD5 c-interface
 
 
@@ -34,7 +35,24 @@ namespace moris
 
         void Field::set_field_type( const uint & aType )
         {
-             //enum mtk::Field_Type tType = static_cast< mtk::Field_Type >( aType );
+             mFieldType = static_cast< mtk::Field_Type >( aType );
+        }
+
+        //-----------------------------------------------------------------------------
+
+        void Field::get_nodal_values(
+                Matrix< IndexMat > const      & aNodeIndex,
+                Matrix< DDRMat >              & aNodalValues,
+                Cell< mtk::Field_Type > const & aFieldTypes)
+        {
+            // FIXME translate field types into index. implement map
+            moris::Matrix< IndexMat > tFieldIndex;
+            tFieldIndex.set_size( 1, 1, 0 );
+
+            this->get_nodal_value(
+                    aNodeIndex,
+                    aNodalValues,
+                    tFieldIndex );
         }
 
         //-----------------------------------------------------------------------------

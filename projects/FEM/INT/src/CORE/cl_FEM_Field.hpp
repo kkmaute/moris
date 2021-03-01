@@ -32,7 +32,9 @@ namespace moris
 
         class Field : public mtk::Field
         {
-            protected:
+            private:
+
+                enum mtk::Field_Type mFieldType = mtk::Field_Type::UNDEFINED;
 
 
                 //------------------------------------------------------------------------------
@@ -53,6 +55,13 @@ namespace moris
                 //-----------------------------------------------------------------------------
 
                 void set_field_from_file( const std::string & aString );
+
+                //-----------------------------------------------------------------------------
+
+                void get_nodal_values(
+                        Matrix< IndexMat > const   & aNodeIndex,
+                        Matrix< DDRMat >              & aNodalValues,
+                        Cell< mtk::Field_Type > const & aFieldTypes);
 
                 //-----------------------------------------------------------------------------
 
