@@ -184,6 +184,13 @@ namespace moris
         // log to console - only processor mOutputRank prints message
         if ( logger_par_rank() == mOutputRank )
         {
+            // decide whether to use Entity Type or Base for descriptor when printing to screen
+            std::string tEntityDescriptor = mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel];
+            if ( tEntityDescriptor == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+            {
+                tEntityDescriptor = mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel];
+            }
+
             if (mSeverityLevel < 1)
             {
                 // switch based on OutputFormat provided
@@ -196,7 +203,7 @@ namespace moris
                         real tIterationTime = ( (moris::real) std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
                         std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
-                                mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                                tEntityDescriptor << " - " <<
                                 "IterationTime: " << tIterationTime << " \n" << std::flush;
                     }
 
@@ -221,7 +228,7 @@ namespace moris
                 else                
                 {
                     std::cout << "Signing out " <<
-                            mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] <<
+                            tEntityDescriptor <<
                             ". Elapsed time (max/min) = " <<
                             tElapsedTimeMax <<
                             " / " <<
@@ -242,6 +249,13 @@ namespace moris
         // only processor 0 prints message
         if (logger_par_rank() == mOutputRank )
         {
+            // decide whether to use Entity Type or Base for descriptor when printing to screen
+            std::string tEntityDescriptor = mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel];
+            if ( tEntityDescriptor == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+            {
+                tEntityDescriptor = mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel];
+            }
+
             // print iteration to screen
             // switch based on OutputFormat provided
             if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
@@ -253,14 +267,14 @@ namespace moris
                     real tIterationTime = ( (moris::real) std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
-                            mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                            tEntityDescriptor << " - " <<
                             "IterationTime: " << tIterationTime << " \n" << std::flush;
                 }
 
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) <<
                         "===================================================================\n" << std::flush;
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
-                        mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                        tEntityDescriptor << " - " <<
                         "Iteration" << ": " <<
                         ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 ) <<
                         " \n" << std::flush;
@@ -268,7 +282,7 @@ namespace moris
             else
             {
                 std::cout << "Iteration" << ": " <<
-                        mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " <<
+                        tEntityDescriptor << " - " <<
                         ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 ) <<
                         " \n" << std::flush;
             }
@@ -315,8 +329,8 @@ namespace moris
             // check if Instance matches the instance searched for
             if(
                     aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( aEntityType   == mGlobalClock.mCurrentType[ tIndentLevel ]   or aEntityType == "Arbitrary" ) and
-                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
+                    ( aEntityType   == mGlobalClock.mCurrentType[ tIndentLevel ]   or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
             }
@@ -352,8 +366,8 @@ namespace moris
             // check if Instance matches the instance searched for
             if(
                     aEntityBase     == mGlobalClock.mCurrentEntity[ tIndentLevel ] and
-                    ( aEntityType   == mGlobalClock.mCurrentType  [ tIndentLevel ] or aEntityType   == "Arbitrary" ) and
-                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == "Arbitrary" ) )
+                    ( aEntityType   == mGlobalClock.mCurrentType  [ tIndentLevel ] or aEntityType   == LOGGER_ARBITRARY_DESCRIPTOR ) and
+                    ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
             }
@@ -383,8 +397,8 @@ namespace moris
          // note: this can be done, as there's always only one active opt.-alg.
          return this->get_iteration(
                  "OptimizationAlgorithm" ,
-                 "Arbitrary",
-                 "Arbitrary" );
+                 LOGGER_ARBITRARY_DESCRIPTOR,
+                 LOGGER_ARBITRARY_DESCRIPTOR );
      }
 
      //------------------------------------------------------------------------------
@@ -395,8 +409,8 @@ namespace moris
           // note: this can be done, as there's always only one active opt.-alg.
           this->set_iteration(
                   "OptimizationAlgorithm" ,
-                  "Arbitrary",
-                  "Arbitrary",
+                  LOGGER_ARBITRARY_DESCRIPTOR,
+                  LOGGER_ARBITRARY_DESCRIPTOR,
                   aIter);
       }
 
