@@ -947,19 +947,16 @@ namespace moris
                 const Matrix< DDRMat > & BetaTDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 const Matrix< DDRMat > & CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-                {
-                    MORIS_ERROR( false, "Material_Model::CvDOF - DOF derivs of thermodynamic quantities not implemented yet." );
-                    return mCvDof( 0 );
+                { 
+                    return ( this->*m_get_CvDof )( aDofTypes ); 
                 };
                 const Matrix< DDRMat > & CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-                {
-                    MORIS_ERROR( false, "Material_Model::CpDOF - DOF derivs of thermodynamic quantities not implemented yet." );
-                    return mCpDof( 0 );
+                { 
+                    return ( this->*m_get_CpDof )( aDofTypes ); 
                 };
                 const Matrix< DDRMat > & GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-                {
-                    MORIS_ERROR( false, "Material_Model::GammaDOF - DOF derivs of thermodynamic quantities not implemented yet." );
-                    return mGammaDof( 0 );
+                { 
+                    return ( this->*m_get_GammaDof )( aDofTypes ); 
                 };
 
                 const Matrix< DDRMat > & CvDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );
@@ -1030,6 +1027,22 @@ namespace moris
                         MSI::Dof_Type                        aTDvar,
                         uint                                 aOrder,
                         fem::FDScheme_Type                   aFDSchemeType );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the thermodynamic quantities wrt to a dof type
+                 * @param[ in ] aDofTypes        dof type wrt which the derivative is evaluated
+                 * @param[ in ] aQuantityDOF_FD  matrix to fill with derivative of the specific internal energy
+                 * @param[ in ] aQuantityString  string specifying which quantity should be finite differenced
+                 * @param[ in ] aPerturbation    real to perturb for FD
+                 * @param[ in ] aFDSchemeType    enum for FD scheme
+                 */
+                void eval_QuantityDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aQuantityDOF_FD,
+                        std::string                          aQuantityString,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );                 
 
                 //------------------------------------------------------------------------------
         };
