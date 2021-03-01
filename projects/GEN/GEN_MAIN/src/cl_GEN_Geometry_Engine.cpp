@@ -931,7 +931,6 @@ namespace moris
                     mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                             tNewOwnedADVs,
                             tSharedCoefficientIndices(tGeometryIndex),
-                            tOwnedADVIds,
                             tSharedADVIds(tGeometryIndex),
                             tAllOffsetIDs(tGeometryIndex),
                             aMesh,
@@ -958,7 +957,6 @@ namespace moris
                     mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
                             tNewOwnedADVs,
                             tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
-                            tOwnedADVIds,
                             tSharedADVIds(mGeometries.size() + tPropertyIndex),
                             tAllOffsetIDs(mGeometries.size() + tPropertyIndex),
                             aMesh,
