@@ -215,6 +215,13 @@ namespace moris
             void initialize_set( const bool aIsResidual );
 
             //------------------------------------------------------------------------------
+
+            fem::FEM_Model * get_fem_model()
+            {
+                return  mFemModel;
+            };
+
+            //------------------------------------------------------------------------------
             /**
              * finalize the fem sets
              * create and set the field interpolators
