@@ -231,6 +231,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get the field interpolator for a given field type
+                 * @param[ in ] aFieldType a field type enum
+                 */
+                Field_Interpolator * get_field_interpolators_for_type( enum mtk::Field_Type aFieldType );
+
+                //------------------------------------------------------------------------------
+                /**
                  * set an evaluation point in space and time
                  * @param[ in ] aParamPoint coordinates of an evaluation point
                  */
@@ -262,6 +269,16 @@ namespace moris
                 void set_coeff_for_type(
                         enum PDV_Type      aDvType,
                         Matrix< DDRMat > & aCoeff );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set coefficients for field interpolator with specific field type
+                 * @param[ in ] aFieldType a field type for which the coeff will be set
+                 * @param[ in ] aCoeff     coefficients to be set
+                 */
+                void set_coeff_for_type(
+                        enum mtk::Field_Type   aFieldType,
+                        Matrix< DDRMat >     & aCoeff );
 
                 //------------------------------------------------------------------------------
         };
