@@ -15,7 +15,7 @@ namespace moris
 
         Field::Field( mtk::Mesh_Pair * aMeshPair,
                       uint const     & aDiscretizationMeshIndex )
-        : mtk::Field( aMeshPair, aDiscretizationMeshIndex )
+        : mtk::Field( aMeshPair )
         {
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair->mInterpolationMesh;
 

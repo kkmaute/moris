@@ -627,7 +627,7 @@ namespace moris
             moris::map< std::string, PDV_Type > tMSIDvTypeMap =
                     get_pdv_type_map();
 
-            // get string to dv type map
+            // get string to field type map
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
                     mtk::get_field_type_map();
 
@@ -907,10 +907,9 @@ namespace moris
                 // get property name from parameter list
                 std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
-                mtk::Mesh_Pair tMeshPair = mMeshManager->get_mesh_pair( mMeshPairIndex );
-
                 // create a property pointer
-                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >( &tMeshPair, -1 );
+                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
+                        mMeshManager->get_mesh_pair_pointer( mMeshPairIndex ) );
 
                 // set a name for the property
                 tField->set_label( tFieldName );
@@ -919,7 +918,12 @@ namespace moris
                 aFieldMap[ tFieldName ] = iFields;
 
                 // set field type
-                size_t tFieldType = tFieldParameter.get< uint >( "field_type" );
+                moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                        mtk::get_field_type_map();
+
+                mtk::Field_Type tFType = tFieldTypeMap.find( tFieldParameter.get< std::string >( "field_type" ) );
+
+                size_t tFieldType = static_cast< size_t >( tFType );
                 tField->set_field_type( tFieldType );
 
                 mFieldTypeMap.resize( std::max( tFieldType+1, mFieldTypeMap.size() ), -1 );
