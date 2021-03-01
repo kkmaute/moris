@@ -177,7 +177,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< PDV_Type > > & Equation_Set::get_dv_type_list(
+        const moris::Cell< moris::Cell< PDV_Type > > & Equation_Set::get_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )
@@ -200,7 +200,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDSMat > & Equation_Set::get_dv_type_map(
+        const Matrix< DDSMat > & Equation_Set::get_dv_type_map(
                 mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )
@@ -223,7 +223,30 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDSMat > & Equation_Set::get_field_type_map(
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & Equation_Set::get_field_type_list(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    return mMasterFieldTypes;
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    return mSlaveFieldTypes;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Equation_Set::get_field_type_list - can only be MASTER or SLAVE.");
+                    return mMasterFieldTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Equation_Set::get_field_type_map(
                 mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )

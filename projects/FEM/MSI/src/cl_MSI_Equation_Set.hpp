@@ -214,7 +214,7 @@ namespace moris
              * get dv type list
              * @param[ in ] aIsMaster enum for master or slave
              */
-            moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
+            const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -222,7 +222,7 @@ namespace moris
              * get dv type map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            Matrix< DDSMat > & get_dv_type_map(
+            const Matrix< DDSMat > & get_dv_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -253,10 +253,18 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get field type list
+             * @param[ in ] aIsMaster enum for master or slave
+             */
+            const moris::Cell< moris::Cell< mtk::Field_Type > > & get_field_type_list(
+                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
              * get fieldtype map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            Matrix< DDSMat > & get_field_type_map(
+            const Matrix< DDSMat > & get_field_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
