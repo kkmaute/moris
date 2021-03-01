@@ -54,6 +54,8 @@ namespace moris
              */
             Mesh_Pair get_mesh_pair(moris_index aPairIndex);
 
+            Mesh_Pair * get_mesh_pair_pointer(moris_index aPairIndex);
+
             void
             get_mesh_pair(
                     moris_index            aPairIndex,
