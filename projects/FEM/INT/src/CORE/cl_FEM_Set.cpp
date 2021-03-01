@@ -965,6 +965,7 @@ namespace moris
                 mSlaveDofTypeMap( static_cast< int >( mSlaveDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
             }
 
+            // dv type maps -------------------------------------------------------
             // get number of master dv types
             uint tMasterNumDvs  = this->get_dv_type_list().size();
 
@@ -1014,6 +1015,58 @@ namespace moris
             for ( uint iDv = 0; iDv < tSlaveNumDvs; iDv++ )
             {
                 mSlaveDvTypeMap( static_cast< int >( mSlaveDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+            }
+
+            // field type maps -------------------------------------------------------
+            // get number of master field types
+            uint tMasterNumFields  = this->get_field_type_list().size();
+
+            // get maximal field type enum
+            tMaxEnum = -1;
+
+            // loop over the field types
+            for ( uint iFi = 0; iFi < tMasterNumFields; iFi++ )
+            {
+                for ( uint Ik = 0; Ik < mMasterFieldTypes( iFi ).size(); Ik++ )
+                {
+                    // get the highest field type enum
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterFieldTypes( iFi )( Ik ) ) );
+                }
+            }
+
+            // get number of slave dv types
+            uint tSlaveNumFields =  this->get_field_type_list( mtk::Master_Slave::SLAVE ).size();
+
+            // loop over the IWGs
+            for ( uint iFi = 0; iFi < tSlaveNumFields; iFi++ )
+            {
+                for ( uint Ik = 0; Ik < mSlaveFieldTypes( iFi ).size(); Ik++ )
+                {
+                    // get the highest dof type enum
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveFieldTypes( iFi )( Ik ) ) );
+                }
+            }
+            // +1 since start at 0
+            tMaxEnum++;
+
+            MORIS_ASSERT( tMaxEnum != -1, "Set::create_field_type_map(), no information to build field type map" );
+
+            // set size of field type map    // FIXME replace with map
+            mMasterFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+
+            // loop over field types
+            for ( uint iFi = 0; iFi < tMasterNumFields; iFi++ )
+            {
+                mMasterFieldTypeMap( static_cast< int >( mMasterFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
+            }
+
+            // set size of field type map
+            mSlaveFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+
+            // loop over field types
+            for ( uint iFi = 0; iFi < tSlaveNumFields; iFi++ )
+            {
+                mSlaveFieldTypeMap( static_cast< int >( mSlaveFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
             }
         }
 
@@ -1065,6 +1118,7 @@ namespace moris
                 // create the field interpolators on the master FI manager
                 mMasterPreviousFIManager->create_field_interpolators( aModelSolverInterface );
             }
+
         }
 
         //------------------------------------------------------------------------------
