@@ -659,6 +659,25 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * check Jacobian that uses multiple dof types with FD
+                 * FIXME: FEM needs refactoring for mResidualDofTypes being a cell of cells
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aEpsilon      real for check
+                 * @param[ in ] aWStar        real weight associated to evaluation point
+                 * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
+                 * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+                 * @param[ in ] aErrorPrint   bool set to true to print non matching values in jacobian
+                 */
+                bool check_jacobian_multi_residual(
+                        real               aPerturbation,
+                        real               aEpsilon,
+                        real               aWStar,
+                        Matrix< DDRMat > & aJacobians,
+                        Matrix< DDRMat > & aJacobiansFD,
+                        bool               aErrorPrint = false );                        
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the derivative of the residual wrt the design variables
                  * @param[ in ] aWStar weight associated to evaluation point
                  */
