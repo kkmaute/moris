@@ -799,6 +799,7 @@ namespace moris
             // Owned and shared ADVs per field
             Cell<Matrix<DDUMat>> tSharedCoefficientIndices(tFields.size());
             Cell<Matrix<DDSMat>> tSharedADVIds(tFields.size());
+            Matrix<DDUMat> tAllOffsetIDs(tFields.size(), 1);
 
             // Get all node indices from the mesh (for now)
             uint tNumNodes = aMesh->get_num_nodes();
@@ -809,7 +810,7 @@ namespace moris
             }
 
             // Loop over all geometries to get number of new ADVs
-            uint tOffsetID = tPrimitiveADVIds.length(); // TODO save this offset for later
+            uint tOffsetID = tPrimitiveADVIds.length();
             for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
             {
                 // Determine if level set will be created
@@ -866,6 +867,7 @@ namespace moris
                     }
 
                     // Update offset based on maximum ID TODO check the info being provided here
+                    tAllOffsetIDs(tFieldIndex) = tOffsetID;
                     tOffsetID += aMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
                 }
             }
@@ -931,7 +933,7 @@ namespace moris
                             tSharedCoefficientIndices(tGeometryIndex),
                             tOwnedADVIds,
                             tSharedADVIds(tGeometryIndex),
-                            tPrimitiveADVIds.length(),
+                            tAllOffsetIDs(tGeometryIndex),
                             aMesh,
                             mGeometries(tGeometryIndex));
                 }
@@ -958,7 +960,7 @@ namespace moris
                             tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
                             tOwnedADVIds,
                             tSharedADVIds(mGeometries.size() + tPropertyIndex),
-                            tPrimitiveADVIds.length(),
+                            tAllOffsetIDs(mGeometries.size() + tPropertyIndex),
                             aMesh,
                             mProperties(tPropertyIndex));
                 }
