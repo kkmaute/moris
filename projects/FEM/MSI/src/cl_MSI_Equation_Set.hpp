@@ -227,14 +227,6 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get fieldtype map
-             * @param[ in ] aIsMaster enum for master or slave
-             */
-            Matrix< DDSMat > & get_field_type_map(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-            //------------------------------------------------------------------------------
-            /**
              * get dv index for type
              * (return consecutive indices for master/slave,
              * i.e. index for slave starts at max index for master)
@@ -258,6 +250,27 @@ namespace moris
             sint get_dv_index_for_type_1(
                     enum PDV_Type     aDvType,
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get fieldtype map
+             * @param[ in ] aIsMaster enum for master or slave
+             */
+            Matrix< DDSMat > & get_field_type_map(
+                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get field index for type 1
+             * (return non-consecutive indices for master/slave,
+             *  i.e. index for slave restarts at 0)
+             * @param[ in ]  aFieldType   enum for field type
+             * @param[ in ]  aIsMaster enum for master or slave
+             * @param[ out ] sint      non-consecutive index for field type
+             */
+            sint get_field_index_for_type_1(
+                    enum mtk::Field_Type aFieldType,
+                    mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER );
 
             //-------------------------------------------------------------------------------------------------
             /**

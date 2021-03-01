@@ -351,6 +351,49 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        sint Equation_Set::get_field_index_for_type_1(
+                enum mtk::Field_Type aFieldType,
+                mtk::Master_Slave    aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    // check if dv type is set in map
+                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mMasterFieldTypeMap.numel(),
+                            "Equation_Set::get_field_index_for_type_1 - master field type does not exist in map." );
+
+                    //// check if field type is set in map
+                    //MORIS_ASSERT( mMasterDvTypeMap( static_cast< int >( aFieldType ) ),
+                    //          "Equation_Set::get_field_index_for_type_1 - master field type not assigned in map." );
+
+                    // return set index for dv type
+                    return mMasterFieldTypeMap( static_cast< int >( aFieldType ) );
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    // check if field type is set in map
+                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mSlaveFieldTypeMap.numel(),
+                            "Equation_Set::get_field_index_for_type_1 - slave dv type does not exist in map." );
+
+                    //// check if field type is set in map
+                    //MORIS_ASSERT( mSlaveFieldTypeMap( static_cast< int >( aDvType ) ),
+                    //        "Equation_Set::get_field_index_for_type_1 - slave field type not assigned in map." );
+
+                    // return set index for dv type
+                    return mSlaveFieldTypeMap( static_cast< int >( aFieldType ) );
+                }
+                default:
+                {
+                    MORIS_ERROR(false,
+                            "Equation_Set::get_field_index_for_type_1 - can only be MASTER or SLAVE.");
+                    return 0;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void Equation_Set::free_matrix_memory()
         {
             // if the Jacobian matrix was created
