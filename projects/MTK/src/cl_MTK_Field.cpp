@@ -208,9 +208,7 @@ namespace moris
            //check whether field is unlocked
            this->error_if_locked();
 
-           //check whether vector has the correct size
-           MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
-                   "mtk::Field::get_number_of_coefficients - coefficient vector not set.\n");
+           mNumberOfCoefficients = aCoefficients.n_rows();
 
            // set coefficient vector using child implementation
            this->set_coefficient_vector(aCoefficients);
