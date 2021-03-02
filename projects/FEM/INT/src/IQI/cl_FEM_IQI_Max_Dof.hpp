@@ -42,7 +42,24 @@ namespace moris
                  */
                 ~IQI_Max_Dof(){};
 
+                //------------------------------------------------------------------------------
             private:
+                //------------------------------------------------------------------------------
+
+                //! initialization flag
+                bool mIsInitialized = false;
+
+                //! parameters: reference value, exponent, shift
+                real mRefValue;
+                real mExponent;
+                real mShift;
+
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize parameters
+                 */
+                void initialize( );
+
                 /**
                  * compute the quantity of interest
                  * @param[ in ] aWStar weight associated to the evaluation point

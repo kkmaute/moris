@@ -190,7 +190,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Property.hpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
-    IQI/cl_FEM_IQI_H1_Semi_Error.hpp
+    IQI/cl_FEM_IQI_H1_Error.hpp
     IQI/cl_FEM_IQI_J_Integral.hpp
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
@@ -257,7 +257,6 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid.cpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid_Test_Tractions.cpp  
-
 
     SP/cl_FEM_Stabilization_Parameter.cpp
     SP/cl_FEM_SP_Factory.cpp
@@ -348,7 +347,6 @@ set(LIB_SOURCES
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
-
     
     IQI/cl_FEM_IQI.cpp
     IQI/cl_FEM_IQI_Factory.cpp
@@ -361,7 +359,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Property.cpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
-    IQI/cl_FEM_IQI_H1_Semi_Error.cpp
+    IQI/cl_FEM_IQI_H1_Error.cpp
     IQI/cl_FEM_IQI_J_Integral.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Volume_Fraction.cpp
