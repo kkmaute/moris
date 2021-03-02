@@ -27,10 +27,6 @@
 
 namespace moris
 {
-    namespace mtk
-    {
-        class Field;
-    }
     namespace fem
     {
         class Set;
@@ -207,7 +203,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void create_fields( moris::Cell< std::shared_ptr< mtk::Field > > & aFields );
+                void populate_fields(
+                        moris::Cell< std::shared_ptr< fem::Field > > & aFields,
+                        moris::Cell< std::string > const             & tFieldIQINames );
 
                 //------------------------------------------------------------------------------
             protected:
