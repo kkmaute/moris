@@ -36,6 +36,10 @@ namespace moris
 
                 enum mtk::Field_Type mFieldType = mtk::Field_Type::UNDEFINED;
 
+                std::string          mIQIName;
+
+                std::string          mOutpurFileName;
+
 
                 //------------------------------------------------------------------------------
             public :
@@ -50,11 +54,23 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void set_field_type( const uint & aType );
+                void set_field_type( const mtk::Field_Type & aType );
 
                 //-----------------------------------------------------------------------------
 
                 void set_field_from_file( const std::string & aString );
+
+                //-----------------------------------------------------------------------------
+
+                void set_field_to_file( const std::string & aString );
+
+                //-----------------------------------------------------------------------------
+
+                void set_IQI_name( const std::string & aString );
+
+                //-----------------------------------------------------------------------------
+
+                const std::string & get_IQI_name();
 
                 //-----------------------------------------------------------------------------
 

@@ -921,18 +921,34 @@ namespace moris
                 moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
                         mtk::get_field_type_map();
 
-                mtk::Field_Type tFType = tFieldTypeMap.find( tFieldParameter.get< std::string >( "field_type" ) );
-
-                size_t tFieldType = static_cast< size_t >( tFType );
+                // set field type
+                mtk::Field_Type tFieldType = tFieldTypeMap.find( tFieldParameter.get< std::string >( "field_type" ) );
                 tField->set_field_type( tFieldType );
 
-                mFieldTypeMap.resize( std::max( tFieldType+1, mFieldTypeMap.size() ), -1 );
+                mFieldTypeMap.resize( std::max( static_cast< uint >(tFieldType) + 1, ( uint )mFieldTypeMap.size() ), -1 );
+                mFieldTypeMap( static_cast< uint >(tFieldType) ) = iFields;
 
-                mFieldTypeMap( tFieldType ) = iFields;
+                MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
+                        (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+
+                MORIS_ERROR( not ((not tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) and
+                        (not tFieldParameter.get< std::string >( "IQI_Name" ).empty()  )),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
 
                 if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
                 {
                     tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+                }
+
+                if( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
+                {
+                    tField->set_IQI_name( tFieldParameter.get< std::string >( "IQI_Name" ) );
+                }
+
+                if( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
+                {
+                    tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
                 }
 
                 mFields( iFields ) = tField;
@@ -2990,34 +3006,31 @@ namespace moris
         }
         //-------------------------------------------------------------------------------------------------
 
-        //        void FEM_Model::populate_fields()
-        //        {
-        //            mFields.resize( mIQIs.size(), nullptr );
-        //
-        //            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
-        //
-        //            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-        //            {
-        //                mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
-        //
-        //                mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
-        //            }
-        //
-        //            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
-        //            {
-        //                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
-        //                {
-        //                    mFemSets( Ik )->create_fields( mFields );
-        //                }
-        //            }
-        //
-        //            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-        //            {
-        //                    mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
-        //
-        //                    //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
-        //            }
-        //        }
+//                void FEM_Model::populate_fields()
+//                {
+//
+//                    for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
+//                    {
+//                        mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
+//
+//                        mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
+//                    }
+//
+//                    for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
+//                    {
+//                        if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
+//                        {
+//                            mFemSets( Ik )->create_fields( mFields );
+//                        }
+//                    }
+//
+//                    for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
+//                    {
+//                            mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
+//
+//                            //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
+//                    }
+//                }
 
         //-------------------------------------------------------------------------------------------------
 

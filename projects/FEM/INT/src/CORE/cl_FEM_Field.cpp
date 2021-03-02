@@ -33,9 +33,23 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Field::set_field_type( const uint & aType )
+        void Field::set_field_type( const mtk::Field_Type & aType )
         {
-             mFieldType = static_cast< mtk::Field_Type >( aType );
+             mFieldType = aType;
+        }
+
+        //-----------------------------------------------------------------------------
+
+        void Field::set_IQI_name( const std::string & aString )
+        {
+             mIQIName = aString;
+        }
+
+        //-----------------------------------------------------------------------------
+
+        const std::string & Field::get_IQI_name()
+        {
+             return mIQIName;
         }
 
         //-----------------------------------------------------------------------------
@@ -71,6 +85,13 @@ namespace moris
                  MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here.");
              }
         }
+
+        void Field::set_field_to_file( const std::string & aString )
+        {
+            mOutpurFileName = aString;
+        }
+
+
 
         //------------------------------------------------------------------------------
     } /* namespace hmr */
