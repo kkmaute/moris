@@ -28,6 +28,7 @@ namespace moris
                         aAncestorBasisFunction,
                         0.5 * ((1 - aLocalCoordinate) * aFirstParentNodeLocalCoordinates + (1 + aLocalCoordinate) * aSecondParentNodeLocalCoordinates)),
                   mLocalCoordinate(aLocalCoordinate),
+                  mIsIntersected(false),
                   mInterfaceGeometry(aInterfaceGeometry),
                   mIsocontourThreshold(aIsocontourThreshold)
         {
@@ -51,11 +52,23 @@ namespace moris
             // Parents on interface
             real tFirstParentPhi = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex, tFirstParentGlobalCoordinates);
             real tSecondParentPhi = aInterfaceGeometry->get_field_value(aSecondParentNodeIndex, tSecondParentGlobalCoordinates);
+
             real tParentLength = norm(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
             mFirstParentOnInterface = std::abs(tFirstParentPhi) < aIsocontourTolerance or
                     0.5 * tParentLength * std::abs(1 + aLocalCoordinate) < aIntersectionTolerance;
             mSecondParentOnInterface = std::abs(tSecondParentPhi) < aIsocontourTolerance or
                     0.5 * tParentLength * std::abs(1 - aLocalCoordinate) < aIntersectionTolerance;
+            
+
+            if(mFirstParentOnInterface || mSecondParentOnInterface)
+            {
+                mIsIntersected = true;
+            }
+            else
+            {
+                mIsIntersected = (std::abs(mLocalCoordinate) <= 1.0);
+            }
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -93,7 +106,7 @@ namespace moris
 
         bool Intersection_Node::parent_edge_is_intersected()
         {
-            return (std::abs(mLocalCoordinate) <= 1.0);
+            return mIsIntersected;
         }
 
         //--------------------------------------------------------------------------------------------------------------

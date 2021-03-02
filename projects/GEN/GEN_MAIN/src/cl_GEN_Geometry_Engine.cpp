@@ -279,7 +279,9 @@ namespace moris
                         tMax = std::max(tMax, tEval);
                     }
 
-                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
+                                     (std::abs(tMax) < mIsocontourTolerance) or
+                                     (std::abs(tMin) < mIsocontourTolerance);
 
                     break;
                 }
@@ -1726,6 +1728,11 @@ namespace moris
                 for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
                 {            
                     real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
+
+                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    {
+                        tVertGeomVal = 1;
+                    }
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 

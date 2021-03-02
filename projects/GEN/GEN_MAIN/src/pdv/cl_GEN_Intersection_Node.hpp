@@ -14,6 +14,7 @@ namespace moris
 
         protected:
             real mLocalCoordinate;
+            bool mIsIntersected;
             std::weak_ptr<Geometry> mInterfaceGeometry;
             real mIsocontourThreshold;
 

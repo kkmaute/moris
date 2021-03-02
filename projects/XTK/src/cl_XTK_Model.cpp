@@ -3132,9 +3132,8 @@ namespace xtk
         for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
         {
             Child_Mesh & tCM = mCutMesh.get_child_mesh(iCM);
-
             Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
-            if(tSubphasebinBulkPhase.size() > 1)
+            if(tSubphasebinBulkPhase.size() > 1 || tCM.get_cell_interface_side_ords().min() < std::numeric_limits<moris::size_t>::max())
             {
                 tChildMeshesToKeep.push_back(iCM);
             }
@@ -3777,7 +3776,10 @@ namespace xtk
     void
     Model::construct_neighborhood()
     {
+        // size the member data
         mElementToElement.resize(this->get_num_elements_total());
+        mElementToElementSideOrds.resize(this->get_num_elements_total());
+        mElementToElementNeighborSideOrds.resize(this->get_num_elements_total());
 
         // add uncut neighborhood to connectivity
         // keep track of boundaries with an uncut mesh next to a cut mesh
@@ -4031,7 +4033,8 @@ namespace xtk
 
         // generate the element to element connectivity. this only captures the easy neighborhood relationships
         // where we consider elements neighbors if they share a full face
-        Matrix<IndexMat> tElementToElementMat = generate_element_to_element(tFaceToElement, mCutMesh.get_num_entities(EntityRank::ELEMENT), tNumFacePerElem, MORIS_INDEX_MAX);
+        moris::Matrix< moris::IndexMat > tElementToElementSharedFacet;
+        Matrix<IndexMat> tElementToElementMat = generate_element_to_element(tFaceToElement, mCutMesh.get_num_entities(EntityRank::ELEMENT), tNumFacePerElem, MORIS_INDEX_MAX,tElementToElementSharedFacet);
 
         moris::Matrix< moris::IndexMat > tCMElementInds = mCutMesh.get_all_element_inds();
 
@@ -4050,7 +4053,37 @@ namespace xtk
                 {
                     continue;
                 }
-                mElementToElement(tCMElementInds(iC)).push_back(tCMCellPtrs(tElementToElementMat(iC,iN)));
+
+                moris_index tFacetIndex         = tElementToElementSharedFacet(iC,iN);
+                moris_index tNeighborCellIndex  = tElementToElementMat(iC,iN);
+
+
+                // figure out my side ordinal
+                moris_index tMysideOrd   = MORIS_INDEX_MAX;
+                for(moris::uint iSO = 0; iSO < tElementToFace.n_cols(); iSO++)
+                {
+                    if(tElementToFace(iC,iSO) == (moris_index) tFacetIndex)
+                    {
+                        tMysideOrd = iSO;
+                    }
+                }
+
+                // figure out my neighbors side ordinal
+                moris_index tNeighborSideOrd = MORIS_INDEX_MAX;
+                for(moris::uint iSO = 0; iSO < tElementToFace.n_cols(); iSO++)
+                {
+                    if(tElementToFace(tNeighborCellIndex,iSO) == (moris_index) tFacetIndex)
+                    {
+                        tNeighborSideOrd = iSO;
+                    }
+                }
+
+                MORIS_ERROR(tNeighborSideOrd!= MORIS_INDEX_MAX,"Neighbor Side Ord Not Found");
+                MORIS_ERROR(tMysideOrd!= MORIS_INDEX_MAX,"My Cell Side Ord Not Found");
+                mElementToElement(tCMElementInds(iC)).push_back(tCMCellPtrs(tNeighborCellIndex));
+                mElementToElementSideOrds(tCMElementInds(iC)).push_back(tMysideOrd);
+                mElementToElementNeighborSideOrds(tCMElementInds(iC)).push_back(tNeighborSideOrd);
+
             }
         }
 
@@ -5278,7 +5311,6 @@ namespace xtk
         // maximum row index and column index
         uint tMaxRow = 0;
         uint tMaxCol = 0;
-
         for (moris::uint i = 0; i < tNumGeom; i++)
         {
             bool tFoundNonInterfaceNode = false;
@@ -5286,16 +5318,14 @@ namespace xtk
             for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
                 Matrix<DDRMat> tCoord= mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
+
                 if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
                 {
-                    moris_index tPhaseIndex = mGeometryEngine->
-                            get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
-                                    mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
-                                    i);
+                    moris::uint tNodeIndex = (moris::uint)aElementToNodeIndex(aRowIndex, j);
+                    Matrix<DDRMat> tNodeCoord = mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
+                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry(tNodeIndex,tNodeCoord,i);
                     tFoundNonInterfaceNode = true;
                     tPhaseVotes(tPhaseIndex)++;
-
-
                 }
 
 
@@ -5305,18 +5335,6 @@ namespace xtk
             tPhaseVotes.max(tMaxRow,tMaxCol);
             tNodalPhaseVals(0,i) = tMaxCol;
 
-            //            if(tPhaseVotes(0) == tPhaseVotes(1))
-            //            {
-            //                std::cout<<"Parity Vote"<<std::endl;
-            //                std::cout<<"iGeom = "<<i<<std::endl;
-            //                std::cout<<"tMaxRow = "<<tMaxRow<<std::endl;
-            //                std::cout<<"tMaxCol = "<<tMaxCol<<std::endl;
-            //                std::cout<<"tPhaseVotes(0)  = "<<tPhaseVotes(0) <<std::endl;
-            //                std::cout<<"tPhaseVotes(1)  = "<<tPhaseVotes(1) <<std::endl;
-            //                throw;
-            //            }
-
-            // reset
             tPhaseVotes.fill(0);
 
             MORIS_ERROR(tFoundNonInterfaceNode,"Did not find a non-interface node for this element");
