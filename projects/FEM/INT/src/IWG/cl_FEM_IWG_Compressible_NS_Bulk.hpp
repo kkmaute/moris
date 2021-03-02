@@ -64,13 +64,21 @@ namespace moris
                 
                 // cells of matrices containing the K flux matrices and their DoF derivatives
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > mKDOF;
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > mKDOF;   
 
-                // (cells of) matrices containing the product of the K flux matrices with the 
-                // spatial derivative of the variable set vector (and their DoF derivatives)
-                Matrix< DDRMat > mKYj;
-                moris::Cell< Matrix< DDRMat > > mKYjDOF;
+                // multiplication matrices for condensed tensors
+                const Matrix< DDRMat > mMultipMat2D = { 
+                        { 1.0, 0.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 2.0 } };  
 
+                const Matrix< DDRMat > mMultipMat3D = { 
+                        { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 } };     
 
                 //------------------------------------------------------------------------------
 
@@ -180,6 +188,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get the multiplication matrix for condensed tensors
+                 * @param[ out ] mMultipMat multiplication matrix for condensed tensors
+                 */
+                const Matrix< DDRMat > & MultipMat();
+
+                //------------------------------------------------------------------------------
+                /**
                  * Compute Flux matrices for residual computation
                  */
                 void compute_Flux_Matrices();
@@ -228,20 +243,6 @@ namespace moris
                 void eval_A1_DOF(); 
                 void eval_A2_DOF(); 
                 void eval_A3_DOF();                  
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the product of the K flux matrices with the 
-                 * spatial derivative of the variable set vector
-                 */
-                void eval_KYj();
-                
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the derivative of the product of the K flux matrices with the 
-                 * spatial derivative of the variable set vector with respect to the DoFs
-                 */
-                void eval_KYj_DOF();  
 
                 //------------------------------------------------------------------------------
                 /**

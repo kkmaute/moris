@@ -106,11 +106,15 @@ namespace moris
 
             // compute the second residual (velocity)
             mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) += aWStar * ( tFIVelocity->N_trans() * (
-                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) ); 
+                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) -
+                    trans( tCM->testStrain() ) * this->MultipMat() * tCM->flux( CM_Function_Type::MECHANICAL ) ); 
 
             // compute the third residual (temperature)
-            mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar * ( tFIThirdDofType->N_trans() * (
-                    mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) ); 
+            mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar * ( 
+                    tFIThirdDofType->N_trans() * (
+                        mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) -
+                    trans( tFIThirdDofType->dnNdxn( 1 ) ) * ( 
+                        tCM->flux( CM_Function_Type::WORK ) - tCM->flux( CM_Function_Type::THERMAL ) ) ); 
 
             // loop over A-Matrices
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
@@ -252,6 +256,31 @@ namespace moris
                                 mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdxDOF( iA - 1 ) ) );
             }
 
+            // loop over DoF dependencies for K*Y,j term
+            for (uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++)
+            {   
+                // get the treated dof type
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+
+                // get index
+                uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( iDof ), mtk::Master_Slave::MASTER );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+
+                // add contribution
+                mSet->get_jacobian()(
+                        { tMasterRes2StartIndex, tMasterRes2StopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * ( trans( tCM->testStrain() ) * 
+                                this->MultipMat() * tCM->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );                        
+
+                // add contribution to temperature residual dof type
+                mSet->get_jacobian()(
+                        { tMasterRes3StartIndex, tMasterRes3StopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * ( trans( tFIThirdDofType->dnNdxn( 1 ) ) * (
+                                tCM->dFluxdDOF( tDofType, CM_Function_Type::WORK ) - tCM->dFluxdDOF( tDofType, CM_Function_Type::THERMAL ) ) );
+            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");                     
@@ -323,6 +352,23 @@ namespace moris
                         tVelocityFI->dnNdtn( 1 ).matrix_data();
             }
         }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::MultipMat()
+        {
+            //build multiplication matrix
+            //for 2D
+            if( mMasterFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
+            {
+                return mMultipMat2D;
+            }
+            // for 3D
+            else
+            {
+                return mMultipMat3D;
+            }
+        }        
 
         //------------------------------------------------------------------------------
 
