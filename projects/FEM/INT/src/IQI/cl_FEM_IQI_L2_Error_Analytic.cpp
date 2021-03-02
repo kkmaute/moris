@@ -37,12 +37,22 @@ namespace moris
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
-            // get analytical solution property
-            std::shared_ptr< Property > & tPropL2Check =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+            real tJumpNorm;
 
-            // compute jump
-            real tJumpNorm = norm( tFI->val() - tPropL2Check->val());
+            Field_Interpolator * tFIField = nullptr;
+            if( mMasterFieldTypes.size() !=0 )
+            {
+                tFIField = mMasterFIManager->get_field_interpolators_for_type( mMasterFieldTypes( 0 )( 0 ) );
+
+                tJumpNorm = norm( tFI->val() - tFIField->val());
+            }
+            else
+            {
+                // get analytical solution property
+                std::shared_ptr< Property > & tPropL2Check =
+                        mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+                tJumpNorm = norm( tFI->val() - tPropL2Check->val());
+            }
 
             // evaluate the QI
             aQI = tJumpNorm * tJumpNorm;
