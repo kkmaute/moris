@@ -40,6 +40,8 @@ namespace moris
 
                 std::string          mOutpurFileName;
 
+                bool                 mPopulateFieldWithIQI = false;
+
 
                 //------------------------------------------------------------------------------
             public :
@@ -70,6 +72,13 @@ namespace moris
 
                 //-----------------------------------------------------------------------------
 
+                bool get_populate_field_with_IQI()
+                {
+                    return mPopulateFieldWithIQI;
+                }
+
+                //-----------------------------------------------------------------------------
+
                 const std::string & get_IQI_name();
 
                 //-----------------------------------------------------------------------------
@@ -78,6 +87,16 @@ namespace moris
                         Matrix< IndexMat > const   & aNodeIndex,
                         Matrix< DDRMat >              & aNodalValues,
                         Cell< mtk::Field_Type > const & aFieldTypes);
+
+                //-----------------------------------------------------------------------------
+
+                //FIXME replace this
+                void set_field_value(
+                        const moris_index tIndex,
+                        const real & aValue )
+                {
+                    mNodalValues( tIndex ) = aValue;
+                }
 
                 //-----------------------------------------------------------------------------
 

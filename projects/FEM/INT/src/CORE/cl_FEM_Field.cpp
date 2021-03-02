@@ -24,6 +24,8 @@ namespace moris
 
             // set size of node values
             mNodalValues.set_size( tNumberOfVertices, 1, MORIS_REAL_MIN );
+
+            mUpdateNodalValues = false;
         }
 
         Field::~Field()
@@ -43,6 +45,8 @@ namespace moris
         void Field::set_IQI_name( const std::string & aString )
         {
              mIQIName = aString;
+
+             mPopulateFieldWithIQI = true;
         }
 
         //-----------------------------------------------------------------------------
