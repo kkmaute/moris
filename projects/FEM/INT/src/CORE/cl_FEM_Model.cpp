@@ -3006,31 +3006,37 @@ namespace moris
         }
         //-------------------------------------------------------------------------------------------------
 
-//                void FEM_Model::populate_fields()
-//                {
-//
-//                    for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-//                    {
-//                        mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
-//
-//                        mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
-//                    }
-//
-//                    for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
-//                    {
-//                        if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
-//                        {
-//                            mFemSets( Ik )->create_fields( mFields );
-//                        }
-//                    }
-//
-//                    for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-//                    {
-//                            mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
-//
-//                            //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
-//                    }
-//                }
+        void FEM_Model::populate_fields()
+        {
+            Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
+            Cell< std::string >  tFieldIQINames;
+            tFieldToPopulate.reserve(mFields.size());
+            tFieldIQINames  .reserve(mFields.size());
+
+            for( uint Ik = 0; Ik < mFields.size(); Ik ++ )
+            {
+                if( mFields( Ik )->get_populate_field_with_IQI() )
+                {
+                    tFieldToPopulate.push_back( mFields( Ik ) );
+                    tFieldIQINames  .push_back( mFields( Ik )->get_IQI_name() );
+                }
+            }
+
+            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
+            {
+                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
+                {
+                    mFemSets( Ik )->populate_fields( tFieldToPopulate, tFieldIQINames );
+                }
+            }
+
+            for( uint Ik = 0; Ik < tFieldToPopulate.size(); Ik ++ )
+            {
+                tFieldToPopulate( Ik )->save_nodal_values_to_hdf5( "FEM_Field.hdf5" );
+
+                //tFieldToPopulate( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
+            }
+        }
 
         //-------------------------------------------------------------------------------------------------
 

@@ -2949,38 +2949,7 @@ namespace moris
             // set the nodal set values to the ones provided
             mSetNodalValues = aNodalFieldValues;
 
-            // get number of potential requested IQIs
-            uint tNumRequestedNodalIQINames = aQINames.size();
-
-            // clear requested IQI list
-            mRequestedNodalIQIs.clear();
-            mRequestedNodalIQIsGlobalIndices.clear();
-
-            // reserve memory
-            mRequestedNodalIQIs.reserve( tNumRequestedNodalIQINames );
-            mRequestedNodalIQIsGlobalIndices.reserve( tNumRequestedNodalIQINames );
-
-            // loop over requested IQI names
-            for( uint Ik = 0; Ik < tNumRequestedNodalIQINames; Ik++ )
-            {
-                // check if this set has the requested IQI
-                if( mIQINameToIndexMap.key_exists( aQINames( Ik ) ) )
-                {
-                    // get the set local index
-                    moris_index tIQISetLocalIndex =
-                            mIQINameToIndexMap.find( aQINames( Ik ) );
-
-                    // put global model index in list
-                    mRequestedNodalIQIsGlobalIndices.push_back( Ik );
-
-                    // put IQI in requested IQI list
-                    mRequestedNodalIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
-                }
-            }
-
-            // reduce memory to used space
-            mRequestedNodalIQIs.shrink_to_fit();
-            mRequestedNodalIQIsGlobalIndices.shrink_to_fit();
+            this->gather_requested_IQIs( aQINames, mRequestedNodalIQIs, mRequestedNodalIQIsGlobalIndices);
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
@@ -3024,38 +2993,7 @@ namespace moris
             // set the global set values to the ones provided
             mSetGlobalValues = aGlobalFieldValues;
 
-            // get number of potential requested IQIs
-            uint tNumRequestedGlobalIQINames = aQINames.size();
-
-            // clear requested IQI list
-            mRequestedGlobalIQIs.clear();
-            mRequestedGlobalIQIsGlobalIndices.clear();
-
-            // reserve memory
-            mRequestedGlobalIQIs.reserve( tNumRequestedGlobalIQINames );
-            mRequestedGlobalIQIsGlobalIndices.reserve( tNumRequestedGlobalIQINames );
-
-            // loop over requested IQI names
-            for( uint Ik = 0; Ik < tNumRequestedGlobalIQINames; Ik++ )
-            {
-                // check if this set has the requested IQI
-                if( mIQINameToIndexMap.key_exists( aQINames( Ik ) ) )
-                {
-                    // get the set local index
-                    moris_index tIQISetLocalIndex =
-                            mIQINameToIndexMap.find( aQINames( Ik ) );
-
-                    // put global model index in list
-                    mRequestedGlobalIQIsGlobalIndices.push_back( Ik );
-
-                    // put IQI in requested IQI list
-                    mRequestedGlobalIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
-                }
-            }
-
-            // reduce memory to used space
-            mRequestedGlobalIQIs.shrink_to_fit();
-            mRequestedGlobalIQIsGlobalIndices.shrink_to_fit();
+            this->gather_requested_IQIs( aQINames, mRequestedGlobalIQIs, mRequestedGlobalIQIsGlobalIndices );
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
@@ -3100,38 +3038,7 @@ namespace moris
             mSetElementalValues = aElementalFieldValues;
             mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), aQINames.size(), 0.0 );
 
-            // get number of potential requested IQIs
-            uint tNumRequestedElementalIQINames = aQINames.size();
-
-            // clear requested IQI list
-            mRequestedElementalIQIs.clear();
-            mRequestedElementalIQIsGlobalIndices.clear();
-
-            // reserve memory
-            mRequestedElementalIQIs.reserve( tNumRequestedElementalIQINames );
-            mRequestedElementalIQIsGlobalIndices.reserve( tNumRequestedElementalIQINames );
-
-            // loop over requested IQI names
-            for( uint Ik = 0; Ik < tNumRequestedElementalIQINames; Ik++ )
-            {
-                // check if this set has the requested IQI
-                if( mIQINameToIndexMap.key_exists( aQINames( Ik ) ) )
-                {
-                    // get the set local index
-                    moris_index tIQISetLocalIndex =
-                            mIQINameToIndexMap.find( aQINames( Ik ) );
-
-                    // put global model index in list
-                    mRequestedElementalIQIsGlobalIndices.push_back( Ik );
-
-                    // put IQI in requested IQI list
-                    mRequestedElementalIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
-                }
-            }
-
-            // reduce memory to used space
-            mRequestedElementalIQIs.shrink_to_fit();
-            mRequestedElementalIQIsGlobalIndices.shrink_to_fit();
+            this->gather_requested_IQIs( aQINames, mRequestedElementalIQIs, mRequestedElementalIQIsGlobalIndices);
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
@@ -3163,6 +3070,68 @@ namespace moris
         const moris::Cell< moris_index > & Set::get_requested_elemental_IQIs_global_indices_for_visualization()
         {
             return mRequestedElementalIQIsGlobalIndices;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< std::shared_ptr< fem::IQI > > & Set::get_requested_field_IQIs()
+        {
+            return mRequestedFieldIQIs;
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint Set::get_number_of_requested_field_IQIs()
+        {
+            return mRequestedFieldIQIs.size();
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris_index > & Set::get_requested_field_IQIs_global_indices()
+        {
+            return mRequestedFieldIQIsGlobalIndices;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Set::gather_requested_IQIs(
+                moris::Cell< std::string> const       & aNames,
+                moris::Cell< std::shared_ptr< IQI > > & aListOfRequestedIQIs,
+                moris::Cell< moris_index >            & aListOfIQIGlobalIndices )
+        {
+            // get number of potential requested IQIs
+            uint tNumRequestedElementalIQINames = aNames.size();
+
+            // clear requested IQI list
+            aListOfRequestedIQIs.clear();
+            aListOfIQIGlobalIndices.clear();
+
+            // reserve memory
+            aListOfRequestedIQIs.reserve( tNumRequestedElementalIQINames );
+            aListOfIQIGlobalIndices.reserve( tNumRequestedElementalIQINames );
+
+            // loop over requested IQI names
+            for( uint Ik = 0; Ik < tNumRequestedElementalIQINames; Ik++ )
+            {
+                // check if this set has the requested IQI
+                if( mIQINameToIndexMap.key_exists( aNames( Ik ) ) )
+                {
+                    // get the set local index
+                    moris_index tIQISetLocalIndex =
+                            mIQINameToIndexMap.find( aNames( Ik ) );
+
+                    // put global model index in list
+                    aListOfIQIGlobalIndices.push_back( Ik );
+
+                    // put IQI in requested IQI list
+                    aListOfRequestedIQIs.push_back( mIQIs( tIQISetLocalIndex ) );
+                }
+            }
+
+            // reduce memory to used space
+            aListOfRequestedIQIs.shrink_to_fit();
+            aListOfIQIGlobalIndices.shrink_to_fit();
         }
 
         //------------------------------------------------------------------------------
@@ -3247,6 +3216,23 @@ namespace moris
             //            tPdvInterface->get_ip_dv_types_for_set(
             //                    mMeshSet->get_set_index(),
             //                    aMatPdvType );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Set::populate_fields(
+                moris::Cell< std::shared_ptr< fem::Field > >      & aFieldToPopulate,
+                moris::Cell< std::string > const & aFieldIQINames )
+        {
+            this->gather_requested_IQIs(
+                    aFieldIQINames,
+                    mRequestedFieldIQIs,
+                    mRequestedFieldIQIsGlobalIndices );
+
+            for( uint Ik = 0; Ik< mEquationObjList.size(); Ik++)
+            {
+                mEquationObjList( Ik )->populate_fields( aFieldToPopulate, aFieldIQINames );
+            }
         }
 
         //------------------------------------------------------------------------------
