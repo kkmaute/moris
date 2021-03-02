@@ -13,6 +13,7 @@
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Model.hpp"
+#include "cl_FEM_Field.hpp"
 //SOL/src
 #include "cl_SOL_Dist_Vector.hpp"
 //LINALG/src
@@ -178,7 +179,7 @@ namespace moris
             // dv field interpolators------------------------------------------
 
             // get master dv type list from set
-            Cell< Cell< PDV_Type > > & tMasterDvTypeList =
+            const Cell< Cell< PDV_Type > > & tMasterDvTypeList =
                     mSet->get_dv_type_list( mtk::Master_Slave::MASTER );
 
             // get number of master dv types
@@ -188,9 +189,10 @@ namespace moris
             for( uint iDv = 0; iDv < tMasterNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                moris::Cell< PDV_Type > & tDvTypeGroup = tMasterDvTypeList( iDv );
+                const moris::Cell< PDV_Type > & tDvTypeGroup = tMasterDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
+                // FIXME: the underlying use of the base cell needs to be hidden within PDV
                 Cell< Matrix< DDRMat > > tCoeff_Original;
                 mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
                         mMasterInterpolationCell->get_base_cell()->get_vertex_inds(),
@@ -208,7 +210,7 @@ namespace moris
             }
 
             // get slave dv type list from set
-            Cell< Cell< PDV_Type > > & tSlaveDvTypeList =
+            const Cell< Cell< PDV_Type > > & tSlaveDvTypeList =
                     mSet->get_dv_type_list( mtk::Master_Slave::SLAVE );
 
             // get number of slave dv types
@@ -218,7 +220,7 @@ namespace moris
             for( uint iDv = 0; iDv < tSlaveNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                moris::Cell< PDV_Type > & tDvTypeGroup = tSlaveDvTypeList( iDv );
+                const moris::Cell< PDV_Type > & tDvTypeGroup = tSlaveDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
@@ -237,11 +239,72 @@ namespace moris
                         set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
             }
 
+            // field field interpolators------------------------------------------
+
+            // get master dv type list from set
+            const Cell< Cell< mtk::Field_Type > > & tMasterFieldTypeList =
+                    mSet->get_field_type_list( mtk::Master_Slave::MASTER );
+
+            // get number of master field types
+            uint tMasterNumFieldTypes = tMasterFieldTypeList.size();
+
+            // loop on the master field types
+            for( uint iFi = 0; iFi < tMasterNumFieldTypes; iFi++ )
+            {
+                // get the dv type group
+                const moris::Cell< mtk::Field_Type > & tFieldTypeGroup = tMasterFieldTypeList( iFi );
+
+                Matrix< IndexMat > tIPCellIndices = mMasterInterpolationCell->get_vertex_inds();
+
+                Matrix< DDRMat > tCoeff;
+                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_nodal_values(
+                        tIPCellIndices,
+                        tCoeff,
+                        tFieldTypeGroup );
+
+                // FIXME implement reshape for vector fields
+
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager()->
+                        set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+            }
+
+            // get slave field type list from set
+            const Cell< Cell< mtk::Field_Type > > & tSlaveFieldTypeList =
+                    mSet->get_field_type_list( mtk::Master_Slave::SLAVE );
+
+            // get number of slave dv types
+            uint tSlaveNumFieldTypes = tSlaveFieldTypeList.size();
+
+            // loop on the slave field types
+            for( uint iFi = 0; iFi < tSlaveNumFieldTypes; iFi++ )
+            {
+                // get the field type group
+                const moris::Cell< mtk::Field_Type > & tFieldTypeGroup = tSlaveFieldTypeList( iFi );
+
+                Matrix< IndexMat > tIPCellIndices = mSlaveInterpolationCell->get_vertex_inds();
+
+                Matrix< DDRMat > tCoeff;
+                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_nodal_values(
+                        tIPCellIndices,
+                        tCoeff,
+                        tFieldTypeGroup );
+
+                // FIXME implement reshape for vector fields
+
+                // set field interpolator coefficients
+                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                        set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+            }
+
             // geometry interpolators------------------------------------------
             // set the IP geometry interpolator physical space and time coefficients for the master
             mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
                     get_IP_geometry_interpolator()->
                     set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
+            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                    get_IP_geometry_interpolator()->
+                    set_param_coeff();
             mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
                     get_IP_geometry_interpolator()->
                     set_time_coeff( this->get_time() );
@@ -1135,6 +1198,97 @@ namespace moris
 
             // ask cluster to compute volume
             return mFemCluster( 0 )->compute_volume();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Interpolation_Element::populate_fields(
+                moris::Cell< std::shared_ptr< fem::Field > > & aFields,
+                moris::Cell< std::string > const             & tFieldIQINames)
+        {
+            // compute pdof values
+            // FIXME do this only once
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // if nodal field
+            //if( aFieldType == vis::Field_Type::NODAL )
+            if( true )
+            {
+//                // get the master vertices indices on the mesh cluster
+//                moris::Matrix< moris::IndexMat > tVertexIndices = mFemCluster( 0 )->
+//                        get_mesh_cluster()->
+//                        get_interpolation_cell().
+//                        get_vertex_inds();
+
+                Matrix< IndexMat > tVertexIndices =
+                        mMasterInterpolationCell->get_vertex_inds();
+
+                // get the master vertices local coordinates on the interpolation element
+                Geometry_Interpolator * tIPGI =
+                        mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+
+                const Matrix< DDRMat >   tIGLocalCoords = tIPGI->get_space_param_coeff();
+
+                // get number of vertices on the treated mesh cluster
+                uint tNumNodes = tIGLocalCoords.n_rows();
+
+                // loop over the vertices on the treated mesh cluster
+                for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
+                {
+                    // get the ith vertex coordinates in the IP param space
+                    Matrix< DDRMat > tIntegPoint = tIGLocalCoords.get_row( iVertex );
+                    tIntegPoint.resize( 1, tIntegPoint.numel() + 1 );
+                    tIntegPoint( tIntegPoint.numel() - 1 ) = -1.0;
+                    tIntegPoint = trans( tIntegPoint );
+
+                    // set vertex coordinates for field interpolator
+                    mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+
+                    const moris::Cell< std::shared_ptr< IQI > > & tIQI =
+                            mSet->get_requested_field_IQIs();
+
+                    // get number of active local IQIs
+                    uint tNumIQIs = tIQI.size();
+
+                    // loop over IQI
+                    for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                    {
+                        // reset the requested IQI
+                        tIQI( iIQI )->reset_eval_flags();
+
+                        // compute quantity of interest at evaluation point
+                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                        tIQI( iIQI )->compute_QI( tQINodal );
+
+                        moris_index tGlobalIndex =
+                                mSet->get_requested_field_IQIs_global_indices()( iIQI );
+
+                        aFields( tGlobalIndex )->set_field_value( tVertexIndices( iVertex ), tQINodal( 0 ) );
+                    }
+                }
+            }
+            else
+            {
+                // ask cluster to compute quantity of interest
+//                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );
+            }
         }
 
         //------------------------------------------------------------------------------

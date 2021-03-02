@@ -34,7 +34,7 @@ private:
 
 protected:
 public:
-    Linear_Solver_Amesos(){};
+    Linear_Solver_Amesos();
 
     Linear_Solver_Amesos( const moris::ParameterList aParameterlist );
 

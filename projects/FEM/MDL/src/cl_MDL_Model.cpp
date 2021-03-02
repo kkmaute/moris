@@ -476,6 +476,9 @@ namespace moris
                 // end writing and delete vis mesh
                 mOutputManager->end_writing( aVisMeshIndex );
             }
+
+            mEquationModel->populate_fields();
+
         }
 
     } /* namespace mdl */

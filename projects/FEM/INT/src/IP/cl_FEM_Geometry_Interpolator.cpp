@@ -69,6 +69,11 @@ namespace moris
             {
                 delete mTimeInterpolation;
             }
+
+            if( mSpaceInterpolator != nullptr )
+            {
+                delete mSpaceInterpolator;
+            }
         }
 
         //------------------------------------------------------------------------------

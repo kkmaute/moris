@@ -148,6 +148,65 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        void Database::load_refinement_pattern(
+                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern)
+        {
+            uint tNumPattern = aElementPerPattern.size();
+
+            Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
+            tPatternListUniqueMat( 0 ) = 5;
+            if( tNumPattern == 2 )
+            {
+                tPatternListUniqueMat( 1 ) = 6;
+            }
+
+            // get number of levels
+            uint tNumberOfLevels = aElementCounterPerLevelAndPattern.n_rows();
+
+            for(uint Ik = 0; Ik<tNumPattern; Ik++)
+            {
+                // reset counter
+                luint tCount = 0;
+
+                // select B-Spline pattern
+                mBackgroundMesh->set_activation_pattern( tPatternListUniqueMat( Ik ) );
+
+                // loop over all levels
+                for( uint l=0; l<tNumberOfLevels; ++l )
+                {
+                    // cell which contains elements
+                    Cell< Background_Element_Base* > tElements;
+
+                    // collect elements from this level
+                    mBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                    // create a map with ids
+                    map< moris_id, luint > tMap;
+
+                    luint j = 0;
+                    for( Background_Element_Base* tElement : tElements )
+                    {
+                        tMap[ tElement->get_hmr_id() ] = j++;
+                    }
+
+                    luint tNumberOfElements = aElementCounterPerLevelAndPattern( l, Ik );
+
+                    for( luint k=0; k<tNumberOfElements; ++k )
+                    {
+                        tElements( tMap.find( aElementPerPattern( Ik )( tCount++ ) ) )->put_on_refinement_queue();
+                    }
+
+                    // refine mesh
+                    mBackgroundMesh->perform_refinement( tPatternListUniqueMat( Ik ) );
+                }
+            }
+
+            mBackgroundMesh->update_database();
+        }
+
+        // -----------------------------------------------------------------------------
+
         /**
          * sets the flag that the parameter object must be deleted
          * by the destructor
@@ -296,6 +355,15 @@ namespace moris
             }
 
             mLagrangeMeshes.clear();
+
+            // delete all pointers
+            for( auto tMesh : mAdditionalLagrangeMeshes )
+            {
+                // delete this mesh
+                delete tMesh;
+            }
+
+            mAdditionalLagrangeMeshes.clear();
         }
 
         // -----------------------------------------------------------------------------
@@ -916,18 +984,35 @@ namespace moris
             // pointer to mesh that is linked to input field
             Lagrange_Mesh_Base * tSourceMesh = nullptr;
 
+            bool tMeshFound = false;
             // find pointer to input mesh
             for( Lagrange_Mesh_Base * tMesh : mLagrangeMeshes )
             {
                 if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aSourcePattern )
                 {
                     tSourceMesh = tMesh;
+                    tMeshFound = true;
                     break;
+                }
+            }
+
+            if( !tMeshFound )
+            {
+                // find pointer to input mesh
+                for( Lagrange_Mesh_Base * tMesh : mAdditionalLagrangeMeshes )
+                {
+                    if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aSourcePattern )
+                    {
+                        tSourceMesh = tMesh;
+                        break;
+                    }
                 }
             }
 
             // pointer to mesh that is linked to output field
             Lagrange_Mesh_Base * tTargetMesh = nullptr;
+
+            tMeshFound = false;
 
             // find pointer to output mesh
             for( Lagrange_Mesh_Base *  tMesh : mLagrangeMeshes )
@@ -935,7 +1020,21 @@ namespace moris
                 if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aTargetPattern )
                 {
                     tTargetMesh = tMesh;
+                    tMeshFound = true;
                     break;
+                }
+            }
+
+            if( !tMeshFound )
+            {
+                // find pointer to output mesh
+                for( Lagrange_Mesh_Base *  tMesh : mAdditionalLagrangeMeshes )
+                {
+                    if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aTargetPattern )
+                    {
+                        tTargetMesh = tMesh;
+                        break;
+                    }
                 }
             }
 

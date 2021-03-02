@@ -164,7 +164,30 @@ namespace moris
                 void eval_TemperatureDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void eval_TemperatureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void eval_dTemperaturedxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );                                
+                void eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes ); 
+
+                //------------------------------------------------------------------------------
+                // THERMODYNAMIC QUANTITIES
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the thermodynamic quantities
+                 */
+                void eval_VolumeExpansivity();
+                void eval_IsothermalCompressibility();
+                void eval_Cv();
+                void eval_Cp();
+                void eval_Gamma();
+            
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the thermodynamic quantity derivatives wrt to the dof types
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );   
+                void eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );                                           
         };
 
         //--------------------------------------------------------------------------------------

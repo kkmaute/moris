@@ -297,8 +297,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;

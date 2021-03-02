@@ -12,6 +12,7 @@ namespace moris
         {
         private:
             Property_Parameters mParameters;
+            Cell<std::string> mDependencies;
 
         public:
 
@@ -28,6 +29,14 @@ namespace moris
              * @param aProperty Property to copy
              */
             Property(std::shared_ptr<Property> aProperty);
+
+            /**
+             * Updates the dependencies of the property based on the given fields which the property may depend on
+             * (fields may have been mapped/updated).
+             *
+             * @param aAllUpdatedFields All fields (this property will take the ones it needs)
+             */
+            void update_dependencies(Cell<std::shared_ptr<Field>> aAllUpdatedFields);
 
             /**
              * Gets the PDV type that this property defines.
@@ -56,6 +65,16 @@ namespace moris
              * @return Mesh set names
              */
             Cell<std::string> get_pdv_mesh_set_names();
+
+        private:
+
+            /**
+             * Sets the dependencies of this property after they have been found by update_dependencies(). By default
+             * does nothing.
+             *
+             * @param aDependencyFields Fields that this property depends on.
+             */
+            virtual void set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields);
 
         };
     }

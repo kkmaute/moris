@@ -9,6 +9,10 @@
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
 
+#include "fn_PRM_SOL_Parameters.hpp"
+
+#include "Amesos_Umfpack.h"
+
 #include "cl_Tracer.hpp"
 
 using namespace moris;
@@ -35,6 +39,12 @@ Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem )
     this->set_solver_parameters();
 }
 
+Linear_Solver_Amesos::Linear_Solver_Amesos()
+{
+    // Set chosen solver options
+    this->set_solver_parameters();
+}
+
 //-----------------------------------------------------------------------------
 
 Linear_Solver_Amesos::~Linear_Solver_Amesos()
@@ -47,21 +57,7 @@ Linear_Solver_Amesos::~Linear_Solver_Amesos()
 
 void Linear_Solver_Amesos::set_solver_parameters()
 {
-    // ASSIGN DEFAULT PARAMETER VALUES
-    // Amesos 2.0 Reference Guide, SANDIA REPORT, SAND2004-4820, https://trilinos.org/oldsite/packages/amesos/AmesosReferenceGuide.pdf
-
-    // Set Amesos solver type
-    // options are "Amesos_Klu", "Amesos_Superlu", "Amesos_Umfpack", "Amesos_Dscpack",
-    // "Amesos_Superludist", "Amesos_Mumps", "Amesos_Scalapack", "Amesos_Pardiso"
-    //    mParameterList.insert( "solver_type" ,  "Amesos_Pardiso" );
-
-    // set AZ_output options
-    // options are true, false
-    //    mParameterList.insert( "output" , false );
-
-    // set symbolic factorization
-    // options are true, false
-    //    mParameterList.insert( "symbolic_factorization" , false );
+    mParameterList = prm::create_linear_algorithm_parameter_list_amesos();
 }
 
 //-----------------------------------------------------------------------------
@@ -74,9 +70,6 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
     moris::real startSolTime     = 0.0;
     moris::real startSymFactTime = 0.0;
     moris::real startNumFactTime = 0.0;
-
-    // Set all Aztec options
-    this->set_solver_internal_parameters();
 
     // Get timing info
     Teuchos::ParameterList timingsList;
@@ -131,7 +124,10 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
 
     Amesos tAmesosFactory;
 
-    mAmesosSolver = tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
+    std::string tSolverType = mParameterList.get< std::string >( "Solver_Type" );
+
+    //mAmesosSolver = tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
+    mAmesosSolver = tAmesosFactory.Create( tSolverType, mEpetraProblem );
 
     sint error = 0;
     moris::real startSolTime     = 0.0;
@@ -161,11 +157,17 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
     error = mAmesosSolver->Solve();
     MORIS_ERROR( error == 0, "Error in solving linear system with Amesos" );
 
-
     mIsPastFirstSolve = true;
 
     // Get chosen times from solver
     mAmesosSolver->GetTiming( timingsList );
+
+    if( tSolverType == "Amesos_Umfpack" )
+    {
+        real tConditionNumber = reinterpret_cast< Amesos_Umfpack* >( mAmesosSolver )->GetRcond();
+
+        MORIS_LOG_SPEC( "Condition Number of Operator: ", tConditionNumber );
+    }
 
     const moris::real endSolTime     = Teuchos::getParameter< moris::real >( timingsList, "Total solve time" );
     const moris::real endSymFactTime = ( mAmesosSolver->NumSymbolicFact() > 0 ) ? Teuchos::getParameter< moris::real >( timingsList, "Total symbolic factorization time" ) : 0.0;
@@ -185,21 +187,31 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
 
 void Linear_Solver_Amesos::set_solver_internal_parameters()
 {
-    // Set Amesos solver type
-    //    mAmesosSolver = mAmesosFactory.Create( mParameterList.get< const char * >( "solver_type" ), mEpetraProblem );
-    //    mAmesosSolver = mAmesosFactory.Create( "Amesos_Klu", *mLinearSystem->get_linear_system_epetra() );
-
     // Initialize parameter list
-    //    Teuchos::ParameterList params;
+    Teuchos::ParameterList params;
 
-    // Set output options
-    //    params.set("PrintTiming"        , mParameterList.get< bool >( "output" ));
-    //    params.set("PrintStatus"        , mParameterList.get< bool >( "output" ));
-    //    params.set("ComputeVectorNorms" , mParameterList.get< bool >( "output" ));
-    //    params.set("ComputeTrueResidual", mParameterList.get< bool >( "output" ));
+    if (mParameterList.get< moris::real >( "RcondThreshold" ) != -1.0 )
+    {
+        params.set("RcondThreshold", mParameterList.get< moris::real >( "RcondThreshold" ) );
+    }
 
-    // Allows non contiguous indexing of stiffness matrix dofs (XFEM Reduced system) KLU only
-    //    params.set("Reindex",(bool) (true));
+    if (mParameterList.get< moris::sint >( "OutputLevel" ) != INT_MAX)
+    {
+        params.set("OutputLevel", mParameterList.get< moris::sint >( "OutputLevel" ) );
+    }
+
+    if (mParameterList.get< moris::sint >( "DebugLevel" ) != INT_MAX)
+    {
+        params.set("DebugLevel", mParameterList.get< moris::sint >( "DebugLevel" ) );
+    }
+
+    params.set("PrintStatus"        , mParameterList.get< bool >( "PrintStatus" ) );
+    params.set("PrintTiming"        , mParameterList.get< bool >( "PrintTiming" ) );
+    params.set("ComputeVectorNorms" , mParameterList.get< bool >( "ComputeVectorNorms" ) );
+    params.set("ComputeTrueResidual", mParameterList.get< bool >( "ComputeTrueResidual" ) );
+    params.set("Reindex"            , mParameterList.get< bool >( "Reindex" ) );
+    params.set("Refactorize"        , mParameterList.get< bool >( "Refactorize" ) );
+    params.set("AddZeroToDiag"      , mParameterList.get< bool >( "AddZeroToDiag" ) );
 
     // Create a parameter sublist for PARDISO solver
     //    const char* tSolverType1 = "Amesos_Pardiso";
@@ -227,6 +239,6 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
     //        params.sublist( "mumps" ).set( "ICNTL(14)",static_cast<int>(200) );
     //    }
 
-    // Set AMESOS solver parameter list
-    //    mAmesosSolver->SetParameters( params );
+    //Set AMESOS solver parameter list
+    mAmesosSolver->SetParameters( params );
 }

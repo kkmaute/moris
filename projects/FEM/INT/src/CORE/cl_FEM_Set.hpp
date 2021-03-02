@@ -46,6 +46,7 @@ namespace moris
         class FEM_Model;
         class IWG;
         class IQI;
+        class Field;
         class Field_Interpolator;
         class Geometry_Interpolator;
         class Field_Interpolator_Manager;
@@ -110,6 +111,8 @@ namespace moris
             moris::Cell< moris_index > mRequestedElementalIQIsGlobalIndices;
             moris::Cell< std::shared_ptr< IQI > > mRequestedNodalIQIs;
             moris::Cell< moris_index > mRequestedNodalIQIsGlobalIndices;
+            moris::Cell< std::shared_ptr< IQI > > mRequestedFieldIQIs;
+            moris::Cell< moris_index > mRequestedFieldIQIsGlobalIndices;
 
             // enum for element type
             enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
@@ -123,6 +126,8 @@ namespace moris
             // map for the dof type
             Matrix< DDSMat > mUniqueDofTypeMap;
             Matrix< DDSMat > mUniqueDvTypeMap;
+            Matrix< DDSMat > mUniqueFieldTypeMap;
+
 
             // map visualization cell id to position in vector
             moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
@@ -166,6 +171,11 @@ namespace moris
             friend class Element;
             friend class Field_Interpolator_Manager;
             friend class Interpolation_Element;
+
+            void gather_requested_IQIs(
+                    moris::Cell< std::string > const      & aNames,
+                    moris::Cell< std::shared_ptr< IQI > > & aListOfRequestedIQIs,
+                    moris::Cell< moris_index >            & aListOfIQIGlobalIndices );
 
             //------------------------------------------------------------------------------
         public:
@@ -211,6 +221,13 @@ namespace moris
              * @param[ in ] aIsResidual bool true if computation of a residual
              */
             void initialize_set( const bool aIsResidual );
+
+            //------------------------------------------------------------------------------
+
+            fem::FEM_Model * get_fem_model()
+            {
+                return  mFemModel;
+            };
 
             //------------------------------------------------------------------------------
             /**
@@ -782,6 +799,16 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /*
+             * get index from unique field type map
+             *@param[ in ] aDofType a dof type enum
+             */
+            moris::sint get_index_from_unique_field_type_map( enum mtk::Field_Type aFieldType )
+            {
+                return mUniqueFieldTypeMap( static_cast< int >( aFieldType ), 0 );
+            }
+
+            //------------------------------------------------------------------------------
+            /*
              * create requested dv assembly map
              */
             void create_requested_dv_assembly_map();
@@ -790,7 +817,7 @@ namespace moris
             /*
              * create dof and dv type map unique
              */
-            void create_unique_dof_and_dv_type_maps();
+            void create_unique_dof_dv_and_field_type_maps();
 
             //------------------------------------------------------------------------------
             /**
@@ -890,6 +917,25 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get list of requested IQIs for field evaluation
+             */
+            const moris::Cell< std::shared_ptr< fem::IQI > > & get_requested_field_IQIs();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get number of requested IQIs for field evaluation
+             */
+            uint get_number_of_requested_field_IQIs();
+
+            //------------------------------------------------------------------------------
+            /**
+             * get global indices for the list of requested IQIs
+             * for field evaluation
+             */
+            const moris::Cell< moris_index > & get_requested_field_IQIs_global_indices();
+
+            //------------------------------------------------------------------------------
+            /**
              * determine set type from mtk set type
              */
             void determine_set_type();
@@ -914,6 +960,12 @@ namespace moris
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
              */
             void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > > & aMatPdvType );
+
+            //------------------------------------------------------------------------------
+
+            void populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > >      & aFieldToPopulate,
+                    moris::Cell< std::string > const & aFieldIQINames );
 
         };
         //------------------------------------------------------------------------------

@@ -54,7 +54,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field::Field(const Matrix<DDSMat>&  aSharedADVIds,
+        Field::Field(const Matrix<DDUMat>&  aFieldVariableIndices,
+                     const Matrix<DDSMat>&  aSharedADVIds,
                      std::shared_ptr<Field> aField)
                 : mFieldVariables(aSharedADVIds.length())
                 , mSensitivities(1, aSharedADVIds.length())
@@ -66,6 +67,10 @@ namespace moris
             MORIS_ERROR(mParameters.mNumRefinements.length() == mParameters.mRefinementMeshIndices.length(),
                     "The entries given for number of refinements must line up with the number of refinement patterns.");
 
+            // Check that the field variable indices match the shared ADV Ids
+            MORIS_ERROR(aFieldVariableIndices.length() == aSharedADVIds.length(),
+                    "Number of field variable indices must equal the number of ADV IDs in a GEN Field.");
+
             // Create shared distributed vector
             sol::Matrix_Vector_Factory tDistributedFactory;
             sol::Dist_Map* tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);
@@ -73,9 +78,9 @@ namespace moris
 
             // Set variables from ADVs
             uint tNumSharedADVs = aSharedADVIds.length();
-            for (uint tVariableIndex = 0; tVariableIndex < tNumSharedADVs; tVariableIndex++)
+            for (uint tVariable = 0; tVariable < tNumSharedADVs; tVariable++)
             {
-                mFieldVariables(tVariableIndex) = &(*mSharedADVs)(aSharedADVIds(tVariableIndex));
+                mFieldVariables(aFieldVariableIndices(tVariable)) = &(*mSharedADVs)(aSharedADVIds(tVariable));
             }
         }
 
@@ -149,20 +154,26 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::reset_nodal_information()
+        void Field::add_nodal_data(mtk::Interpolation_Mesh* aMesh)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::storage_intention()
+        void Field::reset_nodal_data()
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Field::intended_storage()
         {
             return (mParameters.mDiscretizationMeshIndex > -2);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::discretization_intention()
+        bool Field::intended_discretization()
         {
             return (mParameters.mDiscretizationMeshIndex > -1);
         }
@@ -214,7 +225,7 @@ namespace moris
         uint Field::get_discretization_mesh_index()
         {
             MORIS_ASSERT(mParameters.mDiscretizationMeshIndex >= 0,
-                    "A discretization is not intended for this field. Check this with discretization_intention() first.");
+                    "A discretization is not intended for this field. Check this with intended_discretization() first.");
             return mParameters.mDiscretizationMeshIndex;
         }
 
@@ -230,6 +241,13 @@ namespace moris
         real Field::get_discretization_upper_bound()
         {
             return mParameters.mDiscretizationUpperBound;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        mtk::Interpolation_Mesh* Field::get_mesh()
+        {
+            return nullptr;
         }
 
         //--------------------------------------------------------------------------------------------------------------

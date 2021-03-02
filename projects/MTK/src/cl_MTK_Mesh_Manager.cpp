@@ -63,6 +63,15 @@ namespace moris
 
         //-------------------------------------------------------------------------
 
+        Mesh_Pair * Mesh_Manager::get_mesh_pair_pointer(moris_index aPairIndex)
+        {
+            MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
+                          "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
+            return &mMeshPairs(aPairIndex);
+        }
+
+        //-------------------------------------------------------------------------
+
         void
         Mesh_Manager::get_mesh_pair(
                 moris_index          aPairIndex,

@@ -10,12 +10,10 @@ namespace moris
     namespace mtk
     {
         Field_Proxy::Field_Proxy(
-                std::shared_ptr<mtk::Mesh_Manager>   aMeshManager,
-                uint const                         & aMeshIndex,
-                uint const                         & aDiscretizationMeshIndex )
-        : Field( aMeshManager,
-                aMeshIndex,
-                aDiscretizationMeshIndex )
+                mtk::Mesh_Pair * aMeshPairs,
+                uint const     & aDiscretizationMeshIndex )
+        : Field( aMeshPairs,
+                 aDiscretizationMeshIndex )
         {
         }
 

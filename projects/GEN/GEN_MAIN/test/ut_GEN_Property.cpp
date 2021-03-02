@@ -145,11 +145,7 @@ namespace moris
 
                 // Create mesh
                 uint tNumElementsPerDimension = 10;
-                mtk::Interpolation_Mesh* tMesh = nullptr;
-                mtk::Integration_Mesh* tIGMesh = nullptr;
-                create_simple_mesh(
-                        tMesh,
-                        tIGMesh,
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
                         tNumElementsPerDimension,
                         tNumElementsPerDimension,
                         tLagrangeOrder,
@@ -158,11 +154,6 @@ namespace moris
                 // Set up property
                 Matrix<DDRMat> tADVs(0, 0);
                 std::shared_ptr<Property> tBSplineProperty = create_property(tPropertyParameterList, tADVs);
-
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager =
-                          std::make_shared< mtk::Mesh_Manager >();
-
-                  tMeshManager->register_mesh_pair(tMesh, tIGMesh );
 
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -207,10 +198,9 @@ namespace moris
                     if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
                     {
                         Matrix<DDRMat> tMatrix = trans(tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
+                        Matrix<DDSMat> tIDs = trans(tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
                         check_equal(tBSplineProperty->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
-                        check_equal(
-                                tBSplineProperty->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
+                        check_equal(tBSplineProperty->get_determining_adv_ids(tNodeIndex, {{}}), tIDs);
                     }
                 }
 

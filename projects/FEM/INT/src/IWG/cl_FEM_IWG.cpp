@@ -89,6 +89,22 @@ namespace moris
                 }
             }
 
+            // reset material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+
             // reset constitutive models
             for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {
@@ -113,6 +129,9 @@ namespace moris
                     tSP->reset_eval_flags();
                 }
             }
+
+            // reset evaluation flags specific to child implementations
+            this->reset_spec_eval_flags();
         }
 
         //------------------------------------------------------------------------------
@@ -269,6 +288,19 @@ namespace moris
 
                     // set the fem set pointe for the CM
                     tCM->set_set_pointer( mSet );
+                }
+            }
+
+            // loop over the material models
+            for( const std::shared_ptr< Material_Model > & tMM : this->get_material_models( aIsMaster ) )
+            {
+                if ( tMM != nullptr )
+                {
+                    // set the field interpolator manager for the CM
+                    tMM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+
+                    // set the fem set pointe for the CM
+                    tMM->set_set_pointer( mSet );
                 }
             }
 
@@ -490,6 +522,60 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IWG::set_field_type_list(
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & aDofTypes,
+                mtk::Master_Slave                                   aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    mMasterFieldTypes = aDofTypes;
+                    break;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    mSlaveFieldTypes = aDofTypes;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IQI::set_dof_type_list - can only be MASTER or SLAVE.");
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & IWG::get_field_type_list(
+                mtk::Master_Slave aIsMaster ) const
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterFieldTypes;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveFieldTypes;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IQI::get_dof_type_list - can only be master or slave." );
+                    return mMasterFieldTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -530,6 +616,52 @@ namespace moris
                 {
                     MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
                     return mMasterProp;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::set_material_model(
+                std::shared_ptr< Material_Model > aMaterialModel,
+                std::string                       aMaterialModelString,
+                mtk::Master_Slave                 aIsMaster  )
+        {
+            // check that aConstitutiveString makes sense
+            MORIS_ERROR( mMaterialMap.find( aMaterialModelString ) != mMaterialMap.end(),
+                    "IWG::set_material_model - IWG %s - Unknown aMaterialModelString: %s ",
+                    mName.c_str(),
+                    aMaterialModelString.c_str() );
+
+            // set the CM in the CM pointer cell
+            this->get_material_models( aIsMaster )( mMaterialMap[ aMaterialModelString ] ) = aMaterialModel;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::Cell< std::shared_ptr< Material_Model > > & IWG::get_material_models(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master property pointers
+                    return mMasterMM;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave property pointers
+                    return mSlaveMM;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_material_models - can only be master or slave." );
+                    return mMasterMM;
                 }
             }
         }
@@ -598,15 +730,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::get_non_unique_dof_and_dv_types(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes )
+        void IWG::get_non_unique_dof_dv_and_field_types(
+                moris::Cell< moris::Cell< MSI::Dof_Type > >   & aDofTypes,
+                moris::Cell< moris::Cell< PDV_Type > >        & aDvTypes,
+                moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes )
         {
             // init counters for dof and dv types
-            uint tMasterDofCounter = 0;
-            uint tSlaveDofCounter  = 0;
-            uint tMasterDvCounter  = 0;
-            uint tSlaveDvCounter   = 0;
+            uint tMasterDofCounter   = 0;
+            uint tSlaveDofCounter    = 0;
+            uint tMasterDvCounter    = 0;
+            uint tSlaveDvCounter     = 0;
+            uint tMasterFieldCounter = 0;
+            uint tSlaveFieldCounter  = 0;
 
             // get number of direct master dof dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
@@ -620,6 +755,12 @@ namespace moris
                 tMasterDvCounter += mMasterDvTypes( iDv ).size();
             }
 
+            // get number of direct master field dependencies
+            for ( uint iFi = 0; iFi < mMasterFieldTypes.size(); iFi++ )
+            {
+                tMasterFieldCounter += mMasterFieldTypes( iFi ).size();
+            }
+
             // get number of direct slave dof dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
@@ -630,6 +771,12 @@ namespace moris
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
                 tSlaveDvCounter += mSlaveDvTypes( iDv ).size();
+            }
+
+            // get number of direct slave field dependencies
+            for ( uint iFi = 0; iFi < mSlaveFieldTypes.size(); iFi++ )
+            {
+                tSlaveFieldCounter += mSlaveFieldTypes( iFi ).size();
             }
 
             // loop over the master properties
@@ -668,6 +815,37 @@ namespace moris
                     // update dof and dv counter
                     tSlaveDofCounter += tActiveDofTypes.size();
                     tSlaveDvCounter  += tActiveDvTypes.size();
+                }
+            }
+
+            // loop over master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< PDV_Type >      tActiveDvTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
+                }
+            }
+
+            // loop over slave material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof and dv counters
+                    tSlaveDofCounter += tActiveDofTypes.size();
                 }
             }
 
@@ -732,13 +910,16 @@ namespace moris
             }
 
             // reserve memory for dof and dv type lists
-            aDofTypes.resize( 2 );
-            aDvTypes.resize( 2 );
+            aDofTypes  .resize( 2 );
+            aDvTypes   .resize( 2 );
+            aFieldTypes.resize( 2 );
 
-            aDofTypes( 0 ).reserve( tMasterDofCounter );
-            aDvTypes ( 0 ).reserve( tMasterDvCounter );
-            aDofTypes( 1 ).reserve( tSlaveDofCounter );
-            aDvTypes ( 1 ).reserve( tSlaveDvCounter );
+            aDofTypes  ( 0 ).reserve( tMasterDofCounter   );
+            aDvTypes   ( 0 ).reserve( tMasterDvCounter    );
+            aFieldTypes( 0 ).reserve( tMasterFieldCounter );
+            aDofTypes  ( 1 ).reserve( tSlaveDofCounter    );
+            aDvTypes   ( 1 ).reserve( tSlaveDvCounter     );
+            aFieldTypes( 1 ).reserve( tSlaveFieldCounter  );
 
             // loop over master dof direct dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
@@ -754,6 +935,13 @@ namespace moris
                 aDvTypes( 0 ).append( mMasterDvTypes( iDv ) );
             }
 
+            // loop over master field direct dependencies
+            for ( uint iFi = 0; iFi < mMasterFieldTypes.size(); iFi++ )
+            {
+                // populate the field list
+                aFieldTypes( 0 ).append( mMasterFieldTypes( iFi ) );
+            }
+
             // loop over slave dof direct dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
@@ -764,8 +952,13 @@ namespace moris
             // loop over slave dv direct dependencies
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
-                //populate the dv list
                 aDvTypes( 1 ).append( mSlaveDvTypes( iDv )  );
+            }
+
+            // loop over slave dv direct dependencies
+            for ( uint iFi = 0; iFi < mSlaveFieldTypes.size(); iFi++ )
+            {
+                aFieldTypes( 1 ).append( mSlaveFieldTypes( iFi )  );
             }
 
             // loop over master properties
@@ -803,6 +996,36 @@ namespace moris
                     // populate the dof and dv lists
                     aDofTypes( 1 ).append( tActiveDofTypes );
                     aDvTypes( 1 ).append( tActiveDvTypes );
+                }
+            }
+
+            // loop over the master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
+                }
+            }
+
+            // loop over the slave material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get CM non unique dof and dv type lists
+                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+
+                    tMM->get_non_unique_dof_types( tActiveDofTypes );
+
+                    // update dof counters (DVs not part of MM yet)
+                    tMasterDofCounter += tActiveDofTypes.size();
                 }
             }
 
@@ -959,6 +1182,35 @@ namespace moris
                             mMasterGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+                }
+            }
+
+            // get dof type from master material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get dof types for material model
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tMM->get_global_dof_type_list();
+
+                    // loop on property dof type
+                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
+                    {
+                        // get set index for dof type
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+
+                        // if dof enum not in the list
+                        if ( tDofCheckList( tDofTypeIndex) != 1 )
+                        {
+                            // put the dof type in the check list
+                            tDofCheckList( tDofTypeIndex ) = 1;
+
+                            // put the dof type in the global type list
+                            mMasterGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
+                        }
+                    }
+                    // skip loop on material model dv type - not implemented
                 }
             }
 
@@ -1145,6 +1397,35 @@ namespace moris
                             mSlaveGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+                }
+            }
+
+            // get dof type from slave material models
+            for ( std::shared_ptr< Material_Model > tMM : mSlaveMM )
+            {
+                if ( tMM != nullptr )
+                {
+                    // get dof types for constitutive model
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tMM->get_global_dof_type_list();
+
+                    // loop on property dof type
+                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
+                    {
+                        // get set index for dof type
+                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+
+                        // if dof enum not in the list
+                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
+                        {
+                            // put the dof type in the check list
+                            tDofCheckList( tDofTypeIndex ) = 1;
+
+                            // put the dof type in the global type list
+                            mSlaveGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
+                        }
+                    }
+                    // skip loop on material dv type - not implemented
                 }
             }
 
@@ -1480,6 +1761,35 @@ namespace moris
                 {
                     MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
                     return mMasterGlobalDvTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & IWG::get_global_field_type_list(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterFieldTypes;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveFieldTypes;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
+                    return mMasterFieldTypes;
                 }
             }
         }
@@ -1992,6 +2302,195 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // FIXME: This function needs to go, functionality will be integrated into the usual check jacobian function
+        bool IWG::check_jacobian_multi_residual(
+                real               aPerturbation,
+                real               aEpsilon,
+                real               aWStar,
+                Matrix< DDRMat > & aJacobian,
+                Matrix< DDRMat > & aJacobianFD,
+                bool               aErrorPrint )
+        {
+            // get residual dof type index in set, start and end indices for residual dof type
+            uint tNumResidualDofs = mResidualDofType.size();
+            uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterLastDofIndex = mSet->get_dof_index_for_type( mResidualDofType( tNumResidualDofs - 1 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartRow = mSet->get_res_dof_assembly_map()( tMasterFirstDofIndex )( 0, 0 );
+            uint tMasterResEndRow   = mSet->get_res_dof_assembly_map()( tMasterLastDofIndex )( 0, 1 );
+
+            // get number of master and slave rows
+            uint tNumRows = tMasterResEndRow - tMasterResStartRow + 1;
+
+            // get number of cols for jacobian
+            uint tNumCols = mSet->get_jacobian().n_cols();
+
+            // set size for analytical and FD jacobians
+            aJacobian.set_size( tNumRows, tNumCols, 0.0 );
+            aJacobianFD.set_size( tNumRows, tNumCols, 0.0 );
+
+            // compute jacobian with IWG
+            this->compute_jacobian( aWStar );
+
+            // get the computed jacobian
+            aJacobian =  mSet->get_jacobian();
+
+            // reset the jacobian
+            mSet->get_jacobian().fill( 0.0 );
+
+            // compute jacobian by FD
+            // this->compute_jacobian_FD( aWStar, aPerturbation );
+            {
+                // storage residual value
+                Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
+                // get the FD scheme info
+                moris::Cell< moris::Cell< real > > tFDScheme;
+                fd_scheme( fem::FDScheme_Type::POINT_5, tFDScheme );
+                uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                // get master number of dof types
+                uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
+
+                // reset and evaluate the residual plus
+                mSet->get_residual()( 0 ).fill( 0.0 );
+                this->compute_residual( aWStar );
+                Matrix< DDRMat > tResidual = mSet->get_residual()( 0 );
+
+                // loop over the IWG dof types
+                for( uint iFI = 0; iFI < tMasterNumDofTypes; iFI++ )
+                {
+                    // init dof counter
+                    uint tDofCounter = 0;
+
+                    // get the dof type
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );                                 
+
+                    // get the index for the dof type
+                    sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                    uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterFirstDofIndex )( tMasterDepDofIndex, 0 );
+
+                    // get field interpolator for dependency dof type
+                    Field_Interpolator * tFI =
+                            mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+
+                    // get number of master FI bases and fields
+                    uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                    uint tDerNumFields = tFI->get_number_of_fields();
+
+                    // coefficients for dof type wrt which derivative is computed
+                    Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                    // loop over the coefficient column
+                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                    {
+                        // loop over the coefficient row
+                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
+                        {
+                            // compute the perturbation absolute value
+                            real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // check that perturbation is not zero
+                            if( std::abs( tDeltaH ) < 1e-12 )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
+
+                            // set starting point for FD
+                            uint tStartPoint = 0;
+
+                            // loop over the points for FD
+                            for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                            {
+                                // reset the perturbed coefficients
+                                Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                                // perturb the coefficient
+                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                                // set the perturbed coefficients to FI
+                                tFI->set_coeff( tCoeffPert );
+                                tFI->reset_eval_flags(); // not useful
+
+                                // reset properties, CM and SP for IWG
+                                this->reset_eval_flags();
+
+                                // reset the residual
+                                mSet->get_residual()( 0 ).fill( 0.0 );
+
+                                // compute the residual
+                                this->compute_residual( aWStar );
+
+                                // assemble the Jacobian
+                                mSet->get_jacobian()(
+                                        { tMasterResStartRow, tMasterResEndRow },
+                                        { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
+                                                tFDScheme( 1 )( iPoint ) *
+                                                mSet->get_residual()( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
+                            // update dof counter
+                            tDofCounter++;
+                        }
+                    }
+                    // reset the coefficients values
+                    tFI->set_coeff( tCoeff );
+                }
+
+                // reset the value of the residual
+                mSet->get_residual()( 0 ) = tResidualStore;
+            }
+
+            // get the computed jacobian
+            aJacobianFD = mSet->get_jacobian();
+
+            // check that matrices to compare have same size
+            MORIS_ERROR(
+                    ( aJacobian.n_rows() == aJacobianFD.n_rows() ) &&
+                    ( aJacobian.n_cols() == aJacobianFD.n_cols() ),
+                    "IWG::check_jacobian - matrices to check do not share same dimensions." );
+
+            //define a boolean for check
+            bool tCheckJacobian = true;
+
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
+            for( uint iiJac = 0; iiJac < aJacobian.n_rows(); iiJac++ )
+            {
+                for( uint jjJac = 0; jjJac < aJacobian.n_cols(); jjJac++ )
+                {
+                    // get absolute difference
+                    tAbsolute = std::abs( aJacobian( iiJac, jjJac ) - aJacobianFD( iiJac, jjJac ) );
+
+                    // get relative difference
+                    tRelative = std::abs( ( aJacobianFD( iiJac, jjJac ) - aJacobian( iiJac, jjJac ) ) / aJacobianFD( iiJac, jjJac ) );
+
+                    // update check value
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+
+                    // debug print
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        if( aErrorPrint )
+                        {
+                            std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
+                            std::cout<<"aJacobian( iiJac, jjJac )   "<<std::setprecision( 12 )<<aJacobian( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"aJacobianFD( iiJac, jjJac ) "<<std::setprecision( 12 )<<aJacobianFD( iiJac, jjJac )<<"\n"<<std::flush;
+                            //std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            //std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                        }
+                    }
+                }
+            }
+
+            // return bool
+            return tCheckJacobian;
+        }        
+
+        //------------------------------------------------------------------------------
+
         real IWG::build_perturbation_size(
                 const real & aPerturbation,
                 const real & aCoefficientToPerturb,
@@ -2052,6 +2551,75 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        real IWG::check_ig_coordinates_inside_ip_element(
+        		const real & aPerturbation,
+                const real & aCoefficientToPerturb,
+                const uint & aSpatialDirection,
+                fem::FDScheme_Type & aUsedFDScheme )
+        {
+        	// FIXME: only works for rectangular IP elements
+        	// FIXME: only works for forward, backward, central, not for higher as 5-point FD
+
+        	// get the IP element geometry interpolator
+        	Geometry_Interpolator * tIPGI =
+        			mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+
+        	// IP element max/min
+        	real tMaxIP = max( tIPGI->get_space_coeff().get_column( aSpatialDirection ) ); // get maximum values of coordinates of IP nodes
+        	real tMinIP = min( tIPGI->get_space_coeff().get_column( aSpatialDirection ) ); // get minimum values of coordinates of IP nodes
+
+        	// get maximum possible perturbation
+        	real tMaxPerturb = (tMaxIP-tMinIP)/3.0;
+
+        	// compute the perturbation value
+        	real tDeltaH = build_perturbation_size( aPerturbation, aCoefficientToPerturb, tMaxPerturb );
+
+        	// check that IG node coordinate is consistent with minimum and maximum IP coordinates
+        	MORIS_ASSERT(
+        			tMaxIP >= aCoefficientToPerturb - tDeltaH &&
+					tMinIP <= aCoefficientToPerturb + tDeltaH,
+					"ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
+					aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb);
+
+        	// check point location
+        	if( aCoefficientToPerturb + tDeltaH >= tMaxIP )
+        	{
+        	    aUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+
+        		// check for correctness of perturbation size for backward FD
+        		MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
+        				"ERROR: backward perturbation size exceed limits of interpolation element:\n",
+						"dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+						aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
+        	}
+        	else
+        	{
+        		if( aCoefficientToPerturb - tDeltaH <= tMinIP )
+        		{
+        		    aUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+        			// check for correctness of perturbation size for forward FD
+					MORIS_ASSERT( tDeltaH < tMaxIP - aCoefficientToPerturb,
+							"ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+							"dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+							aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
+        		}
+        		else
+        		{
+        			// check for correctness of perturbation size for central FD
+        			MORIS_ASSERT(
+        			        tDeltaH < tMaxIP - aCoefficientToPerturb &&
+        			        tDeltaH < aCoefficientToPerturb - tMinIP,
+							"ERROR: central perturbation size exceed limits of interpolation element:\n"
+							"dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+							aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
+        		}
+        	}
+        	return tDeltaH;
+        }
+
+        //------------------------------------------------------------------------------
+
         void IWG::select_dRdp_FD_geometry_bulk(
                 moris::real                         aWStar,
                 moris::real                         aPerturbation,
@@ -2094,10 +2662,6 @@ namespace moris
 
             real tGPWeight = aWStar / tIGGI->det_J();                       // reconstruct integration weight
 
-            // IP element max/min                                           // FIXME: only works for rectangular IP elements
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );      // get maximum values of coordinates of IP nodes
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );      // get minimum values of coordinates of IP nodes
-
             // init perturbation
             real tDeltaH = 0.0;
 
@@ -2116,54 +2680,13 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
-                        MORIS_ASSERT(
-                                tMaxIP( iCoeffCol ) >= tCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
-                                tMinIP( iCoeffCol ) <= tCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
-                                "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
-                                iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ));
-
-                        // get maximum possible perturbation
-                        real tMaxPerturb = (tMaxIP(iCoeffCol)-tMinIP(iCoeffCol))/3.0;
-
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
-
-                        // check point location
+                        // provide adapted perturbation and FD scheme considering ip element boundaries
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-
-                            // check for correctness of perturbation size for backward FD
-                            MORIS_ASSERT( tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
-                                    "ERROR: backward perturbation size exceed limits of interpolation element:\n",
-                                    "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                    iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                        }
-                        else
-                        {
-                            if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMinIP( iCoeffCol ) )
-                            {
-                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-
-                                // check for correctness of perturbation size for backward FD
-                                MORIS_ASSERT( tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ),
-                                        "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                            else
-                            {
-                                // check for correctness of perturbation size for central FD
-                                MORIS_ASSERT(
-                                        tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ) &&
-                                        tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
-                                        "ERROR: central perturbation size exceed limits of interpolation element:\n"
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                        }
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                                aPerturbation,
+                                tCoeff( iCoeffRow, iCoeffCol ),
+                                iCoeffCol,
+                                tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
@@ -2294,10 +2817,6 @@ namespace moris
             Matrix< DDRMat > tNormal;
             tIGGI->get_normal( tNormal );
 
-            // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
-
             // init perturbation
             real tDeltaH = 0.0;
 
@@ -2320,54 +2839,13 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
-                        MORIS_ASSERT(
-                                tMaxIP( iCoeffCol ) >= tCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
-                                tMinIP( iCoeffCol ) <= tCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
-                                "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
-                                iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ));
-
-                        // get maximum possible perturbation
-                        real tMaxPerturb = (tMaxIP(iCoeffCol)-tMinIP(iCoeffCol))/3.0;
-
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
-
-                        // check point location
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-
-                            // check for correctness of perturbation size for backward FD
-                            MORIS_ASSERT( tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
-                                    "ERROR: backward perturbation size exceed limits of interpolation element:\n",
-                                    "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                    iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                        }
-                        else
-                        {
-                            if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMinIP( iCoeffCol ) )
-                            {
-                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-
-                                // check for correctness of perturbation size for backward FD
-                                MORIS_ASSERT( tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ),
-                                        "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                            else
-                            {
-                                // check for correctness of perturbation size for central FD
-                                MORIS_ASSERT(
-                                        tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ) &&
-                                        tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
-                                        "ERROR: central perturbation size exceed limits of interpolation element:\n"
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                        }
+                    	// provide adapted perturbation and FD scheme considering ip element boundaries
+                    	fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                    	tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                    			aPerturbation,
+								tCoeff( iCoeffRow, iCoeffCol ),
+								iCoeffCol,
+								tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
@@ -2506,10 +2984,6 @@ namespace moris
             // store unperturbed evaluation point weight
             real tGPWeight = aWStar / tIGGI->det_J();
 
-            // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
-
             // init perturbation
             real tDeltaH = 0.0;
 
@@ -2532,54 +3006,13 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
-                        MORIS_ASSERT(
-                                tMaxIP( iCoeffCol ) >= tCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
-                                tMinIP( iCoeffCol ) <= tCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
-                                "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
-                                iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ));
-
-                        // get maximum possible perturbation
-                        real tMaxPerturb = (tMaxIP(iCoeffCol)-tMinIP(iCoeffCol))/3.0;
-
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
-
-                        // check point location
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-
-                            // check for correctness of perturbation size for backward FD
-                            MORIS_ASSERT( tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
-                                    "ERROR: backward perturbation size exceed limits of interpolation element:\n",
-                                    "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                    iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                        }
-                        else
-                        {
-                            if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMinIP( iCoeffCol ) )
-                            {
-                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-
-                                // check for correctness of perturbation size for backward FD
-                                MORIS_ASSERT( tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ),
-                                        "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                            else
-                            {
-                                // check for correctness of perturbation size for central FD
-                                MORIS_ASSERT(
-                                        tDeltaH < tMaxIP( iCoeffCol ) - tCoeff(iCoeffRow, iCoeffCol ) &&
-                                        tDeltaH < tCoeff( iCoeffRow, iCoeffCol ) - tMinIP( iCoeffCol ),
-                                        "ERROR: central perturbation size exceed limits of interpolation element:\n"
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMinIP( iCoeffCol ),tMaxIP( iCoeffCol ),tCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                        }
+                    	// provide adapted perturbation and FD scheme considering ip element boundaries
+                    	fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                    	tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                    			aPerturbation,
+								tCoeff( iCoeffRow, iCoeffCol ),
+								iCoeffCol,
+								tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
@@ -2714,10 +3147,6 @@ namespace moris
             Geometry_Interpolator * tSlaveIGGI =
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
 
-            // IP element max/min
-            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff() );
-            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff() );
-
             // get the master residual dof type index in the set
             uint tMasterResDofIndex = mSet->get_dof_index_for_type(
                     mResidualDofType( 0 ),
@@ -2790,54 +3219,13 @@ namespace moris
 
                     if ( tPdvAssemblyIndex != -1 )
                     {
-                        // check that IG node coordinate is consistent with minimum and maximum IP coordinates
-                        MORIS_ASSERT(
-                                tMasterMaxIP( iCoeffCol ) >= tMasterCoeff( iCoeffRow, iCoeffCol ) - 1.0e-12 &&
-                                tMasterMinIP( iCoeffCol ) <= tMasterCoeff( iCoeffRow, iCoeffCol ) + 1.0e-12,
-                                "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
-                                iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ));
-
-                        // get maximum possible perturbation
-                        real tMaxPerturb = (tMasterMaxIP(iCoeffCol)-tMasterMinIP(iCoeffCol))/3.0;
-
-                        // compute the perturbation value
-                        tDeltaH = build_perturbation_size( aPerturbation, tMasterCoeff( iCoeffRow, iCoeffCol ), tMaxPerturb );
-
-                        // check point location
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH >= tMasterMaxIP( iCoeffCol ) )
-                        {
-                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
-
-                            // check for correctness of perturbation size for backward FD
-                            MORIS_ASSERT( tDeltaH < tMasterCoeff( iCoeffRow, iCoeffCol ) - tMasterMinIP( iCoeffCol ),
-                                    "ERROR: backward perturbation size exceed limits of interpolation element:\n",
-                                    "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                    iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                        }
-                        else
-                        {
-                            if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH <= tMasterMinIP( iCoeffCol ) )
-                            {
-                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-
-                                // check for correctness of perturbation size for backward FD
-                                MORIS_ASSERT( tDeltaH < tMasterMaxIP( iCoeffCol ) - tMasterCoeff(iCoeffRow, iCoeffCol ),
-                                        "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                            else
-                            {
-                                // check for correctness of perturbation size for central FD
-                                MORIS_ASSERT(
-                                        tDeltaH < tMasterMaxIP( iCoeffCol ) - tMasterCoeff(iCoeffRow, iCoeffCol ) &&
-                                        tDeltaH < tMasterCoeff( iCoeffRow, iCoeffCol ) - tMasterMinIP( iCoeffCol ),
-                                        "ERROR: central perturbation size exceed limits of interpolation element:\n"
-                                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-                                        iCoeffCol,tMasterMinIP( iCoeffCol ),tMasterMaxIP( iCoeffCol ),tMasterCoeff( iCoeffRow, iCoeffCol ),tMaxPerturb,tDeltaH,aPerturbation);
-                            }
-                        }
+                    	// provide adapted perturbation and FD scheme considering ip element boundaries
+                    	fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                    	tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                    			aPerturbation,
+                    			tMasterCoeff( iCoeffRow, iCoeffCol ),
+								iCoeffCol,
+								tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );

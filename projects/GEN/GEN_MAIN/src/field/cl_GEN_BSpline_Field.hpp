@@ -2,8 +2,6 @@
 #define MORIS_CL_GEN_BSPLINE_FIELD_HPP
 
 #include "cl_GEN_Field_Discrete_Integration.hpp"
-#include "cl_MTK_Mesh_Core.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -13,6 +11,7 @@ namespace moris
         {
 
         private:
+            Matrix<DDSMat> mSharedADVIds;
             mtk::Interpolation_Mesh* mMesh;
             sol::Dist_Vector* mOwnedNodalValues = nullptr;
             sol::Dist_Vector* mSharedNodalValues = nullptr;
@@ -22,17 +21,17 @@ namespace moris
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
              *
              * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aOwnedADVIds All owned ADV IDs on this processor
+             * @param aCoefficientIndices Coefficient indices to be mapped to
              * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-             * @param aOwnedADVIdsOffset Offset in the owned ADV IDs for pulling ADV IDs
+             * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
              * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aField Field for initializing the B-spline level set discretization
              */
             BSpline_Field(
                     sol::Dist_Vector*        aOwnedADVs,
-                    const Matrix<DDSMat>&    aOwnedADVIds,
+                    const Matrix<DDUMat>&    aCoefficientIndices,
                     const Matrix<DDSMat>&    aSharedADVIds,
-                    uint                     aOwnedADVIdsOffset,
+                    uint                     aADVOffsetID,
                     mtk::Interpolation_Mesh* aMesh,
                     std::shared_ptr<Field>   aField);
 
@@ -74,12 +73,14 @@ namespace moris
              */
             void import_advs(sol::Dist_Vector* aOwnedADVs);
 
+        protected:
+
             /**
-             * Function for determining if this geometry is to be used for seeding a B-spline level set field.
+             * Gets the mesh that this field depends on.
              *
-             * @return false
+             * @return Mesh, default nullptr
              */
-            bool discretization_intention();
+            mtk::Interpolation_Mesh* get_mesh();
 
         private:
 

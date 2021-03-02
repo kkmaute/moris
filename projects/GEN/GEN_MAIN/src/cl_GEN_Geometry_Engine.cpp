@@ -66,23 +66,23 @@ namespace moris
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
             {
-                mADVs        = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
+                mInitialPrimitiveADVs = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"));
                 mLowerBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"));
                 mUpperBounds = Matrix<DDRMat>(aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"));
             }
             else
             {
-                mADVs        = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
+                mInitialPrimitiveADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
                 mLowerBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"));
                 mUpperBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"));
 
                 // check that advs and bounds are vectors
-                MORIS_ERROR ( isvector(mADVs),        "ADVs need to be of type vector.\n");
+                MORIS_ERROR ( isvector(mInitialPrimitiveADVs),        "ADVs need to be of type vector.\n");
                 MORIS_ERROR ( isvector(mLowerBounds), "ADV lower bounds need to be of type vector.\n");
                 MORIS_ERROR ( isvector(mUpperBounds), "ADV upper bounds need to be of type vector.\n");
 
                 // ensure that advs and bounds are column vectors
-                mADVs        = mADVs.n_rows()        == 1 ? trans(mADVs) : mADVs;
+                mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows()        == 1 ? trans(mInitialPrimitiveADVs) : mInitialPrimitiveADVs;
                 mLowerBounds = mLowerBounds.n_rows() == 1 ? trans(mLowerBounds) : mLowerBounds;
                 mUpperBounds = mUpperBounds.n_rows() == 1 ? trans(mUpperBounds) : mUpperBounds;
             }
@@ -90,11 +90,9 @@ namespace moris
             // Geometries
             mGeometries = create_geometries(
                     aParameterLists(1),
-                    mADVs,
+                    mInitialPrimitiveADVs,
                     mLibrary,
                     aMTKMesh == nullptr ? nullptr : aMTKMesh->get_interpolation_mesh(0));
-
-
 
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
@@ -102,7 +100,7 @@ namespace moris
             // Properties
             mProperties = create_properties(
                     aParameterLists(2),
-                    mADVs,
+                    mInitialPrimitiveADVs,
                     mGeometries,
                     mLibrary);
 
@@ -169,18 +167,14 @@ namespace moris
             mOwnedADVs->vector_global_assembly();
             mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
-            // Reset info related to the mesh
-            mPdvHostManager.reset();
-            mActiveGeometryIndex = 0;
+            // Import ADVs into fields that need it
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 mGeometries(tGeometryIndex)->import_advs(mOwnedADVs);
-                mGeometries(tGeometryIndex)->reset_nodal_information();
             }
             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 mProperties(tPropertyIndex)->import_advs(mOwnedADVs);
-                mProperties(tPropertyIndex)->reset_nodal_information();
             }
         }
 
@@ -659,11 +653,11 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Create PDVs" );
 
-            // Get meshes
-            mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
+            // Get meshes using first mesh on mesh manager: Lagrange mesh with numbered aura (default)
+            mtk::Integration_Mesh* tIntegrationMesh     = aMeshManager->get_integration_mesh(0);
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
 
-            // Initialize PDV type groups and mesh set info
+            // Initialize PDV type groups and mesh set info from integration mesh
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPDVTypeGroup(1);
             Cell<Matrix<DDUMat>> tMeshSetIndicesPerProperty(mProperties.size());
@@ -681,18 +675,25 @@ namespace moris
                 uint tNumSetIndices = tMeshSetIndicesPerProperty(tPropertyIndex).length();
                 tMeshSetIndicesPerProperty(tPropertyIndex).resize(tNumSetIndices + tMeshSetNames.size(), 1);
 
-                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
+                // number of mesh sets for current property
+                uint tNumberOfSets = tMeshSetIndicesPerProperty(tPropertyIndex).length();
+
+                // Set for each property index the list of mesh set indices
+                for (uint tIndex = tNumSetIndices; tIndex < tNumberOfSets; tIndex++)
                 {
                     tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
                 }
 
-                // Assign PDV types
-                for (uint tIndex = 0; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
+                // Assign PDV types to each mesh set
+                for (uint tIndex = 0; tIndex < tNumberOfSets; tIndex++)
                 {
-                    tPdvTypes(tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex)).push_back(tPDVTypeGroup);
+                    uint tMeshSetIndex = tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex);
+
+                    tPdvTypes(tMeshSetIndex).push_back(tPDVTypeGroup);    // why not use mProperties(tPropertyIndex)->get_pdv_type()
                 }
             }
 
+            // FIXME: add comment on purpose of next few lines
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
                     tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
@@ -720,6 +721,11 @@ namespace moris
                 // Assign PDVs
                 if (mProperties(tPropertyIndex)->is_interpolation_pdv())
                 {
+                    // PDV type and mesh set names/indices from parameter list
+                    tPDVTypeGroup(0) = mProperties(tPropertyIndex)->get_pdv_type();
+
+                    mProperties(tPropertyIndex)->add_nodal_data(tInterpolationMesh);
+
                     this->assign_property_to_pdv_hosts(
                             mProperties(tPropertyIndex),
                             tPDVTypeGroup(0),
@@ -775,605 +781,317 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::distribute_advs( std::shared_ptr< mtk::Mesh_Manager> aMeshManager )
-        {
-            // Tracer
-            Tracer tTracer("GEN", "N/A", "Distribute ADVs");
-
-            mtk::Interpolation_Mesh* aMesh = aMeshManager->get_interpolation_mesh(0);
-
-            // Register spatial dimension
-            mNumSpatialDimensions = aMesh->get_spatial_dim();
-
-            // Set number of background nodes
-            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
-
-            // allocate proximity data
-            this->setup_initial_geometric_proximities(aMesh);
-
-            // Gather all fields
-            Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
-            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
-            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
-
-            // Build distributed ADVs
-            if (mOwnedADVs == nullptr)
-            {
-                //------------------------------------//
-                // Determine owned and shared ADV IDs //
-                //------------------------------------//
-
-                // Loop over all geometries to get number of new ADVs
-                uint tNumNewOwnedADVs = 0;
-                for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
-                {
-                    // Determine if level set will be created
-                    if (tFields(tFieldIndex)->discretization_intention())
-                    {
-                        // Get number of coefficients
-                        sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                        uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
-
-                        // Loop over B-spline coefficients
-                        for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
-                        {
-                            // If this processor owns this coefficient
-                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
-                            {
-                                // New ADV needs to be created on this processor
-                                tNumNewOwnedADVs++;
-                            }
-                        }
-                    }
-                }
-
-                // Set number of total owned ADVs
-                uint tNumOwnedADVs = tNumNewOwnedADVs;
-                if (par_rank() == 0)
-                {
-                    tNumOwnedADVs += mADVs.length();
-                }
-
-                // Set primitive IDs
-                Matrix<DDSMat> tPrimitiveADVIds(mADVs.length(), 1);
-                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
-                {
-                    tPrimitiveADVIds(tADVIndex) = tADVIndex;
-                }
-
-                // Start with primitive IDs for owned IDs on processor 0
-                Matrix<DDSMat> tOwnedADVIds(0, 0);
-                if (par_rank() == 0)
-                {
-                    tOwnedADVIds = tPrimitiveADVIds;
-                }
-
-                // Check for proper dimensions
-                MORIS_ASSERT( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
-                        "ADV lower bound vector needs to be a column vector.\n");
-
-                MORIS_ASSERT( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
-                        "ADV upper bound vector needs to be a column vector.\n");
-
-                // Resize owned IDs and bounds
-                tOwnedADVIds.resize(tNumOwnedADVs, 1);
-                mLowerBounds.resize(tNumOwnedADVs, 1);
-                mUpperBounds.resize(tNumOwnedADVs, 1);
-
-                // Cell of shared ADV IDs
-                Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size() + mProperties.size());
-
-                // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
-                uint tOwnedADVIndex = mADVs.length();
-                uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple B-spline fields
-                for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
-                {
-                    // Determine if level set will be created
-                    if (tFields(tFieldIndex)->discretization_intention())
-                    {
-                        // Get bounds
-                        real tBSplineLowerBound = tFields(tFieldIndex)->get_discretization_lower_bound();
-                        real tBSplineUpperBound = tFields(tFieldIndex)->get_discretization_upper_bound();
-
-                        // Get number of coefficients
-                        sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                        uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
-
-                        // Resize shared ADV IDs
-                        tSharedADVIds(tFieldIndex).resize(tNumCoefficients, 1);
-
-                        // Loop over B-spline coefficients
-                        for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
-                        {
-                            // Get new ADV ID and set as shared ID
-                            sint tNewADVId = tIdOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
-                                    tBSplineIndex,
-                                    EntityRank::BSPLINE,
-                                    tBSplineMeshIndex);
-                            tSharedADVIds(tFieldIndex)(tBSplineIndex) = tNewADVId;
-
-                            // If this processor owns this coefficient set to owned list and set bounds
-                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
-                            {
-                                // Bounds
-                                mLowerBounds(tOwnedADVIndex) = tBSplineLowerBound;
-                                mUpperBounds(tOwnedADVIndex) = tBSplineUpperBound;
-
-                                // New ADV ID
-                                tOwnedADVIds(tOwnedADVIndex++) = tNewADVId;
-                            }
-                        }
-                    }
-                }
-
-                // Set owned ADV IDs
-                mPdvHostManager.set_owned_adv_ids(tOwnedADVIds);
-
-                //----------------------------------------//
-                // Create owned ADV vector                //
-                //----------------------------------------//
-
-                // Create factory for distributed ADV vector
-                sol::Matrix_Vector_Factory tDistributedFactory;
-
-                // Create map for distributed vectors
-                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
-                sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
-
-                // Create vectors
-                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
-                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
-
-                // Assign primitive ADVs
-                if (par_rank() == 0)
-                {
-                    mOwnedADVs->replace_global_values(tPrimitiveADVIds, mADVs);
-                }
-
-                // Global assembly
-                mOwnedADVs->vector_global_assembly();
-
-                // Get primitive ADVs from owned vector
-                mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
-
-                // Set field ADVs using distributed vector
-                if (mADVs.length() > 0)
-                {
-                    for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
-                    {
-                        tFields(tFieldIndex)->set_advs(mPrimitiveADVs);
-                    }
-                }
-
-                //----------------------------------------//
-                // Convert to B-spline fields             //
-                //----------------------------------------//
-
-                // Loop to find B-spline geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
-                {
-                    // Shape sensitivities logic
-                    mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
-
-                    // Convert to B-spline field
-                    if (mGeometries(tGeometryIndex)->discretization_intention())
-                    {
-                        // Always have shape sensitivities if B-spline field
-                        mShapeSensitivities = true;
-
-                        // Create B-spline geometry FIXME Multiple B-spline fields
-                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
-                                mOwnedADVs,
-                                tOwnedADVIds,
-                                tSharedADVIds(tGeometryIndex),
-                                tPrimitiveADVIds.length(),
-                                aMesh,
-                                mGeometries(tGeometryIndex));
-                    }
-
-                    // Store field values if needed
-                    else if (mGeometries(tGeometryIndex)->storage_intention())
-                    {
-                        // Create stored geometry
-                        mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
-                                aMesh,
-                                mGeometries(tGeometryIndex));
-                    }
-                }
-
-                // Loop to find B-spline properties
-                for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
-                {
-                    // Convert to B-spline field
-                    if (mProperties(tPropertyIndex)->discretization_intention())
-                    {
-                        // Create B-spline property FIXME Multiple B-spline fields
-                        mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
-                                mOwnedADVs,
-                                tOwnedADVIds,
-                                tSharedADVIds(mGeometries.size() + tPropertyIndex),
-                                tPrimitiveADVIds.length(),
-                                aMesh,
-                                mProperties(tPropertyIndex));
-                    }
-                }
-
-                //----------------------------------------//
-                // Communicate all ADV IDs to processor 0 //
-                //----------------------------------------//
-
-                // Sending mats
-                Cell<Matrix<DDSMat>> tSendingIDs(0);
-                Cell<Matrix<DDRMat>> tSendingLowerBounds(0);
-                Cell<Matrix<DDRMat>> tSendingUpperBounds(0);
-
-                // Receiving mats
-                Cell<Matrix<DDSMat>> tReceivingIDs(0);
-                Cell<Matrix<DDRMat>> tReceivingLowerBounds(0);
-                Cell<Matrix<DDRMat>> tReceivingUpperBounds(0);
-
-                // Set up communication list for communicating ADV IDs
-                Matrix<IdMat> tCommunicationList(1, 1, 0);
-                if (par_rank() == 0)
-                {
-                    // Resize communication list and sending mats
-                    tCommunicationList.resize(par_size() - 1, 1);
-                    tSendingIDs.resize(par_size() - 1);
-                    tSendingLowerBounds.resize(par_size() - 1);
-                    tSendingUpperBounds.resize(par_size() - 1);
-
-                    // Assign communication list
-                    for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
-                    {
-                        tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
-                    }
-                }
-                else
-                {
-                    tSendingIDs = {tOwnedADVIds};
-                    tSendingLowerBounds = {mLowerBounds};
-                    tSendingUpperBounds = {mUpperBounds};
-                }
-
-                // Communicate mats
-                communicate_mats(tCommunicationList, tSendingIDs, tReceivingIDs);
-                communicate_mats(tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds);
-                communicate_mats(tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds);
-
-                // Assemble full ADVs/bounds
-                if (par_rank() == 0)
-                {
-                    // Start full IDs with owned IDs on processor 0
-                    mFullADVIds = tOwnedADVIds;
-
-                    // Assemble additional IDs/bounds from other processors
-                    for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
-                    {
-                        // Get number of received ADVs
-                        uint tFullADVsFilled = mFullADVIds.length();
-                        uint tNumReceivedADVs = tReceivingIDs(tProcessorIndex - 1).length();
-
-                        // Resize full ADV IDs and bounds
-                        mFullADVIds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
-                        mLowerBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
-                        mUpperBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
-
-                        // Assign received ADV IDs
-                        for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
-                        {
-                            mFullADVIds(tFullADVsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
-                            mLowerBounds(tFullADVsFilled + tADVIndex) =
-                                    tReceivingLowerBounds(tProcessorIndex - 1)(tADVIndex);
-                            mUpperBounds(tFullADVsFilled + tADVIndex) =
-                                    tReceivingUpperBounds(tProcessorIndex - 1)(tADVIndex);
-                        }
-                    }
-                }
-                else
-                {
-                    mLowerBounds.set_size(0, 0);
-                    mUpperBounds.set_size(0, 0);
-                }
-            }
-        }
-
         void Geometry_Engine::distribute_advs(mtk::Interpolation_Mesh* aMesh)
         {
             // Tracer
             Tracer tTracer("GEN", "Distribute ADVs");
 
-            // Register spatial dimension
-            mNumSpatialDimensions = aMesh->get_spatial_dim();
-
-            // Set number of background nodes
-            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
-
-            // allocate proximity data
-            this->setup_initial_geometric_proximities(aMesh);
-
             // Gather all fields
             Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
             std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
             std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
 
-            // Build distributed ADVs
-            if (mOwnedADVs == nullptr)
+            //------------------------------------//
+            // Determine owned and shared ADV IDs //
+            //------------------------------------//
+
+            // Set primitive IDs
+            Matrix<DDSMat> tPrimitiveADVIds(mInitialPrimitiveADVs.length(), 1);
+            for (uint tADVIndex = 0; tADVIndex < mInitialPrimitiveADVs.length(); tADVIndex++)
             {
-                //------------------------------------//
-                // Determine owned and shared ADV IDs //
-                //------------------------------------//
+                tPrimitiveADVIds(tADVIndex) = tADVIndex;
+            }
 
-                // Loop over all geometries to get number of new ADVs
-                uint tNumNewOwnedADVs = 0;
+            // Start with primitive IDs for owned IDs on processor 0
+            Matrix<DDSMat> tOwnedADVIds(0, 0);
+            if (par_rank() == 0)
+            {
+                tOwnedADVIds = tPrimitiveADVIds;
+            }
+
+            // Owned and shared ADVs per field
+            Cell<Matrix<DDUMat>> tSharedCoefficientIndices(tFields.size());
+            Cell<Matrix<DDSMat>> tSharedADVIds(tFields.size());
+            Matrix<DDUMat> tAllOffsetIDs(tFields.size(), 1);
+
+            // Get all node indices from the mesh (for now)
+            uint tNumNodes = aMesh->get_num_nodes();
+            Matrix<DDUMat> tNodeIndices(tNumNodes, 1);
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                tNodeIndices(tNodeIndex) = tNodeIndex;
+            }
+
+            // Loop over all geometries to get number of new ADVs
+            uint tOffsetID = tPrimitiveADVIds.length();
+            for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
+            {
+                // Determine if level set will be created
+                if (tFields(tFieldIndex)->intended_discretization())
+                {
+                    // Get discretization mesh index
+                    uint tDiscretizationMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
+
+                    // Get owned coefficients
+                    Matrix<DDUMat> tOwnedCoefficients = aMesh->get_owned_discretization_coefficient_indices(
+                            tNodeIndices,
+                            tDiscretizationMeshIndex);
+
+                    // Get shared coefficients
+                    Matrix<DDUMat> tSharedCoefficients = aMesh->get_shared_discretization_coefficient_indices(
+                            tNodeIndices,
+                            tDiscretizationMeshIndex);
+
+                    // Sizes of ID vectors
+                    uint tNumOwnedADVs = tOwnedADVIds.length();
+                    uint tNumOwnedCoefficients = tOwnedCoefficients.length();
+                    uint tNumSharedCoefficients = tSharedCoefficients.length();
+
+                    // Resize ID lists and bounds
+                    tOwnedADVIds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mLowerBounds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mUpperBounds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    tSharedADVIds(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
+                    tSharedCoefficientIndices(tFieldIndex) = tOwnedCoefficients;
+
+                    // Add owned coefficients to lists
+                    for (uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++)
+                    {
+                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                                tOwnedCoefficients(tOwnedCoefficient),
+                                EntityRank::BSPLINE,
+                                tDiscretizationMeshIndex);
+                        tOwnedADVIds(tNumOwnedADVs + tOwnedCoefficient) = tADVId;
+                        mLowerBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_lower_bound();
+                        mUpperBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_upper_bound();;
+                        tSharedADVIds(tFieldIndex)(tOwnedCoefficient) = tADVId;
+                    }
+
+                    // Add shared coefficients to field-specific list
+                    tSharedCoefficientIndices(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
+                    for (uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++)
+                    {
+                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                                tSharedCoefficients(tSharedCoefficient),
+                                EntityRank::BSPLINE,
+                                tDiscretizationMeshIndex);
+                        tSharedCoefficientIndices(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tSharedCoefficients(tSharedCoefficient);
+                        tSharedADVIds(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tADVId;
+                    }
+
+                    // Update offset based on maximum ID TODO check the info being provided here
+                    tAllOffsetIDs(tFieldIndex) = tOffsetID;
+                    tOffsetID += aMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
+                }
+            }
+
+            // Set owned ADV IDs
+            mPdvHostManager.set_owned_adv_ids(tOwnedADVIds);
+
+            //----------------------------------------//
+            // Create owned ADV vector                //
+            //----------------------------------------//
+
+            // Create factory for distributed ADV vector
+            sol::Matrix_Vector_Factory tDistributedFactory;
+
+            // Create map for distributed vectors
+            sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+            sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
+
+            // Create vectors
+            sol::Dist_Vector* tNewOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
+            mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
+
+            // Assign primitive ADVs
+            if (par_rank() == 0)
+            {
+                tNewOwnedADVs->replace_global_values(tPrimitiveADVIds, mInitialPrimitiveADVs);
+            }
+
+            // Global assembly
+            tNewOwnedADVs->vector_global_assembly();
+
+            // Get primitive ADVs from owned vector
+            mPrimitiveADVs->import_local_to_global(*tNewOwnedADVs);
+
+            // Set field ADVs using distributed vector
+            if (mInitialPrimitiveADVs.length() > 0)
+            {
                 for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
-                    // Determine if level set will be created
-                    if (tFields(tFieldIndex)->discretization_intention())
-                    {
-                        // Get number of coefficients
-                        sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                        uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
+                    tFields(tFieldIndex)->set_advs(mPrimitiveADVs);
+                }
+            }
 
-                        // Loop over B-spline coefficients
-                        for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
-                        {
-                            // If this processor owns this coefficient
-                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
-                            {
-                                // New ADV needs to be created on this processor
-                                tNumNewOwnedADVs++;
-                            }
-                        }
+            //----------------------------------------//
+            // Convert to B-spline fields             //
+            //----------------------------------------//
+
+            // Loop to find B-spline geometries
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                // Shape sensitivities logic
+                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
+
+                // Convert to B-spline field
+                if (mGeometries(tGeometryIndex)->intended_discretization())
+                {
+                    // Always have shape sensitivities if B-spline field
+                    mShapeSensitivities = true;
+
+                    // Create B-spline geometry FIXME Multiple B-spline fields
+                    mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
+                            tNewOwnedADVs,
+                            tSharedCoefficientIndices(tGeometryIndex),
+                            tSharedADVIds(tGeometryIndex),
+                            tAllOffsetIDs(tGeometryIndex),
+                            aMesh,
+                            mGeometries(tGeometryIndex));
+                }
+
+                // Store field values if needed
+                else if (mGeometries(tGeometryIndex)->intended_storage())
+                {
+                    // Create stored geometry
+                    mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
+                            aMesh,
+                            mGeometries(tGeometryIndex));
+                }
+            }
+
+            // Loop to find B-spline properties
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                // Convert to B-spline field
+                if (mProperties(tPropertyIndex)->intended_discretization())
+                {
+                    // Create B-spline property FIXME Multiple B-spline fields
+                    mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
+                            tNewOwnedADVs,
+                            tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
+                            tSharedADVIds(mGeometries.size() + tPropertyIndex),
+                            tAllOffsetIDs(mGeometries.size() + tPropertyIndex),
+                            aMesh,
+                            mProperties(tPropertyIndex));
+                }
+            }
+
+            // Update dependencies
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                mProperties(tPropertyIndex)->update_dependencies(tFields);
+            }
+
+            // Save new owned ADVs
+            mOwnedADVs = tNewOwnedADVs;
+
+            //----------------------------------------//
+            // Communicate all ADV IDs to processor 0 //
+            //----------------------------------------//
+
+            // Sending mats
+            Cell<Matrix<DDSMat>> tSendingIDs(0);
+            Cell<Matrix<DDRMat>> tSendingLowerBounds(0);
+            Cell<Matrix<DDRMat>> tSendingUpperBounds(0);
+
+            // Receiving mats
+            Cell<Matrix<DDSMat>> tReceivingIDs(0);
+            Cell<Matrix<DDRMat>> tReceivingLowerBounds(0);
+            Cell<Matrix<DDRMat>> tReceivingUpperBounds(0);
+
+            // Set up communication list for communicating ADV IDs
+            Matrix<IdMat> tCommunicationList(1, 1, 0);
+            if (par_rank() == 0)
+            {
+                // Resize communication list and sending mats
+                tCommunicationList.resize(par_size() - 1, 1);
+                tSendingIDs.resize(par_size() - 1);
+                tSendingLowerBounds.resize(par_size() - 1);
+                tSendingUpperBounds.resize(par_size() - 1);
+
+                // Assign communication list
+                for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+                {
+                    tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
+                }
+            }
+            else
+            {
+                tSendingIDs = {tOwnedADVIds};
+                tSendingLowerBounds = {mLowerBounds};
+                tSendingUpperBounds = {mUpperBounds};
+            }
+
+            // Communicate mats
+            communicate_mats(tCommunicationList, tSendingIDs, tReceivingIDs);
+            communicate_mats(tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds);
+            communicate_mats(tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds);
+
+            // Assemble full ADVs/bounds
+            if (par_rank() == 0)
+            {
+                // Start full IDs with owned IDs on processor 0
+                mFullADVIds = tOwnedADVIds;
+
+                // Assemble additional IDs/bounds from other processors
+                for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+                {
+                    // Get number of received ADVs
+                    uint tFullADVsFilled = mFullADVIds.length();
+                    uint tNumReceivedADVs = tReceivingIDs(tProcessorIndex - 1).length();
+
+                    // Resize full ADV IDs and bounds
+                    mFullADVIds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+                    mLowerBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+                    mUpperBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+
+                    // Assign received ADV IDs
+                    for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
+                    {
+                        mFullADVIds(tFullADVsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
+                        mLowerBounds(tFullADVsFilled + tADVIndex) =
+                                tReceivingLowerBounds(tProcessorIndex - 1)(tADVIndex);
+                        mUpperBounds(tFullADVsFilled + tADVIndex) =
+                                tReceivingUpperBounds(tProcessorIndex - 1)(tADVIndex);
                     }
                 }
+            }
+            else
+            {
+                mLowerBounds.set_size(0, 0);
+                mUpperBounds.set_size(0, 0);
+            }
 
-                // Set number of total owned ADVs
-                uint tNumOwnedADVs = tNumNewOwnedADVs;
-                if (par_rank() == 0)
-                {
-                    tNumOwnedADVs += mADVs.length();
-                }
+            // Reset mesh information
+            this->reset_mesh_information(aMesh);
+        }
 
-                // Set primitive IDs
-                Matrix<DDSMat> tPrimitiveADVIds(mADVs.length(), 1);
-                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
-                {
-                    tPrimitiveADVIds(tADVIndex) = tADVIndex;
-                }
+        //--------------------------------------------------------------------------------------------------------------
 
-                // Start with primitive IDs for owned IDs on processor 0
-                Matrix<DDSMat> tOwnedADVIds(0, 0);
-                if (par_rank() == 0)
-                {
-                    tOwnedADVIds = tPrimitiveADVIds;
-                }
+        void Geometry_Engine::reset_mesh_information(mtk::Interpolation_Mesh* aMesh)
+        {
+            // Register spatial dimension
+            mNumSpatialDimensions = aMesh->get_spatial_dim();
 
-                // Check for proper dimensions
-                MORIS_ASSERT( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
-                        "ADV lower bound vector needs to be a column vector.\n");
+            // Reset PDV host manager
+            mPdvHostManager.reset();
+            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
-                MORIS_ASSERT( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
-                        "ADV upper bound vector needs to be a column vector.\n");
+            // Allocate proximity data
+            this->setup_initial_geometric_proximities(aMesh);
 
-                // Resize owned IDs and bounds
-                tOwnedADVIds.resize(tNumOwnedADVs, 1);
-                mLowerBounds.resize(tNumOwnedADVs, 1);
-                mUpperBounds.resize(tNumOwnedADVs, 1);
-
-                // Cell of shared ADV IDs
-                Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size() + mProperties.size());
-
-                // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
-                uint tOwnedADVIndex = mADVs.length();
-                uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple B-spline fields
-                for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
-                {
-                    // Determine if level set will be created
-                    if (tFields(tFieldIndex)->discretization_intention())
-                    {
-                        // Get bounds
-                        real tBSplineLowerBound = tFields(tFieldIndex)->get_discretization_lower_bound();
-                        real tBSplineUpperBound = tFields(tFieldIndex)->get_discretization_upper_bound();
-
-                        // Get number of coefficients
-                        sint tBSplineMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
-                        uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
-
-                        // Resize shared ADV IDs
-                        tSharedADVIds(tFieldIndex).resize(tNumCoefficients, 1);
-
-                        // Loop over B-spline coefficients
-                        for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
-                        {
-                            // Get new ADV ID and set as shared ID
-                            sint tNewADVId = tIdOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
-                                    tBSplineIndex,
-                                    EntityRank::BSPLINE,
-                                    tBSplineMeshIndex);
-                            tSharedADVIds(tFieldIndex)(tBSplineIndex) = tNewADVId;
-
-                            // If this processor owns this coefficient set to owned list and set bounds
-                            if ((uint) par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
-                            {
-                                // Bounds
-                                mLowerBounds(tOwnedADVIndex) = tBSplineLowerBound;
-                                mUpperBounds(tOwnedADVIndex) = tBSplineUpperBound;
-
-                                // New ADV ID
-                                tOwnedADVIds(tOwnedADVIndex++) = tNewADVId;
-                            }
-                        }
-                    }
-                }
-
-                // Set owned ADV IDs
-                mPdvHostManager.set_owned_adv_ids(tOwnedADVIds);
-
-                //----------------------------------------//
-                // Create owned ADV vector                //
-                //----------------------------------------//
-
-                // Create factory for distributed ADV vector
-                sol::Matrix_Vector_Factory tDistributedFactory;
-
-                // Create map for distributed vectors
-                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
-                sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
-
-                // Create vectors
-                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
-                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
-
-                // Assign primitive ADVs
-                if (par_rank() == 0)
-                {
-                    mOwnedADVs->replace_global_values(tPrimitiveADVIds, mADVs);
-                }
-
-                // Global assembly
-                mOwnedADVs->vector_global_assembly();
-
-                // Get primitive ADVs from owned vector
-                mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
-
-                // Set field ADVs using distributed vector
-                if (mADVs.length() > 0)
-                {
-                    for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
-                    {
-                        tFields(tFieldIndex)->set_advs(mPrimitiveADVs);
-                    }
-                }
-
-                //----------------------------------------//
-                // Convert to B-spline fields             //
-                //----------------------------------------//
-
-                // Loop to find B-spline geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
-                {
-                    // Shape sensitivities logic
-                    mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
-
-                    // Convert to B-spline field
-                    if (mGeometries(tGeometryIndex)->discretization_intention())
-                    {
-                        // Always have shape sensitivities if B-spline field
-                        mShapeSensitivities = true;
-
-                        // Create B-spline geometry FIXME Multiple B-spline fields
-                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
-                                mOwnedADVs,
-                                tOwnedADVIds,
-                                tSharedADVIds(tGeometryIndex),
-                                tPrimitiveADVIds.length(),
-                                aMesh,
-                                mGeometries(tGeometryIndex));
-                    }
-
-                    // Store field values if needed
-                    else if (mGeometries(tGeometryIndex)->storage_intention())
-                    {
-                        // Create stored geometry
-                        mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
-                                aMesh,
-                                mGeometries(tGeometryIndex));
-                    }
-                }
-
-                // Loop to find B-spline properties
-                for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
-                {
-                    // Convert to B-spline field
-                    if (mProperties(tPropertyIndex)->discretization_intention())
-                    {
-                        // Create B-spline property FIXME Multiple B-spline fields
-                        mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
-                                mOwnedADVs,
-                                tOwnedADVIds,
-                                tSharedADVIds(mGeometries.size() + tPropertyIndex),
-                                tPrimitiveADVIds.length(),
-                                aMesh,
-                                mProperties(tPropertyIndex));
-                    }
-                }
-
-                //----------------------------------------//
-                // Communicate all ADV IDs to processor 0 //
-                //----------------------------------------//
-
-                // Sending mats
-                Cell<Matrix<DDSMat>> tSendingIDs(0);
-                Cell<Matrix<DDRMat>> tSendingLowerBounds(0);
-                Cell<Matrix<DDRMat>> tSendingUpperBounds(0);
-
-                // Receiving mats
-                Cell<Matrix<DDSMat>> tReceivingIDs(0);
-                Cell<Matrix<DDRMat>> tReceivingLowerBounds(0);
-                Cell<Matrix<DDRMat>> tReceivingUpperBounds(0);
-
-                // Set up communication list for communicating ADV IDs
-                Matrix<IdMat> tCommunicationList(1, 1, 0);
-                if (par_rank() == 0)
-                {
-                    // Resize communication list and sending mats
-                    tCommunicationList.resize(par_size() - 1, 1);
-                    tSendingIDs.resize(par_size() - 1);
-                    tSendingLowerBounds.resize(par_size() - 1);
-                    tSendingUpperBounds.resize(par_size() - 1);
-
-                    // Assign communication list
-                    for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
-                    {
-                        tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
-                    }
-                }
-                else
-                {
-                    tSendingIDs = {tOwnedADVIds};
-                    tSendingLowerBounds = {mLowerBounds};
-                    tSendingUpperBounds = {mUpperBounds};
-                }
-
-                // Communicate mats
-                communicate_mats(tCommunicationList, tSendingIDs, tReceivingIDs);
-                communicate_mats(tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds);
-                communicate_mats(tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds);
-
-                // Assemble full ADVs/bounds
-                if (par_rank() == 0)
-                {
-                    // Start full IDs with owned IDs on processor 0
-                    mFullADVIds = tOwnedADVIds;
-
-                    // Assemble additional IDs/bounds from other processors
-                    for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
-                    {
-                        // Get number of received ADVs
-                        uint tFullADVsFilled = mFullADVIds.length();
-                        uint tNumReceivedADVs = tReceivingIDs(tProcessorIndex - 1).length();
-
-                        // Resize full ADV IDs and bounds
-                        mFullADVIds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
-                        mLowerBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
-                        mUpperBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
-
-                        // Assign received ADV IDs
-                        for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
-                        {
-                            mFullADVIds(tFullADVsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
-                            mLowerBounds(tFullADVsFilled + tADVIndex) =
-                                    tReceivingLowerBounds(tProcessorIndex - 1)(tADVIndex);
-                            mUpperBounds(tFullADVsFilled + tADVIndex) =
-                                    tReceivingUpperBounds(tProcessorIndex - 1)(tADVIndex);
-                        }
-                    }
-                }
-                else
-                {
-                    mLowerBounds.set_size(0, 0);
-                    mUpperBounds.set_size(0, 0);
-                }
+            // Reset info related to the mesh
+            mActiveGeometryIndex = 0;
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                mGeometries(tGeometryIndex)->reset_nodal_data();
+            }
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                mProperties(tPropertyIndex)->reset_nodal_data();
             }
         }
 
@@ -1553,14 +1271,12 @@ namespace moris
                 Cell<Cell<Cell<PDV_Type>>>    aPdvTypes)
         {
             // Get information from integration mesh
-            //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
             uint tNumSets  = aPdvTypes.size();
-            uint tNumNodes = aInterpolationMesh->get_num_nodes();
 
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
             Cell<Matrix<DDSMat>> tNodeIdsPerSet(tNumSets);
             Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
-            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
+            Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(tNumSets);
 
             // Determine if we need to do the below loop
             bool tDoJankLoop = false;
@@ -1572,52 +1288,72 @@ namespace moris
                 }
             }
 
+            // Determine the indices, IDs, and ownerships of base cell nodes in each set of integration mesh
+            // List has redundant entries
             if (tDoJankLoop)
             {
-                // Loop through sets
+                // Loop through sets in integration mesh
                 for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
                 {
                     uint tCurrentNode = 0;
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
 
+                    // Get number of clusters on set
+                    uint tNumberOfClusters = tSet->get_num_clusters_on_set();
+
                     // Clusters per set
-                    for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
+                    for (uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++)
                     {
+                        // get pointer to cluster
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
-                        // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
-                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_inds();
-                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_ids();
-                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_owners();
+                        // Indices, IDs, and ownership of base cell nodes in cluster
+                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell().get_base_cell();
 
-                        // FIXME don't undersand this resize. it's really slow
-                        tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
-                        tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
-                        tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
+                        Matrix<IndexMat> tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
+                        Matrix<IndexMat> tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
+                        Matrix<IndexMat> tNodeOwnersInCluster      = tBaseCell->get_vertex_owners();
+                        Matrix<DDRMat>   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
 
-                        // FIXME we have nodes up to 8 tims in this list in 3d
-                        for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                        // number of base nodes in cluster
+                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                        // number of spatial dimension
+                        uint tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                        // check for consistency
+                        MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
+                                "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
+
+                        // FIXME don't understand this resize. it's really slow
+                        tNodeIndicesPerSet(tMeshSetIndex)    .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeIdsPerSet(tMeshSetIndex)        .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeOwnersPerSet(tMeshSetIndex)     .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeCoordinatesPerSet(tMeshSetIndex).resize(tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim);
+
+                        // FIXME we have nodes up to 8 times in this list in 3d
+                        for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
                         {
-                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
-                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
-                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
+                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)      = tNodeIndicesInCluster(tNodeInCluster);
+                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)          = tNodeIdsInCluster(tNodeInCluster);
+                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode)       = tNodeOwnersInCluster(tNodeInCluster);
+
+                            tNodeCoordinatesPerSet(tMeshSetIndex).get_row(tCurrentNode) =
+                                    tNodeCoordinatesInCluster.get_row(tNodeInCluster);
+
+                            tCurrentNode++;
                         }
                     }
                 }
             }
 
-            // Get node coordinates
-            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
-            {
-                tNodeCoordinates(tNodeIndex) = aInterpolationMesh->get_node_coordinate(tNodeIndex);
-            }
-
-            // Create hosts
+            // Create hosts of nodes of non-unzipped interpolation nodes
             mPdvHostManager.create_interpolation_pdv_hosts(
                     tNodeIndicesPerSet,
                     tNodeIdsPerSet,
                     tNodeOwnersPerSet,
-                    tNodeCoordinates,
+                    tNodeCoordinatesPerSet,
                     aPdvTypes);
         }
 
@@ -1664,7 +1400,6 @@ namespace moris
             // Set PDV types
             mPdvHostManager.set_integration_pdv_types(tPdvTypes);
             mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
-
         }
 
         //--------------------------------------------------------------------------------------------------------------

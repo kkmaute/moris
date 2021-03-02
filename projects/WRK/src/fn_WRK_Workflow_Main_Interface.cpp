@@ -68,7 +68,9 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
 
         // FIXME: get this from parameter list"workflow"
         std::string tWRKFlowStr = tOPTParameterList( 0 )( 0 ).get< std::string >("workflow");
-        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { wrk::create_workflow(tWRKFlowStr, &tPerformerManager) };
+
+        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = {
+                wrk::create_workflow(tWRKFlowStr, &tPerformerManager) };
 
         if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
         {

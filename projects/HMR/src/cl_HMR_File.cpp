@@ -16,123 +16,123 @@ namespace moris
     namespace hmr
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-    void File::create( const std::string & aPath )
-    {
-        // Create a new file using default properties
-        mFileID = create_hdf5_file( aPath );
-    }
+        void File::create( const std::string & aPath )
+        {
+            // Create a new file using default properties
+            mFileID = create_hdf5_file( aPath );
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-    void File::open( const std::string & aPath )
-    {
-        // opens an existing file with read and write access
-        mFileID = open_hdf5_file( aPath );
-    }
+        void File::open( const std::string & aPath )
+        {
+            // opens an existing file with read and write access
+            mFileID = open_hdf5_file( aPath );
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-    void File::close()
-    {
-        // close the hdf file
-        mStatus = close_hdf5_file( mFileID );
-    }
+        void File::close()
+        {
+            // close the hdf file
+            mStatus = close_hdf5_file( mFileID );
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void File::save_settings( const Parameters * aParameters )
         {
             // save dimensions of field
             save_matrix_to_hdf5_file( mFileID,
-                                      "DomainDimensions",
-                                      aParameters->get_domain_dimensions(),
-                                      mStatus );
+                    "DomainDimensions",
+                    aParameters->get_domain_dimensions(),
+                    mStatus );
 
             // save domain offset
             save_matrix_to_hdf5_file( mFileID,
-                                      "DomainOffset",
-                                      aParameters->get_domain_offset(),
-                                      mStatus );
+                    "DomainOffset",
+                    aParameters->get_domain_offset(),
+                    mStatus );
 
             // save number of elements on coarsest mesh
             save_matrix_to_hdf5_file( mFileID,
-                                      "CoarsestElements",
-                                      aParameters->get_number_of_elements_per_dimension(),
-                                      mStatus );
+                    "CoarsestElements",
+                    aParameters->get_number_of_elements_per_dimension(),
+                    mStatus );
 
             // save buffer size
             save_scalar_to_hdf5_file( mFileID,
-                                      "RefinementBuffer",
-                                      aParameters->get_refinement_buffer(),
-                                      mStatus);
+                    "RefinementBuffer",
+                    aParameters->get_refinement_buffer(),
+                    mStatus);
 
             // save verbosity flag
             save_scalar_to_hdf5_file( mFileID,
-                                      "SeverityFlag",
-                                      gLogger.get_severity_level(),
-                                      mStatus );
+                    "SeverityFlag",
+                    gLogger.get_severity_level(),
+                    mStatus );
 
             // save multigrid flag
             save_scalar_to_hdf5_file( mFileID,
-                                      "MultigridFlag",
-                                      aParameters->use_multigrid(),
-                                      mStatus );
+                    "MultigridFlag",
+                    aParameters->use_multigrid(),
+                    mStatus );
 
             // save truncation flag
             save_scalar_to_hdf5_file( mFileID,
-                                      "BSplineTruncationFlag",
-                                      aParameters->truncate_bsplines(),
-                                      mStatus );
+                    "BSplineTruncationFlag",
+                    aParameters->truncate_bsplines(),
+                    mStatus );
 
             // save initial refinement
             save_matrix_to_hdf5_file( mFileID,
-                                      "InitialBSplineRefinement",
-                                      aParameters->get_initial_refinement(),
-                                      mStatus );
+                    "InitialBSplineRefinement",
+                    aParameters->get_initial_refinement(),
+                    mStatus );
 
             // save initial refinement
             save_scalar_to_hdf5_file( mFileID,
-                                      "AdditionalLagrangeRefinement",
-                                      aParameters->get_additional_lagrange_refinement(),
-                                      mStatus );
+                    "AdditionalLagrangeRefinement",
+                    aParameters->get_additional_lagrange_refinement(),
+                    mStatus );
 
             // save maximal refinement level
             save_scalar_to_hdf5_file( mFileID,
-                                      "MaxRefinementLevel",
-                                      aParameters->get_max_refinement_level(),
-                                      mStatus );
+                    "MaxRefinementLevel",
+                    aParameters->get_max_refinement_level(),
+                    mStatus );
 
             // save mesh scaling factor for gmsh
             save_scalar_to_hdf5_file( mFileID,
-                                      "GmshScale",
-                                      aParameters->get_gmsh_scale(),
-                                      mStatus );
+                    "GmshScale",
+                    aParameters->get_gmsh_scale(),
+                    mStatus );
 
             // save Lagrange mesh associations
             save_matrix_to_hdf5_file( mFileID,
-                                      "LagrangeOrders",
-                                      aParameters->get_lagrange_orders(),
-                                      mStatus );
+                    "LagrangeOrders",
+                    aParameters->get_lagrange_orders(),
+                    mStatus );
 
             // save Lagrange mesh associations
             save_matrix_to_hdf5_file( mFileID,
-                                      "LagrangePatterns",
-                                      aParameters->get_lagrange_patterns(),
-                                      mStatus );
+                    "LagrangePatterns",
+                    aParameters->get_lagrange_patterns(),
+                    mStatus );
 
             // save bspline mesh associations
             save_matrix_to_hdf5_file( mFileID,
-                                      "BSplineOrders",
-                                      aParameters->get_bspline_orders(),
-                                      mStatus );
+                    "BSplineOrders",
+                    aParameters->get_bspline_orders(),
+                    mStatus );
 
             // save bspline mesh associations
             save_matrix_to_hdf5_file( mFileID,
-                                      "BSplinePatterns",
-                                      aParameters->get_bspline_patterns(),
-                                      mStatus );
+                    "BSplinePatterns",
+                    aParameters->get_bspline_patterns(),
+                    mStatus );
 
             // save Sidesets
             Matrix< DDUMat > tSideSets = aParameters->get_side_sets();
@@ -142,12 +142,12 @@ namespace moris
             }
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "SideSets",
-                                      tSideSets,
-                                      mStatus );
+                    "SideSets",
+                    tSideSets,
+                    mStatus );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void File::load_settings( Parameters * aParameters )
         {
@@ -163,127 +163,127 @@ namespace moris
 
             // load dimensions from field
             load_matrix_from_hdf5_file( mFileID,
-                                        "DomainDimensions",
-                                        tMatReal,
-                                        mStatus );
+                    "DomainDimensions",
+                    tMatReal,
+                    mStatus );
 
             // set domain dimensions
             aParameters->set_domain_dimensions( tMatReal );
 
             // load domain offset
             load_matrix_from_hdf5_file( mFileID,
-                                        "DomainOffset",
-                                        tMatReal,
-                                        mStatus );
+                    "DomainOffset",
+                    tMatReal,
+                    mStatus );
 
             // set domain offset
             aParameters->set_domain_offset( tMatReal );
 
             // load number of elements on coarsest mesh
             load_matrix_from_hdf5_file( mFileID,
-                                        "CoarsestElements",
-                                        tMatLuint,
-                                        mStatus );
+                    "CoarsestElements",
+                    tMatLuint,
+                    mStatus );
 
             // set number of elements
             aParameters->set_number_of_elements_per_dimension( tMatLuint );
 
             // load buffer size
             load_scalar_from_hdf5_file( mFileID,
-                                        "RefinementBuffer",
-                                        tValLuint,
-                                        mStatus);
+                    "RefinementBuffer",
+                    tValLuint,
+                    mStatus);
 
             // set buffer size
             aParameters->set_refinement_buffer( tValLuint );
 
             // load truncation flag
             load_scalar_from_hdf5_file( mFileID,
-                                        "BSplineTruncationFlag",
-                                        tValBool,
-                                        mStatus );
+                    "BSplineTruncationFlag",
+                    tValBool,
+                    mStatus );
 
             // set truncation flag
             aParameters->set_bspline_truncation( tValBool );
 
             // load verbosity flag
             load_scalar_from_hdf5_file( mFileID,
-                                        "SeverityFlag",
-                                        tValSint,
-                                        mStatus );
+                    "SeverityFlag",
+                    tValSint,
+                    mStatus );
 
             // set verbose flag
             aParameters->set_severity_level( tValSint );
 
             // load multigrid flag
             load_scalar_from_hdf5_file( mFileID,
-                                        "MultigridFlag",
-                                        tValBool,
-                                        mStatus );
+                    "MultigridFlag",
+                    tValBool,
+                    mStatus );
 
             // set Multigrid flag
             aParameters->set_multigrid( tValBool );
 
             load_scalar_from_hdf5_file( mFileID,
-                                        "InitialBSplineRefinement",
-                                        tValUint,
-                                        mStatus );
+                    "InitialBSplineRefinement",
+                    tValUint,
+                    mStatus );
 
             aParameters->set_initial_refinement( {{tValUint}} );
 
             // load initial refinement
             load_scalar_from_hdf5_file( mFileID,
-                                        "AdditionalLagrangeRefinement",
-                                        tValUint,
-                                        mStatus );
+                    "AdditionalLagrangeRefinement",
+                    tValUint,
+                    mStatus );
 
             aParameters->set_additional_lagrange_refinement( tValUint );
 
             // loadmaximal refinement level
             load_scalar_from_hdf5_file( mFileID,
-                                        "MaxRefinementLevel",
-                                        tValUint,
-                                        mStatus );
+                    "MaxRefinementLevel",
+                    tValUint,
+                    mStatus );
             aParameters->set_max_refinement_level( tValUint );
 
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file( mFileID,
-                                        "GmshScale",
-                                        tValReal,
-                                        mStatus );
+                    "GmshScale",
+                    tValReal,
+                    mStatus );
 
             // set scaling factor for gmsh
             aParameters->set_gmsh_scale( tValReal );
 
             // load orders of meshes
             load_matrix_from_hdf5_file( mFileID,
-                                        "OrderToLagrangeMeshList",
-                                        tMatUint,
-                                        mStatus );
+                    "OrderToLagrangeMeshList",
+                    tMatUint,
+                    mStatus );
 
             aParameters->set_lagrange_orders( tMatUint );
 
             // load Lagrange mesh associations
             load_matrix_from_hdf5_file( mFileID,
-                                        "PatternToLagrangeMeshList",
-                                        tMatUint,
-                                        mStatus );
+                    "PatternToLagrangeMeshList",
+                    tMatUint,
+                    mStatus );
 
             aParameters->set_lagrange_patterns( tMatUint );
 
             // load orders of meshes
             load_matrix_from_hdf5_file( mFileID,
-                                        "OrderToBspMeshList",
-                                        tMatUint,
-                                        mStatus );
+                    "OrderToBspMeshList",
+                    tMatUint,
+                    mStatus );
 
             aParameters->set_bspline_orders( tMatUint );
 
             // load bspline mesh associations
             load_matrix_from_hdf5_file( mFileID,
-                                        "PatternToBspMeshList",
-                                        tMatUint,
-                                        mStatus );
+                    "PatternToBspMeshList",
+                    tMatUint,
+                    mStatus );
 
             aParameters->set_bspline_patterns( tMatUint );
 
@@ -300,9 +300,9 @@ namespace moris
 
             // load side sets
             load_matrix_from_hdf5_file( mFileID,
-                                        "SideSets",
-                                        tMatUint,
-                                        mStatus );
+                    "SideSets",
+                    tMatUint,
+                    mStatus );
 
             // test if matrix has values
             if( tMatUint.length() > 0 )
@@ -315,7 +315,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void File::save_refinement_pattern( Lagrange_Mesh_Base * aLagrangeMesh )
         {
@@ -352,24 +352,24 @@ namespace moris
             MORIS_ERROR( tPatternBspMat.max() != MORIS_UINT_MAX, "File::save_refinement_pattern(); the order list is not initialized correctly and has a MORIS_UINT_MAX entry" );
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "PatternToLagrangeMeshList",
-                                      tPatternLagMat,
-                                      mStatus );
+                    "PatternToLagrangeMeshList",
+                    tPatternLagMat,
+                    mStatus );
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "PatternToBspMeshList",
-                                      tPatternBspMat,
-                                      mStatus );
+                    "PatternToBspMeshList",
+                    tPatternBspMat,
+                    mStatus );
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "OrderToLagrangeMeshList",
-                                      tOrderLagMat,
-                                      mStatus );
+                    "OrderToLagrangeMeshList",
+                    tOrderLagMat,
+                    mStatus );
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "OrderToBspMeshList",
-                                      tOrderBspMat,
-                                      mStatus );
+                    "OrderToBspMeshList",
+                    tOrderBspMat,
+                    mStatus );
 
             // Sort this created list
             std::sort( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
@@ -389,9 +389,9 @@ namespace moris
             }
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "PatternInd",
-                                      tPatternListUniqueMat,
-                                      mStatus );
+                    "PatternInd",
+                    tPatternListUniqueMat,
+                    mStatus );
 
             // element counter
             Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, tNumUniquePattern, 0 );
@@ -451,31 +451,180 @@ namespace moris
             }
 
             save_matrix_to_hdf5_file( mFileID,
-                                      "ElementCounter",
-                                      tElementCounter,
-                                      mStatus );
+                    "ElementCounter",
+                    tElementCounter,
+                    mStatus );
 
             for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
             {
                 std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternList( Ik ) ) + "_Elements";
 
                 save_matrix_to_hdf5_file( mFileID,
-                                          tSubsectionStr,
-                                          tPatternElement( Ik ),
-                                          mStatus );
+                        tSubsectionStr,
+                        tPatternElement( Ik ),
+                        mStatus );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void File::load_refinement_pattern( Background_Mesh_Base * aMesh,
-                                            const bool             aMode )
+        void File::save_refinement_pattern(
+                Lagrange_Mesh_Base               * aLagrangeMesh,
+                const uint                         aDiscretizationMeshIndex,
+                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern )
+        {
+            Background_Mesh_Base * aBackgroundMesh = aLagrangeMesh->get_background_mesh();
+            // step 1: count how many elements need are refined on each level
+            uint tMaxLevel = aBackgroundMesh->get_max_level();
+
+            moris::Matrix< DDUMat > tPatterns( 2, 1 );
+
+            uint tSourceLagrangePattern = aLagrangeMesh->get_activation_pattern();
+            uint tSourceBSplinePattern = aLagrangeMesh ->get_bspline_pattern( aDiscretizationMeshIndex );
+
+            moris::Matrix< DDUMat > tPatternList;
+
+            if( tSourceLagrangePattern == tSourceBSplinePattern )
+            {
+                tPatternList = { {tSourceLagrangePattern} };
+            }
+            else
+            {
+                tPatternList = { {tSourceLagrangePattern}, { tSourceBSplinePattern } };
+            }
+
+            uint tNumPattern = tPatternList.numel();
+
+            // element counter
+            aElementCounterPerLevelAndPattern.set_size( tMaxLevel+1, tNumPattern, 0 );
+
+            // collect all elements that are flagged for refinement
+            for( uint l = 0; l < tMaxLevel; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // loop over all elements
+                for( auto tElement : tElements )
+                {
+                    for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+                    {
+                        // test if B-Spline Element is refined
+                        if( tElement->is_refined( tPatternList( Ik ) ) )
+                        {
+                            // increment counter
+                            ++aElementCounterPerLevelAndPattern ( l, Ik );
+                        }
+                    }
+                }
+            }
+
+            aElementPerPattern.resize( tNumPattern );
+            moris::Cell< luint > tElementPerPatternCount( tNumPattern, 0 );
+
+            for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+            {
+                aElementPerPattern( Ik ).set_size( sum( aElementCounterPerLevelAndPattern.get_column( Ik ) ) , 1 );
+            }
+
+            for( uint l = 0; l < tMaxLevel; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // loop over all elements
+                for( Background_Element_Base * tElement : tElements )
+                {
+                    for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+                    {
+                        // test if element is refined
+                        if( tElement->is_refined( tPatternList( Ik ) ) )
+                        {
+                            aElementPerPattern( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
+                        }
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void File::load_refinement_pattern(
+                Background_Mesh_Base             * aMesh,
+                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern)
+        {
+            uint tNumPattern = aElementPerPattern.size();
+
+            Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
+            tPatternListUniqueMat( 0 ) = 5;
+            if( tNumPattern == 2 )
+            {
+                tPatternListUniqueMat( 1 ) = 6;
+            }
+
+            // get number of levels
+            uint tNumberOfLevels = aElementCounterPerLevelAndPattern.n_rows();
+
+            for(uint Ik = 0; Ik<tNumPattern; Ik++)
+            {
+                // reset counter
+                luint tCount = 0;
+
+                // select B-Spline pattern
+                aMesh->set_activation_pattern( tPatternListUniqueMat( Ik ) );
+
+                // loop over all levels
+                for( uint l=0; l<tNumberOfLevels; ++l )
+                {
+                    // cell which contains elements
+                    Cell< Background_Element_Base* > tElements;
+
+                    // collect elements from this level
+                    aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                    // create a map with ids
+                    map< moris_id, luint > tMap;
+
+                    luint j = 0;
+                    for( Background_Element_Base* tElement : tElements )
+                    {
+                        tMap[ tElement->get_hmr_id() ] = j++;
+                    }
+
+                    luint tNumberOfElements = aElementCounterPerLevelAndPattern( l, Ik );
+
+                    for( luint k=0; k<tNumberOfElements; ++k )
+                    {
+                        tElements( tMap.find( aElementPerPattern( Ik )( tCount++ ) ) )->put_on_refinement_queue();
+                    }
+
+                    // refine mesh
+                    aMesh->perform_refinement( tPatternListUniqueMat( Ik ) );
+                }
+            }
+
+            aMesh->update_database();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void File::load_refinement_pattern(
+                Background_Mesh_Base * aMesh,
+                const bool             aMode )
         {
             Matrix< DDUMat > tPatternListUniqueMat;
             load_matrix_from_hdf5_file( mFileID,
-                                        "PatternInd",
-                                        tPatternListUniqueMat,
-                                        mStatus );
+                    "PatternInd",
+                    tPatternListUniqueMat,
+                    mStatus );
 
             uint tMaxPatternInd = tPatternListUniqueMat.max();
             Matrix< DDUMat > tPatternMap( tMaxPatternInd +1 , 1, MORIS_UINT_MAX );
@@ -490,9 +639,9 @@ namespace moris
             // matrix containing counter
             Matrix< DDLUMat > tElementCounter;
             load_matrix_from_hdf5_file( mFileID,
-                                        "ElementCounter",
-                                        tElementCounter,
-                                        mStatus );
+                    "ElementCounter",
+                    tElementCounter,
+                    mStatus );
 
             moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
 
@@ -503,9 +652,9 @@ namespace moris
                 // allocate pattern
                 Matrix< DDLUMat > tBSplineElements;
                 load_matrix_from_hdf5_file( mFileID,
-                                            tSubsectionStr,
-                                            tPatternElement( Ik ),
-                                            mStatus );
+                        tSubsectionStr,
+                        tPatternElement( Ik ),
+                        mStatus );
             }
 
             // get number of levels
@@ -552,7 +701,7 @@ namespace moris
             aMesh->update_database();
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         std::string File::parralize_filename( const std::string & aPath )
         {
@@ -561,7 +710,7 @@ namespace moris
             {
                 // get file extesion
                 auto tFileExt = aPath.substr( aPath.find_last_of("."),
-                                              aPath.length() );
+                        aPath.length() );
 
                 // get base path
                 auto tBasePath = aPath.substr( 0, aPath.find_last_of(".") );
@@ -577,7 +726,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         /**
          * free function needed by loading constructor

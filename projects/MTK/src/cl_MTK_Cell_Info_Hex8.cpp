@@ -9,6 +9,7 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "fn_cross.hpp"
+#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -351,6 +352,57 @@ namespace moris
             real tLz = std::abs(tNode0Coords(2) - tNode6Coords(2));
 
             return tLx * tLy * tLz;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Hex8::compute_cell_size_straight( moris::mtk::Cell const * aCell ) const
+        {
+            // FIXME: Not consistent with each vertex. Depending what corners are used to be bisected, this won't be consistent
+
+            // getting vertices and storing them in a local matrix, since each node will be used a few times
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+            Matrix<DDRMat> tNodeCoords(8,3);
+
+            for (uint i = 0; i<8; ++i)
+            {
+                tNodeCoords( {i,i}, {0,2} ) = tVertices(i)->get_coords()({0,0},{0,2});
+            }
+
+            // permutation matrix of vertex IDs to stipulate individual tet4 calculations
+            moris::Matrix<DDUMat> tPermutMap = {{1, 0, 5, 2},
+                                                {4, 0, 7, 5},
+                                                {3, 0, 2, 7},
+                                                {6, 2, 5, 7},
+                                                {7, 0, 2, 5}};
+
+            // init volume and tet edge vectors
+            moris::real tVolume = 0.0;
+            Matrix<DDRMat> tNodeCoords10(1,3);
+            Matrix<DDRMat> tNodeCoords20(1,3);
+            Matrix<DDRMat> tNodeCoords30(1,3);
+
+            // A hex can be broken into 5 separate tets
+            for (uint iTet = 0; iTet<5; ++iTet)
+            {
+                //Assigning Vectors
+                tNodeCoords10 = tNodeCoords( { tPermutMap(iTet,1), tPermutMap(iTet,1) }, {0,2} ) - 
+                                tNodeCoords( { tPermutMap(iTet,0), tPermutMap(iTet,0) }, {0,2} );
+                tNodeCoords20 = tNodeCoords( { tPermutMap(iTet,2), tPermutMap(iTet,2) }, {0,2} ) - 
+                                tNodeCoords( { tPermutMap(iTet,0), tPermutMap(iTet,0) }, {0,2} );
+                tNodeCoords30 = tNodeCoords( { tPermutMap(iTet,3), tPermutMap(iTet,3) }, {0,2} ) - 
+                                tNodeCoords( { tPermutMap(iTet,0), tPermutMap(iTet,0) }, {0,2} );
+                
+                MORIS_ASSERT(1.0 / 6.0 * dot(tNodeCoords10, cross(tNodeCoords20, tNodeCoords30)) > 0,
+                            "Cell_Info_Hex8::compute_cell_size_straight - Determined interior tet "
+                            "volume is <=0, suggesting poorly defined nodal coordinates.");
+
+                tVolume +=  1.0 / 6.0 * dot(tNodeCoords10, cross(tNodeCoords20, tNodeCoords30));
+
+            }
+
+            return tVolume;
         }
 
         // ----------------------------------------------------------------------------------

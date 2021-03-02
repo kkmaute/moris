@@ -10,9 +10,9 @@ namespace moris
 
         struct Mesh_Pair
         {
-            Interpolation_Mesh* mInterpolationMesh; //! Interpolation mesh
-            Integration_Mesh* mIntegrationMesh; //! Integration mesh
-            bool mIsOwned = false; //! If the mesh pointers are owned by the mesh pair
+            Interpolation_Mesh* mInterpolationMesh = nullptr; //! Interpolation mesh
+            Integration_Mesh*     mIntegrationMesh = nullptr; //! Integration mesh
+            bool                          mIsOwned = false;   //! If the mesh pointers are owned by the mesh pair
 
             /**
              * Default constructor

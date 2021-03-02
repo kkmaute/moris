@@ -3,7 +3,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
 
-#include "fn_trans.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
@@ -101,9 +100,9 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
-                            - trans( tFIDispl->N() ) * tM * tCMElasticity->traction( mNormal )
+                            - tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal )
                             + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tJump
-                            + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tJump );
+                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -191,7 +190,7 @@ namespace moris
                     // compute the jacobian for direct dof dependencies
                     tJac += aWStar * (
                             mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tFIDispl->N()
-                            + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tFIDispl->N() );
+                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
                 }
 
                 // if dependency on the dof type
@@ -200,7 +199,7 @@ namespace moris
                     // add contribution to jacobian
                     tJac -= aWStar * (
                             mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
-                            + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
@@ -208,7 +207,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     tJac += aWStar * (
-                            - trans( tFIDispl->N() ) * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal )
+                            - tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal )
                             + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType ) );
                 }
 
@@ -217,7 +216,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     tJac += aWStar * (
-                                    trans( tFIDispl->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    tFIDispl->N_trans() * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
 

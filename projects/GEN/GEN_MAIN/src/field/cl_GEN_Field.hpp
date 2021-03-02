@@ -4,6 +4,7 @@
 #include "st_GEN_Field_Parameters.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -45,10 +46,12 @@ namespace moris
             /**
              * Constructor, sets all field variables as consecutive ADVs. A reference field is given for parameters.
              *
+             * @param aFieldVariableIndices Field variable indices for assigning the shared ADV IDs
              * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aField Reference field
              */
-            Field(const Matrix<DDSMat>&  aSharedADVIds,
+            Field(const Matrix<DDUMat>&  aFieldVariableIndices,
+                  const Matrix<DDSMat>&  aSharedADVIds,
                   std::shared_ptr<Field> aField);
 
             /**
@@ -120,31 +123,42 @@ namespace moris
             virtual void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
-             * Add a new child node for evaluation, implemented for discrete fields
+             * Add a new child node for evaluation, implemented for discrete integration fields.
              *
              * @param aNodeIndex Index of the child node
              * @param aChildNode Contains information about how the child node was created
              */
-            virtual void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
+            virtual void add_child_node(
+                    uint                        aNodeIndex,
+                    std::shared_ptr<Child_Node> aChildNode);
 
             /**
-             * Resets all nodal information, called when a new XTK mesh is being created.
+             * In relevant derived classes, uses additional information from the given interpolation mesh to define
+             * potentially new nodes on the field. Implemented for discrete interpolation fields.
+             *
+             * @param aMesh Interpolation mesh with additional nodes
              */
-            virtual void reset_nodal_information();
+            virtual void add_nodal_data(mtk::Interpolation_Mesh* aMesh);
+
+            /**
+             * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
+             * created.
+             */
+            virtual void reset_nodal_data();
 
             /**
              * Gets if this field is to be turned into a stored geometry/property, in order to store field values.
              *
              * @return Logic for storing field values
              */
-            bool storage_intention();
+            bool intended_storage();
 
             /**
              * Gets if this field is to be used for seeding a B-spline field.
              *
              * @return Logic for B-spline creation
              */
-            virtual bool discretization_intention();
+            bool intended_discretization();
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -153,7 +167,9 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            virtual Matrix<DDSMat> get_determining_adv_ids(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
             /**
              * If this field depends on ADVs
@@ -206,6 +222,13 @@ namespace moris
              * @return Upper bound
              */
             real get_discretization_upper_bound();
+
+            /**
+             * Gets the mesh that this field depends on.
+             *
+             * @return Mesh, default nullptr
+             */
+            virtual mtk::Interpolation_Mesh* get_mesh();
 
         private:
 

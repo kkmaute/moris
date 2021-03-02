@@ -177,7 +177,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< PDV_Type > > & Equation_Set::get_dv_type_list(
+        const moris::Cell< moris::Cell< PDV_Type > > & Equation_Set::get_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )
@@ -200,7 +200,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDSMat > & Equation_Set::get_dv_type_map(
+        const Matrix< DDSMat > & Equation_Set::get_dv_type_map(
                 mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )
@@ -217,6 +217,52 @@ namespace moris
                 {
                     MORIS_ERROR(false, "Equation_Set::get_dv_type_map - can only be MASTER or SLAVE");
                     return mMasterDvTypeMap;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & Equation_Set::get_field_type_list(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    return mMasterFieldTypes;
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    return mSlaveFieldTypes;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Equation_Set::get_field_type_list - can only be MASTER or SLAVE.");
+                    return mMasterFieldTypes;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Equation_Set::get_field_type_map(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    return mMasterFieldTypeMap;
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    return mSlaveFieldTypeMap;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Equation_Set::get_field_type_map - can only be MASTER or SLAVE");
+                    return mMasterFieldTypeMap;
                 }
             }
         }
@@ -321,6 +367,49 @@ namespace moris
                 {
                     MORIS_ERROR(false,
                             "Equation_Set::get_dv_index_for_type_1 - can only be MASTER or SLAVE.");
+                    return 0;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        sint Equation_Set::get_field_index_for_type_1(
+                enum mtk::Field_Type aFieldType,
+                mtk::Master_Slave    aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    // check if dv type is set in map
+                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mMasterFieldTypeMap.numel(),
+                            "Equation_Set::get_field_index_for_type_1 - master field type does not exist in map." );
+
+                    //// check if field type is set in map
+                    //MORIS_ASSERT( mMasterDvTypeMap( static_cast< int >( aFieldType ) ),
+                    //          "Equation_Set::get_field_index_for_type_1 - master field type not assigned in map." );
+
+                    // return set index for dv type
+                    return mMasterFieldTypeMap( static_cast< int >( aFieldType ) );
+                }
+                case mtk::Master_Slave::SLAVE:
+                {
+                    // check if field type is set in map
+                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mSlaveFieldTypeMap.numel(),
+                            "Equation_Set::get_field_index_for_type_1 - slave dv type does not exist in map." );
+
+                    //// check if field type is set in map
+                    //MORIS_ASSERT( mSlaveFieldTypeMap( static_cast< int >( aDvType ) ),
+                    //        "Equation_Set::get_field_index_for_type_1 - slave field type not assigned in map." );
+
+                    // return set index for dv type
+                    return mSlaveFieldTypeMap( static_cast< int >( aFieldType ) );
+                }
+                default:
+                {
+                    MORIS_ERROR(false,
+                            "Equation_Set::get_field_index_for_type_1 - can only be MASTER or SLAVE.");
                     return 0;
                 }
             }

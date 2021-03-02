@@ -27,6 +27,29 @@ namespace moris
 {
     namespace mtk
     {
+        Field::Field(
+                Mesh_Pair      * aMeshPair,
+                uint     const & aNumberOfFields)
+        : mMeshPair( aMeshPair ),
+          mNumberOfFields( aNumberOfFields )
+        {
+            // get interpolation mesh
+            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+
+            // size matrix of nodal values
+            mNodalValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields);
+        }
+
+        //------------------------------------------------------------------------------
+
+        Field::Field(
+                std::string const & aName,
+                uint        const & aNumberOfFields)
+        : mLabel( aName ),
+          mNumberOfFields( aNumberOfFields )
+        {
+
+        }
 
         //------------------------------------------------------------------------------
 
@@ -37,24 +60,208 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::save_field_to_hdf5(
+        Mesh_Pair * Field::get_mesh_pair()
+        {
+            MORIS_ERROR( mMeshPair != nullptr, " Field::get_mesh_pair()(), Mesh_Manager not set" );
+
+            return mMeshPair;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::set_mesh_pair( Mesh_Pair * aMeshPair)
+        {
+            //check whether field is unlocked
+            this->error_if_locked();
+
+            //set new mesh pair
+            mMeshPair = aMeshPair;
+
+            // set update flag to false; nodal values do not need to be updated
+            mUpdateNodalValues = true;
+
+            // lock mesh
+            mFieldIsLocked = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const
+        Matrix< DDRMat > & Field::get_nodal_values()
+        {
+            // check whether nodal values are updated; if not compute them first
+            if ( this->nodal_values_need_update() )
+            {
+                // compute nodal values for current coefficients
+                this->compute_nodal_values();
+
+                std::cout << "Nodal values are updated on Proc " << par_rank() << std::endl;
+
+                // set update flag to false
+                mUpdateNodalValues=false;
+            }
+
+            // return nodal value vector
+            return mNodalValues;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::real Field::get_nodal_value(
+                const uint & aNodeIndex,
+                const uint & aFieldIndex)
+        {
+            // check whether nodal values are updated; if not compute them first
+            if ( this->nodal_values_need_update() )
+            {
+                this->compute_nodal_values();
+
+                // set update flag to false
+                mUpdateNodalValues=false;
+            }
+
+            return mNodalValues( aNodeIndex, aFieldIndex );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::get_nodal_value(
+                Matrix< IndexMat > const & aNodeIndex,
+                Matrix< DDRMat >            & aNodalValues,
+                Matrix< IndexMat > const & aFieldIndex )
+        {
+            // check whether nodal values are updated; if not compute them first
+            if ( this->nodal_values_need_update() )
+            {
+                this->compute_nodal_values();
+
+                // set update flag to false
+                mUpdateNodalValues=false;
+            }
+
+            uint tNumFields = aFieldIndex.numel();
+            uint tNumIndices = aNodeIndex.numel();
+
+            // set size for requested values
+            aNodalValues.resize( tNumIndices, tNumFields );
+
+            // assemble requested values into matrix
+            for( uint Ik = 0; Ik< tNumFields; Ik++ )
+            {
+                uint tFieldIndex = aFieldIndex( Ik );
+
+                for( uint Ii = 0; Ii< tNumIndices; Ii++ )
+                {
+                    aNodalValues( Ii, Ik ) = mNodalValues( aNodeIndex( Ii ), tFieldIndex );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::set_nodal_values( const Matrix< DDRMat > & aNodalValues )
+          {
+              //check whether field is unlocked
+              this->error_if_locked();
+
+//              //check that input vector has proper size
+//               MORIS_ASSERT( aNodalValues.n_rows() == mNodalValues.n_rows() && aNodalValues.n_cols() == 1,
+//                       "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size.\n");
+
+              // set nodal value vector using child implementation
+              this->set_nodal_value_vector( aNodalValues );
+
+              // set update flag to false, i.e., nodal values should not be updated
+              mUpdateNodalValues = false;
+
+              // lock field
+              mFieldIsLocked = true;
+          }
+
+       //------------------------------------------------------------------------------
+
+       void Field::set_nodal_value_vector( const Matrix< DDRMat > & aNodalValues )
+       {
+           // FIXME - should not be needed if input vector has correct size
+           //copy values
+           for (uint tNodeIndex = 0; tNodeIndex<mNodalValues.n_rows(); ++tNodeIndex)
+           {
+               mNodalValues(tNodeIndex) = aNodalValues(tNodeIndex);
+           }
+       }
+
+       //------------------------------------------------------------------------------
+
+       const Matrix< DDRMat > & Field::get_coefficients()
+        {
+            // call child implementation to populate coefficient vector
+            this->get_coefficient_vector();
+
+            // return coefficient vector
+            return mCoefficients;
+        }
+
+       //------------------------------------------------------------------------------
+
+       void Field::set_coefficients( const Matrix< DDRMat > & aCoefficients )
+       {
+           //check whether field is unlocked
+           this->error_if_locked();
+
+           // check whether vector has the correct size
+           MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
+                        "mtk::Field::set_coefficients - number of coefficients does not match.");
+
+           // set coefficient vector using child implementation
+           this->set_coefficient_vector(aCoefficients);
+
+           // set update flag to false; nodal values do not need to be updated
+           mUpdateNodalValues = true;
+
+           // lock field
+           mFieldIsLocked = true;
+       }
+
+       //------------------------------------------------------------------------------
+
+       void Field::set_coefficient_vector(const Matrix< DDRMat > & aCoefficients)
+       {
+           mCoefficients = aCoefficients;
+       }
+
+       //------------------------------------------------------------------------------
+
+       bool Field::nodal_values_need_update()
+       {
+           // get interpolation mesh
+           mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+
+           // update is required if either update flag is set or number of nodes have changed
+           if ( mUpdateNodalValues || tIPmesh->get_num_nodes() !=  mNodalValues.n_rows() )
+           {
+               return true;
+           }
+           else
+           {
+               return false;
+           }
+       }
+
+        //------------------------------------------------------------------------------
+
+        void Field::save_coefficients_to_hdf5(
                 const std::string & aFilePath,
                 const bool          aCreateNewFile )
         {
+            MORIS_ERROR( mNumberOfCoefficients > -1,
+                    "mtk::Field::save_coefficients_to_hdf5 - coefficient vector not set.\n");
+
             // test if file exists
             std::string tFilePath = make_path_parallel( aFilePath );
 
             // test if file exists
             std::ifstream tFile( tFilePath );
-            bool tFileExists;
-            if( tFile )
-            {
-                tFileExists = true;
-            }
-            else
-            {
-                tFileExists = false;
-            }
+            bool tFileExists = tFile ? true : false;
 
             tFile.close();
 
@@ -89,7 +296,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::save_node_values_to_hdf5(
+        void Field::save_nodal_values_to_hdf5(
                 const std::string & aFilePath,
                 const bool          aCreateNewFile )
         {
@@ -141,9 +348,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::load_field_from_hdf5(
-                const std::string & aFilePath,
-                const uint          aBSplineOrder )
+        void Field::load_coefficients_from_hdf5(
+                const std::string & aFilePath )
         {
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
@@ -153,6 +359,13 @@ namespace moris
                     tMat,
                     tStatus );
 
+            // check that coefficient vector is column vector
+            MORIS_ERROR( tMat.n_cols() == 1,
+                    "mtk::Field::load_coefficients_from_hdf5 - vector needs to be column vector.\n");
+
+            // update number of coefficients
+            mNumberOfCoefficients = tMat.n_rows();
+
             this->set_coefficients( tMat );
 
             tStatus = close_hdf5_file( tFile );
@@ -160,7 +373,26 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::save_node_values_to_binary( const std::string & aFilePath )
+        void Field::load_nodal_values_from_hdf5(
+                const std::string & aFilePath )
+        {
+            hid_t tFile    = open_hdf5_file( aFilePath );
+            herr_t tStatus = 0;
+            Matrix<DDRMat> tMat;
+            load_matrix_from_hdf5_file( tFile,
+                    this->get_label(),
+                    tMat,
+                    tStatus );
+
+            this->unlock_field();
+            this->set_nodal_values( tMat );
+
+            tStatus = close_hdf5_file( tFile );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::save_nodal_values_to_binary( const std::string & aFilePath )
         {
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
@@ -170,8 +402,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::save_bspline_coeffs_to_binary( const std::string & aFilePath )
+        void Field::save_coefficients_to_binary( const std::string & aFilePath )
         {
+            MORIS_ERROR( mNumberOfCoefficients > -1,
+                    "mtk::Field::save_coefficients_to_hdf5 - coefficient vector not set.\n");
+
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
 
@@ -182,7 +417,7 @@ namespace moris
 
         void Field::save_field_to_exodus( const std::string & aFileName )
         {
-            mtk::Mesh * tMesh = mMeshManager->get_interpolation_mesh( mMeshIndex );
+            mtk::Mesh * tMesh = mMeshPair->mInterpolationMesh;
 
             moris::mtk::Writer_Exodus tExodusWriter( tMesh );
 
@@ -202,11 +437,18 @@ namespace moris
 
             tExodusWriter.set_time( 0.0 );
 
-            tExodusWriter.write_nodal_field( tNodalFieldNames( 0 ), mNodalValues );
+            tExodusWriter.write_nodal_field( tNodalFieldNames( 0 ), this->get_nodal_values() );
 
             tExodusWriter.save_mesh( );
         }
 
+        //------------------------------------------------------------------------------
+
+        void Field::error_if_locked() const
+        {
+            MORIS_ERROR( !mFieldIsLocked,
+                    "Field is locked. You are not allowed to change the mesh as well as the field or coefficient vector");
+        }
 
         //------------------------------------------------------------------------------
     } /* namespace hmr */

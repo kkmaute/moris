@@ -87,11 +87,19 @@ namespace moris
                 tIpNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
                 tIpNodeIndicesPerSet(1) = {{2, 3, 4, 5}};
 
+                // Node ownership per set
                 Cell<Matrix<DDSMat>> tIpNodeOwnersPerSet(2);
                 tIpNodeOwnersPerSet(0).resize(4, 1);
                 tIpNodeOwnersPerSet(1).resize(4, 1);
                 tIpNodeOwnersPerSet(0) = {{0, 0, 0, 0}};
                 tIpNodeOwnersPerSet(1) = {{0, 0, 0, 0}};
+
+                // Node coordinates per set
+                Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(2);
+                tNodeCoordinatesPerSet(0).resize(4,3);
+                tNodeCoordinatesPerSet(1).resize(4,3);
+                tNodeCoordinatesPerSet(0).fill(0.0);
+                tNodeCoordinatesPerSet(1).fill(0.0);
 
                 // PDV_Type types per set
                 Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(2);
@@ -111,7 +119,7 @@ namespace moris
                         tIpNodeIndicesPerSet,
                         tIpNodeIndicesPerSet,
                         tIpNodeOwnersPerSet,
-                        Cell<Matrix<F31RMat>>(6),
+                        tNodeCoordinatesPerSet,
                         tIpPdvTypes);
 
                 // Set PDVs
@@ -187,6 +195,11 @@ namespace moris
                 Cell<Matrix<DDSMat>> tIpNodeOwnersPerSet(1);
                 tIpNodeOwnersPerSet(0).resize(4, 1);
 
+                // define and fill coordinates for all nodes with zeros
+                Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(1);
+                tNodeCoordinatesPerSet(0).resize(4,3);
+                tNodeCoordinatesPerSet(0).fill(0.0);
+
                 // PDV_Type types per set
                 Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
                 tIpPdvTypes(0).resize(2);
@@ -229,7 +242,7 @@ namespace moris
                         tIpNodeIndicesPerSet,
                         tIpNodeIdsPerSet,
                         tIpNodeOwnersPerSet,
-                        Cell<Matrix<F31RMat>>(4),
+                        tNodeCoordinatesPerSet,
                         tIpPdvTypes);
 
                 // Set PDVs
@@ -435,18 +448,26 @@ namespace moris
                 tProperties(tPropertyIndex) = create_property(tParameterList, tADVs);
             }
 
-            // Node indices per set
+            // Node indices, IDs, ownership and coordinates per set
             Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
             Cell<Matrix<DDSMat>> tIpNodeIdsPerSet(1);
             Cell<Matrix<DDSMat>> tIpNodeOWnersPerSet(1);
+            Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(1);
+
             tIpNodeIndicesPerSet(0).set_size(gNumPDVs, 1);
             tIpNodeIdsPerSet(0).set_size(gNumPDVs, 1);
             tIpNodeOWnersPerSet(0).set_size(gNumPDVs, 1, par_rank());
+            tNodeCoordinatesPerSet(0).resize(gNumPDVs,3);
+
             for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
             {
                 tIpNodeIndicesPerSet(0)(tNodeIndex) = tNodeIndex;
                 tIpNodeIdsPerSet(0)(tNodeIndex) = tNodeIndex * (par_rank() + 1);
+
             }
+
+            // fill coordinates for all nodes with zeros
+            tNodeCoordinatesPerSet(0).fill(0.0);
 
             // PDV_Type types per set
             Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
@@ -467,7 +488,7 @@ namespace moris
                     tIpNodeIndicesPerSet,
                     tIpNodeIdsPerSet,
                     tIpNodeOWnersPerSet,
-                    Cell<Matrix<F31RMat>>(gNumPDVs),
+                    tNodeCoordinatesPerSet,
                     tIpPdvTypes);
 
             // Set PDVs

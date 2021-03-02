@@ -25,11 +25,13 @@ namespace moris
     {
         class Set;
         class Cluster;
+        class Field;
     }
     namespace fem
     {
         class Node_Base;
         class Element;
+        class Field;
     }
     namespace fem
     {
@@ -522,6 +524,15 @@ namespace moris
                     enum vis::Field_Type aFieldType )
             {
                 MORIS_ASSERT( false, "Equation_Object::compute_quantity_of_interest() - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+
+            virtual void populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > > & aFields,
+                    moris::Cell< std::string > const             & aFieldIQINames)
+            {
+                MORIS_ASSERT( false, "Equation_Set::create_fields - not implemented for base class." );
             }
 
             //------------------------------------------------------------------------------

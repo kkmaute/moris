@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include "cl_Logger.hpp"
+#include "Log_Constants.hpp"
 
 //get access to the global clock in gLogger;
 extern moris::Logger gLogger;
@@ -27,7 +28,7 @@ class Tracer
     public:
 
         /**
-         * Constructor
+         * Constructor for tracer
          *
          * @param aEntityBase Entity base
          * @param aEntityType Entity type
@@ -42,6 +43,7 @@ class Tracer
 
         /**
          * Constructor
+         * Use if no entity type can be specified
          *
          * @param aEntityBase Entity base
          * @param aEntityAction Entity action
@@ -49,7 +51,7 @@ class Tracer
         Tracer(std::string aEntityBase,
                std::string aEntityAction)
         {
-            gLogger.sign_in( aEntityBase, "NoType", aEntityAction );
+            gLogger.sign_in( aEntityBase, LOGGER_NON_SPECIFIC_ENTITY_TYPE, aEntityAction );
         }
 
         // destructor: automatically perform sign out operation when tracer gets destructed

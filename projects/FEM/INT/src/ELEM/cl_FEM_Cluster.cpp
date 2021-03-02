@@ -477,72 +477,47 @@ namespace moris
             }
         }
 
-//        moris::real Cluster::compute_cluster_cell_length_measure(
-//                const mtk::Primary_Void aPrimaryOrVoid,
-//                const mtk::Master_Slave aIsMaster ) const
-//        {
-//            // check that the mesh cluster was set
-//            MORIS_ASSERT( mMeshCluster != NULL,
-//                    "Cluster::compute_cluster_cell_length_measure - empty cluster.");
-//
-//            // init volume of the custer
-//            real tVolume = 0.0;
-//
-//            // get spatial dimension from IP geometry interpolator
-//            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
-//                    get_IP_geometry_interpolator()->
-//                    get_number_of_space_dimensions();
-//
-//            // switch on set type
-//            fem::Element_Type tElementType = mSet->get_element_type();
-//            switch( tElementType )
-//            {
-//                case fem::Element_Type::BULK :
-//                case fem::Element_Type::TIME_SIDESET :
-//                case fem::Element_Type::TIME_BOUNDARY :
-//                case fem::Element_Type::SIDESET :
-//                {
-//                    std::cout<<"All "<<std::endl;
-//                    tVolume = reinterpret_cast< fem::Interpolation_Element* >( mInterpolationElement )->
-//                            get_ip_cell( mtk::Master_Slave::MASTER )->compute_cell_measure();
-//                    break;
-//                }
-//                case fem::Element_Type::DOUBLE_SIDESET :
-//                {
-//                    std::cout<<"Double "<<std::endl;
-//                    tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
-//                    tSpaceDim = tSpaceDim - 1;
-//                    break;
-//                }
-//                default:
-//                    MORIS_ERROR( false, "Undefined set type" );
-//            }
-//
-//            // compute element size
-//            switch ( tSpaceDim )
-//            {
-//                case 3 :
-//                {
-//                    // compute length from volume
-//                    return std::pow( 6.0 * tVolume / M_PI, 1.0 / 3.0 );
-//                }
-//                case 2 :
-//                {
-//                    // compute length from volume
-//                    std::cout<<"2D "<<std::pow( 4.0 * tVolume / M_PI, 1.0 / 2.0 )<<std::endl;
-//                    return std::pow( 4.0 * tVolume / M_PI, 1.0 / 2.0 );
-//                }
-//                case 1 :
-//                {
-//                    std::cout<<"1D "<<tVolume<<std::endl;
-//                    return tVolume;
-//                }
-//
-//                default:
-//                    MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure - space dimension can only be 1, 2, or 3. ");
-//                    return 0.0;
-//            }
-//        }
+        //------------------------------------------------------------------------------
+
+        moris::real Cluster::compute_ip_cell_length_measure(
+        		const mtk::Master_Slave aIsMaster ) const
+        {
+        	// check that the mesh cluster was set
+        	MORIS_ASSERT( mInterpolationElement != NULL,
+        			"Cluster::compute_ip_cell_length_measure - empty interpolation element.");
+
+        	// compute the volume of the master IP cell
+        	real tVolume = reinterpret_cast< fem::Interpolation_Element* >( mInterpolationElement )->
+        			get_ip_cell( mtk::Master_Slave::MASTER )->compute_cell_measure();
+
+        	// get spatial dimension from IP geometry interpolator
+        	uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
+        			get_IP_geometry_interpolator()->
+					get_number_of_space_dimensions();
+
+        	// compute element size
+        	switch ( tSpaceDim )
+        	{
+        	case 3 :
+        	{
+        		// compute length from volume
+        		return std::pow( 6.0 * tVolume / M_PI, 1.0 / 3.0 );
+        	}
+        	case 2 :
+        	{
+        		// compute length from volume
+        		return std::pow( 4.0 * tVolume / M_PI, 1.0 / 2.0 );
+        	}
+        	case 1 :
+        	{
+        		return tVolume;
+        	}
+
+        	default:
+        		MORIS_ERROR( false, "Cluster::compute_ip_cell_length_measure - space dimension can only be 1, 2, or 3. ");
+        		return 0.0;
+        	}
+        }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

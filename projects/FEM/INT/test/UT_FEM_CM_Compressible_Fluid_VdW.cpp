@@ -28,7 +28,7 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 5.0E-6;
+    real tEpsilonCubic = 5.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 5.0E-4;
@@ -313,7 +313,8 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tFIManager.mFI = tMasterFIs;

@@ -92,11 +92,10 @@ namespace moris
                 Matrix<DDSMat> tAncestorDependingADVs = aField->get_determining_adv_ids(
                         mAncestorNodeIndices(tAncestorNode),
                         mAncestorNodeCoordinates(tAncestorNode));
-
                 // Join sensitivities
                 uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
-                tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tAncestorDependingADVs.n_cols());
-                for (uint tAncestorADV = 0; tAncestorADV < tAncestorDependingADVs.n_cols(); tAncestorADV++)
+                tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tAncestorDependingADVs.length());
+                for (uint tAncestorADV = 0; tAncestorADV < tAncestorDependingADVs.length(); tAncestorADV++)
                 {
                     tJoinedDeterminingADVs(tJoinedADVLength + tAncestorADV) = tAncestorDependingADVs(tAncestorADV);
                 }

@@ -43,10 +43,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Stored_Geometry::reset_nodal_information()
+        void Stored_Geometry::reset_nodal_data()
         {
             // Reset child nodes
-            Field_Discrete_Integration::reset_nodal_information();
+            Field_Discrete_Integration::reset_nodal_data();
 
             // Re-evaluate field values
             this->evaluate_nodal_values();

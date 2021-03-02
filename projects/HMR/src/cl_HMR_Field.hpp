@@ -292,9 +292,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                //            void evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
-
-
                 template<typename T>
                 void evaluate_scalar_function( T aLambda )
                 {
