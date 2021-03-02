@@ -13,16 +13,28 @@ namespace moris
                 uint     const & mNumberOfFields)
                 : Field(aMeshPairs,mNumberOfFields),
                   mDiscretizationMeshIndex(aDiscretizationMeshIndex)
-                  {
+        {
             // get interpolation mesh
             mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
 
             // get number of coefficients
-            mNumberOfCoefficients = tIPmesh->get_max_num_coeffs_on_proc(mDiscretizationMeshIndex);
+            uint tNumNodes = tIPmesh->get_num_nodes();
+            Matrix<DDUMat> tNodeIndices(tNumNodes, 1);
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                tNodeIndices(tNodeIndex) = tNodeIndex;
+            }
+            mNumberOfCoefficients =
+                    tIPmesh->get_owned_discretization_coefficient_indices(
+                    tNodeIndices,
+                    mDiscretizationMeshIndex).length() +
+                    tIPmesh->get_shared_discretization_coefficient_indices(
+                    tNodeIndices,
+                    mDiscretizationMeshIndex).length();
 
             // set coefficient vector
             mCoefficients.set_size( mNumberOfCoefficients, 1);
-                  }
+        }
 
         // ----------------------------------------------------------------------------------------------
 
