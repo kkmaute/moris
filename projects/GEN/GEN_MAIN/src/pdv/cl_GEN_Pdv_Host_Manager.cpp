@@ -332,11 +332,12 @@ namespace moris
                 const Cell<Matrix<DDSMat>>       & aNodeIndicesPerSet,
                 const Cell<Matrix<DDSMat>>       & aNodeIdsPerSet,
                 const Cell<Matrix<DDSMat>>       & aNodeOwnersPerSet,
-                const Cell<Matrix<DDRMat>>       & aNodeCoordinates,
+                const Cell<Matrix<DDRMat>>       & aNodeCoordinatesPerSet,
                 const Cell<Cell<Cell<PDV_Type>>> & aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
+
             MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
                     "Information passed to Pdv_Host_Manager.create_interpolation_pdv_hosts() does not have a consistent number of sets!");
 
@@ -344,9 +345,9 @@ namespace moris
             mIpPdvTypes = aPdvTypes;
             mUniqueIpPdvTypes.resize(tNumSets);
 
-            // maximum used for sizing the pdv hosts
+            // determine maximum node index used for sizing the pdv hosts
             moris_index tMax = 0;
-            for( moris::uint iSet = 0; iSet< aNodeIndicesPerSet.size(); iSet++)
+            for( moris::uint iSet = 0; iSet< tNumSets; iSet++)
             {   
                 if(aNodeIndicesPerSet(iSet).numel() > 0)
                 {
@@ -354,15 +355,16 @@ namespace moris
                 }
             }
 
-
             // Initialize PDV hosts
             mIpPdvHosts.resize(tMax+1, nullptr);
 
             // Create PDV hosts
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
-                // Get number of unique PDVs
+                // Get number of unique PDV types for this set
                 uint tNumUniquePdvs = 0;
+
+                // Fixme: not clear why this list should be unique
                 for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
                 {
                     tNumUniquePdvs += mIpPdvTypes(tMeshSetIndex)(tGroupIndex).size();
@@ -379,24 +381,30 @@ namespace moris
                     }
                 }
 
-                // Create PDV hosts
-                for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < aNodeIndicesPerSet(tMeshSetIndex).numel(); tNodeIndexOnSet++)
+                // get number of nodes in current set
+                uint tNumberOfNodes = aNodeIndicesPerSet(tMeshSetIndex).numel();
+
+                // Create PDV hosts on interpolation nodes
+                for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < tNumberOfNodes; tNodeIndexOnSet++)
                 {
                     // Create new host or add unique PDVs
+                    moris_index tNodeIndex = aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet);
+                    moris_id tNodeId       = aNodeIdsPerSet(tMeshSetIndex)(tNodeIndexOnSet);
+                    moris_index tNodeOwner = aNodeOwnersPerSet(tMeshSetIndex)(tNodeIndexOnSet);
 
-                    moris_index tNodeIndex = aNodeIndicesPerSet(tMeshSetIndex)( tNodeIndexOnSet);
-                    moris_id tNodeId       = aNodeIdsPerSet(tMeshSetIndex)( tNodeIndexOnSet);
-                    moris_index tNodeOwner = aNodeOwnersPerSet(tMeshSetIndex)( tNodeIndexOnSet);
+                    Matrix<DDRMat> tNodeCoordinates = aNodeCoordinatesPerSet(tMeshSetIndex).get_row(tNodeIndexOnSet);
 
+                    // Create PDV host unless it already exists
+                    // FIXME: why is it that if it exists it already has the same PDVtypes; this needs to be checked
                     if (mIpPdvHosts(tNodeIndex) == nullptr)
                     {
-                        mIpPdvHosts(tNodeIndex)
-                                = std::make_shared<Interpolation_Pdv_Host>(
+                        mIpPdvHosts(tNodeIndex) =
+                                std::make_shared<Interpolation_Pdv_Host>(
                                         this,
                                         tNodeIndex,
                                         tNodeId,
                                         tNodeOwner,
-                                        aNodeCoordinates(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)),
+                                        tNodeCoordinates,
                                         mUniqueIpPdvTypes(tMeshSetIndex) );
                     }
                 }
@@ -431,8 +439,8 @@ namespace moris
                 {
                     for (uint tPdvIndex = 0; tPdvIndex < mIgPdvTypes(tMeshSetIndex)(tGroupIndex).size(); tPdvIndex++)
                     {
-                        mUniqueIgPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) = mIgPdvTypes(tMeshSetIndex)(tGroupIndex)(
-                                tPdvIndex);
+                        mUniqueIgPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) =
+                                mIgPdvTypes(tMeshSetIndex)(tGroupIndex)(tPdvIndex);
                     }
                 }
             }
@@ -827,7 +835,7 @@ namespace moris
 
                         if ( mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType )  )
                         {
-							MORIS_ERROR(false," add the follwing lines");
+                            MORIS_ERROR(false," add the follwing lines");
                             // FIXME create pdv
                         }
                     }

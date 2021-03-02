@@ -651,11 +651,11 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Create PDVs" );
 
-            // Get meshes
-            mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
+            // Get meshes using first mesh on mesh manager: Lagrange mesh with numbered aura (default)
+            mtk::Integration_Mesh* tIntegrationMesh     = aMeshManager->get_integration_mesh(0);
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
 
-            // Initialize PDV type groups and mesh set info
+            // Initialize PDV type groups and mesh set info from integration mesh
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPDVTypeGroup(1);
             Cell<Matrix<DDUMat>> tMeshSetIndicesPerProperty(mProperties.size());
@@ -673,18 +673,25 @@ namespace moris
                 uint tNumSetIndices = tMeshSetIndicesPerProperty(tPropertyIndex).length();
                 tMeshSetIndicesPerProperty(tPropertyIndex).resize(tNumSetIndices + tMeshSetNames.size(), 1);
 
-                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
+                // number of mesh sets for current property
+                uint tNumberOfSets = tMeshSetIndicesPerProperty(tPropertyIndex).length();
+
+                // Set for each property index the list of mesh set indices
+                for (uint tIndex = tNumSetIndices; tIndex < tNumberOfSets; tIndex++)
                 {
                     tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
                 }
 
-                // Assign PDV types
-                for (uint tIndex = 0; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
+                // Assign PDV types to each mesh set
+                for (uint tIndex = 0; tIndex < tNumberOfSets; tIndex++)
                 {
-                    tPdvTypes(tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex)).push_back(tPDVTypeGroup);
+                    uint tMeshSetIndex = tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex);
+
+                    tPdvTypes(tMeshSetIndex).push_back(tPDVTypeGroup);    // why not use mProperties(tPropertyIndex)->get_pdv_type()
                 }
             }
 
+            // FIXME: add comment on purpose of next few lines
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
                     tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
@@ -712,7 +719,11 @@ namespace moris
                 // Assign PDVs
                 if (mProperties(tPropertyIndex)->is_interpolation_pdv())
                 {
+                    // PDV type and mesh set names/indices from parameter list
+                    tPDVTypeGroup(0) = mProperties(tPropertyIndex)->get_pdv_type();
+
                     mProperties(tPropertyIndex)->add_nodal_data(tInterpolationMesh);
+
                     this->assign_property_to_pdv_hosts(
                             mProperties(tPropertyIndex),
                             tPDVTypeGroup(0),
@@ -1258,14 +1269,12 @@ namespace moris
                 Cell<Cell<Cell<PDV_Type>>>    aPdvTypes)
         {
             // Get information from integration mesh
-            //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
             uint tNumSets  = aPdvTypes.size();
-            uint tNumNodes = aInterpolationMesh->get_num_nodes();
 
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
             Cell<Matrix<DDSMat>> tNodeIdsPerSet(tNumSets);
             Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
-            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
+            Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(tNumSets);
 
             // Determine if we need to do the below loop
             bool tDoJankLoop = false;
@@ -1277,52 +1286,72 @@ namespace moris
                 }
             }
 
+            // Determine the indices, IDs, and ownerships of base cell nodes in each set of integration mesh
+            // List has redundant entries
             if (tDoJankLoop)
             {
-                // Loop through sets
+                // Loop through sets in integration mesh
                 for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
                 {
                     uint tCurrentNode = 0;
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
 
+                    // Get number of clusters on set
+                    uint tNumberOfClusters = tSet->get_num_clusters_on_set();
+
                     // Clusters per set
-                    for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
+                    for (uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++)
                     {
+                        // get pointer to cluster
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
-                        // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
-                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_inds();
-                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_ids();
-                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_owners();
+                        // Indices, IDs, and ownership of base cell nodes in cluster
+                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell().get_base_cell();
 
-                        // FIXME don't undersand this resize. it's really slow
-                        tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
-                        tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
-                        tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
+                        Matrix<IndexMat> tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
+                        Matrix<IndexMat> tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
+                        Matrix<IndexMat> tNodeOwnersInCluster      = tBaseCell->get_vertex_owners();
+                        Matrix<DDRMat>   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
 
-                        // FIXME we have nodes up to 8 tims in this list in 3d
-                        for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                        // number of base nodes in cluster
+                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                        // number of spatial dimension
+                        uint tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                        // check for consistency
+                        MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
+                                "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
+
+                        // FIXME don't understand this resize. it's really slow
+                        tNodeIndicesPerSet(tMeshSetIndex)    .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeIdsPerSet(tMeshSetIndex)        .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeOwnersPerSet(tMeshSetIndex)     .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeCoordinatesPerSet(tMeshSetIndex).resize(tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim);
+
+                        // FIXME we have nodes up to 8 times in this list in 3d
+                        for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
                         {
-                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
-                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
-                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
+                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)      = tNodeIndicesInCluster(tNodeInCluster);
+                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)          = tNodeIdsInCluster(tNodeInCluster);
+                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode)       = tNodeOwnersInCluster(tNodeInCluster);
+
+                            tNodeCoordinatesPerSet(tMeshSetIndex).get_row(tCurrentNode) =
+                                    tNodeCoordinatesInCluster.get_row(tNodeInCluster);
+
+                            tCurrentNode++;
                         }
                     }
                 }
             }
 
-            // Get node coordinates
-            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
-            {
-                tNodeCoordinates(tNodeIndex) = aInterpolationMesh->get_node_coordinate(tNodeIndex);
-            }
-
-            // Create hosts
+            // Create hosts of nodes of non-unzipped interpolation nodes
             mPdvHostManager.create_interpolation_pdv_hosts(
                     tNodeIndicesPerSet,
                     tNodeIdsPerSet,
                     tNodeOwnersPerSet,
-                    tNodeCoordinates,
+                    tNodeCoordinatesPerSet,
                     aPdvTypes);
         }
 
@@ -1369,7 +1398,6 @@ namespace moris
             // Set PDV types
             mPdvHostManager.set_integration_pdv_types(tPdvTypes);
             mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
