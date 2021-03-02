@@ -32,7 +32,6 @@ set_property(GLOBAL PROPERTY INT_SRC_LIST "${INT_INTERNAL_INCLUDES}")
 # List header files
 set(HEADERS
 
-    CORE/cl_FEM_Cluster.hpp
     CORE/cl_FEM_Set.hpp
     CORE/cl_FEM_NodeProxy.hpp
     CORE/cl_FEM_Cluster.hpp
@@ -48,7 +47,7 @@ set(HEADERS
     CORE/fn_FEM_Check.hpp
     CORE/fn_FEM_FD_Scheme.hpp
 
-
+    ELEM/cl_FEM_Cluster.hpp
     ELEM/cl_FEM_Element_Factory.hpp
     ELEM/cl_FEM_ElementProxy.hpp
     ELEM/cl_FEM_Element.hpp
@@ -211,25 +210,22 @@ set(LIB_SOURCES
 
 
     CORE/cl_FEM_Set.cpp
-    CORE/cl_FEM_Cluster.cpp
     CORE/cl_FEM_Property.cpp
     CORE/cl_FEM_Model.cpp
     CORE/cl_FEM_Field.cpp 
 
-
+    ELEM/cl_FEM_Cluster.cpp
     ELEM/cl_FEM_Element_Factory.cpp
     ELEM/cl_FEM_Element_Bulk.cpp
     ELEM/cl_FEM_Element_Sideset.cpp
     ELEM/cl_FEM_Element_Double_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Boundary.cpp
-
+    ELEM/cl_FEM_Interpolation_Element.cpp
 
     IP/cl_FEM_Geometry_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator_Manager.cpp
-    IP/cl_FEM_Interpolation_Element.cpp
-
 
     MM/cl_FEM_Material_Model.cpp
     MM/cl_FEM_MM_Factory.cpp
@@ -241,8 +237,7 @@ set(LIB_SOURCES
 
     MM/cl_FEM_MM_Perfect_Gas.cpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.cpp
-
-
+    
     CM/cl_FEM_Constitutive_Model.cpp
     CM/cl_FEM_CM_Factory.cpp
 
