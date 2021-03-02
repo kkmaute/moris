@@ -26,6 +26,8 @@ namespace moris
                 Matrix<DDRMat> mObjectiveGradient;         // full gradient of the objectives with respect to the ADVs
                 Matrix<DDRMat> mConstraintGradient;        // full gradient of the constraints with respect to the ADVs
                 Matrix<DDRMat> mFiniteDifferenceEpsilons;  // Epsilon for finite differencing
+                Matrix<DDUMat> mFiniteDifferenceADVs;      // Indices of ADVs with respect to which sensitivities are
+                                                           // computed by finite differencing
 
                 std::string mRestartFile;                  // Restart file
                 std::string mFiniteDifferenceType;
@@ -178,6 +180,11 @@ namespace moris
                         Matrix<DDRMat> aEpsilons);
 
                 void set_finite_differencing(std::string aType);
+
+                /**
+                 * Sets indices of ADVs with respect to which sensitivities are to be computed by FD
+                 */
+                void set_finite_differencing_advs( Matrix<DDUMat> aFiniteDifferenceADVs);
 
                 /**
                  * Modifies the optimization solution. Not currently implemented.

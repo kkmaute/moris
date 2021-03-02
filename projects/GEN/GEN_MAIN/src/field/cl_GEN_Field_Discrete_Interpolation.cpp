@@ -21,6 +21,7 @@ namespace moris
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
+            // FIXME: map onto base node not correct however coordinate is consistent with incorrect node
             return this->get_base_field_value( (this->*get_node_index)(aNodeIndex), aCoordinates );
         }
 
@@ -86,7 +87,8 @@ namespace moris
 
         uint Field_Discrete_Interpolation::get_base_node_index(uint aNodeIndex)
         {
-            return tNodeToBaseIndex(aNodeIndex);
+            // until Property PDVs are defined on nodes of un-zipped mesh return trivial relation
+            return aNodeIndex; //tNodeToBaseIndex(aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------

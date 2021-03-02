@@ -119,7 +119,7 @@ namespace moris
                 PROPERTY,
                 L2_ERROR_ANALYTIC,
                 H1_ERROR_ANALYTIC,
-                H1_SEMI_ERROR,
+                H1_ERROR,
                 J_INTEGRAL,
                 LIFT_COEFF,
                 DRAG_COEFF,

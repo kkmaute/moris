@@ -34,6 +34,9 @@ namespace moris
             // Parameters: finite differencing
             mFiniteDifferenceType = aParameterList.get<std::string>("finite_difference_type");
             string_to_mat(aParameterList.get<std::string>("finite_difference_epsilons"), mFiniteDifferenceEpsilons);
+
+            // Initialize vector of ADV indices with respect to which sensitivities are computed by finite differencing
+            mFiniteDifferenceADVs.set_size(0,0);
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -208,7 +211,9 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::set_finite_differencing(std::string aType, Matrix<DDRMat> aEpsilons)
+        void Problem::set_finite_differencing(
+                std::string aType,
+                Matrix<DDRMat> aEpsilons)
         {
             // Check input
             if (aEpsilons.numel() == 1)
@@ -262,6 +267,13 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
+        void Problem::set_finite_differencing_advs( Matrix<DDUMat> aFiniteDifferenceADVs)
+        {
+            mFiniteDifferenceADVs = aFiniteDifferenceADVs;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
         void Problem::scale_solution()
         {
             // TODO Need to decide on a framework for the scaling of the solution
@@ -300,19 +312,36 @@ namespace moris
         {
             // Set perturbed ADVs and objectives
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mObjectiveGradient.set_size(1, mADVs.length());
-            real tObjectivePerturbed;
+
+            // check if ADV indices for FD are provided; if all ADVs are considered
+            if ( mFiniteDifferenceADVs.numel() == 0 )
+            {
+                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
+                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
+                {
+                    mFiniteDifferenceADVs(tIndex)=tIndex;
+                }
+            }
+
+            // number of ADVs with respect to which sensitivities are computed by FD
+            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
+
+            // set size of gradient vector
+            mObjectiveGradient.set_size(1,tNumFDadvs);
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++) 
+            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
             {
+                // get ADV index
+                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
+
                 // Perturb
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
                 mCriteria = mInterface->get_criteria(mADVs);
-                tObjectivePerturbed = this->compute_objectives()(0);
+                real tObjectivePerturbed = this->compute_objectives()(0);
 
                 // Biased finite difference
-                mObjectiveGradient(0, tADVIndex) =
+                mObjectiveGradient(0, tIndex) =
                         (tObjectivePerturbed - mObjectives(0)) / mFiniteDifferenceEpsilons(tADVIndex);
 
                 // Restore ADV
@@ -326,12 +355,31 @@ namespace moris
         {
             // Set perturbed ADVs and constraints
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mConstraintGradient.set_size(mConstraints.length(), mADVs.length());
+
+            // check if ADV indices for FD are provided; if all ADVs are considered
+            if ( mFiniteDifferenceADVs.numel() == 0 )
+            {
+                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
+                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
+                {
+                    mFiniteDifferenceADVs(tIndex)=tIndex;
+                }
+            }
+
+            // number of ADVs with respect to which sensitivities are computed by FD
+            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
+
+            // set size of gradient vector
+            mConstraintGradient.set_size(mConstraints.length(),tNumFDadvs);
+
             Matrix<DDRMat> tConstraintsPerturbed;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
             {
+                // get ADV index
+                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
+
                 // Perturb
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
                 mCriteria = mInterface->get_criteria(mADVs);
@@ -340,7 +388,7 @@ namespace moris
                 // Biased finite difference
                 for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
-                    mConstraintGradient(tConstraintIndex, tADVIndex) =
+                    mConstraintGradient(tConstraintIndex, tIndex) =
                             (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) /
                             mFiniteDifferenceEpsilons(tADVIndex);
                 }
@@ -356,26 +404,42 @@ namespace moris
         {
             // Set perturbed ADVs and objectives
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mObjectiveGradient.set_size(1, mADVs.length());
-            real tObjectivePlus;
-            real tObjectiveMinus;
+
+            // check if ADV indices for FD are provided; if all ADVs are considered
+            if ( mFiniteDifferenceADVs.numel() == 0 )
+            {
+                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
+                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
+                {
+                    mFiniteDifferenceADVs(tIndex)=tIndex;
+                }
+            }
+
+            // number of ADVs with respect to which sensitivities are computed by FD
+            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
+
+            // set size of gradient vector
+            mObjectiveGradient.set_size(1,tNumFDadvs);
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
             {
+                // get ADV index
+                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
+
                 // Perturb forwards
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
                 mCriteria = mInterface->get_criteria(mADVs);
-                tObjectivePlus = this->compute_objectives()(0);
+                real tObjectivePlus = this->compute_objectives()(0);
 
                 // Perturb backwards
-                mADVs(tADVIndex) -= 2 * mFiniteDifferenceEpsilons(tADVIndex);
+                mADVs(tADVIndex) -= 2.0 * mFiniteDifferenceEpsilons(tADVIndex);
                 mCriteria = mInterface->get_criteria(mADVs);
-                tObjectiveMinus = this->compute_objectives()(0);
+                real tObjectiveMinus = this->compute_objectives()(0);
 
                 // Central difference
-                mObjectiveGradient(0, tADVIndex) =
-                        (tObjectivePlus - tObjectiveMinus) / (2 * mFiniteDifferenceEpsilons(tADVIndex));
+                mObjectiveGradient(0, tIndex) =
+                        (tObjectivePlus - tObjectiveMinus) / (2.0 * mFiniteDifferenceEpsilons(tADVIndex));
 
                 // Restore ADV
                 mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
@@ -388,13 +452,33 @@ namespace moris
         {
             // Set perturbed ADVs and constraints
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mConstraintGradient.set_size(mConstraints.length(), mADVs.length());
+
+
+            // check if ADV indices for FD are provided; if all ADVs are considered
+            if ( mFiniteDifferenceADVs.numel() == 0 )
+            {
+                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
+                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
+                {
+                    mFiniteDifferenceADVs(tIndex)=tIndex;
+                }
+            }
+
+            // number of ADVs with respect to which sensitivities are computed by FD
+            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
+
+            // set size of gradient vector
+            mConstraintGradient.set_size(mConstraints.length(),tNumFDadvs);
+
             Matrix<DDRMat> tConstraintsPlus;
             Matrix<DDRMat> tConstraintsMinus;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
             {
+                // get ADV index
+                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
+
                 // Perturb forwards
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
                 mCriteria = mInterface->get_criteria(mADVs);
@@ -408,7 +492,7 @@ namespace moris
                 // Central difference
                 for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
-                    mConstraintGradient(tConstraintIndex, tADVIndex) =
+                    mConstraintGradient(tConstraintIndex, tIndex) =
                             (tConstraintsPlus(tConstraintIndex) - tConstraintsMinus(tConstraintIndex)) / (2.0 * mFiniteDifferenceEpsilons(tADVIndex));
                 }
 

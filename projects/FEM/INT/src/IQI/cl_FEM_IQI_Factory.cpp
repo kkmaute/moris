@@ -17,10 +17,10 @@
 #include "cl_FEM_IQI_Property.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"
-#include "cl_FEM_IQI_H1_Semi_Error.hpp"
 #include "cl_FEM_IQI_J_Integral.hpp"
 #include "cl_FEM_IQI_Volume_Fraction.hpp"
 #include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
+#include "cl_FEM_IQI_H1_Error.hpp"
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
 #include "cl_FEM_IQI_Max_Stress.hpp"
 #include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
@@ -79,8 +79,8 @@ namespace moris
                 case IQI_Type::H1_ERROR_ANALYTIC :
                     return std::make_shared< IQI_H1_Error_Analytic >();
 
-                case IQI_Type::H1_SEMI_ERROR :
-                    return std::make_shared< IQI_H1_Semi_Error >();
+                case IQI_Type::H1_ERROR :
+                    return std::make_shared< IQI_H1_Error >();
 
                 case IQI_Type::J_INTEGRAL :
                     return std::make_shared< IQI_J_Integral >();

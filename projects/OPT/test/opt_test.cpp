@@ -123,6 +123,7 @@ namespace moris
                     tAlgorithmParameterList.set("num_evaluations_per_adv", "3, 2");
                     tAlgorithmParameterList.set("finite_difference_type", "all");
                     tAlgorithmParameterList.set("finite_difference_epsilons", "0.001, 0.01; 0.00001, 0.00001");
+                    tAlgorithmParameterList.set("finite_difference_adv_indices", "0,1");
 
                     // Create interface
                     std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(

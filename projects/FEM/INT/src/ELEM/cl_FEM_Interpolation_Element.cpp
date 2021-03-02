@@ -192,6 +192,7 @@ namespace moris
                 const moris::Cell< PDV_Type > & tDvTypeGroup = tMasterDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
+                // FIXME: the underlying use of the base cell needs to be hidden within PDV
                 Cell< Matrix< DDRMat > > tCoeff_Original;
                 mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
                         mMasterInterpolationCell->get_base_cell()->get_vertex_inds(),
