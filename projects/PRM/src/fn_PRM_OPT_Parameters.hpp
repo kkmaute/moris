@@ -184,6 +184,7 @@ namespace moris
             tParameterList.insert("finite_difference_type", "none");      // Type of finite differencing for gradients;
                                                                           // central, forward, backward, all, or none
             tParameterList.insert("finite_difference_epsilons", "1E-8");  // Use finite differencing to obtain gradients with these epsilons
+            tParameterList.insert("finite_difference_adv_indices", "");   // Indices of ADVs with respect to which sensitivities are computed by FD
             tParameterList.insert("save", true);                          // Save the sweep evaluations in "hdf5_path"
             tParameterList.insert("print", false);                        // Print the sweep evaluations to the screen with moris::print
             tParameterList.insert("hdf5_path", "");                       // Path and file name for saving if "save" is set to true
