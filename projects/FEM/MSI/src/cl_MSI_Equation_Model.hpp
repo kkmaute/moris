@@ -558,11 +558,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-//            virtual void create_fields()
-//            {
-//                MORIS_ERROR( false,
-//                        "Equation_Model::create_fields - not implemented for base class." );
-//            }
+            virtual void populate_fields()
+            {
+                MORIS_ERROR( false,
+                        "Equation_Model::populate_fields - not implemented for base class." );
+            }
 
             //------------------------------------------------------------------------------
         };

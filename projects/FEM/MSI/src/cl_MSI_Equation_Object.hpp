@@ -31,6 +31,7 @@ namespace moris
     {
         class Node_Base;
         class Element;
+        class Field;
     }
     namespace fem
     {
@@ -527,7 +528,9 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual void create_fields( moris::Cell< std::shared_ptr< mtk::Field > > & aFields )
+            virtual void populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > > & aFields,
+                    moris::Cell< std::string > const             & aFieldIQINames)
             {
                 MORIS_ASSERT( false, "Equation_Set::create_fields - not implemented for base class." );
             }

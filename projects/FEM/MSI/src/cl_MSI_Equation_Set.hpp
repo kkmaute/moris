@@ -23,6 +23,10 @@ namespace moris
         class Cell;
         class Set;
     }
+    namespace fem
+    {
+        class Field;
+    }
 
     namespace vis
     {
@@ -692,6 +696,15 @@ namespace moris
                     const moris::Cell< std::string > & aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+
+            virtual void populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > >  & aFieldToPopulate,
+                    moris::Cell< std::string > const              & aFieldIQINames )
+            {
+                MORIS_ERROR( false, "populate_fields(), no child implementation.");
             }
 
             //------------------------------------------------------------------------------

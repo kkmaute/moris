@@ -477,7 +477,8 @@ namespace moris
                 mOutputManager->end_writing( aVisMeshIndex );
             }
 
-            //mEquationModel->populate_fields();
+            mEquationModel->populate_fields();
+
         }
 
     } /* namespace mdl */
