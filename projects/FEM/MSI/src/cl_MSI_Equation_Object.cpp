@@ -855,6 +855,7 @@ namespace moris
 
                         if( tDofIndex != -1 )
                         {
+                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
                             uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
                             uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
 
@@ -888,12 +889,14 @@ namespace moris
 
                 if( tSecDofIndex != -1 )
                 {
+
                     for( auto tDofTypes : tRequestedDofTypes )
                     {
                         sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::MASTER );
 
                         if( tDofIndex != -1 )
                         {
+                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
                             uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
                             uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
 
@@ -924,6 +927,7 @@ namespace moris
 
                         if( tDofIndex != -1 )
                         {
+                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
                             uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
                             uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
 
