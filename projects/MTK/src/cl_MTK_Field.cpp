@@ -80,6 +80,9 @@ namespace moris
             // set update flag to false; nodal values do not need to be updated
             mUpdateNodalValues = true;
 
+            // update coefficient data as underlying discretization may have changed
+            this->update_coefficent_data();
+
             // lock mesh
             mFieldIsLocked = true;
         }
@@ -127,7 +130,7 @@ namespace moris
 
         void Field::get_nodal_value(
                 Matrix< IndexMat > const & aNodeIndex,
-                Matrix< DDRMat >            & aNodalValues,
+                Matrix< DDRMat >         & aNodalValues,
                 Matrix< IndexMat > const & aFieldIndex )
         {
             // check whether nodal values are updated; if not compute them first
@@ -139,6 +142,7 @@ namespace moris
                 mUpdateNodalValues=false;
             }
 
+            // get number of fields and nodal values
             uint tNumFields = aFieldIndex.numel();
             uint tNumIndices = aNodeIndex.numel();
 
@@ -182,7 +186,7 @@ namespace moris
 
        void Field::set_nodal_value_vector( const Matrix< DDRMat > & aNodalValues )
        {
-           // FIXME - should not be needed if input vector has correct size
+           // FIXME - loop should not be needed if input vector has correct size
            //copy values
            for (uint tNodeIndex = 0; tNodeIndex<mNodalValues.n_rows(); ++tNodeIndex)
            {
@@ -208,9 +212,9 @@ namespace moris
            //check whether field is unlocked
            this->error_if_locked();
 
-           // check whether vector has the correct size
+           //check whether vector has the correct size
            MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
-                        "mtk::Field::set_coefficients - number of coefficients does not match.");
+                   "mtk::Field::set_coefficients - coefficient vector has incorrect length.\n");
 
            // set coefficient vector using child implementation
            this->set_coefficient_vector(aCoefficients);
@@ -227,6 +231,14 @@ namespace moris
        void Field::set_coefficient_vector(const Matrix< DDRMat > & aCoefficients)
        {
            mCoefficients = aCoefficients;
+       }
+
+       //------------------------------------------------------------------------------
+
+       const Matrix<IdMat> & Field::get_coefficient_ids_and_owners()
+       {
+           // call child implementation to populate coefficient vector
+           return this->get_coefficient_id_and_owner_vector();
        }
 
        //------------------------------------------------------------------------------

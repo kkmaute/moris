@@ -29,10 +29,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         /**
-         * Base class of interpolation mesh based nodaly discretized scalar or vector field; it is assume that the values
+         * Base class of interpolation mesh based nodaly discretized scalar or vector field; it is assumed that the values
          * at a node are a function of space and some coefficients; the base implementation provides access
          * to the nodal values, allows to set them for projection on to the coefficients; and access to the
-         * coefficients.
+         * coefficients. The coefficients have an ID and ownership.
          *
          * The base class requires implementations for how the nodal values and their derivatives with
          * respect to the coefficients are computed.
@@ -61,6 +61,9 @@ namespace moris
 
                 //! Coefficients vector: number of coefficients x 1
                 Matrix< DDRMat > mCoefficients;
+
+                //! Map from field indices to mesh coefficient IDs and owning processor rank
+                Matrix < IdMat > mFieldIndexToMeshCoefficientIdAndOwnerMap;
 
                 //! Flag that nodal values need to be updated
                 bool mUpdateNodalValues = true;
@@ -123,6 +126,30 @@ namespace moris
                   * @brief updates coefficient vector
                   */
                 virtual void get_coefficient_vector()
+                {
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                  * @brief get vector of IDs and owner rank for all coefficient used by field
+                  *
+                  * @ return matrix of IDs and owners: number of coefficients x 2
+                  */
+                virtual const Matrix<IdMat> & get_coefficient_id_and_owner_vector()
+                {
+                    MORIS_ERROR(false,"mtk::Field::get_coefficient_id_vector - function not implemented.\n");
+
+                   return mFieldIndexToMeshCoefficientIdAndOwnerMap;
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief updates internal data associated with coefficients
+                 */
+
+                virtual void update_coefficent_data()
                 {
                 }
 
@@ -266,15 +293,14 @@ namespace moris
                  *
                  *        Note: function will be removed soon as not consistent with child implementation
                  *
-                 * @param[in]  aNodeIndices - node indices
-                 * @param[in]  aNodalValues - nodal values
+                 * @param[in]  aNodeIndices - vector of node indices
                  * @param[in]  aFieldIndices - field indces
                  *
-                 * @return nodal value
+                 * @param[out] aNodalValues - nodal values
                  */
                 void get_nodal_value(
                         Matrix< IndexMat > const & aNodeIndex,
-                        Matrix< DDRMat >            & aNodalValues,
+                        Matrix< DDRMat >         & aNodalValues,
                         Matrix< IndexMat > const & aFieldIndex = 0);
 
                 //------------------------------------------------------------------------------
@@ -333,6 +359,15 @@ namespace moris
                  *
                  */
                 void set_coefficients( const Matrix< DDRMat > & aCoefficients );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                  * @brief get vector of IDs and owner rank for all coefficient used by field
+                  *
+                  * @ return matrix of IDs and owners: number of coefficients x 2
+                  */
+                const Matrix<IdMat> & get_coefficient_ids_and_owners();
 
                 //------------------------------------------------------------------------------
 
