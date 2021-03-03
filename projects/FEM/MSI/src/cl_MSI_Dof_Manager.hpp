@@ -222,7 +222,7 @@ namespace moris
 
                 MORIS_ASSERT( tDofTypeIndex != -1, "Dof_Manager::set_time_levels_for_type(), Requested dof type does not exist");
 
-                mTimePerDofType( tDofTypeIndex, 0 ) = aNumTimeLevels;
+                mTimePerDofType( tDofTypeIndex ) = aNumTimeLevels;
             };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -231,12 +231,12 @@ namespace moris
             {
                 moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aDofType ) );
 
-                return mTimePerDofType( tDofTypeIndex, 0 );
+                return mTimePerDofType( tDofTypeIndex );
             };
 
 //-----------------------------------------------------------------------------------------------------------
 
-            Matrix< DDUMat > & get_time_levels( )
+            const Matrix< DDUMat > & get_time_levels( )
             {
                 return mTimePerDofType;
             };
