@@ -570,7 +570,8 @@ namespace xtk
             bool mGhost             = false; // Model has setup ghost stabilization
 
             // Flag to cleanup mesh at end of decomposition
-            bool mCleanupMesh = false; // Model has setup ghost stabilization
+            bool mTriangulateAll = false; // Triangulate all background cells
+            bool mCleanupMesh    = false; // Cleanup the mesh 
 
             // cell map
             std::map< moris_id, moris_index> mCellGlbToLocalMap;

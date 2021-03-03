@@ -2262,7 +2262,6 @@ namespace xtk
     Enriched_Integration_Mesh::construct_double_side_interface_between_child_meshes(Coincident_Interface_Construction & aCoincInterfaceStruct)
     {
         
-        std::cout<<"Exterior Boundaries"<<std::endl;
         // collect data for child meshes
         this->collect_facets_on_interface_between_child_meshes(aCoincInterfaceStruct);
 

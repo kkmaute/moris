@@ -1961,8 +1961,6 @@ namespace xtk
         moris::Matrix< moris::DDSTMat >  const & tFacetParentRanks = this->get_facet_parent_ranks();
         moris::Matrix<moris::IndexMat>   const & tCellFacetInds    = this->get_element_to_facet();
 
-        moris::print(tCellInterfaceSideOrds,"tCellInterfaceSideOrds");
-
         // determine if there is an interchild mesh interface
         for (moris::uint iLC = 0; iLC < tCellInterfaceSideOrds.n_rows(); iLC++)
         {
@@ -2036,7 +2034,6 @@ namespace xtk
 
                             // if this cell belongs to the other subphase add the pair and shared side ordinal
 
-                            std::cout<<"tInterfaceNeighbor = "<<tInterfaceNeighbor<<std::endl;
                             if(tInterfaceNeighbor != std::numeric_limits<moris_index>::max())
                             {
                                 if(this->get_element_subphase_index(tInterfaceNeighbor) == (moris_index) iSP1)

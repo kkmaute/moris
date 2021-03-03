@@ -35,7 +35,8 @@ namespace moris
         // decomposition and decomposition related parameters
         tParameterList.insert( "decompose", true );
         tParameterList.insert( "decomposition_type", "conformal" );
-
+        tParameterList.insert( "triangulate_all", false );
+        
         // cleanup
         tParameterList.insert( "cleanup_cut_mesh", false );
 

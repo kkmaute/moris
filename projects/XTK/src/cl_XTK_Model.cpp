@@ -198,6 +198,9 @@ namespace xtk
 
         if(mParameterList.get<bool>("decompose"))
         {
+            mTriangulateAll = mParameterList.get<bool>("triangulate_all");
+
+
             if(mParameterList.get<bool>("cleanup_cut_mesh"))
             {
                 mCleanupMesh = true;
@@ -2599,6 +2602,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             moris::Matrix< moris::IndexMat > & aNewPairBool)
     {
+
         // Note this method is independent of node ids for this reason Background_Mesh is not given the node Ids during this subdivision
         moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
 
@@ -2619,10 +2623,12 @@ namespace xtk
 
         // New child meshes
         moris::size_t tNumNewChildMeshes = 0;
-        moris::moris_index tNewIndex = 0;
-        Matrix<IndexMat> tIntersectedElementIndices(0, 0);
+
+        // New child mesh data
+        moris::moris_index                                      tNewIndex = 0;
+        Matrix<IndexMat>                                        tIntersectedElementIndices(0, 0);
         Cell<std::pair<moris::moris_index, moris::moris_index>> tNewChildElementPair(0);
-        Matrix<IndexMat> tElementNodeIndices(tNumElements, tNumNodesPerElement);
+        Matrix<IndexMat>                                        tElementNodeIndices(tNumElements, tNumNodesPerElement);
 
 
         // Loop over elements to check for intersections
@@ -2637,11 +2643,12 @@ namespace xtk
             {
                 tElementNodeIndices(tParentElementIndex, j) = tElementNodeIndicesTemp(j);
             }
+            
+            // is the cell intersected
+            bool tIsIntersected = mGeometryEngine->is_intersected( tElementNodeIndicesTemp, mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodeIndicesTemp));
 
             // Intersected elements are flagged via the Geometry_Engine
-            if (mGeometryEngine->is_intersected(
-                    tElementNodeIndicesTemp,
-                    mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodeIndicesTemp)))
+            if(tIsIntersected || mTriangulateAll)
             {
                 // Resize
                 tIntersectedElementIndices.resize(1, tIntersectedElementIndices.n_cols() + 1);

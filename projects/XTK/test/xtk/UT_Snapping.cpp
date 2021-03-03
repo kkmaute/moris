@@ -30,6 +30,8 @@ namespace xtk
 
 TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
 {
+    if(par_size() == 1)
+    {
     //Intersecting plane test parameters
     real tPlaneAngle = 90; // CCW, degrees
     real tIntersectionLocalCoordinate = -0.5; // (-1, 1), where the top middle vertical edge is intersected
@@ -152,15 +154,15 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
 
     // HMR finalize
     pHMR->perform();
-    
     //
-    pGEN->distribute_advs( pBGMTK );
+    pGEN->distribute_advs( pBGMTK->get_interpolation_mesh( 0 ) );
 
     // Output GEN fields, if requested
     pGEN->output_fields(pBGMTK->get_interpolation_mesh( 0 ));
 
     // XTK perform - decompose - enrich - ghost - multigrid
     pXTK->perform();
+    }
 }
 
 
