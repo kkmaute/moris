@@ -91,6 +91,11 @@ namespace moris
             moris::Cell< moris::Cell< mtk::Field_Type > > mMasterFieldTypes;
             moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveFieldTypes;
 
+            moris::Cell< moris::Cell< mtk::Field_Type > > mMasterGlobalFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveGlobalFieldTypes;
+
+            bool mGlobalFieldBuild = true;
+
             // master and slave properties
             moris::Cell< std::shared_ptr< fem::Property > > mMasterProp;
             moris::Cell< std::shared_ptr< fem::Property > > mSlaveProp;
@@ -455,7 +460,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * ( a list for master and a list for slave dof and dv types )
              */
-            void build_global_dof_and_dv_type_lists();
+            void build_global_dof_dv_and_field_type_list();
 
             //------------------------------------------------------------------------------
             /**

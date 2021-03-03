@@ -331,7 +331,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tIWG->set_normal( tNormal );
 
             // build global property type list
-            tIWG->build_global_dof_and_dv_type_list();
+            tIWG->build_global_dof_dv_and_field_type_list();
 
             // populate the requested master dof type
             tIWG->mRequestedMasterGlobalDofTypes = { tVelDofTypes, tPDofTypes };

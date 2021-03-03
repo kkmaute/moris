@@ -67,6 +67,12 @@ namespace moris
                 // active dv type map
                 Matrix< DDSMat > mDvTypeMap;
 
+                // active dv types
+                moris::Cell< moris::Cell< mtk::Field_Type > > mFieldTypes;
+
+                // active dv type map
+                Matrix< DDSMat > mFieldTypeMap;
+
                 // parameters
                 moris::Cell< Matrix< DDRMat> > mParameters;
 
@@ -358,6 +364,49 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set a list of field types
+                 * @param[ in ] aFieldTypes list of dv type
+                 */
+                void set_field_type_list( const moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return a list of field types
+                 * @param[ out ] mFieldTypes list of field type
+                 */
+                const
+                moris::Cell< moris::Cell< mtk::Field_Type > > & get_field_type_list() const
+                {
+                    return mFieldTypes;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * build a field type map
+                 */
+                void build_field_type_map();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get a field type map
+                 * @param[ out ] mFieldTypeMap map of the field types
+                 */
+                const
+                moris::Matrix< DDSMat > & get_field_type_map() const
+                {
+                    return mFieldTypeMap;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * check if the property depends on a particular group of field types
+                 * @param[ in ]  aFieldType cell of dv type
+                 * @param[ out ] aBool   boolean, true if dependency on the field type
+                 */
+                bool check_field_dependency( const moris::Cell< mtk::Field_Type > & aFieldType );
+
+                //------------------------------------------------------------------------------
+                /**
                  * reset evaluation flags
                  */
                 void reset_eval_flags();
@@ -428,11 +477,14 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * get non unique dof type list
-                 * @param[ in ] aDofType cell of dof type
+                 * @param[ in ] aDofType    cell of dof types
+                 * @param[ in ] aDvType     cell of dv types
+                 * @param[ in ] aFioeldType cell of field types
                  */
-                void get_non_unique_dof_and_dv_types(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        moris::Cell< PDV_Type >      & aDvTypes );
+                void get_non_unique_dof_dv_and_field_types(
+                        moris::Cell< MSI::Dof_Type >   & aDofTypes,
+                        moris::Cell< PDV_Type >        & aDvTypes,
+                        moris::Cell< mtk::Field_Type > & aFieldTypes);
 
                 //------------------------------------------------------------------------------
         };
