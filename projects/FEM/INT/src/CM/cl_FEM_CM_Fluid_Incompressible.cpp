@@ -323,7 +323,7 @@ namespace moris
 
             // fill div strain
             mDivStrain( 0 ) = tVelocityGrad( 0, 0 )
-                                    + 0.5* ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 ) )
+                                    + 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 ) )
                                     + 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 4, 2 ) );
             mDivStrain( 1 ) = 0.5 * ( tVelocityGrad( 5, 0 ) + tVelocityGrad( 0, 1 ) )
                                     + tVelocityGrad( 1, 1 )
