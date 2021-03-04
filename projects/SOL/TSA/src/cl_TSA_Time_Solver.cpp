@@ -331,7 +331,7 @@ void Time_Solver::solve()
     mFullVector( 1 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
     // set time level 0 sol vec to interface
-    mSolverInterface->set_solution_vector( mFullVector( 1 ));
+    mSolverInterface->set_solution_vector( mFullVector( 1 ) );
     mSolverInterface->set_solution_vector_prev_time_step( mFullVector( 0 ) );
 
     // initialize solution vector and prev solution vector
@@ -344,7 +344,47 @@ void Time_Solver::solve()
 
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
-    mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+    if( not mSolverWarehouse->get_load_sol_vec_from_file().empty() )
+    {
+        std::string tSolVecPath = mSolverWarehouse->get_load_sol_vec_from_file();
+
+        // detect file type
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+
+        if( tType == "hdf5" || tType == "h5" )
+        {
+            mFullVector( 1 )->save_vector_to_HDF5( tSolVecPath.c_str() );
+        }
+        else
+        {
+            MORIS_ERROR( false, "Time_Solver::solve(), Solution vector input type unknown. New types can be implemented here.");
+        }
+
+        mFullVector( 1 )->read_vector_from_HDF5( "SolVec.hdf5");
+    }
+    else
+    {
+        // SOLVE CALL
+        mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+
+        // output solution vector to file
+        if( not mSolverWarehouse->get_save_final_sol_vec_to_file().empty() )
+        {
+            std::string tSolVecPath = mSolverWarehouse->get_save_final_sol_vec_to_file();
+
+            // detect file type
+            std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+
+            if( tType == "hdf5" || tType == "h5" )
+            {
+                mFullVector( 1 )->save_vector_to_HDF5( tSolVecPath.c_str() );
+            }
+            else
+            {
+                MORIS_ERROR( false, "Time_Solver::solve(), Solution vector output type unknown. New types can be implemented here.");
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
