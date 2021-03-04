@@ -1695,6 +1695,41 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
+    void
+    Child_Mesh::mark_facet_as_on_interface(moris_index aFacetCMIndex,
+                               moris_index aGeometryIndex)
+    {
+        // facet to element
+        moris::Matrix<moris::IndexMat> const & tFacetToElement = this->get_facet_to_element();
+
+        // local geometry index
+        moris_index tLocalGeomIndex = this->get_local_geom_index(aGeometryIndex);
+
+        // iterate through elements attached to this facet
+        for(moris::uint iCell = 0; iCell < tFacetToElement.n_cols(); iCell++)
+        {
+            // cell index
+            moris_index tCellIndex = tFacetToElement(aFacetCMIndex,iCell);
+            moris_index tSideOrdinal = MORIS_INDEX_MAX;
+
+            if(mSpatialDimension == 2)
+            {
+                tSideOrdinal = this->get_edge_ordinal_from_element_and_edge_indices(tCellIndex,aFacetCMIndex);
+            }
+            else if (mSpatialDimension == 3)
+            {
+                tSideOrdinal = this->get_face_ordinal_from_element_and_face_index(tCellIndex,aFacetCMIndex);
+            }
+            else
+            {
+                MORIS_ERROR(0,"two and three dimensions only");
+            }
+
+            mElementInterfaceSides(tCellIndex,tLocalGeomIndex) = (size_t)tSideOrdinal;
+        }
+    }
+
+    // ---------------------------------------------------------------------------------
 
     void
     Child_Mesh::mark_interface_faces_from_interface_coincident_faces()

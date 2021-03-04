@@ -650,6 +650,10 @@ public:
     void
     mark_edge_as_on_interface(moris::moris_index aEdgeIndex);
 
+    void
+    mark_facet_as_on_interface(moris_index aFacetCMIndex,
+                               moris_index aGeometryIndex);
+
     // ----------------------------------------------------------------------------------
  
     /*

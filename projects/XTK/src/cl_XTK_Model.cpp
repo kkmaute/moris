@@ -768,7 +768,7 @@ namespace xtk
                     for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
 
-                        if(mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(0),j) and mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(1),j) )
+                        if(mGeometryEngine->is_interface_vertex(tVerticesOnParentEdge(0),j) and mGeometryEngine->is_interface_vertex(tVerticesOnParentEdge(1),j) )
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
                         }
@@ -1111,7 +1111,7 @@ namespace xtk
         this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool, 3, tDecompData);
 
         // associate new nodes with geometry objects
-        create_new_node_association_with_geometry(tDecompData);
+        this->create_new_node_association_with_geometry(tDecompData);
 
         for(moris::size_t i = 0; i< tIntersectedCount; i++)
         {
@@ -1571,6 +1571,77 @@ namespace xtk
                 tDecompData.tNewNodeParentTopology,
                 tDecompData.tParamCoordRelativeToParent,
                 mBackgroundMesh.get_all_node_coordinates_loc_inds());
+    }
+    
+    void
+    Model::catch_all_unhandled_interfaces()
+    {
+        
+        // iterate through child meshes
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            // child mesh vertex indices
+            moris::Matrix< moris::IndexMat > const & tVertexIndices = tChildMesh.get_node_indices();
+
+            // Keep track of which geomtries have interface vertices
+            moris::Matrix< moris::IndexMat > tGeometryInterfaceBool(1, mGeometryEngine->get_num_geometries(), (moris_index)false);
+
+            // iterate through the vertices of the child mesh and figure out which are interface nodes
+            // this loop is so I don't have to loop over all facets
+            for(moris::uint iV = 0; iV < tVertexIndices.numel(); iV++)
+            {
+                // iterate through geometries
+                for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
+                {
+                    if(mGeometryEngine->is_interface_vertex(tVertexIndices(iV),(moris_index)iG))
+                    {
+                        // mark as interface relative to the geometry
+                        tGeometryInterfaceBool(iG) = (moris_index) true;
+                        break;
+                    }
+                }
+            }
+
+            // get the facet to node
+            moris::Matrix< moris::IndexMat > const & tFacetToNode = tChildMesh.get_facet_to_node();
+
+            // iterate through geometries, check and flag facets that are on the interface
+            for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
+            {
+                if(tGeometryInterfaceBool(iG) == (moris_index)true)
+                {
+                    // iterate through the facets
+                    for(moris::uint iFacet = 0;  iFacet < tFacetToNode.n_rows(); iFacet++)
+                    {
+                        // if one is not on the interface, this will be false and the facet is not on the interface
+                        bool tIsInterfaceFacet = true;
+
+                        // iterate through nodes on facet
+                        for(moris::uint iV = 0; iV < tFacetToNode.n_cols(); iV++)
+                        {
+                            // if we aren't on the interface, then flip the flag and move onto the next facet in child mesh
+                           if(! mGeometryEngine->is_interface_vertex(tFacetToNode(iFacet,iV),(moris_index)iG) )
+                           {
+                               tIsInterfaceFacet = false;
+                               break;
+                           }
+                        }
+
+                        // if this is an interface facet, we need to update the interface data
+                        if(tIsInterfaceFacet)
+                        {
+                            tChildMesh.mark_facet_as_on_interface(iFacet,iG);
+                        }
+
+                        
+                    }
+                }
+            }
+
+        }        
     }
 
     // ----------------------------------------------------------------------------------
@@ -2130,6 +2201,9 @@ namespace xtk
     {
         // Change XTK model decomposition state flag
         mDecomposed = true;
+
+        // this catches the missed interfaces due to coincidence
+        this->catch_all_unhandled_interfaces();
 
         // Sort the children meshes into groups
         this->sort_children_meshes_into_groups();
@@ -4427,6 +4501,7 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+
 
     moris::mtk::Integration_Mesh*
     Model::construct_output_mesh( Output_Options const & aOutputOptions )

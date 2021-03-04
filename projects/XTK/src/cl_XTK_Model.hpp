@@ -713,6 +713,11 @@ namespace xtk
 
             //------------------------------------------------------------------------------
 
+            void
+            catch_all_unhandled_interfaces( );
+
+            //------------------------------------------------------------------------------
+
             /*
              * Parallel assignment of node request identifiers
              */

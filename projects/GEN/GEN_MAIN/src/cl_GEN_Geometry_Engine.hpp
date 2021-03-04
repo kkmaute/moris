@@ -279,6 +279,13 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
+             * Use the geometric proximity to tell me whether this vertex is on the interface wrt a provided geometry indx
+             */
+            moris_index 
+            is_interface_vertex(moris_index aNodeIndex,
+                                moris_index aGeometryIndex);
+
+            /**
              * @brief Provided the inside and out phase values for an entity, return the phase index
              */
             moris_index get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff);
