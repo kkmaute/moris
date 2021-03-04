@@ -38,7 +38,7 @@ namespace moris
 
                 std::string          mIQIName;
 
-                std::string          mOutpurFileName;
+                std::string          mOutputFilePath;
 
                 bool                 mPopulateFieldWithIQI = false;
 
@@ -65,6 +65,10 @@ namespace moris
                 //-----------------------------------------------------------------------------
 
                 void set_field_to_file( const std::string & aString );
+
+                //-----------------------------------------------------------------------------
+
+                void output_field_to_file();
 
                 //-----------------------------------------------------------------------------
 
