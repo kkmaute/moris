@@ -46,17 +46,34 @@ namespace moris
             // Trace optimization
             Tracer tTracer( "OptimizationAlgorithm", "Sweep", "Solve" );
 
-            //----------------------------------------------------------------------------------------------------------
-            // Sweep not implemented for parallel
-            //----------------------------------------------------------------------------------------------------------
-            MORIS_ERROR(par_size() == 1, "Sweep algorithm not implemented for parallel.\n");
-
-            //----------------------------------------------------------------------------------------------------------
             // Initialize
-            //----------------------------------------------------------------------------------------------------------
             mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
             mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 
+            // Solve optimization problem
+            if (par_rank() == 0)
+            {
+                // Run sweep algorithm
+                this->sweep_solve();
+
+                // Communicate that optimization has finished
+                mRunning = false;
+                this->communicate_running_status();
+            }
+            else
+            {
+                // Don't print from these processors
+                mPrint = false;
+
+                // Run dummy solve
+                this->dummy_solve();
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Algorithm_Sweep::sweep_solve()
+        {
             uint tNumADVs = mProblem->get_num_advs();
 
             // determine with respect to which advs sensitivities are compute by FD; if list not set in input file
@@ -213,8 +230,12 @@ namespace moris
                 // Log iteration of optimization
                 MORIS_LOG_ITERATION();
 
+                // Proc 0 needs to communicate that it is still running
+                this->communicate_running_status();
+
                 // Set new ADVs
                 this->criteria_solve(mEvaluationPoints.get_column(tEvaluationIndex));
+
                 if (mEvaluateObjectiveGradients or mEvaluateConstraintGradients)
                 {
                     mProblem->trigger_dcriteria_dadv_solve();
@@ -279,9 +300,6 @@ namespace moris
 
             // Close file
             close_hdf5_file(mFileID);
-
-            // Update problem
-            aOptProb = mProblem;
         }
         
         //--------------------------------------------------------------------------------------------------------------

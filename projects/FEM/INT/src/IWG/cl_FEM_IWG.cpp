@@ -785,16 +785,19 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     //update dof and dv counters
-                    tMasterDofCounter += tActiveDofTypes.size();
-                    tMasterDvCounter  += tActiveDvTypes.size();
+                    tMasterDofCounter    += tActiveDofTypes.size();
+                    tMasterDvCounter     += tActiveDvTypes.size();
+                    tMasterFieldCounter  += tActiveDvTypes.size();
                 }
             }
 
@@ -807,14 +810,17 @@ namespace moris
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // update dof and dv counter
-                    tSlaveDofCounter += tActiveDofTypes.size();
-                    tSlaveDvCounter  += tActiveDvTypes.size();
+                    tSlaveDofCounter    += tActiveDofTypes.size();
+                    tSlaveDvCounter     += tActiveDvTypes.size();
+                    tSlaveFieldCounter  += tActiveFieldTypes.size();
                 }
             }
 
@@ -967,16 +973,19 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes( 0 ).append( tActiveDofTypes );
-                    aDvTypes( 0 ).append( tActiveDvTypes );
+                    aDofTypes  ( 0 ).append( tActiveDofTypes   );
+                    aDvTypes   ( 0 ).append( tActiveDvTypes    );
+                    aFieldTypes( 0 ).append( tActiveFieldTypes );
                 }
             }
 
@@ -988,14 +997,17 @@ namespace moris
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes( 1 ).append( tActiveDofTypes );
-                    aDvTypes( 1 ).append( tActiveDvTypes );
+                    aDofTypes  ( 1 ).append( tActiveDofTypes   );
+                    aDvTypes   ( 1 ).append( tActiveDvTypes    );
+                    aFieldTypes( 1 ).append( tActiveFieldTypes );
                 }
             }
 
@@ -1094,21 +1106,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::build_global_dof_and_dv_type_list()
+        void IWG::build_global_dof_dv_and_field_type_list()
         {
             // MASTER-------------------------------------------------------
             // get number of dof and dv types on set
-            uint tNumDofTypes = mSet->get_num_unique_dof_types();
-            uint tNumDvTypes  = mSet->get_num_unique_dv_types();
+            uint tNumDofTypes    = mSet->get_num_unique_dof_types();
+            uint tNumDvTypes     = mSet->get_num_unique_dv_types();
+            uint tNumFieldTypes  = mSet->get_num_unique_field_types();
 
             // set size for the global dof and dv type lists
             mMasterGlobalDofTypes.reserve( tNumDofTypes );
             mMasterGlobalDvTypes.reserve( tNumDvTypes );
+            mMasterGlobalFieldTypes.reserve( tNumFieldTypes );
 
             // set a size for the dof and dv checkLists
             //( used to avoid repeating a dof or a dv type)
-            Matrix< DDSMat > tDofCheckList( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tDvCheckList( tNumDvTypes, 1, -1 );
+            Matrix< DDSMat > tDofCheckList  ( tNumDofTypes, 1, -1 );
+            Matrix< DDSMat > tDvCheckList   ( tNumDvTypes, 1, -1 );
+            Matrix< DDSMat > tFieldCheckList( tNumDvTypes, 1, -1 );
 
             // get dof type from direct dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
@@ -1134,6 +1149,19 @@ namespace moris
 
                 // put the dv type in the global type list
                 mMasterGlobalDvTypes.push_back( mMasterDvTypes( iDv ) );
+            }
+
+            // get field type from direct dependencies
+            for ( uint iFi = 0; iFi < mMasterFieldTypes.size(); iFi++ )
+            {
+                // get set index for field type
+                sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( mMasterFieldTypes( iFi )( 0 ) );  //FIXME'
+
+                // put the field type in the checklist
+                tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                // put the field type in the global type list
+                mMasterGlobalFieldTypes.push_back( mMasterFieldTypes( iFi ) );
             }
 
             // get dof type from master properties
@@ -1163,7 +1191,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvTypes =
                             tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -1182,6 +1210,27 @@ namespace moris
                             mMasterGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+
+                    // get field types for property
+                    const moris::Cell< moris::Cell< mtk::Field_Type > > & tActiveFieldTypes =
+                            tProperty->get_field_type_list();
+
+                    // loop on property field type
+                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
+                    {
+                        // get set index for field type
+                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+
+                        // if field enum not in the list
+                        if ( tFieldCheckList( tFieldTypeIndex) != 1 )
+                        {
+                            // put the field type in the check list
+                            tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                            // put the field type in the global type list
+                            mMasterGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
+                        }
+                    }
                 }
             }
 
@@ -1190,8 +1239,8 @@ namespace moris
             {
                 if ( tMM != nullptr )
                 {
-                    // get dof types for material model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                    // get dof types for material modIWG::build_global_dof_dv_and_field_listel
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes =
                             tMM->get_global_dof_type_list();
 
                     // loop on property dof type
@@ -1220,7 +1269,7 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes =
                             tCM->get_global_dof_type_list();
 
                     // loop on property dof type
@@ -1241,7 +1290,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvTypes =
                             tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -1313,17 +1362,21 @@ namespace moris
             }
 
             // reduce size of dof and dv lists to fit unique list
-            mMasterGlobalDofTypes.shrink_to_fit();
-            mMasterGlobalDvTypes.shrink_to_fit();
+            mMasterGlobalDofTypes .shrink_to_fit();
+            mMasterGlobalDvTypes  .shrink_to_fit();
+            mMasterGlobalFieldTypes.shrink_to_fit();
 
             // SLAVE--------------------------------------------------------
 
             // set size for the global dof type list
-            mSlaveGlobalDofTypes.reserve( tNumDofTypes );
+            mSlaveGlobalDofTypes  .reserve( tNumDofTypes );
+            mSlaveGlobalDvTypes   .reserve( tNumDvTypes );
+            mSlaveGlobalFieldTypes.reserve( tNumFieldTypes );
 
             // set a size for the checkList ( used to avoid repeating a dof type)
-            tDofCheckList.fill( -1 );
-            tDvCheckList.fill( -1 );
+            tDofCheckList  .fill( -1 );
+            tDvCheckList   .fill( -1 );
+            tFieldCheckList.fill( -1 );
 
             // get dof type from slave direct dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
@@ -1351,7 +1404,20 @@ namespace moris
                 mSlaveGlobalDvTypes.push_back( mSlaveDvTypes( iDv ) );
             }
 
-            // get dof type from master properties
+            // get field type from slave direct dependencies
+            for ( uint iFi = 0; iFi < mSlaveFieldTypes.size(); iFi++ )
+            {
+                // get set index for field type
+                sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( mSlaveFieldTypes( iFi )( 0 ) );
+
+                // put the field type in the check list
+                tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                // put the field type in the global type list
+                mSlaveGlobalFieldTypes.push_back( mSlaveFieldTypes( iFi ) );
+            }
+
+            // get dof type from slave properties
             for ( const std::shared_ptr< Property > & tProperty : mSlaveProp )
             {
                 if ( tProperty != nullptr )
@@ -1378,7 +1444,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvTypes =
                             tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -1397,6 +1463,27 @@ namespace moris
                             mSlaveGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+
+                    // get field types for property
+                    const moris::Cell< moris::Cell< mtk::Field_Type > > & tActiveFieldTypes =
+                            tProperty->get_field_type_list();
+
+                    // loop on property field type
+                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
+                    {
+                        // get set index for field type
+                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+
+                        // if field enum not in the list
+                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
+                        {
+                            // put the field type in the check list
+                            tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                            // put the field type in the global type list
+                            mSlaveGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
+                        }
+                    }
                 }
             }
 
@@ -1406,7 +1493,7 @@ namespace moris
                 if ( tMM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes =
                             tMM->get_global_dof_type_list();
 
                     // loop on property dof type
@@ -1435,7 +1522,7 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes =
                             tCM->get_global_dof_type_list();
 
                     // loop on property dof type
@@ -1456,7 +1543,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvTypes =
                             tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -1484,7 +1571,7 @@ namespace moris
                 if ( tSP != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes
                     = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dof type
@@ -1505,7 +1592,7 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                    const moris::Cell< moris::Cell< PDV_Type > > & tActiveDvTypes =
                             tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dv type
@@ -1528,8 +1615,9 @@ namespace moris
             }
 
             // reduce size of dof list to fit unique list
-            mSlaveGlobalDofTypes.shrink_to_fit();
-            mSlaveGlobalDvTypes.shrink_to_fit();
+            mSlaveGlobalDofTypes  .shrink_to_fit();
+            mSlaveGlobalDvTypes   .shrink_to_fit();
+            mSlaveGlobalFieldTypes.shrink_to_fit();
 
         }
 
@@ -1692,11 +1780,12 @@ namespace moris
             if( mGlobalDofBuild )
             {
                 // build the stabilization parameter global dof type list
-                this->build_global_dof_and_dv_type_list();
+                this->build_global_dof_dv_and_field_type_list();
 
                 // update build flag
-                mGlobalDofBuild = false;
-                mGlobalDvBuild  = false;
+                mGlobalDofBuild   = false;
+                mGlobalDvBuild    = false;
+                mGlobalFieldBuild = false;
             }
 
             // switch on master/slave
@@ -1734,11 +1823,12 @@ namespace moris
             if( mGlobalDvBuild )
             {
                 // build the stabilization parameter global dof type list
-                this->build_global_dof_and_dv_type_list();
+                this->build_global_dof_dv_and_field_type_list();
 
                 // update build flag
-                mGlobalDofBuild = false;
-                mGlobalDvBuild  = false;
+                mGlobalDofBuild   = false;
+                mGlobalDvBuild    = false;
+                mGlobalFieldBuild = false;
             }
 
             // switch on master/slave
@@ -1770,26 +1860,37 @@ namespace moris
         const moris::Cell< moris::Cell< mtk::Field_Type > > & IWG::get_global_field_type_list(
                 mtk::Master_Slave aIsMaster )
         {
+            // if the global list was not yet built
+            if( mGlobalFieldBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_dof_dv_and_field_type_list();
+
+                // update build flag
+                mGlobalDofBuild   = false;
+                mGlobalDvBuild    = false;
+                mGlobalFieldBuild = false;
+            }
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
                 case mtk::Master_Slave::MASTER :
                 {
-                    // return master global dof type list
-                    return mMasterFieldTypes;
+                    // return master global field type list
+                    return mMasterGlobalFieldTypes;
                 }
                 // if slave
                 case mtk::Master_Slave::SLAVE :
                 {
-                    // return slave global dof type list
-                    return mSlaveFieldTypes;
+                    // return slave global field type list
+                    return mSlaveGlobalFieldTypes;
                 }
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
-                    return mMasterFieldTypes;
+                    MORIS_ASSERT( false, "IWG::get_global_field_type_list - can only be master or slave." );
+                    return mMasterGlobalFieldTypes;
                 }
             }
         }

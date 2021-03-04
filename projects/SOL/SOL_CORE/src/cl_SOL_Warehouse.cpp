@@ -72,15 +72,19 @@ SOL_Warehouse::~SOL_Warehouse()
 
 void SOL_Warehouse::initialize()
 {
+    // Load parameters from parameterlist
     mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
 
-    mOperatorToMatlab =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_operator_to_matlab" );
+    mOperatorToMatlab      =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_operator_to_matlab" );
+    mSaveFinalSolVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
+    mLoadSolVecFromFile    =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
 
     if( mTPLType == moris::sol::MapType::Petsc)
     {
         PetscInitializeNoArguments();
     }
 
+    // build solvers and solver algorithms
     this->create_linear_solver_algorithms();
 
     this->create_linear_solvers();

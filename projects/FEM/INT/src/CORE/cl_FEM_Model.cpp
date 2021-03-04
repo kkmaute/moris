@@ -638,7 +638,7 @@ namespace moris
                 {
                     // create properties
                     std::map< std::string, uint > tPropertyMap;
-                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
                     // create fields
                     std::map< std::string, uint > tFieldMap;
@@ -673,7 +673,7 @@ namespace moris
 
                     // create properties
                     std::map< std::string, uint > tPropertyMap;
-                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
                     // create fields
                     std::map< std::string, uint > tFieldMap;
@@ -782,10 +782,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::create_properties(
-                std::map< std::string, uint >            & aPropertyMap,
-                moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      & aDvTypeMap,
-                std::shared_ptr< Library_IO >              aLibrary )
+                std::map< std::string, uint >              & aPropertyMap,
+                moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap,
+                moris::map< std::string, PDV_Type >        & aDvTypeMap,
+                moris::map< std::string, mtk::Field_Type > & aFieldTypeMap,
+                std::shared_ptr< Library_IO >                aLibrary )
         {
             // get the property parameter list
             moris::Cell< ParameterList > tPropParameterList = mParameterList( 0 );
@@ -822,13 +823,21 @@ namespace moris
                         aMSIDofTypeMap );
                 mProperties( iProp )->set_dof_type_list( tDofTypes );
 
-                // set dof dependencies
+                // set dv dependencies
                 moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "dv_dependencies" ),
                         tDvTypes,
                         aDvTypeMap );
                 mProperties( iProp )->set_dv_type_list( tDvTypes );
+
+                // set dof dependencies
+                moris::Cell< moris::Cell< mtk::Field_Type > > tFieldTypes;
+                string_to_cell_of_cell(
+                        tPropParameter.get< std::string >( "field_dependencies" ),
+                        tFieldTypes,
+                        aFieldTypeMap );
+                mProperties( iProp )->set_field_type_list( tFieldTypes );
 
                 // set function parameters
                 moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
@@ -3030,11 +3039,12 @@ namespace moris
                 }
             }
 
-            for( uint Ik = 0; Ik < tFieldToPopulate.size(); Ik ++ )
+            // output fields to file. FIXME better should be done somewhere else.
+            for( uint Ik = 0; Ik < mFields.size(); Ik ++ )
             {
-                tFieldToPopulate( Ik )->save_nodal_values_to_hdf5( "FEM_Field.hdf5" );
+                mFields( Ik )->output_field_to_file();
 
-                //tFieldToPopulate( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
+                //mFields( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
             }
         }
 

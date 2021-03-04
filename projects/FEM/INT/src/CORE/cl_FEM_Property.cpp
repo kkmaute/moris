@@ -182,6 +182,68 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Property::set_field_type_list(
+                const moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes )
+        {
+            // set field type list
+            mFieldTypes = aFieldTypes;
+
+            // build a field type map
+            this->build_field_type_map();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Property::build_field_type_map()
+        {
+            // get number of field types
+            uint tNumFieldTypes = mFieldTypes.size();
+
+            // determine the max Field_Type enum
+            sint tMaxEnum = 0;
+
+            for( uint iFi = 0; iFi < tNumFieldTypes; iFi++ )
+            {
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFieldTypes( iFi )( 0 ) ) );
+            }
+
+            tMaxEnum++;
+
+            // set the Field_Type map size
+            mFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+
+            // fill the Field_Type map
+            for( uint iFi = 0; iFi < tNumFieldTypes; iFi++ )
+            {
+                // fill the property map
+                mFieldTypeMap( static_cast< int >( mFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool Property::check_field_dependency(
+                const moris::Cell< mtk::Field_Type > & aFieldType )
+        {
+            // set bool for dependency
+            bool tFieldDependency = false;
+
+            // get index for field type
+            uint tFieldIndex = static_cast< uint >( aFieldType( 0 ) );
+
+            // if aFieldType is an active field type for the property
+            if( tFieldIndex < mFieldTypeMap.numel() && mFieldTypeMap( tFieldIndex ) != -1 )
+            {
+                // bool is set to true
+                tFieldDependency = true;
+            }
+
+            // return bool for dependency
+            return tFieldDependency;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Property::get_non_unique_dof_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -208,13 +270,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::get_non_unique_dof_and_dv_types(
-                moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >      & aDvTypes )
+        void Property::get_non_unique_dof_dv_and_field_types(
+                moris::Cell< MSI::Dof_Type >   & aDofTypes,
+                moris::Cell< PDV_Type >        & aDvTypes,
+                moris::Cell< mtk::Field_Type > & aFieldTypes)
         {
             // init counter
-            uint tDofCounter = 0;
-            uint tDvCounter  = 0;
+            uint tDofCounter   = 0;
+            uint tDvCounter    = 0;
+            uint tFieldCounter = 0;
 
             // loop over dof types
             for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
@@ -230,9 +294,17 @@ namespace moris
                 tDvCounter += mDvTypes( iDv ).size();
             }
 
-            // reserve memory for dof and dv type lists
+            // loop over field types
+            for ( uint iFi = 0; iFi < mFieldTypes.size(); iFi++ )
+            {
+                // update counter
+                tFieldCounter += mFieldTypes( iFi ).size();
+            }
+
+            // reserve memory for dof, dv and field type lists
             aDofTypes.reserve( tDofCounter );
             aDvTypes.reserve( tDvCounter );
+            aFieldTypes.reserve( tFieldCounter );
 
             // loop over dof types
             for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
@@ -246,6 +318,13 @@ namespace moris
             {
                 // populate the dv type list
                 aDvTypes.append( mDvTypes( iDv ) );
+            }
+
+            // loop over field types
+            for ( uint iFi = 0; iFi < mFieldTypes.size(); iFi++ )
+            {
+                // populate the dv type list
+                aFieldTypes.append( mFieldTypes( iFi ) );
             }
         }
 

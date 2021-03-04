@@ -34,6 +34,7 @@ namespace moris
             void solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
 
         private:
+
             bool mIncludeBounds;                     // whether or not to include upper/lower bounds in the sweep
             bool mEvaluateObjectives;                // whether or not to compute new objectives when requested
             bool mEvaluateConstraints;               // whether or not to compute new constraints when requested
@@ -49,6 +50,11 @@ namespace moris
             Matrix<DDUMat> mNumEvaluations;            // Number of evaluations per ADV
             Matrix<DDRMat> mEvaluationPoints;          // Final evaluation points
             Matrix<DDUMat> mFiniteDifferenceADVs;      // Indices of ADVs with respect to which sensitivities are computed
+
+            /**
+             * Runs sweep alogrithm on processor 0
+             */
+            void sweep_solve();
 
             /**
              * Outputs the optimization problem at the current ADVs (objective and constraints)

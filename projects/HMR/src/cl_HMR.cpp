@@ -1583,8 +1583,6 @@ namespace moris
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
-            std::cout<<"Elements on refinement List: "<<aElementCounter<<std::endl;
-
             // flag elements in HMR
             this->put_elements_on_refinment_queue( tRefinementList );
 
@@ -1894,26 +1892,31 @@ namespace moris
             }
 
             // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-            Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
+            Integration_Mesh_HMR* tIntegrationUnionMesh =
+                    this->create_integration_mesh(
+                            tOrder,
+                            mParameters->get_union_pattern(),
+                            tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
             mtk::Mesh_Pair tMeshPairUnion;
             tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
             tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
 
-            if ( par_rank() == 0 )
-            {
-                std::cout << "Number of nodes of tUnionInterpolationMesh " << tUnionInterpolationMesh->get_num_nodes() << std::endl;
-                std::cout << "Number of nodes of tIntegrationUnionMesh " << tIntegrationUnionMesh->get_num_nodes() << std::endl;
-                std::cout << "Number of nodes of tUnionField " << tUnionField->get_node_values().n_rows() << std::endl;
+            // FIXME: need for following operation not clear
+            // Extract and resize nodal data from tUnionField
+            Matrix<DDRMat> tUnionFieldData = tUnionField->get_node_values();
 
-                std::string tString="tUnionField->get_node_values(): " + std::to_string(par_rank());
-                print(tUnionField->get_node_values(),tString.c_str());
-            }
+            uint tNumNodesUnionMesh =tUnionInterpolationMesh->get_num_nodes();
 
+            tUnionFieldData.resize( tNumNodesUnionMesh, tUnionFieldData.n_cols() );
+
+            // create union mesh for field
             mtk::Field_Discrete tFieldUnion( &tMeshPairUnion, 0 );
             tFieldUnion.unlock_field();
-            tFieldUnion.set_nodal_values( tUnionField->get_node_values() );
+
+            // copy data onto field
+            tFieldUnion.set_nodal_values( tUnionFieldData );
 
             // create mapper
             mtk::Mapper tMapper;

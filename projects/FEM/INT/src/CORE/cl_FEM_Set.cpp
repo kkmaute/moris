@@ -263,7 +263,7 @@ namespace moris
         void Set::create_integrator( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             // get time levels from model solver interface
-            Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
+            const Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
             uint tMaxTimeLevels = tTimeLevels.max();
 
             // init time geometry type
