@@ -35,9 +35,17 @@ namespace moris
         {
             ParameterList tSolverWarehouseList;
 
+            //! TPL type. can be epetra or petsc
             tSolverWarehouseList.insert( "SOL_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
 
+            //! save operator to matlab file
             tSolverWarehouseList.insert( "SOL_save_operator_to_matlab", std::string( "" ) );
+
+            //! save final solution vector to file
+            tSolverWarehouseList.insert( "SOL_save_final_sol_vec_to_file", std::string( "" ) );
+
+            // load final solution vector from file. using this option will skip the assembly and solve
+            tSolverWarehouseList.insert( "SOL_load_sol_vec_from_file", std::string( "" ) );
 
             return tSolverWarehouseList;
         }
