@@ -677,10 +677,7 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         // get hmr ids of active elements
         tBackgroundMesh->get_active_elements_on_proc( tElementIDs_1 );
 
-        print(tElementIDs_1,"tElementIDs_1");
-
         REQUIRE( tElementIDs_1.length()  == 28 );
-
 
         REQUIRE( tElementIDs_1(  0 ) == 584 );        REQUIRE( tElementIDs_1(  2 ) == 616 );
         REQUIRE( tElementIDs_1(  4 ) == 133 );        REQUIRE( tElementIDs_1( 10 ) == 151 );
