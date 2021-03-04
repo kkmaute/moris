@@ -98,8 +98,6 @@ namespace moris
                 // compute nodal values for current coefficients
                 this->compute_nodal_values();
 
-                std::cout << "Nodal values are updated on Proc " << par_rank() << std::endl;
-
                 // set update flag to false
                 mUpdateNodalValues=false;
             }
@@ -143,7 +141,7 @@ namespace moris
             }
 
             // get number of fields and nodal values
-            uint tNumFields = aFieldIndex.numel();
+            uint tNumFields  = aFieldIndex.numel();
             uint tNumIndices = aNodeIndex.numel();
 
             // set size for requested values
@@ -164,39 +162,40 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field::set_nodal_values( const Matrix< DDRMat > & aNodalValues )
-          {
-              //check whether field is unlocked
-              this->error_if_locked();
+        {
+            //check whether field is unlocked
+            this->error_if_locked();
 
-//              //check that input vector has proper size
-//               MORIS_ASSERT( aNodalValues.n_rows() == mNodalValues.n_rows() && aNodalValues.n_cols() == 1,
-//                       "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size.\n");
+            //check that input vector has proper size
+            MORIS_ASSERT( aNodalValues.n_rows() == mNodalValues.n_rows() && aNodalValues.n_cols() == 1,
+                    "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size: %d vs %d vs %d.\n",
+                    aNodalValues.n_rows(),mNodalValues.n_rows(),mMeshPair->mInterpolationMesh->get_num_nodes());
 
-              // set nodal value vector using child implementation
-              this->set_nodal_value_vector( aNodalValues );
+            // set nodal value vector using child implementation
+            this->set_nodal_value_vector( aNodalValues );
 
-              // set update flag to false, i.e., nodal values should not be updated
-              mUpdateNodalValues = false;
+            // set update flag to false, i.e., nodal values should not be updated
+            mUpdateNodalValues = false;
 
-              // lock field
-              mFieldIsLocked = true;
-          }
+            // lock field
+            mFieldIsLocked = true;
+        }
 
-       //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-       void Field::set_nodal_value_vector( const Matrix< DDRMat > & aNodalValues )
-       {
-           // FIXME - loop should not be needed if input vector has correct size
-           //copy values
-           for (uint tNodeIndex = 0; tNodeIndex<mNodalValues.n_rows(); ++tNodeIndex)
-           {
-               mNodalValues(tNodeIndex) = aNodalValues(tNodeIndex);
-           }
-       }
+        void Field::set_nodal_value_vector( const Matrix< DDRMat > & aNodalValues )
+        {
+            // FIXME - loop should not be needed if input vector has correct size
+            //copy values
+            for (uint tNodeIndex = 0; tNodeIndex<mNodalValues.n_rows(); ++tNodeIndex)
+            {
+                mNodalValues(tNodeIndex) = aNodalValues(tNodeIndex);
+            }
+        }
 
-       //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-       const Matrix< DDRMat > & Field::get_coefficients()
+        const Matrix< DDRMat > & Field::get_coefficients()
         {
             // call child implementation to populate coefficient vector
             this->get_coefficient_vector();
@@ -205,59 +204,61 @@ namespace moris
             return mCoefficients;
         }
 
-       //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-       void Field::set_coefficients( const Matrix< DDRMat > & aCoefficients )
-       {
-           //check whether field is unlocked
-           this->error_if_locked();
+        void Field::set_coefficients( const Matrix< DDRMat > & aCoefficients )
+        {
+            //check whether field is unlocked
+            this->error_if_locked();
 
-           //check whether vector has the correct size
-           MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
-                   "mtk::Field::set_coefficients - coefficient vector has incorrect length.\n");
+            //check whether vector has the correct size
+            MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
+                    "mtk::Field::set_coefficients - coefficient vector has incorrect length.\n");
 
-           // set coefficient vector using child implementation
-           this->set_coefficient_vector(aCoefficients);
+            // set coefficient vector using child implementation
+            this->set_coefficient_vector(aCoefficients);
 
-           // set update flag to false; nodal values do not need to be updated
-           mUpdateNodalValues = true;
+            // set update flag to false; nodal values do not need to be updated
+            mUpdateNodalValues = true;
 
-           // lock field
-           mFieldIsLocked = true;
-       }
+            // lock field
+            mFieldIsLocked = true;
+        }
 
-       //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-       void Field::set_coefficient_vector(const Matrix< DDRMat > & aCoefficients)
-       {
-           mCoefficients = aCoefficients;
-       }
+        void Field::set_coefficient_vector(const Matrix< DDRMat > & aCoefficients)
+        {
+            mCoefficients = aCoefficients;
+        }
 
-       //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-       const Matrix<IdMat> & Field::get_coefficient_ids_and_owners()
-       {
-           // call child implementation to populate coefficient vector
-           return this->get_coefficient_id_and_owner_vector();
-       }
+        const Matrix<IdMat> & Field::get_coefficient_ids_and_owners()
+        {
+            // call child implementation to populate coefficient vector
+            return this->get_coefficient_id_and_owner_vector();
+        }
 
-       //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-       bool Field::nodal_values_need_update()
-       {
-           // get interpolation mesh
-           mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+        bool Field::nodal_values_need_update()
+        {
+            // get interpolation mesh
+            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
 
-           // update is required if either update flag is set or number of nodes have changed
-           if ( mUpdateNodalValues || tIPmesh->get_num_nodes() !=  mNodalValues.n_rows() )
-           {
-               return true;
-           }
-           else
-           {
-               return false;
-           }
-       }
+            // update is required if either update flag is set or number of nodes have changed
+            // FIXME: check on changing nodes should not be needed; if mesh is changed this
+            //        should be handled explicitly by setting a new mesh pair
+            if ( mUpdateNodalValues || tIPmesh->get_num_nodes() !=  mNodalValues.n_rows() )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         //------------------------------------------------------------------------------
 
