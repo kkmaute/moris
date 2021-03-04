@@ -832,7 +832,7 @@ namespace moris
                 mProperties( iProp )->set_dv_type_list( tDvTypes );
 
                 // set dof dependencies
-                moris::Cell< moris::Cell< PDV_Type > > tFieldTypes;
+                moris::Cell< moris::Cell< mtk::Field_Type > > tFieldTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "field_dependencies" ),
                         tFieldTypes,
