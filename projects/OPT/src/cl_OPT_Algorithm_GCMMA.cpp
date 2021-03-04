@@ -35,7 +35,9 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Problem> aOptProb )
+void OptAlgGCMMA::solve(
+        uint aCurrentOptAlgInd,
+        std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     // Trace optimization
     Tracer tTracer( "OptimizationAlgorithm", "GCMMA", "Solve" );
@@ -58,7 +60,6 @@ void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Pro
         // Communicate that optimization has finished
         mRunning = false;
         this->communicate_running_status();
-
     }
     else
     {
