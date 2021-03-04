@@ -62,6 +62,7 @@ namespace moris
                 // bool for building global dof type list and map
                 bool mGlobalDofBuild = true;
                 bool mGlobalDvBuild = true;
+                bool mGlobalFieldBuild = true;
 
                 // master and slave global dof type lists
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
@@ -87,6 +88,10 @@ namespace moris
                 // master and slave field type lists
                 moris::Cell< moris::Cell< mtk::Field_Type > > mMasterFieldTypes;
                 moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveFieldTypes;
+
+                // master and slave global dv type list
+                moris::Cell< moris::Cell< mtk::Field_Type > > mMasterGlobalFieldTypes;
+                moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveGlobalFieldTypes;
 
                 // master and slave properties
                 moris::Cell< std::shared_ptr< Property > > mMasterProp;
@@ -580,7 +585,7 @@ namespace moris
                  * create a global dof type list including
                  * IWG, property, constitutive and stabilization dependencies
                  */
-                void build_global_dof_and_dv_type_list();
+                void build_global_dof_dv_and_field_type_list();
 
                 //------------------------------------------------------------------------------
                 /**

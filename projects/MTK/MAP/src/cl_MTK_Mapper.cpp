@@ -362,10 +362,12 @@ namespace moris
             // get values of source field
             const Matrix< DDRMat > & tSourceData = aFieldSource->get_nodal_values();
 
-            // get target data
+            // get target data; note: the size of this vector is number of nodes times number of fields;
+            // the number of nodes and number of basis differ as the number of basis includes the aura
             Matrix< DDRMat > tTargetData(
-                    tTargetLagrangeMesh->get_number_of_all_basis_on_proc(),
-                    aFieldTarget->get_number_of_fields() );
+                    tTargetLagrangeMesh->get_number_of_nodes_on_proc(),
+                    aFieldTarget->get_number_of_fields(),
+                    MORIS_REAL_MAX);
 
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_fields() );
@@ -429,6 +431,11 @@ namespace moris
                 }
             }
 
+            // check that target data is valid
+            MORIS_ERROR( tTargetData.max() < MORIS_REAL_MAX,
+                    "Mapper::interpolate_field - target data not valid.\n");
+
+            // copy target data onto target field
             aFieldTarget->unlock_field();
             aFieldTarget->set_nodal_values( tTargetData );
 

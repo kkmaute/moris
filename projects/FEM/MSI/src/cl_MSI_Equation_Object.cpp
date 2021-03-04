@@ -263,8 +263,10 @@ namespace moris
                     // Loop over all pdofs to get their adofs and put them into a unique list
                     for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
                     {
-                        tNonUniqueAdofIds ( { tAdofPosCounter, tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() -1 } )
-                                                            = mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
+                        uint tEndAddress = tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() -1;
+
+                        tNonUniqueAdofIds ( { tAdofPosCounter, tEndAddress } ) =
+                                mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
 
                         // Add number if these adofs to number of assembled adofs
                         tAdofPosCounter += ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel();
@@ -322,12 +324,14 @@ namespace moris
             //Get number of unique adofs of this equation object
             moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
 
-            MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+            MORIS_ASSERT( tNumUniqueAdofs != 0,
+                    "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
 
             // Get MAX number of pdofs for this equation object
             moris::uint tNumMyPdofs = mFreePdofs.size();
 
-            MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+            MORIS_ASSERT( tNumMyPdofs != 0,
+                    "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
 
             aPADofMap.set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -372,7 +376,8 @@ namespace moris
                     //Get number of unique adofs of this equation object
                     moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ik )( Ij ).numel();
 
-                    //MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+                    //MORIS_ASSERT( tNumUniqueAdofs != 0,
+                    //        "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
 
                     MORIS_ASSERT( mFreePdofListFlag,
                             "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. " );
@@ -380,7 +385,8 @@ namespace moris
                     // Get MAX number of pdofs for this equation object
                     moris::uint tNumMyPdofs = mFreePdofList( Ik )( Ij ).size();
 
-                    //MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+                    //MORIS_ASSERT( tNumMyPdofs != 0,
+                    //       "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
 
                     aPADofMap( Ik )( Ij ).set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -493,13 +499,13 @@ namespace moris
             //get list of requested dof tpes
             if( !mEquationSet->mIsResidual)
             {
-                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
-                         get_solver_interface()->get_requested_dof_types();
+                tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                        get_solver_interface()->get_requested_dof_types();
             }
             else
             {
-                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
-                         get_solver_interface()->get_secondary_dof_types()(0);
+                tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                        get_solver_interface()->get_secondary_dof_types()(0);
             }
 
             Dof_Manager * tDofManager =  mEquationSet->get_model_solver_interface()->get_dof_manager();
@@ -509,7 +515,8 @@ namespace moris
             {
                 for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                 {
-                    moris::sint tDofTypeIndex = tDofManager->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+                    moris::sint tDofTypeIndex =
+                            tDofManager->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
 
                     tCounter += mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
                 }
@@ -535,8 +542,6 @@ namespace moris
                     }
                 }
             }
-
-            //        print (aEqnObjAdofId,"aEqnObjAdofId");
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -647,6 +652,13 @@ namespace moris
             {
                 // compute jacobian
                 this->compute_jacobian();
+
+                // check for zero-size Jacobian
+                if ( mEquationSet->get_jacobian().numel() == 0 )
+                {
+                    aEqnObjRHS.resize(0);
+                    return;
+                }
 
                 // compute previous adjoint values
                 this->compute_my_previous_adjoint_values();
@@ -843,6 +855,7 @@ namespace moris
 
                         if( tDofIndex != -1 )
                         {
+                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
                             uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
                             uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
 
@@ -865,8 +878,8 @@ namespace moris
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual(0)( { tStartRow, tEndRow } )
-                            -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                            aElementResidual(0)( { tStartRow, tEndRow } ) -=
+                                    mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
                     }
                 }
@@ -876,12 +889,14 @@ namespace moris
 
                 if( tSecDofIndex != -1 )
                 {
+
                     for( auto tDofTypes : tRequestedDofTypes )
                     {
                         sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::MASTER );
 
                         if( tDofIndex != -1 )
                         {
+                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
                             uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
                             uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
 
@@ -904,14 +919,15 @@ namespace moris
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual(0)( { tStartRow, tEndRow } )
-                            -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                            aElementResidual(0)( { tStartRow, tEndRow } ) -=
+                                    mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
 
                         tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
 
                         if( tDofIndex != -1 )
                         {
+                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
                             uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
                             uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
 
@@ -934,8 +950,8 @@ namespace moris
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual(0)( { tStartRow, tEndRow } )
-                            -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                            aElementResidual(0)( { tStartRow, tEndRow } ) -=
+                                    mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
                     }
                 }
@@ -993,7 +1009,8 @@ namespace moris
                 mPreviousPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
-            this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -1020,7 +1037,8 @@ namespace moris
                 mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
-            this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -1178,11 +1196,13 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                 {
                     // Get dof type index
-                    moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
-                                                                                          ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+                    moris::sint tDofTypeIndex = mEquationSet->
+                            get_model_solver_interface()->get_dof_manager()->
+                            get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
+                    //FIXME delete this error after a closer look
                     MORIS_ASSERT( mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
-                            "Equation_Object::get_my_pdof_values: talk with Mathias about this");                         //FIXME delete this error after a closer look
+                            "Equation_Object::get_my_pdof_values: talk with Mathias about this");
 
                     // get number of time levels for this dof type
                     moris::sint tNumTimeLevels = mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex );
@@ -1191,7 +1211,8 @@ namespace moris
                     // Add maximal value of time levels to list
                     tTimeLevelsPerDofType( Ii, 0 ) = std::max( tTimeLevelsPerDofType( Ii, 0 ), tNumTimeLevels );
                 }
-                MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i", mEqnObjInd );
+                MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1,
+                        "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i", mEqnObjInd );
 
                 // set size for all solution vectors
                 for( uint Ia = 0; Ia < tNumVectors; Ia++)
@@ -1217,8 +1238,8 @@ namespace moris
                     for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                     {
                         // Get dof type index
-                        moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
-                                                                                              ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+                        moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->
+                                get_dof_manager()->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                         // Check if number of time levels on this dof type is smaller than maximal number of time levels on dof type
                         if ( (sint)mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
@@ -1257,10 +1278,11 @@ namespace moris
 
             for( uint Ik = 0; Ik < tCols; Ik++ )
             {
-                aReshapedPdofValues( { 0, tRows - 1 }, { Ik, Ik } ) = aPdofValues( Ik ).matrix_data();
+                aReshapedPdofValues( { 0, tRows - 1 }, { Ik, Ik } ) =
+                        aPdofValues( Ik ).matrix_data();
             }
         }
-        
+
         //-------------------------------------------------------------------------------------------------
 
         void Equation_Object::reshape_pdof_values_vector(
@@ -1277,7 +1299,8 @@ namespace moris
 
             for( uint Ik = 0; Ik < tCols; Ik++ )
             {
-                aReshapedPdofValues( { Ik * tRows, ( Ik + 1 ) * tRows - 1 } ) = aPdofValues( Ik ).matrix_data();
+                aReshapedPdofValues( { Ik * tRows, ( Ik + 1 ) * tRows - 1 } ) =
+                        aPdofValues( Ik ).matrix_data();
             }
         }
 

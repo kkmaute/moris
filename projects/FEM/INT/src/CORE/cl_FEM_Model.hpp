@@ -410,10 +410,11 @@ namespace moris
                  * @param[ in ] aLibrary       a file path for property functions
                  */
                 void create_properties(
-                        std::map< std::string, uint >            & aPropertyMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap,
-                        std::shared_ptr< Library_IO >              aLibrary );
+                        std::map< std::string, uint >              & aPropertyMap,
+                        moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap,
+                        moris::map< std::string, PDV_Type >        & aDvTypeMap,
+                        moris::map< std::string, mtk::Field_Type > & aFieldTypeMap,
+                        std::shared_ptr< Library_IO >                aLibrary );
 
                 //------------------------------------------------------------------------------
                 /**

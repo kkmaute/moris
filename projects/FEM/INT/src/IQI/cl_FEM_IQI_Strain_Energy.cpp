@@ -37,7 +37,7 @@ namespace moris
             // evaluate the QI
             aQI = 0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain();
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Strain_Energy::compute_QI( real aWStar )
@@ -115,6 +115,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

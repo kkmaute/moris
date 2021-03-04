@@ -31,7 +31,7 @@ namespace moris
 
                 // check for proper size of constant function parameters
                 MORIS_ERROR( tParamSize == 2 || tParamSize == 3,
-                        "IQI_Max_Dof::IQI_Max_Dof - either 2 or 3 constant parameters need to be set." );
+                        "IQI_Max_Dof::initialize - either 2 or 3 constant parameters need to be set." );
 
                 mRefValue = mParameters( 0 )( 0 );
                 mExponent = mParameters( 1 )( 0 );
@@ -41,6 +41,20 @@ namespace moris
                 if( tParamSize > 2 )
                 {
                     mShift = mParameters( 2 )( 0 );
+                }
+
+                // check mQuantityDofType is defined
+                MORIS_ERROR( mQuantityDofType.size() > 0,
+                        "IQI_Max_Dof::initialize - dof_quantity parameter needs to be defined." );
+
+                // check if dof index was set (for the case of vector field)
+                if( mQuantityDofType.size() > 1 )
+                {
+                    MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
+                }
+                else
+                {
+                    mIQITypeIndex = 0;
                 }
 
                 // set initialize flag to true
@@ -59,22 +73,11 @@ namespace moris
             Field_Interpolator * tFIMaxDof =
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
-            // check if dof index was set (for the case of vector field)
-            if( mQuantityDofType.size() > 1 )
-            {
-                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
-            }
-            else
-            {
-                mIQITypeIndex = 0;
-            }
-
             // evaluate the QI
             aQI = {{ std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent ) }};
 
             MORIS_ASSERT( isfinite( aQI ),
                     "IQI_Max_Dof::compute_QI - QI is nan, exiting!");
-
         }
 
         //------------------------------------------------------------------------------
@@ -90,16 +93,6 @@ namespace moris
             // get field interpolator for a given dof type
             Field_Interpolator * tFIMaxDof =
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
-
-            // check if dof index was set (for the case of vector field)
-            if( mQuantityDofType.size() > 1 )
-            {
-                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
-            }
-            else
-            {
-                mIQITypeIndex = 0;
-            }
 
             // evaluate the QI
             mSet->get_QI()( tQIIndex ) += aWStar * (
@@ -137,23 +130,16 @@ namespace moris
                 // if derivative dof type is max dof type
                 if( tDofType( 0 ) == mQuantityDofType( 0 ) )
                 {
-                    // check if dof index was set (for the case of vector field)
-                    if( mQuantityDofType.size() > 1 )
-                    {
-                        MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
-                    }
-                    else
-                    {
-                        mIQITypeIndex = 0;
-                    }
-
                     // build selection matrix
                     uint tNumVecFieldComps = tFIMaxDof->val().numel();
+
                     Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
+
                     tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                     // compute dQIdDof
                     real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent - 1.0 );
+
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
                             { 0, 0 } ) += aWStar * ( mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
@@ -174,19 +160,11 @@ namespace moris
             // if derivative dof type is max dof type
             if( aDofType( 0 ) == mQuantityDofType( 0 ) )
             {
-                // check if dof index was set (for the case of vector field)
-                if( mQuantityDofType.size() > 1 )
-                {
-                    MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
-                }
-                else
-                {
-                    mIQITypeIndex = 0;
-                }
-
                 // build selection matrix
                 uint tNumVecFieldComps = tFIMaxDof->val().numel();
+
                 Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
+
                 tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                 // compute dQIdDof

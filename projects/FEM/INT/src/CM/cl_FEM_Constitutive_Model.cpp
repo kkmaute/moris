@@ -781,10 +781,13 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
-                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                            tActiveDvTypes );
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
+                    tProperty->get_non_unique_dof_dv_and_field_types(
+                            tActiveDofTypes,
+                            tActiveDvTypes,
+                            tActiveFieldTypes);
 
                     // update counter
                     tDofCounter += tActiveDofTypes.size();
@@ -831,12 +834,14 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof and dv type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv type lists
                     aDofTypes.append( tActiveDofTypes );
