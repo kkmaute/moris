@@ -353,14 +353,21 @@ void Time_Solver::solve()
 
         if( tType == "hdf5" || tType == "h5" )
         {
-            mFullVector( 1 )->save_vector_to_HDF5( tSolVecPath.c_str() );
+            mFullVector( 1 )->read_vector_from_HDF5( tSolVecPath.c_str() );
         }
         else
         {
             MORIS_ERROR( false, "Time_Solver::solve(), Solution vector input type unknown. New types can be implemented here.");
         }
 
-        mFullVector( 1 )->read_vector_from_HDF5( "SolVec.hdf5");
+        Matrix< DDRMat > tTime_0 = { {0.0},{0.0} };
+        Matrix< DDRMat > tTime_1 = { {0.0},{1.0} };
+
+        mSolverInterface->set_previous_time( tTime_0 );
+        mSolverInterface->set_time( tTime_1 );
+
+        // input second time slap value for output
+        this->check_for_outputs( 1.0, true );
     }
     else
     {

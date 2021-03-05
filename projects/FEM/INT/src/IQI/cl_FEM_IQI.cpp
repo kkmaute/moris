@@ -1026,20 +1026,20 @@ namespace moris
         {
             // MASTER-------------------------------------------------------
             // get number of dof and dv types on set
-            uint tNumDofTypes = mSet->get_num_unique_dof_types();
-            uint tNumDvTypes  = mSet->get_num_unique_dv_types();
-            uint tNumFieldTypes  = mSet->get_num_unique_field_types();
+            uint tNumDofTypes   = mSet->get_num_unique_dof_types();
+            uint tNumDvTypes    = mSet->get_num_unique_dv_types();
+            uint tNumFieldTypes = mSet->get_num_unique_field_types();
 
             // set size for the global dof and dv type lists
-            mMasterGlobalDofTypes.reserve( tNumDofTypes );
-            mMasterGlobalDvTypes.reserve( tNumDvTypes );
+            mMasterGlobalDofTypes  .reserve( tNumDofTypes );
+            mMasterGlobalDvTypes   .reserve( tNumDvTypes );
             mMasterGlobalFieldTypes.reserve( tNumFieldTypes );
 
             // set a size for the dof and dv checkLists
             //( used to avoid repeating a dof or a dv type)
-            Matrix< DDSMat > tDofCheckList( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tDvCheckList( tNumDvTypes, 1, -1 );
-            Matrix< DDSMat > tFieldCheckList( tNumDvTypes, 1, -1 );
+            Matrix< DDSMat > tDofCheckList  ( tNumDofTypes  , 1, -1 );
+            Matrix< DDSMat > tDvCheckList   ( tNumDvTypes   , 1, -1 );
+            Matrix< DDSMat > tFieldCheckList( tNumFieldTypes, 1, -1 );
 
             // get dof type from direct dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )

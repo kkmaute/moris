@@ -149,6 +149,9 @@ namespace moris
 
             // create a dof and dv type maps
             this->create_dof_and_dv_type_maps();
+
+            // create IQI map
+            this->create_IQI_map();
         }
 
         //------------------------------------------------------------------------------
