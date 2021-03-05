@@ -245,6 +245,25 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * returns the boolean map flag
+                 */
+                bool get_map_flag()
+                {
+                    return mMapFlag;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * returns the initialied mapped point
+                 * will not necessarily be filled with a mapping yet
+                 */
+                Matrix< DDRMat > get_initialized_mapped_point()
+                {
+                    return mMappedPoint;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * set the geometry shape for specialization
                  * @param[ in ] boolean rectangular
                  */
