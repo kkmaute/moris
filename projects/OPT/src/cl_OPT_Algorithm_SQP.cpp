@@ -178,7 +178,8 @@ namespace moris
                 aOptProb = mProblem;
 
                 // Communicate that optimization has finished
-                mRunning = false;
+                mRunning = opt::Task::exit;
+
                 this->communicate_running_status();
             }
             else
@@ -345,18 +346,17 @@ namespace moris
             // check whether criteria need to be evaluated
             if( mOptIter == 0 or !std::equal(x, x+n, tAdvVec) )
             {
-                // Proc 0 needs to communicate that it is still running
-                this->communicate_running_status();
-
                 // update the vector of design variables
                 Matrix<DDRMat> tADVs(x, mProblem->get_num_advs(), 1);
 
                 // Write restart file
                 this->write_advs_to_file(tADVs);
 
-                // Recruit help from other procs and solve for criteria
-                this->criteria_solve(tADVs);
-                mProblem->trigger_dcriteria_dadv_solve();
+                // Compute design criteria
+                this->compute_design_criteria(tADVs);
+
+                // Compute design criteria gradients
+                this->compute_design_criteria_gradients(tADVs);
 
                 // set update for objectives and constraints
                 if (needG)

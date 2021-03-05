@@ -117,6 +117,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
     tCMMasterFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+    std::shared_ptr< fem::Stabilization_Parameter > tSP =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSP->set_parameters( { {{ 1.0 }} });
+    tSP->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -129,6 +136,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tIWG->set_property( tPropConductivity, "ThermalConductivity" );
     tIWG->set_material_model( tMMFluid, "FluidMM" );
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
+
+    // FIXME: generic SP for testing strong form only
+    tIWG->set_stabilization_parameter( tSP, "GenericSP" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer

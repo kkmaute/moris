@@ -9,8 +9,10 @@ namespace moris
 
         Interface_User_Defined::Interface_User_Defined(
                 ParameterList aParameterList)
-        : mLibrary(std::make_shared<Library_IO>(aParameterList.get<std::string>("library")))
         {
+            // set library with user defined functions
+            mLibrary = std::make_shared<Library_IO>(aParameterList.get<std::string>("library"));
+
             // Set user-defined functions
             initialize_user_defined             = mLibrary->load_function<Criteria_Initialize_Function>("initialize");
             get_criteria_user_defined           = mLibrary->load_function<Criteria_Function>("get_criteria");
@@ -23,10 +25,11 @@ namespace moris
                 Criteria_Initialize_Function aInitializationFunction,
                 Criteria_Function aCriteriaEvaluationFunction,
                 Criteria_Function aCriteriaGradientFunction)
-        : initialize_user_defined(aInitializationFunction),
-          get_criteria_user_defined(aCriteriaEvaluationFunction),
-          compute_dcriteria_dadv_user_defined(aCriteriaGradientFunction)
         {
+            // Set user-defined functions
+            initialize_user_defined             = aInitializationFunction;
+            get_criteria_user_defined           = aCriteriaEvaluationFunction;
+            compute_dcriteria_dadv_user_defined = aCriteriaGradientFunction;
         }
 
         //--------------------------------------------------------------------------------------------------------------

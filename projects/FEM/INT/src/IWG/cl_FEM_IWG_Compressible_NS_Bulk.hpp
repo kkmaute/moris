@@ -64,13 +64,21 @@ namespace moris
                 
                 // cells of matrices containing the K flux matrices and their DoF derivatives
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > mKDOF;
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > mKDOF;   
 
-                // (cells of) matrices containing the product of the K flux matrices with the 
-                // spatial derivative of the variable set vector (and their DoF derivatives)
-                Matrix< DDRMat > mKYj;
-                moris::Cell< Matrix< DDRMat > > mKYjDOF;
+                // multiplication matrices for condensed tensors
+                const Matrix< DDRMat > mMultipMat2D = { 
+                        { 1.0, 0.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 2.0 } };  
 
+                const Matrix< DDRMat > mMultipMat3D = { 
+                        { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 } };     
 
                 //------------------------------------------------------------------------------
 
@@ -97,6 +105,14 @@ namespace moris
                 enum class IWG_Constitutive_Type
                 {
                     FLUID_CM,
+                    MAX_ENUM
+                };
+
+                // local SP enums
+                // FIXME: generic SP only for testing purposes for strong form
+                enum class IWG_Stabilization_Type
+                {
+                    GENERIC,
                     MAX_ENUM
                 };
 
@@ -151,24 +167,15 @@ namespace moris
                 /**
                  * compute the residual strong form
                  * @param[ in ] aRM a matrix to fill with RM
-                 * @param[ in ] aRC a matrix to fill with RC
                  */
-                void compute_residual_strong_form(
-                        Matrix< DDRMat > & aRM,
-                        real             & aRC );
+                void compute_residual_strong_form( Matrix< DDRMat > & aRM );
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute the residual strong form
-                 * @param[ in ] aDofTypes a list of dof type wrt which
-                 *                        the derivative is requested
                  * @param[ in ] aJM       a matrix to fill with dRMdDof
-                 * @param[ in ] aJC       a matrix to fill with dRCdDof
                  */
-                void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & aJM,
-                        Matrix< DDRMat >             & aJC );
+                void compute_jacobian_strong_form( Matrix< DDRMat > & aJM );
 
                 //------------------------------------------------------------------------------
                 // FIXME provided directly by the field interpolator?
@@ -177,6 +184,13 @@ namespace moris
                  * @param[ in ] adnNdtn a matrix to fill with dnNdtn
                  */
                 void compute_dnNdtn( Matrix< DDRMat > & adnNdtn );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the multiplication matrix for condensed tensors
+                 * @param[ out ] mMultipMat multiplication matrix for condensed tensors
+                 */
+                const Matrix< DDRMat > & MultipMat();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -228,20 +242,6 @@ namespace moris
                 void eval_A1_DOF(); 
                 void eval_A2_DOF(); 
                 void eval_A3_DOF();                  
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the product of the K flux matrices with the 
-                 * spatial derivative of the variable set vector
-                 */
-                void eval_KYj();
-                
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the derivative of the product of the K flux matrices with the 
-                 * spatial derivative of the variable set vector with respect to the DoFs
-                 */
-                void eval_KYj_DOF();  
 
                 //------------------------------------------------------------------------------
                 /**

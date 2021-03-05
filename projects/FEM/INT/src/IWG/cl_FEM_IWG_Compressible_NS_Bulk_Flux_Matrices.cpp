@@ -463,15 +463,7 @@ namespace moris
                     MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::assemble_A_matrices() - Number of space dimensions must be 2 or 3" );
                 };
             }
-        }          
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Bulk::eval_KYj()
-        {
-            //asdf
-            std::cout << "Dummy. \n" << std::flush;
-        }            
+        }                    
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

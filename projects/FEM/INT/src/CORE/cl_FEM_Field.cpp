@@ -1,4 +1,4 @@
-    #include <iostream>
+#include <iostream>
 #include <cstdio>
 
 #include "cl_FEM_Field.hpp"
@@ -14,7 +14,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field::Field( mtk::Mesh_Pair * aMeshPair,
-                      uint const     & aDiscretizationMeshIndex )
+                uint const     & aDiscretizationMeshIndex )
         : mtk::Field( aMeshPair )
         {
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair->mInterpolationMesh;
@@ -37,23 +37,23 @@ namespace moris
 
         void Field::set_field_type( const mtk::Field_Type & aType )
         {
-             mFieldType = aType;
+            mFieldType = aType;
         }
 
         //-----------------------------------------------------------------------------
 
         void Field::set_IQI_name( const std::string & aString )
         {
-             mIQIName = aString;
+            mIQIName = aString;
 
-             mPopulateFieldWithIQI = true;
+            mPopulateFieldWithIQI = true;
         }
 
         //-----------------------------------------------------------------------------
 
         const std::string & Field::get_IQI_name()
         {
-             return mIQIName;
+            return mIQIName;
         }
 
         //-----------------------------------------------------------------------------
@@ -77,22 +77,48 @@ namespace moris
 
         void Field::set_field_from_file( const std::string & aString )
         {
-             // detect file type
-             std::string tType = aString.substr( aString.find_last_of(".")+1, aString.length() );
+            // detect file type
+            std::string tType = aString.substr( aString.find_last_of(".")+1, aString.length() );
 
-             if( tType == "hdf5" || tType == "h5" )
-             {
-                 this->load_nodal_values_from_hdf5( aString );
-             }
-             else
-             {
-                 MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here.");
-             }
+            if( tType == "hdf5" || tType == "h5" )
+            {
+                this->load_nodal_values_from_hdf5( aString );
+            }
+            else
+            {
+                MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here.");
+            }
         }
 
         void Field::set_field_to_file( const std::string & aString )
         {
-            mOutpurFileName = aString;
+            mOutputFilePath = aString;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::output_field_to_file()
+        {
+            if( not mOutputFilePath.empty() )
+            {
+                // detect file type
+                std::string tType = mOutputFilePath.substr( mOutputFilePath.find_last_of(".")+1, mOutputFilePath.length() );
+
+                if( tType == "hdf5" || tType == "h5" )
+                {
+                    this->save_nodal_values_to_hdf5( mOutputFilePath );
+                }
+                else
+                {
+                    MORIS_ERROR( false,
+                            "Field::output_field_to_file(), field type not known. New types can be implemented here.");
+                }
+            }
+            else
+            {
+                MORIS_ERROR( false,
+                        "Field::output_field_to_file(), Output file path not specified. Set field_output_to_file input parameter!" );
+            }
         }
 
 

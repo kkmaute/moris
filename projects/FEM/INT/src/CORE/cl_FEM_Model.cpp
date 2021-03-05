@@ -3039,11 +3039,12 @@ namespace moris
                 }
             }
 
-            for( uint Ik = 0; Ik < tFieldToPopulate.size(); Ik ++ )
+            // output fields to file. FIXME better should be done somewhere else.
+            for( uint Ik = 0; Ik < mFields.size(); Ik ++ )
             {
-                tFieldToPopulate( Ik )->save_nodal_values_to_hdf5( "FEM_Field.hdf5" );
+                mFields( Ik )->output_field_to_file();
 
-                //tFieldToPopulate( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
+                //mFields( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
             }
         }
 
