@@ -108,6 +108,14 @@ namespace moris
                     MAX_ENUM
                 };
 
+                // local SP enums
+                // FIXME: generic SP only for testing purposes for strong form
+                enum class IWG_Stabilization_Type
+                {
+                    GENERIC,
+                    MAX_ENUM
+                };
+
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
@@ -159,24 +167,15 @@ namespace moris
                 /**
                  * compute the residual strong form
                  * @param[ in ] aRM a matrix to fill with RM
-                 * @param[ in ] aRC a matrix to fill with RC
                  */
-                void compute_residual_strong_form(
-                        Matrix< DDRMat > & aRM,
-                        real             & aRC );
+                void compute_residual_strong_form( Matrix< DDRMat > & aRM );
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute the residual strong form
-                 * @param[ in ] aDofTypes a list of dof type wrt which
-                 *                        the derivative is requested
                  * @param[ in ] aJM       a matrix to fill with dRMdDof
-                 * @param[ in ] aJC       a matrix to fill with dRCdDof
                  */
-                void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & aJM,
-                        Matrix< DDRMat >             & aJC );
+                void compute_jacobian_strong_form( Matrix< DDRMat > & aJM );
 
                 //------------------------------------------------------------------------------
                 // FIXME provided directly by the field interpolator?

@@ -31,10 +31,10 @@ namespace moris
             mPropertyMap[ "BodyForce" ]            = static_cast< uint >( IWG_Property_Type::BODY_FORCE );
             mPropertyMap[ "BodyHeatLoad" ]         = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
 
-            // set size for the constitutive model pointer cell
+            // set size for the material model pointer cell
             mMasterMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the constitutive map
+            // populate the material map
             mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
 
             // set size for the constitutive model pointer cell
@@ -42,6 +42,12 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
+
+            // set size for the stabilization parameter pointer cell
+            mStabilizationParam.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+            // populate the stabilization parameter map
+            mStabilizationMap[ "GenericSP" ] = static_cast< uint >( IWG_Stabilization_Type::GENERIC );
         }
 
         //------------------------------------------------------------------------------
@@ -86,7 +92,7 @@ namespace moris
 
             // get the FIs associated with each residual dof type
             Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFIVelocity     =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
             Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 ) );
 
             // get number of space dimensions
@@ -130,6 +136,29 @@ namespace moris
                 // compute the third residual (temperature)
                 mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar *  ( tFIThirdDofType->N_trans() * (
                         mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) ); 
+            }
+
+            // get the Stabilization Parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GENERIC ) );
+
+            // add contribution of stabilization term if stabilization parameter has been set
+            if ( tSP != nullptr )
+            {
+                // get the strong form of the residual
+                Matrix< DDRMat > tStrongRes;
+                this->compute_residual_strong_form( tStrongRes );
+
+                // compute the first residual (pressure or density)
+                mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes1StopIndex }, { 0, 0 } ) +=  aWStar * tFIFirstDofType->N_trans() *
+                        tSP->val()( 0 ) * tStrongRes( { 1, 1 } );
+
+                // compute the second residual (velocity)
+                mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) +=  aWStar * tFIVelocity->N_trans() *
+                        tSP->val()( 0 ) * tStrongRes( { 1, tNumSpaceDims } );
+
+                // compute the third residual (temperature)
+                mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) +=  aWStar * tFIThirdDofType->N_trans() *
+                        tSP->val()( 0 ) * tStrongRes( { tNumSpaceDims + 1, tNumSpaceDims + 1 } );
             }
 
             // check for nan, infinity
@@ -281,6 +310,35 @@ namespace moris
                                 tCM->dFluxdDOF( tDofType, CM_Function_Type::WORK ) - tCM->dFluxdDOF( tDofType, CM_Function_Type::THERMAL ) ) );
             }
 
+            // get the Stabilization Parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GENERIC ) );
+
+            // add contribution of stabilization term if stabilization parameter has been set
+            if ( tSP != nullptr )
+            {
+                // get the strong form of the jacobian
+                Matrix< DDRMat > tStrongJac;
+                this->compute_jacobian_strong_form( tStrongJac );
+
+                // compute the first residual (pressure or density)
+                mSet->get_jacobian()( 
+                        { tMasterRes1StartIndex, tMasterRes1StopIndex }, 
+                        { tMasterDep1StartIndex, tMasterDep3StopIndex } ) +=  aWStar * tFIFirstDofType->N_trans() * tSP->val()( 0 ) * 
+                                tStrongJac( { 1, 1 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
+
+                // compute the second residual (velocity)
+                mSet->get_jacobian()( 
+                        { tMasterRes2StartIndex, tMasterRes2StopIndex }, 
+                        { tMasterDep1StartIndex, tMasterDep3StopIndex } ) +=  aWStar * tFIVelocity->N_trans() * tSP->val()( 0 ) * 
+                                tStrongJac( { 1, tNumSpaceDims }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
+
+                // compute the third residual (temperature)
+                mSet->get_jacobian()( 
+                        { tMasterRes3StartIndex, tMasterRes3StopIndex }, 
+                        { tMasterDep1StartIndex, tMasterDep3StopIndex } ) +=  aWStar * tFIThirdDofType->N_trans() * tSP->val()( 0 ) * 
+                                tStrongJac( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
+            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");                     
@@ -312,21 +370,125 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Bulk::compute_residual_strong_form(
-                Matrix< DDRMat > & aRM,
-                real             & aRC )
+        void IWG_Compressible_NS_Bulk::compute_residual_strong_form( Matrix< DDRMat > & aRM )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::compute_residual_strong_form - Not implemented." );
+            // assemble flux matrices
+            this->assemble_variable_set();
+            this->eval_A_matrices();
+
+            // get the CM
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the FIs associated with each residual dof type
+            Field_Interpolator * tFIVelocity     =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // get number of space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();    
+
+            // =================
+            // assemble Residual 
+            // =================
+
+            // contribution from A0 matrix
+            aRM = mA( 0 ) * mdYdt;
+
+            // loop over Ai matrices and add contribution
+            for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
+            {
+                aRM += mA( iA ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } );
+            }
+
+            // contribution from (Kij*Y,j),i
+            // first residual (pressure or density) -- no contribution
+            // compute contribution to the second residual (velocity)
+            aRM( { 1, tNumSpaceDims }, { 0, 0 } ) -= 
+                    tCM->divflux( CM_Function_Type::MECHANICAL ).matrix_data();
+
+            // compute contribution to the third residual (temperature)
+            aRM( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, 0 } ) -= 
+                    tCM->divflux( CM_Function_Type::WORK ) - tCM->divflux( CM_Function_Type::THERMAL );
+
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Bulk::compute_jacobian_strong_form(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & aJM,
-                Matrix< DDRMat >             & aJC )
+        void IWG_Compressible_NS_Bulk::compute_jacobian_strong_form( Matrix< DDRMat > & aJM )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::compute_jacobian_strong_form - Not implemented." );
+            // assemble flux matrices
+            this->assemble_variable_set();
+            this->assemble_variable_DOF_set();
+            this->eval_A_matrices();
+            this->eval_A_DOF_matrices();
+
+            // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
+            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 ), mtk::Master_Slave::MASTER );
+
+            // get the FIs associated with each residual dof type
+            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // get number of space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();                      
+
+            // get the material and constitutive models
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // check DoF dependencies
+            MORIS_ASSERT( this->check_dof_dependencies(), "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
+
+            // get the indeces for assembly
+            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDep1StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofFirstDepIndex, 0 );
+            uint tMasterDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofThirdDepIndex, 1 );                
+
+            // ==================
+            // assmemble Jacobian
+            // ==================
+            
+            // add contribution of A0 matrix
+            aJM = mA( 0 ) * mdYdtDOF;
+            
+            // loop over rows for which the DoF derivatives are stored
+            for ( uint iR = 0; iR < tNumSpaceDims + 2; iR++ )
+            {
+                aJM( { iR, iR }, { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += 
+                        trans( mdYdt ) * mADOF( 0 )( iR );
+            }
+
+            // add contribution of Ai matrices
+            for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
+            {
+                aJM += mA( iA ) * mdYdxDOF( iA - 1 );
+
+                // loop over rows for which the DoF derivatives are stored
+                for ( uint iR = 0; iR < tNumSpaceDims + 2; iR++ )
+                {
+                    aJM( { iR, iR }, { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += 
+                            trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( iR );
+                }
+            }
+
+            // loop over DoF dependencies for K*Y,j term
+            for (uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++)
+            {   
+                // get the treated dof type
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+
+                // get index
+                uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( iDof ), mtk::Master_Slave::MASTER );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+
+                // add contribution
+                aJM( { 1, tNumSpaceDims }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
+                        tCM->ddivfluxdu( tDofType, CM_Function_Type::MECHANICAL ).matrix_data();                        
+
+                // add contribution to temperature residual dof type
+                aJM( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
+                        tCM->ddivfluxdu( tDofType, CM_Function_Type::WORK ) - tCM->ddivfluxdu( tDofType, CM_Function_Type::THERMAL ); 
+            }
         }
 
         //------------------------------------------------------------------------------
