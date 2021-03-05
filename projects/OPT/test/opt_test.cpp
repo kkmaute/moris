@@ -28,8 +28,8 @@ namespace moris
 
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
-                        &initialize_rosenbrock_1,
-                        &get_criteria_rosenbrock_1,
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
                         &get_dcriteria_dadv_rosenbrock);
 
                 // Create Problem
@@ -68,10 +68,10 @@ namespace moris
 
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
-                        &initialize_rosenbrock_1,
-                        &get_criteria_rosenbrock_1,
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
                         &get_dcriteria_dadv_rosenbrock);
-            
+
                 // Create Problem
                 std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
                         tProblemParameterList,
@@ -83,10 +83,10 @@ namespace moris
                         &compute_dobjective_dcriteria_rosenbrock,
                         &compute_dconstraint_dadv_rosenbrock,
                         &compute_dconstraint_dcriteria_rosenbrock);
-            
+
                 // Create manager
                 moris::opt::Manager tManager({tAlgorithmParameterList}, tProblem);
-            
+
                 // Solve optimization problem
                 tManager.perform();
 

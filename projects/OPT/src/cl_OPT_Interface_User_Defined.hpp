@@ -14,11 +14,13 @@ namespace moris
                 Matrix<DDRMat>& aAdvs,
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds);
+
         typedef Matrix<DDRMat> ( *Criteria_Function ) (const moris::Matrix<DDRMat>& );
 
         class Interface_User_Defined : public Criteria_Interface
         {
         private:
+
             Matrix<DDRMat> mADVs;
             std::shared_ptr<Library_IO> mLibrary;
 
@@ -70,11 +72,11 @@ namespace moris
             Matrix<DDRMat> compute_dcriteria_dadv();
             
         private:
-            // Loaded user-defined functions
-            Criteria_Initialize_Function initialize_user_defined;
-            Criteria_Function get_criteria_user_defined;
-            Criteria_Function compute_dcriteria_dadv_user_defined;
 
+            // Loaded user-defined functions
+            Criteria_Initialize_Function initialize_user_defined  = nullptr;
+            Criteria_Function get_criteria_user_defined           = nullptr;
+            Criteria_Function compute_dcriteria_dadv_user_defined = nullptr;
         };
     }
 }
