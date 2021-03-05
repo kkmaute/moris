@@ -364,7 +364,6 @@ namespace moris
                 // Get number of unique PDV types for this set
                 uint tNumUniquePdvs = 0;
 
-                // Fixme: not clear why this list should be unique
                 for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
                 {
                     tNumUniquePdvs += mIpPdvTypes(tMeshSetIndex)(tGroupIndex).size();
@@ -758,8 +757,8 @@ namespace moris
                 // Loop over pdvs per type. Count number of pdvs per proc which have to be communicated
                 for ( moris::uint Ib = 0; Ib < mIpPdvHosts.size(); Ib++ )
                 {
-                    // Check if pdv at this position is not NULL
-                    if ( mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ) )
+                    // Check if PDV exists
+                    if (mIpPdvHosts(Ib) and mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ))
                     {
                         // Check if owning processor is this processor
                         if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() != par_rank() )
@@ -792,22 +791,22 @@ namespace moris
                 // Loop over pdv per type
                 for ( moris::uint Ia = 0; Ia < mIpPdvHosts.size(); Ia++ )
                 {
-                    // Check if pdv at this position is not NULL
-                    if ( mIpPdvHosts( Ia )->get_pdv_exists( tPdvType ) )
+                    // Check if PDV exists
+                    if (mIpPdvHosts(Ia) and mIpPdvHosts(Ia)->get_pdv_exists(tPdvType))
                     {
                         // Check if owning processor is this processor
-                        if ( mIpPdvHosts( Ia )->get_pdv_owning_processor() != par_rank() )
+                        if (mIpPdvHosts(Ia)->get_pdv_owning_processor() != par_rank())
                         {
                             // Get owning processor
-                            moris::uint tProcID = mIpPdvHosts( Ia )->get_pdv_owning_processor();
+                            moris::uint tProcID = mIpPdvHosts(Ia)->get_pdv_owning_processor();
 
-                            moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
+                            moris::sint tProcIdPos = tCommTableMap(tProcID, 0);
 
                             // Add owning processor id to moris::Mat
-                            tSharedPdvPosGlobal( tProcIdPos )( tShredPdvPosPerProc( tProcIdPos, 0 ), 0 ) =
-                                    mIpPdvHosts( Ia )->get_pdv_id();
+                            tSharedPdvPosGlobal(tProcIdPos)(tShredPdvPosPerProc(tProcIdPos, 0), 0) = mIpPdvHosts(
+                                    Ia)->get_pdv_id();
 
-                            tShredPdvPosPerProc( tProcIdPos, 0 ) = tShredPdvPosPerProc( tProcIdPos, 0 ) + 1;
+                            tShredPdvPosPerProc(tProcIdPos, 0) = tShredPdvPosPerProc(tProcIdPos, 0) + 1;
                         }
                     }
                 }
@@ -835,7 +834,7 @@ namespace moris
 
                         if ( mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType )  )
                         {
-                            MORIS_ERROR(false," add the follwing lines");
+                            MORIS_ERROR(false," add the following lines");
                             // FIXME create pdv
                         }
                     }
@@ -854,11 +853,11 @@ namespace moris
 
                 for ( moris::uint Ib = 0; Ib < mIpPdvHosts.size(); Ib++ )
                 {
-                    // Check if pdv at this position is not NULL
-                    if ( mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ) )
+                    // Check if PDV exists
+                    if (mIpPdvHosts(Ib) and mIpPdvHosts(Ib)->get_pdv_exists(tPdvType))
                     {
                         // Check if owning processor is this processor
-                        if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() == par_rank() )
+                        if (mIpPdvHosts(Ib)->get_pdv_owning_processor() == par_rank())
                         {
                             mNumOwnedPdvs++;
                         }
@@ -927,8 +926,8 @@ namespace moris
                 // Loop over pdvs per type.
                 for ( moris::uint Ib = 0; Ib < mIpPdvHosts.size(); Ib++ )
                 {
-                    // Check if pdv at this position is not NULL
-                    if ( mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ) )
+                    // Check if PDV exists
+                    if (mIpPdvHosts(Ib) and mIpPdvHosts(Ib)->get_pdv_exists(tPdvType))
                     {
                         // Check if owning processor is this processor
                         if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() == par_rank() )
@@ -1004,18 +1003,18 @@ namespace moris
                 // Loop over pdvs per type. Count number of pdvs per proc which have to be communicated
                 for ( moris::uint Ib = 0; Ib < mIpPdvHosts.size(); Ib++ )
                 {
-                    // Check if pdv at this position is not NULL
-                    if ( mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ) )
+                    // Check if PDV exists
+                    if (mIpPdvHosts(Ib) and mIpPdvHosts(Ib)->get_pdv_exists(tPdvType))
                     {
                         // Check if owning processor is this processor
-                        if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() != par_rank() )
+                        if (mIpPdvHosts(Ib)->get_pdv_owning_processor() != par_rank())
                         {
-                            moris::moris_id tProcID  = mIpPdvHosts( Ib )->get_pdv_owning_processor();
+                            moris::moris_id tProcID = mIpPdvHosts(Ib)->get_pdv_owning_processor();
 
-                            moris::sint tProcIdPos = tCommTableMap( tProcID );
+                            moris::sint tProcIdPos = tCommTableMap(tProcID);
 
                             // Add +1 to the processor number of shared dv per processor
-                            tNumSharedPdvsPerProc( tProcIdPos )++;
+                            tNumSharedPdvsPerProc(tProcIdPos)++;
 
                             tSharedCounter++;
                         }
@@ -1038,24 +1037,24 @@ namespace moris
                 // Loop over pdvs
                 for ( moris::uint Ib = 0; Ib < mIpPdvHosts.size(); Ib++ )
                 {
-                    // Check if pdv at this position is not NULL
-                    if ( mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ) )
+                    // Check if PDV exists
+                    if (mIpPdvHosts(Ib) and mIpPdvHosts(Ib)->get_pdv_exists(tPdvType))
                     {
                         // Check if owning processor is this processor
-                        if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() != par_rank() )
+                        if (mIpPdvHosts(Ib)->get_pdv_owning_processor() != par_rank())
                         {
-                            moris::moris_id tProcID  = mIpPdvHosts( Ib )->get_pdv_owning_processor();
+                            moris::moris_id tProcID = mIpPdvHosts(Ib)->get_pdv_owning_processor();
 
-                            moris::sint tProcIdPos = tCommTableMap( tProcID );
+                            moris::sint tProcIdPos = tCommTableMap(tProcID);
 
                             // Add owning processor id to moris::Mat
-                            tSharedPdvPosGlobal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) =
-                                    mIpPdvHosts( Ib )->get_pdv_id();
+                            tSharedPdvPosGlobal(tProcIdPos)(tSharedPdvPosPerProc(tProcIdPos)) = mIpPdvHosts(
+                                    Ib)->get_pdv_id();
 
                             // Add pdv position to Mat
-                            tSharedPdvPosLocal( tProcIdPos ) ( tSharedPdvPosPerProc( tProcIdPos ) ) = tCounter;
+                            tSharedPdvPosLocal(tProcIdPos)(tSharedPdvPosPerProc(tProcIdPos)) = tCounter;
 
-                            tSharedPdvPosPerProc( tProcIdPos )++;
+                            tSharedPdvPosPerProc(tProcIdPos)++;
                         }
                         tCounter++;
                     }
@@ -1091,10 +1090,13 @@ namespace moris
 
                         moris::uint tLocalPdvInd = tIter->second;
 
-                        MORIS_ASSERT( ( mIpPdvHosts( tLocalPdvInd )->get_pdv_owning_processor() ) == par_rank(),
-                                "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids(): Pdv not owned by this processor");
+                        if (mIpPdvHosts(tLocalPdvInd))
+                        {
+                            MORIS_ASSERT((mIpPdvHosts(tLocalPdvInd)->get_pdv_owning_processor()) == par_rank(),
+                                         "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids(): Pdv not owned by this processor");
 
-                        tSharedPdvIdList( Ik )( Ii ) = mIpPdvHosts( tLocalPdvInd )->get_pdv_id( tPdvType );
+                            tSharedPdvIdList(Ik)(Ii) = mIpPdvHosts(tLocalPdvInd)->get_pdv_id(tPdvType);
+                        }
                     }
                 }
 
@@ -1140,7 +1142,10 @@ namespace moris
                 // Set the Id of the shared pdvs
                 for ( moris::uint Ij = 0; Ij < tListSharedPdvIds.numel(); Ij++ )
                 {
-                    mIpPdvHosts( tListSharedPdvPos( Ij ) )->set_pdv_id( tPdvType, tListSharedPdvIds( Ij ) );
+                    if (mIpPdvHosts(tListSharedPdvPos(Ij)))
+                    {
+                        mIpPdvHosts(tListSharedPdvPos(Ij))->set_pdv_id(tPdvType, tListSharedPdvIds(Ij));
+                    }
                 }
             }
         }
@@ -1332,15 +1337,15 @@ namespace moris
                  // Loop over pdvs per type. Count number of pdvs per proc which have to be communicated
                  for ( moris::uint Ib = 0; Ib < mIpPdvHosts.size(); Ib++ )
                  {
-                     // Check if pdv at this position is not NULL
-                     if ( mIpPdvHosts( Ib )->get_pdv_exists( tPdvType ) )
+                     // Check if PDV exists
+                     if (mIpPdvHosts(Ib) and mIpPdvHosts(Ib)->get_pdv_exists(tPdvType))
                      {
                          // Check if owning processor is this processor
-                         if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() == par_rank() )
+                         if (mIpPdvHosts(Ib)->get_pdv_owning_processor() == par_rank())
                          {
-                             mOwnedPdvLocalToGlobalMap( tCounter ++)  = mIpPdvHosts( Ib )->get_pdv_id( tPdvType );
+                             mOwnedPdvLocalToGlobalMap(tCounter++) = mIpPdvHosts(Ib)->get_pdv_id(tPdvType);
                          }
-                         mOwnedAndSharedPdvLocalToGlobalMap( tCounter2 ++) = mIpPdvHosts( Ib )->get_pdv_id( tPdvType );
+                         mOwnedAndSharedPdvLocalToGlobalMap(tCounter2++) = mIpPdvHosts(Ib)->get_pdv_id(tPdvType);
                      }
                  }
              }
