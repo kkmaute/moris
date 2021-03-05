@@ -239,7 +239,7 @@ namespace xtk
         {
             this->construct_face_oriented_ghost_penalization_cells();
 
-            if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
+            if( mParameterList.get<bool>("visualize_ghost") )
             {
                 Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
 
