@@ -147,7 +147,7 @@ namespace moris
             this->write_advs_to_file(tADVs);
 
             // Recruit help from other procs and solve for criteria
-            this->criteria_solve(tADVs);
+            this->compute_design_criteria(tADVs);
 
             // Convert outputs from type MORIS
             aObjval = mProblem->get_objectives()(0);

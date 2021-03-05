@@ -90,7 +90,6 @@ namespace moris
      */
     void broadcast(uint & aMessage);
 
-
     /**
      * Broadcast a Message to all Procs
      *

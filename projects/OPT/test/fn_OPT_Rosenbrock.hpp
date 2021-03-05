@@ -7,6 +7,12 @@ namespace moris
 {
     namespace opt
     {
+        /**
+         *  Simple test with Rosenbrock function
+         *
+         *  Note: only processor zero is assumed to have adv vector; all other processors do not evaluate design
+         *        design criteria and their gradients
+         */
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -15,32 +21,23 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-            // Initial Guess
-            aADVs.set_size(2, 1);
-            aADVs(0) = 0.8;
-            aADVs(1) = 1.2;
-
-            // Lower Bounds
-            aLowerBounds.set_size(2, 1);
-            aLowerBounds(0) = -2.0;
-            aLowerBounds(1) = -2.0;
-
-            // Upper Bounds
-            aUpperBounds.set_size(2, 1);
-            aUpperBounds(0) = 2.0;
-            aUpperBounds(1) = 2.0;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void initialize_rosenbrock_1(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds)
-        {
+            // only done by processor 0
             if (par_rank() == 0)
             {
-                initialize_rosenbrock(aADVs, aLowerBounds, aUpperBounds);
+                // Initial Guess
+                aADVs.set_size(2, 1);
+                aADVs(0) = 0.8;
+                aADVs(1) = 1.2;
+
+                // Lower Bounds
+                aLowerBounds.set_size(2, 1);
+                aLowerBounds(0) = -2.0;
+                aLowerBounds(1) = -2.0;
+
+                // Upper Bounds
+                aUpperBounds.set_size(2, 1);
+                aUpperBounds(0) = 2.0;
+                aUpperBounds(1) = 2.0;
             }
         }
 
@@ -48,23 +45,17 @@ namespace moris
 
         Matrix<DDRMat> get_criteria_rosenbrock(const Matrix<DDRMat>& aADVs)
         {
-            Matrix<DDRMat> tCriteria(2, 1);
-
-            tCriteria(0) = 1 - aADVs(0);
-            tCriteria(1) = aADVs(1) - pow(aADVs(0), 2);
-
-            return tCriteria;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> get_criteria_rosenbrock_1(const Matrix<DDRMat>& aADVs)
-        {
-            barrier("criteria");
+            // only done by processor 0
             if (par_rank() == 0)
             {
-                return get_criteria_rosenbrock(aADVs);
+                Matrix<DDRMat> tCriteria(2, 1);
+
+                tCriteria(0) = 1 - aADVs(0);
+                tCriteria(1) = aADVs(1) - pow(aADVs(0), 2);
+
+                return tCriteria;
             }
+
             return {{}};
         }
 
@@ -72,19 +63,19 @@ namespace moris
 
         Matrix<DDRMat> get_dcriteria_dadv_rosenbrock(const Matrix<DDRMat>& aADVs)
         {
-            barrier("dcriteria");
-
-            Matrix<DDRMat> tDCriteria(2, 2, 0.0);
-
             if (par_rank() == 0)
             {
+                Matrix<DDRMat> tDCriteria(2, 2, 0.0);
+
                 tDCriteria(0, 0) = -1;
                 tDCriteria(0, 1) = 0;
                 tDCriteria(1, 0) = -2 * aADVs(0);
                 tDCriteria(1, 1) = 1;
+
+                return tDCriteria;
             }
 
-            return tDCriteria;
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -102,6 +93,9 @@ namespace moris
                 const Matrix<DDRMat>& aADVs,
                 const Matrix<DDRMat>& aCriteria)
         {
+            MORIS_ERROR( par_rank() == 0,
+                    "compute_objectives_rosenbrock - called by other processor than zero.\n");
+
             Matrix<DDRMat> tObjectives(1, 1);
 
             tObjectives(0) = (1 - aADVs(0)) * aCriteria(0) + 100 * (aADVs(1) - pow(aADVs(0), 2)) * aCriteria(1);
@@ -115,6 +109,9 @@ namespace moris
                 const Matrix<DDRMat>& aADVs,
                 const Matrix<DDRMat>& aCriteria)
         {
+            MORIS_ERROR( par_rank() == 0,
+                    "compute_constraints_rosenbrock - called by other processor than zero.\n");
+
             Matrix<DDRMat> tConstraints(2, 1);
 
             tConstraints(0) = pow(aCriteria(0), 2) * (aADVs(0) - 1) - aADVs(1) + 1;
@@ -129,7 +126,10 @@ namespace moris
                 const Matrix<DDRMat>& aADVs,
                 const Matrix<DDRMat>& aCriteria)
         {
-            Matrix<DDRMat> tDObjectiveDADV(1, 2);
+            MORIS_ERROR( par_rank() == 0,
+                     "compute_dobjective_dadv_rosenbrock - called by other processor than zero.\n");
+
+             Matrix<DDRMat> tDObjectiveDADV(1, 2);
 
             tDObjectiveDADV(0) = -aCriteria(0) - 200 * aADVs(0) * aCriteria(1);
             tDObjectiveDADV(1) = 100 * aCriteria(1);
@@ -143,6 +143,9 @@ namespace moris
                 const Matrix<DDRMat>& aADVs,
                 const Matrix<DDRMat>& aCriteria)
         {
+            MORIS_ERROR( par_rank() == 0,
+                     "compute_dobjective_dcriteria_rosenbrock - called by other processor than zero.\n");
+
             Matrix<DDRMat> tDObjectiveDCriteria(1, 2);
 
             tDObjectiveDCriteria(0) = 1 - aADVs(0);
@@ -157,6 +160,9 @@ namespace moris
                 const Matrix<DDRMat>& aADVs,
                 const Matrix<DDRMat>& aCriteria)
         {
+            MORIS_ERROR( par_rank() == 0,
+                     "compute_dconstraint_dadv_rosenbrock - called by other processor than zero.\n");
+
             Matrix<DDRMat> tDConstraintDADV(2, 2);
 
             tDConstraintDADV(0, 0) = pow(aCriteria(0), 2);
@@ -173,6 +179,9 @@ namespace moris
                 const Matrix<DDRMat>& aADVs,
                 const Matrix<DDRMat>& aCriteria)
         {
+            MORIS_ERROR( par_rank() == 0,
+                     "compute_dconstraint_dcriteria_rosenbrock - called by other processor than zero.\n");
+
             Matrix<DDRMat> tDConstraintDCriteria(2, 2);
 
             tDConstraintDCriteria(0, 0) = -2 * aCriteria(0) * (aADVs(0) - 1);

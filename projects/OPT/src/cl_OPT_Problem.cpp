@@ -30,13 +30,6 @@ namespace moris
 
             // Parameters: restart file name
             mRestartFile = aParameterList.get<std::string>("restart_file");
-
-            // Parameters: finite differencing
-            mFiniteDifferenceType = aParameterList.get<std::string>("finite_difference_type");
-            string_to_mat(aParameterList.get<std::string>("finite_difference_epsilons"), mFiniteDifferenceEpsilons);
-
-            // Initialize vector of ADV indices with respect to which sensitivities are computed by finite differencing
-            mFiniteDifferenceADVs.set_size(0,0);
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -71,9 +64,6 @@ namespace moris
 
             MORIS_ERROR( mADVs.n_rows() == mLowerBounds.n_rows() and mADVs.n_rows() == mUpperBounds.n_rows(),
                     "ADVs and its lower and upper bound vectors need to have same length.\n");
-
-            // Set finite difference epsilons knowing number of advs
-            this->set_finite_differencing(mFiniteDifferenceType, mFiniteDifferenceEpsilons);
 
             // Read ADVs from restart file
             if ( par_rank() == 0 && ! mRestartFile.empty() )
@@ -117,10 +107,8 @@ namespace moris
 
         const Matrix<DDRMat>& Problem::get_objectives()
         {
-            mObjectives = this->compute_objectives();
-
-            MORIS_ASSERT(mObjectives.numel() == mNumObjectives,
-                    "Number of objectives is incorrect.\n");
+            MORIS_ERROR( par_rank() == 0,
+                    "Problem::get_objectives - called by another processor but zero.\n");
 
             // log objective
             MORIS_LOG_SPEC( "Objective", ios::stringify_log( mObjectives ) );
@@ -132,15 +120,31 @@ namespace moris
 
         const Matrix<DDRMat>& Problem::get_constraints()
         {
-            mConstraints = this->compute_constraints();
-
-            MORIS_ASSERT(mConstraints.numel() == mNumConstraints,
-                    "Number of objectives is incorrect.\n");
+            MORIS_ERROR( par_rank() == 0,
+                    "Problem::get_constraints - called by another processor but zero.\n");
 
             // log constraints
             MORIS_LOG_SPEC( "Constraints", ios::stringify_log( mConstraints ) );
 
             return mConstraints;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        void Problem::set_objectives_and_constraints(
+                const Matrix<DDRMat>& aObjectives,
+                const Matrix<DDRMat>& aConstraints)
+        {
+            //check for proper size of input matrices
+            MORIS_ERROR( aObjectives.n_rows() == mObjectives.n_rows() and aObjectives.n_rows() == mObjectives.n_rows(),
+                    "Problem::set_objectives_and_constraints - input objective vector has incorrect size\n.");
+
+            MORIS_ERROR( aConstraints.n_rows() == mConstraints.n_rows() and aConstraints.n_rows() == mConstraints.n_rows(),
+                    "Problem::set_objectives_and_constraints - input objective vector has incorrect size\n.");
+
+            // copy objectives and constraints
+            mObjectives  = aObjectives;
+            mConstraints = aConstraints;
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -163,17 +167,22 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::trigger_criteria_solve(const Matrix<DDRMat> & aNewADVs)
+        void Problem::compute_design_criteria(const Matrix<DDRMat> & aNewADVs)
         {
+            // check for proper size of input ADV vector (on processor 0 only as all other processors
+            // have zero-size ADV vector
             if (par_rank() == 0)
             {
-                MORIS_ASSERT( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
-                              "Problem::compute_criteria() - size of ADV vectors does not match.\n");
+                // Check that input ADV vector has correct size
+                MORIS_ERROR( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
+                              "Problem::compute_design_criteria - size of ADV vectors does not match.\n");
                 mADVs = aNewADVs;
             }
 
+            // compute design criteria
             mCriteria = mInterface->get_criteria(aNewADVs);
 
+            // compute objective and constraints (on processor 0 only)
             if (par_rank() == 0)
             {
                 // log criteria and ADVs
@@ -184,21 +193,65 @@ namespace moris
                     MORIS_LOG_SPEC( "MinADV", mADVs.min() );
                     MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
                 }
+
+                // compute objective
+                mObjectives = this->compute_objectives();
+
+                MORIS_ASSERT(mObjectives.numel() == mNumObjectives,
+                        "compute_design_criteria - Number of objectives is incorrect.\n");
+
+                // compute constraints
+                mConstraints = this->compute_constraints();
+
+                MORIS_ASSERT(mConstraints.numel() == mNumConstraints,
+                        "compute_design_criteria - Number of objectives is incorrect.\n");
             }
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::trigger_dcriteria_dadv_solve()
+        void Problem::compute_design_criteria_gradients(const Matrix<DDRMat> & aNewADVs)
         {
+            // Check that input ADV vector is identical to the one stored in problem
+            // as otherwise new criteria evaluation would be needed; this is done only
+            // on processor 0 only all other processors as have zero-size ADV vector
+            if (par_rank() == 0)
+            {
+                MORIS_ERROR( norm(mADVs - aNewADVs) <= mADVNormTolerance*norm(mADVs),
+                        "Problem::compute_design_criteria_gradients - given ADV vector does not match ADVs used to compute design criteria.\n");
+            }
+
+            // compute derivatives of design criteria
             mInterface->get_dcriteria_dadv();
+
+            // compute objective and constraints (on processor 0 only)
+            if (par_rank() == 0)
+            {
+                // compute gradients of objective
+                mObjectiveGradient =
+                        this->compute_dobjective_dadv() +
+                        this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
+
+                MORIS_ASSERT(mObjectiveGradient.n_rows() == mNumObjectives and mObjectiveGradient.n_cols() == mADVs.numel(),
+                        "Problem::compute_design_criteria_gradients  - gradient of objective matrix has incorrect size.\n.");
+
+                // compute gradients of constraints
+                mConstraintGradient =
+                        this->compute_dconstraint_dadv() +
+                        this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
+
+                MORIS_ASSERT(mConstraintGradient.n_rows() == mNumConstraints and mConstraintGradient.n_cols() == mADVs.numel(),
+                        "Problem::compute_design_criteria_gradients  - gradient of constraint matrix has incorrect size.\n.");
+            }
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
         const Matrix<DDRMat>& Problem::get_objective_gradients()
         {
-            (this->*compute_objective_gradient)();
+            MORIS_ERROR( par_rank() == 0,
+                    "Problem::get_objective_gradients - called by another processor but zero.\n");
+
             return mObjectiveGradient;
         }
 
@@ -206,71 +259,10 @@ namespace moris
 
         const Matrix<DDRMat>& Problem::get_constraint_gradients()
         {
-            (this->*compute_constraint_gradient)();
+            MORIS_ERROR( par_rank() == 0,
+                    "Problem::get_constraint_gradients - called by another processor but zero.\n");
+
             return mConstraintGradient;
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::set_finite_differencing(
-                std::string aType,
-                Matrix<DDRMat> aEpsilons)
-        {
-            // Check input
-            if (aEpsilons.numel() == 1)
-            {
-                aEpsilons.resize(mADVs.length(), 1);
-                for (uint tIndex = 1; tIndex < mADVs.length(); tIndex++)
-                {
-                    aEpsilons(tIndex) = aEpsilons(0);
-                }
-            }
-            MORIS_ERROR(aEpsilons.numel() == mADVs.length(),
-                    "OPT_Problem: Number of elements in finite_difference_epsilons must match the number of ADVs.");
-
-            // Assign epsilons
-            mFiniteDifferenceEpsilons = aEpsilons;
-
-            // Function pointers
-            this->set_finite_differencing(aType);
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::set_finite_differencing(std::string aType)
-        {
-            // Set gradient function pointers
-            switch (aType[0])
-            {
-                case 'b':
-                {
-                    mFiniteDifferenceEpsilons = mFiniteDifferenceEpsilons * -1.0;
-                }
-                case 'f':
-                {
-                    compute_objective_gradient  = &Problem::compute_objective_gradient_fd_bias;
-                    compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_bias;
-                    break;
-                }
-                case 'c':
-                {
-                    compute_objective_gradient  = &Problem::compute_objective_gradient_fd_central;
-                    compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_central;
-                    break;
-                }
-                default:
-                {
-                    compute_objective_gradient  = &Problem::compute_objective_gradient_analytical;
-                    compute_constraint_gradient = &Problem::compute_constraint_gradient_analytical;
-                }
-            }
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::set_finite_differencing_advs( Matrix<DDUMat> aFiniteDifferenceADVs)
-        {
-            mFiniteDifferenceADVs = aFiniteDifferenceADVs;
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -285,221 +277,6 @@ namespace moris
         void Problem::update_problem()
         {
             // TODO Need to decide on a framework for the update of the problem
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-        // Private: possible functions for computing gradients (analytical, forward/backward/central finite difference)
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::compute_objective_gradient_analytical()
-        {
-            mObjectiveGradient =
-                    this->compute_dobjective_dadv() +
-                    this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::compute_constraint_gradient_analytical()
-        {
-            mConstraintGradient =
-                    this->compute_dconstraint_dadv() +
-                    this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::compute_objective_gradient_fd_bias()
-        {
-            // Set perturbed ADVs and objectives
-            Matrix<DDRMat> tOriginalADVs = mADVs;
-
-            // check if ADV indices for FD are provided; if all ADVs are considered
-            if ( mFiniteDifferenceADVs.numel() == 0 )
-            {
-                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
-                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
-                {
-                    mFiniteDifferenceADVs(tIndex)=tIndex;
-                }
-            }
-
-            // number of ADVs with respect to which sensitivities are computed by FD
-            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
-
-            // set size of gradient vector
-            mObjectiveGradient.set_size(1,tNumFDadvs);
-
-            // FD each ADV
-            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
-            {
-                // get ADV index
-                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
-
-                // Perturb
-                mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
-                real tObjectivePerturbed = this->compute_objectives()(0);
-
-                // Biased finite difference
-                mObjectiveGradient(0, tIndex) =
-                        (tObjectivePerturbed - mObjectives(0)) / mFiniteDifferenceEpsilons(tADVIndex);
-
-                // Restore ADV
-                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
-            }
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::compute_constraint_gradient_fd_bias()
-        {
-            // Set perturbed ADVs and constraints
-            Matrix<DDRMat> tOriginalADVs = mADVs;
-
-            // check if ADV indices for FD are provided; if all ADVs are considered
-            if ( mFiniteDifferenceADVs.numel() == 0 )
-            {
-                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
-                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
-                {
-                    mFiniteDifferenceADVs(tIndex)=tIndex;
-                }
-            }
-
-            // number of ADVs with respect to which sensitivities are computed by FD
-            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
-
-            // set size of gradient vector
-            mConstraintGradient.set_size(mConstraints.length(),tNumFDadvs);
-
-            Matrix<DDRMat> tConstraintsPerturbed;
-
-            // FD each ADV
-            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
-            {
-                // get ADV index
-                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
-
-                // Perturb
-                mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
-                tConstraintsPerturbed = this->compute_constraints();
-
-                // Biased finite difference
-                for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
-                {
-                    mConstraintGradient(tConstraintIndex, tIndex) =
-                            (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) /
-                            mFiniteDifferenceEpsilons(tADVIndex);
-                }
-
-                // Restore ADV
-                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
-            }
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::compute_objective_gradient_fd_central()
-        {
-            // Set perturbed ADVs and objectives
-            Matrix<DDRMat> tOriginalADVs = mADVs;
-
-            // check if ADV indices for FD are provided; if all ADVs are considered
-            if ( mFiniteDifferenceADVs.numel() == 0 )
-            {
-                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
-                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
-                {
-                    mFiniteDifferenceADVs(tIndex)=tIndex;
-                }
-            }
-
-            // number of ADVs with respect to which sensitivities are computed by FD
-            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
-
-            // set size of gradient vector
-            mObjectiveGradient.set_size(1,tNumFDadvs);
-
-            // FD each ADV
-            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
-            {
-                // get ADV index
-                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
-
-                // Perturb forwards
-                mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
-                real tObjectivePlus = this->compute_objectives()(0);
-
-                // Perturb backwards
-                mADVs(tADVIndex) -= 2.0 * mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
-                real tObjectiveMinus = this->compute_objectives()(0);
-
-                // Central difference
-                mObjectiveGradient(0, tIndex) =
-                        (tObjectivePlus - tObjectiveMinus) / (2.0 * mFiniteDifferenceEpsilons(tADVIndex));
-
-                // Restore ADV
-                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
-            }
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Problem::compute_constraint_gradient_fd_central()
-        {
-            // Set perturbed ADVs and constraints
-            Matrix<DDRMat> tOriginalADVs = mADVs;
-
-
-            // check if ADV indices for FD are provided; if all ADVs are considered
-            if ( mFiniteDifferenceADVs.numel() == 0 )
-            {
-                mFiniteDifferenceADVs.set_size(mADVs.length(),1);
-                for (uint tIndex=0;tIndex<mADVs.length();++tIndex)
-                {
-                    mFiniteDifferenceADVs(tIndex)=tIndex;
-                }
-            }
-
-            // number of ADVs with respect to which sensitivities are computed by FD
-            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
-
-            // set size of gradient vector
-            mConstraintGradient.set_size(mConstraints.length(),tNumFDadvs);
-
-            Matrix<DDRMat> tConstraintsPlus;
-            Matrix<DDRMat> tConstraintsMinus;
-
-            // FD each ADV
-            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
-            {
-                // get ADV index
-                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
-
-                // Perturb forwards
-                mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
-                tConstraintsPlus = this->compute_constraints();
-
-                // Perturb backwards
-                mADVs(tADVIndex) -= 2 * mFiniteDifferenceEpsilons(tADVIndex);
-                mCriteria = mInterface->get_criteria(mADVs);
-                tConstraintsMinus = this->compute_constraints();
-
-                // Central difference
-                for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
-                {
-                    mConstraintGradient(tConstraintIndex, tIndex) =
-                            (tConstraintsPlus(tConstraintIndex) - tConstraintsMinus(tConstraintIndex)) / (2.0 * mFiniteDifferenceEpsilons(tADVIndex));
-                }
-
-                // Restore ADV
-                mADVs(tADVIndex) = tOriginalADVs(tADVIndex);
-            }
         }
 
         // -------------------------------------------------------------------------------------------------------------

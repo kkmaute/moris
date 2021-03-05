@@ -10,22 +10,24 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Interface_Manager::Interface_Manager(ParameterList aParameterList,
-                                             Cell<std::shared_ptr<Criteria_Interface>> aInterfaces)
-                : mInterfaces(aInterfaces)
+        Interface_Manager::Interface_Manager(
+                ParameterList                             aParameterList,
+                Cell<std::shared_ptr<Criteria_Interface>> aInterfaces)
+        : mInterfaces(aInterfaces)
         {
             // Set number of interfaces
             mNumInterfaces = aInterfaces.size();
 
             // Set parameters
             mSharedADVs = aParameterList.get<bool>("shared_advs");
-            mParallel = aParameterList.get<bool>("parallel");
+            mParallel   = aParameterList.get<bool>("parallel");
             string_to_mat(aParameterList.get<std::string>("num_processors_per_interface"), mProcessorBoundaries);
 
             // Check processors
             if (mParallel)
             {
-                MORIS_ERROR(sum(mProcessorBoundaries) <= par_size(), "Sum of number of processors per interface must not exceed number of available processors");
+                MORIS_ERROR(sum(mProcessorBoundaries) <= par_size(),
+                        "Sum of number of processors per interface must not exceed number of available processors");
             }
 
             // Change from number of processors to processor boundaries
@@ -37,13 +39,16 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Interface_Manager::initialize(Matrix<DDRMat>& aGlobalADVs,
-                                           Matrix<DDRMat>& aGlobalLowerBounds,
-                                           Matrix<DDRMat>& aGlobalUpperBounds)
+        void Interface_Manager::initialize(
+                Matrix<DDRMat>& aGlobalADVs,
+                Matrix<DDRMat>& aGlobalLowerBounds,
+                Matrix<DDRMat>& aGlobalUpperBounds)
         {
             // Set up ADVs
             mInterfaces(0)->initialize(aGlobalADVs, aGlobalLowerBounds, aGlobalUpperBounds);
+
             uint tCurrentGlobalADV = aGlobalADVs.length();
+
             Matrix<DDRMat> tLocalADVs;
             Matrix<DDRMat> tLocalLowerBounds;
             Matrix<DDRMat> tLocalUpperBounds;
@@ -83,6 +88,7 @@ namespace moris
                     aGlobalADVs.resize(tCurrentGlobalADV + mNumADVsPerInterface(tInterfaceIndex), 1);
                     aGlobalLowerBounds.resize(tCurrentGlobalADV + mNumADVsPerInterface(tInterfaceIndex), 1);
                     aGlobalUpperBounds.resize(tCurrentGlobalADV + mNumADVsPerInterface(tInterfaceIndex), 1);
+
                     for (uint tADVIndex = 0; tADVIndex < mNumADVsPerInterface(tInterfaceIndex); tADVIndex++)
                     {
                         aGlobalADVs(tCurrentGlobalADV + tADVIndex) = tLocalADVs(tADVIndex);
@@ -316,7 +322,9 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_Manager::get_local_advs(Matrix<DDRMat> aGlobalADVs, uint tThisInterface)
+        Matrix<DDRMat> Interface_Manager::get_local_advs(
+                Matrix<DDRMat> aGlobalADVs,
+                uint           tThisInterface)
         {
             Matrix<DDRMat> tLocalADVs(0, 0);
 

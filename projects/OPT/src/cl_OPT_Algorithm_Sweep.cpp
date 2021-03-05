@@ -14,21 +14,31 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Algorithm_Sweep::Algorithm_Sweep(ParameterList aParameterList)
-                : mIncludeBounds(aParameterList.get<bool>("include_bounds")),
-                  mEvaluateObjectives(aParameterList.get<bool>("evaluate_objectives")),
-                  mEvaluateConstraints(aParameterList.get<bool>("evaluate_constraints")),
-                  mEvaluateObjectiveGradients(aParameterList.get<bool>("evaluate_objective_gradients")),
-                  mEvaluateConstraintGradients(aParameterList.get<bool>("evaluate_constraint_gradients")),
-                  mSave(aParameterList.get<bool>("save")),
-                  mPrint(aParameterList.get<bool>("print")),
-                  mFileID(create_hdf5_file(aParameterList.get<std::string>("hdf5_path"))),
-                  mFiniteDifferenceType(aParameterList.get<std::string>("finite_difference_type")),
-                  mFiniteDifferenceEpsilons(string_to_mat<DDRMat>(aParameterList.get<std::string>("finite_difference_epsilons"))),
-                  mNumEvaluations(string_to_mat<DDUMat>(aParameterList.get<std::string>("num_evaluations_per_adv"))),
-                  mEvaluationPoints(string_to_mat<DDRMat>(aParameterList.get<std::string>("custom_adv_evaluations"))),
-                  mFiniteDifferenceADVs(string_to_mat<DDUMat>(aParameterList.get<std::string>("finite_difference_adv_indices")))
+        Algorithm_Sweep::Algorithm_Sweep( ParameterList aParameterList )
         {
+            // define which quantities are evaluated
+            mEvaluateObjectives =  aParameterList.get<bool>("evaluate_objectives");
+            mEvaluateConstraints = aParameterList.get<bool>("evaluate_constraints");
+
+            mEvaluateObjectiveGradients  = aParameterList.get<bool>("evaluate_objective_gradients");
+            mEvaluateConstraintGradients = aParameterList.get<bool>("evaluate_constraint_gradients");
+
+            // define sampling strategy
+            mIncludeBounds   = aParameterList.get<bool>("include_bounds");
+            mNumEvaluations  = string_to_mat<DDUMat>(aParameterList.get<std::string>("num_evaluations_per_adv"));
+            mEvaluationPoints= string_to_mat<DDRMat>(aParameterList.get<std::string>("custom_adv_evaluations"));
+
+            // define finite difference strategy
+            mFiniteDifferenceType     = aParameterList.get<std::string>("finite_difference_type");
+            mFiniteDifferenceEpsilons = string_to_mat<DDRMat>(aParameterList.get<std::string>("finite_difference_epsilons"));
+            mFiniteDifferenceADVs     = string_to_mat<DDUMat>(aParameterList.get<std::string>("finite_difference_adv_indices"));
+
+            // define output options
+            mSave  = aParameterList.get<bool>("save");
+            mPrint = aParameterList.get<bool>("print");
+
+            // open HDF5 file
+            mFileID=create_hdf5_file(aParameterList.get<std::string>("hdf5_path"));
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -40,7 +50,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_Sweep::solve(
-                uint aCurrentOptAlgInd,
+                uint                     aCurrentOptAlgInd,
                 std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
@@ -57,7 +67,8 @@ namespace moris
                 this->sweep_solve();
 
                 // Communicate that optimization has finished
-                mRunning = false;
+                mRunning = opt::Task::exit;
+
                 this->communicate_running_status();
             }
             else
@@ -68,51 +79,20 @@ namespace moris
                 // Run dummy solve
                 this->dummy_solve();
             }
+
+            // update aOptProb
+            aOptProb = mProblem;
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------
 
-        void Algorithm_Sweep::sweep_solve()
+        void Algorithm_Sweep::set_up_evaluation_points()
         {
+            // Get number of ADVs
             uint tNumADVs = mProblem->get_num_advs();
 
-            // determine with respect to which advs sensitivities are compute by FD; if list not set in input file
-            // all sensitivities with respect to all advs are computed
-            uint tNumFDadvs = mFiniteDifferenceADVs.numel();
-            if ( tNumFDadvs == 0 )
-            {
-                // Set number of FD-ADVs to number of ADVs
-                tNumFDadvs = tNumADVs;
-
-                // fill adv list with all advs
-                mFiniteDifferenceADVs.set_size(tNumADVs,1);
-                for (uint tIndex=0;tIndex<tNumADVs;++tIndex)
-                {
-                    mFiniteDifferenceADVs(tIndex)=tIndex;
-                }
-            }
-
-            // Finite differencing perturbation size
-            if (mFiniteDifferenceEpsilons.numel() != 0)
-            {
-                if (mFiniteDifferenceEpsilons.n_rows() == 1)
-                {
-                    uint tNumEvals = mFiniteDifferenceEpsilons.n_cols();
-                    mFiniteDifferenceEpsilons.resize(tNumADVs, tNumEvals);
-                    for (uint tIndex = 1; tIndex < tNumADVs; tIndex++)
-                    {
-                        mFiniteDifferenceEpsilons({tIndex, tIndex}, {0, tNumEvals - 1}) = mFiniteDifferenceEpsilons({0, 0}, {0, tNumEvals - 1});
-                    }
-                }
-                MORIS_ERROR(mFiniteDifferenceEpsilons.n_rows() == tNumADVs, 
-                        "OPT_Algorithm_Sweep: Number of rows in finite_difference_epsilons must match the number of ADVs.");
-            }
-            uint tTotalEpsilons = mFiniteDifferenceEpsilons.n_cols();
-
-            //----------------------------------------------------------------------------------------------------------
-            // Set up evaluation points
-            //----------------------------------------------------------------------------------------------------------
             uint tTotalEvaluations = mEvaluationPoints.n_cols();
+
             if (mEvaluationPoints.numel() == 0)
             {
                 // Check user input
@@ -125,7 +105,7 @@ namespace moris
                     MORIS_ERROR(mNumEvaluations.numel() == tNumADVs, 
                             "Must give single number of evaluations for all ADVs or one per ADV, or provide custom evaluation points");
                 }
-                
+
                 // Check lower and upper bounds for equality
                 Matrix<DDRMat> tADVs        = mProblem->get_advs();
                 Matrix<DDRMat> tLowerBounds = mProblem->get_lower_bounds();
@@ -155,14 +135,16 @@ namespace moris
                         tLowerBounds(tADVIndex) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (mNumEvaluations(tADVIndex) + 1);
                     }
                 }
-                
+
                 // Set up evaluations
                 tTotalEvaluations = 1;
                 for (uint ind = 0; ind < mNumEvaluations.numel(); ind++)
                 {
                     tTotalEvaluations *= mNumEvaluations(ind);
                 }
+
                 mEvaluationPoints.set_size(tNumADVs, tTotalEvaluations);
+
                 tADVs = tLowerBounds;
                 Matrix<DDUMat> tCurrentEvaluations(tNumADVs, 1, 0);
 
@@ -201,6 +183,20 @@ namespace moris
             {
                 MORIS_ERROR(mEvaluationPoints.n_rows() == tNumADVs, "Number of rows in custom_adv_evaluations must match the number of ADVs.");
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Algorithm_Sweep::sweep_solve()
+        {
+            // Set up evaluation points
+            this->set_up_evaluation_points();
+
+            // Initialize FD schemes
+            this->initialize_finite_difference_schemes();
+
+            // Total number of perturbation sizes
+            uint tTotalEpsilons = mFiniteDifferenceEpsilons.n_cols();
 
             // Open file and write ADVs/epsilons
             herr_t tStatus = 0;
@@ -217,29 +213,20 @@ namespace moris
                 moris::print(mFiniteDifferenceEpsilons, "epsilons");
             }
 
-            //----------------------------------------------------------------------------------------------------------
-            // Perform sweep
-            //----------------------------------------------------------------------------------------------------------
-
             // Evaluation string
             std::string tEvaluationName;
-            
+
+            // Number of evaluations
+            uint tTotalEvaluations = mEvaluationPoints.n_cols();
+
             // Loop through evaluation points
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
                 // Log iteration of optimization
                 MORIS_LOG_ITERATION();
 
-                // Proc 0 needs to communicate that it is still running
-                this->communicate_running_status();
-
-                // Set new ADVs
-                this->criteria_solve(mEvaluationPoints.get_column(tEvaluationIndex));
-
-                if (mEvaluateObjectiveGradients or mEvaluateConstraintGradients)
-                {
-                    mProblem->trigger_dcriteria_dadv_solve();
-                }
+                // Compute design criteria at current evaluation point
+                this->compute_design_criteria(mEvaluationPoints.get_column(tEvaluationIndex));
 
                 // Set evaluation name
                 tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
@@ -247,53 +234,56 @@ namespace moris
                 // Evaluate objectives and constraints
                 this->output_objectives_constraints(tEvaluationName);
 
-                // Get analytical gradients if requested
-                if (mFiniteDifferenceType == "none" || mFiniteDifferenceType == "all")
+                // Compute gradients of design criteria at current evaluation point
+                if (mEvaluateObjectiveGradients or mEvaluateConstraintGradients)
                 {
-                    mProblem->set_finite_differencing("none");
-                    this->evaluate_objective_gradients(tEvaluationName + " analytical");
-                    this->evaluate_constraint_gradients(tEvaluationName + " analytical");
-                }
-
-                // Loop through epsilons
-                for (uint tEpsilonIndex = 0; tEpsilonIndex < tTotalEpsilons; tEpsilonIndex++)
-                {
-                    // Reset evaluation name with epsilon data
-                    tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
-                    if (mFiniteDifferenceType != "none")
+                    // Get analytical gradients if requested
+                    if (mFiniteDifferenceType == "none" || mFiniteDifferenceType == "all")
                     {
-                        tEvaluationName += " epsilon_" + std::to_string(tEpsilonIndex + 1) + "-" + std::to_string(tTotalEpsilons);
+                        this->set_sensitivity_analysis_type(SA_Type::analytical);
+
+                        this->compute_design_criteria_gradients(mEvaluationPoints.get_column(tEvaluationIndex));
+
+                        this->evaluate_objective_gradients(tEvaluationName + " analytical");
+                        this->evaluate_constraint_gradients(tEvaluationName + " analytical");
                     }
 
-                    // Compute and/or save gradients based on finite differencing requested
-                    if (mFiniteDifferenceType == "all")
+                    // Perform finite difference sensitivity analysis for different perturbation sizes
+                    for (uint tEpsilonIndex = 0; tEpsilonIndex < tTotalEpsilons; tEpsilonIndex++)
                     {
-                        // Set indices of ADVs with respect to which sensitivities are computed by FD
-                        mProblem->set_finite_differencing_advs( mFiniteDifferenceADVs );
+                        // Reset evaluation name with epsilon data
+                        tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
+                        if (mFiniteDifferenceType != "none")
+                        {
+                            tEvaluationName += " epsilon_" + std::to_string(tEpsilonIndex + 1) + "-" + std::to_string(tTotalEpsilons);
+                        }
 
-                        // Forward
-                        mProblem->set_finite_differencing("forward", mFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
-                        Matrix<DDRMat> tForwardObjectiveGradient  = this->evaluate_objective_gradients(tEvaluationName + " fd_forward");
-                        Matrix<DDRMat> tForwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_forward");
+                        // Compute and/or save gradients based on finite differencing requested
+                        if (mFiniteDifferenceType == "all")
+                        {
+                            // set perturbation size index
+                            this->set_finite_difference_perturbation_size_index(tEpsilonIndex);
 
-                        // Backward
-                        mProblem->set_finite_differencing("backward", mFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
-                        Matrix<DDRMat> tBackwardObjectiveGradient = this->evaluate_objective_gradients(tEvaluationName + " fd_backward");
-                        Matrix<DDRMat> tBackwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_backward");
+                            // Forward
+                            this->set_sensitivity_analysis_type(SA_Type::forward);
+                            this->compute_design_criteria_gradients(mEvaluationPoints.get_column(tEvaluationIndex));
 
-                        // Central
-                        this->output_variables((tForwardObjectiveGradient + tBackwardObjectiveGradient) / 2,
-                                "objective_gradients" + tEvaluationName + " fd_central");
-                        this->output_variables((tForwardConstraintGradient + tBackwardConstraintGradient) / 2,
-                                               "constraint_gradients" + tEvaluationName + " fd_central");
-                    }
-                    else if (mFiniteDifferenceType != "none")
-                    {
-                        // just analytical sensitivity analysis
-                        mProblem->set_finite_differencing(mFiniteDifferenceType,
-                                                                    mFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
-                        this->evaluate_objective_gradients(tEvaluationName);
-                        this->evaluate_constraint_gradients(tEvaluationName);
+                            Matrix<DDRMat> tForwardObjectiveGradient  = this->evaluate_objective_gradients(tEvaluationName + " fd_forward");
+                            Matrix<DDRMat> tForwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_forward");
+
+                            // Backward
+                            this->set_sensitivity_analysis_type(SA_Type::backward);
+                            this->compute_design_criteria_gradients(mEvaluationPoints.get_column(tEvaluationIndex));
+
+                            Matrix<DDRMat> tBackwardObjectiveGradient  = this->evaluate_objective_gradients(tEvaluationName + " fd_backward");
+                            Matrix<DDRMat> tBackwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_backward");
+
+                            // Central
+                            this->output_variables((tForwardObjectiveGradient + tBackwardObjectiveGradient) / 2,
+                                    "objective_gradients" + tEvaluationName + " fd_central");
+                            this->output_variables((tForwardConstraintGradient + tBackwardConstraintGradient) / 2,
+                                    "constraint_gradients" + tEvaluationName + " fd_central");
+                        }
                     }
                 }
             }
@@ -301,20 +291,21 @@ namespace moris
             // Close file
             close_hdf5_file(mFileID);
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Algorithm_Sweep::output_objectives_constraints(std::string aEvaluationName)
         {
             // Output
             if (mEvaluateObjectives)
             {
-                Matrix<DDRMat> tObjectives = mProblem->get_objectives();
+                const Matrix<DDRMat> & tObjectives = this->get_objectives();
                 this->output_variables(tObjectives, "objectives" + aEvaluationName);
             }
+
             if (mEvaluateConstraints)
             {
-                Matrix<DDRMat> tConstraints = mProblem->get_constraints();
+                const Matrix<DDRMat> & tConstraints = this->get_constraints();
                 this->output_variables(tConstraints, "constraints" + aEvaluationName);
             }
         }
@@ -325,8 +316,9 @@ namespace moris
         {
             if (mEvaluateObjectiveGradients)
             {
-                // Calculate the objective gradients
-                Matrix<DDRMat> tObjectiveGradients = mProblem->get_objective_gradients();
+                // Calculate the objective gradients; note: a copy is created as the gradient
+                // vector is altered below
+                Matrix<DDRMat> tObjectiveGradients = this->get_objective_gradients();
 
                 // Extract sensitivities with respect to advs specified for FD
                 if ( tObjectiveGradients.numel() > mFiniteDifferenceADVs.numel() )
@@ -359,30 +351,31 @@ namespace moris
         {
             if (mEvaluateConstraintGradients)
             {
-                // Calculate the constraint gradients
-                Matrix<DDRMat> tConstraintGradients = mProblem->get_constraint_gradients();
+                // Calculate the constraint gradients; note: a copy is created as the gradient
+                // matrix is altered below
+                Matrix<DDRMat> tConstraintGradients = this->get_constraint_gradients();
 
                 // Extract sensitivities with respect to advs specified for FD
-                 if ( tConstraintGradients.n_cols() > mFiniteDifferenceADVs.numel() )
-                 {
-                     // Number of constraints
-                     uint tNumberOfConstraints = tConstraintGradients.n_rows();
+                if ( tConstraintGradients.n_cols() > mFiniteDifferenceADVs.numel() )
+                {
+                    // Number of constraints
+                    uint tNumberOfConstraints = tConstraintGradients.n_rows();
 
-                     // Allocate temporary matrix (needed as adv indices in mFiniteDifferenceADVs may not be sorted
-                     Matrix<DDRMat> tConstraintGradientsExtracted(tNumberOfConstraints,mFiniteDifferenceADVs.numel(),1);
+                    // Allocate temporary matrix (needed as adv indices in mFiniteDifferenceADVs may not be sorted
+                    Matrix<DDRMat> tConstraintGradientsExtracted(tNumberOfConstraints,mFiniteDifferenceADVs.numel(),1);
 
-                     // Extract sensitivities of requested ADVs
-                     for (uint tIndex=0;tIndex<mFiniteDifferenceADVs.numel();++tIndex)
-                     {
-                         for (uint tConst=0;tConst<tNumberOfConstraints;++tConst)
-                         {
-                             tConstraintGradientsExtracted(tConst,tIndex)=tConstraintGradients(tConst,mFiniteDifferenceADVs(tIndex));
-                         }
-                     }
+                    // Extract sensitivities of requested ADVs
+                    for (uint tIndex=0;tIndex<mFiniteDifferenceADVs.numel();++tIndex)
+                    {
+                        for (uint tConst=0;tConst<tNumberOfConstraints;++tConst)
+                        {
+                            tConstraintGradientsExtracted(tConst,tIndex)=tConstraintGradients(tConst,mFiniteDifferenceADVs(tIndex));
+                        }
+                    }
 
-                     // replace full derivative matrix with temporary one
-                     tConstraintGradients=tConstraintGradientsExtracted;
-                 }
+                    // replace full derivative matrix with temporary one
+                    tConstraintGradients=tConstraintGradientsExtracted;
+                }
 
                 // Output
                 this->output_variables(tConstraintGradients, "constraint_gradients" + aEvaluationName);
@@ -416,6 +409,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
     }
 }
