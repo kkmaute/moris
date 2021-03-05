@@ -34,6 +34,10 @@ namespace moris
             // create member pointer to space interpolator
             mSpaceInterpolator = new mtk::Space_Interpolator( aInterpolationRule, aSpaceSideset );
 
+            // getting mapping size and flag from space interpolator
+            mMappedPoint = mSpaceInterpolator->get_initialized_mapped_point();
+            mMapFlag = mSpaceInterpolator->get_map_flag();
+
             // create member pointer to space interpolation function
             mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
 
@@ -807,86 +811,6 @@ namespace moris
                 }
             }
 
-            // switch on geometry type
-            if( mSpaceSideset )
-            {
-                switch( mGeometryType )
-                {
-                    case mtk::Geometry_Type::LINE :
-                    {
-                        // set size for storage
-                        mMapFlag = true;
-                        mMappedPoint.set_size( 3, 1, 0.0 );
-                        break;
-                    }
-                    case mtk::Geometry_Type::TRI :
-                    {
-                        // set size for storage
-                        mMapFlag = true;
-                        mMappedPoint.set_size( 4, 1, 0.0 );
-                        break;
-                    }
-                    case mtk::Geometry_Type::QUAD :
-                    {
-                        // set size for storage
-                        mMapFlag = true;
-                        mMappedPoint.set_size( 4, 1, 0.0 );
-                        break;
-                    }
-                    default :
-                    {
-                        MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented side space geometry type ");
-                    }
-                }
-            }
-            else
-            {
-                switch( mGeometryType )
-                {
-                    case mtk::Geometry_Type::LINE :
-                    {
-                        // set size for storage
-                        mMappedPoint.set_size( 2, 1, 0.0 );
-                        break;
-                    }
-
-                    case mtk::Geometry_Type::QUAD :
-                    {
-                        // set size for storage
-                        mMappedPoint.set_size( 3, 1, 0.0 );
-                        break;
-                    }
-
-                    case mtk::Geometry_Type::HEX :
-                    {
-                        // set size for storage
-                        mMappedPoint.set_size( 4, 1, 0.0 );
-                        break;
-                    }
-
-                    case mtk::Geometry_Type::TRI :
-                    {
-                        // set size for storage
-                        mMapFlag = true;
-                        mMappedPoint.set_size( 3, 1, 0.0 );
-                        break;
-                    }
-
-                    case mtk::Geometry_Type::TET :
-                    {
-                        // set size for storage
-                        mMapFlag = true;
-                        mMappedPoint.set_size( 4, 1, 0.0 );
-                        break;
-                    }
-
-                    default :
-                    {
-                        MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented space geometry type ");
-                    }
-                }
-            }
-
             // switch Geometry_Type
             switch ( mTimeGeometryType )
             {
@@ -894,7 +818,6 @@ namespace moris
                 {
                     mMapFlag      = true;
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
-                    mMapFlag = true;
                     break;
                 }
                 case mtk::Geometry_Type::LINE :
