@@ -273,7 +273,9 @@ namespace moris
                         tMax = std::max(tMax, tEval);
                     }
 
-                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
+                                     (std::abs(tMax) < mIsocontourTolerance) or
+                                     (std::abs(tMin) < mIsocontourTolerance);
 
                     break;
                 }
@@ -501,6 +503,12 @@ namespace moris
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
+                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    {
+
+                        tGeomProxIndex = 1;
+                    }
+
                     mVertexGeometricProximity(aNewNodeIndices(tNode)).set_geometric_proximity(tGeomProxIndex,tGeometryIndex);
                 }
             }
@@ -536,6 +544,21 @@ namespace moris
             }
 
             return mPhaseTable.get_phase_index(tGeometrySigns);
+        }
+
+        moris_index 
+        Geometry_Engine::is_interface_vertex(moris_index aNodeIndex,
+                                             moris_index aGeometryIndex)
+        {
+            moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)aGeometryIndex);
+
+            if(tProxIndex == 1)
+            {
+                return true;
+            }
+
+            return false;
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1461,6 +1484,11 @@ namespace moris
                 for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
                 {            
                     real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
+
+                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    {
+                        tVertGeomVal = 1;
+                    }
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 

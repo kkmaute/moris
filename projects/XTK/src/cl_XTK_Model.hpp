@@ -459,6 +459,18 @@ namespace xtk
             moris::Cell<moris::Cell<moris::mtk::Cell*>> const &
             get_element_to_element(){ return mElementToElement; };
 
+             /*!
+             * @returns element to element my side ordinals
+             */
+            moris::Cell<moris::Cell<moris_index>> const &
+            get_element_to_element_my_side_ords(){ return mElementToElementSideOrds; };
+
+            /*!
+             * @returns element to element neighbor side ordinals
+             */
+            moris::Cell<moris::Cell<moris_index>> const &
+            get_element_to_element_neighbor_side_ords(){ return mElementToElementNeighborSideOrds; };
+
             //-----------------------------------------------------------------------------------
 
             moris_index
@@ -558,7 +570,8 @@ namespace xtk
             bool mGhost             = false; // Model has setup ghost stabilization
 
             // Flag to cleanup mesh at end of decomposition
-            bool mCleanupMesh = false; // Model has setup ghost stabilization
+            bool mTriangulateAll = false; // Triangulate all background cells
+            bool mCleanupMesh    = false; // Cleanup the mesh 
 
             // cell map
             std::map< moris_id, moris_index> mCellGlbToLocalMap;
@@ -568,6 +581,8 @@ namespace xtk
 
             // element to element neighborhood
             moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
+            moris::Cell<moris::Cell<moris_index>>       mElementToElementSideOrds;
+            moris::Cell<moris::Cell<moris_index>>       mElementToElementNeighborSideOrds;
             moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhase;
             moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhaseMySideOrds;
             moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhaseNeighborSideOrds;
@@ -695,6 +710,11 @@ namespace xtk
 
             void
             create_new_node_association_with_geometry(Decomposition_Data & tDecompData);
+
+            //------------------------------------------------------------------------------
+
+            void
+            catch_all_unhandled_interfaces( );
 
             //------------------------------------------------------------------------------
 

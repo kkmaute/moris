@@ -32,7 +32,8 @@ moris::Matrix< moris::IndexMat >
 generate_element_to_element(moris::Matrix< moris::IndexMat > const & aFaceToElement,
                             Integer const & aNumElements,
                             Integer const & aNumFacesPerElement,
-                            moris::moris_index const & aDummyValue)
+                            moris::moris_index const & aDummyValue,
+                            moris::Matrix< moris::IndexMat > & aElementToElementSharedFacet)
 {
 
     // Initialize Sizes and Variables used in routine
@@ -42,10 +43,11 @@ generate_element_to_element(moris::Matrix< moris::IndexMat > const & aFaceToElem
 
     // Initialize Element to Element with size number of elements x number of faces per element filled with a dummy value.
     moris::Matrix< moris::IndexMat > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
+    aElementToElementSharedFacet.resize(aNumElements,aNumFacesPerElement);
+    aElementToElementSharedFacet.fill(aDummyValue);
 
     // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
     moris::Matrix< moris::IndexMat > tElementToElementCount(1,aNumElements,0);
-
 
     // Loop over all faces
     for(Integer i = 0; i < tNumFaces; i++)
@@ -81,6 +83,8 @@ generate_element_to_element(moris::Matrix< moris::IndexMat > const & aFaceToElem
 
                 // Set the element neighbor
                 tElementToElement(tElementIndex,tCountIndex) = aFaceToElement(i,k);
+
+                aElementToElementSharedFacet(tElementIndex,tCountIndex) = i;
 
                 // Increment the count on this element
                 tCountIndex++;

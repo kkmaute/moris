@@ -258,7 +258,8 @@ extern "C"
 
             tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
             tParameterlist( 0 )( 0 ).set( "intersection_mode", "LEVEL_SET");
-            tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1E-10);
+            // tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1E-10);
+            tParameterlist( 0 )( 0 ).set("isocontour_tolerance", 1e-12);   
             tParameterlist( 0 )( 0 ).set( "number_of_phases", (sint)(tNumBulkPhases+1));
             tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index");
 

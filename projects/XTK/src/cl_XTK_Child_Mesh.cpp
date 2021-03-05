@@ -1695,6 +1695,46 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
+    void
+    Child_Mesh::mark_facet_as_on_interface(moris_index aFacetCMIndex,
+                               moris_index aGeometryIndex)
+    {
+        // facet to element
+        moris::Matrix<moris::IndexMat> const & tFacetToElement = this->get_facet_to_element();
+
+        // local geometry index
+        moris_index tLocalGeomIndex = this->get_local_geom_index(aGeometryIndex);
+
+        // iterate through elements attached to this facet
+        for(moris::uint iCell = 0; iCell < tFacetToElement.n_cols(); iCell++)
+        {
+            // cell index
+            moris_index tCellIndex = tFacetToElement(aFacetCMIndex,iCell);
+            moris_index tSideOrdinal = MORIS_INDEX_MAX;
+
+            // only do this if we have a valid cell attached to this facet
+            if(tCellIndex != MORIS_INDEX_MAX)
+            {
+
+                if(mSpatialDimension == 2)
+                {
+                    tSideOrdinal = this->get_edge_ordinal_from_element_and_edge_indices(tCellIndex,aFacetCMIndex);
+                }
+                else if (mSpatialDimension == 3)
+                {
+                    tSideOrdinal = this->get_face_ordinal_from_element_and_face_index(tCellIndex,aFacetCMIndex);
+                }
+                else
+                {
+                    MORIS_ERROR(0,"two and three dimensions only");
+                }
+
+                mElementInterfaceSides(tCellIndex,tLocalGeomIndex) = (size_t)tSideOrdinal;
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------------------
 
     void
     Child_Mesh::mark_interface_faces_from_interface_coincident_faces()
@@ -1895,7 +1935,7 @@ namespace xtk
     {
         moris_index tLocSubIndex = MORIS_INDEX_MAX;
         for(moris::moris_index i = 0; i < (moris_index)mSubPhaseBinIndices.size(); i++)
-        {
+        {   
             if(mSubPhaseBinIndices(i) == aSubPhaseIndex)
             {
                 tLocSubIndex = i;
@@ -1937,9 +1977,11 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    void
-    Child_Mesh::construct_double_sides_between_subphases()
+    bool
+    Child_Mesh::construct_internal_double_sides_between_subphases()
     {
+        bool tHasInterChildMeshInterfaces = false;
+
         Matrix<IndexMat> const & tFacetToCell = this->get_facet_to_element();
 
         Matrix<IndexMat> const & tCellFacets  = this->get_element_to_facet();
@@ -1948,9 +1990,38 @@ namespace xtk
         moris::Cell<moris::Matrix< moris::IndexMat >> const &  tSubphaseClusters = this->get_subphase_groups();
         Cell<moris::moris_index> const & tSubphaseBulkPhases  = this->get_subphase_bin_bulk_phase();
 
+        // facet rank
+        enum EntityRank tFacetRank = this->get_facet_rank();
+
+        // get the interface side ords for the cells in this child mesh (rows local cell index in cm, col geometry)
+        moris::Matrix< moris::DDSTMat  > const & tCellInterfaceSideOrds = this->get_cell_interface_side_ords();
+
+        // facet parent inds and ranks
+        // moris::Matrix< moris::IndexMat > const & tFacetParentInds  = tChildMesh->get_facet_parent_inds();
+        moris::Matrix< moris::DDSTMat >  const & tFacetParentRanks = this->get_facet_parent_ranks();
+        moris::Matrix<moris::IndexMat>   const & tCellFacetInds    = this->get_element_to_facet();
+
+        // determine if there is an interchild mesh interface
+        for (moris::uint iLC = 0; iLC < tCellInterfaceSideOrds.n_rows(); iLC++)
+        {
+            for (moris::uint iG = 0; iG < tCellInterfaceSideOrds.n_cols(); iG++)
+            {
+                moris::size_t tInterfaceOrdinal = tCellInterfaceSideOrds(iLC, iG);
+
+                // if this is an interface facet
+                if (tInterfaceOrdinal != std::numeric_limits<moris::size_t>::max())
+                {
+                    moris_index tFacetIndex = tCellFacetInds(iLC, tInterfaceOrdinal);
+                    if (tFacetParentRanks(tFacetIndex) == (size_t)tFacetRank)
+                    {
+                        tHasInterChildMeshInterfaces = true;
+                    }
+                }
+            }
+        }
+
         //iterate through subphases and create neighborhoods between subphases
         // from low bulk phase to high bulk phase always
-
         for(moris::uint iSP0 = 0; iSP0 < tSubphaseClusters.size(); iSP0++)
         {
             for(moris::uint iSP1 = 0; iSP1 < tSubphaseClusters.size(); iSP1++)
@@ -1991,64 +2062,50 @@ namespace xtk
                                     tInterfaceNeighbor = tFacetToCell(tFacetCmIndex,iS);
                                     if(tInterfaceNeighbor != std::numeric_limits<moris_index>::max())
                                     {
-                                    tInterfaceNeighborSideOrd = this->get_cell_facet_ordinal(tInterfaceNeighbor,tFacetCmIndex);
-                                    break;
+                                        tInterfaceNeighborSideOrd = this->get_cell_facet_ordinal(tInterfaceNeighbor,tFacetCmIndex);
+                                        break;
                                     }
                                     else
                                     {
-                                        moris::print(this->get_edge_to_node(),"this->get_face_to_node()");
-                                        moris::print(this->get_element_to_node(),"this->get_element_to_node()");
-                                        std::cout<<"Cell Index = "<<this->get_parent_element_index()<<std::endl;
-                                        std::cout<<"Broken Facet cm index = "<<tFacetCmIndex<<std::endl;
-                                        std::cout<<"Wrt Geom index: "<<mGeometryIndex(iG)<<std::endl;
-                                        moris::Matrix< moris::IndexMat > tFacetNodes = this->get_edge_to_node_local();
-                                        std::cout<<"Nodes: ";
-                                        for(moris::uint iT = 0; iT < tFacetNodes.n_cols(); iT++ )
-                                        {
-                                            std::cout<<mNodeIds(tFacetNodes(tFacetCmIndex,iT))<<" ";
-                                        }
-                                        std::cout<<std::endl;
-                                        
-                                        std::cout<<"cells to facet row ";
-                                        for(moris::uint iST = 0; iST < tFacetToCell.n_cols(); iST++)
-                                        {
-                                            std::cout<<tFacetToCell(tFacetCmIndex,iST)<<" ";
-                                        }
-
-                                        moris::print(mGeometryIndex,"mGeometryIndex");
-
-                                        // throw;
-                                        
+                                        tHasInterChildMeshInterfaces = true;
                                     }
                                 }
                             }
 
                             // if this cell belongs to the other subphase add the pair and shared side ordinal
+
                             if(tInterfaceNeighbor != std::numeric_limits<moris_index>::max())
                             {
-                            if(this->get_element_subphase_index(tInterfaceNeighbor) == (moris_index) iSP1)
-                            {
-                                // add this subphase pair to the double side sets if we havent done so
-                                if(tCount == 0)
+                                if(this->get_element_subphase_index(tInterfaceNeighbor) == (moris_index) iSP1)
                                 {
-                                    tDblSideIndex = mDoubleSideSetSubphaseInds.size();
-                                    mDoubleSideSetSubphaseInds.push_back({(moris_index)iSP0,(moris_index)iSP1});
-                                    mDoubleSideSetCellPairs.push_back(Cell<Cell< moris_index >>(0));
-                                    mDoubleSideSetFacetPairs.push_back(Cell<Cell< moris_index >>(0));
+                                    // add this subphase pair to the double side sets if we havent done so
+                                    if(tCount == 0)
+                                    {
+                                        tDblSideIndex = mDoubleSideSetSubphaseInds.size();
+                                        mDoubleSideSetSubphaseInds.push_back({(moris_index)iSP0,(moris_index)iSP1});
+                                        mDoubleSideSetCellPairs.push_back(Cell<Cell< moris_index >>(0));
+                                        mDoubleSideSetFacetPairs.push_back(Cell<Cell< moris_index >>(0));
+                                    }
+
+                                    // add the pair information to the set
+                                    mDoubleSideSetCellPairs(tDblSideIndex).push_back({tCMLocCellInd,tInterfaceNeighbor});
+                                    mDoubleSideSetFacetPairs(tDblSideIndex).push_back({tSideOrd,tInterfaceNeighborSideOrd});
+
+                                    tCount++;
                                 }
-
-                                // add the pair information to the set
-                                mDoubleSideSetCellPairs(tDblSideIndex).push_back({tCMLocCellInd,tInterfaceNeighbor});
-                                mDoubleSideSetFacetPairs(tDblSideIndex).push_back({tSideOrd,tInterfaceNeighborSideOrd});
-
-                                tCount++;
                             }
+
+                            else
+                            {
+                              tHasInterChildMeshInterfaces = true;
                             }
                         }
                     }
                 }
             }
         }
+
+        return tHasInterChildMeshInterfaces;
     }
 
     // ---------------------------------------------------------------------------------
@@ -2184,7 +2241,13 @@ namespace xtk
     }
 
     // ---------------------------------------------------------------------------------
+    moris::Matrix< moris::DDSTMat  > const & 
+    Child_Mesh::get_cell_interface_side_ords()
+    {
+        return mElementInterfaceSides;
+    }
 
+    // ---------------------------------------------------------------------------------
     void
     Child_Mesh::pack_child_mesh_by_phase(
             moris::size_t                 const & aNumPhases,
@@ -2523,10 +2586,12 @@ namespace xtk
 
             mHasElemToElem                = true;
             moris::size_t tNumFacePerElem = 4;
+            Matrix<IndexMat> tElementToElementFacet;
             mElementToElement            = generate_element_to_element(mFaceToElement,
                     mNumElem,
                     tNumFacePerElem,
-                    std::numeric_limits<moris::moris_index>::max());
+                    std::numeric_limits<moris::moris_index>::max(),
+                    tElementToElementFacet);
         }
         else if(mElementTopology == CellTopology::TRI3)
         {
