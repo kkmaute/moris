@@ -1712,20 +1712,25 @@ namespace xtk
             moris_index tCellIndex = tFacetToElement(aFacetCMIndex,iCell);
             moris_index tSideOrdinal = MORIS_INDEX_MAX;
 
-            if(mSpatialDimension == 2)
+            // only do this if we have a valid cell attached to this facet
+            if(tCellIndex != MORIS_INDEX_MAX)
             {
-                tSideOrdinal = this->get_edge_ordinal_from_element_and_edge_indices(tCellIndex,aFacetCMIndex);
-            }
-            else if (mSpatialDimension == 3)
-            {
-                tSideOrdinal = this->get_face_ordinal_from_element_and_face_index(tCellIndex,aFacetCMIndex);
-            }
-            else
-            {
-                MORIS_ERROR(0,"two and three dimensions only");
-            }
 
-            mElementInterfaceSides(tCellIndex,tLocalGeomIndex) = (size_t)tSideOrdinal;
+                if(mSpatialDimension == 2)
+                {
+                    tSideOrdinal = this->get_edge_ordinal_from_element_and_edge_indices(tCellIndex,aFacetCMIndex);
+                }
+                else if (mSpatialDimension == 3)
+                {
+                    tSideOrdinal = this->get_face_ordinal_from_element_and_face_index(tCellIndex,aFacetCMIndex);
+                }
+                else
+                {
+                    MORIS_ERROR(0,"two and three dimensions only");
+                }
+
+                mElementInterfaceSides(tCellIndex,tLocalGeomIndex) = (size_t)tSideOrdinal;
+            }
         }
     }
 

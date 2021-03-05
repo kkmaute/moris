@@ -100,6 +100,8 @@ void check_results(
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
     real tReferenceTemperature = 3.79908000274581;
+    std::cout.precision(15);
+    std::cout<<"tExoIO.get_nodal_field_value( tNodeId, 2, 0 ) = "<<tExoIO.get_nodal_field_value( tNodeId, 2, 0 )<<std::endl;
     real tRelTempDifference = std::abs( ( tExoIO.get_nodal_field_value( tNodeId, 2, 0 ) - tReferenceTemperature ) / tReferenceTemperature );
     REQUIRE(  tRelTempDifference < 1.0e-4);
 }
