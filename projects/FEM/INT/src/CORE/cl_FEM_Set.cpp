@@ -1976,9 +1976,6 @@ namespace moris
 
         void Set::create_requested_IQI_list()
         {
-            // create IQI map
-            this->create_IQI_map();
-
             // clear requested IQI list
             mRequestedIQIs.clear();
 
