@@ -894,15 +894,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     // create space coeff xHat
     Matrix< DDRMat > tXHat;
 
-    // // create list of interpolation orders
-    // moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-    //         mtk::Interpolation_Order::LINEAR,
-    //         mtk::Interpolation_Order::QUADRATIC,
-    //         mtk::Interpolation_Order::CUBIC };
-
+    // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR, 
-            mtk::Interpolation_Order::QUADRATIC };
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
