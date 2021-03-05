@@ -8,59 +8,168 @@ namespace moris
 {
     namespace opt
     {
+        /**
+         * basic tasks for coordinating evaluation of design criteria and their gradients
+         * in parallel
+         */
+        enum class Task
+        {
+                exit,
+                wait,
+                compute_criteria,
+                compute_criteria_gradients
+        };
+
+        enum class SA_Type
+        {
+                analytical,
+                forward,
+                backward,
+                central
+        };
+
+        //-----------------------------------------------------------------------
+
         class Algorithm
         {
-        protected:
+            protected:
 
-            uint mCurrentOptAlgInd;                         // stores index of current optimization solver
+                uint mCurrentOptAlgInd;                         // stores index of current optimization solver
 
-            std::shared_ptr<moris::opt::Problem> mProblem;  // pointer to problem algorithm operates on
+                std::shared_ptr<moris::opt::Problem> mProblem;  // pointer to problem algorithm operates on
 
-            Matrix< DDSMat > mActive;                       // flag for active/inactive constraints
+                Matrix< DDSMat > mActive;                       // flag for active/inactive constraints
 
-            bool mRunning = true;
+                bool mGradientsHaveBeenComputed = false;        // flag whether gradients have been computed
 
-        public:
+                Task mRunning = Task::wait;                     // task for coordinating parallel runs
 
-            /**
-             * Constructor
-             */
-            Algorithm();
+                uint mPerturbationSizeIndex = 0;                // index that determines which perturbation size is used
 
-            /**
-             * Destructor
-             */
-            virtual ~Algorithm();
+                SA_Type mSAType = SA_Type::analytical;          // sensitivity analysis type; default analytical
 
-            /**
-             * @brief Calls the derived optimization algorithm
-             *
-             * @param[in] aOptProb Object of type Problem containing relevant
-             *            data regarding ADVs, the objective and constraints
-             */
-            virtual void solve(uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb) = 0;
+                Matrix<DDRMat> mFDObjectiveGradients;           // FD objective gradients
+                Matrix<DDRMat> mFDObjectiveConstraints;         // FD constraint gradients
 
-            /**
-              * Sets the new ADVs to the problem and performs a new forward and sensitivity criteria solve in parallel.
-              *
-              * @param aADVs ADVs, empty if not on proc 0
-              */
-             void criteria_solve( const Matrix<DDRMat> & aADVs );
+                Matrix<DDRMat> mFiniteDifferenceEpsilons;       // Epsilon for finite differencing
 
-             /**
-              * Communicates proc 0's running status to other processors so they know when to end.
-              */
-             void communicate_running_status();
+                Matrix<DDUMat> mFiniteDifferenceADVs;           // Indices of ADVs with respect to which sensitivities are
+                                                                // computed by finite differencing
 
-             /**
-              * Dummy solve on processors not running optimization algorithm.
-              */
-             void dummy_solve();
+                // Function pointer for computing gradients of design criteria either analytically or by finite differencing
+                void (Algorithm::*compute_design_criteria_gradients_by_type)(const Matrix<DDRMat> & aADVs) = nullptr;
 
-            /**
-             * @brief write restart file with advs as well as upper and lower bounds
-             */
-            void write_advs_to_file( const Matrix<DDRMat> aADVs );
+                // Function pointers for computing the objective and constraint either analytically or by finite differencing
+                const Matrix<DDRMat> & (Algorithm::*get_objective_gradients_by_type)() = nullptr;
+                const Matrix<DDRMat> & (Algorithm::*get_constraint_gradients_by_type)() = nullptr;
+
+            public:
+
+                /**
+                 * Constructor
+                 */
+                Algorithm();
+
+                /**
+                 * Destructor
+                 */
+                virtual ~Algorithm();
+
+                /**
+                 * @brief Calls the derived optimization algorithm
+                 *
+                 * @param[in] aOptProb Object of type Problem containing relevant
+                 *            data regarding ADVs, the objective and constraints
+                 */
+                virtual void solve(uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb) = 0;
+
+                /**
+                 * Computes design criteria for a given vector of ADVs
+                 *
+                 * @param aADVs ADVs, empty if not on proc 0
+                 */
+                void compute_design_criteria( const Matrix<DDRMat> & aADVs );
+
+                /**
+                 * Computes objective values
+                 *
+                 */
+                const Matrix<DDRMat> & get_objectives();
+
+                /**
+                 * Computes constraint values
+                 *
+                 */
+                const Matrix<DDRMat>& get_constraints();
+
+                 /**
+                 * Computes gradients of design criteria for a given vector of ADVs
+                 *
+                 * @param[in] aADVs         - ADVs, empty if not on proc 0
+                 */
+                void compute_design_criteria_gradients(const Matrix<DDRMat> & aADVs);
+
+                /**
+                * Returns gradients of objective(s) based on previous evaluations of sensitivities
+                */
+                const Matrix<DDRMat> & get_objective_gradients();
+
+                /**
+                * Returns gradients of constraints based on previous evaluations of sensitivities
+                */
+                const Matrix<DDRMat> & get_constraint_gradients();
+
+                /**
+                 * Sets sensitivity analysis type
+                 *
+                 * @param aType - enum for sensitivity analysis type
+                 */
+                void set_sensitivity_analysis_type(SA_Type aType = SA_Type::analytical );
+
+                /**
+                 *  Initialize finite difference schemes
+                 */
+                void initialize_finite_difference_schemes();
+
+                /**
+                 * Sets perturbation size for finite differencing
+                 *
+                 * @param aEpsilons - vector of values for perturbing the ADVs; if only one value is given
+                 *                    this perturbation size is applied to all ADVs
+                 */
+                void set_finite_difference_perturbation_size_index(uint aPerturbationSizeIndex);
+
+                /**
+                 * Sets indices of ADVs with respect to which sensitivities are to be computed by FD
+                 */
+                void set_finite_difference_advs( const Matrix<DDUMat> & aFiniteDifferenceADVs);
+
+                /**
+                 * Communicates proc 0's running status to other processors so they know when to end.
+                 */
+                void communicate_running_status();
+
+                /**
+                 * Dummy solve on processors not running optimization algorithm.
+                 */
+                void dummy_solve();
+
+                /**
+                 * @brief write restart file with advs as well as upper and lower bounds
+                 */
+                void write_advs_to_file( const Matrix<DDRMat> aADVs );
+
+            private:
+
+                void compute_design_criteria_gradients_analytically(const Matrix<DDRMat> & aADVs);
+                void compute_design_criteria_gradients_fd_fwbw(const Matrix<DDRMat> & aADVs);
+                void compute_design_criteria_gradients_fd_central(const Matrix<DDRMat> & aADVs);
+
+                const Matrix<DDRMat> & get_objective_gradients_analytically();
+                const Matrix<DDRMat> & get_objective_gradients_by_fd();
+
+                const Matrix<DDRMat> & get_constraint_gradients_analytically();
+                const Matrix<DDRMat> & get_constraint_gradients_by_fd();
         };
     }
 }
