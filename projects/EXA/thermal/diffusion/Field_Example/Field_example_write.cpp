@@ -168,7 +168,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
         tParameterlist( 0 )( 0 ).set( "initial_refinement", "1,1" );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
 
         tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
 

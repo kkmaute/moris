@@ -91,7 +91,7 @@ void check_results(
         Matrix< DDRMat > tNodalFieldValues;
 
         std::string tPrefix = moris::get_base_moris_dir();
-        std::string tFieldRefPath = tPrefix + "/projects/EXA/thermal/diffusion/Field_Example/Field_example_write_ref.hdf5";
+        std::string tFieldRefPath = tPrefix + "/projects/EXA/thermal/diffusion/Field_Example/Field_example_ref.hdf5";
         std::string tLabel = "FieldNodalTEMP";
 
         hid_t tFileRef    = open_hdf5_file( tFieldRefPath );
@@ -128,7 +128,7 @@ void check_results(
 
     if( aTestCaseIndex == 1 )
     {
-        uint tNodeId = 5994;
+        uint tNodeId = 5992;
         // define reference coordinates for node aNodeId
         Matrix< DDRMat > tReferenceCoordinate = { {0.175},{0.775} };
 
@@ -144,7 +144,7 @@ void check_results(
 
     if( aTestCaseIndex == 2 )
     {
-        uint tNodeId = 5994;
+        uint tNodeId = 5992;
         // define reference coordinates for node aNodeId
         Matrix< DDRMat > tReferenceCoordinate = { {0.175},{0.775} };
 
@@ -153,11 +153,10 @@ void check_results(
         REQUIRE( tRelDiffNorm <  1.0e-12 );
 
         // check temperature at node aNodeId in first time step (diff is 3rd nodal field, first time step has index 0)
-        real tReferenceDiff = 0.0;
+        std::cout<<tReferenceDiff<<" "<<tExoIO.get_nodal_field_value( tNodeId, 3, 0 )<<std::endl;
         real tRelDifference = std::abs( ( tExoIO.get_nodal_field_value( tNodeId, 3, 0 ) - tReferenceDiff )  );
-        REQUIRE(  tRelDifference < 1.0e-12);
+        REQUIRE(  tRelDifference < 1.0e-10);
     }
-
 }
 
 //---------------------------------------------------------------
@@ -227,9 +226,9 @@ TEST_CASE("Field_example_read",
 }
 
 //---------------------------------------------------------------
-/*
+
 TEST_CASE("Field_example_compare",
-        "[moris],[example],[thermal],[Field_example_read]")
+        "[moris],[example],[thermal],[Field_example_compare]")
 {
     // define command line call
     int argc = 2;
@@ -258,5 +257,5 @@ TEST_CASE("Field_example_compare",
     // perform check for Test Case 0
     check_results("Field_example_compare.exo",gTestCaseIndex);
 }
-*/
+
 

@@ -86,7 +86,7 @@ namespace moris
     std::string tOutputFileName = "Field_example_compare.exo";
 
     std::string tPrefix = moris::get_base_moris_dir();
-    std::string tFieldRefPath = tPrefix + "/projects/EXA/thermal/diffusion/Field_Example/Field_example_write_ref.hdf5";
+    std::string tFieldRefPath = tPrefix + "/projects/EXA/thermal/diffusion/Field_Example/Field_example_ref.hdf5";
     std::string tSolVecRefPath = tPrefix + "/projects/EXA/thermal/diffusion/Field_Example/Solution_Vector_Ref.hdf5";
 
     moris::real LevelSetFunction(
@@ -163,7 +163,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
         tParameterlist( 0 )( 0 ).set( "initial_refinement", "1,0" );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
 
         tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
 
