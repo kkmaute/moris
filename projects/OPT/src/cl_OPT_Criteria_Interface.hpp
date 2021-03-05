@@ -72,7 +72,6 @@ namespace moris
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
                 virtual Matrix<DDRMat> compute_dcriteria_dadv() = 0;
-
         };
     }
 }
