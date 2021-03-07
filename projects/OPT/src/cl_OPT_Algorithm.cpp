@@ -461,7 +461,17 @@ namespace moris
                 tNumFDadvs = tNumberOfAdvs;
 
                 // fill adv list with all advs
-                mFiniteDifferenceADVs=linspace<uint>(0,tNumberOfAdvs-1,1);
+                mFiniteDifferenceADVs=linspace<uint>(0,tNumberOfAdvs-1,tNumberOfAdvs);
+            }
+            else
+            {
+                // check that requested adv indices exists
+                for (uint tIndex =0; tIndex<tNumFDadvs; ++tIndex)
+                {
+                    MORIS_ERROR( mFiniteDifferenceADVs(tIndex) < tNumberOfAdvs,
+                            "Algorithm::initialize_finite_difference_schemes - %s",
+                            "Requested Adv index for FD too large.\n");
+                }
             }
 
             // Finite differencing perturbation size
@@ -483,12 +493,14 @@ namespace moris
 
                 // check that matrix of perturbation sizes has correct size
                 MORIS_ERROR(mFiniteDifferenceEpsilons.n_rows() == tNumberOfAdvs,
-                        "Algorithm::initialize_finite_difference_schemes - Number of rows in finite_difference_epsilons must match the number of ADVs.");
+                        "Algorithm::initialize_finite_difference_schemes - %s",
+                        "Number of rows in finite_difference_epsilons must match the number of ADVs.");
             }
             else
             {
                 MORIS_ERROR(false,
-                        "Algorithm::initialize_finite_difference_schemes - At least one value for the FD perturbation size needs to be set.\n");
+                        "Algorithm::initialize_finite_difference_schemes - %s",
+                        "At least one value for the FD perturbation size needs to be set.\n");
             }
         }
 
