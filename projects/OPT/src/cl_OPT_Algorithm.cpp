@@ -32,15 +32,12 @@ namespace moris
 
         void Algorithm::compute_design_criteria(const Matrix<DDRMat> & aADVs)
         {
-            // Log iteration of optimization
-            MORIS_LOG_ITERATION();
-
             // check that only processor with rank 0 enters this routine
             MORIS_ERROR( par_rank() == 0,
                     "Algorithm::compute_design_criteria - processor with rank > 0 detected.\n");
 
             // Coordinate computation of design criteria
-            mRunning = opt::Task::compute_criteria;
+            mRunning = opt::Task::compute_criteria_forward_analysis;
             this->communicate_running_status();
 
             // Compute design criteria
@@ -86,7 +83,7 @@ namespace moris
                     "Algorithm::compute_design_criteria_gradients_analytically - processor with rank > 0 detected.\n");
 
             // Coordinate computation of design criteria
-            mRunning = opt::Task::compute_criteria_gradients;
+            mRunning = opt::Task::compute_criteria_gradients_analytically;
             this->communicate_running_status();
 
             // Compute design criteria gradients
@@ -128,7 +125,7 @@ namespace moris
                 tADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
 
                 // Coordinate computation of design criteria
-                mRunning = opt::Task::compute_criteria;
+                mRunning = opt::Task::compute_criteria_finite_difference_analysis;
                 this->communicate_running_status();
 
                 // Compute design criteria
@@ -195,7 +192,7 @@ namespace moris
                 tADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
 
                 // Coordinate computation of design criteria
-                mRunning = opt::Task::compute_criteria;
+                mRunning = opt::Task::compute_criteria_finite_difference_analysis;
                 this->communicate_running_status();
 
                 // Compute design criteria
@@ -210,7 +207,7 @@ namespace moris
                 tADVs(tADVIndex) -= 2.0 * mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
 
                 // Coordinate computation of design criteria
-                mRunning = opt::Task::compute_criteria;
+                mRunning = opt::Task::compute_criteria_finite_difference_analysis;
                 this->communicate_running_status();
 
                 // Compute design criteria
@@ -360,11 +357,20 @@ namespace moris
             MORIS_ERROR( par_rank() > 0 ? mRunning == Task::wait : true,
                     "Algorithm::communicate_running_status - incoming status of processors with rank larger 1 should be wait\n");
 
+            // convert enum into uint for MPI communication
             uint tMsg = (uint) mRunning;
 
+            // procesor 0 sends running status to all other processors
             broadcast(tMsg);
 
+            // update running status
             mRunning = (Task) tMsg;
+
+            // Increase optimization iteration counter if forward analysis
+            if ( mRunning == Task::compute_criteria_forward_analysis )
+            {
+                MORIS_LOG_ITERATION();
+            }
         }
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -377,7 +383,7 @@ namespace moris
             // Create dummy ADVs
             Matrix<DDRMat> tDummyADVs(0,0);
 
-            // Keep looping over func/grad calls
+            // Perform requested analysis type until exit status received
             while (mRunning != Task::exit)
             {
                 switch ( mRunning )
@@ -392,17 +398,23 @@ namespace moris
                          // Do nothing on exit
                          break;
                      }
-                    case Task::compute_criteria:
+                    case Task::compute_criteria_forward_analysis:
+                    case Task::compute_criteria_finite_difference_analysis:
                     {
                         // Compute design criteria
                         this->mProblem->compute_design_criteria(tDummyADVs);
                         break;
                     }
-                    case Task::compute_criteria_gradients:
+                    case Task::compute_criteria_gradients_analytically:
                     {
-                        // Compute derivatives of design criteria
+                        // Compute analytically derivatives of design criteria
                         this->mProblem->compute_design_criteria_gradients(tDummyADVs);
                         break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR(false,
+                                "Algorithm::dummy_solve - undefined running status.\n");
                     }
                 }
 
