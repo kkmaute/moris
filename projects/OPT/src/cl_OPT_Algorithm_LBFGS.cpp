@@ -96,9 +96,6 @@ namespace moris
 
             while ( (strcmp(task, fg_start) == 0) || (strcmp(task, "NEW_X") == 0) )
             {
-                // Log iteration of optimization
-                MORIS_LOG_ITERATION();
-
                 if (strcmp(task, fg_start) == 0)
                 {
                     // call to compute objective

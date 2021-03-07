@@ -222,9 +222,6 @@ namespace moris
             // Loop through evaluation points
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
-                // Log iteration of optimization
-                MORIS_LOG_ITERATION();
-
                 // Compute design criteria at current evaluation point
                 this->compute_design_criteria(mEvaluationPoints.get_column(tEvaluationIndex));
 
