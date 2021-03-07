@@ -180,11 +180,9 @@ namespace moris
 
             // global assembly to switch entries to the right processor
             mExplicitdQidp->vector_global_assembly();
-            //mExplicitdQidp->print();
 
             // global assembly to switch entries to the right processor
             mImplicitdQidp->vector_global_assembly();
-            //mImplicitdQidp->print();
         }
 
         //------------------------------------------------------------------------------
