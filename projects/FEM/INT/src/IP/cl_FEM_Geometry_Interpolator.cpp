@@ -32,27 +32,68 @@ namespace moris
             mTimeSideset = aTimeSideset;
 
             // create member pointer to space interpolator
-            mSpaceInterpolator = new mtk::Space_Interpolator( aInterpolationRule, aSpaceSideset );
+            mSpaceInterpolator = new mtk::Space_Interpolator(
+                aInterpolationRule,
+                aSpaceSideset );
 
             // getting mapping size and flag from space interpolator
             mMappedPoint = mSpaceInterpolator->get_initialized_mapped_point();
             mMapFlag = mSpaceInterpolator->get_map_flag();
 
-            // create member pointer to space interpolation function
-            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
-
             // create member pointer to time interpolation function
             mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
 
             // number of space bases and dimensions
-            mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+            mNumSpaceParamDim = aInterpolationRule.create_space_interpolation_function()
+                                    ->get_number_of_param_dimensions();
 
             // number of time bases and dimensions
             mNumTimeBases = mTimeInterpolation->get_number_of_bases();
             mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
 
             // set member geometry type
-            mGeometryType     = aInterpolationRule.get_geometry_type();
+            mTimeGeometryType = aInterpolationRule.get_time_geometry_type();
+
+            // set pointers for second derivative depending on space and time dimensions
+            this->set_function_pointers();
+        }
+
+        //------------------------------------------------------------------------------
+
+        Geometry_Interpolator::Geometry_Interpolator(
+                const mtk::Interpolation_Rule & aInterpolationRule,
+                const mtk::Geometry_Type      & aIPMappingGeometryType,
+                const bool                      aSpaceSideset,
+                const bool                      aTimeSideset )
+        {
+            // set bool for side interpolation to true
+            mSpaceSideset = aSpaceSideset;
+
+            // set bool for time side interpolation to true
+            mTimeSideset = aTimeSideset;
+
+            // create member pointer to space interpolator
+            mSpaceInterpolator = new mtk::Space_Interpolator(
+                aInterpolationRule,
+                aIPMappingGeometryType,
+                aSpaceSideset );
+
+            // getting mapping size and flag from space interpolator
+            mMappedPoint = mSpaceInterpolator->get_initialized_mapped_point();
+            mMapFlag = mSpaceInterpolator->get_map_flag();
+
+            // create member pointer to time interpolation function
+            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
+
+            // number of space bases and dimensions
+            mNumSpaceParamDim = aInterpolationRule.create_space_interpolation_function()
+                                    ->get_number_of_param_dimensions();
+
+            // number of time bases and dimensions
+            mNumTimeBases = mTimeInterpolation->get_number_of_bases();
+            mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
+
+            // set member geometry type
             mTimeGeometryType = aInterpolationRule.get_time_geometry_type();
 
             // set pointers for second derivative depending on space and time dimensions
@@ -63,12 +104,6 @@ namespace moris
 
         Geometry_Interpolator::~Geometry_Interpolator()
         {
-            // delete interpolation functions
-            if( mSpaceInterpolation != NULL )
-            {
-                delete mSpaceInterpolation;
-            }
-
             if( mTimeInterpolation != NULL )
             {
                 delete mTimeInterpolation;

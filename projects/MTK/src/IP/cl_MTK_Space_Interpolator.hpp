@@ -56,6 +56,9 @@ namespace moris
                 // element geometry type
                 Geometry_Type mGeometryType;
 
+                // interpolation cell geometry type
+                Geometry_Type mIPMappingGeometryType;
+
                 // element shape
                 bool mRectangular = false;
 
@@ -165,10 +168,20 @@ namespace moris
                  * constructor
                  * @param[ in ] interpolation rule for geometry
                  * @param[ in ] flag true if side interpolation
-                 * @param[ in ] flag true if time side interpolation
                  */
                 Space_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
+                        const bool                      aSpaceSideset = false );
+
+                /**
+                 * constructor
+                 * @param[ in ] interpolation rule for geometry
+                 * @param[ in ] interpolation cell geometry type for mapping
+                 * @param[ in ] flag true if side interpolation
+                 */
+                Space_Interpolator(
+                        const mtk::Interpolation_Rule & aInterpolationRule,
+                        const mtk::Geometry_Type      & aIPMappingGeometryType,
                         const bool                      aSpaceSideset = false );
 
                 //------------------------------------------------------------------------------

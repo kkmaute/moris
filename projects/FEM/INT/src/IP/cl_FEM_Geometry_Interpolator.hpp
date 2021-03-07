@@ -42,9 +42,6 @@ namespace moris
                 // pointer to space interpolator object
                 mtk::Space_Interpolator * mSpaceInterpolator = nullptr;
 
-                // pointer to space interpolation function object
-                mtk::Interpolation_Function_Base * mSpaceInterpolation = nullptr;
-
                 // pointer to time interpolation function object
                 mtk::Interpolation_Function_Base * mTimeInterpolation = nullptr;
 
@@ -68,7 +65,6 @@ namespace moris
                 Matrix< DDRMat > mTauLocal;
 
                 // element geometry type
-                mtk::Geometry_Type mGeometryType;
                 mtk::Geometry_Type mTimeGeometryType;
 
                 // boolean true if side interpolation
@@ -153,6 +149,19 @@ namespace moris
                         const bool                      aSpaceSideset = false,
                         const bool                      aTimeSideset  = false );
 
+                /**
+                 * constructor
+                 * @param[ in ] interpolation rule for geometry
+                 * @param[ in ] interpolation cell geometry type for mapping
+                 * @param[ in ] flag true if side interpolation
+                 * @param[ in ] flag true if time side interpolation
+                 */
+                Geometry_Interpolator(
+                        const mtk::Interpolation_Rule & aInterpolationRule,
+                        const mtk::Geometry_Type      & aIPMappingGeometryType,
+                        const bool                      aSpaceSideset = false,
+                        const bool                      aTimeSideset  = false );
+
                 //------------------------------------------------------------------------------
                 /**
                  * destructor
@@ -179,7 +188,7 @@ namespace moris
                  */
                 mtk::Interpolation_Order get_space_interpolation_order() const
                 {
-                    return mSpaceInterpolation->get_interpolation_order();
+                    return mSpaceInterpolator->get_space_interpolation_order();
                 }
 
                 //------------------------------------------------------------------------------
@@ -197,7 +206,7 @@ namespace moris
                  */
                 mtk::Interpolation_Type get_space_interpolation_type() const
                 {
-                    return mSpaceInterpolation->get_interpolation_type();
+                    return mSpaceInterpolator->get_space_interpolation_type();
                 }
 
                 //------------------------------------------------------------------------------
@@ -215,7 +224,7 @@ namespace moris
                  */
                 uint get_number_of_space_dimensions() const
                 {
-                    return mSpaceInterpolation->get_number_of_dimensions();
+                    return mSpaceInterpolator->get_number_of_space_dimensions();
                 }
 
                 //------------------------------------------------------------------------------
@@ -233,7 +242,7 @@ namespace moris
                  */
                 uint get_number_of_space_bases() const
                 {
-                    return mSpaceInterpolation->get_number_of_bases();
+                    return mSpaceInterpolator->get_number_of_space_bases();
                 }
 
                 //------------------------------------------------------------------------------
@@ -251,7 +260,7 @@ namespace moris
                  */
                 mtk::Geometry_Type get_space_geometry_type()
                 {
-                    return mGeometryType;
+                    return mSpaceInterpolator->get_space_geometry_type();
                 }
 
                 //------------------------------------------------------------------------------
