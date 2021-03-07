@@ -7,34 +7,44 @@ namespace moris
 {
     namespace ge
     {
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
+
         Interpolation_Pdv_Host::Interpolation_Pdv_Host(
-                Pdv_Host_Manager * aPdvHostManager,
-                const moris_index & aNodeIndex,
-                const moris_id & aNodeId,
-                const moris_index & aNodeOwner,
+                Pdv_Host_Manager     * aPdvHostManager,
+                const moris_index    & aNodeIndex,
+                const moris_id       & aNodeId,
+                const moris_index    & aNodeOwner,
                 const Matrix<DDRMat> & aCoordinates,
                 const Cell<PDV_Type> & aPDVTypes)
-        : mPdvHostManager(aPdvHostManager),
-          mNodeIndex(aNodeIndex),
-          mNodeId(aNodeId),
-          mNodeOwner(aNodeOwner),
-          mCoordinates(aCoordinates),
-          mPDVs(mPdvHostManager->get_max_num_pdvs(), nullptr)
         {
+            // check for aPdvHostManager is valid
+            MORIS_ERROR( aPdvHostManager != nullptr,
+                    "Interpolation_Pdv_Host::Interpolation_Pdv_Host - PdvHostManager does not exist.\n");
 
+            // set PDV host manager
+            mPdvHostManager = aPdvHostManager;
+
+            // store nodal data
+            mNodeIndex = aNodeIndex;
+            mNodeId    = aNodeId;
+            mNodeOwner = aNodeOwner;
+
+            // store coordinates
+            mCoordinates = aCoordinates;
+
+            // allocate size for storing PDVs
+            mPDVs.resize( mPdvHostManager->get_max_num_pdvs(), nullptr);
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         Interpolation_Pdv_Host::~Interpolation_Pdv_Host()
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         uint Interpolation_Pdv_Host::get_num_pdvs()
         {
             return mPDVs.size();
@@ -50,8 +60,10 @@ namespace moris
 
             // Check PDV type
             MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+                    "Interpolation_Pdv_Host::create_pdv - PDV type does not exist at node with index %d.\n",mNodeIndex);
 
+            // FIXME: not clear whether finding an existing PDV indicates an error or not;
+            //        see also creating a PDV with a pointer
             if( mPDVs(tPDVIndex) == nullptr )
             {
                 // Create a pdv with pdv value
@@ -62,12 +74,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Interpolation_Pdv_Host::set_pdv_id(
-                PDV_Type aPDVType,
+                PDV_Type       aPDVType,
                 const moris_id aCounterId )
         {
             const Matrix< DDSMat > & tPDVTypeMap = mPdvHostManager->get_pdv_type_map();
 
-            uint tPDVIndex = tPDVTypeMap( static_cast<uint>(aPDVType) );
+            sint tPDVIndex = tPDVTypeMap( static_cast<uint>(aPDVType) );
+
+            // Check PDV type
+            MORIS_ASSERT(tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::set_pdv_id - PDV type does not exist at node with index %d.\n",mNodeIndex);
 
             mPDVs( tPDVIndex )->set_id( aCounterId );
         }
@@ -77,7 +93,12 @@ namespace moris
         moris_id Interpolation_Pdv_Host::get_pdv_id(PDV_Type aPDVType)
         {
             const Matrix< DDSMat > & tPDVTypeMap = mPdvHostManager->get_pdv_type_map();
-            uint tPDVIndex = tPDVTypeMap( static_cast<uint>(aPDVType) );
+
+            sint tPDVIndex = tPDVTypeMap( static_cast<uint>(aPDVType) );
+
+            // Check PDV type
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::get_pdv_id - PDV type does not exist at node with index %d.\n",mNodeIndex);
 
             return this->get_pdv_id(tPDVIndex);
         }
@@ -86,27 +107,38 @@ namespace moris
 
         moris_id Interpolation_Pdv_Host::get_pdv_id(uint aPDVIndex)
         {
-            if (mPDVs(aPDVIndex))
+            // return PDV Id if PDV for given index exists; otherwise return -1 
+            if ( mPDVs(aPDVIndex) )
             {
                 return mPDVs(aPDVIndex)->get_id();
             }
-            else
-            {
-                return -1;
-            }
+
+            return -1;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Interpolation_Pdv_Host::create_pdv(PDV_Type aPDVType, std::shared_ptr<Property> aPropertyPointer)
+        void Interpolation_Pdv_Host::create_pdv(
+                PDV_Type                  aPDVType,
+                std::shared_ptr<Property> aPropertyPointer)
         {
+            // Check that PDV has not already been created
+            MORIS_ASSERT( aPropertyPointer != nullptr,
+                    "Interpolation_Pdv_Host::create_pdv - property pointer is nullptr.\n");
+
             const Matrix< DDSMat > & tPDVTypeMap = mPdvHostManager->get_pdv_type_map();
 
             sint tPDVIndex = tPDVTypeMap( static_cast<sint>(aPDVType) );
 
             // Check PDV type
-            MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::create_pdv - PDV type does not exist at node with index %d.\n",mNodeIndex);
+
+            // FIXME: not clear whether finding an existing PDV indicates an error or not;
+            //        see also creating a PDV with a value
+            // Check that PDV has not already been created
+            //MORIS_ASSERT( mPDVs(tPDVIndex) == nullptr,
+            //        "Interpolation_Pdv_Host::create_pdv - PDV has already been created.\n");
 
             // Create a pdv with property pointer
             mPDVs(tPDVIndex) = std::make_shared< Pdv_Property >(aPropertyPointer);
@@ -121,8 +153,14 @@ namespace moris
             sint tPDVIndex = tPDVTypeMap( static_cast<sint>(aPDVType) );
 
             // Check PDV type
-            MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::is_active_type - PDV type does not exist at node with index %d.\n",
+                    mNodeIndex);
+
+            // check that PDV pointer is valid
+            MORIS_ASSERT( mPDVs(tPDVIndex) != nullptr,
+                    "Interpolation_Pdv_Host::is_active_type - PDV does not exist at node with index %d.\n",
+                    mNodeIndex);
 
             // return if active PDV
             return mPDVs(tPDVIndex)->mIsActive;
@@ -130,15 +168,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Interpolation_Pdv_Host::set_global_index_for_pdv_type(PDV_Type aPDVType, moris_id aId)
+        void Interpolation_Pdv_Host::set_global_index_for_pdv_type(
+                PDV_Type aPDVType,
+                moris_id aId)
         {
             const Matrix< DDSMat > & tPDVTypeMap = mPdvHostManager->get_pdv_type_map();
 
             sint tPDVIndex = tPDVTypeMap( static_cast<sint>(aPDVType) );
 
             // Check PDV type
-            MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::set_global_index_for_pdv_type - PDV type does not exist at node with index %d.\n",
+                    mNodeIndex);
+
+            // check that PDV pointer is valid
+            MORIS_ASSERT( mPDVs(tPDVIndex) != nullptr,
+                    "Interpolation_Pdv_Host::set_global_index_for_pdv_type - PDV does not exist at node with index %d.\n",
+                    mNodeIndex);
 
             mPDVs(tPDVIndex)->set_id( aId );
         }
@@ -152,8 +198,14 @@ namespace moris
             sint tPDVIndex = tPDVTypeMap( static_cast<sint>(aPDVType) );
 
             // Check PDV type
-            MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::get_global_index_for_pdv_type - PDV type does not exist at node with index %d.\n",
+                    mNodeIndex);
+
+            // check that PDV pointer is valid
+            MORIS_ASSERT( mPDVs(tPDVIndex) != nullptr,
+                    "Interpolation_Pdv_Host::get_global_index_for_pdv_type - PDV does not exist at node with index %d.\n",
+                    mNodeIndex);
 
             // Return id from map
             return mPDVs(tPDVIndex)->get_id();
@@ -192,13 +244,12 @@ namespace moris
             sint tPDVIndex = tPDVTypeMap( static_cast<sint>(aPDVType) );
 
             // Check PDV type
-            MORIS_ASSERT(tPDVIndex != -1,
-                         "Interpolation_Pdv_Host::get_pdv_value - Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Interpolation_Pdv_Host::get_global_index_for_pdv_type - PDV type doesn't exist.");
 
             //Check whether PDV exists
             MORIS_ASSERT( mPDVs(tPDVIndex) != nullptr,
-                    "Interpolation_Pdv_Host::get_pdv_value - PDV does not exists at node with index %.\n",
-                    mNodeIndex);
+                    "Interpolation_Pdv_Host::get_pdv_value - PDV does not exist at node with index %d.\n",mNodeIndex);
 
             // Return value
             return mPDVs(tPDVIndex)->get_value(mNodeIndex, mCoordinates);
@@ -213,38 +264,45 @@ namespace moris
             sint tPDVIndex = tPDVTypeMap( static_cast<sint>(aPDVType) );
 
             // Check PDV type
-            MORIS_ASSERT(tPDVIndex != -1,
-                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+            MORIS_ASSERT( tPDVIndex != -1,
+                    "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
 
-            bool tBool = false;
-
-            if( mPDVs(tPDVIndex) != nullptr )
+            // if PDV exists return true
+            if( mPDVs(tPDVIndex) )
             {
-                tBool = true;
+                return true;
             }
 
-            return tBool;
+            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Interpolation_Pdv_Host::get_sensitivities(uint aPDVIndex)
         {
-            // If PDV exists and is active, ask it for sensitivities. Otherwise, return nothing
-            return ((mPDVs(aPDVIndex) and mPDVs(aPDVIndex)->mIsActive)
-                    ? mPDVs(aPDVIndex)->get_sensitivities(mNodeIndex, mCoordinates) : Matrix<DDRMat>(0, 0));
+            // If PDV exists and is active, ask it for sensitivities; otherwise, return zero matrix
+            if ( mPDVs(aPDVIndex) and mPDVs(aPDVIndex)->mIsActive )
+            {
+                return mPDVs(aPDVIndex)->get_sensitivities(mNodeIndex, mCoordinates);
+            }
+
+            return Matrix<DDRMat>(0, 0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDSMat> Interpolation_Pdv_Host::get_determining_adv_ids(uint aPDVIndex)
         {
-            // If PDV exists and is active, ask it for depending ADV IDs. Otherwise, return nothing
-            return ((mPDVs(aPDVIndex) and mPDVs(aPDVIndex)->mIsActive)
-                    ? mPDVs(aPDVIndex)->get_determining_adv_ids(mNodeIndex, mCoordinates) : Matrix<DDSMat>(0, 0));
+            // If PDV exists and is active, ask it for depending ADV IDs; Otherwise, return zero matrix
+            if ( mPDVs(aPDVIndex) and mPDVs(aPDVIndex)->mIsActive )
+            {
+                return mPDVs(aPDVIndex)->get_determining_adv_ids(mNodeIndex, mCoordinates);
+            }
+
+            return Matrix<DDSMat>(0, 0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
     }
 }
