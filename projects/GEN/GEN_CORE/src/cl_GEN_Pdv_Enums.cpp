@@ -2,11 +2,10 @@
 
 namespace moris
 {
-
     //------------------------------------------------------------------------------------------------------------------
 
     moris::map< std::string, PDV_Type > get_pdv_type_map()
-            {
+    {
         moris::map< std::string, PDV_Type > tPdvTypeMap;
 
         tPdvTypeMap["X_COORDINATE"]     = PDV_Type::X_COORDINATE;
@@ -18,8 +17,9 @@ namespace moris
         tPdvTypeMap["LS1"]              = PDV_Type::LS1;
         tPdvTypeMap["LS2"]              = PDV_Type::LS2;
         tPdvTypeMap[""]                 = PDV_Type::UNDEFINED;
+
         return tPdvTypeMap;
-            }
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 
