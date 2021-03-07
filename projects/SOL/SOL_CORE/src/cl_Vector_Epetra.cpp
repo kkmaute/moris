@@ -16,8 +16,9 @@ Vector_Epetra::Vector_Epetra(
         sol::Dist_Map*  aMapClass,
         const sint      aNumVectors,
         bool            aPointMap,
-        bool            aManageMap) : sol::Dist_Vector( aMapClass, aManageMap ),
-                mVecBuildWithPointMap( aPointMap )
+        bool            aManageMap)
+: sol::Dist_Vector( aMapClass, aManageMap ),
+  mVecBuildWithPointMap( aPointMap )
 {
     mNumVectors = aNumVectors;
 
@@ -99,8 +100,6 @@ void Vector_Epetra::sum_into_global_values(
                 aValues.data(),
                 aVectorIndex );
     }
-
-
 }
 
 //----------------------------------------------------------------------------------------------
