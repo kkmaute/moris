@@ -371,10 +371,14 @@ namespace moris
                 // get number of coefficients
                 uint tNumCoeff = tPdvIds( 0 ).numel();
 
+                // check that coefficients are larger or equal 0
+                MORIS_ASSERT( tPdvIds( 0 ).min() > -1,
+                        "Interpolation_Element::fill_mat_pdv_assembly_vector - %s",
+                        "Coefficient vector includes negative numbers.\n");
+
                 // fill the assembly vector with pdv ids
                 mSet->get_mat_pdv_assembly_vector()(
-                        { tCounter, tCounter + tNumCoeff - 1 },
-                        { 0, 0 } ) = tPdvIds( 0 ).matrix_data();
+                        { tCounter, tCounter + tNumCoeff - 1 } ) = tPdvIds( 0 ).matrix_data();
 
                 // update pdv counter
                 tCounter += tNumCoeff;
@@ -402,10 +406,14 @@ namespace moris
                     // get number of coefficients
                     uint tNumCoeff = tPdvIds( 0 ).numel();
 
+                    // check that coefficients are larger or equal 0
+                    MORIS_ASSERT( tPdvIds( 0 ).min() > -1,
+                            "Interpolation_Element::fill_mat_pdv_assembly_vector - %s",
+                            "Coefficient vector includes negative numbers.\n");
+
                     // fill the assembly vector with pdv ids
                     mSet->get_mat_pdv_assembly_vector()(
-                            { tCounter, tCounter + tNumCoeff - 1 },
-                            { 0, 0 } ) = tPdvIds( 0 ).matrix_data();
+                            { tCounter, tCounter + tNumCoeff - 1 } ) = tPdvIds( 0 ).matrix_data();
 
                     // update pdv counter
                     tCounter += tNumCoeff;
