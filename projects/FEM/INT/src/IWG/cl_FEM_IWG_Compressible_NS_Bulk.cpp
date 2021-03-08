@@ -112,13 +112,13 @@ namespace moris
 
             // compute the second residual (velocity)
             mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) += aWStar * ( tFIVelocity->N_trans() * (
-                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) -
+                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) +
                     trans( tCM->testStrain() ) * this->MultipMat() * tCM->flux( CM_Function_Type::MECHANICAL ) ); 
 
             // compute the third residual (temperature)
             mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar * ( 
                     tFIThirdDofType->N_trans() * (
-                        mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) -
+                        mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) +
                     trans( tFIThirdDofType->dnNdxn( 1 ) ) * ( 
                         tCM->flux( CM_Function_Type::WORK ) - tCM->flux( CM_Function_Type::THERMAL ) ) ); 
 
@@ -300,13 +300,13 @@ namespace moris
                 // add contribution
                 mSet->get_jacobian()(
                         { tMasterRes2StartIndex, tMasterRes2StopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * ( trans( tCM->testStrain() ) * 
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * ( trans( tCM->testStrain() ) * 
                                 this->MultipMat() * tCM->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );                        
 
                 // add contribution to temperature residual dof type
                 mSet->get_jacobian()(
                         { tMasterRes3StartIndex, tMasterRes3StopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * ( trans( tFIThirdDofType->dnNdxn( 1 ) ) * (
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * ( trans( tFIThirdDofType->dnNdxn( 1 ) ) * (
                                 tCM->dFluxdDOF( tDofType, CM_Function_Type::WORK ) - tCM->dFluxdDOF( tDofType, CM_Function_Type::THERMAL ) ) );
             }
 
