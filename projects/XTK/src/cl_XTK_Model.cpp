@@ -3206,6 +3206,7 @@ namespace xtk
     void
     Model::cleanup_cut_mesh()
     {   
+        Tracer tTracer( "XTK", "Decomp", "Cleanup Mesh" );
         moris::uint tNumCutMeshes = mCutMesh.get_num_child_meshes();
         moris::Cell<moris::uint> tChildMeshesToKeep;
         moris::Cell<moris::uint> tChildMeshesToDelete;
@@ -3214,7 +3215,8 @@ namespace xtk
         {
             Child_Mesh & tCM = mCutMesh.get_child_mesh(iCM);
             Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
-            if(tSubphasebinBulkPhase.size() > 1 || tCM.get_cell_interface_side_ords().min() < std::numeric_limits<moris::size_t>::max())
+
+           if(tSubphasebinBulkPhase.size() > 1 )
             {
                 tChildMeshesToKeep.push_back(iCM);
             }
@@ -3227,6 +3229,10 @@ namespace xtk
         mCutMesh.remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete);
 
         mBackgroundMesh.setup_downward_inheritance(mCutMesh);
+
+        MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
+        MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
+
     }
 
     // ----------------------------------------------------------------------------------
