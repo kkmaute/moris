@@ -259,7 +259,6 @@ namespace moris
                 while ( true )
                 {
                     // Create mesh //FIXME
-                    std::cout<<"MeshIndex: "<<tMeshIndex<<std::endl;
                     std::shared_ptr<hmr::Mesh> tMesh = aHMR->create_mesh( tMeshIndex );
 
                     uint tLagrangeMeshPattern = tMesh->get_lagrange_mesh_pattern();

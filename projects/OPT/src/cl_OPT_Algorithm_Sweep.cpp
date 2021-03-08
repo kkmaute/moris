@@ -222,9 +222,6 @@ namespace moris
             // Loop through evaluation points
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
-                // Log iteration of optimization
-                MORIS_LOG_ITERATION();
-
                 // Compute design criteria at current evaluation point
                 this->compute_design_criteria(mEvaluationPoints.get_column(tEvaluationIndex));
 
@@ -329,7 +326,13 @@ namespace moris
                     // Extract sensitivities of requested ADVs
                     for (uint tIndex=0;tIndex<mFiniteDifferenceADVs.numel();++tIndex)
                     {
-                        tObjectiveGradientsExtracted(tIndex)=tObjectiveGradients(mFiniteDifferenceADVs(tIndex));
+                        // get ADV index
+                        uint tAdvIndex = mFiniteDifferenceADVs(tIndex);
+
+                        MORIS_ASSERT( tAdvIndex < tObjectiveGradients.numel(),
+                                "Algorithm_Sweep::evaluate_objective_gradients - requested adv index does not exist.\n");
+
+                        tObjectiveGradientsExtracted(tIndex)=tObjectiveGradients(tAdvIndex);
                     }
 
                     // replace full derivative matrix with temporary one
@@ -369,7 +372,13 @@ namespace moris
                     {
                         for (uint tConst=0;tConst<tNumberOfConstraints;++tConst)
                         {
-                            tConstraintGradientsExtracted(tConst,tIndex)=tConstraintGradients(tConst,mFiniteDifferenceADVs(tIndex));
+                            // get ADV index
+                            uint tAdvIndex = mFiniteDifferenceADVs(tIndex);
+
+                            MORIS_ASSERT( tAdvIndex < tConstraintGradients.n_cols(),
+                                    "Algorithm_Sweep::evaluate_constraint_gradients - requested adv index does not exist.\n");
+
+                            tConstraintGradientsExtracted(tConst,tIndex)=tConstraintGradients(tConst,tAdvIndex);
                         }
                     }
 

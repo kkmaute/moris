@@ -33,10 +33,11 @@ namespace moris
 
                 // list of pdv hosts - interpolation nodes
                 Cell<std::shared_ptr<Interpolation_Pdv_Host>> mIpPdvHosts;
-                Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
+                Cell<std::shared_ptr<Intersection_Node>>      mIntersectionNodes;
 
                 std::unordered_map<moris_id,moris_index> mIGVertexIdtoIndMap;
                 std::unordered_map<moris_id,moris_index> mIPVertexIdtoIndMap;
+                std::unordered_map<moris_id,moris_index> mIPBaseVertexIdtoIndMap;
 
                 // Groups of PDV types used per set
                 Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;

@@ -149,6 +149,9 @@ namespace moris
 
             // create a dof and dv type maps
             this->create_dof_and_dv_type_maps();
+
+            // create IQI map
+            this->create_IQI_map();
         }
 
         //------------------------------------------------------------------------------
@@ -1973,9 +1976,6 @@ namespace moris
 
         void Set::create_requested_IQI_list()
         {
-            // create IQI map
-            this->create_IQI_map();
-
             // clear requested IQI list
             mRequestedIQIs.clear();
 

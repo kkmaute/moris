@@ -40,28 +40,26 @@ namespace moris
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary,
                 std::shared_ptr< mtk::Mesh_Manager >  aMTKMesh)
-
-                // Phase table
-                : mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
-
-                // Level set options
-                , mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") )
-                , mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") )
-                , mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") )
-
-                // Requested IQIs
-                , mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) )
-
-                // Library
-                , mLibrary(aLibrary)
-
-                // Geometries
-                , mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") )
-                , mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") )
-                , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
+        : mPhaseTable(create_phase_table(aParameterLists, aLibrary))
         {
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
+
+            // Level set options
+            mIsocontourThreshold   = aParameterLists(0)(0).get<real>("isocontour_threshold");
+            mIsocontourTolerance   = aParameterLists(0)(0).get<real>("isocontour_tolerance");
+            mIntersectionTolerance = aParameterLists(0)(0).get<real>("intersection_tolerance");
+
+            // Requested IQIs
+            mRequestedIQIs = string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") );
+
+            // Set library
+             mLibrary = aLibrary;
+
+            // Geometries
+            mGeometryFieldFile = aParameterLists(0)(0).get<std::string>("geometry_field_file");
+            mOutputMeshFile    = aParameterLists(0)(0).get<std::string>("output_mesh_file");
+            mTimeOffset        = aParameterLists(0)(0).get<real>("time_offset");
 
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
@@ -82,9 +80,9 @@ namespace moris
                 MORIS_ERROR ( isvector(mUpperBounds), "ADV upper bounds need to be of type vector.\n");
 
                 // ensure that advs and bounds are column vectors
-                mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows()        == 1 ? trans(mInitialPrimitiveADVs) : mInitialPrimitiveADVs;
-                mLowerBounds = mLowerBounds.n_rows() == 1 ? trans(mLowerBounds) : mLowerBounds;
-                mUpperBounds = mUpperBounds.n_rows() == 1 ? trans(mUpperBounds) : mUpperBounds;
+                mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows() == 1 ? trans(mInitialPrimitiveADVs) : mInitialPrimitiveADVs;
+                mLowerBounds          = mLowerBounds.n_rows()          == 1 ? trans(mLowerBounds) : mLowerBounds;
+                mUpperBounds          = mUpperBounds.n_rows()          == 1 ? trans(mUpperBounds) : mUpperBounds;
             }
 
             // Geometries
@@ -714,15 +712,19 @@ namespace moris
                 }
             }
 
-            // FIXME: add comment on purpose of next few lines
+            // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
+            mPdvHostManager.set_communication_table( tCommTable );
+
+            // Get and save global to local vertex maps from IP and IG meshes
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
                     tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
             std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
                     tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
 
-            mPdvHostManager.set_communication_table( tCommTable );
-            mPdvHostManager.set_vertex_global_to_local_maps( tIPVertexGlobaToLocalMap, tIGVertexGlobaToLocalMap);
+            mPdvHostManager.set_vertex_global_to_local_maps(
+                    tIPVertexGlobaToLocalMap,
+                    tIGVertexGlobaToLocalMap);
 
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
@@ -769,13 +771,15 @@ namespace moris
         {
             // Reserve of temporary pdv type list
             Cell< enum PDV_Type > tTemporaryPdvTypeList;
+
             tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
+
             Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(PDV_Type::UNDEFINED) + 1), 1, 0 );
 
             // PDV type map
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
-            // Loop over properties to build parallel consitent pdv list
+            // Loop over properties to build parallel consistent pdv list
              for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
              {
                  // PDV type and mesh set names/indices from parameter list

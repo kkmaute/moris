@@ -970,9 +970,9 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
-            mEquationSet->mEquationModel
-            ->get_solution_vector()
-            ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+            mEquationSet->mEquationModel->
+                      get_solution_vector()->
+                      extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
             mPdofValues.resize( tMyValues.size() );
 

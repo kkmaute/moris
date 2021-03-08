@@ -114,14 +114,7 @@ namespace moris
                             "Field::output_field_to_file(), field type not known. New types can be implemented here.");
                 }
             }
-            else
-            {
-                MORIS_ERROR( false,
-                        "Field::output_field_to_file(), Output file path not specified. Set field_output_to_file input parameter!" );
-            }
         }
-
-
 
         //------------------------------------------------------------------------------
     } /* namespace hmr */

@@ -16,8 +16,9 @@ Vector_Epetra::Vector_Epetra(
         sol::Dist_Map*  aMapClass,
         const sint      aNumVectors,
         bool            aPointMap,
-        bool            aManageMap) : sol::Dist_Vector( aMapClass, aManageMap ),
-                mVecBuildWithPointMap( aPointMap )
+        bool            aManageMap)
+: sol::Dist_Vector( aMapClass, aManageMap ),
+  mVecBuildWithPointMap( aPointMap )
 {
     mNumVectors = aNumVectors;
 
@@ -99,8 +100,6 @@ void Vector_Epetra::sum_into_global_values(
                 aValues.data(),
                 aVectorIndex );
     }
-
-
 }
 
 //----------------------------------------------------------------------------------------------
@@ -311,7 +310,7 @@ void Vector_Epetra::extract_my_values(
 
         for ( moris::uint Ii = 0; Ii < aNumIndices; ++Ii )
         {
-            const int tLocIndex =  mMap->return_local_ind_of_global_Id( aGlobalRows( Ii, 0) );
+            const int tLocIndex =  mMap->return_local_ind_of_global_Id( aGlobalRows( Ii ) );
 
             MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed");
 
@@ -373,6 +372,8 @@ void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
     HDF5.Close( );
 
     mEpetraVector = NewVector;
+
+    mValuesPtr = mEpetraVector->Values();
     //FIXME
     //    mMap->get_epetra_map() = NewMap;
     //mMap->get_epetra_full_overlapping_map() = NewMap;
