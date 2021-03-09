@@ -291,7 +291,7 @@ namespace moris
             mStrain( 2, 0 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
 
             // if thermal expansion
-            if ( mPropCTE)
+            if ( mPropCTE )
             {
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
