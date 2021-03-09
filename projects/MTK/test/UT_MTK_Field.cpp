@@ -494,21 +494,33 @@ namespace moris
                         tParam,
                         &tMeshPair_Out);
 
+                // create analytic MTK field on output mesh for loading exodus data
+                mtk::Field * tField_Exodus = new mtk::Field_Analytic(
+                        LevelSetPlaneFunction,
+                        DummyDerivativeFunction,
+                        tParam,
+                        &tMeshPair_Out);
+
                 tField_In->save_field_to_exodus ( "./mtk_field_test_in.e" );
                 tField_Out->save_field_to_exodus( "./mtk_field_test_out.e" );
                 tField_Ref->save_field_to_exodus( "./mtk_field_test_ref.e" );
 
+                tField_Exodus->load_field_from_exodus("./mtk_field_test_ref.e");
+
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 133));
                 CHECK(equal_to( tField_Ref->get_nodal_values().numel(), 133));
 
+                // compare mapped field against reference field (direct and loaded from exodus)
                 for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
                 {
                     CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Exodus->get_nodal_values()( Ik )));
                 }
 
                 delete tField_In;
                 delete tField_Out;
                 delete tField_Ref;
+                delete tField_Exodus;
             }
         }
 
