@@ -1330,8 +1330,8 @@ namespace moris
                             get_number_of_space_time_coefficients();
 
                     // fill the residual assembly map with starting and ending indices for the master dof type
-                    mResDofAssemblyMap( tDofIndex )( 0, 0 ) = tCounter;
-                    mResDofAssemblyMap( tDofIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+                    mResDofAssemblyMap( tDofIndex )( 0 ) = tCounter;
+                    mResDofAssemblyMap( tDofIndex )( 1 ) = tCounter + tNumCoeff - 1;
 
                     // update the dof coefficient counter
                     tCounter += tNumCoeff;
@@ -1354,8 +1354,8 @@ namespace moris
                             get_number_of_space_time_coefficients();
 
                     // fill the residual assembly map with starting and ending indices for the slave dof type
-                    mResDofAssemblyMap( tDofIndex )( 0, 0 ) = tCounter;
-                    mResDofAssemblyMap( tDofIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+                    mResDofAssemblyMap( tDofIndex )( 0 ) = tCounter;
+                    mResDofAssemblyMap( tDofIndex )( 1 ) = tCounter + tNumCoeff - 1;
 
                     // update the dof coefficient counter
                     tCounter += tNumCoeff;

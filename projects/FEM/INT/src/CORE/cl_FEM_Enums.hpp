@@ -63,6 +63,7 @@ namespace moris
                 STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
                 STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
                 STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+                STRUC_VON_MISES_STRESS,
 
                 INCOMPRESSIBLE_NS_VELOCITY_BULK,
                 INCOMPRESSIBLE_NS_PRESSURE_BULK,

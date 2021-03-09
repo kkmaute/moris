@@ -132,6 +132,9 @@ namespace moris
             else if ( tDofType == Dof_Type::P )           { return mMSIParameterList.get< moris::sint >( "P" ); }
             else if ( tDofType == Dof_Type::RHO )         { return mMSIParameterList.get< moris::sint >( "RHO" ); }
             else if ( tDofType == Dof_Type::VISCOSITY )   { return mMSIParameterList.get< moris::sint >( "VISCOSITY" ); }
+            else if ( tDofType == Dof_Type::STRESS_DOF )  { return mMSIParameterList.get< moris::sint >( "STRESS_DOF" ); }
+
+
 
             else
             {

@@ -958,6 +958,13 @@ namespace xtk
               identify_local_subphase_clusters_in_child_meshes();
 
               //------------------------------------------------------------------------------
+              /*
+               * Creates double side set data for interfaces internal to the child mesh
+               */ 
+              void
+              construct_internal_double_sides_between_subphases();
+
+              //------------------------------------------------------------------------------
 
               void
               prepare_subphase_identifier_requests(

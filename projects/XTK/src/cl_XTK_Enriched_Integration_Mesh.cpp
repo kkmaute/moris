@@ -2049,8 +2049,6 @@ namespace xtk
     void
     Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
     {
-
-
         // background mesh
         moris_index tMyProcRank = par_rank();
         moris::mtk::Interpolation_Mesh & tBGMesh = mModel->get_background_mesh().get_mesh_data();
@@ -2069,18 +2067,14 @@ namespace xtk
             if(tBGMesh.get_entity_owner(tChildMesh->get_parent_element_index(),EntityRank::ELEMENT) == (uint)tMyProcRank)
             {
 
-                // tell the child mesh to construct its double side sets between subphases
-                bool tHasInterCMInterfaces = tChildMesh->construct_internal_double_sides_between_subphases();
-                
                 // we need to do a little more work later on this child mesh to construct the inter child mesh interface
-                if(tHasInterCMInterfaces)
+                if(tChildMesh->has_inter_child_mesh_interfaces())
                 {
                     tCoincidentInterfaceStruct.mInterCMInterfaces.push_back(iCM);
                 }  
 
                 // construct the double sided interface
                 this->construct_internal_double_side_interface_in_mesh(tChildMesh);
-
             }
 
             // remove from child mesh to not store twice
@@ -2376,14 +2370,6 @@ namespace xtk
                                     {
                                         MORIS_ASSERT(mModel->get_element_to_element_my_side_ords()(tCellInd)(iN) == (moris_index)tInterfaceOrdinal,"Ordinal mismatch");
 
-                                        std::cout<<   "Subphase Ordinal = "<<tSubphaseOrdinal;
-                                        std::cout<<" | Subphase Index  = "<<tSubphaseIndex;
-                                        std::cout<<" | Cell Index  = "<<tCellInds(iLC);
-                                        std::cout<<" | Interface Ord  = "<<tInterfaceOrdinal;
-                                        std::cout<<" | Neighbor Cell Index  = "<<tNeighborIndex;
-                                        std::cout<<" | Neighbor Side Ord  = "<<tNeighborSideOrd;
-                                        std::cout<<" | Neighbor Subphase Index  = "<<tNeighborSubphaseIndex;
-                                        std::cout<<std::endl;
                                         aCoincInterfaceStruct.mChildMesh(tSubphaseOrdinal).push_back(tChildMesh);
                                         aCoincInterfaceStruct.mSubphaseCellsInds(tSubphaseOrdinal).push_back(tCellInds(iLC));
                                         aCoincInterfaceStruct.mSubphaseSideOrds(tSubphaseOrdinal).push_back(tInterfaceOrdinal);
@@ -2440,7 +2426,6 @@ namespace xtk
                 moris_index tSubphaseIndex = tIter.first;
                 moris_index tSubphaseDataIndex = tIter.second;
 
-                std::cout<<"SubphaseIndex = "<<tIter.first<<" | Subphase Data Index = "<<tSubphaseDataIndex<<std::endl;
                 // if I don't own the subphase go to the next one
                 if(this->get_mtk_cell(aCoincInterfaceStruct.mSubphaseCellsInds(tSubphaseDataIndex)(0)).get_owner() != par_rank())
                 {   
@@ -2462,8 +2447,6 @@ namespace xtk
                     moris_index tMyBulkPhase       = mModel->get_background_mesh().get_element_phase_index(aCoincInterfaceStruct.mSubphaseCellsInds(tSubphaseDataIndex)(iC));
                     moris_index tNeighborBulkPhase = mModel->get_background_mesh().get_element_phase_index(aCoincInterfaceStruct.mSubphaseNeighborCellInds(tSubphaseDataIndex)(iC));
 
-                    std::cout<<"    Neighbor Subphase Index = "<<aCoincInterfaceStruct.mSubphaseNeighborCellSubphaseInd(tSubphaseDataIndex)(iC)<<std::endl;
-
                     if(tMyBulkPhase < tNeighborBulkPhase)
                     {
                         
@@ -2471,16 +2454,12 @@ namespace xtk
                         // add the side clusters if these are new
                         if(tSubphasetoClusterIndex.find(aCoincInterfaceStruct.mSubphaseNeighborCellSubphaseInd(tSubphaseDataIndex)(iC)) == tSubphasetoClusterIndex.end()) 
                         {
-                            std::cout<<"        New Cluster"<<std::endl;
                             tSubphasetoClusterIndex[aCoincInterfaceStruct.mSubphaseNeighborCellSubphaseInd(tSubphaseDataIndex)(iC)] = tCount;
                             tMasterSideClusters.push_back( std::make_shared< Side_Cluster >());
                             tSlaveSideClusters.push_back( std::make_shared< Side_Cluster >());
 
                             tMasterBulkPhase.push_back(mModel->get_background_mesh().get_element_phase_index(aCoincInterfaceStruct.mSubphaseCellsInds(tSubphaseDataIndex)(iC)));
                             tSlaveBulkPhase.push_back(mModel->get_background_mesh().get_element_phase_index(aCoincInterfaceStruct.mSubphaseNeighborCellInds(tSubphaseDataIndex)(iC)));
-
-                            std::cout<<"        Master Bulk Phase = "<<tMasterBulkPhase(tCount)<<std::endl;
-                            std::cout<<"        Slave Bulk Phase = "<<tSlaveBulkPhase(tCount)<<std::endl;
 
                             // add the child mesh to the new clusters
                             tMasterSideClusters(tCount)->mChildMesh = aCoincInterfaceStruct.mChildMesh(tSubphaseDataIndex)(iC);
@@ -2515,12 +2494,6 @@ namespace xtk
 
                         moris_index tClusterIndex = tSubphasetoClusterIndex.find(aCoincInterfaceStruct.mSubphaseNeighborCellSubphaseInd(tSubphaseDataIndex)(iC))->second;
                         
-
-                        // add the cell to the clusters
-                        // tMasterSideClusters(tClusterIndex) = 
-
-                        std::cout<<"Cluster Index = "<<tClusterIndex<<std::endl;
-
                         // add the master side
                         this->add_side_to_cluster(tMasterSideClusters(tClusterIndex),aCoincInterfaceStruct.mSubphaseCellsInds(tSubphaseDataIndex)(iC),aCoincInterfaceStruct.mSubphaseSideOrds(tSubphaseDataIndex)(iC));
 
@@ -2589,8 +2562,6 @@ namespace xtk
 
         moris::Matrix<moris::IndexMat> tMasterSideOrds = aMasterSideCluster->get_cell_side_ordinals();
         moris::Matrix<moris::IndexMat> tSlaveSideOrds  = aSlaveSideCluster->get_cell_side_ordinals();
-        std::cout<<"aMasterSideCluster->get_num_sides_in_cluster() = "<<aMasterSideCluster->get_num_sides_in_cluster()<<std::endl;
-        std::cout<<"aSlaveSideCluster->get_num_sides_in_cluster() = "<<aSlaveSideCluster->get_num_sides_in_cluster()<<std::endl;
         MORIS_ASSERT(aMasterSideCluster->get_num_sides_in_cluster() == aSlaveSideCluster->get_num_sides_in_cluster(),"Number of sides in side cluster mismatch");
 
         // vector of vertices on side ordinals

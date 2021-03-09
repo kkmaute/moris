@@ -800,8 +800,8 @@ namespace moris
 
                         if( tDofIndex != -1 )
                         {
-                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
-                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
+                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
+                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
 
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
@@ -855,31 +855,55 @@ namespace moris
 
                         if( tDofIndex != -1 )
                         {
-                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
-                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
-                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
+                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
+                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
 
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
+                            // build transpose of Jacobian
+                            Matrix< DDRMat > tJacTrans =
+                                    trans( mEquationSet->get_jacobian()(
+                                            { tStartRow, tEndRow },
+                                            { tStartCol, tEndCol } ) );
+
                             // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::SLAVE );
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = 
-                                    mEquationSet->mSlaveDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                            Matrix< DDRMat > tCoeff;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
-                            // reshape tCoeffs into the order the cluster expects them
-                            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+                            uint tNumRHS  =tCoeff_Original.size();
+                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
 
-                            aElementResidual(0)( { tStartRow, tEndRow } ) -=
-                                    mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                            //print(mEquationSet->get_jacobian(),"staggerd jac");
+
+                            for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                            {
+                                // reshape tCoeffs into the order the cluster expects them
+                                this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
+
+                                Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
+
+                                tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
+
+                                //fixme get rid of for loop
+                                uint tCounter=0;
+                                for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
+                                {
+                                    for( uint Ii = 0; Ii<tCoeff ( Ik ).n_rows(); Ii++)
+                                    {
+                                        tCoeff1( Ik )(tCounter++) = tCoeff( Ik )(Ii,Ia);
+                                    }
+                                }
+
+                                aElementResidual(Ik)( { tStartCol, tEndCol } ) += tJacTrans * tCoeff1( Ik );
+                            }
                         }
                     }
                 }
@@ -889,74 +913,123 @@ namespace moris
 
                 if( tSecDofIndex != -1 )
                 {
-
                     for( auto tDofTypes : tRequestedDofTypes )
                     {
                         sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::MASTER );
 
                         if( tDofIndex != -1 )
                         {
-                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
-                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
-                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
+                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
+                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
 
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
+                            // build transpose of Jacobian
+                            Matrix< DDRMat > tJacTrans =
+                                    trans( mEquationSet->get_jacobian()(
+                                            { tStartRow, tEndRow },
+                                            { tStartCol, tEndCol } ) );
+
                             // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::MASTER );
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = 
-                                    mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                            Matrix< DDRMat > tCoeff;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
-                            // reshape tCoeffs into the order the cluster expects them
-                            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+                            uint tNumRHS  =tCoeff_Original.size();
+                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
 
-                            aElementResidual(0)( { tStartRow, tEndRow } ) -=
-                                    mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                            //print(mEquationSet->get_jacobian(),"staggerd jac");
+
+                            for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                            {
+                                // reshape tCoeffs into the order the cluster expects them
+                                this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
+
+                                Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
+
+                                tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
+
+                                //fixme get rid of for loop
+                                uint tCounter=0;
+                                for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
+                                {
+                                    for( uint Ii = 0; Ii<tCoeff ( Ik ).n_rows(); Ii++)
+                                    {
+                                        tCoeff1( Ik )(tCounter++) = tCoeff( Ik )(Ii,Ia);
+                                    }
+                                }
+
+                                aElementResidual(Ik)( { tStartCol, tEndCol } ) += tJacTrans * tCoeff1( Ik );
+                            }
                         }
 
                         tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
 
                         if( tDofIndex != -1 )
                         {
-                            MORIS_ERROR( false, "not sure if this is implemented correctly, don't use staggered for adjoint");
-                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 0 );
-                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0, 1 );
+                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
+                            uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
 
                             uint tStartCol = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 0 );
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
+                            // build transpose of Jacobian
+                            Matrix< DDRMat > tJacTrans =
+                                    trans( mEquationSet->get_jacobian()(
+                                            { tStartRow, tEndRow },
+                                            { tStartCol, tEndCol } ) );
+
                             // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::SLAVE );
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = 
-                                    mEquationSet->mSlaveDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                            Matrix< DDRMat > tCoeff;
 
                             this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
-                            // reshape tCoeffs into the order the cluster expects them
-                            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+                            uint tNumRHS  =tCoeff_Original.size();
+                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
 
-                            aElementResidual(0)( { tStartRow, tEndRow } ) -=
-                                    mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
+                            //print(mEquationSet->get_jacobian(),"staggerd jac");
+
+                            for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                            {
+                                // reshape tCoeffs into the order the cluster expects them
+                                this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
+
+                                Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
+
+                                tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
+
+                                //fixme get rid of for loop
+                                uint tCounter=0;
+                                for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
+                                {
+                                    for( uint Ii = 0; Ii<tCoeff ( Ik ).n_rows(); Ii++)
+                                    {
+                                        tCoeff1( Ik )(tCounter++) = tCoeff( Ik )(Ii,Ia);
+                                    }
+                                }
+
+                                aElementResidual(Ik)( { tStartCol, tEndCol } ) += tJacTrans * tCoeff1( Ik );
+                            }
                         }
                     }
                 }
             }
         }
+
+
 
         //-------------------------------------------------------------------------------------------------
 
@@ -971,8 +1044,8 @@ namespace moris
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel->
-                      get_solution_vector()->
-                      extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+            get_solution_vector()->
+            extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
             mPdofValues.resize( tMyValues.size() );
 

@@ -38,6 +38,7 @@ namespace xtk
       mHasElemToElem(false),
       mElementToElement(0,0),
       mHasCoincidentEdges(false),
+      mHasInterChildMeshInterface(false),
       mHasPhaseInfo(false),
       mElementPhaseIndices(0,0),
       mElementBinIndex(0,0),
@@ -83,6 +84,7 @@ namespace xtk
       mHasElemToElem(false),
       mElementToElement(0,0),
       mHasCoincidentEdges(false),
+      mHasInterChildMeshInterface(false),
       mHasPhaseInfo(false),
       mElementPhaseIndices(0,0),
       mElementBinIndex(0,0),
@@ -147,6 +149,7 @@ namespace xtk
       mElementToElement(0,0),
       mIntersectConnectivity(0,0),
       mHasCoincidentEdges(false),
+      mHasInterChildMeshInterface(false),
       mHasPhaseInfo(false),
       mElementPhaseIndices(0,0),
       mElementBinIndex(0,0),
@@ -1980,8 +1983,6 @@ namespace xtk
     bool
     Child_Mesh::construct_internal_double_sides_between_subphases()
     {
-        bool tHasInterChildMeshInterfaces = false;
-
         Matrix<IndexMat> const & tFacetToCell = this->get_facet_to_element();
 
         Matrix<IndexMat> const & tCellFacets  = this->get_element_to_facet();
@@ -2014,7 +2015,7 @@ namespace xtk
                     moris_index tFacetIndex = tCellFacetInds(iLC, tInterfaceOrdinal);
                     if (tFacetParentRanks(tFacetIndex) == (size_t)tFacetRank)
                     {
-                        tHasInterChildMeshInterfaces = true;
+                        mHasInterChildMeshInterface = true;
                     }
                 }
             }
@@ -2067,7 +2068,7 @@ namespace xtk
                                     }
                                     else
                                     {
-                                        tHasInterChildMeshInterfaces = true;
+                                        mHasInterChildMeshInterface = true;
                                     }
                                 }
                             }
@@ -2097,7 +2098,7 @@ namespace xtk
 
                             else
                             {
-                              tHasInterChildMeshInterfaces = true;
+                              mHasInterChildMeshInterface = true;
                             }
                         }
                     }
@@ -2105,7 +2106,13 @@ namespace xtk
             }
         }
 
-        return tHasInterChildMeshInterfaces;
+        return mHasInterChildMeshInterface;
+    }
+
+    bool
+    Child_Mesh::has_inter_child_mesh_interfaces()
+    {
+        return mHasInterChildMeshInterface;
     }
 
     // ---------------------------------------------------------------------------------

@@ -99,6 +99,8 @@ namespace xtk
 
             // Vertex interpolations for this enrichment ordered by background vertex index
             Cell<mtk::Vertex_Interpolation*> mBGVertexInterpolations;
+
+            // Basis bulk measures
     };
 
     class Model;
