@@ -174,8 +174,8 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
 
-                case IWG_Type::STRUC_STRESS :
-                    return std::make_shared< IWG_Struc_Stress >();
+                case IWG_Type::STRUC_VON_MISES_STRESS :
+                    return std::make_shared< IWG_Struc_Stress >( Stress_Type::VON_MISES_STRESS );
 
                     //------------------------------------------------------------------------------
 

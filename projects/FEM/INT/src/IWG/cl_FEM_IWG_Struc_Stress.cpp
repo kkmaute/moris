@@ -12,8 +12,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        IWG_Struc_Stress::IWG_Struc_Stress()
+        IWG_Struc_Stress::IWG_Struc_Stress( enum Stress_Type aStressType )
         {
+            // set stress type
+            mStressType = aStressType;
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
@@ -177,10 +180,8 @@ namespace moris
                 Matrix< DDRMat > const & aStressTensor,
                 Matrix< DDRMat > const & aDStressTensor)
         {
-            enum Stress_Type tStressType = Stress_Type::VON_MISES_STRESS;
-
             // switch for different stress types
-            switch (tStressType)
+            switch (mStressType)
             {
                 case Stress_Type::VON_MISES_STRESS:
                     this->eval_Von_Mises_stress(

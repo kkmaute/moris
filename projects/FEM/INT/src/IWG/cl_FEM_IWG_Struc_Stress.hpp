@@ -29,6 +29,9 @@ namespace moris
                 //------------------------------------------------------------------------------
             public:
 
+                // stress type to evaluate
+                enum Stress_Type mStressType = Stress_Type::UNDEFINED;
+
                 enum class IWG_Property_Type
                 {
                     MAX_ENUM
@@ -50,7 +53,7 @@ namespace moris
                 /*
                  *  constructor
                  */
-                IWG_Struc_Stress();
+                IWG_Struc_Stress( enum Stress_Type aStressType );
 
                 //------------------------------------------------------------------------------
                 /**
