@@ -30,7 +30,6 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.hpp"
-//Incompressible solid
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp"
 //Incompressible fluid
@@ -67,6 +66,7 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
 //Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
+#include "cl_FEM_IWG_Struc_Stress.hpp"
 
 namespace moris
 {
@@ -173,6 +173,9 @@ namespace moris
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
+
+                case IWG_Type::STRUC_STRESS :
+                    return std::make_shared< IWG_Struc_Stress >();
 
                     //------------------------------------------------------------------------------
 
