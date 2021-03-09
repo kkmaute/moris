@@ -918,7 +918,7 @@ namespace moris
 
                 // create a property pointer
                 std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
-                        mMeshManager->get_mesh_pair_pointer( mMeshPairIndex ) );
+                        mMeshManager->get_mesh_pair( mMeshPairIndex ) );
 
                 // set a name for the property
                 tField->set_label( tFieldName );

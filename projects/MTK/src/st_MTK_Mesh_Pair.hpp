@@ -1,6 +1,8 @@
 #ifndef MORIS_ST_MTK_MESH_PAIR_HPP
 #define MORIS_ST_MTK_MESH_PAIR_HPP
 
+#include "cl_MTK_Mesh_Manager.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -8,16 +10,27 @@ namespace moris
         class Interpolation_Mesh;
         class Integration_Mesh;
 
-        struct Mesh_Pair
+        class Mesh_Pair
         {
-            Interpolation_Mesh* mInterpolationMesh = nullptr; //! Interpolation mesh
-            Integration_Mesh*     mIntegrationMesh = nullptr; //! Integration mesh
-            bool                          mIsOwned = false;   //! If the mesh pointers are owned by the mesh pair
+
+        private:
+            Interpolation_Mesh* mInterpolationMesh;
+            Integration_Mesh*   mIntegrationMesh;
+            bool                mIsOwned;
+
+        public:
 
             /**
-             * Default constructor
+             * Constructor
+             *
+             * @param aInterpolationMesh Interpolation mesh
+             * @param aIntegrationMesh Integration mesh
+             * @param aIsOwned If mesh pointers are owned by this mesh pair
              */
-            Mesh_Pair() = default;
+            Mesh_Pair(
+                    Interpolation_Mesh* aInterpolationMesh,
+                    Integration_Mesh*   aIntegrationMesh,
+                    bool                aIsOwned = false);
 
             /**
              * Explicit copy constructor to ensure pointers are only owned once.
@@ -30,6 +43,31 @@ namespace moris
              * Destructor (deletes mesh pointers if owned)
              */
             ~Mesh_Pair();
+
+            /**
+             * Gets the interpolation mesh in this mesh pair.
+             *
+             * @return Interpolation mesh
+             */
+            Interpolation_Mesh* get_interpolation_mesh() const;
+
+            /**
+             * Gets the integration mesh in this mesh pair.
+             *
+             * @return Integration mesh
+             */
+            Integration_Mesh* get_integration_mesh() const;
+
+            /**
+             * Friend functions in the mesh manager so it can properly transfer pointer ownership, without revealing
+             * this to the outside.
+             */
+            friend uint Mesh_Manager::register_mesh_pair(Mesh_Pair& aMeshPair);
+            friend uint Mesh_Manager::register_mesh_pair(
+                    Interpolation_Mesh* aInterpolationMesh,
+                    Integration_Mesh*   aIntegrationMesh,
+                    bool                aIsOwned);
+
         };
     }
 }

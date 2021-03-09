@@ -148,11 +148,9 @@ namespace moris
             }
 
             // Create mesh pair
-            mtk::Mesh_Pair tMeshPair;
-            tMeshPair.mInterpolationMesh = mMesh;
-            tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
+            mtk::Mesh_Pair tMeshPair(mMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh));
 
-            mtk::Field_Discrete* tField = new mtk::Field_Discrete( &tMeshPair, this->get_discretization_mesh_index());
+            mtk::Field_Discrete* tField = new mtk::Field_Discrete( tMeshPair, this->get_discretization_mesh_index());
 
             // Use mapper
             mtk::Mapper tMapper;
@@ -164,7 +162,7 @@ namespace moris
             Matrix<DDRMat> tNodalValues = tField->get_nodal_values();
 
             // Clean up
-            delete tMeshPair.mIntegrationMesh;
+            delete tMeshPair.get_integration_mesh();
             delete tField;
             //-----------------------------------------------------
 
@@ -203,12 +201,9 @@ namespace moris
             mtk::Mapper tMapper;
 
             // Output field
-            mtk::Mesh_Pair tOutputMeshPair;
-            tOutputMeshPair.mInterpolationMesh = mMesh;
-            tOutputMeshPair.mIntegrationMesh =
-                    create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tOutputMeshPair.mInterpolationMesh);
+            mtk::Mesh_Pair tOutputMeshPair(mMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh));
 
-            mtk::Field_Discrete* tOutputField = new mtk::Field_Discrete( &tOutputMeshPair, this->get_discretization_mesh_index());
+            mtk::Field_Discrete* tOutputField = new mtk::Field_Discrete( tOutputMeshPair, this->get_discretization_mesh_index());
 
             // Input mesh
             mtk::Interpolation_Mesh* tInputMesh = aField->get_mesh();
@@ -236,13 +231,10 @@ namespace moris
             else
             {
                 // Input field
-                mtk::Mesh_Pair tInputMeshPair;
-                tInputMeshPair.mInterpolationMesh = tInputMesh;
-                tInputMeshPair.mIntegrationMesh =
-                        create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tInputMeshPair.mInterpolationMesh);
+                mtk::Mesh_Pair tInputMeshPair(tInputMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tInputMesh));
 
                 mtk::Field_Discrete* tInputField = new mtk::Field_Discrete(
-                        &tInputMeshPair,
+                        tInputMeshPair,
                         aField->get_discretization_mesh_index());
 
                 // Do interpolation
@@ -250,14 +242,14 @@ namespace moris
                 tInputField->set_nodal_values(tNodalValues);
                 tMapper.map_input_field_to_output_field(tInputField, tOutputField);
 
-                delete tInputMeshPair.mIntegrationMesh;
+                delete tInputMeshPair.get_integration_mesh();
             }
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
 
             // Clean up
-            delete tOutputMeshPair.mIntegrationMesh;
+            delete tOutputMeshPair.get_integration_mesh();
             delete tOutputField;
 
             // Return mapped field

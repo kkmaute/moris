@@ -125,9 +125,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
                  1,
                  0);
 
-         mtk::Mesh_Pair tMeshPair;
-         tMeshPair.mInterpolationMesh = tInterpolationMesh;
-         tMeshPair.mIsOwned   = true;
+         mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
 
          // Define two analytic MTK fields
          moris::Cell< mtk::Field * > tFields( 1, nullptr );
@@ -136,7 +134,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
                  tCircle,
                  DummyDerivativeFunction,
                  {{1.5237}},
-                 &tMeshPair);
+                 tMeshPair);
 
          tFields( 0 )->set_label( "Circle" );
 
@@ -157,39 +155,40 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
                  1,
                  0);
 
-         delete tMeshPair.mInterpolationMesh;
-         tMeshPair.mInterpolationMesh = tInterpolationMeshNew;
-         tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
-         
-         tFields( 0 )->unlock_field();
-         tFields( 0 )->set_coefficients( {{0.8713}} );
-         tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
-
-         //print( tFields( 0 )->get_nodal_values(), "Val1");
-
-         tHMRDatabase->get_background_mesh()->update_database();
-         tHMRDatabase->update_bspline_meshes();
-         tHMRDatabase->update_lagrange_meshes();
-
-         // HMR finalize
-         tHMRPerformer->perform();
-
-         Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
-
-         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
-         tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
-
-         std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
-
-         hmr::Interpolation_Mesh_HMR * tInterpolationMeshNewMesh = new hmr::Interpolation_Mesh_HMR(
-                 tHMRDatabaseNew,
-                 1,
-                 0,
-                 1,
-                 0);
-
-         delete tMeshPair.mInterpolationMesh;
-         tMeshPair.mInterpolationMesh = tInterpolationMeshNewMesh;
-         tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
+         // FIXME mesh pair should never be modified from the outside, this needs to be reworked
+//         delete tMeshPair.mInterpolationMesh;
+//         tMeshPair.mInterpolationMesh = tInterpolationMeshNew;
+//         tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
+//
+//         tFields( 0 )->unlock_field();
+//         tFields( 0 )->set_coefficients( {{0.8713}} );
+//         tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
+//
+//         //print( tFields( 0 )->get_nodal_values(), "Val1");
+//
+//         tHMRDatabase->get_background_mesh()->update_database();
+//         tHMRDatabase->update_bspline_meshes();
+//         tHMRDatabase->update_lagrange_meshes();
+//
+//         // HMR finalize
+//         tHMRPerformer->perform();
+//
+//         Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
+//
+//         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
+//         tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
+//
+//         std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
+//
+//         hmr::Interpolation_Mesh_HMR * tInterpolationMeshNewMesh = new hmr::Interpolation_Mesh_HMR(
+//                 tHMRDatabaseNew,
+//                 1,
+//                 0,
+//                 1,
+//                 0);
+//
+//         delete tMeshPair.mInterpolationMesh;
+//         tMeshPair.mInterpolationMesh = tInterpolationMeshNewMesh;
+//         tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
     }
 }

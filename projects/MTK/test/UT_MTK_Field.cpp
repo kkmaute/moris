@@ -178,13 +178,9 @@ namespace moris
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_Out, tLagrangeMeshIndex_Out );
 
                 // Create mesh manager
-                mtk::Mesh_Pair tMeshPair_In;
-                tMeshPair_In.mInterpolationMesh = tInterpolationMesh;
-                tMeshPair_In.mIntegrationMesh = tIntegrationMesh;
+                mtk::Mesh_Pair tMeshPair_In(tInterpolationMesh, tIntegrationMesh, true);
 
-                mtk::Mesh_Pair tMeshPair_Out;
-                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
-                tMeshPair_Out.mIntegrationMesh   = tIntegrationMesh_Out;
+                mtk::Mesh_Pair tMeshPair_Out(tInterpolationMesh_Out, tIntegrationMesh_Out, true);
 
                 // Define two analtyic MTK fields
                 Matrix<DDRMat> tParam = {{0.2}};
@@ -193,13 +189,13 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_In);
+                        tMeshPair_In);
 
                 mtk::Field_Analytic * tField_Out = new mtk::Field_Analytic(
                         LevelSetPlaneFunction,
-                         DummyDerivativeFunction,
-                         tParam,
-                        &tMeshPair_Out);
+                        DummyDerivativeFunction,
+                        tParam,
+                        tMeshPair_Out);
 
                 // Get vector of nodal values and check for correct size
                 std::cout<<"Field_In size:  "<<tField_In->get_nodal_values().numel()<<std::endl;
@@ -306,13 +302,9 @@ namespace moris
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_In, tLagrangeMeshIndex_2 );
 
                 // Create mesh manager
-                mtk::Mesh_Pair tMeshPair_In;
-                tMeshPair_In.mInterpolationMesh = tInterpolationMesh_In;
-                tMeshPair_In.mIntegrationMesh = tIntegrationMesh_In;
+                mtk::Mesh_Pair tMeshPair_In(tInterpolationMesh_In, tIntegrationMesh_In, true);
 
-                mtk::Mesh_Pair tMeshPair_Out;
-                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
-                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+                mtk::Mesh_Pair tMeshPair_Out(tInterpolationMesh_Out, tIntegrationMesh_Out, true);
 
                 // Define analytic MTK field as input field
                 Matrix<DDRMat> tParam = {{0.2}};
@@ -321,11 +313,11 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_In);
+                        tMeshPair_In);
 
                 // Define discretized MTK field as output field
                 mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
-                        &tMeshPair_Out);
+                        tMeshPair_Out);
 
                 // check that input field can return vector nodal values and has correct size
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 46));;
@@ -350,7 +342,7 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_Out);
+                        tMeshPair_Out);
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 125));
                 CHECK(equal_to( tField_Ref->get_nodal_values().numel(), 125));
@@ -455,13 +447,9 @@ namespace moris
                 mtk::Integration_Mesh* tIntegrationMesh_In =
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_In, tLagrangeMeshIndex_2 );
 
-                mtk::Mesh_Pair tMeshPair_In;
-                tMeshPair_In.mInterpolationMesh = tInterpolationMesh_In;
-                tMeshPair_In.mIntegrationMesh = tIntegrationMesh_In;
+                mtk::Mesh_Pair tMeshPair_In(tInterpolationMesh_In, tIntegrationMesh_In, true);
 
-                mtk::Mesh_Pair tMeshPair_Out;
-                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
-                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+                mtk::Mesh_Pair tMeshPair_Out(tInterpolationMesh_Out, tIntegrationMesh_Out, true);
 
                 // Define analytic MTK field as input field
                 Matrix<DDRMat> tParam = {{0.2}};
@@ -470,11 +458,11 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_In);
+                        tMeshPair_In);
 
                 // Define discretized MTK field as output field
                 mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
-                        &tMeshPair_Out);
+                        tMeshPair_Out);
 
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 217));;
 
@@ -492,7 +480,7 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_Out);
+                        tMeshPair_Out);
 
                 tField_In->save_field_to_exodus ( "./mtk_field_test_in.e" );
                 tField_Out->save_field_to_exodus( "./mtk_field_test_out.e" );
@@ -601,13 +589,9 @@ namespace moris
                 mtk::Integration_Mesh* tIntegrationMesh_In =
                         create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tInterpolationMesh_In, tLagrangeMeshIndex_2 );
 
-                mtk::Mesh_Pair tMeshPair_In;
-                tMeshPair_In.mInterpolationMesh = tInterpolationMesh_In;
-                tMeshPair_In.mIntegrationMesh = tIntegrationMesh_In;
+                mtk::Mesh_Pair tMeshPair_In(tInterpolationMesh_In, tIntegrationMesh_In, true);
 
-                mtk::Mesh_Pair tMeshPair_Out;
-                tMeshPair_Out.mInterpolationMesh = tInterpolationMesh_Out;
-                tMeshPair_Out.mIntegrationMesh = tIntegrationMesh_Out;
+                mtk::Mesh_Pair tMeshPair_Out(tInterpolationMesh_Out, tIntegrationMesh_Out, true);
 
                 // Define analytic MTK field as input field
                 Matrix<DDRMat> tParam = {{0.2}};
@@ -616,11 +600,11 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_In);
+                        tMeshPair_In);
 
                 // Define discretized MTK field as output field
                 mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
-                        &tMeshPair_Out);
+                        tMeshPair_Out);
 
                 CHECK(equal_to( tField_In->get_nodal_values().numel(), 63));;
 
@@ -644,7 +628,7 @@ namespace moris
                         LevelSetPlaneFunction,
                         DummyDerivativeFunction,
                         tParam,
-                        &tMeshPair_Out);
+                        tMeshPair_Out);
 
                 CHECK(equal_to( tField_Out->get_nodal_values().numel(), 465));
 

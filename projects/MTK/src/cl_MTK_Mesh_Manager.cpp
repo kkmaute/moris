@@ -1,4 +1,5 @@
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "st_MTK_Mesh_Pair.hpp"
 
 namespace moris
 {
@@ -25,9 +26,7 @@ namespace moris
                 bool                aIsOwned)
         {
             // Create new mesh pair
-            Mesh_Pair tMeshPair;
-            tMeshPair.mInterpolationMesh = aInterpolationMesh;
-            tMeshPair.mIntegrationMesh = aIntegrationMesh;
+            Mesh_Pair tMeshPair(aInterpolationMesh, aIntegrationMesh, false);
             
             // Push back new pair
             mMeshPairs.push_back(tMeshPair);
@@ -54,7 +53,7 @@ namespace moris
 
         //-------------------------------------------------------------------------
 
-        Mesh_Pair Mesh_Manager::get_mesh_pair(moris_index aPairIndex)
+        const Mesh_Pair& Mesh_Manager::get_mesh_pair(moris_index aPairIndex)
         {
             MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
                           "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
@@ -81,8 +80,8 @@ namespace moris
             MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
                     "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
 
-            aInterpolationMesh = mMeshPairs(aPairIndex).mInterpolationMesh;
-            aIntegrationMesh = mMeshPairs(aPairIndex).mIntegrationMesh;
+            aInterpolationMesh = mMeshPairs(aPairIndex).get_interpolation_mesh();
+            aIntegrationMesh = mMeshPairs(aPairIndex).get_integration_mesh();
         }
 
         //-------------------------------------------------------------------------
@@ -93,7 +92,7 @@ namespace moris
             MORIS_ASSERT( aMeshIndex < (moris_index) mMeshPairs.size(),
                     "Mesh_Manager::get_interpolation_mesh: requested mesh does not exist.");
 
-            return mMeshPairs(aMeshIndex).mInterpolationMesh;
+            return mMeshPairs(aMeshIndex).get_interpolation_mesh();
         }
 
         //-------------------------------------------------------------------------
@@ -104,7 +103,7 @@ namespace moris
             MORIS_ASSERT( aMeshIndex < (moris_index) mMeshPairs.size(),
                     "Mesh_Manager::get_integration_mesh: requested mesh does not exist.");
 
-            return mMeshPairs(aMeshIndex).mIntegrationMesh;
+            return mMeshPairs(aMeshIndex).get_integration_mesh();
         }
 
         //-------------------------------------------------------------------------

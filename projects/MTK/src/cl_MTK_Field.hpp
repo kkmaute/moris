@@ -48,7 +48,7 @@ namespace moris
                 uint mFieldIndex = MORIS_UINT_MAX;
 
                 //! Mesh pair
-                Mesh_Pair * mMeshPair = nullptr;
+                Mesh_Pair mMeshPair;
 
                 //! Number of nodal fields
                 uint mNumberOfFields = 1;
@@ -164,13 +164,6 @@ namespace moris
             public :
                 //------------------------------------------------------------------------------
 
-                /**
-                 * @brief default constructor
-                 */
-
-                Field()
-                {};
-
                 //------------------------------------------------------------------------------
 
                 /**
@@ -181,21 +174,8 @@ namespace moris
                  *
                  */
                 Field(
-                        Mesh_Pair      * aMeshPair,
+                        Mesh_Pair        aMeshPair,
                         uint     const & aNumberOfFields = 1);
-
-                //------------------------------------------------------------------------------
-
-                /**
-                 *  @brief Field constructor
-                 *
-                 * @param[in]   aDiscretizationMeshIndex - discretization index; default 0
-                 * @param[in]   aName                    - field name
-                 *
-                 */
-                Field(
-                        std::string const & aName,
-                        uint        const & aNumberOfFields = 1);
 
                 //------------------------------------------------------------------------------
 
@@ -208,7 +188,7 @@ namespace moris
                  *
                  * @return mesh pair pointer
                  */
-                Mesh_Pair * get_mesh_pair();
+                Mesh_Pair get_mesh_pair();
 
                 //------------------------------------------------------------------------------
 
@@ -217,7 +197,7 @@ namespace moris
                  *
                  * @param[in] aMeshPair - mesh pair pointer
                  */
-                void set_mesh_pair( Mesh_Pair * aMeshPair);
+                void set_mesh_pair( Mesh_Pair aMeshPair);
 
                 //------------------------------------------------------------------------------
 
@@ -401,7 +381,7 @@ namespace moris
                  */
                 Matrix< DDRMat > get_node_coordinate( const moris_index & aNodeIndex ) const
                 {
-                    return mMeshPair->mInterpolationMesh->get_node_coordinate( aNodeIndex );
+                    return mMeshPair.get_interpolation_mesh()->get_node_coordinate( aNodeIndex );
                 }
 
                 //------------------------------------------------------------------------------
@@ -411,7 +391,7 @@ namespace moris
                  */
                 uint get_lagrange_order() const
                 {
-                    return mMeshPair->mInterpolationMesh->get_order();
+                    return mMeshPair.get_interpolation_mesh()->get_order();
                 }
 
                 // ----------------------------------------------------------------------------------------------

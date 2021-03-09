@@ -9,6 +9,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Mesh_Pair::Mesh_Pair(
+                Interpolation_Mesh* aInterpolationMesh,
+                Integration_Mesh*   aIntegrationMesh,
+                bool                aIsOwned)
+                : mInterpolationMesh(aInterpolationMesh)
+                , mIntegrationMesh(aIntegrationMesh)
+                , mIsOwned(aIsOwned)
+        {
+            MORIS_ERROR(aInterpolationMesh, "Interpolation mesh must exist in a mesh pair.");
+            /* FIXME should also check the integration mesh, but currently this breaks something in the mapper when it
+            is forced to create a paired integration mesh for a given HMR interpolation mesh */
+
+            // MORIS_ERROR(aIntegrationMesh, "Integration mesh must exist in a mesh pair.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Mesh_Pair::Mesh_Pair(const Mesh_Pair& aMeshPair)
                 : mInterpolationMesh(aMeshPair.mInterpolationMesh)
                 , mIntegrationMesh(aMeshPair.mIntegrationMesh)
@@ -25,6 +42,21 @@ namespace moris
                 delete mInterpolationMesh;
                 delete mIntegrationMesh;
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Interpolation_Mesh* Mesh_Pair::get_interpolation_mesh() const
+        {
+            return mInterpolationMesh;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Integration_Mesh* Mesh_Pair::get_integration_mesh() const
+        {
+            MORIS_ASSERT(mIntegrationMesh, "Integration mesh does not exist.");
+            return mIntegrationMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------

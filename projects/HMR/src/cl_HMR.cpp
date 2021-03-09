@@ -1899,9 +1899,7 @@ namespace moris
                             tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
-            mtk::Mesh_Pair tMeshPairUnion;
-            tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
-            tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
+            mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh);
 
             // FIXME: need for following operation not clear
             // Extract and resize nodal data from tUnionField
@@ -1912,7 +1910,7 @@ namespace moris
             tUnionFieldData.resize( tNumNodesUnionMesh, tUnionFieldData.n_cols() );
 
             // create union mesh for field
-            mtk::Field_Discrete tFieldUnion( &tMeshPairUnion, 0 );
+            mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
             tFieldUnion.unlock_field();
 
             // copy data onto field

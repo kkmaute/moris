@@ -8,7 +8,7 @@ namespace moris
     namespace mtk
     {
         Field_Discrete::Field_Discrete(
-                mtk::Mesh_Pair * aMeshPairs,
+                mtk::Mesh_Pair   aMeshPairs,
                 uint     const & aDiscretizationMeshIndex,
                 uint     const & mNumberOfFields)
                 : Field(aMeshPairs,mNumberOfFields),
@@ -32,7 +32,7 @@ namespace moris
         void Field_Discrete::update_coefficent_data()
         {
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // get number of nodes
             uint tNumberOfNodes = mNodalValues.n_rows();
@@ -178,7 +178,7 @@ namespace moris
         uint Field_Discrete::get_discretization_order() const
         {
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // return discretization order
             return tIPmesh->get_discretization_order( this->get_discretization_mesh_index() );
@@ -225,7 +225,7 @@ namespace moris
                     "Field_Discrete::compute_nodal_values - discretization mesh index not set.\n");
 
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // check that number of coefficient on mesh matches size of coefficient vector
             MORIS_ASSERT( (sint)mCoefficients.n_rows() == mNumberOfCoefficients,
@@ -317,7 +317,7 @@ namespace moris
                     "Field_Discrete::compute_nodal_values - discretization mesh index not set.\n");
 
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // check that node has an underlying discretization; return zero size vectors if
             // discretization cannot be accessed
