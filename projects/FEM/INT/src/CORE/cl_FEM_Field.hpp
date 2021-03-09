@@ -48,7 +48,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 Field( mtk::Mesh_Pair * aMeshPair,
-                       uint const                         & aDiscretizationMeshIndex =0 );
+                       uint const     & aDiscretizationMeshIndex =0 );
 
                 //------------------------------------------------------------------------------
 

@@ -28,9 +28,11 @@ namespace moris
             mUpdateNodalValues = false;
         }
 
+        //-----------------------------------------------------------------------------
+
         Field::~Field()
         {
-
+        
         }
 
         //-----------------------------------------------------------------------------
@@ -84,11 +86,17 @@ namespace moris
             {
                 this->load_nodal_values_from_hdf5( aString );
             }
+            else if ( tType == "exo" || tType == "e" )
+            {
+                load_field_from_exodus( aString );
+            }
             else
             {
                 MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here.");
             }
         }
+
+        //-----------------------------------------------------------------------------
 
         void Field::set_field_to_file( const std::string & aString )
         {
