@@ -755,6 +755,11 @@ public:
     construct_internal_double_sides_between_subphases();
 
     // ----------------------------------------------------------------------------------
+    
+    bool
+    has_inter_child_mesh_interfaces();
+
+    // ----------------------------------------------------------------------------------
  
     uint
     get_num_double_side_interfaces() const;
@@ -943,6 +948,8 @@ private:
 
     bool                             mHasCoincidentEdges;
     moris::Matrix< moris::IndexMat > mEdgeOnInterface;
+    
+    bool mHasInterChildMeshInterface;
 
     // Phase member variables -----------------------------
     bool                                   mHasPhaseInfo;

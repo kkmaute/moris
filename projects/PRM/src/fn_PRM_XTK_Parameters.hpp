@@ -46,8 +46,9 @@ namespace moris
         tParameterList.insert( "enrich_mesh_indices","0");
 
         // ghost stabilization and ghost related parameters
-        tParameterList.insert( "ghost_stab", false );
-
+        tParameterList.insert( "ghost_stab", false ); // Perform ghost stabilization
+        tParameterList.insert( "visualize_ghost" , false ); // writes the ghost blocks, on the XTK output mesh
+        
         // multigrid
         tParameterList.insert( "multigrid", false );
 
@@ -76,9 +77,6 @@ namespace moris
 
         // write XTK exodus mesh
         tParameterList.insert( "exodus_output_XTK_ig_mesh", false );
-
-        // add ghost blocks to XTK exodus mesh
-        tParameterList.insert( "exodus_output_XTK_ghost_mesh", false );
 
         // enriched integration mesh options
         tParameterList.insert( "high_to_low_dbl_side_sets", false );

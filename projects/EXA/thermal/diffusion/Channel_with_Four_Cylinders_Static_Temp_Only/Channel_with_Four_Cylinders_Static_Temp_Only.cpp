@@ -213,7 +213,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "multigrid",                   false );
         tParameterlist( 0 )( 0 ).set( "verbose",                     true );
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",      false );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ghost_mesh",false );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",   false );
     }
 

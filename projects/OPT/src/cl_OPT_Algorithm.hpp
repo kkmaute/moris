@@ -16,8 +16,10 @@ namespace moris
         {
                 exit,
                 wait,
-                compute_criteria,
-                compute_criteria_gradients
+                compute_criteria_forward_analysis,
+                compute_criteria_finite_difference_analysis,
+                compute_criteria_gradients_analytically,
+                undefined
         };
 
         enum class SA_Type
