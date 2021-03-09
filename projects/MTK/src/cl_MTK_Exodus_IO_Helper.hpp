@@ -315,12 +315,29 @@ namespace moris
                 /*
                  * @brief returns nodal field value of node defined by its Id
                  *
-                 * @param[ in ] aNodeId     id of node
-                 * @param[ in ] aFieldInd   index of field
+                 * @param[ in ] aNodeId        id of node
+                 * @param[ in ] aFieldInd      index of field
+                 * @param[ in ] aTimeStepIndex index of time step; default 0
                  */
 
                 real
-                get_nodal_field_value( uint aNodeId, uint aFieldIndex, uint aTimeStepIndex);
+                get_nodal_field_value(
+                        uint aNodeId,
+                        uint aFieldIndex,
+                        uint aTimeStepIndex=0);
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns field value for all nodes
+                 *
+                 * @param[ in ] aFieldInd   index of field
+                 * @param[ in ] aTimeStepIndex index of time step; default 0
+                 */
+
+                const Matrix<DDRMat> &
+                get_nodal_field_vector(
+                        uint aFieldIndex=0,
+                        uint aTimeStepIndex=0);
 
                 //------------------------------------------------------------------------------
                 /*
@@ -330,7 +347,9 @@ namespace moris
                  */
 
                 real
-                get_global_variable( uint aGlobalVariableIndex, uint aTimeStepIndex );
+                get_global_variable(
+                        uint aGlobalVariableIndex,
+                        uint aTimeStepIndex );
 
                 //------------------------------------------------------------------------------
                 /*

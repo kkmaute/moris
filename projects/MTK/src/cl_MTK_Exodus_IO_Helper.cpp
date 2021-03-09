@@ -1204,7 +1204,10 @@ namespace moris
         // ---------------------------------------------------------------------------------------------
 
         real
-        Exodus_IO_Helper::get_nodal_field_value( uint aNodeId, uint aFieldIndex, uint aTimeStepIndex)
+        Exodus_IO_Helper::get_nodal_field_value(
+                uint aNodeId,
+                uint aFieldIndex,
+                uint aTimeStepIndex)
         {
             // find index of node given its nodeId
             uint tIndex = this->get_node_index_by_Id(aNodeId);
@@ -1223,10 +1226,34 @@ namespace moris
             return mFieldsNodalVars[aFieldIndex](tIndex);
         }
 
+        // ---------------------------------------------------------------------------------------------
+
+        const
+        Matrix<DDRMat> &
+        Exodus_IO_Helper::get_nodal_field_vector(
+                uint aFieldIndex,
+                uint aTimeStepIndex)
+        {
+            // check that field exists
+            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds.");
+
+            // check if loaded time step is requested time step; if not load new time step
+            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            {
+                mTimeStepIndex = aTimeStepIndex;
+
+                this->reload_nodal_fields();
+            }
+
+            return mFieldsNodalVars[aFieldIndex];
+        }
+
         //------------------------------------------------------------------------------
 
         real
-        Exodus_IO_Helper::get_global_variable( uint aGlobalVariableIndex, uint aTimeStepIndex )
+        Exodus_IO_Helper::get_global_variable(
+                uint aGlobalVariableIndex,
+                uint aTimeStepIndex )
         {
             // check that field exists
             MORIS_ERROR( aGlobalVariableIndex < (uint) mNumGlobalVars, "Global variable index out of bounds.");
