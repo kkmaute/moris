@@ -1069,7 +1069,7 @@ namespace xtk
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh(0);
 
         // geometry and interpolation order, limited to a single interpolation order mesh
-        mtk::Cell const &        tFirstCell    = tMesh.get_mtk_cell(0);      
+        mtk::Cell const & tFirstCell = tMesh.get_mtk_cell(0);      
        
         // set the interpolation mesh cell info
         mtk::Cell_Info_Factory tFactory;
