@@ -279,9 +279,11 @@ namespace moris
                         mLibrary,
                         mDesignVariableInterface );
 
-                //mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-
-                mDesignVariableInterface->set_equation_model( mEquationModel );
+                // set the equation model if using design variables
+                if (mDesignVariableInterface != nullptr)
+                {
+                    mDesignVariableInterface->set_equation_model( mEquationModel );
+                }
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -294,7 +296,7 @@ namespace moris
                 mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
                 // Does not work with STK
-                MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
+                // MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
 
                 // build the model solver interface
 

@@ -62,7 +62,7 @@ namespace moris
 
         Geometry_Interpolator::Geometry_Interpolator(
                 const mtk::Interpolation_Rule & aInterpolationRule,
-                const mtk::Geometry_Type      & aIPMappingGeometryType,
+                const mtk::Interpolation_Rule & aIPMapInterpolationRule,
                 const bool                      aSpaceSideset,
                 const bool                      aTimeSideset )
         {
@@ -75,7 +75,7 @@ namespace moris
             // create member pointer to space interpolator
             mSpaceInterpolator = new mtk::Space_Interpolator(
                 aInterpolationRule,
-                aIPMappingGeometryType,
+                aIPMapInterpolationRule,
                 aSpaceSideset );
 
             // getting mapping size and flag from space interpolator

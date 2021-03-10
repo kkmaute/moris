@@ -108,6 +108,9 @@ namespace moris
                 //! requested IQI Names
                 moris::Cell< std::string > mRequestedIQINames;
 
+                // flag to skip GEN procedures
+                bool mFEMOnly = false;
+
                 //------------------------------------------------------------------------------
             public:
 
