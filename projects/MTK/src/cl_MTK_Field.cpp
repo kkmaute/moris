@@ -167,7 +167,9 @@ namespace moris
             this->error_if_locked();
 
             //check that input vector has proper size
-            MORIS_ASSERT( aNodalValues.n_rows() == mNodalValues.n_rows() && aNodalValues.n_cols() == 1,
+            MORIS_ERROR(
+                    aNodalValues.n_rows() == mNodalValues.n_rows() &&
+                    aNodalValues.n_cols() == mNodalValues.n_cols(),
                     "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size: %d vs %d vs %d.\n",
                     aNodalValues.n_rows(),mNodalValues.n_rows(),mMeshPair->mInterpolationMesh->get_num_nodes());
 
@@ -189,7 +191,10 @@ namespace moris
             //copy values
             for (uint tNodeIndex = 0; tNodeIndex<mNodalValues.n_rows(); ++tNodeIndex)
             {
-                mNodalValues(tNodeIndex) = aNodalValues(tNodeIndex);
+                for (uint tFieldIndex = 0; tFieldIndex<mNodalValues.n_cols(); ++tFieldIndex)
+                {
+                    mNodalValues(tNodeIndex,tFieldIndex) = aNodalValues(tNodeIndex,tFieldIndex);
+                }
             }
         }
 
@@ -379,6 +384,7 @@ namespace moris
             // update number of coefficients
             mNumberOfCoefficients = tMat.n_rows();
 
+            this->unlock_field();
             this->set_coefficients( tMat );
 
             tStatus = close_hdf5_file( tFile );
@@ -432,8 +438,10 @@ namespace moris
         {
             mtk::Mesh * tMesh = mMeshPair->mInterpolationMesh;
 
+            // set mesh
             moris::mtk::Writer_Exodus tExodusWriter( tMesh );
 
+            // set file names
             tExodusWriter.write_mesh(
                     "./",
                     aFileName,
@@ -441,18 +449,70 @@ namespace moris
                     "field_temp");
 
             // set standard field names
-            moris::Cell<std::string> tNodalFieldNames( 1 );
+            moris::Cell<std::string> tNodalFieldNames( mNumberOfFields );
 
-            tNodalFieldNames( 0 ) = "Field";
+            for (uint tIndex = 0; tIndex < mNumberOfFields; ++tIndex)
+            {
+                tNodalFieldNames( tIndex ) = "Field-" + std::to_string(tIndex);
+            }
 
             // pass nodal field names to writer
             tExodusWriter.set_nodal_fields( tNodalFieldNames );
 
+            // set time
             tExodusWriter.set_time( 0.0 );
 
-            tExodusWriter.write_nodal_field( tNodalFieldNames( 0 ), this->get_nodal_values() );
+            // write all fields
+            for (uint tIndex = 0; tIndex < mNumberOfFields; ++tIndex)
+            {
+                tExodusWriter.write_nodal_field(
+                        tNodalFieldNames( tIndex ),
+                        this->get_nodal_values().get_column(tIndex) );
+            }
 
+            // finalize and write mesh
             tExodusWriter.save_mesh( );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::load_field_from_exodus(
+                const std::string    & aFileName,
+                const moris_index      aTimeIndex,
+                const Matrix<DDUMat> & aFiledIndices)
+        {
+            // open and query exodus file
+            Exodus_IO_Helper tExoIO(aFileName.c_str(),0,false,false);
+
+            // check that number of requested field indices is equal to number of fields in nodal data
+            MORIS_ERROR( aFiledIndices.numel() == mNumberOfFields,
+                    "Field::load_field_from_exodus - number of requested fields incorrect.\n");
+
+            // get number of nodes
+            uint tNumNodes = tExoIO.get_number_of_nodes();
+
+            // check that number of nodes match with the field nodes
+            MORIS_ERROR ( tNumNodes == mNodalValues.n_rows(),
+                    "Field::load_field_from_exodus - number of nodes in exodus file incorrect.\n");
+
+            // allocate temporary memory to store nodal values
+            Matrix<DDRMat> tNodalValues(tNumNodes,mNumberOfFields);
+
+           // loop over all requested field indices
+            for (uint tIndex=0; tIndex < mNumberOfFields; ++tIndex)
+            {
+                // get exodus field index
+                moris_index tExoFieldIndex = aFiledIndices(tIndex);
+
+                // get exodus field for current field index
+                const Matrix<DDRMat> & tExodusData = tExoIO.get_nodal_field_vector( aTimeIndex, tExoFieldIndex);
+
+                // copy exodus field onto nodal field
+                tNodalValues.get_column(tIndex) = tExodusData.matrix_data();
+            }
+
+            this->unlock_field();
+            this->set_nodal_values( tNodalValues );
         }
 
         //------------------------------------------------------------------------------

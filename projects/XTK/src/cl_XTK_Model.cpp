@@ -2220,6 +2220,11 @@ namespace xtk
         // identify local subphases in child mesh
         this->identify_local_subphase_clusters_in_child_meshes();
 
+        // constructs the subphase double side sets internal to a child mesh 
+        // I do this here because it also figures out if the child mesh has inter child mesh interfaces
+        // this flag is needed for the cleanup cut mesh call
+        this->construct_internal_double_sides_between_subphases();
+
 
         // cleanup the mesh
         if(mCleanupMesh)
@@ -2916,7 +2921,29 @@ namespace xtk
         // tell the cut mesh to setup subphase to child mesh connectivity
         mCutMesh.setup_subphase_to_child_mesh_connectivity();
     }
+    // ----------------------------------------------------------------------------------
+    void
+    Model::construct_internal_double_sides_between_subphases()
+    {
+        // background mesh
+        moris_index tMyProcRank = par_rank();
+        moris::mtk::Interpolation_Mesh & tBGMesh = this->get_background_mesh().get_mesh_data();
 
+        uint tNumChildMeshes = this->get_cut_mesh().get_num_child_meshes();
+        
+        // iterate through children meshes
+        for(moris::uint iCM = 0; iCM < tNumChildMeshes; iCM++)
+        {
+            // get the child mesh
+            Child_Mesh * tChildMesh = & this->get_cut_mesh().get_child_mesh((moris_index)iCM);
+
+            if(tBGMesh.get_entity_owner(tChildMesh->get_parent_element_index(),EntityRank::ELEMENT) == (uint)tMyProcRank)
+            {
+                // tell the child mesh to construct its double side sets between subphases
+                tChildMesh->construct_internal_double_sides_between_subphases();
+            }
+        }
+    }
     // ----------------------------------------------------------------------------------
 
     void
@@ -3216,14 +3243,14 @@ namespace xtk
             Child_Mesh & tCM = mCutMesh.get_child_mesh(iCM);
             Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
 
-           if(tSubphasebinBulkPhase.size() > 1 )
-            {
+           if(tSubphasebinBulkPhase.size() > 1 or tCM.has_inter_child_mesh_interfaces())
+           {
                 tChildMeshesToKeep.push_back(iCM);
-            }
-            else
-            {
+           }
+           else
+           {
                 tChildMeshesToDelete.push_back(iCM);
-            }
+           }
         }
 
         mCutMesh.remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete);

@@ -126,7 +126,6 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
 
     std::string tSolverType = mParameterList.get< std::string >( "Solver_Type" );
 
-    //mAmesosSolver = tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem );
     mAmesosSolver = tAmesosFactory.Create( tSolverType, mEpetraProblem );
 
     sint error = 0;
@@ -162,6 +161,7 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
     // Get chosen times from solver
     mAmesosSolver->GetTiming( timingsList );
 
+    // FIXME: should be only on demand - not by default
     if( tSolverType == "Amesos_Umfpack" )
     {
         real tConditionNumber = reinterpret_cast< Amesos_Umfpack* >( mAmesosSolver )->GetRcond();
@@ -213,11 +213,20 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
     params.set("Refactorize"        , mParameterList.get< bool >( "Refactorize" ) );
     params.set("AddZeroToDiag"      , mParameterList.get< bool >( "AddZeroToDiag" ) );
 
+    std::string tSolverType = mParameterList.get< std::string >( "Solver_Type" );
+
+    // Create a parameter sub list for MUMPS solver
+    if ( tSolverType == "Amesos_Mumps" )
+    {
+        // Increase memory allocation to 200% at a time (default = 20%)
+        params.sublist( "mumps" ).set( "ICNTL(14)",static_cast<int>(200) );
+    }
+
     // Create a parameter sublist for PARDISO solver
     //    const char* tSolverType1 = "Amesos_Pardiso";
     ////    if ( mParameterList.get< const char * >( "solver_type" ) == tSolverType1 )
     //    if ( "Amesos_Pardiso" == tSolverType1 )
-    {
+    // {
         //        params.sublist( "Pardiso" ).set( "Use (non-)symmetric scaling vectors", static_cast<int>(1) );
         //        params.sublist( "Pardiso" ).set( "Use (non-)symmetric matchings"      , static_cast<int>(1) );
         //        if (aUseTranspose)
@@ -228,16 +237,7 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
         //        {
         //            params.sublist( "Pardiso" ).set( "Solve transposed", static_cast<int>(0) );
         //        }
-    }
-
-    //    // Create a parameter sub list for MUMPS solver
-    //    const char* tSolverType2 = "Amesos_Mumps";
-    ////    if (mParameterList.get< const char * >( "solver_type" ) == tSolverType2 )
-    //    if ( "Amesos_Mumps" == tSolverType2 )
-    //    {
-    //        // Increase memory allocation to 200% at a time (default = 20%)
-    //        params.sublist( "mumps" ).set( "ICNTL(14)",static_cast<int>(200) );
-    //    }
+    //}
 
     //Set AMESOS solver parameter list
     mAmesosSolver->SetParameters( params );

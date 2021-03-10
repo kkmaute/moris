@@ -535,6 +535,18 @@ namespace moris
                  *
                 * @param[in]  aFilePath - name of hdf5 file
                  */
+                void load_field_from_exodus(
+                        const std::string    & aFileName,
+                        const moris_index      aTimeIndex = 0,
+                        const Matrix<DDUMat> & aFiledIndices = {{0}} );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 *  @brief save coefficients to binary file; will always overwrite existing file
+                 *
+                * @param[in]  aFilePath - name of hdf5 file
+                 */
                 void save_field_to_exodus( const std::string & aFileName );
 
                 //------------------------------------------------------------------------------

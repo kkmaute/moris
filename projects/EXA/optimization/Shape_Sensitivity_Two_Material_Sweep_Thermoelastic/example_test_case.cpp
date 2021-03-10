@@ -15,7 +15,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
 
 //---------------------------------------------------------------
 
-/*
+
 TEST_CASE("Shape_Sensitivity_Two_Material_Sweep_Thermoelastic",
         "[moris],[example],[optimization],[sweep],[sweep_two_material_thermoelastic]")
 {
@@ -150,4 +150,4 @@ TEST_CASE("Shape_Sensitivity_Two_Material_Sweep_Thermoelastic_Staggered",
     close_hdf5_file( tFileID );
 
 }
-*/
+
