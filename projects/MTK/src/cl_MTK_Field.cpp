@@ -499,13 +499,16 @@ namespace moris
             Matrix<DDRMat> tNodalValues(tNumNodes,mNumberOfFields);
 
            // loop over all requested field indices
-            for (uint tIndex; tIndex < mNumberOfFields; ++tIndex)
+            for (uint tIndex=0; tIndex < mNumberOfFields; ++tIndex)
             {
                 // get exodus field index
                 moris_index tExoFieldIndex = aFiledIndices(tIndex);
 
-                tNodalValues.get_column(tIndex) =
-                        tExoIO.get_nodal_field_vector( aTimeIndex, tExoFieldIndex).matrix_data();
+                // get exodus field for current field index
+                const Matrix<DDRMat> & tExodusData = tExoIO.get_nodal_field_vector( aTimeIndex, tExoFieldIndex);
+
+                // copy exodus field onto nodal field
+                tNodalValues.get_column(tIndex) = tExodusData.matrix_data();
             }
 
             this->unlock_field();
