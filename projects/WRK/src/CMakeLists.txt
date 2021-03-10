@@ -11,6 +11,8 @@ set(HEADERS
     cl_WRK_Workflow.hpp
     cl_WRK_Workflow_Factory.hpp
     cl_WRK_Workflow_HMR_XTK.hpp
+    cl_WRK_Workflow_STK_XTK.hpp
+    cl_WRK_Workflow_STK_FEM.hpp
     cl_WRK_perform_refinement.hpp
     cl_WRK_perform_remeshing.hpp
     )
@@ -37,6 +39,7 @@ set(LIB_SOURCES
     cl_WRK_Workflow_Factory.cpp
     cl_WRK_Workflow_HMR_XTK.cpp
     cl_WRK_Workflow_STK_XTK.cpp
+    cl_WRK_Workflow_STK_FEM.cpp
     fn_WRK_Workflow_Main_Interface.cpp
     cl_WRK_perform_refinement.cpp
     cl_WRK_perform_remeshing.cpp

@@ -2,6 +2,7 @@
 #include "cl_WRK_Workflow_Factory.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "cl_WRK_Workflow_STK_XTK.hpp"
+#include "cl_WRK_Workflow_STK_FEM.hpp"
 namespace moris
 {
     namespace wrk
@@ -17,6 +18,10 @@ namespace moris
             else if(aWRKFlowType.compare("STK_XTK") == 0)
             {
                 return std::make_shared<Workflow_STK_XTK>( aPerformerManager );
+            }
+            else if(aWRKFlowType.compare("STK_FEM") == 0)
+            {
+                return std::make_shared<Workflow_STK_FEM>( aPerformerManager );
             }
             else
             {
