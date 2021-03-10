@@ -289,7 +289,7 @@ namespace moris
             // create a geometry interpolator for IG cells
             mIGGeometryInterpolator = new Geometry_Interpolator(
                 tIGGeometryInterpolationRule,
-                tIPGeometryInterpolationRule.get_geometry_type(), 
+                tIPGeometryInterpolationRule, 
                 tIsSide,
                 tIsTimeSide );
 

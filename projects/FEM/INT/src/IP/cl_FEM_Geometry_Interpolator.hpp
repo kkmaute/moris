@@ -152,13 +152,13 @@ namespace moris
                 /**
                  * constructor
                  * @param[ in ] interpolation rule for geometry
-                 * @param[ in ] interpolation cell geometry type for mapping
+                 * @param[ in ] interpolation rule for geometry mapping
                  * @param[ in ] flag true if side interpolation
                  * @param[ in ] flag true if time side interpolation
                  */
                 Geometry_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
-                        const mtk::Geometry_Type      & aIPMappingGeometryType,
+                        const mtk::Interpolation_Rule & aIPMapInterpolationRule,
                         const bool                      aSpaceSideset = false,
                         const bool                      aTimeSideset  = false );
 

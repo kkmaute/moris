@@ -286,7 +286,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
            // create a space and time geometry interpolator fot the integration element
-           Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, mtk::Geometry_Type::QUAD );
+           Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, tGeoInterpIPRule );
 
            //set the coefficients xHat, tHat
            tGeoInterpIG.set_space_coeff( tXHatIG );
@@ -748,7 +748,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            Matrix< DDRMat > tTHatIG = {{ 0.0 }, { 1.0 }, { 0.5 }};
 
            // create a space and time geometry interpolator fot the integration element
-           Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, mtk::Geometry_Type::HEX );
+           Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, tGeoInterpIPRule );
 
            //set the coefficients xHat, tHat
            tGeoInterpIG.set_space_coeff( tXHatIG );
