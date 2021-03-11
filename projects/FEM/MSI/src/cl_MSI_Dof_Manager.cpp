@@ -291,7 +291,9 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes )
+        void Dof_Manager::communicate_check_if_owned_adof_exists(
+                moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
+                Matrix< IndexMat > const              & aDiscretizationIndexPerTypeAndTime )
         {
             // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
             Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
@@ -385,8 +387,10 @@ namespace moris
                 {
                     for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                     {
+                        moris_index tDiscretizationIndex = aDiscretizationIndexPerTypeAndTime( Ij );
+
                         // Get owned adof Id
-                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap( 0 ).find( tMatsToReceive( Ik )( Ii ) );
+                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap( tDiscretizationIndex ).find( tMatsToReceive( Ik )( Ii ) );
 
                         if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                         {
@@ -425,9 +429,10 @@ namespace moris
         //----------------------------------------------------------------------------------------------------------
 
         void Dof_Manager::communicate_shared_adof_ids(
-                const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
-                moris::Cell< Matrix< DDUMat > >       & aListSharedAdofIds,
-                moris::Cell< Matrix< DDUMat > >       & aListSharedAdofPos )
+                moris::Cell< moris::Cell < Adof * > > const  & aAdofListofTypes,
+                Matrix< IndexMat >                    const  & aDiscretizationIndexPerTypeAndTime,
+                moris::Cell< Matrix< DDUMat > >              & aListSharedAdofIds,
+                moris::Cell< Matrix< DDUMat > >              & aListSharedAdofPos )
         {
             // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
             Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
@@ -539,8 +544,10 @@ namespace moris
                 {
                     for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                     {
+                        moris_index tDiscretizationIndex = aDiscretizationIndexPerTypeAndTime( Ij );
+
                         // Get owned adof Id
-                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap( 0 ).find( tMatsToReceive( Ik )( Ii ) );
+                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap( tDiscretizationIndex ).find( tMatsToReceive( Ik )( Ii ) );
 
                         MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(),
                                 "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");
@@ -751,6 +758,29 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
+        void Dof_Manager::get_descretization_index_for_adof_list_of_types(
+                Matrix< IndexMat > & tDiscretizationIndexPerTypeAndTime )
+        {
+            uint tCounter = 0;
+
+            // loop over all dof types
+            for ( moris::uint Ik = 0; Ik < mPdofTypeList.size(); Ik++ )
+            {
+                // loop over all time levels for this dof type
+                for ( moris::uint Ii = 0; Ii < mPdofHostTimeLevelList( Ik ); Ii++ )
+                {
+                    // get discretization index for this dof type
+                    moris::uint tDiscretizationIndex =
+                            ( moris::uint ) mModelSolverInterface->get_adof_index_for_type( Ik );
+
+                    // assemble index into list
+                    tDiscretizationIndexPerTypeAndTime( tCounter ++ ) = tDiscretizationIndex;
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
         void Dof_Manager::create_adofs()
         {
             this->initialize_pdof_host_time_level_list();
@@ -771,6 +801,13 @@ namespace moris
             // Create temporary moris::Cell containing lists of temporary adofs
             moris::Cell<moris::Cell < Adof * > > tAdofListofTypes( tNumTypeTimeLevels );
 
+            // build discretization index list for types and time.
+            // Every entry of this list corresponds to a adof list in tAdofListofTypes
+            Matrix< IndexMat > tDiscretizationIndexPerTypeAndTime( tNumTypeTimeLevels, 1 );
+
+            // fill list with correct discretization indices for type and time
+            this->get_descretization_index_for_adof_list_of_types( tDiscretizationIndexPerTypeAndTime );
+
             for ( moris::uint Ik = 0; Ik < tNumTypeTimeLevels; Ik++ )
             {
                 tAdofListofTypes( Ik ).resize( tMaxNodeAdofId, nullptr );
@@ -785,7 +822,7 @@ namespace moris
             // Check if shared adof exists
             if ( !(par_size() <= 1) )
             {
-                this->communicate_check_if_owned_adof_exists( tAdofListofTypes );
+                this->communicate_check_if_owned_adof_exists( tAdofListofTypes, tDiscretizationIndexPerTypeAndTime );
             }
 
             // Determine number of owned and shared adofs
@@ -872,7 +909,11 @@ namespace moris
                 moris::Cell< Matrix< DDUMat > > tListSharedAdofPos( tNumTypeTimeLevels );
 
                 // Communicate shared-owned adof ids
-                this->communicate_shared_adof_ids( tAdofListofTypes, tListSharedAdofIds, tListSharedAdofPos );
+                this->communicate_shared_adof_ids(
+                        tAdofListofTypes,
+                        tDiscretizationIndexPerTypeAndTime,
+                        tListSharedAdofIds,
+                        tListSharedAdofPos );
 
                 // Loop over all adofs determine the total number and the number of owned ones
                 for ( moris::uint Ik = 0; Ik < tNumTypeTimeLevels; Ik++ )
