@@ -28,7 +28,7 @@ namespace moris
                 // ----------------------------------------------------------------------------------------------
 
                 Field_Proxy(
-                        mtk::Mesh_Pair * aMeshPairs,
+                        mtk::Mesh_Pair   aMeshPairs,
                         uint const     & aDiscretizationMeshIndex = 0 );
 
                 // ----------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ namespace moris
                 void evaluate_scalar_function( T aLambda )
                 {
                     Interpolation_Mesh* tInterpolationMesh =
-                            mMeshPair->mInterpolationMesh;
+                            mMeshPair.get_interpolation_mesh();
 
                     // get number of nodes on block
                     uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();

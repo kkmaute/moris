@@ -10,12 +10,15 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "st_MTK_Mesh_Pair.hpp"
 
 namespace moris
 {
     namespace mtk
     {
+        class Mesh_Pair;
+        class Interpolation_Mesh;
+        class Integration_Mesh;
+
         class Mesh_Manager : public std::enable_shared_from_this< Mesh_Manager >
         {
         private:
@@ -52,7 +55,7 @@ namespace moris
              * @param aPairIndex Mesh pair index
              * @return Mesh pair
              */
-            Mesh_Pair get_mesh_pair(moris_index aPairIndex);
+            const Mesh_Pair& get_mesh_pair(moris_index aPairIndex);
 
             Mesh_Pair * get_mesh_pair_pointer(moris_index aPairIndex);
 

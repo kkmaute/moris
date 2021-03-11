@@ -13,11 +13,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Field::Field( mtk::Mesh_Pair * aMeshPair,
-                uint const     & aDiscretizationMeshIndex )
+        Field::Field( mtk::Mesh_Pair aMeshPair,
+                uint                 aDiscretizationMeshIndex )
         : mtk::Field( aMeshPair )
         {
-            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair->mInterpolationMesh;
+            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
             // get number of nodes on block
             uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
@@ -32,7 +32,6 @@ namespace moris
 
         Field::~Field()
         {
-        
         }
 
         //-----------------------------------------------------------------------------
