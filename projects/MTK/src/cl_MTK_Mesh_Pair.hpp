@@ -1,5 +1,5 @@
-#ifndef MORIS_ST_MTK_MESH_PAIR_HPP
-#define MORIS_ST_MTK_MESH_PAIR_HPP
+#ifndef MORIS_CL_MTK_MESH_PAIR_HPP
+#define MORIS_CL_MTK_MESH_PAIR_HPP
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -72,4 +72,4 @@ namespace moris
     }
 }
 
-#endif //MORIS_ST_MTK_MESH_PAIR_HPP
+#endif //MORIS_CL_MTK_MESH_PAIR_HPP
