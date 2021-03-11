@@ -386,7 +386,7 @@ namespace moris
                     for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                     {
                         // Get owned adof Id
-                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
+                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap( 0 ).find( tMatsToReceive( Ik )( Ii ) );
 
                         if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                         {
@@ -424,7 +424,8 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------
 
-        void Dof_Manager::communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
+        void Dof_Manager::communicate_shared_adof_ids(
+                const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
                 moris::Cell< Matrix< DDUMat > >       & aListSharedAdofIds,
                 moris::Cell< Matrix< DDUMat > >       & aListSharedAdofPos )
         {
@@ -539,7 +540,7 @@ namespace moris
                     for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                     {
                         // Get owned adof Id
-                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
+                        moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap( 0 ).find( tMatsToReceive( Ik )( Ii ) );
 
                         MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(),
                                 "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");

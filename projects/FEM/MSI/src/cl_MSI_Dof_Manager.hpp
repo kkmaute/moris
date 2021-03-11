@@ -37,7 +37,7 @@ namespace moris
             Matrix< IdMat >                mCommTable;             // Communication table. As and input from the model.
             Model_Solver_Interface       * mModelSolverInterface;  // Model solver interface pointer
 
-            const moris::map< moris::moris_id, moris::moris_index >  * mAdofGlobaltoLocalMap = nullptr;
+            Cell< moris::map< moris::moris_id, moris::moris_index > > mAdofGlobaltoLocalMap;
             moris::sint mNumMaxAdofs = -1;
             moris::uint mNumOwnedAdofs = 0;
 
@@ -194,7 +194,14 @@ namespace moris
 //-----------------------------------------------------------------------------------------------------------
             void set_adof_map( const moris::map< moris::moris_id, moris::moris_index > * aAdofLocaltoGlobalMap )
             {
-                mAdofGlobaltoLocalMap = aAdofLocaltoGlobalMap;
+                mAdofGlobaltoLocalMap.resize( 1 );
+                mAdofGlobaltoLocalMap( 0 ) = *aAdofLocaltoGlobalMap;
+            }
+
+//-----------------------------------------------------------------------------------------------------------
+            Cell< moris::map< moris::moris_id, moris::moris_index > > & get_adof_map(  )
+            {
+                return mAdofGlobaltoLocalMap;
             }
 
 //-----------------------------------------------------------------------------------------------------------
