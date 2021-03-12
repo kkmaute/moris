@@ -456,13 +456,15 @@ namespace moris
                 mQIExist = false;
             }
 
+            mIsStaggered = false;
+
             // free additional memory
             this->free_memory();
         }
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< enum MSI::Dof_Type > Equation_Set::get_requested_dof_types()
+        const moris::Cell< enum MSI::Dof_Type > & Equation_Set::get_requested_dof_types()
         {
             MORIS_ERROR( mModelSolverInterface != nullptr,
                     "Equation_Set::get_requested_dof_types - model solver interface not set yet." );
@@ -471,7 +473,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > Equation_Set::get_secondary_dof_types()
+        const moris::Cell< enum MSI::Dof_Type > & Equation_Set::get_secondary_dof_types()
         {
             MORIS_ERROR( mModelSolverInterface != nullptr,
                     "Equation_Set::get_requested_dof_types - model solver interface not set yet." );
