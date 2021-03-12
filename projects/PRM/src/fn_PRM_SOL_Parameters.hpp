@@ -491,7 +491,7 @@ namespace moris
 
             tNonLinSolverParameterList.insert( "NLA_DofTypes" , "UNDEFINED" );
 
-            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , "" );
+            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , "UNDEFINED" );
 
             tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver" , "" );
 

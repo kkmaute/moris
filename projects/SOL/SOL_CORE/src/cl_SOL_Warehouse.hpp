@@ -80,6 +80,35 @@ namespace moris
                 //! load final solution vector from file. This option will skip assembly and solve
                 std::string                                             mLoadSolVecFromFile = std::string( "" );
 
+                //--------------------------------------------------------------------------------------------------------
+
+                void create_linear_solver_algorithms();
+
+                //--------------------------------------------------------------------------------------------------------
+
+                void create_linear_solvers();
+
+                //--------------------------------------------------------------------------------------------------------
+
+                void create_nonlinear_solver_algorithms();
+
+                //--------------------------------------------------------------------------------------------------------
+
+                void create_nonlinear_solvers();
+
+                //--------------------------------------------------------------------------------------------------------
+
+                void create_time_solver_algorithms();
+
+                //--------------------------------------------------------------------------------------------------------
+
+                void create_time_solvers();
+
+                //--------------------------------------------------------------------------------------------------------
+
+                void get_default_secundary_dof_types(
+                        Cell< Cell< MSI::Dof_Type >>       & aCellOfCellsSecDofTypes,
+                        Cell< Cell< MSI::Dof_Type >> const & aCellOfCellDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------
 
@@ -158,19 +187,6 @@ namespace moris
                 {
                     return mTimeSolvers( 0 );
                 };
-                //--------------------------------------------------------------------------------------------------------
-
-                void create_linear_solver_algorithms();
-
-                void create_linear_solvers();
-
-                void create_nonlinear_solver_algorithms();
-
-                void create_nonlinear_solvers();
-
-                void create_time_solver_algorithms();
-
-                void create_time_solvers();
 
                 //--------------------------------------------------------------------------------------------------------
 
