@@ -872,7 +872,7 @@ namespace moris
                  * build a list of dof types requested by the solver and owned by the IWG
                  * @param[ in ] aIsResidual bool true if residual evaluation
                  */
-                void build_requested_dof_type_list( const bool aIsResidual );
+                void build_requested_dof_type_list( const bool aIsStaggered );
 
         };
         //------------------------------------------------------------------------------
