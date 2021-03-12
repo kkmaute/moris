@@ -177,13 +177,12 @@ void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vect
                     }
                 }
             }
-
-            this->free_block_memory( Ii );
         }
 
-        // global assembly to switch entries to the right processor
-        aVectorRHS->vector_global_assembly();
+        this->free_block_memory( Ii );
     }
+    // global assembly to switch entries to the right processor
+    aVectorRHS->vector_global_assembly();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -242,7 +241,7 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
         // global assembly to switch entries to the right processor
         aVectorRHS->vector_global_assembly();
 
-        this->report_end_of_assebly();
+        this->report_end_of_assembly();
     }
 }
 
@@ -287,7 +286,7 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
 
-    this->report_end_of_assebly();
+    this->report_end_of_assembly();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -355,7 +354,7 @@ void Solver_Interface::fill_matrix_and_RHS(
     aMat->matrix_global_assembly();
     aVectorRHS->vector_global_assembly();
 
-    this->report_end_of_assebly();
+    this->report_end_of_assembly();
 }
 
 //---------------------------------------------------------------------------------------------------------
