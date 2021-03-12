@@ -304,8 +304,7 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
     mSolverInput->set_requested_dof_types( tDofTypeUnion );
-
-    mSolverInput->set_secondary_dof_types( mSecondaryDofTypeList );
+    mSolverInput->set_secondary_dof_types( tDofTypeUnion );
 
     if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
     {
