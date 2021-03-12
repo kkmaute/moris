@@ -862,15 +862,15 @@ namespace moris
                                             { tStartCol, tEndCol } ) );
 
                             // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
+                            sint tSeparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mSlaveDofTypes( tSeparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                             uint tNumRHS  =tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -926,7 +926,7 @@ namespace moris
                                             { tStartCol, tEndCol } ) );
 
                             // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
 
                             // get the ith dof type group
                             const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
@@ -934,7 +934,7 @@ namespace moris
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
                             uint tNumRHS  =tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -984,7 +984,7 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type > & tDofTypeGroup = mEquationSet->mSlaveDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
