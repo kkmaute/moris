@@ -79,6 +79,8 @@ void SOL_Warehouse::initialize()
     mSaveFinalSolVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
     mLoadSolVecFromFile    =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
 
+    mSaveFinalAdjointVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
+
     if( mTPLType == moris::sol::MapType::Petsc)
     {
         PetscInitializeNoArguments();
