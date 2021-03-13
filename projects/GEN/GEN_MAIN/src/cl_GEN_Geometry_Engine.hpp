@@ -329,6 +329,13 @@ namespace moris
             const Matrix< DDSMat > & get_refinement_mesh_indices(uint aFieldIndex );
 
             /**
+             * Gets all of the MTK fields that the geometry engine is using.
+             *
+             * @return MTK fields
+             */
+            Cell<std::shared_ptr<mtk::Field>> get_mtk_fields();
+
+            /**
              * Returns fields so that HMR can perform refinement based on the data from this performer
              *
              * @param aFieldIndex Index of the field

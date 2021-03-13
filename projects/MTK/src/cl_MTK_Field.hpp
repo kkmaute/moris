@@ -17,7 +17,6 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 
-
 namespace moris
 {
     namespace mtk
@@ -176,6 +175,8 @@ namespace moris
                 Field(
                         Mesh_Pair        aMeshPair,
                         uint     const & aNumberOfFields = 1);
+
+                Field();
 
                 //------------------------------------------------------------------------------
 

@@ -11,7 +11,7 @@ namespace moris
 {
     namespace ge
     {
-        class Field
+        class Field : public mtk::Field
         {
 
         protected:

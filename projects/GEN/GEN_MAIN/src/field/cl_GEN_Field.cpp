@@ -58,7 +58,8 @@ namespace moris
                      const Matrix<DDSMat>&  aSharedADVIds,
                      mtk::Mesh_Pair         aMeshPair,
                      std::shared_ptr<Field> aField)
-                : mFieldVariables(aSharedADVIds.length())
+                : mtk::Field(aMeshPair)
+                , mFieldVariables(aSharedADVIds.length())
                 , mSensitivities(1, aSharedADVIds.length())
                 , mParameters(aField->mParameters)
                 , mDeterminingADVIds(aSharedADVIds)

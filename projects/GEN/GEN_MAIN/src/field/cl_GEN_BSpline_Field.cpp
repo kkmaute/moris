@@ -160,6 +160,8 @@ namespace moris
 
             // Get coefficients
             Matrix<DDRMat> tNodalValues = tField->get_nodal_values();
+            this->unlock_field();
+            this->set_nodal_values(tNodalValues);
 
             // Clean up
             delete tField;

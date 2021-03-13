@@ -649,6 +649,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Cell<std::shared_ptr<mtk::Field>> Geometry_Engine::get_mtk_fields()
+        {
+            Cell<std::shared_ptr<mtk::Field>> tFields(mGeometries.size() + mProperties.size());
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+            return tFields;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Geometry_Engine::get_field_value(
                 uint                  aFieldIndex,
                 uint                  aNodeIndex,
