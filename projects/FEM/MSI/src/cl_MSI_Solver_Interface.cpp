@@ -149,13 +149,13 @@ namespace moris
 
     void MSI_Solver_Interface::initialize_set(
             const uint aMyEquSetInd,
-            const bool aIsResidual,
+            const bool aIsStaggered,
             const bool aIsAdjointOffDiagonalTimeContribution )
     {
         mMSI->get_equation_model()->
                 set_is_adjoint_off_diagonal_time_contribution( aIsAdjointOffDiagonalTimeContribution );
 
-        mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsResidual );
+        mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsStaggered );
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    void MSI_Solver_Interface::report_end_of_assebly()
+    void MSI_Solver_Interface::report_end_of_assembly()
     {
         mMSI->get_equation_model()->report_on_assembly();
     }

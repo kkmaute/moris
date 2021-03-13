@@ -111,14 +111,14 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
-                virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+                virtual const moris::Cell< enum MSI::Dof_Type > & get_requested_dof_types()
                 {
                     return mListOfDofTypes;
                 };
 
                 // ----------------------------------------------------------------------------
 
-                void set_secondary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+                void set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
                 {
 
                 };
