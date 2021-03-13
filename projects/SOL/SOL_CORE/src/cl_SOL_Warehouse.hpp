@@ -80,6 +80,9 @@ namespace moris
                 //! load final solution vector from file. This option will skip assembly and solve
                 std::string                                             mLoadSolVecFromFile = std::string( "" );
 
+                //! save final adjoint vector to file string
+                std::string                                             mSaveFinalAdjointVecToFile = std::string( "" );
+
                 //--------------------------------------------------------------------------------------------------------
 
                 void create_linear_solver_algorithms();
@@ -207,6 +210,13 @@ namespace moris
                 const std::string & get_save_final_sol_vec_to_file()
                 {
                     return mSaveFinalSolVecToFile;
+                }
+
+                //--------------------------------------------------------------------------------------------------------
+
+                const std::string & get_save_final_adjoint_vec_to_file()
+                {
+                    return mSaveFinalAdjointVecToFile;
                 }
 
                 //--------------------------------------------------------------------------------------------------------
