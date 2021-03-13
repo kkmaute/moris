@@ -145,7 +145,10 @@ namespace moris
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
 
-            mtk::Mesh_Pair tMeshPair(aMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, aMesh));
+            mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
+                    aMesh->get_mesh_type(),
+                    aMesh);
+            mtk::Mesh_Pair tMeshPair(aMesh, tIntegrationMesh);
             this->distribute_advs(tMeshPair);
         }
 
