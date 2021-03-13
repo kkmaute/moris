@@ -10,6 +10,7 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
+#include "cl_Map.hpp"
 
 namespace moris
 {
@@ -24,6 +25,8 @@ namespace moris
         private:
             moris::Cell<Mesh_Pair> mMeshPairs;
 
+            moris::map< std::string, moris_index > mMeshPairNameToIndexMap;
+
         public:
 
             Mesh_Manager();
@@ -37,7 +40,8 @@ namespace moris
             uint register_mesh_pair(
                     Interpolation_Mesh* aInterpolationMesh,
                     Integration_Mesh*   aIntegrationMesh,
-                    bool                aIsOwned = false );
+                    bool                aIsOwned = false,
+                    std::string const & aMeshPairName = "" );
 
             //--------------------------------------------------------------------
 
@@ -49,15 +53,27 @@ namespace moris
              */
             uint register_mesh_pair(Mesh_Pair& aMeshPair);
 
+            //--------------------------------------------------------------------
+
             /**
              * Gets a mesh pair.
              *
              * @param aPairIndex Mesh pair index
              * @return Mesh pair
              */
-            const Mesh_Pair& get_mesh_pair(moris_index aPairIndex);
+            const Mesh_Pair & get_mesh_pair(moris_index aPairIndex);
 
-            Mesh_Pair * get_mesh_pair_pointer(moris_index aPairIndex);
+            //--------------------------------------------------------------------
+
+            /**
+             * Gets a mesh pair.
+             *
+             * @param aPairIndex Mesh pair name
+             * @return Mesh pair
+             */
+            const Mesh_Pair & get_mesh_pair( const std::string & aMeshPairName );
+
+            //--------------------------------------------------------------------
 
             void
             get_mesh_pair(

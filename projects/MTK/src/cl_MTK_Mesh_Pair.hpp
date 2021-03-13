@@ -66,7 +66,8 @@ namespace moris
             friend uint Mesh_Manager::register_mesh_pair(
                     Interpolation_Mesh* aInterpolationMesh,
                     Integration_Mesh*   aIntegrationMesh,
-                    bool                aIsOwned);
+                    bool                aIsOwned,
+                    std::string const & aMeshPairName);
 
         };
     }

@@ -22,8 +22,9 @@ namespace moris
         uint
         Mesh_Manager::register_mesh_pair(
                 Interpolation_Mesh* aInterpolationMesh,
-                Integration_Mesh*   aIntegrationMesh,
-                bool                aIsOwned)
+                Integration_Mesh  * aIntegrationMesh,
+                bool                aIsOwned,
+                std::string const & aMeshPairName )
         {
             // Create new mesh pair
             Mesh_Pair tMeshPair(aInterpolationMesh, aIntegrationMesh, false);
@@ -31,10 +32,17 @@ namespace moris
             // Push back new pair
             mMeshPairs.push_back(tMeshPair);
 
-            // Ownership begins after adding
-            mMeshPairs(mMeshPairs.size() - 1).mIsOwned = aIsOwned;
+            moris_index tMeshPairIndex = mMeshPairs.size() - 1;
 
-            return mMeshPairs.size() - 1;
+            // Ownership begins after adding
+            mMeshPairs( tMeshPairIndex ).mIsOwned = aIsOwned;
+
+            if( not aMeshPairName.empty() )
+            {
+                mMeshPairNameToIndexMap[ aMeshPairName ] = tMeshPairIndex;
+            }
+
+            return tMeshPairIndex;
         }
 
         //-------------------------------------------------------------------------
@@ -62,11 +70,13 @@ namespace moris
 
         //-------------------------------------------------------------------------
 
-        Mesh_Pair * Mesh_Manager::get_mesh_pair_pointer(moris_index aPairIndex)
+        const Mesh_Pair & Mesh_Manager::get_mesh_pair( const std::string & aMeshPairName )
         {
-            MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
-                          "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
-            return &mMeshPairs(aPairIndex);
+            MORIS_ERROR( mMeshPairNameToIndexMap.key_exists( aMeshPairName ), "Mesh pair name does not exist!");
+
+            moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
+
+            return mMeshPairs(tMeshPairIndex);
         }
 
         //-------------------------------------------------------------------------
