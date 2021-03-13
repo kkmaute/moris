@@ -101,7 +101,7 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0) );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
@@ -136,7 +136,7 @@ namespace moris
             mPerformerManager->mXTKPerformer( 0 )->perform();
 
             // Assign PDVs
-            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 ) );
+            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
 
             // Stage 3: MDL perform ---------------------------------------------------------------------
 

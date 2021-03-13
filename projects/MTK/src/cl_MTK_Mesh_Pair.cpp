@@ -17,11 +17,6 @@ namespace moris
                 , mIntegrationMesh(aIntegrationMesh)
                 , mIsOwned(aIsOwned)
         {
-            MORIS_ERROR(aInterpolationMesh, "Interpolation mesh must exist in a mesh pair.");
-            /* FIXME should also check the integration mesh, but currently this breaks something in the mapper when it
-            is forced to create a paired integration mesh for a given HMR interpolation mesh */
-
-            // MORIS_ERROR(aIntegrationMesh, "Integration mesh must exist in a mesh pair.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -48,6 +43,7 @@ namespace moris
 
         Interpolation_Mesh* Mesh_Pair::get_interpolation_mesh() const
         {
+            MORIS_ASSERT(mInterpolationMesh, "Interpolation mesh does not exist.");
             return mInterpolationMesh;
         }
 

@@ -12,10 +12,10 @@ namespace moris
                 const Matrix<DDUMat>&     aCoefficientIndices,
                 const Matrix<DDSMat>&     aSharedADVIds,
                 uint                      aADVOffsetID,
-                mtk::Interpolation_Mesh*  aMesh,
+                mtk::Mesh_Pair            aMeshPair,
                 std::shared_ptr<Geometry> aGeometry)
-                : Field(aCoefficientIndices, aSharedADVIds, aGeometry)
-                , BSpline_Field(aOwnedADVs, aCoefficientIndices, aSharedADVIds, aADVOffsetID, aMesh, aGeometry)
+                : Field(aCoefficientIndices, aSharedADVIds, aMeshPair, aGeometry)
+                , BSpline_Field(aOwnedADVs, aCoefficientIndices, aSharedADVIds, aADVOffsetID, aMeshPair, aGeometry)
                 , Geometry(aGeometry)
         {
 

@@ -56,6 +56,7 @@ namespace moris
 
         Field::Field(const Matrix<DDUMat>&  aFieldVariableIndices,
                      const Matrix<DDSMat>&  aSharedADVIds,
+                     mtk::Mesh_Pair         aMeshPair,
                      std::shared_ptr<Field> aField)
                 : mFieldVariables(aSharedADVIds.length())
                 , mSensitivities(1, aSharedADVIds.length())
@@ -245,9 +246,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        mtk::Interpolation_Mesh* Field::get_mesh()
+        mtk::Mesh_Pair Field::get_mesh_pair()
         {
-            return nullptr;
+            return mtk::Mesh_Pair(nullptr, nullptr);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ namespace moris
 
         private:
             Matrix<DDSMat> mSharedADVIds;
-            mtk::Interpolation_Mesh* mMesh;
+            mtk::Mesh_Pair mMeshPair;
             sol::Dist_Vector* mOwnedNodalValues = nullptr;
             sol::Dist_Vector* mSharedNodalValues = nullptr;
 
@@ -24,16 +24,16 @@ namespace moris
              * @param aCoefficientIndices Coefficient indices to be mapped to
              * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
              * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
-             * @param aMesh The mesh pointer where the B-spline information can be obtained
+             * @param aMeshPair The mesh pair where the discretization information can be obtained
              * @param aField Field for initializing the B-spline level set discretization
              */
             BSpline_Field(
-                    sol::Dist_Vector*        aOwnedADVs,
-                    const Matrix<DDUMat>&    aCoefficientIndices,
-                    const Matrix<DDSMat>&    aSharedADVIds,
-                    uint                     aADVOffsetID,
-                    mtk::Interpolation_Mesh* aMesh,
-                    std::shared_ptr<Field>   aField);
+                    sol::Dist_Vector*      aOwnedADVs,
+                    const Matrix<DDUMat>&  aCoefficientIndices,
+                    const Matrix<DDSMat>&  aSharedADVIds,
+                    uint                   aADVOffsetID,
+                    mtk::Mesh_Pair         aMeshPair,
+                    std::shared_ptr<Field> aField);
 
             /**
              * Destructor
@@ -78,9 +78,9 @@ namespace moris
             /**
              * Gets the mesh that this field depends on.
              *
-             * @return Mesh, default nullptr
+             * @return Mesh pair
              */
-            mtk::Interpolation_Mesh* get_mesh();
+            mtk::Mesh_Pair get_mesh_pair();
 
         private:
 
