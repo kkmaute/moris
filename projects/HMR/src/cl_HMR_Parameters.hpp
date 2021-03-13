@@ -131,6 +131,8 @@ namespace moris
             //! Lagrange Meshes that are used for the output meshes
             Cell< Matrix< DDUMat > >    mOutputMeshes = { { { 0 } } };
 
+            Cell< std::string >    mOutputMesheNames = { { { "" } } };
+
             Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
 
             Matrix< DDUMat >     mBSplineInputMeshes = { { } };
@@ -511,6 +513,29 @@ namespace moris
             //--------------------------------------------------------------------------------
 
             /**
+             * set output mesh names
+             */
+            void set_output_mesh_names( const Cell< std::string > & aOutputMesheNames )
+            {
+                // test if calling this function is allowed
+                this->error_if_locked("set_output_meshes_names");
+
+                mOutputMesheNames = aOutputMesheNames;
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
+             * returns the index of the defined Lagrange output mesh names for a specified order
+             */
+            const Cell< std::string > & get_output_mesh_names() const
+            {
+                return mOutputMesheNames;
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
              * checks if this mesh index belongs to an output mesh
              */
             bool is_output_mesh( const uint aMeshIndex ) const;
@@ -521,9 +546,9 @@ namespace moris
              * returns lagrange input mesh index
              */
             const Matrix< DDUMat > & get_lagrange_input_mesh() const
-               {
+            {
                 return mLagrangeInputMeshes;
-               }
+            };
 
             //--------------------------------------------------------------------------------
 

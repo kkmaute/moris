@@ -170,8 +170,10 @@ namespace moris
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
+            const Cell< std::string > & tMeshNames = mParameters->get_output_mesh_names();
+
             // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
-            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
+            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
 
             if( OutputMeshIndex.size() == 2 )
             {
@@ -189,7 +191,7 @@ namespace moris
                             this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
                     // register HMR interpolation and integration meshes
-                    mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true );
+                    mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( Ik+1 ) );
                 }
             }
         }

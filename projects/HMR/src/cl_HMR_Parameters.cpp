@@ -160,6 +160,45 @@ namespace moris
             MORIS_ERROR( mOutputMeshes.size() <=2,
                     "Output mesh list can only have one list of main output meshes and one list of secondary output meshes");
 
+            if( aParameterList.get< std::string >("lagrange_output_meshe_names").empty() )
+            {
+                uint tOutputMeshSize = mOutputMeshes.size();
+
+                if( tOutputMeshSize == 1 )
+                {
+                    mOutputMesheNames.resize( 1, "HMR_Mesh_Main" );
+                }
+                else if( tOutputMeshSize == 2 )
+                {
+                    uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
+                    mOutputMesheNames.resize( 1 + tNumSecOutputMeshes );
+
+                    mOutputMesheNames( 1 ) =  "HMR_Mesh_Main";
+                    for( uint Ik = 1; Ik < tNumSecOutputMeshes + 1; Ik++ )
+                    {
+                        mOutputMesheNames( Ik ) = "HMR_Sec_Mesh" + std::to_string( Ik );
+                    }
+                }
+            }
+            else
+            {
+                string_to_cell( aParameterList.get< std::string >("lagrange_output_meshe_names"), mOutputMesheNames );
+
+                uint tOutputMeshSize = mOutputMeshes.size();
+
+                if( tOutputMeshSize == 1 )
+                {
+                    MORIS_ERROR( mOutputMesheNames.size() ==1,
+                             "Number of output mesh names must be the same than number of output meshes");
+                }
+                else if( tOutputMeshSize == 2 )
+                {
+                    uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
+                    MORIS_ERROR( mOutputMesheNames.size() == ( 1 + tNumSecOutputMeshes),
+                             "Number of output mesh names must be the same than number of output meshes");
+                }
+            }
+
             string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
             string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
             string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
