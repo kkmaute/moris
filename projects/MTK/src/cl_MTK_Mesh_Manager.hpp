@@ -75,6 +75,15 @@ namespace moris
 
             //--------------------------------------------------------------------
 
+            /**
+             * Gremoves mesh pair with name
+             *
+             * @param aPairIndex Mesh pair name
+             */
+            void remove_mesh_pair( const std::string & aMeshPairName );
+
+            //--------------------------------------------------------------------
+
             void
             get_mesh_pair(
                     moris_index            aPairIndex,

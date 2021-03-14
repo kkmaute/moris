@@ -6,7 +6,7 @@ namespace moris
     namespace mtk
     {
         //-------------------------------------------------------------------------
-        
+
         Mesh_Manager::Mesh_Manager()
         {
         }
@@ -28,7 +28,7 @@ namespace moris
         {
             // Create new mesh pair
             Mesh_Pair tMeshPair(aInterpolationMesh, aIntegrationMesh, false);
-            
+
             // Push back new pair
             mMeshPairs.push_back(tMeshPair);
 
@@ -64,7 +64,7 @@ namespace moris
         const Mesh_Pair& Mesh_Manager::get_mesh_pair(moris_index aPairIndex)
         {
             MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
-                          "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
+                    "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
             return mMeshPairs(aPairIndex);
         }
 
@@ -77,6 +77,20 @@ namespace moris
             moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
 
             return mMeshPairs(tMeshPairIndex);
+        }
+
+        //-------------------------------------------------------------------------
+
+        void Mesh_Manager::remove_mesh_pair( const std::string & aMeshPairName )
+        {
+            if( mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
+            {
+                moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
+
+                mMeshPairs.erase(tMeshPairIndex);
+
+                mMeshPairNameToIndexMap.erase( aMeshPairName );
+            }
         }
 
         //-------------------------------------------------------------------------
