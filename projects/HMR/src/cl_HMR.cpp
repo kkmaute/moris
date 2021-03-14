@@ -771,6 +771,28 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         Interpolation_Mesh_HMR * HMR::create_interpolation_mesh(
+                const std::string & aName,
+                bool                aTMatricesExist )
+        {
+            moris_index tMeshIndex = mParameters->get_mesh_index_by_name( aName );
+
+            if( aTMatricesExist )
+            {
+                MORIS_ERROR(false, "HMR::create_interpolation_mesh( ),Implementation is missing");
+                //FIXME grab order and pattern for lagrange and bspline emsh from output mesh.
+                // return this->create_interpolation_mesh(  aOrder, aLagrangePattern, aBsplinePattern);
+            }
+            else
+            {
+                return this->create_interpolation_mesh( tMeshIndex );
+            }
+
+            return nullptr;
+        }
+
+        // -----------------------------------------------------------------------------
+
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh(
                 const uint & aLagrangeOrder,
                 const uint & aPattern )
         {

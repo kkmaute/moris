@@ -310,6 +310,14 @@ namespace moris
 
                 Interpolation_Mesh_HMR * create_interpolation_mesh( const uint & aLagrangeMeshIndex );
 
+                // -----------------------------------------------------------------------------
+
+                Interpolation_Mesh_HMR * create_interpolation_mesh(
+                        const std::string & aName,
+                        bool                aTMatricesExist = false );
+
+                // -----------------------------------------------------------------------------
+
                 Interpolation_Mesh_HMR * create_interpolation_mesh(
                         const uint & aLagrangeOrder,
                         const uint & aPattern );
