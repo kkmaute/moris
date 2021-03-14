@@ -167,16 +167,21 @@ namespace moris
                 if( tOutputMeshSize == 1 )
                 {
                     mOutputMesheNames.resize( 1, "HMR_Mesh_Main" );
+                    mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
                 }
                 else if( tOutputMeshSize == 2 )
                 {
                     uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
                     mOutputMesheNames.resize( 1 + tNumSecOutputMeshes );
+                    mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
 
                     mOutputMesheNames( 1 ) =  "HMR_Mesh_Main";
                     for( uint Ik = 1; Ik < tNumSecOutputMeshes + 1; Ik++ )
                     {
-                        mOutputMesheNames( Ik ) = "HMR_Sec_Mesh" + std::to_string( Ik );
+                        std::string tName = "HMR_Sec_Mesh" + std::to_string( Ik );
+                        mOutputMesheNames( Ik ) = tName;
+                        mOutputNameToIndexMap[ tName ] = mOutputMeshes( 1 )( Ik - 1 );
+
                     }
                 }
             }
@@ -190,14 +195,25 @@ namespace moris
                 {
                     MORIS_ERROR( mOutputMesheNames.size() ==1,
                              "Number of output mesh names must be the same than number of output meshes");
+
+                    mOutputNameToIndexMap[ mOutputMesheNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
                 }
                 else if( tOutputMeshSize == 2 )
                 {
                     uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
                     MORIS_ERROR( mOutputMesheNames.size() == ( 1 + tNumSecOutputMeshes),
                              "Number of output mesh names must be the same than number of output meshes");
+
+                    mOutputNameToIndexMap[ mOutputMesheNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
+
+                    for( uint Ik = 0; Ik < mOutputMeshes( 1 ).numel(); Ik++ )
+                    {
+                        mOutputNameToIndexMap[ mOutputMesheNames( Ik+1 ) ] = mOutputMeshes( 1 )( Ik );
+                    }
+
                 }
             }
+
 
             string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
             string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
