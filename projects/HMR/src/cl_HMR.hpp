@@ -465,6 +465,10 @@ namespace moris
                 void set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
 
                 // -----------------------------------------------------------------------------
+
+                bool get_mesh_name_exists( const std::string & aName ) const;
+
+                // -----------------------------------------------------------------------------
                 // Debug files
                 // -----------------------------------------------------------------------------
 

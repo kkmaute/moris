@@ -198,6 +198,13 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        bool HMR::get_mesh_name_exists( const std::string & aName ) const
+        {
+            return mParameters->get_mesh_name_exists( aName );
+        }
+
+        // -----------------------------------------------------------------------------
+
         void HMR::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
         {
             mMTKPerformer = aMTKPerformer;
