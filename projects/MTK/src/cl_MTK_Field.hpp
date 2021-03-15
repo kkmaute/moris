@@ -49,6 +49,9 @@ namespace moris
                 //! Mesh pair
                 Mesh_Pair mMeshPair;
 
+                //! Mesh pair label
+                std::string mMeshPairLabel = "";
+
                 //! Number of nodal fields
                 uint mNumberOfFields = 1;
 
@@ -194,6 +197,15 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 /**
+                 *  @brief returns mesh pair label
+                 *
+                 * @return mesh pair label
+                 */
+                const std::string & get_mesh_pair_label();
+
+                //------------------------------------------------------------------------------
+
+                /**
                  *  @brief set mesh pair
                  *
                  * @param[in] aMeshPair - mesh pair pointer
@@ -211,6 +223,15 @@ namespace moris
                 {
                     return mNumberOfFields;
                 }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief triggers update of field values and coeffs
+                 *
+                 */
+
+                void update_field();
 
                 //------------------------------------------------------------------------------
 

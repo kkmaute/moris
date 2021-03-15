@@ -64,6 +64,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const std::string & Field::get_mesh_pair_label()
+        {
+            MORIS_ERROR( not mMeshPairLabel.empty(), "Field::get_mesh_pair_label(), Mesh pair label not set");
+            return mMeshPairLabel;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Field::set_mesh_pair( Mesh_Pair aMeshPair)
         {
             //check whether field is unlocked
@@ -72,6 +80,20 @@ namespace moris
             //set new mesh pair
             mMeshPair = aMeshPair;
 
+            // set update flag to false; nodal values do not need to be updated
+            mUpdateNodalValues = true;
+
+            // update coefficient data as underlying discretization may have changed
+            this->update_coefficent_data();
+
+            // lock mesh
+            mFieldIsLocked = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::update_field()
+        {
             // set update flag to false; nodal values do not need to be updated
             mUpdateNodalValues = true;
 
