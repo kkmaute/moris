@@ -66,6 +66,9 @@ namespace moris
             // Set performer to HMR
             mPerformerManager->mHMRPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 0 ) );
 
+            // Set HMR performer to MTK performer
+            mPerformerManager->mMTKPerformer( 0 )->set_performer( mPerformerManager->mHMRPerformer( 0 ) );
+
             // Set performer to MDL
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
         }
@@ -89,6 +92,9 @@ namespace moris
 
                 // HMR refined by GE
                 Refinement_Mini_Performer tRefinementPerfomer;
+
+                //mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
+
                 tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
 
                 // HMR finalize
