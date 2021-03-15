@@ -163,8 +163,8 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
         moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, tIPMesh );
 
        // place the pair in mesh manager
-       mtk::Mesh_Manager tMeshManager;
-       tMeshManager.register_mesh_pair( tIPMesh, tIGMesh );
+       std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+       tMeshManager->register_mesh_pair( tIPMesh, tIGMesh );
 
        //------------------------------------------------------------------------------
        // create the properties
@@ -254,7 +254,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        tSetInfo( 2 ).set_IWGs( { tIWGTimeContinuity } );
 
        // create model
-       mdl::Model * tModel = new mdl::Model( &tMeshManager,
+       mdl::Model * tModel = new mdl::Model( tMeshManager,
                                               0,
                                               tSetInfo );
 
@@ -451,8 +451,8 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
     // place the pair in mesh manager
-    mtk::Mesh_Manager tMeshManager;
-    tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+    std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+    tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
     //------------------------------------------------------------------------------
     // create the properties
@@ -550,7 +550,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tSetInfo( 4 ).set_IWGs( { tIWGTimeContinuity } );
 
     // create model
-    mdl::Model * tModel = new mdl::Model( &tMeshManager,
+    mdl::Model * tModel = new mdl::Model( tMeshManager,
                                            0,
                                            tSetInfo );
 

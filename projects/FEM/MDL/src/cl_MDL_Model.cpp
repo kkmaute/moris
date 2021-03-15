@@ -48,7 +48,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
         Model::Model(
-                mtk::Mesh_Manager                 * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const uint                          aBSplineIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo,
                 const moris_index                   aMeshPairIndex,
@@ -156,7 +156,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         Model::Model(
-                mtk::Mesh_Manager*                  aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager >aMeshManager,
                 const uint                          aBSplineIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo,
                 MSI::Design_Variable_Interface    * aDesignVariableInterface,
@@ -249,7 +249,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
         {
-            mMeshManager = aMTKPerformer.get();
+            mMeshManager = aMTKPerformer;
         }
 
         //------------------------------------------------------------------------------

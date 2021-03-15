@@ -215,8 +215,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
         Design_Variable_Interface * tDesignVariableInterface = new Design_Variable_Interface_Proxy();
 
@@ -281,7 +281,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         //------------------------------------------------------------------------------
         // create model
         mdl::Model * tModel = new mdl::Model(
-                &tMeshManager,
+                tMeshManager,
                 0,
                 tSetInfo,
                 tDesignVariableInterface );

@@ -109,8 +109,8 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh1 );
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -197,7 +197,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tSetInfo( 2 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                1,
                                                tSetInfo );
 
@@ -327,8 +327,8 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -404,7 +404,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tSetInfo( 2 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                1,
                                                tSetInfo );
 
@@ -562,8 +562,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0, tInterpolationMesh);
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair( tInterpolationMesh, tIntegrationMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -639,7 +639,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tSetInfo( 2 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                tBSplineMeshIndex,
                                                tSetInfo );
 
@@ -822,8 +822,8 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, tInterpolationMesh );
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair( tInterpolationMesh,tIntegrationMesh );
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair( tInterpolationMesh,tIntegrationMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -899,7 +899,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tSetInfo( 2 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                tBSplineMeshIndex,
                                                tSetInfo );
 
@@ -1097,8 +1097,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, tInterpolationMesh );
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpolationMesh,tIntegrationMesh);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(tInterpolationMesh,tIntegrationMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -1174,7 +1174,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tSetInfo( 2 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                tBSplineMeshIndex,
                                                tSetInfo );
 

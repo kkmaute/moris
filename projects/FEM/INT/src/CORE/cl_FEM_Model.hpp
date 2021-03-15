@@ -70,7 +70,7 @@ namespace moris
         class FEM_Model : public  MSI::Equation_Model
         {
                 // pointer to reference mesh
-                mtk::Mesh_Manager* mMeshManager = nullptr;
+                std::shared_ptr< mtk::Mesh_Manager > mMeshManager = nullptr;
                 moris_index        mMeshPairIndex;
 
                 // list of IP node pointers
@@ -127,7 +127,7 @@ namespace moris
                  * @param[ in ] aSetInfo       cell of set user info
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                 * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                         const moris_index                 & aMeshPairIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo );
 
@@ -140,7 +140,7 @@ namespace moris
                  * @param[ in ] aDesignVariableInterface a design variable interface pointer
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                 * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                         const moris_index                 & aMeshPairIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo,
                         MSI::Design_Variable_Interface    * aDesignVariableInterface );
@@ -154,7 +154,7 @@ namespace moris
                  * @param[ in ] aLibrary       a file path for property functions
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                           * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                         const moris_index                           & aMeshPairIndex,
                         moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                         std::shared_ptr< Library_IO >                 aLibrary );
@@ -169,7 +169,7 @@ namespace moris
                  * @param[ in ] aDesignVariableInterface a design variable interface pointer
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                           * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                         const moris_index                           & aMeshPairIndex,
                         moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                         std::shared_ptr< Library_IO >                 aLibrary,

@@ -243,8 +243,8 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -389,7 +389,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tSetInfo( 6 ) = tSetInterface;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                               0,
                                               tSetInfo,
                                               0, false );
@@ -826,8 +826,8 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -987,7 +987,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tSetInfo( 3 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                               0,
                                               tSetInfo,
                                               0, false );
@@ -1143,8 +1143,8 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -1244,7 +1244,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tSetInfo( 3 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                               0,
                                               tSetInfo,
                                               0, false );
