@@ -550,6 +550,16 @@ namespace moris
             //--------------------------------------------------------------------------------
 
             /**
+             * returns true if mesh name exists
+             */
+            bool get_mesh_name_exists( const std::string & aName ) const
+            {
+                return mOutputNameToIndexMap.key_exists( aName );
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
              * checks if this mesh index belongs to an output mesh
              */
             bool is_output_mesh( const uint aMeshIndex ) const;
