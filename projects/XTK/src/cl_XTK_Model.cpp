@@ -1579,6 +1579,8 @@ namespace xtk
     Model::catch_all_unhandled_interfaces()
     {
         
+        MORIS_ERROR(this->check_for_all_cell_vertices_on_interface(),"All vertices of a cell on the interface");
+
         // iterate through child meshes
         for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
         {
@@ -1644,6 +1646,54 @@ namespace xtk
             }
 
         }        
+    }
+
+    bool
+    Model::check_for_all_cell_vertices_on_interface()
+    {
+        bool tPassCheck = true;
+
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            // Element to node
+            moris::Matrix< moris::IndexMat > const & tElementToNode = tChildMesh.get_element_to_node();
+
+            moris::print(tElementToNode,"tElementToNode");
+
+            // iterate through geometries, check and flag facets that are on the interface
+            for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
+            {
+                // iterate through cells
+                for(moris::uint iC = 0 ; iC < tElementToNode.n_rows(); iC++)
+                {
+                    bool tAllVertsOnInterface = true;
+
+                    std::cout<<"    iC = "<<iC<<std::endl; 
+
+                    for(moris::uint iV = 0; iV < tElementToNode.n_cols(); iV++)
+                    {
+                        std::cout<<"        iV = "<<iV<<std::endl;
+                        if(! mGeometryEngine->is_interface_vertex(tElementToNode(iC,iV),(moris_index)iG) )
+                        {
+                            tAllVertsOnInterface = false;
+                            break;
+                        }
+                    }
+
+                    if(tAllVertsOnInterface)
+                    {
+                        tPassCheck = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return tPassCheck;
+
     }
 
     // ----------------------------------------------------------------------------------

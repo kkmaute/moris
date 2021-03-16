@@ -718,6 +718,11 @@ namespace xtk
 
             //------------------------------------------------------------------------------
 
+            bool
+            check_for_all_cell_vertices_on_interface();
+
+            //------------------------------------------------------------------------------
+
             /*
              * Parallel assignment of node request identifiers
              */

@@ -51,6 +51,9 @@ namespace moris
             mIsocontourTolerance   = aParameterLists(0)(0).get<real>("isocontour_tolerance");
             mIntersectionTolerance = aParameterLists(0)(0).get<real>("intersection_tolerance");
 
+            MORIS_ERROR(mIsocontourTolerance > 1e-14,"Isocontour tolerance should not be exactly 0. Pick something greater than 1e-14");
+            MORIS_ERROR(mIntersectionTolerance > 1e-14,"Intersection tolerance should not be exactly 0. Pick something greater than 1e-14");
+
             // Requested IQIs
             mRequestedIQIs = string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") );
 
@@ -144,6 +147,10 @@ namespace moris
         {
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
+
+            MORIS_ERROR(mIsocontourTolerance > 1e-14,"Isocontour tolerance should not be exactly 0. Pick something greater than 1e-14");
+            MORIS_ERROR(mIntersectionTolerance > 1e-14,"Intersection tolerance should not be exactly 0. Pick something greater than 1e-14");
+
 
             mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
                     aMesh->get_mesh_type(),
