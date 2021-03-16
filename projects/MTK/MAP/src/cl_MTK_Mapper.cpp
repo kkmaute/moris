@@ -534,9 +534,9 @@ namespace moris
 
             mtk::Mesh_Pair tMeshPair = tDiscreteField->get_mesh_pair();
 
-            mtk::Mesh_Manager tMeshManager;
+            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
 
-            uint MeshPairIndex = tMeshManager.register_mesh_pair( tMeshPair );
+            uint MeshPairIndex = tMeshManager->register_mesh_pair( tMeshPair );
 
             if( ! mHaveIwgAndModel )
             {
@@ -555,7 +555,7 @@ namespace moris
 
                 // create model
                 mModel = new mdl::Model(
-                        &tMeshManager,
+                        tMeshManager,
                         tDiscreteField->get_discretization_mesh_index(),
                         tSetInfo,
                         MeshPairIndex );

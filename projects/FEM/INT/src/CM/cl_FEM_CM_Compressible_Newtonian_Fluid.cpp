@@ -646,7 +646,7 @@ namespace moris
 
             // compute divflux
             mMechanicalDivFlux = 2.0 * tPropDynamicViscosity->val()( 0 ) * 
-                    ( this->divstrain( CM_Function_Type::MECHANICAL ) - ( 1 / 3 ) * this->divDivVel()  );
+                    ( this->divstrain( CM_Function_Type::MECHANICAL ) - ( 1.0 / 3.0 ) * this->divDivVel()  );
 
             // FIXME assume that viscosity prop does not depend on x
         }
@@ -687,7 +687,7 @@ namespace moris
             {
                 // fill 
                 mMechanicalDivFluxDof( tDofIndex ) += 2.0 * tPropDynamicViscosity->val()( 0 ) * ( 
-                        this->ddivstraindu( aDofTypes, CM_Function_Type::MECHANICAL ) - ( 1 / 3 ) * this->dDivDivVeldu( aDofTypes ) );
+                        this->ddivstraindu( aDofTypes, CM_Function_Type::MECHANICAL ) - ( 1.0 / 3.0 ) * this->dDivDivVeldu( aDofTypes ) );
             }
 
             // dependency of the viscosity
@@ -733,7 +733,7 @@ namespace moris
             const std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // compute divflux
-            mThermalDivFlux = tPropThermalConductivity->val() * this->divstrain( CM_Function_Type::THERMAL );
+            mThermalDivFlux = -1.0 * tPropThermalConductivity->val() * this->divstrain( CM_Function_Type::THERMAL );
 
             // FIXME assume that thermal conductivity prop does not depend on x
         }
@@ -773,7 +773,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // fill 
-                mThermalDivFluxDof( tDofIndex ) += 
+                mThermalDivFluxDof( tDofIndex ) -= 
                         tPropThermalConductivity->val()( 0 ) * this->ddivstraindu( aDofTypes, CM_Function_Type::THERMAL );
             }
 
@@ -781,7 +781,7 @@ namespace moris
             if( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // fill 
-                mThermalDivFluxDof( tDofIndex ) += 
+                mThermalDivFluxDof( tDofIndex ) -= 
                         this->divstrain( CM_Function_Type::THERMAL ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
             }
         }
@@ -1035,7 +1035,7 @@ namespace moris
 
             // compute Stress
             mStress = 2.0 * tPropDynamicViscosity->val()( 0 ) *
-                    ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  );
+                    ( this->strain() - ( 1.0 / 3.0 ) * tFIVelocity->div() * mFlatIdentity  );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1065,7 +1065,7 @@ namespace moris
                 // compute contribution
                 mdStressdDof( tDofIndex ) +=
                         2.0 * tPropDynamicViscosity->val()( 0 ) *
-                        ( this->dStraindDOF( aDofTypes ) - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div_operator() );
+                        ( this->dStraindDOF( aDofTypes ) - ( 1.0 / 3.0 ) * mFlatIdentity * tFIVelocity->div_operator() );
             }
 
             // if indirect dependency of viscosity
@@ -1073,7 +1073,7 @@ namespace moris
             {
                 // compute derivative with indirect dependency through properties
                 mdStressdDof( tDofIndex ) +=
-                        2.0 * ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity ) *
+                        2.0 * ( this->strain() - ( 1.0 / 3.0 ) * tFIVelocity->div() * mFlatIdentity ) *
                         tPropDynamicViscosity->dPropdDOF( aDofTypes );
             }
         }

@@ -99,7 +99,7 @@ namespace moris
 
                 moris::Cell< moris::mtk::Writer_Exodus * >  mWriter;
 
-                mtk::Mesh_Manager *             mMTKMesh = nullptr;
+                std::shared_ptr< mtk::Mesh_Manager >             mMTKMesh = nullptr;
 
                 moris::uint                     mMTKMeshPairIndex = MORIS_UINT_MAX;
 
@@ -189,16 +189,16 @@ namespace moris
 
                 void setup_vis_mesh_for_output(
                         const uint                               aVisMeshIndex,
-                        mtk::Mesh_Manager                      * aMesh,
+                        std::shared_ptr< mtk::Mesh_Manager >     aMesh,
                         const uint                               aMeshPairIndex,
                         std::shared_ptr< MSI::Equation_Model >   aEquationModel);
 
                 //---------------------------------------------------------------------------------------------------------------------------
 
                 void create_visualization_mesh(
-                        const uint          aVisMeshIndex,
-                        mtk::Mesh_Manager * aMesh,
-                        const uint          aMeshPairIndex);
+                        const uint                           aVisMeshIndex,
+                        std::shared_ptr< mtk::Mesh_Manager > aMesh,
+                        const uint                           aMeshPairIndex);
 
                 //-----------------------------------------------------------------------------------------------------------
 

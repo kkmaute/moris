@@ -199,8 +199,8 @@ TEST_CASE("MDL Input","[MDL_Input]")
         moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(tInterpMesh, tIntegMesh1);
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         tSetInfo( 3 ) = tSetDirichlet;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                tBSplineMeshIndex,
                                                tSetInfo );
         //------------------------------------------------------------------------------

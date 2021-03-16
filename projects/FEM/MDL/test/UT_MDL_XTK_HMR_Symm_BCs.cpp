@@ -192,8 +192,8 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 //        tEnrIntegMesh.print_double_side_sets(2);
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -304,7 +304,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tSetInfo( 3 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                               0,
                                               tSetInfo,
                                               0,

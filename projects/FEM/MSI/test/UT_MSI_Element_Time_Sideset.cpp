@@ -195,8 +195,8 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
 
         // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
+        std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+        tMeshManager->register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
         // FEM inputs
         //------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         // FEM model
         //------------------------------------------------------------------------------
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                                0,
                                                tSetInfo );
 
