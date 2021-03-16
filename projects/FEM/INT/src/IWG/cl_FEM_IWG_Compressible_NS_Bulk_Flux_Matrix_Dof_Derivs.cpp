@@ -38,7 +38,7 @@ namespace moris
             real tRho    = tMM->density()( 0 );
             real tAlphaP = tMM->AlphaP()( 0 );
             real tBetaT  = tMM->BetaT()( 0 );
-            real tCp     = tMM->Cp()( 0 );
+            real tCv     = tMM->Cv()( 0 );
             real tEtot   = tCM->Energy()( 0 );
             real tUx     = tFIVelocity->val()( 0 );
             real tUy     = tFIVelocity->val()( 1 );
@@ -189,14 +189,14 @@ namespace moris
 
 
             mADOF( 0 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tCp * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
+                    tCv * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 0 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 0 ) } );
 
             mADOF( 0 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = 
                     -1.0 * tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 1 ) } );                    
 
             mADOF( 0 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tCp * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
+                    tCv * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 2 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 2 ) } );                              
         }
 
@@ -221,7 +221,7 @@ namespace moris
             real tRho    = tMM->density()( 0 );
             real tAlphaP = tMM->AlphaP()( 0 );
             real tBetaT  = tMM->BetaT()( 0 );
-            real tCp     = tMM->Cp()( 0 );
+            real tCv     = tMM->Cv()( 0 );
             real tEtot   = tCM->Energy()( 0 );
             real tUx     = tFIVelocity->val()( 0 );
             real tUy     = tFIVelocity->val()( 1 );
@@ -462,17 +462,17 @@ namespace moris
             }
 
             mADOF( 1 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUx * ( tCp * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
+                    tUx * ( tCv * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 0 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 0 ) } ) ) ;
 
             mADOF( 1 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
-                    ( tRho * tCp - tAlphaP * tEtot ) * tNUx;  
+                    ( tRho * tCv - tAlphaP * tEtot ) * tNUx;  
             
             mADOF( 1 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) -= 
                     tUx * tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 1 ) } );                    
 
             mADOF( 1 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * ( tCp * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
+                    tUx * ( tCv * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 2 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 2 ) } ) );                              
         }  
 
@@ -497,7 +497,7 @@ namespace moris
             real tRho    = tMM->density()( 0 );
             real tAlphaP = tMM->AlphaP()( 0 );
             real tBetaT  = tMM->BetaT()( 0 );
-            real tCp     = tMM->Cp()( 0 );
+            real tCv     = tMM->Cv()( 0 );
             real tEtot   = tCM->Energy()( 0 );
             real tUx     = tFIVelocity->val()( 0 );
             real tUy     = tFIVelocity->val()( 1 );
@@ -692,17 +692,17 @@ namespace moris
             }
 
             mADOF( 2 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUy * ( tCp * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
+                    tUy * ( tCv * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 0 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 0 ) } ) ) ;
 
             mADOF( 2 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
-                    ( tRho * tCp - tAlphaP * tEtot ) * tNUy;  
+                    ( tRho * tCv - tAlphaP * tEtot ) * tNUy;  
             
             mADOF( 2 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) -= 
                     tUy * tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 1 ) } );                    
 
             mADOF( 2 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * ( tCp * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
+                    tUy * ( tCv * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 2 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 2 ) } ) );   
 
         }   
@@ -728,7 +728,7 @@ namespace moris
             real tRho    = tMM->density()( 0 );
             real tAlphaP = tMM->AlphaP()( 0 );
             real tBetaT  = tMM->BetaT()( 0 );
-            real tCp     = tMM->Cp()( 0 );
+            real tCv     = tMM->Cv()( 0 );
             real tEtot   = tCM->Energy()( 0 );
             real tUx     = tFIVelocity->val()( 0 );
             real tUy     = tFIVelocity->val()( 1 );
@@ -873,17 +873,17 @@ namespace moris
 
 
             mADOF( 3 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUz * ( tCp * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
+                    tUz * ( tCv * tMM->DensityDOF( { mResidualDofType( 0 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 0 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 0 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 0 ) } ) ) ;
 
             mADOF( 3 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
-                    ( tRho * tCp - tAlphaP * tEtot ) * tNUz;  
+                    ( tRho * tCv - tAlphaP * tEtot ) * tNUz;  
             
             mADOF( 3 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) -= 
                     tUz * tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 1 ) } );                    
 
             mADOF( 3 )( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * ( tCp * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
+                    tUz * ( tCv * tMM->DensityDOF( { mResidualDofType( 2 ) } ) + tRho * tMM->CpDOF( { mResidualDofType( 2 ) } ) - 
                     tEtot * tMM->AlphaPDOF( { mResidualDofType( 2 ) } ) - tAlphaP * tCM->dEnergydDOF( { mResidualDofType( 2 ) } ) );  
 
         }
