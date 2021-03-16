@@ -381,7 +381,7 @@ namespace moris
                 mSet->get_jacobian()( 
                         { tMasterRes1StartIndex, tMasterRes1StopIndex }, 
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) +=  aWStar * tFIFirstDofType->N_trans() * tSP->val()( 0 ) * 
-                                tStrongJac( { 1, 1 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
+                                tStrongJac( { 0, 0 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
 
                 // compute the second residual (velocity)
                 mSet->get_jacobian()( 
