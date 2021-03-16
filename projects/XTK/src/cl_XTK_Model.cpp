@@ -259,8 +259,10 @@ namespace xtk
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = this->get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = this->get_enriched_integ_mesh();
 
+        std::string tXTKMeshName = "XTKMesh";
+
         // place the pair in mesh manager
-        mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
+        mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
 
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {

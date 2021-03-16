@@ -218,9 +218,9 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * initialize the set
-             * @param[ in ] aIsResidual bool true if computation of a residual
+             * @param[ in ] aIsStaggered bool true if computation of a residual
              */
-            void initialize_set( const bool aIsResidual );
+            void initialize_set( const bool aIsStaggered );
 
             //------------------------------------------------------------------------------
 
@@ -576,9 +576,9 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * create the dof assembly map for the jacobian/cols
-             * @param[ in ] aIsResidual bool true if residual evaluation
+             * @param[ in ] aIsStaggered bool true if residual evaluation
              */
-            void create_dof_assembly_map( const bool aIsResidual );
+            void create_dof_assembly_map( const bool aIsStaggered );
 
             //------------------------------------------------------------------------------
             /**
@@ -616,9 +616,9 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * create a dof type list for the list of IWGs requested by the solver
-             * @param[ in ] aIsResidual bool true if residual evaluation
+             * @param[ in ] aIsStaggered bool true if residual evaluation
              */
-            void build_requested_IWG_dof_type_list( const bool aIsResidual );
+            void build_requested_IWG_dof_type_list( const bool aIsStaggered );
 
             /**
              * Create a dof type list for the list of IQIs being requested.

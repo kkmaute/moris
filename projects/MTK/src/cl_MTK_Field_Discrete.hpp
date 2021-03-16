@@ -56,13 +56,8 @@ namespace moris
 
                 // ----------------------------------------------------------------------------------------------
 
-                Field_Discrete()
-                {};
-
-                // ----------------------------------------------------------------------------------------------
-
                 Field_Discrete(
-                        mtk::Mesh_Pair * aMeshPairs,
+                        mtk::Mesh_Pair   aMeshPairs,
                         uint     const & aDiscretizationMeshIndex = 0,
                         uint     const & mNumberOfFields = 1);
 

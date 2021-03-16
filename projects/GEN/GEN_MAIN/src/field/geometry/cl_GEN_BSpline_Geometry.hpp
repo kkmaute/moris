@@ -19,7 +19,7 @@ namespace moris
              * @param aCoefficientIndices Coefficient indices to be mapped to
              * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
              * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
-             * @param aMesh The mesh pointer where the B-spline information can be obtained
+             * @param aMeshPair The mesh pair where the discretization information can be obtained
              * @param aGeometry Geometry for initializing the B-spline level set discretization
              */
             BSpline_Geometry(
@@ -27,7 +27,7 @@ namespace moris
                     const Matrix<DDUMat>&     aCoefficientIndices,
                     const Matrix<DDSMat>&     aSharedADVIds,
                     uint                      aADVOffsetID,
-                    mtk::Interpolation_Mesh*  aMesh,
+                    mtk::Mesh_Pair            aMeshPair,
                     std::shared_ptr<Geometry> aGeometry);
         };
     }

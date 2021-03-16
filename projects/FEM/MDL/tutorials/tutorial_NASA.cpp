@@ -219,8 +219,8 @@ main( int    argc,
     xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
     // place the pair in mesh manager
-    mtk::Mesh_Manager tMeshManager;
-    tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+    std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+    tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
     Cell< fem::IWG_User_Defined_Info > tBulkIWG(1);
     Cell< fem::IWG_User_Defined_Info > tDBCIWG(1);
@@ -379,7 +379,7 @@ main( int    argc,
 
 
     // create model
-    mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tSetList, tSetTypeList, tIWGUserDefinedInfo, tPropertyUserDefinedInfo, tConstitutiveUserDefinedInfo, 0, false);
+    mdl::Model * tModel = new mdl::Model( tMeshManager, tBSplineMeshIndex, tSetList, tSetTypeList, tIWGUserDefinedInfo, tPropertyUserDefinedInfo, tConstitutiveUserDefinedInfo, 0, false);
 
     moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 

@@ -52,7 +52,7 @@ namespace moris
                         moris::Cell<Analytic_Field_Function>       aFunction,
                         moris::Cell<Analytic_Derivative_Function>  aDerivativeFunction,
                         moris::Matrix<DDRMat>              const & aCoefficients,
-                        Mesh_Pair                                * aMeshPairs,
+                        Mesh_Pair                                  aMeshPairs,
                         uint                               const & aNumberOfFields = 1);
 
                 // ----------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ namespace moris
                         Analytic_Field_Function        aFunction,
                         Analytic_Derivative_Function   aDerivativeFunction,
                         moris::Matrix<DDRMat>  const & aCoefficients,
-                        Mesh_Pair                    * aMeshPairs,
+                        Mesh_Pair                      aMeshPairs,
                         uint                   const & aNumberOfFields = 1);
 
                 // ----------------------------------------------------------------------------------------------

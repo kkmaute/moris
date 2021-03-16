@@ -52,7 +52,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager *                 aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                 & aMeshPairIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo )
         : mMeshManager( aMeshManager ),
@@ -86,7 +86,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager                 * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                 & aMeshPairIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo,
                 MSI::Design_Variable_Interface    * aDesignVariableInterface )
@@ -135,7 +135,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager                           * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                 const moris_index                           & aMeshPairIndex,
                 moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                 std::shared_ptr< Library_IO >                 aLibrary )
@@ -174,7 +174,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager                           * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                 const moris_index                           & aMeshPairIndex,
                 moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                 std::shared_ptr< Library_IO >                 aLibrary,
@@ -936,7 +936,7 @@ namespace moris
 
                 // create a property pointer
                 std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
-                        mMeshManager->get_mesh_pair_pointer( mMeshPairIndex ) );
+                        mMeshManager->get_mesh_pair( mMeshPairIndex ) );
 
                 // set a name for the property
                 tField->set_label( tFieldName );

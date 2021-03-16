@@ -107,7 +107,7 @@ namespace moris
             bool mdQIdpMatExist = false;
 
             // bool for time continuity
-            bool mIsResidual = false;
+            bool mIsStaggered = false;
 
             Matrix< DDRMat > mTime;
 
@@ -295,7 +295,7 @@ namespace moris
             /**
              * initialize set
              */
-            virtual void initialize_set( const bool aIsResidual )
+            virtual void initialize_set( const bool aIsStaggered )
             {
                 MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function");
             }
@@ -618,13 +618,13 @@ namespace moris
             /**
              * get requested dof types
              */
-            moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+            const moris::Cell < enum MSI::Dof_Type > & get_requested_dof_types();
 
             //------------------------------------------------------------------------------
             /**
              * get secondary dof types
              */
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secondary_dof_types();
+            const moris::Cell< enum MSI::Dof_Type > & get_secondary_dof_types();
 
             //------------------------------------------------------------------------------
             /**

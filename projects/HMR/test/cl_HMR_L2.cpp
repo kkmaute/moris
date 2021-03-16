@@ -1429,11 +1429,9 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         mtk::Integration_Mesh* tIntegrationMesh =
                 tHMR.create_integration_mesh( 0, tInterpolationMesh );
 
-        mtk::Mesh_Pair tMeshPair;
-        tMeshPair.mInterpolationMesh = tInterpolationMesh;
-        tMeshPair.mIntegrationMesh = tIntegrationMesh;
+        mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh);
 
-        mtk::Field_Discrete tField_proxy( &tMeshPair, 0 );
+        mtk::Field_Discrete tField_proxy( tMeshPair, 0 );
 
         tField_proxy.unlock_field();
         tField_proxy.set_nodal_values( tField->get_node_values() );

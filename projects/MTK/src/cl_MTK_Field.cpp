@@ -28,13 +28,13 @@ namespace moris
     namespace mtk
     {
         Field::Field(
-                Mesh_Pair      * aMeshPair,
+                Mesh_Pair        aMeshPair,
                 uint     const & aNumberOfFields)
         : mMeshPair( aMeshPair ),
           mNumberOfFields( aNumberOfFields )
         {
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // size matrix of nodal values
             mNodalValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields);
@@ -42,13 +42,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Field::Field(
-                std::string const & aName,
-                uint        const & aNumberOfFields)
-        : mLabel( aName ),
-          mNumberOfFields( aNumberOfFields )
+        Field::Field()
+        : mMeshPair(nullptr, nullptr)
+        , mNumberOfFields(1)
         {
-
         }
 
         //------------------------------------------------------------------------------
@@ -60,16 +57,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Mesh_Pair * Field::get_mesh_pair()
+        Mesh_Pair Field::get_mesh_pair()
         {
-            MORIS_ERROR( mMeshPair != nullptr, " Field::get_mesh_pair()(), Mesh_Manager not set" );
-
             return mMeshPair;
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::set_mesh_pair( Mesh_Pair * aMeshPair)
+        const std::string & Field::get_mesh_pair_label()
+        {
+            MORIS_ERROR( not mMeshPairLabel.empty(), "Field::get_mesh_pair_label(), Mesh pair label not set");
+            return mMeshPairLabel;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::set_mesh_pair( Mesh_Pair aMeshPair)
         {
             //check whether field is unlocked
             this->error_if_locked();
@@ -77,6 +80,20 @@ namespace moris
             //set new mesh pair
             mMeshPair = aMeshPair;
 
+            // set update flag to false; nodal values do not need to be updated
+            mUpdateNodalValues = true;
+
+            // update coefficient data as underlying discretization may have changed
+            this->update_coefficent_data();
+
+            // lock mesh
+            mFieldIsLocked = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field::update_field()
+        {
             // set update flag to false; nodal values do not need to be updated
             mUpdateNodalValues = true;
 
@@ -171,7 +188,7 @@ namespace moris
                     aNodalValues.n_rows() == mNodalValues.n_rows() &&
                     aNodalValues.n_cols() == mNodalValues.n_cols(),
                     "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size: %d vs %d vs %d.\n",
-                    aNodalValues.n_rows(),mNodalValues.n_rows(),mMeshPair->mInterpolationMesh->get_num_nodes());
+                    aNodalValues.n_rows(),mNodalValues.n_rows(),mMeshPair.get_interpolation_mesh()->get_num_nodes());
 
             // set nodal value vector using child implementation
             this->set_nodal_value_vector( aNodalValues );
@@ -250,7 +267,7 @@ namespace moris
         bool Field::nodal_values_need_update()
         {
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // update is required if either update flag is set or number of nodes have changed
             // FIXME: check on changing nodes should not be needed; if mesh is changed this
@@ -436,7 +453,7 @@ namespace moris
 
         void Field::save_field_to_exodus( const std::string & aFileName )
         {
-            mtk::Mesh * tMesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tMesh = mMeshPair.get_interpolation_mesh();
 
             // set mesh
             moris::mtk::Writer_Exodus tExodusWriter( tMesh );

@@ -242,7 +242,7 @@ namespace moris
             }
             else if (tGeometryType == "nodal_field")
             {
-                MORIS_ERROR(aMTKMesh != nullptr,"Mesh is a null ptr for nodal field geometry");
+                MORIS_ERROR(aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry");
                 return std::make_shared<ge::Mesh_Field_Geometry>(aMTKMesh, tParameters.mName, EntityRank::NODE);
             }
             else if (tGeometryType == "user_defined")

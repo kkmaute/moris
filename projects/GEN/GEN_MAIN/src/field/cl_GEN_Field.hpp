@@ -1,6 +1,7 @@
 #ifndef MORIS_CL_GEN_Field_HPP
 #define MORIS_CL_GEN_Field_HPP
 
+#include "cl_MTK_Field.hpp"
 #include "st_GEN_Field_Parameters.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -10,7 +11,7 @@ namespace moris
 {
     namespace ge
     {
-        class Field
+        class Field : public mtk::Field
         {
 
         protected:
@@ -52,6 +53,7 @@ namespace moris
              */
             Field(const Matrix<DDUMat>&  aFieldVariableIndices,
                   const Matrix<DDSMat>&  aSharedADVIds,
+                  mtk::Mesh_Pair         aMeshPair,
                   std::shared_ptr<Field> aField);
 
             /**
@@ -226,9 +228,9 @@ namespace moris
             /**
              * Gets the mesh that this field depends on.
              *
-             * @return Mesh, default nullptr
+             * @return Mesh pair
              */
-            virtual mtk::Interpolation_Mesh* get_mesh();
+            virtual mtk::Mesh_Pair get_mesh_pair();
 
         private:
 

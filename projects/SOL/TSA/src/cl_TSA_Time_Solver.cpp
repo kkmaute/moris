@@ -425,6 +425,24 @@ void Time_Solver::solve_sensitivity()
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
     mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
+
+    // output solution vector to file
+    if( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
+    {
+        std::string tSolVecPath = mSolverWarehouse->get_save_final_adjoint_vec_to_file();
+
+        // detect file type
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+
+        if( tType == "hdf5" || tType == "h5" )
+        {
+            mFullVectorSensitivity( 0 )->save_vector_to_HDF5( tSolVecPath.c_str() );
+        }
+        else
+        {
+            MORIS_ERROR( false, "Time_Solver::solve_sensitivity(), Solution vector output type unknown. New types can be implemented here.");
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

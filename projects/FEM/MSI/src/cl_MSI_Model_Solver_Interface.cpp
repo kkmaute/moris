@@ -31,7 +31,7 @@ namespace moris
 
             uint tNumCoeffs = 0;
 
-            for( uint Ik = 0; Ik<mMesh->get_num_interpolations(); Ik++)
+            for( uint Ik = 0; Ik < mMesh->get_num_interpolations(); Ik++)
             {
                 tNumCoeffs = std::max( tNumCoeffs, mMesh->get_max_num_coeffs_on_proc( Ik ) );
             }
@@ -46,13 +46,21 @@ namespace moris
         void Model_Solver_Interface::finalize()
         {
             // get map from mesh
-            moris::map< moris::moris_id, moris::moris_index > tCoefficientsIdtoIndexMap;
+            Cell< moris::map< moris::moris_id, moris::moris_index > > & tCoefficientsIdtoIndexMap = mDofMgn.get_adof_map();
 
             if( mMesh != nullptr)         //FIXME fix all constructors to be able to get rid of this if statement
             {
-                mMesh->get_adof_map( 0, tCoefficientsIdtoIndexMap );
+                // get num discretizations
+                uint tNumDiscretizations = mMesh->get_num_interpolations();
 
-                mDofMgn.set_adof_map( & tCoefficientsIdtoIndexMap );
+                // resize container for id to index maps
+                tCoefficientsIdtoIndexMap.resize( tNumDiscretizations );
+
+                // let mesh fill id to index maps
+                for( uint Ik = 0; Ik < tNumDiscretizations; Ik++ )
+                {
+                    mMesh->get_adof_map( Ik, tCoefficientsIdtoIndexMap( Ik ) );
+                }
             }
 
             for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
