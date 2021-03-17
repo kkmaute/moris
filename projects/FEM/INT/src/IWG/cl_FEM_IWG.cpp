@@ -861,16 +861,19 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv type lists
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // update dof and dv counters
-                    tMasterDofCounter += tActiveDofTypes.size();
-                    tMasterDvCounter  += tActiveDvTypes.size();
+                    tMasterDofCounter   += tActiveDofTypes.size();
+                    tMasterDvCounter    += tActiveDvTypes.size();
+                    tMasterFieldCounter += tActiveFieldTypes.size();
 
                 }
             }
@@ -881,12 +884,14 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv type lists
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // update dof and dv counters
                     tSlaveDofCounter += tActiveDofTypes.size();
@@ -1047,16 +1052,19 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv type lists
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv lists
                     aDofTypes( 0 ).append( tActiveDofTypes );
                     aDvTypes( 0 ).append( tActiveDvTypes );
+                    aFieldTypes( 0 ).append( tActiveFieldTypes );
                 }
             }
 
@@ -1068,14 +1076,17 @@ namespace moris
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv lists
                     aDofTypes( 1 ).append( tActiveDofTypes );
                     aDvTypes( 1 ).append( tActiveDvTypes );
+                    aFieldTypes( 0 ).append( tActiveFieldTypes );
                 }
             }
 
@@ -1307,6 +1318,27 @@ namespace moris
 
                             // put the dv type in the global type list
                             mMasterGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        }
+                    }
+
+                    // get field types for constitutive model
+                    const moris::Cell< moris::Cell< mtk::Field_Type > > & tActiveFieldTypes =
+                            tCM->get_global_field_type_list();
+
+                    // loop on property field type
+                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
+                    {
+                        // get set index for field type
+                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+
+                        // if field enum not in the list
+                        if ( tFieldCheckList( tFieldTypeIndex) != 1 )
+                        {
+                            // put the field type in the check list
+                            tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                            // put the field type in the global type list
+                            mMasterGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
                         }
                     }
                 }
@@ -1560,6 +1592,27 @@ namespace moris
 
                             // put the dv type in the global type list
                             mSlaveGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        }
+                    }
+
+                    // get field types for constitutive model
+                    const moris::Cell< moris::Cell< mtk::Field_Type > > & tActiveFieldTypes =
+                            tCM->get_field_type_list();
+
+                    // loop on constitutive model field type
+                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
+                    {
+                        // get set index for field type
+                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+
+                        // if field enum not in the list
+                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
+                        {
+                            // put the field type in the check list
+                            tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                            // put the field type in the global type list
+                            mSlaveGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
                         }
                     }
                 }
