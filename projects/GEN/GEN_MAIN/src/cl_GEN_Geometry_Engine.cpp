@@ -16,6 +16,7 @@
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 
 // MTK
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -37,9 +38,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell<Cell<ParameterList>> aParameterLists,
+                Cell<Cell<ParameterList>>   aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary,
-                std::shared_ptr< mtk::Mesh_Manager >  aMTKMesh)
+                mtk::Mesh*                  aMesh)
         : mPhaseTable(create_phase_table(aParameterLists, aLibrary))
         {
             // Tracer
@@ -90,7 +91,7 @@ namespace moris
                     aParameterLists(1),
                     mInitialPrimitiveADVs,
                     mLibrary,
-                    aMTKMesh == nullptr ? nullptr : aMTKMesh->get_interpolation_mesh(0));
+                    aMesh);
 
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
@@ -144,7 +145,11 @@ namespace moris
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
 
-            this->distribute_advs(aMesh);
+            mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
+                    aMesh->get_mesh_type(),
+                    aMesh);
+            mtk::Mesh_Pair tMeshPair(aMesh, tIntegrationMesh);
+            this->distribute_advs(tMeshPair);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -647,6 +652,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Cell<std::shared_ptr<mtk::Field>> Geometry_Engine::get_mtk_fields()
+        {
+            Cell<std::shared_ptr<mtk::Field>> tFields(mGeometries.size() + mProperties.size());
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+            return tFields;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Geometry_Engine::get_field_value(
                 uint                  aFieldIndex,
                 uint                  aNodeIndex,
@@ -667,14 +682,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
+        void Geometry_Engine::create_pdvs(mtk::Mesh_Pair aMeshPair)
         {
             // Tracer
             Tracer tTracer( "GEN", "Create PDVs" );
 
             // Get meshes using first mesh on mesh manager: Lagrange mesh with numbered aura (default)
-            mtk::Integration_Mesh* tIntegrationMesh     = aMeshManager->get_integration_mesh(0);
-            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
+            mtk::Integration_Mesh* tIntegrationMesh     = aMeshPair.get_integration_mesh();
+            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
             // Initialize PDV type groups and mesh set info from integration mesh
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
@@ -806,7 +821,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::distribute_advs(mtk::Interpolation_Mesh* aMesh)
+        void Geometry_Engine::distribute_advs(mtk::Mesh_Pair aMeshPair)
         {
             // Tracer
             Tracer tTracer("GEN", "Distribute ADVs");
@@ -815,6 +830,9 @@ namespace moris
             Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
             std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
             std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+
+            // Interpolation mesh
+            mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
 
             //------------------------------------//
             // Determine owned and shared ADV IDs //
@@ -840,7 +858,7 @@ namespace moris
             Matrix<DDUMat> tAllOffsetIDs(tFields.size(), 1);
 
             // Get all node indices from the mesh (for now)
-            uint tNumNodes = aMesh->get_num_nodes();
+            uint tNumNodes = tMesh->get_num_nodes();
             Matrix<DDUMat> tNodeIndices(tNumNodes, 1);
             for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
             {
@@ -858,12 +876,12 @@ namespace moris
                     uint tDiscretizationMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
 
                     // Get owned coefficients
-                    Matrix<DDUMat> tOwnedCoefficients = aMesh->get_owned_discretization_coefficient_indices(
+                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
                             tNodeIndices,
                             tDiscretizationMeshIndex);
 
                     // Get shared coefficients
-                    Matrix<DDUMat> tSharedCoefficients = aMesh->get_shared_discretization_coefficient_indices(
+                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
                             tNodeIndices,
                             tDiscretizationMeshIndex);
 
@@ -882,7 +900,7 @@ namespace moris
                     // Add owned coefficients to lists
                     for (uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++)
                     {
-                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                        sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
                                 tOwnedCoefficients(tOwnedCoefficient),
                                 EntityRank::BSPLINE,
                                 tDiscretizationMeshIndex);
@@ -896,7 +914,7 @@ namespace moris
                     tSharedCoefficientIndices(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
                     for (uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++)
                     {
-                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                        sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
                                 tSharedCoefficients(tSharedCoefficient),
                                 EntityRank::BSPLINE,
                                 tDiscretizationMeshIndex);
@@ -906,7 +924,7 @@ namespace moris
 
                     // Update offset based on maximum ID TODO check the info being provided here
                     tAllOffsetIDs(tFieldIndex) = tOffsetID;
-                    tOffsetID += aMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
+                    tOffsetID += tMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
                 }
             }
 
@@ -965,13 +983,13 @@ namespace moris
                     // Always have shape sensitivities if B-spline field
                     mShapeSensitivities = true;
 
-                    // Create B-spline geometry FIXME Multiple B-spline fields
+                    // Create B-spline geometry
                     mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                             tNewOwnedADVs,
                             tSharedCoefficientIndices(tGeometryIndex),
                             tSharedADVIds(tGeometryIndex),
                             tAllOffsetIDs(tGeometryIndex),
-                            aMesh,
+                            aMeshPair,
                             mGeometries(tGeometryIndex));
                 }
 
@@ -980,7 +998,7 @@ namespace moris
                 {
                     // Create stored geometry
                     mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
-                            aMesh,
+                            tMesh,
                             mGeometries(tGeometryIndex));
                 }
             }
@@ -991,13 +1009,13 @@ namespace moris
                 // Convert to B-spline field
                 if (mProperties(tPropertyIndex)->intended_discretization())
                 {
-                    // Create B-spline property FIXME Multiple B-spline fields
+                    // Create B-spline property
                     mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
                             tNewOwnedADVs,
                             tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
                             tSharedADVIds(mGeometries.size() + tPropertyIndex),
                             tAllOffsetIDs(mGeometries.size() + tPropertyIndex),
-                            aMesh,
+                            aMeshPair,
                             mProperties(tPropertyIndex));
                 }
             }
@@ -1091,7 +1109,7 @@ namespace moris
             }
 
             // Reset mesh information
-            this->reset_mesh_information(aMesh);
+            this->reset_mesh_information(tMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------

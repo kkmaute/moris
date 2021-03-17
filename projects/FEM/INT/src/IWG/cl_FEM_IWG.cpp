@@ -1676,86 +1676,55 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::build_requested_dof_type_list( const bool aIsResidual )
+        void IWG::build_requested_dof_type_list( const bool aIsStaggered )
         {
             // clear the dof lists
             mRequestedMasterGlobalDofTypes.clear();
             mRequestedSlaveGlobalDofTypes .clear();
 
+            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
+
             // if residual evaluation
-            if ( aIsResidual )
+            if ( aIsStaggered )
             {
                 // get the requested dof types
-                moris::Cell< moris::Cell< enum MSI::Dof_Type > > tRequestedDofTypes =
-                        mSet->get_secondary_dof_types();
-
-                // reserve possible max size for requested dof lists
-                mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
-                mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
-
-                // loop over the requested dof type groups
-                for( auto tDofTypes : tRequestedDofTypes )
-                {
-                    // loop over the IWG master dof types groups
-                    for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
-                    {
-                        // if requested dof type group matches IWG master dof types group
-                        if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes( 0 ) )
-                        {
-                            // add the IWG master dof types group to the requested dof list
-                            mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
-                            break;
-                        }
-                    }
-
-                    // loop over the IWG slave dof types groups
-                    for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
-                    {
-                        // if requested dof type group matches IWG slave dof types group
-                        if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes( 0 ) )
-                        {
-                            // add the IWG slave dof types group to the requested dof list
-                            mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
-                            break;
-                        }
-                    }
-                }
+                tRequestedDofTypes = mSet->get_secondary_dof_types();
             }
             // if Jacobian evaluation
             else
             {
                 // get the requested dof types
-                Cell < enum MSI::Dof_Type > tRequestedDofTypes = mSet->get_requested_dof_types();
+                tRequestedDofTypes = mSet->get_requested_dof_types();
+            }
 
-                // reserve possible max size for requested dof lists
-                mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
-                mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
+            // reserve possible max size for requested dof lists
+            mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
+            mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
 
-                // loop over the requested dof types
-                for( auto tDofTypes : tRequestedDofTypes )
+            // loop over the requested dof types
+            for( auto tDofTypes : tRequestedDofTypes )
+            {
+                // loop over the IWG master dof types groups
+                for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
                 {
-                    // loop over the IWG master dof types groups
-                    for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
+                    // if requested dof type matches IWG master dof type
+                    if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes )
                     {
-                        // if requested dof type matches IWG master dof type
-                        if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes )
-                        {
-                            // add the IWG master dof type to the requested dof list
-                            mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
-                            break;
-                        }
+                        // add the IWG master dof type to the requested dof list
+                        mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
+                        break;
                     }
+                }
 
-                    // loop over the IWG slave dof types groups
-                    for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
+                // loop over the IWG slave dof types groups
+                for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
+                {
+                    // if requested dof type matches IWG slave dof type
+                    if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes )
                     {
-                        // if requested dof type matches IWG slave dof type
-                        if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes )
-                        {
-                            // add the IWG slave dof type to the requested dof list
-                            mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
-                            break;
-                        }
+                        // add the IWG slave dof type to the requested dof list
+                        mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
+                        break;
                     }
                 }
             }

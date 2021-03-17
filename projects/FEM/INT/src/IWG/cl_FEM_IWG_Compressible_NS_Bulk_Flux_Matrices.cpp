@@ -166,7 +166,7 @@ namespace moris
             real tE1p = tBetaT * tEtot;
             real tE2p = tE1p + 1.0;
             real tE3p = tEtot + tMM->pressure()( 0 );
-            real tE4p = -1.0 * tAlphaP * tEtot + tRho * tMM->Cp()( 0 );         
+            real tE4p = -1.0 * tAlphaP * tEtot + tRho * tMM->Cv()( 0 );         
 
             // reset A matrices
             Matrix< DDRMat > tEmptyA( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );

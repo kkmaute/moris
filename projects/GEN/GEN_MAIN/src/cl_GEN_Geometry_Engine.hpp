@@ -18,7 +18,6 @@
 // MTK
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cluster.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include <unordered_map>
 
@@ -106,12 +105,12 @@ namespace moris
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
-              * @param aMTKMesh Mesh for discrete or mesh based geomtries
+              * @param aMesh Mesh for discrete or mesh based geomtries
              */
             Geometry_Engine(
-                    Cell< Cell<ParameterList> >          aParameterLists,
-                    std::shared_ptr<Library_IO>          aLibrary = nullptr,
-                    std::shared_ptr< mtk::Mesh_Manager > aMTKMesh = nullptr);
+                    Cell< Cell<ParameterList> > aParameterLists,
+                    std::shared_ptr<Library_IO> aLibrary = nullptr,
+                    mtk::Mesh*                  aMesh = nullptr);
 
             /**
              * Constructor
@@ -330,6 +329,13 @@ namespace moris
             const Matrix< DDSMat > & get_refinement_mesh_indices(uint aFieldIndex );
 
             /**
+             * Gets all of the MTK fields that the geometry engine is using.
+             *
+             * @return MTK fields
+             */
+            Cell<std::shared_ptr<mtk::Field>> get_mtk_fields();
+
+            /**
              * Returns fields so that HMR can perform refinement based on the data from this performer
              *
              * @param aFieldIndex Index of the field
@@ -355,9 +361,9 @@ namespace moris
             /**
              * Discretize GEN fields on the given mesh and distribute parallel ADVs based on these fields.
              *
-             * @param aMesh Mesh for discretizing fields
+             * @param aMeshPair Mesh for discretizing fields
              */
-            void distribute_advs(mtk::Interpolation_Mesh* aMesh);
+            void distribute_advs(mtk::Mesh_Pair aMeshPair);
 
             /**
              * Resets the information that the geometry engine stores about a mesh.
@@ -400,7 +406,7 @@ namespace moris
              *
              * @param aMeshManager Mesh manager
              */
-            void create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
+            void create_pdvs(mtk::Mesh_Pair aMeshPair);
 
         private:
 

@@ -49,6 +49,7 @@ namespace moris
             moris::Cell< Matrix< DDSMat > >                mMat3;
             moris::Cell< Matrix< DDRMat > >                mMat6;
             moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
+            moris::Cell< enum MSI::Dof_Type >              mDummyDofs;
 
             bool mIsForwardAnalysis = true;
 
@@ -150,14 +151,14 @@ namespace moris
 
             virtual void initialize_set(
                     const uint aBlockInd,
-                    const bool aIsResidual,
+                    const bool aIsStaggered,
                     const bool aIsAdjointOffDiagonalTimeContribution = false)
             {  };
 
             virtual void report_beginning_of_assembly()
             {};
 
-            virtual void report_end_of_assebly()
+            virtual void report_end_of_assembly()
             {};
 
             virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -165,15 +166,15 @@ namespace moris
                 MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set.");
             };
 
-            virtual void set_secondary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+            virtual void set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
             {
                 MORIS_ERROR( false, "Solver_Interface::set_secondary_dof_types: not set.");
             };
 
-            virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+            virtual const moris::Cell< enum MSI::Dof_Type > & get_requested_dof_types()
             {
                 MORIS_ERROR( false, "Solver_Interface::get_requested_dof_types: not set.");
-                return moris::Cell< enum MSI::Dof_Type >(0);
+                return mDummyDofs;
             };
 
             virtual void initiate_output(

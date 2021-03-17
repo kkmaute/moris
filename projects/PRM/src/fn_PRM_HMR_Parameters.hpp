@@ -50,8 +50,10 @@ namespace moris
         tParameterList.insert( "domain_sidesets", std::string( "" ) );
 
 
-        //! Lagrange Meshes that are used for the output meshes
+        //! Lagrange Meshes that are used as output meshes
         tParameterList.insert( "lagrange_output_meshes", std::string( "" ) );
+        //! Lagrange Meshe Names of output meshes
+        tParameterList.insert( "lagrange_output_meshe_names", std::string( "" ) );
         //! Lagrange Meshes that are used as input meshes
         tParameterList.insert( "lagrange_input_meshes", std::string( "" ) );
 

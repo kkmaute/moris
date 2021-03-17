@@ -68,9 +68,9 @@ namespace moris
                 mtk::Field                                 * aSourceField,
                 moris::Cell< std::shared_ptr< hmr::HMR > > & aHMRPerformers )
         {
-            mtk::Mesh_Pair * tMeshPairIn = aSourceField->get_mesh_pair();
+            mtk::Mesh_Pair tMeshPairIn = aSourceField->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn->mInterpolationMesh;
+            moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -118,13 +118,16 @@ namespace moris
                     tDiscretizationOrder,
                     5); // order, Lagrange pattern, bspline pattern
 
+            hmr::Integration_Mesh_HMR* tOldIntegrationMesh = new hmr::Integration_Mesh_HMR(
+                    tSourceLagrangeOrder,
+                    5,
+                    tOldInterpolationMesh);
+
             // Create  mesh pair
-            mtk::Mesh_Pair tMeshPairOld;
-            tMeshPairOld.mInterpolationMesh = tOldInterpolationMesh;
-            tMeshPairOld.mIsOwned   = true;
+            mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, tOldIntegrationMesh, true);
 
             // build field with mesh
-            mtk::Field tFieldOld( &tMeshPairOld );
+            mtk::Field tFieldOld( tMeshPairOld );
 
             // copy values from input mesh to New/Old mesh ( this mesh is build based on the new HMR performer )
             tFieldOld.unlock_field();
@@ -201,12 +204,15 @@ namespace moris
                             tDiscretizationOrder,
                             tPattern);
 
-                    mtk::Mesh_Pair tMeshPair;
-                    tMeshPair.mInterpolationMesh = tInterpolationMesh;
-                    tMeshPair.mIsOwned   = true;
+                    hmr::Integration_Mesh_HMR* tIntegrationMesh = new hmr::Integration_Mesh_HMR(
+                            tLagrangeOrder,
+                            tPattern,
+                            tInterpolationMesh);
+
+                    mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh, true);
 
                     // create field object for this mesh
-                    mtk::Field_Discrete tFieldOnPattern( &tMeshPair, tPattern );
+                    mtk::Field_Discrete tFieldOnPattern( tMeshPair, tPattern );
                     tFieldOnPattern.set_label( "Field_for_refinement" );
 
                     // create mapper and map input field to new field

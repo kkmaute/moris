@@ -846,7 +846,7 @@ namespace moris
 
         void
         Mesh::get_adof_map(
-                const uint                     aBSplineIndex,
+                const uint                     aDiscretizationMeshIndex,
                 map< moris_id, moris_index > & aAdofMap ) const
         {
             MORIS_ERROR(false, "Entered function get_adof_map() in Mesh base class, (function is not implemented)");

@@ -176,7 +176,7 @@ namespace moris
 
         void Output_Manager::setup_vis_mesh_for_output(
                 const uint                               aVisMeshIndex,
-                mtk::Mesh_Manager                      * aMesh,
+                std::shared_ptr< mtk::Mesh_Manager >     aMesh,
                 const uint                               aMeshPairIndex,
                 std::shared_ptr< MSI::Equation_Model >   aEquationModel)
         {
@@ -197,9 +197,9 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void Output_Manager::create_visualization_mesh(
-                const uint          aVisMeshIndex,
-                mtk::Mesh_Manager * aMesh,
-                const uint          aMeshPairIndex)
+                const uint                           aVisMeshIndex,
+                std::shared_ptr< mtk::Mesh_Manager > aMesh,
+                const uint                           aMeshPairIndex)
         {
             MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex,
                     "create_visualization_meshes(), Visualization mesh not set" );

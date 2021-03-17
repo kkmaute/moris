@@ -155,6 +155,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
@@ -325,6 +326,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrix_Dof_Derivs.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp

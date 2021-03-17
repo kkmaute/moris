@@ -47,6 +47,9 @@ namespace moris
             // load final solution vector from file. using this option will skip the assembly and solve
             tSolverWarehouseList.insert( "SOL_load_sol_vec_from_file", std::string( "" ) );
 
+            // save final adjoint vector to file
+            tSolverWarehouseList.insert( "SOL_save_final_adjoint_vec_to_file", std::string( "" ) );
+
             return tSolverWarehouseList;
         }
 
@@ -491,7 +494,7 @@ namespace moris
 
             tNonLinSolverParameterList.insert( "NLA_DofTypes" , "UNDEFINED" );
 
-            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , "" );
+            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , "UNDEFINED" );
 
             tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver" , "" );
 

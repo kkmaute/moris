@@ -79,6 +79,8 @@ void SOL_Warehouse::initialize()
     mSaveFinalSolVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
     mLoadSolVecFromFile    =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
 
+    mSaveFinalAdjointVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
+
     if( mTPLType == moris::sol::MapType::Petsc)
     {
         PetscInitializeNoArguments();
@@ -207,6 +209,14 @@ void SOL_Warehouse::create_nonlinear_solvers()
                 tCellOfCellsSecDofTypes,
                 tMap );
 
+        if( tCellOfCellsSecDofTypes.size() > 0 )
+        {
+            if( tCellOfCellsSecDofTypes( 0 )( 0 ) == MSI::Dof_Type::UNDEFINED )
+            {
+               this->get_default_secundary_dof_types( tCellOfCellsSecDofTypes, tCellOfCells );
+            }
+        }
+
         for( uint Ii = 0; Ii< tCellOfCellsSecDofTypes.size(); Ii++ )
         {
             mNonlinearSolvers( Ik )->set_secondiry_dof_type_list( tCellOfCellsSecDofTypes( Ii ) );
@@ -324,6 +334,74 @@ void SOL_Warehouse::create_time_solvers()
 
         // set warehouse to time solver
         //        mTimeSolvers( Ik )->set_solver_warehouse( this );
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void SOL_Warehouse::get_default_secundary_dof_types(
+        Cell< Cell< MSI::Dof_Type >>       & aCellOfCellsSecDofTypes,
+        Cell< Cell< MSI::Dof_Type >> const & aCellOfCellDofTypes )
+{
+    // reset list of secundary dof types
+    for( auto & tCell : aCellOfCellsSecDofTypes )
+    {
+        tCell.clear();
+    }
+    aCellOfCellsSecDofTypes.clear();
+
+    moris::Cell< MSI::Dof_Type > tListOfAllPossibleDofTypes;
+
+    // get all possible used dof types from the time solver parameter list
+    for( uint Ik = 0; Ik < mParameterlist( 5 ).size(); Ik++ )
+    {
+        Cell< Cell< MSI::Dof_Type >> tCellOfCells;
+        map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
+        string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
+                tCellOfCells,
+                tMap );
+
+        // append dof types into non unique list
+        for( uint Ii = 0; Ii < tCellOfCells.size(); Ii++ )
+        {
+            tListOfAllPossibleDofTypes.append( tCellOfCells( Ii ) );
+        }
+    }
+
+    // make list of dof types unique
+    std::sort( ( tListOfAllPossibleDofTypes.data() ).data(),
+            ( tListOfAllPossibleDofTypes.data() ).data() + tListOfAllPossibleDofTypes.size());
+    auto last = std::unique( ( tListOfAllPossibleDofTypes.data() ).data(),
+            ( tListOfAllPossibleDofTypes.data() ).data() + tListOfAllPossibleDofTypes.size() );
+    auto pos  = std::distance( ( tListOfAllPossibleDofTypes.data() ).data(), last );
+    tListOfAllPossibleDofTypes.resize( pos );
+
+    // make list of residual dof types
+    moris::Cell< MSI::Dof_Type > tResDofTypes;
+    for( uint Ik = 0; Ik < aCellOfCellDofTypes.size(); Ik++ )
+    {
+        tResDofTypes.append( aCellOfCellDofTypes( Ik ) );
+    }
+
+    // find dof types which are not part of the residual dof types amd put them in list
+    aCellOfCellsSecDofTypes.resize( 1 );
+    for( uint Ik = 0; Ik < tListOfAllPossibleDofTypes.size(); Ik++ )
+    {
+        bool tIsResDofType = false;
+
+        for( uint Ii = 0; Ii < tResDofTypes.size(); Ii++ )
+        {
+            if( tResDofTypes( Ii ) == tListOfAllPossibleDofTypes( Ik ) )
+            {
+                tIsResDofType = true;
+            }
+        }
+
+        // if dof type is not residual dof type, add to secundary dif types
+        if( not tIsResDofType )
+        {
+            aCellOfCellsSecDofTypes( 0 ).push_back( tListOfAllPossibleDofTypes( Ik ) );
+        }
     }
 }
 

@@ -13,6 +13,10 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
+// debug - output to hdf5
+#include "paths.hpp"
+#include "HDF5_Tools.hpp"
+
 namespace moris
 {
     namespace fem
@@ -55,12 +59,12 @@ namespace moris
         void IWG_Compressible_NS_Bulk::reset_spec_eval_flags()
         {
             // reset eval flags
+            mVarVecEval = true;
+            mVarDofVecEval = true;
             mFluxAMatEval = true;
             mFluxADofMatEval = true;
             mFluxKMatEval = true;
             mFluxKDofMatEval = true;
-            mVarVecEval = true;
-            mVarDofVecEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -112,13 +116,13 @@ namespace moris
 
             // compute the second residual (velocity)
             mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) += aWStar * ( tFIVelocity->N_trans() * (
-                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) -
+                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) +
                     trans( tCM->testStrain() ) * this->MultipMat() * tCM->flux( CM_Function_Type::MECHANICAL ) ); 
 
             // compute the third residual (temperature)
             mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar * ( 
                     tFIThirdDofType->N_trans() * (
-                        mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) -
+                        mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) +
                     trans( tFIThirdDofType->dnNdxn( 1 ) ) * ( 
                         tCM->flux( CM_Function_Type::WORK ) - tCM->flux( CM_Function_Type::THERMAL ) ) ); 
 
@@ -150,7 +154,7 @@ namespace moris
 
                 // compute the first residual (pressure or density)
                 mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes1StopIndex }, { 0, 0 } ) +=  aWStar * tFIFirstDofType->N_trans() *
-                        tSP->val()( 0 ) * tStrongRes( { 1, 1 } );
+                        tSP->val()( 0 ) * tStrongRes( { 0, 0 } );
 
                 // compute the second residual (velocity)
                 mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) +=  aWStar * tFIVelocity->N_trans() *
@@ -160,6 +164,59 @@ namespace moris
                 mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) +=  aWStar * tFIThirdDofType->N_trans() *
                         tSP->val()( 0 ) * tStrongRes( { tNumSpaceDims + 1, tNumSpaceDims + 1 } );
             }
+
+// // debug for 2D
+// if ( tNumSpaceDims == 2 ) {
+
+// // debug - construct KijYj as a matrix
+// Matrix< DDRMat > tKijYj( tNumSpaceDims + 2, 2, 0.0 );
+// Matrix< DDRMat > tTau = tCM->flux( CM_Function_Type::MECHANICAL );
+// Matrix< DDRMat > tQ = tCM->flux( CM_Function_Type::THERMAL );
+// Matrix< DDRMat > tU = tFIVelocity->val();
+// tKijYj( 1, 0 ) = tTau( 0 );
+// tKijYj( 1, 1 ) = tTau( 2 );
+// tKijYj( 2, 0 ) = tTau( 2 );
+// tKijYj( 2, 1 ) = tTau( 1 );
+// Matrix< DDRMat > tEFlux = tKijYj({1,2},{0,1}) * tU - tQ;
+// tKijYj( 3, 0 ) = tEFlux( 0 );
+// tKijYj( 3, 1 ) = tEFlux( 1 );
+
+// // debug - construct KijYji as vector
+// Matrix< DDRMat > tKijYji( tNumSpaceDims + 2, 1, 0.0 );
+// tKijYji( { 1, 2 }, { 0, 0 } ) = 
+//         tCM->divflux( CM_Function_Type::MECHANICAL ).matrix_data();
+// tKijYji( { 3, 3 }, { 0, 0 } ) = 
+//         tCM->divflux( CM_Function_Type::WORK ) - tCM->divflux( CM_Function_Type::THERMAL );
+
+// Matrix< DDRMat > tStrongRes;
+// this->compute_residual_strong_form( tStrongRes );
+
+// // debug - write matrices to .hdf5 file
+// std::string tMorisRoot = moris::get_base_moris_dir();
+// std::string tHdf5FilePath = tMorisRoot + "/tmp/flux_matrices.hdf5";
+// std::cout << "Outputting flux matrices to: " << tHdf5FilePath << " ... " << std::flush;
+// hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+// herr_t tStatus = 0;
+// save_matrix_to_hdf5_file( tFileID, "Residual", mSet->get_residual()( 0 ), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "ResStrongForm", tStrongRes, tStatus );
+// save_matrix_to_hdf5_file( tFileID, "Y", mY, tStatus );
+// save_matrix_to_hdf5_file( tFileID, "dYdt", mdYdt, tStatus );
+// save_matrix_to_hdf5_file( tFileID, "dYdx", mdYdx, tStatus );
+// save_matrix_to_hdf5_file( tFileID, "A0", mA(0), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "A1", mA(1), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "A2", mA(2), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "KijYj", tKijYj, tStatus );
+// save_matrix_to_hdf5_file( tFileID, "KijYji", tKijYji, tStatus );
+// save_matrix_to_hdf5_file( tFileID, "Tau", tCM->flux( CM_Function_Type::MECHANICAL ), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "q", tCM->flux( CM_Function_Type::THERMAL ), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "Fw", tCM->flux( CM_Function_Type::WORK ), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "divTau", tCM->divflux( CM_Function_Type::MECHANICAL ), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "divq", tCM->divflux( CM_Function_Type::THERMAL ), tStatus );
+// save_matrix_to_hdf5_file( tFileID, "divFw", tCM->divflux( CM_Function_Type::WORK ), tStatus );
+// close_hdf5_file( tFileID );
+// std::cout << "Done \n" << std::flush;
+// }
+
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -300,13 +357,13 @@ namespace moris
                 // add contribution
                 mSet->get_jacobian()(
                         { tMasterRes2StartIndex, tMasterRes2StopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * ( trans( tCM->testStrain() ) * 
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * ( trans( tCM->testStrain() ) * 
                                 this->MultipMat() * tCM->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );                        
 
                 // add contribution to temperature residual dof type
                 mSet->get_jacobian()(
                         { tMasterRes3StartIndex, tMasterRes3StopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * ( trans( tFIThirdDofType->dnNdxn( 1 ) ) * (
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * ( trans( tFIThirdDofType->dnNdxn( 1 ) ) * (
                                 tCM->dFluxdDOF( tDofType, CM_Function_Type::WORK ) - tCM->dFluxdDOF( tDofType, CM_Function_Type::THERMAL ) ) );
             }
 
@@ -324,7 +381,7 @@ namespace moris
                 mSet->get_jacobian()( 
                         { tMasterRes1StartIndex, tMasterRes1StopIndex }, 
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) +=  aWStar * tFIFirstDofType->N_trans() * tSP->val()( 0 ) * 
-                                tStrongJac( { 1, 1 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
+                                tStrongJac( { 0, 0 }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
 
                 // compute the second residual (velocity)
                 mSet->get_jacobian()( 

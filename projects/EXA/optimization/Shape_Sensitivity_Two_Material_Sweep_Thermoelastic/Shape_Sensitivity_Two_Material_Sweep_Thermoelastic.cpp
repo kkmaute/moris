@@ -114,7 +114,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tOutputFileName = "ShapeSensitivitiesTransientCircle.exo";
+    std::string tOutputFileName = "ShapeSensitivitiesTwoMaterial.exo";
 
     /* ------------------------------------------------------------------------ */
     // Constant function for properties
@@ -781,6 +781,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion");
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )( 0 ).set("SOL_save_final_adjoint_vec_to_file", "Shape_Sensitivity_Two_Material.hdf5");
     }
 
     void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

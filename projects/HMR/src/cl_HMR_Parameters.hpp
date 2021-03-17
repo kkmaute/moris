@@ -130,6 +130,9 @@ namespace moris
 
             //! Lagrange Meshes that are used for the output meshes
             Cell< Matrix< DDUMat > >    mOutputMeshes = { { { 0 } } };
+            Cell< std::string >    mOutputMesheNames = { { { "" } } };
+
+            moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
             Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
 
@@ -511,6 +514,52 @@ namespace moris
             //--------------------------------------------------------------------------------
 
             /**
+             * set output mesh names
+             */
+            void set_output_mesh_names( const Cell< std::string > & aOutputMesheNames )
+            {
+                // test if calling this function is allowed
+                this->error_if_locked("set_output_meshes_names");
+
+                mOutputMesheNames = aOutputMesheNames;
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
+             * returns the index of the defined Lagrange output mesh names for a specified order
+             */
+            const Cell< std::string > & get_output_mesh_names() const
+            {
+                return mOutputMesheNames;
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
+             * returns mesh index for name
+             */
+            moris_index get_mesh_index_by_name( const std::string & aName ) const
+            {
+                MORIS_ERROR( mOutputNameToIndexMap.key_exists( aName ),
+                        "Parameters::get_mesh_index_by_name() Mesh name does not exist");
+
+                return mOutputNameToIndexMap.find( aName );
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
+             * returns true if mesh name exists
+             */
+            bool get_mesh_name_exists( const std::string & aName ) const
+            {
+                return mOutputNameToIndexMap.key_exists( aName );
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
              * checks if this mesh index belongs to an output mesh
              */
             bool is_output_mesh( const uint aMeshIndex ) const;
@@ -521,9 +570,9 @@ namespace moris
              * returns lagrange input mesh index
              */
             const Matrix< DDUMat > & get_lagrange_input_mesh() const
-               {
+            {
                 return mLagrangeInputMeshes;
-               }
+            };
 
             //--------------------------------------------------------------------------------
 

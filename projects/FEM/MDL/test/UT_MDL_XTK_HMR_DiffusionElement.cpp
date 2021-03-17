@@ -261,8 +261,8 @@ namespace moris
             moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
 
             // place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
+            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+            tMeshManager->register_mesh_pair(tInterpMesh, tIntegMesh1);
 
             //------------------------------------------------------------------------------
             // create the properties
@@ -343,7 +343,7 @@ namespace moris
             tSetInfo( 3 ) = tSetNeumann;
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager,
+            mdl::Model * tModel = new mdl::Model( tMeshManager,
                     tBSplineMeshIndex,
                     tSetInfo );
 
@@ -517,8 +517,8 @@ namespace moris
             //        tEnrInterpMesh.print_vertex_interpolation();
 
             // place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+            tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
             //------------------------------------------------------------------------------
             // create the properties
@@ -611,7 +611,7 @@ namespace moris
             tSetInfo( 3 ) = tSetNeumann;
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager,
+            mdl::Model * tModel = new mdl::Model( tMeshManager,
                     tBSplineMeshIndex,
                     tSetInfo );
 
@@ -812,8 +812,8 @@ namespace moris
             moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
 
             // place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            tMeshManager.register_mesh_pair(tInterpMesh, tIntegMesh1);
+            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+            tMeshManager->register_mesh_pair(tInterpMesh, tIntegMesh1);
 
             if(true)
             {
@@ -941,7 +941,7 @@ namespace moris
 
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager,
+            mdl::Model * tModel = new mdl::Model( tMeshManager,
                     0,
                     tSetInfo,
                     0,
@@ -1117,8 +1117,8 @@ namespace moris
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
             // place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+            tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
             //------------------------------------------------------------------------------
             // create the properties
@@ -1229,7 +1229,7 @@ namespace moris
 
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager,
+            mdl::Model * tModel = new mdl::Model( tMeshManager,
                     0,
                     tSetInfo,
                     0,

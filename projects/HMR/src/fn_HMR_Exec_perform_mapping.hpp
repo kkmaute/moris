@@ -132,7 +132,7 @@ namespace moris
             Cell< Integration_Mesh_HMR * >   tUnionIntegMeshes;
             Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
             Cell< Integration_Mesh_HMR * >   tInputIntegMeshes;
-            Cell< mtk::Mesh_Pair * > tMeshPairs( tNumberOfMappers, nullptr );
+            Cell< mtk::Mesh_Pair > tMeshPairs;
             Cell< mtk::Mapper * > tMappers( tNumberOfMappers, nullptr );
             Cell<mtk::Field*> tFieldUnion( tNumberOfMappers,nullptr );
 
@@ -173,9 +173,7 @@ namespace moris
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
-                tMeshPairs( m ) = new mtk::Mesh_Pair;
-                tMeshPairs( m )->mInterpolationMesh = tUnionInterpMeshes(m);
-                tMeshPairs( m )->mIntegrationMesh = tUnionIntegMeshes(m);
+                tMeshPairs.push_back(mtk::Mesh_Pair(tUnionInterpMeshes(m), tUnionIntegMeshes(m)));
 
                 // create mapper
                 tMappers( m ) = new mtk::Mapper();
@@ -333,10 +331,6 @@ namespace moris
             for( mtk::Mapper * tMapper : tMappers )
             {
                 delete tMapper;
-            }
-            for( mtk::Mesh_Pair * tMeshPair1 : tMeshPairs )
-            {
-                delete tMeshPair1;
             }
         }
 

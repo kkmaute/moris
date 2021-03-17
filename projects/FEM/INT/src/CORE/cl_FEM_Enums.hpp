@@ -79,6 +79,7 @@ namespace moris
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
 
                 COMPRESSIBLE_NS_BULK,
+                COMPRESSIBLE_NS_BOUNDARY,
                 
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
