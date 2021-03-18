@@ -26,7 +26,7 @@
 //GEN/src
 #include "cl_GEN_Pdv_Enums.hpp"
 //LINALG/src
-#include "fn_reshape.hpp"
+#include "fn_vectorize.hpp"
 
 namespace moris
 {

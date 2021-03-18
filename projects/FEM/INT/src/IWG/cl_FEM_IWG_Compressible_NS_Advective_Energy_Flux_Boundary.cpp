@@ -98,7 +98,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    N_trans() * (
+                                    tFITemp->N_trans() * (
                                             tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::ENERGY ) -
                                             tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::WORK   ) ) );
                 }
