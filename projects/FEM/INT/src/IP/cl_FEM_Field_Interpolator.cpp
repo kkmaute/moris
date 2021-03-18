@@ -5,7 +5,7 @@
 #include "fn_det.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
-#include "fn_reshape.hpp"
+#include "fn_vectorize.hpp"
 #include "fn_det.hpp"
 #include "fn_sum.hpp"
 #include "fn_diag_vec.hpp"
@@ -317,8 +317,8 @@ namespace moris
             mSpaceInterpolation->eval_N( mXi, tNSpace );
             mTimeInterpolation ->eval_N( mTau, tNTime );
 
-            //evaluate space time SF by multiplying space and time SF
-            mNBuild = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
+            //evaluate space time SF by multiplying space and time SF and create row vector
+            mNBuild = trans( vectorize( trans( tNSpace ) * tNTime ) );
         }
 
         //------------------------------------------------------------------------------
@@ -941,8 +941,8 @@ namespace moris
 
         void Field_Interpolator::eval_div_operator()
         {
-            // evaluate spatial divergence operator from dNdx
-            mDivOperator = reshape( trans( this->dnNdxn( 1 ) ), 1, this->dnNdxn( 1 ).numel() );
+            // evaluate spatial divergence operator from dNdx and flatten to row vector
+            mDivOperator = trans( vectorize( trans( this->dnNdxn( 1 ) ) ) );
         }
 
         //------------------------------------------------------------------------------
