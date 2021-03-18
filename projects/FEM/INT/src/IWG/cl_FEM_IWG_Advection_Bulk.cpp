@@ -66,7 +66,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
-                            trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() +
+                            tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() +
                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
 
             // check for nan, infinity
@@ -133,7 +133,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     jac += aWStar * (
-                            trans( tFITemp->N() ) * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
+                            tFITemp->N_trans() * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) );
                 }
 
@@ -142,7 +142,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     jac += aWStar *
-                            ( trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
+                            ( tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                 }
 
                 // compute the Jacobian strong form
@@ -195,7 +195,7 @@ namespace moris
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             aRT = tCMDiffusion->EnergyDot() +
-                    trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() -
+                    tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() -
                     tCMDiffusion->divflux();
         }
 
@@ -227,7 +227,7 @@ namespace moris
                 // compute contribution to Jacobian strong form
                 aJT +=
                         tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
-                        trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
+                        tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
                         tCMDiffusion->ddivfluxdu( aDofTypes );
             }
 
