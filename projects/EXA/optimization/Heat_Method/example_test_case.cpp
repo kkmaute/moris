@@ -151,10 +151,10 @@ void check_results(
 
     // check Theta at node aNodeId in first time step (Theta is 3rd nodal field, first time step has index 0)
     Cell<real> tReferenceTheta;
-    tReferenceTheta.push_back( 5.917299018173391e-01 );
-    tReferenceTheta.push_back( 7.194331939566802e-01 );
-    tReferenceTheta.push_back( 7.546884462056863e-01 );
-    tReferenceTheta.push_back( 8.907213245936323e-01 );
+    tReferenceTheta.push_back( 3.825232465183434e-01 );
+    tReferenceTheta.push_back( 5.845499999110675e-01 );
+    tReferenceTheta.push_back( 7.400264713635065e-01 );
+    tReferenceTheta.push_back( 8.815021557626573e-01 );
 
     real tActualTheta = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
 
@@ -167,10 +167,10 @@ void check_results(
 
     // check Phid at node aNodeId in first time step (Phid is 4th nodal field, first time step has index 0)
     Cell<real> tReferencePhid;
-    tReferencePhid.push_back( 3.872167974340177e-01 );
-    tReferencePhid.push_back( 3.587919624293681e-01 );
-    tReferencePhid.push_back( 1.970512603993230e-01 );
-    tReferencePhid.push_back( 1.324452669069744e-01 );
+    tReferencePhid.push_back( 3.684524108575014e-01 );
+    tReferencePhid.push_back( 3.819915267479255e-01 );
+    tReferencePhid.push_back( 1.681297523810494e-01 );
+    tReferencePhid.push_back( 1.222797214855054e-01 );
 
     real tActualPhid = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 3, 0 );
 
@@ -208,7 +208,7 @@ void check_results(
     Matrix<DDRMat> tConstraintsFD;
 
     // Tolerance for adjoint vs. FD sensitivities
-    moris::real tToleranceSensties = 0.01;
+    moris::real tToleranceSensties = 0.001;
 
     // Read analytical sensitivities
     load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 analytical",  tObjectiveAnalytical, tStatus);
