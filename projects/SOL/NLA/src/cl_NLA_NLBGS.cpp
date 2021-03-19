@@ -51,8 +51,7 @@ NonLinBlockGaussSeidel::~NonLinBlockGaussSeidel()
 
 void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
 {
-    // trace this solve
-    Tracer tTracer( "NonLinearSolver", "NLBGS", "Solve" );
+    Tracer tTracer( "NonLinearAlgorithm", "NLBGS", "Solve" );
 
     moris::sint tMaxIts = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
     moris::uint tNonLinSysStartIt = 0;

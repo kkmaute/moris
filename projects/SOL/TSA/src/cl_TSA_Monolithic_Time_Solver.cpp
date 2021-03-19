@@ -27,7 +27,7 @@ using namespace tsa;
 void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     // trace this solve
-    Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
+    Tracer tTracer( "TimeSolverAlgorithm", "Monolythic", "Solve" );
 
     this->finalize();
 
