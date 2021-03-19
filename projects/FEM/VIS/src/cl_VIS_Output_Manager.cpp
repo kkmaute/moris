@@ -671,8 +671,9 @@ namespace moris
                 tTotalGlobalValue = sum_all( tGlobalValues( iGlobalField ) );
 
                 tGlobalVariableValues( iGlobalField ) = tTotalGlobalValue;
-
-                MORIS_LOG_INFO ("Global Variable: %s = %e",tFieldName.c_str(), tGlobalVariableValues( iGlobalField ) );
+                
+                MORIS_LOG_SPEC(tFieldName, tGlobalVariableValues( iGlobalField ));
+                // MORIS_LOG_INFO ("Global Variable: %s = %e",tFieldName.c_str(), tGlobalVariableValues( iGlobalField ) );
             }
 
             // write global variables

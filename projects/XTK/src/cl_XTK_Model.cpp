@@ -1661,9 +1661,7 @@ namespace xtk
             // Element to node
             moris::Matrix< moris::IndexMat > const & tElementToNode = tChildMesh.get_element_to_node();
 
-            moris::print(tElementToNode,"tElementToNode");
-
-            // iterate through geometries, check and flag facets that are on the interface
+           // iterate through geometries, check and flag facets that are on the interface
             for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
             {
                 // iterate through cells
@@ -1671,11 +1669,8 @@ namespace xtk
                 {
                     bool tAllVertsOnInterface = true;
 
-                    std::cout<<"    iC = "<<iC<<std::endl; 
-
                     for(moris::uint iV = 0; iV < tElementToNode.n_cols(); iV++)
                     {
-                        std::cout<<"        iV = "<<iV<<std::endl;
                         if(! mGeometryEngine->is_interface_vertex(tElementToNode(iC,iV),(moris_index)iG) )
                         {
                             tAllVertsOnInterface = false;

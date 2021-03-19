@@ -16,9 +16,11 @@
 #include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
+
 #include "cl_Communication_Tools.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
+#include "Log_Constants.hpp"
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
@@ -77,6 +79,9 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonli
             {
                 // Log/print which NL system is being solved
                 MORIS_LOG_SPEC("Forward Analysis Nonlinear System", Ik );
+                
+                // Set the nonlinear system index
+                gLogger.set_iteration( "NonLinearSolver" , LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, Ik);
 
                 mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->solve( aNonlinearProblem->get_full_vector() );
             } // end loop over all non-linear sub-systems

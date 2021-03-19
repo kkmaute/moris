@@ -31,8 +31,8 @@ namespace moris
             Matrix<DDUMat>                  mBulkPhases = {{}};
             Intersection_Mode               mIntersectionMode = Intersection_Mode::LEVEL_SET;
             real                            mIsocontourThreshold = 0.0;
-            real                            mIsocontourTolerance = 0.0;
-            real                            mIntersectionTolerance = 0.0;
+            real                            mIsocontourTolerance = 1e-12;
+            real                            mIntersectionTolerance = 1e-12;
             Cell<std::string>               mRequestedIQIs = {};
             std::string                     mGeometryFieldFile = "";
             std::string                     mOutputMeshFile = "";
