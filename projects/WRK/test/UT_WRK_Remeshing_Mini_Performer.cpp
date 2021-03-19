@@ -148,12 +148,12 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_HMR = std::make_shared< mtk::Mesh_Manager >();
          tHMRPerformer->set_performer( tMTKPerformer_HMR );
 
-         hmr::Interpolation_Mesh_HMR * tInterpolationMeshNew = new hmr::Interpolation_Mesh_HMR(
-                 tHMRDatabase,
-                 1,
-                 0,
-                 1,
-                 0);
+         //hmr::Interpolation_Mesh_HMR * tInterpolationMeshNew = new hmr::Interpolation_Mesh_HMR(
+         //        tHMRDatabase,
+         //        1,
+         //        0,
+         //        1,
+         //        0);
 
          // FIXME mesh pair should never be modified from the outside, this needs to be reworked
 //         delete tMeshPair.mInterpolationMesh;

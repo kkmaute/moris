@@ -77,7 +77,7 @@ namespace moris
             // L2 contributions
             if ( mL2Weight > 0.0 )
             {
-                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ) != nullptr,
+                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ),
                         "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n");
 
                 const std::shared_ptr< Property > & tPropL2Value =
@@ -93,14 +93,14 @@ namespace moris
             // H1 semi-norm contribution
             if ( mH1SWeight > 0.0 )
             {
-                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ) != nullptr,
+                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ),
                         "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n");
 
                 const std::shared_ptr< Property > & tPropH1SValue =
                         mMasterProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
 
-                // compute difference between dof spatial gradient and reference value
-                auto tH1Serror = tFI->gradx( 1 ) - tPropH1SValue->val();
+                // compute difference between dof spatial gradient and reference value and flatten it
+                Matrix<DDRMat> tH1Serror = vectorize( tFI->gradx( 1 ) - tPropH1SValue->val() );
 
                 // compute H1 semi-norm error
                 aQI += mH1SWeight * trans( tH1Serror ) * tH1Serror;
@@ -163,7 +163,7 @@ namespace moris
                 // L2 contributions
                 if ( mL2Weight > 0.0 )
                 {
-                    MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ) != nullptr,
+                    MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ),
                             "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n");
 
                     const std::shared_ptr< Property > & tPropL2Value =
@@ -190,7 +190,7 @@ namespace moris
                 // H1 semi-norm contribution
                 if ( mH1SWeight > 0.0 )
                 {
-                    MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ) != nullptr,
+                    MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ),
                             "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n");
 
                     const std::shared_ptr< Property > & tPropH1SValue =
@@ -238,7 +238,7 @@ namespace moris
             // L2 contributions
             if ( mL2Weight > 0.0 )
             {
-                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ) != nullptr,
+                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ),
                         "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n");
 
                 const std::shared_ptr< Property > & tPropL2Value =
@@ -265,7 +265,7 @@ namespace moris
             // H1 semi-norm contribution
             if ( mH1SWeight > 0.0 )
             {
-                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ) != nullptr,
+                MORIS_ASSERT (  mMasterProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ),
                         "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n");
 
                 const std::shared_ptr< Property > & tPropH1SValue =

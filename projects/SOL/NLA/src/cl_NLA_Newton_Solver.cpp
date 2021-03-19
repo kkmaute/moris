@@ -67,7 +67,7 @@ Newton_Solver::~Newton_Solver()
 //--------------------------------------------------------------------------------------------------------------------------
 void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
 {
-    Tracer tTracer( "NonLinearSolver", "Newton", "Solve" );
+    Tracer tTracer( "NonLinearAlgorithm", "Newton", "Solve" );
 
     mNonlinearProblem = aNonlinearProblem;
 

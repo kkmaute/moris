@@ -43,6 +43,7 @@ set(TEST_SOURCES
 	fn_sylvester.cpp
 	fn_trans.cpp
 	fn_unique.cpp
+	fn_vectorize.cpp
 	LINALG_Tutorial.cpp
 	op_div.cpp
 	op_elemwise_div.cpp

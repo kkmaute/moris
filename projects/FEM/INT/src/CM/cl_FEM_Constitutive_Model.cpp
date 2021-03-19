@@ -626,6 +626,207 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Constitutive_Model::set_field_type_list(
+                moris::Cell< moris::Cell< mtk::Field_Type > > aFieldTypes )
+        {
+            // set the field types
+            mFieldTypes = aFieldTypes;
+
+            // build a map for the field types
+            this->build_field_type_map();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Constitutive_Model::build_field_type_map()
+        {
+            // get number of field types
+            uint tNumFieldTypes = mFieldTypes.size();
+
+            // determine the max Dof_Type enum
+            sint tMaxEnum = 0;
+            for( uint iField = 0; iField < tNumFieldTypes; iField++ )
+            {
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFieldTypes( iField )( 0 ) ) );
+            }
+            tMaxEnum++;
+
+            // set map size
+            mFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+
+            // loop over the field types
+            for( uint iField = 0; iField < tNumFieldTypes; iField++ )
+            {
+                // fill the field type map
+                mFieldTypeMap( static_cast< int >( mFieldTypes( iField )( 0 ) ), 0 ) = iField;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Constitutive_Model::build_global_field_type_list()
+        {
+            // get number of field types
+            uint tNumFieldTypes = mFieldTypes.size();
+
+            // set the size of the field type list
+            uint tCounterMax = tNumFieldTypes;
+
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
+            {
+                if( tProperty != nullptr )
+                {
+                    tCounterMax += tProperty->get_field_type_list().size();
+                }
+            }
+            mGlobalFieldTypes.resize( tCounterMax );
+            moris::Cell< sint > tCheckList( tCounterMax, -1 );
+
+            // initialize total dv counter
+            uint tCounter = 0;
+
+            // get active Field type for constitutive model
+            for ( uint iField = 0; iField < tNumFieldTypes; iField++ )
+            {
+                tCheckList( tCounter ) = static_cast< uint >( mFieldTypes( iField )( 0 ) );
+                mGlobalFieldTypes( tCounter ) = mFieldTypes( iField );
+                tCounter++;
+            }
+
+            for ( const std::shared_ptr< Property > & tProperty : mProperties )
+            {
+                if( tProperty != nullptr )
+                {
+                    // get active Field types
+                    moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType = tProperty->get_field_type_list();
+
+                    for ( uint iField = 0; iField < tActiveFieldType.size(); iField++ )
+                    {
+                        // check enum is not already in the list
+                        bool tCheck = false;
+                        for( uint i = 0; i < tCounter; i++ )
+                        {
+                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveFieldType( iField )( 0 ) ) );
+                        }
+
+                        // if Field enum not in the list
+                        if ( !tCheck )
+                        {
+                            tCheckList( tCounter ) = static_cast< uint >( tActiveFieldType( iField )( 0 ) );
+                            mGlobalFieldTypes( tCounter ) = tActiveFieldType( iField );
+                            tCounter++;
+                        }
+                    }
+                }
+            }
+
+            // get the number of unique Field type groups, i.e. the number of interpolators
+            mGlobalFieldTypes.resize( tCounter );
+
+//            // build global Field type map
+//            this->build_global_field_type_map();
+        }
+
+        //------------------------------------------------------------------------------
+
+        const moris::Cell< moris::Cell< mtk::Field_Type > > & Constitutive_Model::get_global_field_type_list()
+        {
+            if( mGlobalFieldBuild )
+            {
+                // build the stabilization parameter global field type list
+                this->build_global_field_type_list();
+
+                // update build flag
+                mGlobalFieldBuild = false;
+            }
+
+            if ( mGlobalFieldMapBuild )
+            {
+                // build the stabilization parameter global dv type map
+                this->build_global_field_type_map();
+
+                // update build flag
+                mGlobalFieldMapBuild = false;
+            }
+
+            return mGlobalFieldTypes;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Constitutive_Model::build_global_field_type_map()
+        {
+            if( mGlobalFieldBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_field_type_list();
+
+                // update build flag
+                mGlobalFieldBuild = false;
+            }
+
+            // get number of global dof types
+            uint tNumFieldTypes = mGlobalFieldTypes.size();
+
+            // determine the max Field_Type enum
+            sint tMaxEnum = 0;
+            for( uint iField = 0; iField < tNumFieldTypes; iField++ )
+            {
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mGlobalFieldTypes( iField )( 0 ) ) );
+            }
+            tMaxEnum++;
+
+            // set the Field_Type map size
+            mGlobalFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+
+            // fill the Field_Type map
+            for( uint iField = 0; iField < tNumFieldTypes; iField++ )
+            {
+                // fill the Field map
+                mGlobalFieldTypeMap( static_cast< int >( mGlobalFieldTypes( iField )( 0 ) ), 0 ) = iField;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Constitutive_Model::get_global_field_type_map()
+        {
+            if( mGlobalFieldMapBuild )
+            {
+                // build the global field type map
+                this->build_global_field_type_map();
+
+                // update build flag
+                mGlobalFieldMapBuild = false;
+            }
+
+            return mGlobalFieldTypeMap;
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool Constitutive_Model::check_field_dependency(
+                const moris::Cell< mtk::Field_Type > & aFieldType )
+        {
+            // set bool for dependency
+            bool tFieldDependency = false;
+
+            // get dof type index
+            uint tFieldIndex = static_cast< uint >( aFieldType( 0 ) );
+
+            // if aDofType is an active dv type for the constitutive model
+            if( tFieldIndex < this->get_global_field_type_map().numel() && this->get_global_field_type_map()( tFieldIndex ) != -1 )
+            {
+                // bool is set to true
+                tFieldDependency = true;
+            }
+
+            // return bool for dependency
+            return tFieldDependency;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Constitutive_Model::set_field_interpolator_manager(
                 Field_Interpolator_Manager * aFieldInterpolatorManager )
         {
@@ -753,13 +954,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Constitutive_Model::get_non_unique_dof_and_dv_types(
+        void Constitutive_Model::get_non_unique_dof_dv_and_field_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >      & aDvTypes )
+                moris::Cell< PDV_Type >      & aDvTypes,
+                moris::Cell< mtk::Field_Type > & aFieldTypes )
         {
             // initialize dof counter
             uint tDofCounter = 0;
             uint tDvCounter  = 0;
+            uint tFieldCounter  = 0;
 
             // loop over direct dof dependencies
             for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
@@ -773,6 +976,13 @@ namespace moris
             {
                 // update counter
                 tDvCounter += mDvTypes( iDv ).size();
+            }
+
+            // loop over direct field dependencies
+            for ( uint iField = 0; iField < mFieldTypes.size(); iField++ )
+            {
+                // update counter
+                tFieldCounter += mFieldTypes( iField ).size();
             }
 
             // loop over properties
@@ -792,6 +1002,7 @@ namespace moris
                     // update counter
                     tDofCounter += tActiveDofTypes.size();
                     tDvCounter  += tActiveDvTypes.size();
+                    tFieldCounter  += tActiveDvTypes.size();
                 }
             }
 
@@ -813,6 +1024,7 @@ namespace moris
             // reserve memory for the non unique dof and dv types
             aDofTypes.reserve( tDofCounter );
             aDvTypes.reserve( tDvCounter );
+            aFieldTypes.reserve( tFieldCounter );
 
             // loop over direct dof dependencies
             for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
@@ -826,6 +1038,13 @@ namespace moris
             {
                 // populate the dv type list
                 aDvTypes.append( mDvTypes( iDv ) );
+            }
+
+            // loop over direct field dependencies
+            for ( uint iField = 0; iField < mFieldTypes.size(); iField++ )
+            {
+                // populate the dv type list
+                aFieldTypes.append( mFieldTypes( iField ) );
             }
 
             // loop over the properties
@@ -846,6 +1065,7 @@ namespace moris
                     // populate the dof and dv type lists
                     aDofTypes.append( tActiveDofTypes );
                     aDvTypes.append( tActiveDvTypes );
+                    aFieldTypes.append( tActiveFieldTypes );
                 }
             }
 

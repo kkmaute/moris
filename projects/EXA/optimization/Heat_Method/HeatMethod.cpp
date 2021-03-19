@@ -42,24 +42,38 @@ extern "C"
 namespace moris
 {
     /* ------------------------------------------------------------------------ */
+    /*
+     * FIXME: Set Nitsche penalty to non-zero value for sensitives for cluster
+     *        measures have been fixed
+     */
+    /* ------------------------------------------------------------------------ */
 
     // 2D or 3D
     bool tIs3D = gDim == 3;
 
+    // turn on/off use of absolute value of level set function
+    bool tUseAbsoulteValue = true;
+
+    // interpolation order
     std::string tInterpolationOrder    = std::to_string(gInterpolationOrder);
 
+    // prescribed gradient when using non-pdv level set field
     std::string tLevelSetGradxConstant = gDim == 3 ? "1.0;1.0;1.0" : "1.0;1.0";
 
-    std::string tAdvIndicesForFD       = "2,4"; ///,27,28,29,30,31,32";
+    // Bspline coefficients for which sensitivities are checked
+    std::string tAdvIndicesForFD       = gDim == 3 ? "30,31,32,33,34" : "5,6,7,8,9";
+
+    // Nitsche penalty
+    std::string tNitschePenalty        = "0.0";
 
     /* ------------------------------------------------------------------------ */
 
     // FD in adjoint
-    real tFEMFdEpsilon =  1.0e-5;
+    real tFEMFdEpsilon =  1.0e-7;
     uint tFEMFdScheme  =  static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL);
 
     // FD step size in sweep
-    std::string tFDsweep = "1.0e-5";
+    std::string tFDsweep = "1.0e-7";
 
     // Number of constraints
     uint tNumConstraints = 4;
@@ -119,7 +133,7 @@ namespace moris
     std::string tInitialRefinement   = "0";
     std::string tInterfaceRefinement = "0";
 
-    int tRefineBuffer                = 1;
+    int tRefineBuffer                = 0;
 
     /* ------------------------------------------------------------------------ */
     // Solver config
@@ -190,8 +204,15 @@ namespace moris
         // get value of design level set function 
         real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()(0);
 
-        // return absolute value
-        aPropMatrix = std::abs(value);
+        // return PDV derivative of absolute value of level set function
+        real factor = 1.0;
+        if (tUseAbsoulteValue)
+        {
+            factor = value > 0.0 ? 1.0 : -1.0;
+        }
+
+        // return absolute value of level set function
+        aPropMatrix =  factor * value;
     }
 
     /* ------------------------------------------------------------------------ */
@@ -202,7 +223,17 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N();
+        // get value of design level set function 
+        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()(0);
+
+        // return PDV derivative of absolute value of level set function
+        real factor = 1.0;
+        if (tUseAbsoulteValue)
+        {
+            factor = value > 0.0 ? 1.0 : -1.0;
+        }
+
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N();
     }
 
     /* ------------------------------------------------------------------------ */
@@ -215,10 +246,13 @@ namespace moris
     {
         // get value of design level set function 
         real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()(0);
-	
-	
-	// return spatial derivative of absolute value
-	real factor = value > 0.0 ? 1.0 : -1.0;
+
+        // return spatial derivative of absolute value of level set function
+        real factor = 1.0;
+        if (tUseAbsoulteValue)
+        {
+            factor = value > 0.0 ? 1.0 : -1.0;
+        }
 
         aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->gradx(1);
     }
@@ -231,7 +265,17 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn(1);
+        // get value of design level set function 
+        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()(0);
+
+        // return PDV derivative of spatial derivative of absolute value of level set function
+        real factor = 1.0;
+        if (tUseAbsoulteValue)
+        {
+            factor = value > 0.0 ? 1.0 : -1.0;
+        }
+
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn(1);
     }
 
     /* ------------------------------------------------------------------------ */
@@ -533,7 +577,14 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0") ;
         tPropCounter++;
-	
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropLevelSetGradxConst") ;
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tLevelSetGradxConstant) ;
+        tPropCounter++;
+
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropLevelSet") ;
@@ -541,13 +592,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "tLevelSetFunc") ;
         tParameterList( 0 )( tPropCounter ).set( "dv_derivative_functions",  "tDerLevelSetFunc") ;
         tParameterList( 0 )( tPropCounter ).set( "dv_dependencies",          "LS1") ;
-        tPropCounter++;
-
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropLevelSetGradxConst") ;
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tLevelSetGradxConstant) ;
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
@@ -622,7 +666,7 @@ namespace moris
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheTemp") ;
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "100.0") ;
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     tNitschePenalty) ;
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity,Material") ;
         tSPCounter++;
 
@@ -812,8 +856,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ));
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tOuterPhase);
         tIQICounter++;
-	
-	
+
         // H1 Error if reference is constant
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIH1ErrorConst") ;
@@ -837,7 +880,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "function_parameters",        "1.0 / 1.0 / 0.0" ) ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
-	
+
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
@@ -911,7 +954,7 @@ namespace moris
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver",                   2 );               // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set("TSA_nonlinear_solver_for_adjoint_solve", 3 );               // using monlithic for sensitivity problem
+        //tParameterlist( 4 )( 0 ).set("TSA_nonlinear_solver_for_adjoint_solve", 3 );               // using monlithic for sensitivity problem
 
         // ----------------------------------------------------------
 

@@ -9,6 +9,7 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
@@ -104,6 +105,8 @@ void Linear_Solver::solver_linear_system(
         dla::Linear_Problem  * aLinearProblem,
         const moris::sint      aIter )
 {
+    Tracer tTracer( "LinearSolver", "LinearSolver", "Solve" );
+
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;

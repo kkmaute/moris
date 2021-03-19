@@ -42,7 +42,7 @@ namespace moris
                     mMasterProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
 
             // get jump between value and analytic
-            real tJumpNorm = norm ( reshape( tFI->gradx( 1 ) - tPropH1Check->val(), tFI->gradx( 1 ).numel(), 1 ) );
+            real tJumpNorm = norm ( vectorize( tFI->gradx( 1 ) - tPropH1Check->val() ) );
             
             // evaluate the QI
             aQI = tJumpNorm * tJumpNorm ;
@@ -64,7 +64,7 @@ namespace moris
                     mMasterProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
 
             // get jump between value and analytic
-            real tJumpNorm = norm ( reshape( tFI->gradx( 1 ) - tPropH1Check->val(), tFI->gradx( 1 ).numel(), 1 ) );
+            real tJumpNorm = norm ( vectorize( tFI->gradx( 1 ) - tPropH1Check->val() ) );
             
             // evaluate the QI
             mSet->get_QI()( tQIIndex ) += aWStar * ( tJumpNorm * tJumpNorm ) ;

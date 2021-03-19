@@ -70,8 +70,8 @@ namespace moris
                 this->get_flat_normal_matrix( tFlatNormal, iOrder );
 
                 // premultiply common terms
-                Matrix< DDRMat > tPreMultiply = tSP->val()( 0 ) * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
-                tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+                Matrix< DDRMat > tPreMultiply = vectorize(
+                        tSP->val()( 0 ) * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) );
 
                 // get flattened directional derivatives for master and slave
                 Matrix< DDRMat > tMasterdNdxFlat;
@@ -181,9 +181,9 @@ namespace moris
                     if ( tSP->check_dof_dependency( tDofType ) )
                     {
                         // premultiply common terms
-                        Matrix< DDRMat > tPreMultiply =
-                                tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
-                        tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+                        Matrix< DDRMat > tPreMultiply = vectorize(
+                                tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) );
+
                         tPreMultiply = tPreMultiply * tSP->dSPdMasterDOF( tDofType );
 
                         // add contribution to jacobian

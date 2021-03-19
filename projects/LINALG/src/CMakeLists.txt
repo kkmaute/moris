@@ -51,6 +51,7 @@ fn_svd.hpp
 fn_sylvester.hpp
 fn_trans.hpp
 fn_unique.hpp
+fn_vectorize.hpp
 linalg_typedefs.hpp
 op_div.hpp
 op_elemwise_div.hpp
@@ -106,6 +107,7 @@ Eigen_Impl/fn_sum_Eigen.hpp
 Eigen_Impl/fn_svd_Eigen.hpp
 Eigen_Impl/fn_trans_Eigen.hpp
 Eigen_Impl/fn_unique_Eigen.hpp
+Eigen_Impl/fn_vectorize_Eigen.hpp
 Eigen_Impl/op_elemwise_div_Eigen.hpp
 Eigen_Impl/op_elemwise_mult_Eigen.hpp
 Eigen_Impl/op_equal_equal_Eigen.hpp
@@ -158,6 +160,7 @@ Arma_Impl/fn_svd_Arma.hpp
 Arma_Impl/fn_sylvester_Arma.hpp
 Arma_Impl/fn_trans_Arma.hpp
 Arma_Impl/fn_unique_Arma.hpp
+Arma_Impl/fn_vectorize_Arma.hpp
 Arma_Impl/op_elemwise_div_Arma.hpp
 Arma_Impl/op_elemwise_mult_Arma.hpp
 Arma_Impl/op_equal_equal_Arma.hpp

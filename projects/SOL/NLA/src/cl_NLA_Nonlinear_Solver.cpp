@@ -19,7 +19,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 // Detailed Logging package
-//#include "cl_Tracer.hpp"
+#include "cl_Tracer.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -299,6 +299,8 @@ void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehou
 
 void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
 {
+    Tracer tTracer( "NonLinearSolver", "NonlinearSolver", "Solve" );
+
     mSolverInput = mSolverWarehouse->get_solver_interface() ;
 
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
@@ -334,6 +336,19 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
     mNonlinearProblem->set_nonlinear_solver( this );
 
     mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );
+
+    map< enum MSI::Dof_Type, std::string > tDofTypeToNameMap = MSI::get_dof_type_name_map();
+
+    std::string tDofTypeNames = "";
+    for( uint Ik = 0; Ik< tDofTypeUnion.size(); Ik ++ )
+    {
+        tDofTypeNames = tDofTypeNames + tDofTypeToNameMap.find( tDofTypeUnion( Ik ) ) + ", ";
+    }
+
+    tDofTypeNames.pop_back();
+    tDofTypeNames.pop_back();
+
+    MORIS_LOG_SPEC("Nonlinear solver operates on DOF types: ", tDofTypeNames );
 
     mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
 }

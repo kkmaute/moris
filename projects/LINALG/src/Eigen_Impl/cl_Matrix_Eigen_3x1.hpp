@@ -93,7 +93,6 @@ public:
 
     }
 
-
     // template constructor
     template< typename A >
     Matrix(A const & X ):

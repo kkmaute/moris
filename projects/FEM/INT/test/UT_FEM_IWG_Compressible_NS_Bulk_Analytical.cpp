@@ -321,7 +321,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     Matrix<DDRMat> tJacobian;
 
     // loop over integration points
-    uint tNumGPs = tIntegPoints.n_cols();
+    // uint tNumGPs = tIntegPoints.n_cols();
     //for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
 for( uint iGP = 0; iGP < 1; iGP ++ )
     {
