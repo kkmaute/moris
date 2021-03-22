@@ -154,8 +154,6 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
-    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
@@ -166,6 +164,10 @@ set(HEADERS
     IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
+
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
+    IWG/fn_FEM_IWG_Compressible_NS.hpp
     
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
@@ -325,10 +327,6 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrix_Dof_Derivs.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
@@ -339,6 +337,14 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
+
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+    #IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrix_Dof_Derivs.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
+    IWG/fn_FEM_IWG_Compressible_NS_Dof_Check.cpp
+    IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices.cpp
+    IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices_Dof_Derivs.cpp
     
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
