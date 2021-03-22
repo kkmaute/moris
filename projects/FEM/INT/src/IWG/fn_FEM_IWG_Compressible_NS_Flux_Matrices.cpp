@@ -295,5 +295,235 @@ namespace moris
         }                    
 
         //------------------------------------------------------------------------------
+
+        void eval_KijYj( 
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
+                Matrix< DDRMat >                      & aKijYj )
+        {
+            // check inputs
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYjl_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
+
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            
+            // get number of Space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+            // initialize KijYj
+            aKijYj.set_size( tNumSpaceDims, tNumSpaceDims + 2, 0.0 );
+
+            // velocity term
+            aKijYj( { 0, tNumSpaceDims - 1 }, { 1, tNumSpaceDims } ) = 
+                    unfold_flat_tensor( aCM->flux( CM_Function_Type::WORK ) ).matrix_data();
+
+            // temperature term
+            aKijYj( { 0, tNumSpaceDims - 1 }, { tNumSpaceDims + 1, tNumSpaceDims + 1 } ) = 
+                    aCM->flux( CM_Function_Type::WORK ) - aCM->flux( CM_Function_Type::THERMAL );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void eval_KijYji( 
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
+                Matrix< DDRMat >                      & aKijYji )
+        {
+
+            // check inputs
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYji_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
+
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            
+            // get number of Space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+            // initialize KijYj
+            aKijYji.set_size( tNumSpaceDims + 2, 1, 0.0 );
+
+            // velocity residual
+            aKijYji( { 1, tNumSpaceDims } ) = 
+                    aCM->divflux( CM_Function_Type::MECHANICAL ).matrix_data();
+
+            // temperature residual
+            aKijYji( { tNumSpaceDims + 1, tNumSpaceDims + 1 } ) =
+                    aCM->divflux( CM_Function_Type::WORK ) - aCM->divflux( CM_Function_Type::THERMAL );
+        }
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void eval_KijYjDOF( 
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
+                const moris::Cell< MSI::Dof_Type >    & aDofType,
+                moris::Cell< Matrix< DDRMat > >       & aKijYjDOF )
+        {
+            // check inputs
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+                    "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - list of aResidualDofTypes not supported, see error messages above." );
+
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            
+            // get number of Space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+            // get number of bases for the elements used
+            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();  
+
+            // initialize dKijYj/dDOF, each cell entry represents the dof derivs of one column of Kij*Y,j
+            aKijYjDOF.reserve( tNumSpaceDims + 2 );
+            
+            // density / pressure residual - simply zero matrix
+            aKijYjDOF( 0 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
+
+            // velocity residual
+            // get the viscous stress Dof Deriv
+            Matrix< DDRMat > tdTaudDOF = aCM->dFluxdDOF( aDofType, CM_Function_Type::MECHANICAL );
+
+            // check that sizes match 
+            MORIS_ASSERT( ( tdTaudDOF.n_rows() == 3 * tNumSpaceDims - 3 ) and ( tdTaudDOF.n_cols() == tNumBases ),
+                    "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - size of tdTaudDOF incorrect" );
+
+            // fill cells
+            for ( uint iCol = 0; iCol < tNumSpaceDims; iCol++ ) 
+            {
+                aKijYjDOF( iCol + 1 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
+            }
+
+            // put dof derivatives of stress tensor entries into right places
+            if ( tNumSpaceDims == 2 )
+            {
+                // first column
+                aKijYjDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 0, 0 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 2, 2 }, { 0, tNumBases - 1 } );
+
+                // second column
+                aKijYjDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 2, 2 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 2 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 1, 1 }, { 0, tNumBases - 1 } );
+            } 
+            else if ( tNumSpaceDims == 3 )
+            {
+                // first column
+                aKijYjDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 0, 0 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 5, 5 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 1 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 4, 4 }, { 0, tNumBases - 1 } );
+
+                // second column
+                aKijYjDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 5, 5 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 2 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 1, 1 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 2 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 3, 3 }, { 0, tNumBases - 1 } );
+
+                // third column
+                aKijYjDOF( 3 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 4, 4 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 3 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 3, 3 }, { 0, tNumBases - 1 } );
+                aKijYjDOF( 3 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
+                        tdTaudDOF( { 2, 2 }, { 0, tNumBases - 1 } );
+            }
+            else
+            {
+                MORIS_ERROR( false, 
+                        "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - number of spatial dimensions != {2,3}" );
+            }
+
+            // temperature residual
+            aKijYjDOF( tNumSpaceDims + 1  ) = 
+                    aCM->dFluxdDOF( aDofType, CM_Function_Type::WORK ) - aCM->dFluxdDOF( aDofType, CM_Function_Type::THERMAL );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void eval_KijYjiDOF( 
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
+                const moris::Cell< MSI::Dof_Type >    & aDofType,
+                Matrix< DDRMat >                      & aKijYjiDOF )
+        {
+
+            // check inputs
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYji_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
+
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            
+            // get number of Space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+            // get number of bases for the elements used
+            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();     
+
+            // initialize KijYj
+            aKijYjiDOF.set_size( tNumSpaceDims + 2, tNumBases, 0.0 );
+
+            // velocity residual
+            aKijYjiDOF( { 1, tNumSpaceDims }, { 0, tNumBases - 1 } ) = 
+                    aCM->ddivfluxdu( aDofType, CM_Function_Type::MECHANICAL ).matrix_data();
+
+            // temperature residual
+            aKijYjiDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumBases - 1 } ) = 
+                    aCM->ddivfluxdu( aDofType, CM_Function_Type::WORK ) - aCM->ddivfluxdu( aDofType, CM_Function_Type::THERMAL );
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > unfold_flat_tensor( const Matrix< DDRMat > & aFlattenedTensor )
+        {
+            // get length of the flattened tensor
+            uint tLength = aFlattenedTensor.length();
+
+            switch ( tLength )
+            {
+                // 2D: convert 3x1 flattened tensor back to 2x2 matrix
+                case 3 :
+                {
+                    return {
+                            { aFlattenedTensor( 0 ), aFlattenedTensor( 2 ) },
+                            { aFlattenedTensor( 2 ), aFlattenedTensor( 1 ) } };
+                    break;
+                }
+ 
+                // 3D: convert 6x1 flattened tensor back to 3x3 matrix
+                case 6 :
+                {
+                    return {
+                            { aFlattenedTensor( 0 ), aFlattenedTensor( 5 ), aFlattenedTensor( 4 ) },
+                            { aFlattenedTensor( 5 ), aFlattenedTensor( 1 ), aFlattenedTensor( 3 ) },
+                            { aFlattenedTensor( 4 ), aFlattenedTensor( 3 ), aFlattenedTensor( 2 ) } };
+                    break;
+                }
+                
+                default:
+                {
+                    MORIS_ERROR( false, 
+                            "fn_FEM_IWG_Compressible_NS::unfold_flat_tensor - aFlattenedTensor must be a vector of length 3 (2D) or 6 (3D)." );
+                    return { { 0.0 } };
+                    break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */
