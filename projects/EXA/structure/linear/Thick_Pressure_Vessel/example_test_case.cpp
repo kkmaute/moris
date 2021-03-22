@@ -41,7 +41,7 @@ void check_results(
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
     // define reference node IDs
-    Cell<uint> tReferenceNodeId  = {6220,2082,25202,7873};
+    Cell<uint> tReferenceNodeId  = {6001,2082,5334,4555};
 
     if (gPrintReferenceValues)
     {
@@ -80,8 +80,9 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = {3,3,3,3};
-    Cell<uint> tReferenceNumNodes = {19723,6676,25468,8160};
-    Cell<uint> tReferenceNumElems = {40254,13396,45640,14274};
+    Cell<uint> tReferenceNumNodes = {19723,6676,19255,6156};
+    Cell<uint> tReferenceNumElems = {40254,13396,39168,12288};
+
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -104,8 +105,8 @@ void check_results(
 
     tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
     tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
-    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
-    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
+    tReferenceCoordinate.push_back( { {+1.875000000000000e-01},{ +7.499999999999998e-02},{+3.875000000000000e-01} } );
+    tReferenceCoordinate.push_back( { {+6.671327177817520e-02},{ +4.167132717781751e-01},{+4.999999999999999e-02} } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId(aTestCaseIndex) );
@@ -140,10 +141,10 @@ void check_results(
     // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
      Cell<Matrix< DDRMat >> tReferenceDisplacement;
 
-     tReferenceDisplacement.push_back( { {-1.279576517421459e+00},{-2.572539354814217e+00},{-1.696472211537414e-05} } );
+     tReferenceDisplacement.push_back( { {-1.279576517421547e+00},{-2.572539354814314e+00},{-1.696472211542917e-05} } );
      tReferenceDisplacement.push_back( { {-1.279576517421466e+00},{-2.572539354814230e+00},{-1.696472211536791e-05} } );
-     tReferenceDisplacement.push_back( { {-1.279576438846494e+00},{-2.572538953704380e+00},{-1.696494757037638e-05} } );
-     tReferenceDisplacement.push_back( { {-1.279576376895859e+00},{-2.572538984104519e+00},{-1.696482501575149e-05} } );
+     tReferenceDisplacement.push_back( { {-1.265145383256113e+00},{-5.058657674628515e-01},{-2.567315492891605e+00} } );
+     tReferenceDisplacement.push_back( { {-4.654107390524963e-01},{-2.880792909419323e+00},{-3.494429802007085e-01} } );
 
      Matrix< DDRMat > tActualDisplacement = {
              { tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 ) },
@@ -159,10 +160,10 @@ void check_results(
 
     // check temperature at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
     Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 1.996956411990344e+02 );
-    tReferenceTemperature.push_back( 1.996956411990309e+02 );
-    tReferenceTemperature.push_back( 1.996956418031047e+02 );
-    tReferenceTemperature.push_back( 1.996956412836340e+02 );
+    tReferenceTemperature.push_back( 1.996956411990335e+02 );
+    tReferenceTemperature.push_back( 1.996956411990300e+02 );
+    tReferenceTemperature.push_back( 1.485698250771404e+02 );
+    tReferenceTemperature.push_back( 9.988642380706278e+01 );
 
     real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 5, 0 );
 
@@ -176,10 +177,10 @@ void check_results(
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
     Cell<real> tReferenceIQI;
-    tReferenceIQI.push_back( 4.911266121905413e-01 );
+    tReferenceIQI.push_back( 4.911266121905375e-01 );
     tReferenceIQI.push_back( 4.911266121905526e-01 );
-    tReferenceIQI.push_back( 4.911265475060168e-01 );
-    tReferenceIQI.push_back( 4.911265475060048e-01 );
+    tReferenceIQI.push_back( 4.911031504660229e-01 );
+    tReferenceIQI.push_back( 4.908693345404075e-01 );
 
     real tActualIQI = tExoIO.get_global_variable(0, 0 );
 
