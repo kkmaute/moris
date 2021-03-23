@@ -103,7 +103,7 @@ void check_results(
     // define reference coordinates for node aNodeId
     Cell<Matrix< DDRMat >> tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
+    tReferenceCoordinate.push_back( { {+4.235886968816469e-01},{ +1.500000000000000e-01},{+2.358869688164689e-02} } );
     tReferenceCoordinate.push_back( { {+2.000000000000000e-01},{ +4.030968638358913e-01},{+0.000000000000000e+00} } );
     tReferenceCoordinate.push_back( { {+1.875000000000000e-01},{ +7.499999999999998e-02},{+3.875000000000000e-01} } );
     tReferenceCoordinate.push_back( { {+6.671327177817520e-02},{ +4.167132717781751e-01},{+4.999999999999999e-02} } );
@@ -141,7 +141,7 @@ void check_results(
     // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
      Cell<Matrix< DDRMat >> tReferenceDisplacement;
 
-     tReferenceDisplacement.push_back( { {-1.279576517421547e+00},{-2.572539354814314e+00},{-1.696472211542917e-05} } );
+     tReferenceDisplacement.push_back( { {-2.695215210566065e+00},{-9.574313848576491e-01},{-1.509815634898354e-01} } );
      tReferenceDisplacement.push_back( { {-1.279576517421466e+00},{-2.572539354814230e+00},{-1.696472211536791e-05} } );
      tReferenceDisplacement.push_back( { {-1.265145383256113e+00},{-5.058657674628515e-01},{-2.567315492891605e+00} } );
      tReferenceDisplacement.push_back( { {-4.654107390524963e-01},{-2.880792909419323e+00},{-3.494429802007085e-01} } );
@@ -160,7 +160,7 @@ void check_results(
 
     // check temperature at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
     Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 1.996956411990335e+02 );
+    tReferenceTemperature.push_back( 1.998065371606413e+02 );
     tReferenceTemperature.push_back( 1.996956411990300e+02 );
     tReferenceTemperature.push_back( 1.485698250771404e+02 );
     tReferenceTemperature.push_back( 9.988642380706278e+01 );
