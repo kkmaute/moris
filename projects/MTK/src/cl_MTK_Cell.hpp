@@ -212,7 +212,9 @@ namespace moris
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              */
             virtual moris::real
-            compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const;
+            compute_cell_measure_deriv(
+                    uint aLocalVertexID,
+                    uint aDirection) const;
 
             //------------------------------------------------------------------------------
 

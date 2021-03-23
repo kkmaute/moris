@@ -28,11 +28,10 @@ namespace moris
                 //##############################################
                 // Characteristic functions
                 //##############################################
+
                 virtual
                 bool
                 is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
-
-
 
                 //##############################################
                 // Cell/Vertex Access
@@ -79,6 +78,7 @@ namespace moris
                 // Local Coordinate Access
                 // (Pure Virtual)
                 //##############################################
+
                 virtual
                 moris::Matrix<moris::DDRMat>
                 get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
@@ -88,8 +88,9 @@ namespace moris
                  */
                 virtual
                 moris::Matrix<moris::DDRMat>
-                get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const  = 0;
+                get_vertex_local_coordinate_wrt_interp_cell(
+                        moris::mtk::Vertex const * aVertex,
+                        const mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER) const  = 0;
 
                 //##############################################
                 // Size Access
@@ -138,7 +139,6 @@ namespace moris
                 {
                     MORIS_ERROR(!this->is_trivial(),"get_void_cell_indices_in_cluster on trivial cluster is not allowed");
 
-
                     // number of cells in cluster
                     moris::uint tNumCells = this->get_num_void_cells();
 
@@ -159,7 +159,8 @@ namespace moris
 
                 virtual
                 moris::real
-                compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                compute_cluster_cell_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
                 {
                     moris::real tVolume = 0.0;
@@ -184,7 +185,8 @@ namespace moris
                 }
 
                 moris::real
-                compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                compute_cluster_cell_side_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
                 {
                     MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
@@ -311,7 +313,8 @@ namespace moris
                 moris::Matrix<moris::DDRMat>
                 get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
                 {
-                    MORIS_ASSERT(aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),"Integration Cell Cluster index out of bounds");
+                    MORIS_ASSERT(aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),
+                            "Integration Cell Cluster index out of bounds");
 
                     // get the integration cell of interest
                     moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()(aPrimaryCellClusterIndex);
@@ -339,9 +342,11 @@ namespace moris
                 moris::Matrix<moris::DDRMat>
                 get_void_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aVoidCellClusterIndex) const
                 {
-                    MORIS_ERROR(!this->is_trivial(),"get_void_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
+                    MORIS_ERROR(!this->is_trivial(),
+                            "get_void_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
 
-                    MORIS_ASSERT(aVoidCellClusterIndex < (moris_index)this->get_num_void_cells(),"Integration Cell Cluster index out of bounds");
+                    MORIS_ASSERT(aVoidCellClusterIndex < (moris_index)this->get_num_void_cells(),
+                            "Integration Cell Cluster index out of bounds");
 
                     // get the integration cell of interest
                     moris::mtk::Cell const * tIntegrationCell = this->get_void_cells_in_cluster()(aVoidCellClusterIndex);

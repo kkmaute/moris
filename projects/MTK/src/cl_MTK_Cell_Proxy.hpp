@@ -22,17 +22,16 @@ namespace moris
         {
             //------------------------------------------------------------------------------
         public:
-            moris::moris_id mId = gNoID;
+            moris::moris_id mId       = gNoID;
             moris::moris_index mIndex = gNoIndex;
-            moris::moris_id mOwner = gNoID;
-            //moris::uint              mNumVerts = MORIS_UNIT_MAX;
+            moris::moris_id mOwner    = gNoID;
 
             moris::Cell<Vertex *> mVertices;
-            moris::uint mSpatialDim = 3;
-            enum Geometry_Type mGeometryType = Geometry_Type::UNDEFINED;
+            moris::uint mSpatialDim               = 3;
+            enum Geometry_Type mGeometryType      = Geometry_Type::UNDEFINED;
             enum Interpolation_Order mInterpOrder = Interpolation_Order::UNDEFINED;
-            enum Integration_Order mIntegOrder = Integration_Order::UNDEFINED;
-            moris::mtk::Cell_Info *mCellInfo;
+            enum Integration_Order mIntegOrder    = Integration_Order::UNDEFINED;
+            moris::mtk::Cell_Info *mCellInfo      = nullptr;
 
             //------------------------------------------------------------------------------
 
