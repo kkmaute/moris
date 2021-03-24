@@ -95,7 +95,8 @@ public:
     //----------------------------------------------------------------
 
     moris_index
-    get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const;
+    get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
+                              const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER  ) const;
 
     //----------------------------------------------------------------
 
@@ -123,10 +124,6 @@ public:
     void
     add_vertex_to_map(moris_id aVertexId,
                       moris_index aVertexLocalIndex);
-
-    moris::real
-    compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY, const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
-
 
 };
 }

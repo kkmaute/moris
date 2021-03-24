@@ -1581,6 +1581,8 @@ namespace xtk
         
         MORIS_ERROR(this->check_for_all_cell_vertices_on_interface(),"All vertices of a cell on the interface");
 
+        MORIS_ERROR(this->check_for_degenerated_cells(),"Degenerated Cells Detected");
+
         // iterate through child meshes
         for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
         {
@@ -1691,6 +1693,44 @@ namespace xtk
 
     }
 
+
+    bool
+    Model::check_for_degenerated_cells( )
+    {
+        Cell<moris_index> tDegenerateCells; 
+
+        moris::real tDegenerateTol = 1e-12;
+
+        // iterate through child meshes
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            moris::Matrix< moris::IndexMat > const & tCellInds = tChildMesh.get_element_inds();
+
+            for(moris::uint iC = 0; iC < tCellInds.numel(); iC++)
+            {
+                moris::mtk::Cell & tCell = mBackgroundMesh.get_mtk_cell(tCellInds(iC));
+                moris::real tBulkMeasure = tCell.compute_cell_measure();
+
+                std::cout<<"tBulkMeasure = "<<tBulkMeasure<<std::endl;
+
+                if(tBulkMeasure < tDegenerateTol)
+                {
+                    tDegenerateCells.push_back(tCellInds(iC));
+                }
+            }
+        }
+
+        if(tDegenerateCells.size() > 0)
+        {
+            std::cout<<"Number of Degenerated Cells: "<<tDegenerateCells.size()<<std::endl;
+            return false;
+        }
+
+        return true;
+    }
     // ----------------------------------------------------------------------------------
 
     void
