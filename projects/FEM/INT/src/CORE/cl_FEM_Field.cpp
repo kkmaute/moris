@@ -115,6 +115,10 @@ namespace moris
                 {
                     this->save_nodal_values_to_hdf5( mOutputFilePath );
                 }
+                else if( tType == "exo" || tType == "e" )
+                {
+                    this->save_field_to_exodus( mOutputFilePath );
+                }
                 else
                 {
                     MORIS_ERROR( false,
