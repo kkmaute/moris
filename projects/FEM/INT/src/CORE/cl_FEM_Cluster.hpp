@@ -26,6 +26,7 @@
 #include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
 #include "cl_FEM_Interpolation_Element.hpp"       //FEM/INT/src
+#include "cl_FEM_Cluster_Measure.hpp"       //FEM/INT/src
 
 namespace moris
 {
@@ -64,6 +65,12 @@ namespace moris
                 // element type
                 Element_Type mElementType;
 
+                // cluster measures
+                moris::Cell< std::shared_ptr< Cluster_Measure > > mClusterMEA;
+
+                // cluster measure map
+                std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Master_Slave >, uint > mClusterMEAMap;
+
                 friend class Element_Bulk;
                 friend class Element_Sideset;
                 friend class Element_Double_Sideset;
@@ -75,22 +82,23 @@ namespace moris
             public:
                 //------------------------------------------------------------------------------
                 /**
-                 * trivial constructor
-                 */
-                Cluster(){};
-
-                /**
                  * constructor
                  * @param[ in ] aElementType    enum for element type (BULK, SIDESET, ...)
                  * @param[ in ] aMeshCluster    cluster pointer from mtk mesh
                  * @param[ in ] aSet            a fem set
                  * @param[ in ] aEquationObject pointer to the corresponding interpolation element
+                 * @param[ in ] aClusterMeasureTuples cell of cluster measure specifications
                  */
                 Cluster(
                         const Element_Type     aElementType,
                         const mtk::Cluster   * aMeshCluster,
                         Set                  * aSet,
                         MSI::Equation_Object * aEquationObject );
+
+                /**
+                 * trivial constructor for testing purpose
+                 */
+                Cluster();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -114,21 +122,7 @@ namespace moris
                  * @param[ out ] mMeshCluster a mesh cluster
                  */
                 Matrix< IndexMat > & get_side_ordinal_info(
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    switch( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                            return mMasterListOfSideOrdinals;
-
-                        case mtk::Master_Slave::SLAVE :
-                            return mSlaveListOfSideOrdinals;
-
-                        default:
-                            MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be master or slave." );
-                            return mMasterListOfSideOrdinals;
-                    }
-                }
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -261,9 +255,33 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the cluster volume
+                 * get cluster measure
                  */
-                real compute_volume();
+                std::shared_ptr< Cluster_Measure > & get_cluster_measure(
+                        fem::Measure_Type aMeasureType,
+                        mtk::Primary_Void aIsPrimary,
+                        mtk::Master_Slave aIsMaster );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get cluster measures
+                 */
+                moris::Cell< std::shared_ptr< Cluster_Measure > > & get_cluster_measures( )
+                {
+                    return mClusterMEA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * reset cluster measure
+                 */
+               void reset_cluster_measure();
+
+               //------------------------------------------------------------------------------
+               /**
+                * reset cluster measure derivative
+                */
+               void reset_cluster_measure_derivatives();
 
                 //------------------------------------------------------------------------------
                 /*
@@ -272,6 +290,14 @@ namespace moris
                 moris::real compute_cluster_cell_measure(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+
+                //------------------------------------------------------------------------------
+                /*
+                 * Compute the measure derivatives of the cells in the void or primary phase
+                 */
+                moris::Matrix< DDRMat > compute_cluster_cell_measure_derivative(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /*
@@ -284,6 +310,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /*
+                 * Compute the side measure derivatives in the void or primary phase on the side set.
+                 * Only valid on side cluster type mtk clusters
+                 */
+                moris::Matrix< DDRMat > compute_cluster_cell_side_measure_derivative(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /*
                  * Compute the element size (length) of the cells in the void or primary phase
                  */
                 moris::real compute_cluster_cell_length_measure(
@@ -292,11 +327,19 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /*
+                 * Compute the element size (length) derivatives of the cells in the void or primary phase
+                 */
+                moris::Matrix< DDRMat > compute_cluster_cell_length_measure_derivative(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /*
                  * Compute the ip element size (length) master or slave
                  * @param[ in ] aIsMaster enum for master or slave
                  */
                 moris::real compute_ip_cell_length_measure(
-                        		const mtk::Master_Slave aIsMaster ) const;
+                        const mtk::Master_Slave aIsMaster ) const;
 
                 //------------------------------------------------------------------------------
             protected:
