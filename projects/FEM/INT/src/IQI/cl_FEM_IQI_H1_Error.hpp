@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IQI_H1_Semi_Error.hpp
+ * cl_FEM_IQI_H1_Error.hpp
  *
  *  Created on: Feb 3, 2020
  *      Author: noel
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_H1_SEMI_ERROR_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_H1_SEMI_ERROR_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_H1_Error_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_H1_Error_HPP_
 
 #include <map>
 
@@ -24,7 +24,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IQI_H1_Semi_Error : public IQI
+        class IQI_H1_Error : public IQI
         {
                 //------------------------------------------------------------------------------
 
@@ -33,16 +33,41 @@ namespace moris
                 /*
                  * constructor
                  */
-                IQI_H1_Semi_Error();
+                IQI_H1_Error();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IQI_H1_Semi_Error(){};
+                ~IQI_H1_Error(){};
 
                 //------------------------------------------------------------------------------
             private:
+
+                enum class IQI_Property_Type
+                {
+                    L2_REFERENCE_VALUE,
+                    H1S_REFERENCE_VALUE,
+                    MAX_ENUM
+                };
+
+                //! initialization flag
+                bool mIsInitialized = false;
+
+                //! weight of L2 contribution
+                real mL2Weight;
+
+                //! weight of H1 semi-norm contribution
+                real mH1SWeight;
+
+                //! flag whether to skip computing dQIdu; skipping useful e.g. for level set regularization
+                bool mSkipComputeDQIDU = false;
+
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize parameters
+                 */
+                void initialize( );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -63,10 +88,7 @@ namespace moris
                  * compute the derivative of the quantity of interest wrt dof types
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_dQIdu( real aWStar )
-                {
-                    MORIS_ERROR( false, "IQI_H1_Semi_Error::compute_dQIdu() - not implemented." );
-                }
+                void compute_dQIdu( real aWStar );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -76,14 +98,11 @@ namespace moris
                  */
                 void compute_dQIdu(
                         moris::Cell< MSI::Dof_Type > & aDofType,
-                        Matrix< DDRMat >             & adQIdu )
-                {
-                    MORIS_ERROR( false, "IQI_H1_Semi_Error::compute_dQIdu() - not implemented IQI.");
-                }
+                        Matrix< DDRMat >             & adQIdu );
 
                 //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_H1_SEMI_ERROR_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_H1_Error_HPP_ */

@@ -650,6 +650,10 @@ public:
     void
     mark_edge_as_on_interface(moris::moris_index aEdgeIndex);
 
+    void
+    mark_facet_as_on_interface(moris_index aFacetCMIndex,
+                               moris_index aGeometryIndex);
+
     // ----------------------------------------------------------------------------------
  
     /*
@@ -743,8 +747,17 @@ public:
 
     // ----------------------------------------------------------------------------------
  
-    void
-    construct_double_sides_between_subphases();
+    /*
+    * Constructs the internal double side sets for this child mesh
+    * @return Whether there are interfaces between another child mesh
+    */
+    bool
+    construct_internal_double_sides_between_subphases();
+
+    // ----------------------------------------------------------------------------------
+    
+    bool
+    has_inter_child_mesh_interfaces();
 
     // ----------------------------------------------------------------------------------
  
@@ -829,7 +842,9 @@ public:
                                   Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const;
 
     // ----------------------------------------------------------------------------------
- 
+    
+    moris::Matrix< moris::DDSTMat  > const & 
+    get_cell_interface_side_ords();
     /*
      * Fora a given interface on geometry, pack the sides
      */
@@ -933,6 +948,8 @@ private:
 
     bool                             mHasCoincidentEdges;
     moris::Matrix< moris::IndexMat > mEdgeOnInterface;
+    
+    bool mHasInterChildMeshInterface;
 
     // Phase member variables -----------------------------
     bool                                   mHasPhaseInfo;

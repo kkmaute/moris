@@ -130,11 +130,14 @@ Side_Cluster_STK::get_vertices_local_coordinates_wrt_interp_cell(const mtk::Mast
 //----------------------------------------------------------------
 
 moris::moris_index
-Side_Cluster_STK::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const
+Side_Cluster_STK::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
+                                            const mtk::Master_Slave    aIsMaster ) const
 {
 
      return this->get_vertex_cluster_local_index(aVertex->get_id());
 }
+
+
 
 //----------------------------------------------------------------
 
@@ -201,15 +204,7 @@ Side_Cluster_STK::add_vertex_to_map(moris_id aVertexId,
     mVertexIdToLocalIndex[aVertexId] = aVertexLocalIndex;
 }
 
-//----------------------------------------------------------------
-moris::real
-Side_Cluster_STK::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid,
-                                               const mtk::Master_Slave aIsMaster      ) const
-{
-    MORIS_ERROR(aPrimaryOrVoid==mtk::Primary_Void::INTERP," Cluster cell measure only supported on interpolation cell for this type of side cluster. ");
-    return mInterpolationCell->compute_cell_measure();
-}
-//----------------------------------------------------------------
+
 
 }
 }

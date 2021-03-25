@@ -153,6 +153,10 @@ namespace moris
         enum class Field_Type
         {
                 FIELD_1,
+                FIELD_2,
+                FIELD_3,
+                FIELD_4,
+                FIELD_5,
                 UNDEFINED
         };
 
@@ -161,6 +165,10 @@ namespace moris
             moris::map< std::string, Field_Type > tFieldTypeMap;
 
             tFieldTypeMap["FIELD_1"]   = Field_Type::FIELD_1;
+            tFieldTypeMap["FIELD_2"]   = Field_Type::FIELD_2;
+            tFieldTypeMap["FIELD_3"]   = Field_Type::FIELD_3;
+            tFieldTypeMap["FIELD_4"]   = Field_Type::FIELD_4;
+            tFieldTypeMap["FIELD_5"]   = Field_Type::FIELD_5;
             tFieldTypeMap[""]          = Field_Type::UNDEFINED;
             return tFieldTypeMap;
         }

@@ -16,6 +16,7 @@
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 
 // MTK
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -37,31 +38,32 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell<Cell<ParameterList>> aParameterLists,
+                Cell<Cell<ParameterList>>   aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary,
-                std::shared_ptr< mtk::Mesh_Manager >  aMTKMesh)
-
-                // Phase table
-                : mPhaseTable( create_phase_table(aParameterLists, aLibrary) )
-
-                // Level set options
-                , mIsocontourThreshold( aParameterLists(0)(0).get<real>("isocontour_threshold") )
-                , mIsocontourTolerance( aParameterLists(0)(0).get<real>("isocontour_tolerance") )
-                , mIntersectionTolerance( aParameterLists(0)(0).get<real>("intersection_tolerance") )
-
-                // Requested IQIs
-                , mRequestedIQIs( string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") ) )
-
-                // Library
-                , mLibrary(aLibrary)
-
-                // Geometries
-                , mGeometryFieldFile( aParameterLists(0)(0).get<std::string>("geometry_field_file") )
-                , mOutputMeshFile( aParameterLists(0)(0).get<std::string>("output_mesh_file") )
-                , mTimeOffset( aParameterLists(0)(0).get<real>("time_offset") )
+                mtk::Mesh*                  aMesh)
+        : mPhaseTable(create_phase_table(aParameterLists, aLibrary))
         {
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
+
+            // Level set options
+            mIsocontourThreshold   = aParameterLists(0)(0).get<real>("isocontour_threshold");
+            mIsocontourTolerance   = aParameterLists(0)(0).get<real>("isocontour_tolerance");
+            mIntersectionTolerance = aParameterLists(0)(0).get<real>("intersection_tolerance");
+
+            MORIS_ERROR(mIsocontourTolerance > 1e-14,"Isocontour tolerance should not be exactly 0. Pick something greater than 1e-14");
+            MORIS_ERROR(mIntersectionTolerance > 1e-14,"Intersection tolerance should not be exactly 0. Pick something greater than 1e-14");
+
+            // Requested IQIs
+            mRequestedIQIs = string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") );
+
+            // Set library
+             mLibrary = aLibrary;
+
+            // Geometries
+            mGeometryFieldFile = aParameterLists(0)(0).get<std::string>("geometry_field_file");
+            mOutputMeshFile    = aParameterLists(0)(0).get<std::string>("output_mesh_file");
+            mTimeOffset        = aParameterLists(0)(0).get<real>("time_offset");
 
             // Read ADVs
             if ( aParameterLists(0)(0).get<sint>("advs_size") )
@@ -82,9 +84,9 @@ namespace moris
                 MORIS_ERROR ( isvector(mUpperBounds), "ADV upper bounds need to be of type vector.\n");
 
                 // ensure that advs and bounds are column vectors
-                mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows()        == 1 ? trans(mInitialPrimitiveADVs) : mInitialPrimitiveADVs;
-                mLowerBounds = mLowerBounds.n_rows() == 1 ? trans(mLowerBounds) : mLowerBounds;
-                mUpperBounds = mUpperBounds.n_rows() == 1 ? trans(mUpperBounds) : mUpperBounds;
+                mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows() == 1 ? trans(mInitialPrimitiveADVs) : mInitialPrimitiveADVs;
+                mLowerBounds          = mLowerBounds.n_rows()          == 1 ? trans(mLowerBounds) : mLowerBounds;
+                mUpperBounds          = mUpperBounds.n_rows()          == 1 ? trans(mUpperBounds) : mUpperBounds;
             }
 
             // Geometries
@@ -92,7 +94,7 @@ namespace moris
                     aParameterLists(1),
                     mInitialPrimitiveADVs,
                     mLibrary,
-                    aMTKMesh == nullptr ? nullptr : aMTKMesh->get_interpolation_mesh(0));
+                    aMesh);
 
             MORIS_ERROR(mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp");
@@ -146,7 +148,15 @@ namespace moris
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
 
-            this->distribute_advs(aMesh);
+            MORIS_ERROR(mIsocontourTolerance > 1e-14,"Isocontour tolerance should not be exactly 0. Pick something greater than 1e-14");
+            MORIS_ERROR(mIntersectionTolerance > 1e-14,"Intersection tolerance should not be exactly 0. Pick something greater than 1e-14");
+
+
+            mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
+                    aMesh->get_mesh_type(),
+                    aMesh);
+            mtk::Mesh_Pair tMeshPair(aMesh, tIntegrationMesh);
+            this->distribute_advs(tMeshPair);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -273,7 +283,9 @@ namespace moris
                         tMax = std::max(tMax, tEval);
                     }
 
-                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
+                                     (std::abs(tMax) < mIsocontourTolerance) or
+                                     (std::abs(tMin) < mIsocontourTolerance);
 
                     break;
                 }
@@ -501,6 +513,12 @@ namespace moris
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
+                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    {
+
+                        tGeomProxIndex = 1;
+                    }
+
                     mVertexGeometricProximity(aNewNodeIndices(tNode)).set_geometric_proximity(tGeomProxIndex,tGeometryIndex);
                 }
             }
@@ -536,6 +554,21 @@ namespace moris
             }
 
             return mPhaseTable.get_phase_index(tGeometrySigns);
+        }
+
+        moris_index 
+        Geometry_Engine::is_interface_vertex(moris_index aNodeIndex,
+                                             moris_index aGeometryIndex)
+        {
+            moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)aGeometryIndex);
+
+            if(tProxIndex == 1)
+            {
+                return true;
+            }
+
+            return false;
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -626,6 +659,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Cell<std::shared_ptr<mtk::Field>> Geometry_Engine::get_mtk_fields()
+        {
+            Cell<std::shared_ptr<mtk::Field>> tFields(mGeometries.size() + mProperties.size());
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+            return tFields;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Geometry_Engine::get_field_value(
                 uint                  aFieldIndex,
                 uint                  aNodeIndex,
@@ -646,16 +689,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
+        void Geometry_Engine::create_pdvs(mtk::Mesh_Pair aMeshPair)
         {
             // Tracer
             Tracer tTracer( "GEN", "Create PDVs" );
 
-            // Get meshes
-            mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
-            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshManager->get_interpolation_mesh(0);
+            // Get meshes using first mesh on mesh manager: Lagrange mesh with numbered aura (default)
+            mtk::Integration_Mesh* tIntegrationMesh     = aMeshPair.get_integration_mesh();
+            mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
-            // Initialize PDV type groups and mesh set info
+            // Initialize PDV type groups and mesh set info from integration mesh
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPDVTypeGroup(1);
             Cell<Matrix<DDUMat>> tMeshSetIndicesPerProperty(mProperties.size());
@@ -673,26 +716,37 @@ namespace moris
                 uint tNumSetIndices = tMeshSetIndicesPerProperty(tPropertyIndex).length();
                 tMeshSetIndicesPerProperty(tPropertyIndex).resize(tNumSetIndices + tMeshSetNames.size(), 1);
 
-                for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
+                // number of mesh sets for current property
+                uint tNumberOfSets = tMeshSetIndicesPerProperty(tPropertyIndex).length();
+
+                // Set for each property index the list of mesh set indices
+                for (uint tIndex = tNumSetIndices; tIndex < tNumberOfSets; tIndex++)
                 {
                     tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
                 }
 
-                // Assign PDV types
-                for (uint tIndex = 0; tIndex < tMeshSetIndicesPerProperty(tPropertyIndex).length(); tIndex++)
+                // Assign PDV types to each mesh set
+                for (uint tIndex = 0; tIndex < tNumberOfSets; tIndex++)
                 {
-                    tPdvTypes(tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex)).push_back(tPDVTypeGroup);
+                    uint tMeshSetIndex = tMeshSetIndicesPerProperty(tPropertyIndex)(tIndex);
+
+                    tPdvTypes(tMeshSetIndex).push_back(tPDVTypeGroup);    // why not use mProperties(tPropertyIndex)->get_pdv_type()
                 }
             }
 
+            // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
+            mPdvHostManager.set_communication_table( tCommTable );
+
+            // Get and save global to local vertex maps from IP and IG meshes
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
                     tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
             std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
                     tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
 
-            mPdvHostManager.set_communication_table( tCommTable );
-            mPdvHostManager.set_vertex_global_to_local_maps( tIPVertexGlobaToLocalMap, tIGVertexGlobaToLocalMap);
+            mPdvHostManager.set_vertex_global_to_local_maps(
+                    tIPVertexGlobaToLocalMap,
+                    tIGVertexGlobaToLocalMap);
 
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
@@ -712,7 +766,11 @@ namespace moris
                 // Assign PDVs
                 if (mProperties(tPropertyIndex)->is_interpolation_pdv())
                 {
+                    // PDV type and mesh set names/indices from parameter list
+                    tPDVTypeGroup(0) = mProperties(tPropertyIndex)->get_pdv_type();
+
                     mProperties(tPropertyIndex)->add_nodal_data(tInterpolationMesh);
+
                     this->assign_property_to_pdv_hosts(
                             mProperties(tPropertyIndex),
                             tPDVTypeGroup(0),
@@ -735,13 +793,15 @@ namespace moris
         {
             // Reserve of temporary pdv type list
             Cell< enum PDV_Type > tTemporaryPdvTypeList;
+
             tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
+
             Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(PDV_Type::UNDEFINED) + 1), 1, 0 );
 
             // PDV type map
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
-            // Loop over properties to build parallel consitent pdv list
+            // Loop over properties to build parallel consistent pdv list
              for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
              {
                  // PDV type and mesh set names/indices from parameter list
@@ -768,7 +828,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::distribute_advs(mtk::Interpolation_Mesh* aMesh)
+        void Geometry_Engine::distribute_advs(mtk::Mesh_Pair aMeshPair)
         {
             // Tracer
             Tracer tTracer("GEN", "Distribute ADVs");
@@ -777,6 +837,9 @@ namespace moris
             Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
             std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
             std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+
+            // Interpolation mesh
+            mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
 
             //------------------------------------//
             // Determine owned and shared ADV IDs //
@@ -799,9 +862,10 @@ namespace moris
             // Owned and shared ADVs per field
             Cell<Matrix<DDUMat>> tSharedCoefficientIndices(tFields.size());
             Cell<Matrix<DDSMat>> tSharedADVIds(tFields.size());
+            Matrix<DDUMat> tAllOffsetIDs(tFields.size(), 1);
 
             // Get all node indices from the mesh (for now)
-            uint tNumNodes = aMesh->get_num_nodes();
+            uint tNumNodes = tMesh->get_num_nodes();
             Matrix<DDUMat> tNodeIndices(tNumNodes, 1);
             for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
             {
@@ -809,7 +873,7 @@ namespace moris
             }
 
             // Loop over all geometries to get number of new ADVs
-            uint tOffsetID = tPrimitiveADVIds.length(); // TODO save this offset for later
+            uint tOffsetID = tPrimitiveADVIds.length();
             for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
             {
                 // Determine if level set will be created
@@ -819,12 +883,12 @@ namespace moris
                     uint tDiscretizationMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
 
                     // Get owned coefficients
-                    Matrix<DDUMat> tOwnedCoefficients = aMesh->get_owned_discretization_coefficient_indices(
+                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
                             tNodeIndices,
                             tDiscretizationMeshIndex);
 
                     // Get shared coefficients
-                    Matrix<DDUMat> tSharedCoefficients = aMesh->get_shared_discretization_coefficient_indices(
+                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
                             tNodeIndices,
                             tDiscretizationMeshIndex);
 
@@ -843,7 +907,7 @@ namespace moris
                     // Add owned coefficients to lists
                     for (uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++)
                     {
-                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                        sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
                                 tOwnedCoefficients(tOwnedCoefficient),
                                 EntityRank::BSPLINE,
                                 tDiscretizationMeshIndex);
@@ -857,7 +921,7 @@ namespace moris
                     tSharedCoefficientIndices(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
                     for (uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++)
                     {
-                        sint tADVId = tOffsetID + aMesh->get_glb_entity_id_from_entity_loc_index(
+                        sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
                                 tSharedCoefficients(tSharedCoefficient),
                                 EntityRank::BSPLINE,
                                 tDiscretizationMeshIndex);
@@ -866,7 +930,8 @@ namespace moris
                     }
 
                     // Update offset based on maximum ID TODO check the info being provided here
-                    tOffsetID += aMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
+                    tAllOffsetIDs(tFieldIndex) = tOffsetID;
+                    tOffsetID += tMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
                 }
             }
 
@@ -925,14 +990,13 @@ namespace moris
                     // Always have shape sensitivities if B-spline field
                     mShapeSensitivities = true;
 
-                    // Create B-spline geometry FIXME Multiple B-spline fields
+                    // Create B-spline geometry
                     mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                             tNewOwnedADVs,
                             tSharedCoefficientIndices(tGeometryIndex),
-                            tOwnedADVIds,
                             tSharedADVIds(tGeometryIndex),
-                            tPrimitiveADVIds.length(),
-                            aMesh,
+                            tAllOffsetIDs(tGeometryIndex),
+                            aMeshPair,
                             mGeometries(tGeometryIndex));
                 }
 
@@ -941,7 +1005,7 @@ namespace moris
                 {
                     // Create stored geometry
                     mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
-                            aMesh,
+                            tMesh,
                             mGeometries(tGeometryIndex));
                 }
             }
@@ -952,14 +1016,13 @@ namespace moris
                 // Convert to B-spline field
                 if (mProperties(tPropertyIndex)->intended_discretization())
                 {
-                    // Create B-spline property FIXME Multiple B-spline fields
+                    // Create B-spline property
                     mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
                             tNewOwnedADVs,
                             tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
-                            tOwnedADVIds,
                             tSharedADVIds(mGeometries.size() + tPropertyIndex),
-                            tPrimitiveADVIds.length(),
-                            aMesh,
+                            tAllOffsetIDs(mGeometries.size() + tPropertyIndex),
+                            aMeshPair,
                             mProperties(tPropertyIndex));
                 }
             }
@@ -1053,7 +1116,7 @@ namespace moris
             }
 
             // Reset mesh information
-            this->reset_mesh_information(aMesh);
+            this->reset_mesh_information(tMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1258,14 +1321,12 @@ namespace moris
                 Cell<Cell<Cell<PDV_Type>>>    aPdvTypes)
         {
             // Get information from integration mesh
-            //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
             uint tNumSets  = aPdvTypes.size();
-            uint tNumNodes = aInterpolationMesh->get_num_nodes();
 
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
             Cell<Matrix<DDSMat>> tNodeIdsPerSet(tNumSets);
             Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
-            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
+            Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(tNumSets);
 
             // Determine if we need to do the below loop
             bool tDoJankLoop = false;
@@ -1277,52 +1338,72 @@ namespace moris
                 }
             }
 
+            // Determine the indices, IDs, and ownerships of base cell nodes in each set of integration mesh
+            // List has redundant entries
             if (tDoJankLoop)
             {
-                // Loop through sets
+                // Loop through sets in integration mesh
                 for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
                 {
                     uint tCurrentNode = 0;
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
 
+                    // Get number of clusters on set
+                    uint tNumberOfClusters = tSet->get_num_clusters_on_set();
+
                     // Clusters per set
-                    for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
+                    for (uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++)
                     {
+                        // get pointer to cluster
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
-                        // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
-                        Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_inds();
-                        Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_ids();
-                        Matrix<IndexMat> tNodeOwnersInCluster  = tCluster->get_interpolation_cell().get_base_cell()->get_vertex_owners();
+                        // Indices, IDs, and ownership of base cell nodes in cluster
+                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell().get_base_cell();
 
-                        // FIXME don't undersand this resize. it's really slow
-                        tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
-                        tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
-                        tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
+                        Matrix<IndexMat> tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
+                        Matrix<IndexMat> tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
+                        Matrix<IndexMat> tNodeOwnersInCluster      = tBaseCell->get_vertex_owners();
+                        Matrix<DDRMat>   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
 
-                        // FIXME we have nodes up to 8 tims in this list in 3d
-                        for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                        // number of base nodes in cluster
+                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                        // number of spatial dimension
+                        uint tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                        // check for consistency
+                        MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
+                                "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
+
+                        // FIXME don't understand this resize. it's really slow
+                        tNodeIndicesPerSet(tMeshSetIndex)    .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeIdsPerSet(tMeshSetIndex)        .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeOwnersPerSet(tMeshSetIndex)     .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                        tNodeCoordinatesPerSet(tMeshSetIndex).resize(tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim);
+
+                        // FIXME we have nodes up to 8 times in this list in 3d
+                        for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
                         {
-                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
-                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
-                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
+                            tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)      = tNodeIndicesInCluster(tNodeInCluster);
+                            tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)          = tNodeIdsInCluster(tNodeInCluster);
+                            tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode)       = tNodeOwnersInCluster(tNodeInCluster);
+
+                            tNodeCoordinatesPerSet(tMeshSetIndex).get_row(tCurrentNode) =
+                                    tNodeCoordinatesInCluster.get_row(tNodeInCluster);
+
+                            tCurrentNode++;
                         }
                     }
                 }
             }
 
-            // Get node coordinates
-            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
-            {
-                tNodeCoordinates(tNodeIndex) = aInterpolationMesh->get_node_coordinate(tNodeIndex);
-            }
-
-            // Create hosts
+            // Create hosts of nodes of non-unzipped interpolation nodes
             mPdvHostManager.create_interpolation_pdv_hosts(
                     tNodeIndicesPerSet,
                     tNodeIdsPerSet,
                     tNodeOwnersPerSet,
-                    tNodeCoordinates,
+                    tNodeCoordinatesPerSet,
                     aPdvTypes);
         }
 
@@ -1369,7 +1450,6 @@ namespace moris
             // Set PDV types
             mPdvHostManager.set_integration_pdv_types(tPdvTypes);
             mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1433,6 +1513,11 @@ namespace moris
                 for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
                 {            
                     real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
+
+                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    {
+                        tVertGeomVal = 1;
+                    }
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 

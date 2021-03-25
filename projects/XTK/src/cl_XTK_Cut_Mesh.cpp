@@ -893,8 +893,6 @@ namespace xtk
 
         mNumberOfChildrenMesh = mChildrenMeshes.size();
 
-        std::cout<<"Num Subphase = "<<this->get_num_subphases()<<std::endl;
-
         // recount the mesh
         mConsistentCounts = false;
         this->get_entity_counts();

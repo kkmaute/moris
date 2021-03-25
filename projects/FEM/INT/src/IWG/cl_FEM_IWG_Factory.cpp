@@ -30,7 +30,6 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.hpp"
-//Incompressible solid
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp"
 //Incompressible fluid
@@ -43,6 +42,8 @@
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
 //Compressible Fluid
+#include "cl_FEM_IWG_Compressible_NS_Bulk.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Boundary.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp"
@@ -66,6 +67,7 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
 //Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
+#include "cl_FEM_IWG_Struc_Stress.hpp"
 
 namespace moris
 {
@@ -173,6 +175,9 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
 
+                case IWG_Type::STRUC_VON_MISES_STRESS :
+                    return std::make_shared< IWG_Struc_Stress >( Stress_Type::VON_MISES_STRESS );
+
                     //------------------------------------------------------------------------------
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK :
@@ -211,7 +216,15 @@ namespace moris
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
 
-                    //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+
+                case IWG_Type::COMPRESSIBLE_NS_BULK :
+                    return std::make_shared< IWG_Compressible_NS_Bulk >();
+
+                case IWG_Type::COMPRESSIBLE_NS_BOUNDARY :
+                    return std::make_shared< IWG_Compressible_NS_Boundary >();
+
+                //------------------------------------------------------------------------------
 
                 case IWG_Type::COMPRESSIBLE_NS_DENSITY_BULK :
                     return std::make_shared< IWG_Compressible_NS_Density_Bulk >();

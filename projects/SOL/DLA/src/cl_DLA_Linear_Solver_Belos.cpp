@@ -85,7 +85,7 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
         Linear_Problem *  aLinearSystem,
         const moris::sint aIter )
 {
-    Tracer tTracer( "LinearSolver", "Belos", "Solve" );
+    Tracer tTracer( "LinearAlgorithm", "Belos", "Solve" );
 
     this->set_solver_internal_parameters();
     mLinearSystem = aLinearSystem;

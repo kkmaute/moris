@@ -41,6 +41,7 @@ cl_MTK_Mesh_Checker.hpp
 cl_MTK_Mesh_Tools.hpp
 cl_MTK_Mesh.hpp
 cl_MTK_Node_Sets_Info.hpp
+cl_MTK_Periodic_Boundary_Condition_Helper.hpp
 cl_MTK_Scalar_Field_Info.hpp
 cl_MTK_Set.hpp
 cl_MTK_Sets_Info.hpp
@@ -166,9 +167,10 @@ cl_MTK_Cell_Info_Quad9.cpp
 cl_MTK_Cell_Info_Quad16.cpp
 cl_MTK_Mesh_Core.cpp
 cl_MTK_Mesh_Manager.cpp
+cl_MTK_Periodic_Boundary_Condition_Helper.cpp
 cl_MTK_Double_Side_Cluster.cpp
 cl_MTK_Side_Cluster.cpp
-st_MTK_Mesh_Pair.cpp
+    cl_MTK_Mesh_Pair.cpp
 
 IP/cl_MTK_Interpolation_Function_Factory.cpp
 IP/cl_MTK_Interpolation_Rule.cpp

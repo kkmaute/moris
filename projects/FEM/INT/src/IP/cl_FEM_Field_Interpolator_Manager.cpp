@@ -111,12 +111,14 @@ namespace moris
             if( mIPGeometryInterpolator != nullptr && mGeometryInterpolatorOwned )
             {
                 delete mIPGeometryInterpolator;
+                mIPGeometryInterpolator = nullptr;
             }
 
             // delete the IG geometry interpolator pointer
             if( mIGGeometryInterpolator != nullptr && mGeometryInterpolatorOwned )
             {
                 delete mIGGeometryInterpolator;
+                mIGGeometryInterpolator = nullptr;
             }
         }
 
@@ -281,10 +283,20 @@ namespace moris
                     "Field_Interpolator_Manager::create_geometry_interpolators - geometry interpolators already initialized");
 
             // create a geometry interpolator for IP cells
-            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false, false );
+            mIPGeometryInterpolator = new Geometry_Interpolator(
+                tIPGeometryInterpolationRule,
+                false,
+                false );
 
             // create a geometry interpolator for IG cells
-            mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tIsSide, tIsTimeSide );
+            // IG interpolation requires knowledge about  the IP Element in 
+            // order to have an appropriate mapping for integration points, 
+            // tIPGeometryInterpolationRule
+            mIGGeometryInterpolator = new Geometry_Interpolator(
+                tIGGeometryInterpolationRule,
+                tIPGeometryInterpolationRule, 
+                tIsSide,
+                tIsTimeSide );
 
             // set flag that Field_Interpolator_Manager owns pointers to GeometryInterpolators
             mGeometryInterpolatorOwned = true;

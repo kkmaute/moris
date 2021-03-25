@@ -48,7 +48,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
         Model::Model(
-                mtk::Mesh_Manager                 * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const uint                          aBSplineIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo,
                 const moris_index                   aMeshPairIndex,
@@ -156,7 +156,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         Model::Model(
-                mtk::Mesh_Manager*                  aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager >aMeshManager,
                 const uint                          aBSplineIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo,
                 MSI::Design_Variable_Interface    * aDesignVariableInterface,
@@ -249,7 +249,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
         {
-            mMeshManager = aMTKPerformer.get();
+            mMeshManager = aMTKPerformer;
         }
 
         //------------------------------------------------------------------------------
@@ -279,9 +279,11 @@ namespace moris
                         mLibrary,
                         mDesignVariableInterface );
 
-                //mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-
-                mDesignVariableInterface->set_equation_model( mEquationModel );
+                // set the equation model if using design variables
+                if (mDesignVariableInterface != nullptr)
+                {
+                    mDesignVariableInterface->set_equation_model( mEquationModel );
+                }
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -294,7 +296,7 @@ namespace moris
                 mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
                 // Does not work with STK
-                MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
+                // MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
 
                 // build the model solver interface
 
@@ -477,7 +479,8 @@ namespace moris
                 mOutputManager->end_writing( aVisMeshIndex );
             }
 
-            //mEquationModel->populate_fields();
+            mEquationModel->populate_fields();
+
         }
 
     } /* namespace mdl */

@@ -27,6 +27,8 @@ class Side_Cluster;
 class Interpolation_Cell_Unzipped;
 class Ghost_Stabilization;
 class Enrichment;
+class Child_Mesh;
+class Coincident_Interface_Construction;
 
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
@@ -459,6 +461,33 @@ private:
     create_interface_double_side_sets_and_clusters();
 
     //------------------------------------------------------------------------------
+    void
+    construct_internal_double_side_interface_in_mesh(Child_Mesh * aChildMesh);
+
+    //------------------------------------------------------------------------------
+
+    void
+    construct_double_side_interface_between_child_meshes(Coincident_Interface_Construction & aCoincInterfaceStruct);
+
+    //------------------------------------------------------------------------------
+
+    void
+    collect_facets_on_interface_between_child_meshes(Coincident_Interface_Construction & aCoincInterfaceStruct);
+
+
+    void
+    construct_interface_double_side_clusters_between_child_meshs(Coincident_Interface_Construction & aCoincInterfaceStruct);
+
+    void
+    add_side_to_cluster(std::shared_ptr<xtk::Side_Cluster> aSideCluster,
+                        moris_index                        aCellIndex,
+                        moris_index                        aSideOrdinal);
+
+    void
+    setup_side_cluster_vertices(std::shared_ptr<xtk::Side_Cluster> aMasterSideCluster,
+                                std::shared_ptr<xtk::Side_Cluster> aSlaveSideCluster);
+
+    //------------------------------------------------------------------------------
 
     moris::Cell<std::string>
     split_set_name_by_bulk_phase(std::string aBaseName);
@@ -572,6 +601,35 @@ private:
                  enum moris::EntityRank   aEntityRank);
 
 };
+
+struct Coincident_Interface_Construction
+{
+        Cell<uint>       mInterCMInterfaces;
+        Cell<Cell<uint>> mChildCellLocalIndex;
+        Cell<Cell<uint>> mChildCellInterfaceOrd;
+        Cell<Cell<uint>> mSubphaseIndex;
+        
+        // data used keep track of where everything is in the above data
+        Cell<std::unordered_map<moris_index,moris_index>> mCellIndsLocation;  // outer cell - geometry index
+        Cell<Cell<moris_index>>                           mCellIndices;       // outer cell - geometry index, inner -  index relative to inner cell of mChildCellLocalIndex
+        Cell<Cell<moris_index>>                           mCellChildMeshIndex;// outer cell - geometry index, inner - index relative to mInterCMInterfaces
+
+        // Organized by subphase index
+        std::unordered_map<moris_index,moris_index> mSubphaseLocIndex;
+        Cell<Cell<Child_Mesh *>>                    mChildMesh;
+        Cell<Cell<moris_index>>                     mSubphaseCellsInds;
+        Cell<Cell<moris_index>>                     mSubphaseSideOrds;
+        Cell<Cell<Child_Mesh *>>                    mNeighborChildMesh;
+        Cell<Cell<moris_index>>                     mSubphaseNeighborCellInds;
+        Cell<Cell<moris_index>>                     mSubphaseNeighborSideOrds;
+        Cell<Cell<moris_index>>                     mSubphaseNeighborCellSubphaseInd;
+
+
+        // External boundary data
+        
+        
+};
+
 }
 
 

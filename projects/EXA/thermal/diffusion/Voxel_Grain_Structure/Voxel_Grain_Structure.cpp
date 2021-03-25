@@ -246,7 +246,6 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "multigrid",                   isMultigrid );
             tParameterlist( 0 )( 0 ).set( "verbose",                     true );
             tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",      false );
-            tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ghost_mesh",false );
             tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",   true );
         }
 
@@ -258,7 +257,8 @@ extern "C"
 
             tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
             tParameterlist( 0 )( 0 ).set( "intersection_mode", "LEVEL_SET");
-            tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1E-10);
+            // tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1E-10);
+            tParameterlist( 0 )( 0 ).set("isocontour_tolerance", 1e-12);   
             tParameterlist( 0 )( 0 ).set( "number_of_phases", (sint)(tNumBulkPhases+1));
             tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index");
 

@@ -91,6 +91,22 @@ namespace moris
                 }
             }
 
+            // reset material models
+            for ( const std::shared_ptr< Material_Model > & tMM : mMasterMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+            for ( const std::shared_ptr< Material_Model > & tMM : mSlaveMM )
+            {
+                if( tMM != nullptr )
+                {
+                    tMM->reset_eval_flags();
+                }
+            }
+
             // reset constitutive models
             for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
             {

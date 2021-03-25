@@ -181,6 +181,25 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        Matrix<DDRMat>
+        Cell_Info_Tri3::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
+        {
+            switch (aVertexOrdinal)
+            {
+                case 0: { return {{+1.000000000000000e+00,  0.000000000000000e+00,  0.000000000000000e+00}}; break; }
+                case 1: { return {{ 0.000000000000000e+00, +1.000000000000000e+00,  0.000000000000000e+00}}; break; }
+                case 2: { return {{ 0.000000000000000e+00,  0.000000000000000e+00, +1.000000000000000e+00}}; break; }
+                default:
+                {
+                    MORIS_ERROR(0,"Invalid vertex ordinal specified");
+                    return moris::Matrix<moris::DDRMat>(0,0);
+                    break;
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
+
         moris::real Cell_Info_Tri3::compute_cell_size_special(moris::mtk::Cell const *aCell) const
         {
             // cell coordinates

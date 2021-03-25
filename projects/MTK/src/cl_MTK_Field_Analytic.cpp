@@ -13,7 +13,7 @@ namespace moris
                 moris::Cell<Analytic_Field_Function>       aFunction,
                 moris::Cell<Analytic_Derivative_Function>  aDerivativeFunction,
                 moris::Matrix<DDRMat>              const & aCoefficients,
-                Mesh_Pair                                * aMeshPairs,
+                Mesh_Pair                                  aMeshPairs,
                 uint                               const & aNumberOfFields)
         : Field(aMeshPairs,aNumberOfFields),
           mAnalyticFieldValueFunction(aFunction),
@@ -43,7 +43,7 @@ namespace moris
                 Analytic_Field_Function             aFunction,
                 Analytic_Derivative_Function        aDerivativeFunction,
                 moris::Matrix<DDRMat>       const & aCoefficients,
-                Mesh_Pair                         * aMeshPairs,
+                Mesh_Pair                           aMeshPairs,
                 uint                        const & aNumberOfFields)
         : Field(aMeshPairs,aNumberOfFields)
         {
@@ -88,7 +88,7 @@ namespace moris
                     "mtk::Field_Analytic::compute_nodal_values - coefficient vector not set.\n");
 
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // make sure that nodal value matrix is properly sized
              mNodalValues.resize( tIPmesh->get_num_nodes(), mNumberOfFields );
@@ -131,7 +131,7 @@ namespace moris
             }
 
             // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair->mInterpolationMesh;
+            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // compute derivatives with respect to all coefficients
             mAnalyticDerivativeFunction(aFieldIndex)(

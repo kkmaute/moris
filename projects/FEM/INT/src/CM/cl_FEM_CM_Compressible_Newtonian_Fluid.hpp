@@ -65,6 +65,24 @@ namespace moris
 //                moris::Cell< Matrix< DDRMat > > mStressDof;
 //                moris::Cell< bool > mStressDofEval;
 
+                // Thermal Div Flux -----------------------------------
+                Matrix< DDRMat > mThermalDivFlux;
+                bool mThermalDivFluxEval = true;
+                moris::Cell< Matrix< DDRMat > > mThermalDivFluxDof;
+                moris::Matrix< DDBMat > mThermalDivFluxDofEval;
+
+                // Work Div Flux
+                Matrix< DDRMat > mWorkDivFlux;
+                bool mWorkDivFluxEval = true;
+                moris::Cell< Matrix< DDRMat > > mWorkDivFluxDof;
+                moris::Matrix< DDBMat > mWorkDivFluxDofEval;
+
+                // Mechanical Div Flux (aka div-viscous-stress)
+                Matrix< DDRMat > mMechanicalDivFlux;
+                bool mMechanicalDivFluxEval = true;
+                moris::Cell< Matrix< DDRMat > > mMechanicalDivFluxDof;
+                moris::Matrix< DDBMat > mMechanicalDivFluxDofEval;
+
                 // Thermal Traction -----------------------------------
                 Matrix< DDRMat > mThermalTraction;
                 bool mThermalTractionEval = true;
@@ -101,9 +119,27 @@ namespace moris
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdMechanicalTestTractiondDof;
                 moris::Matrix< DDBMat > mdMechanicalTestTractiondDofEval;
 
+                // themal div-strain ----------------------------------
+                Matrix< DDRMat > mThermalDivStrain;
+                bool mThermalDivStrainEval = true;
+                moris::Cell< Matrix< DDRMat > > mThermalDivStrainDof;
+                moris::Matrix< DDBMat > mThermalDivStrainDofEval;
+
+                // div-strain-rate
+                Matrix< DDRMat > mDivStrainRate;
+                bool mDivStrainRateEval = true;
+                moris::Cell< Matrix< DDRMat > > mDivStrainRateDof;
+                moris::Matrix< DDBMat > mDivStrainRateDofEval;
+
                 // DoF derivative of du/dt ----------------------------
                 Matrix< DDRMat > mdNveldt;
                 bool mdNveldtEval = true;
+
+                // div(div(u)*I)
+                Matrix< DDRMat > mDivDivVel;
+                bool mDivDivVelEval = true;
+                moris::Cell< Matrix< DDRMat > > mDivDivVelDof;
+                moris::Matrix< DDBMat > mDivDivVelDofEval;
 
                 // velocity matrix for flattened tensors
                 Matrix< DDRMat > mVelocityMatrix;
@@ -111,6 +147,20 @@ namespace moris
 
                 // flattened identity matrix
                 Matrix< DDRMat > mFlatIdentity;
+
+                // multiplication matrices for condensed tensors
+                const Matrix< DDRMat > mMultipMat2D = { 
+                        { 1.0, 0.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 2.0 } };  
+
+                const Matrix< DDRMat > mMultipMat3D = { 
+                        { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
+                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 } };     
 
                 // default dof types
                 MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
@@ -136,6 +186,10 @@ namespace moris
                 // function pointer for functions depending spatial dimension
                 void ( CM_Compressible_Newtonian_Fluid:: * m_eval_strain )() = nullptr;
                 void ( CM_Compressible_Newtonian_Fluid:: * m_eval_teststrain )() = nullptr;
+                void ( CM_Compressible_Newtonian_Fluid:: * m_eval_divstrainrate )() = nullptr;
+                void ( CM_Compressible_Newtonian_Fluid:: * m_eval_ddivstrainratedu )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                void ( CM_Compressible_Newtonian_Fluid:: * m_eval_divDivVel )() = nullptr;
+                void ( CM_Compressible_Newtonian_Fluid:: * m_eval_dDivDivVeldu )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
                 void ( CM_Compressible_Newtonian_Fluid:: * m_eval_velocitymatrix )() = nullptr;
                 void ( CM_Compressible_Newtonian_Fluid:: * m_unfold_tensor )(
                         const Matrix< DDRMat > & aFlattenedTensor,
@@ -355,6 +409,125 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  */
                 void eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the fluxes
+                 */
+                void eval_divflux()
+                {
+                    MORIS_ERROR( false,
+                            "CM_Compressible_Newtonian_Fluid::eval_divflux - not implemented, use specific flux functions." );
+                };
+
+                /**
+                 * get the constitutive model diveregence of the fluxes
+                 * @param[ in ]  aCMFunctionType  enum indicating which flux is called, if there are several
+                 * @param[ out ] mDivFlux constitutive model fluxes
+                 */
+                const Matrix< DDRMat > & divflux( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * evaluate the constitutive model divergence of the fluxes derivatives wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_ddivfluxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false,
+                            "CM_Compressible_Newtonian_Fluid::eval_ddivfluxdu - not implemented, use specific flux functions." );
+                };
+
+                /**
+                 * get the derivative of the divergence of the fluxes wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mDivFluxDofDer derivative of the fluxes wrt dof
+                 */
+                const Matrix< DDRMat > & ddivfluxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the mechanical flux
+                 */
+                void eval_mechanical_divflux();
+
+                /**
+                 *  get the constitutive model divergence of the mechanical flux
+                 * @param[ out ] mDivMechanicalFlux constitutive model divergence of the mechanical flux
+                 */
+                const Matrix< DDRMat > & mechanical_divflux();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the mechanical flux derivative wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_mechanical_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the derivative of the divergence of the mechanical flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mDivMechanicalFluxDofDer derivative of the divergence of the mechanical flux wrt dof
+                 */
+                const Matrix< DDRMat > & mechanical_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the thermal flux
+                 */
+                void eval_thermal_divflux();
+
+                /**
+                 *  get the constitutive model divergence of the thermal flux
+                 * @param[ out ] mThermalDivFlux constitutive model divergence of the thermal flux
+                 */
+                const Matrix< DDRMat > & thermal_divflux();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the thermal flux derivative wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_thermal_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the derivative of the divergence of the thermal flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] ThermalDivFluxDofDer derivative of the divergence of the thermal flux wrt dof
+                 */
+                const Matrix< DDRMat > & thermal_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the work flux
+                 */
+                void eval_work_divflux();
+
+                /**
+                 *  get the constitutive model divergence of the work flux
+                 * @param[ out ] mWorkDivFlux constitutive model divergence of the work flux
+                 */
+                const Matrix< DDRMat > & work_divflux();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the work flux derivative wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_work_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the derivative of the divergence of the work flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mWorkDivFluxDofDer derivative of the divergence of the work flux wrt dof
+                 */
+                const Matrix< DDRMat > & work_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
@@ -724,6 +897,146 @@ namespace moris
                 void eval_strain_2d();
                 void eval_strain_3d();
 
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model divergence of the strains
+                 */
+                void eval_divstrain()
+                {
+                    MORIS_ERROR( false,
+                            "CM_Compressible_Newtonian_Fluid::eval_divstrain - not implemented, use specific flux functions." );
+                };
+
+                /**
+                 * get the constitutive model divergence of the strains
+                 * @param[ in ]  aCMFunctionType  enum indicating which flux is called, if there are several
+                 * @param[ out ] mDivStrain constitutive model divergence of the strains
+                 */
+                const Matrix< DDRMat > & divstrain( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * evaluate the constitutive model divergence of the strains derivatives wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_ddivstraindu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false,
+                            "CM_Compressible_Newtonian_Fluid::eval_ddivstraindu - not implemented, use specific flux functions." );
+                };
+
+                /**
+                 * get the derivative of the divergence of the strains wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mDivStrainDofDer derivative of the strains wrt dof
+                 */
+                const Matrix< DDRMat > & ddivstraindu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //--------------------------------------------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the divergence of the thermal strain
+                 */
+                void eval_thermal_divstrain();
+
+                /**
+                 * get the divergence of the divergence of the thermal strain
+                 * @param[ out ] mThermalDivStrain constitutive model divergence of the thermal strain
+                 */
+                const Matrix< DDRMat > & thermal_divstrain();
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the derivative of the divergence of the thermal strain wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_thermal_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the divergence of the thermal strain 
+                 * @param[ in ]  aDofTypes  DoF type wrt with the derivative are computed
+                 * @param[ out ] mThermalDivStrainDof constitutive model div(grad(T)) wrt to the dofs
+                 */
+                const Matrix< DDRMat > & thermal_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //--------------------------------------------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the divergence of the strain
+                 */
+                void eval_divstrainrate()
+                {
+                    ( this->*m_eval_divstrainrate )();
+                };
+                void eval_divstrainrate_2d();
+                void eval_divstrainrate_3d();
+
+                /**
+                 * get the  divergence of the strain rate
+                 * @param[ out ] mDivStrainRate constitutive model divergence of the strain rate
+                 */
+                const Matrix< DDRMat > & divstrainrate();
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the derivative of the divergence of the strain wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_ddivstrainratedu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    ( this->*m_eval_ddivstrainratedu)( aDofTypes );
+                };
+                void eval_ddivstrainratedu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_ddivstrainratedu_3d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the divergence of the strain rate
+                 * @param[ in ]  aDofTypes  DoF type wrt with the derivative are computed
+                 * @param[ out ] mDivStrainRateDof constitutive model divergence of the strain rate wrt to the dofs
+                 */
+                const Matrix< DDRMat > & ddivstrainratedu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //--------------------------------------------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the divergence of the divergence of the velocity div(div(u)*I)
+                 */
+                void eval_divDivVel()
+                {
+                    ( this->*m_eval_divDivVel )();
+                }
+                void eval_divDivVel_2d();
+                void eval_divDivVel_3d();
+
+                /**
+                 * get the divergence of the divergence of the velocity div(div(u)*I)
+                 * @param[ out ] mDivDivVel constitutive model div(div(u)*I)
+                 */
+                const Matrix< DDRMat > & divDivVel();
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the derivative of the divergence of the divergnece of the velocity wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dDivDivVeldu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    ( this->*m_eval_dDivDivVeldu)( aDofTypes );
+                }
+                void eval_dDivDivVeldu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dDivDivVeldu_3d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the divergence of the divergence of the velocity
+                 * @param[ in ]  aDofTypes  DoF type wrt with the derivative are computed
+                 * @param[ out ] mdDivDivVeldu constitutive model div(div(u)*I) wrt to the dofs
+                 */
+                const Matrix< DDRMat > & dDivDivVeldu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //--------------------------------------------------------------------------------------------------------------
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluates the DoF derivative formated for usage of the velocity time rate of change du/dt
@@ -798,7 +1111,11 @@ namespace moris
                         Matrix< DDRMat > & aFlatNormal );
 
                 //------------------------------------------------------------------------------
-            private:
+                /**
+                 * get the multiplication matrix for condensed tensors
+                 * @param[ out ] mMultipMat multiplication matrix for condensed tensors
+                 */
+                const Matrix< DDRMat > & MultipMat();
 
                 //------------------------------------------------------------------------------
         };

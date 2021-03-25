@@ -33,7 +33,6 @@ set_property(GLOBAL PROPERTY INT_SRC_LIST "${INT_INTERNAL_INCLUDES}")
 # List header files
 set(HEADERS
 
-    CORE/cl_FEM_Cluster.hpp
     CORE/cl_FEM_Set.hpp
     CORE/cl_FEM_NodeProxy.hpp
     CORE/cl_FEM_Cluster.hpp
@@ -49,7 +48,7 @@ set(HEADERS
     CORE/fn_FEM_Check.hpp
     CORE/fn_FEM_FD_Scheme.hpp
 
-
+    ELEM/cl_FEM_Cluster.hpp
     ELEM/cl_FEM_Element_Factory.hpp
     ELEM/cl_FEM_ElementProxy.hpp
     ELEM/cl_FEM_Element.hpp
@@ -137,6 +136,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
+    IWG/cl_FEM_IWG_Struc_Stress.hpp
 
     IWG/cl_FEM_IWG_Advection_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.hpp
@@ -156,6 +156,8 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
@@ -192,7 +194,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Property.hpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
-    IQI/cl_FEM_IQI_H1_Semi_Error.hpp
+    IQI/cl_FEM_IQI_H1_Error.hpp
     IQI/cl_FEM_IQI_J_Integral.hpp
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
@@ -214,36 +216,34 @@ set(LIB_SOURCES
 
 
     CORE/cl_FEM_Set.cpp
-    CORE/cl_FEM_Cluster.cpp
     CORE/cl_FEM_Property.cpp
     CORE/cl_FEM_Model.cpp
     CORE/cl_FEM_Field.cpp 
 
-
+    ELEM/cl_FEM_Cluster.cpp
     ELEM/cl_FEM_Element_Factory.cpp
     ELEM/cl_FEM_Element_Bulk.cpp
     ELEM/cl_FEM_Element_Sideset.cpp
     ELEM/cl_FEM_Element_Double_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Boundary.cpp
-
+    ELEM/cl_FEM_Interpolation_Element.cpp
 
     IP/cl_FEM_Geometry_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator_Manager.cpp
-    IP/cl_FEM_Interpolation_Element.cpp
-
 
     MM/cl_FEM_Material_Model.cpp
     MM/cl_FEM_MM_Factory.cpp
     MM/cl_FEM_Material_Model_Density_Functions.cpp
     MM/cl_FEM_Material_Model_Pressure_Functions.cpp
     MM/cl_FEM_Material_Model_Temperature_Functions.cpp
+    MM/cl_FEM_Material_Model_Thermodynamic_Quantities.cpp
+    MM/cl_FEM_Material_Model_FD_Functions.cpp
 
     MM/cl_FEM_MM_Perfect_Gas.cpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.cpp
-
-
+    
     CM/cl_FEM_Constitutive_Model.cpp
     CM/cl_FEM_CM_Factory.cpp
 
@@ -263,7 +263,6 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid.cpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid_Test_Tractions.cpp  
-
 
     SP/cl_FEM_Stabilization_Parameter.cpp
     SP/cl_FEM_SP_Factory.cpp
@@ -311,6 +310,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
+    IWG/cl_FEM_IWG_Struc_Stress.cpp
     
     IWG/cl_FEM_IWG_Advection_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.cpp
@@ -330,6 +330,10 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrix_Dof_Derivs.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
@@ -352,7 +356,6 @@ set(LIB_SOURCES
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
-
     
     IQI/cl_FEM_IQI.cpp
     IQI/cl_FEM_IQI_Factory.cpp
@@ -365,7 +368,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Property.cpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
-    IQI/cl_FEM_IQI_H1_Semi_Error.cpp
+    IQI/cl_FEM_IQI_H1_Error.cpp
     IQI/cl_FEM_IQI_J_Integral.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Volume_Fraction.cpp

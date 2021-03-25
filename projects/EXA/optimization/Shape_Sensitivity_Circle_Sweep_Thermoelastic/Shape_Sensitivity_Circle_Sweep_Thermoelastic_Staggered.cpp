@@ -96,7 +96,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Solver config
 
-    moris::real tNLA_rel_res_norm_drop = 1.0e-08;
+    moris::real tNLA_rel_res_norm_drop = 1.0e-10;
     moris::real tNLA_relaxation_parameter = 1.0;
     int tNLA_max_iter = 2;
 
@@ -217,6 +217,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist(2)(0).set("hdf5_path", "shape_opt_test.hdf5");
         tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
         tParameterlist(2)(0).set("finite_difference_type", "all");
+        tParameterlist(2)(0).set("finite_difference_epsilons", "1e-6");
     }
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -398,7 +399,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1");
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
-        tParameterList( 1 )( tCMCounter ).set( "model_type",        static_cast< uint >( fem::Model_Type::FULL ) );
+        tParameterList( 1 )( tCMCounter ).set( "model_type",        static_cast< uint >( fem::Model_Type::PLANE_STRESS ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY;TEMP", "Displacement,Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropYoungs, YoungsModulus;"

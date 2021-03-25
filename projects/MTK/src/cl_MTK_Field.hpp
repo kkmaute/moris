@@ -15,8 +15,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
-#include "st_MTK_Mesh_Pair.hpp"
-
+#include "cl_MTK_Mesh_Pair.hpp"
 
 namespace moris
 {
@@ -29,10 +28,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         /**
-         * Base class of interpolation mesh based nodaly discretized scalar or vector field; it is assume that the values
+         * Base class of interpolation mesh based nodaly discretized scalar or vector field; it is assumed that the values
          * at a node are a function of space and some coefficients; the base implementation provides access
          * to the nodal values, allows to set them for projection on to the coefficients; and access to the
-         * coefficients.
+         * coefficients. The coefficients have an ID and ownership.
          *
          * The base class requires implementations for how the nodal values and their derivatives with
          * respect to the coefficients are computed.
@@ -48,7 +47,10 @@ namespace moris
                 uint mFieldIndex = MORIS_UINT_MAX;
 
                 //! Mesh pair
-                Mesh_Pair * mMeshPair = nullptr;
+                Mesh_Pair mMeshPair;
+
+                //! Mesh pair label
+                std::string mMeshPairLabel = "";
 
                 //! Number of nodal fields
                 uint mNumberOfFields = 1;
@@ -61,6 +63,9 @@ namespace moris
 
                 //! Coefficients vector: number of coefficients x 1
                 Matrix< DDRMat > mCoefficients;
+
+                //! Map from field indices to mesh coefficient IDs and owning processor rank
+                Matrix < IdMat > mFieldIndexToMeshCoefficientIdAndOwnerMap;
 
                 //! Flag that nodal values need to be updated
                 bool mUpdateNodalValues = true;
@@ -129,6 +134,30 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 /**
+                  * @brief get vector of IDs and owner rank for all coefficient used by field
+                  *
+                  * @ return matrix of IDs and owners: number of coefficients x 2
+                  */
+                virtual const Matrix<IdMat> & get_coefficient_id_and_owner_vector()
+                {
+                    MORIS_ERROR(false,"mtk::Field::get_coefficient_id_vector - function not implemented.\n");
+
+                   return mFieldIndexToMeshCoefficientIdAndOwnerMap;
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief updates internal data associated with coefficients
+                 */
+
+                virtual void update_coefficent_data()
+                {
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
                  * @ brief determines whether nodal value vector needs to be updated
                  */
                 bool nodal_values_need_update();
@@ -136,13 +165,6 @@ namespace moris
                 //------------------------------------------------------------------------------
             public :
                 //------------------------------------------------------------------------------
-
-                /**
-                 * @brief default constructor
-                 */
-
-                Field()
-                {};
 
                 //------------------------------------------------------------------------------
 
@@ -154,21 +176,10 @@ namespace moris
                  *
                  */
                 Field(
-                        Mesh_Pair      * aMeshPair,
+                        Mesh_Pair        aMeshPair,
                         uint     const & aNumberOfFields = 1);
 
-                //------------------------------------------------------------------------------
-
-                /**
-                 *  @brief Field constructor
-                 *
-                 * @param[in]   aDiscretizationMeshIndex - discretization index; default 0
-                 * @param[in]   aName                    - field name
-                 *
-                 */
-                Field(
-                        std::string const & aName,
-                        uint        const & aNumberOfFields = 1);
+                Field();
 
                 //------------------------------------------------------------------------------
 
@@ -181,7 +192,16 @@ namespace moris
                  *
                  * @return mesh pair pointer
                  */
-                Mesh_Pair * get_mesh_pair();
+                Mesh_Pair get_mesh_pair();
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 *  @brief returns mesh pair label
+                 *
+                 * @return mesh pair label
+                 */
+                const std::string & get_mesh_pair_label();
 
                 //------------------------------------------------------------------------------
 
@@ -190,7 +210,7 @@ namespace moris
                  *
                  * @param[in] aMeshPair - mesh pair pointer
                  */
-                void set_mesh_pair( Mesh_Pair * aMeshPair);
+                void set_mesh_pair( Mesh_Pair aMeshPair);
 
                 //------------------------------------------------------------------------------
 
@@ -203,6 +223,15 @@ namespace moris
                 {
                     return mNumberOfFields;
                 }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief triggers update of field values and coeffs
+                 *
+                 */
+
+                void update_field();
 
                 //------------------------------------------------------------------------------
 
@@ -257,6 +286,24 @@ namespace moris
                 moris::real get_nodal_value(
                         const uint & aNodeIndex,
                         const uint & aFieldIndex = 0);
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief returns value of nodes; if nodal value is not updated all nodal values
+                 *        will be computed first
+                 *
+                 *        Note: function will be removed soon as not consistent with child implementation
+                 *
+                 * @param[in]  aNodeIndices - vector of node indices
+                 * @param[in]  aFieldIndices - field indces
+                 *
+                 * @param[out] aNodalValues - nodal values
+                 */
+                void get_nodal_value(
+                        Matrix< IndexMat > const & aNodeIndex,
+                        Matrix< DDRMat >         & aNodalValues,
+                        Matrix< IndexMat > const & aFieldIndex = 0);
 
                 //------------------------------------------------------------------------------
 
@@ -318,6 +365,15 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 /**
+                  * @brief get vector of IDs and owner rank for all coefficient used by field
+                  *
+                  * @ return matrix of IDs and owners: number of coefficients x 2
+                  */
+                const Matrix<IdMat> & get_coefficient_ids_and_owners();
+
+                //------------------------------------------------------------------------------
+
+                /**
                  * @brief returns name of field
                  */
                 const std::string & get_label() const
@@ -347,7 +403,7 @@ namespace moris
                  */
                 Matrix< DDRMat > get_node_coordinate( const moris_index & aNodeIndex ) const
                 {
-                    return mMeshPair->mInterpolationMesh->get_node_coordinate( aNodeIndex );
+                    return mMeshPair.get_interpolation_mesh()->get_node_coordinate( aNodeIndex );
                 }
 
                 //------------------------------------------------------------------------------
@@ -357,7 +413,7 @@ namespace moris
                  */
                 uint get_lagrange_order() const
                 {
-                    return mMeshPair->mInterpolationMesh->get_order();
+                    return mMeshPair.get_interpolation_mesh()->get_order();
                 }
 
                 // ----------------------------------------------------------------------------------------------
@@ -473,6 +529,18 @@ namespace moris
                 * @param[in]  aFilePath - name of binary file
                  */
                 void save_nodal_values_to_binary( const std::string & aFilePath );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 *  @brief save coefficients to binary file; will always overwrite existing file
+                 *
+                * @param[in]  aFilePath - name of hdf5 file
+                 */
+                void load_field_from_exodus(
+                        const std::string    & aFileName,
+                        const moris_index      aTimeIndex = 0,
+                        const Matrix<DDUMat> & aFiledIndices = {{0}} );
 
                 //------------------------------------------------------------------------------
 

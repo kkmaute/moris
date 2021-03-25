@@ -421,7 +421,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 8.0E-4;
+    real tPerturbationCubic = 9.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------

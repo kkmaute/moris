@@ -20,6 +20,7 @@
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
 
 // Detailed Logging package
 //#include "cl_Tracer.hpp"
@@ -302,6 +303,7 @@ void Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
 
 void Time_Solver::solve()
 {
+    Tracer tTracer( "TimeSolver", "Forward Analysis", "Solve" );
     // flags if thats the master time solver and if this is a forward solve
     mIsMasterTimeSolver = true;
     mIsForwardSolve = true;
@@ -331,7 +333,7 @@ void Time_Solver::solve()
     mFullVector( 1 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
     // set time level 0 sol vec to interface
-    mSolverInterface->set_solution_vector( mFullVector( 1 ));
+    mSolverInterface->set_solution_vector( mFullVector( 1 ) );
     mSolverInterface->set_solution_vector_prev_time_step( mFullVector( 0 ) );
 
     // initialize solution vector and prev solution vector
@@ -344,13 +346,61 @@ void Time_Solver::solve()
 
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
-    mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+    if( not mSolverWarehouse->get_load_sol_vec_from_file().empty() )
+    {
+        std::string tSolVecPath = mSolverWarehouse->get_load_sol_vec_from_file();
+
+        // detect file type
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+
+        if( tType == "hdf5" || tType == "h5" )
+        {
+            mFullVector( 1 )->read_vector_from_HDF5( tSolVecPath.c_str() );
+        }
+        else
+        {
+            MORIS_ERROR( false, "Time_Solver::solve(), Solution vector input type unknown. New types can be implemented here.");
+        }
+
+        Matrix< DDRMat > tTime_0 = { {0.0},{0.0} };
+        Matrix< DDRMat > tTime_1 = { {0.0},{1.0} };
+
+        mSolverInterface->set_previous_time( tTime_0 );
+        mSolverInterface->set_time( tTime_1 );
+
+        // input second time slap value for output
+        this->check_for_outputs( 1.0, true );
+    }
+    else
+    {
+        // SOLVE CALL
+        mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+
+        // output solution vector to file
+        if( not mSolverWarehouse->get_save_final_sol_vec_to_file().empty() )
+        {
+            std::string tSolVecPath = mSolverWarehouse->get_save_final_sol_vec_to_file();
+
+            // detect file type
+            std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+
+            if( tType == "hdf5" || tType == "h5" )
+            {
+                mFullVector( 1 )->save_vector_to_HDF5( tSolVecPath.c_str() );
+            }
+            else
+            {
+                MORIS_ERROR( false, "Time_Solver::solve(), Solution vector output type unknown. New types can be implemented here.");
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
 void Time_Solver::solve_sensitivity()
 {
+    Tracer tTracer( "TimeSolver", "Sensitivity Analysis", "Solve" );
     mIsForwardSolve = false;
 
     // create map object
@@ -378,6 +428,24 @@ void Time_Solver::solve_sensitivity()
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
     mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
+
+    // output solution vector to file
+    if( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
+    {
+        std::string tSolVecPath = mSolverWarehouse->get_save_final_adjoint_vec_to_file();
+
+        // detect file type
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+
+        if( tType == "hdf5" || tType == "h5" )
+        {
+            mFullVectorSensitivity( 0 )->save_vector_to_HDF5( tSolVecPath.c_str() );
+        }
+        else
+        {
+            MORIS_ERROR( false, "Time_Solver::solve_sensitivity(), Solution vector output type unknown. New types can be implemented here.");
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

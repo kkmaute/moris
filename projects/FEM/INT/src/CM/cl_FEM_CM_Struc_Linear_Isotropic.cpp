@@ -22,6 +22,7 @@ namespace moris
             mPropertyMap[ "YoungsModulus" ]        = static_cast< uint >( CM_Property_Type::EMOD );
             mPropertyMap[ "PoissonRatio" ]         = static_cast< uint >( CM_Property_Type::NU );
             mPropertyMap[ "CTE" ]                  = static_cast< uint >( CM_Property_Type::CTE );
+            mPropertyMap[ "PropertyTemperature" ]  = static_cast< uint >( CM_Property_Type::TEMP_PROP );
             mPropertyMap[ "ReferenceTemperature" ] = static_cast< uint >( CM_Property_Type::TEMP_REF );
         }
 
@@ -81,8 +82,25 @@ namespace moris
             // set the CTE property
             mPropCTE = get_property( "CTE" );
 
+            // set the given temperature property
+            mPropTemp = get_property( "PropertyTemperature" );
+
             // set the reference temperature property
             mPropTRef = get_property( "ReferenceTemperature" );
+
+            // check that essential properties exist
+            MORIS_ASSERT( mPropEMod,
+                    "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n");
+
+            MORIS_ASSERT( mPropPoisson,
+                    "CM_Struc_Linear_Isotropic::set_local_properties - Poisson ratio property does not exist.\n");
+
+            // check that properties needed for thermal strains exist
+            if ( mPropCTE )
+            {
+                MORIS_ASSERT( mPropTRef,
+                        "CM_Struc_Linear_Isotropic::set_local_properties - ReferenceTemperature property does not exist.\n");
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -163,7 +181,6 @@ namespace moris
                     m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_3d;
 
                     mStrain.set_size( 6, 1, 0.0 );
-
 
                     switch(mTensorType)
                     {
@@ -274,21 +291,41 @@ namespace moris
             mStrain( 2, 0 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
 
             // if thermal expansion
-            if ( mPropCTE != nullptr )
+            if ( mPropCTE )
             {
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
+
                 tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // get temperature field interpolator
-                Field_Interpolator* tFITemp =
-                        mFIManager->get_field_interpolators_for_type( mDofTemp );
+                Field_Interpolator* tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemp );
 
-                // add thermal contribution to the strain
-                mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
+                // check that a unique definition of temperature is provided
+                MORIS_ASSERT( !mPropTemp || !tFITemp,
+                        "CM_Struc_Linear_Isotropic::eval_strain_2d - %",
+                        "cannot specify both temperature as dof and as a property.\n");
+
+                // check if temperature as a property is defined
+                if ( mPropTemp )
+                {
+                    // add thermal contribution to the strain
+                    mStrain += tThermalExpansionVector * ( mPropTRef->val() - mPropTemp->val() );
+                }
+                else
+                {
+                    // check that temperature interpolator exists
+                    MORIS_ASSERT( tFITemp,
+                            "CM_Struc_Linear_Isotropic::eval_strain_2d - temperature interpolator does not exist.\n");
+
+                    // add thermal contribution to the strain
+                    mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
+                }
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_strain_3d()
         {
@@ -311,13 +348,32 @@ namespace moris
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
+
                 tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // get temperature field interpolator
                 Field_Interpolator* tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemp );
 
-                // add thermal contribution to the strain
-                mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
+                // check that a unique definition of temperature is provided
+                MORIS_ASSERT( !mPropTemp || !tFITemp,
+                        "CM_Struc_Linear_Isotropic::eval_strain_2d - %",
+                        "cannot specify both temperature as dof and as a property.\n");
+
+                // check if temperature as a property is defined
+                if ( mPropTemp )
+                {
+                    // add thermal contribution to the strain
+                    mStrain += tThermalExpansionVector * ( mPropTRef->val() - mPropTemp->val() );
+                }
+                else
+                {
+                     // check that temperature interpolator exists
+                    MORIS_ASSERT( tFITemp,
+                            "CM_Struc_Linear_Isotropic::eval_strain_2d - temperature interpolator does not exist.\n");
+
+                    // add thermal contribution to the strain
+                    mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
+                }
             }
         }
 
@@ -342,6 +398,8 @@ namespace moris
             mTestStrain( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
             mTestStrain( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_teststrain_3d()
         {
@@ -403,6 +461,8 @@ namespace moris
             return tInvBulkModulus;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic(
                 moris::real aNu,
                 moris::real aEMod,
@@ -410,6 +470,8 @@ namespace moris
         {
             aInvBulkModulus = 3.0 * ( 1.0 - 2.0 * aNu ) / aEMod;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_plane_stress(
                 moris::real aNu,
@@ -587,7 +649,7 @@ namespace moris
             }
 
             // if temperature dof
-            if ( mPropCTE!=nullptr && aDofTypes( 0 ) == mDofTemp )
+            if ( mPropCTE && aDofTypes( 0 ) == mDofTemp )
             {
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
@@ -598,22 +660,53 @@ namespace moris
                 mdStraindDof( tDofIndex ) -= tThermalExpansionVector * tFI->N();
             }
 
-            // if thermal expansion
-            if ( mPropCTE != nullptr && mPropCTE->check_dof_dependency( aDofTypes ) )
+            // if properties depend on dofs
+            if ( mPropCTE )
             {
                 // create identity matrix
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
                 Matrix< DDRMat > tII( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
+
                 tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
 
-                // get temperature field interpolator
-                Field_Interpolator* tFIT =
-                        mFIManager->get_field_interpolators_for_type( mDofTemp );
+                //  dof dependency of CTE
+                if ( mPropCTE->check_dof_dependency( aDofTypes ) )
+                {
+                    if ( mPropTemp )
+                    {
+                        // compute derivatives
+                        mdStraindDof( tDofIndex ) +=
+                                tII * mPropCTE->dPropdDOF( aDofTypes ) *
+                                ( mPropTRef->val()( 0 ) - mPropTemp->val()( 0 ) );
+                    }
+                    else
+                    {
+                        // get temperature field interpolator
+                        Field_Interpolator* tFIT =
+                                mFIManager->get_field_interpolators_for_type( mDofTemp );
 
-                // compute derivatives
-                mdStraindDof( tDofIndex ) +=
-                        tII * mPropCTE->dPropdDOF( aDofTypes ) *
-                        ( mPropTRef->val()( 0 ) - tFIT->val()( 0 ) );
+                        // compute derivatives
+                        mdStraindDof( tDofIndex ) +=
+                                tII * mPropCTE->dPropdDOF( aDofTypes ) *
+                                ( mPropTRef->val()( 0 ) - tFIT->val()( 0 ) );
+                    }
+                }
+
+                //  dof dependency of temperature property
+                if ( mPropTemp && mPropTemp->check_dof_dependency( aDofTypes ) )
+                {
+                    // compute derivatives
+                    mdStraindDof( tDofIndex ) -=
+                            tII * mPropCTE->val() * mPropTemp->dPropdDOF( aDofTypes );
+                }
+
+                //  dof dependency of reference temperature
+                if ( mPropTRef->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR(false,
+                            "CM_Struc_Linear_Isotropic::eval_dStraindDOF - %s",
+                            "dof dependency of reference temperature not implemented.\n");
+                }
             }
         }
 

@@ -6,6 +6,7 @@
 
 //LINALG/src
 #include "cl_Map.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
 #include "fn_iscol.hpp"
@@ -51,7 +52,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager *                 aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                 & aMeshPairIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo )
         : mMeshManager( aMeshManager ),
@@ -85,7 +86,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager                 * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                 & aMeshPairIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo,
                 MSI::Design_Variable_Interface    * aDesignVariableInterface )
@@ -95,6 +96,13 @@ namespace moris
             Tracer tTracer( "FEM", "FemModel", "Create" );
 
             this->set_design_variable_interface( aDesignVariableInterface );
+
+            // if no design variables have been stipulated, skip
+            if (aDesignVariableInterface == nullptr)
+            {
+                mFEMOnly = true;
+                MORIS_LOG("Skipping GEN, FEM Only");
+            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: unpack mesh
@@ -127,7 +135,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager                           * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                 const moris_index                           & aMeshPairIndex,
                 moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                 std::shared_ptr< Library_IO >                 aLibrary )
@@ -166,7 +174,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                mtk::Mesh_Manager                           * aMeshManager,
+                std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                 const moris_index                           & aMeshPairIndex,
                 moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                 std::shared_ptr< Library_IO >                 aLibrary,
@@ -178,6 +186,13 @@ namespace moris
             Tracer tTracer( "FEM", "FemModel", "Create" );
 
             this->set_design_variable_interface( aDesignVariableInterface );
+
+            // if no design variables have been stipulated, skip
+            if (aDesignVariableInterface == nullptr)
+            {
+                mFEMOnly = true;
+                MORIS_LOG("Skipping GEN, FEM Only");
+            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: unpack fem input and mesh
@@ -262,47 +277,51 @@ namespace moris
                 // create a new IG Node
                 mIGNodes( iNode ) = new fem::Node( &aIGMesh->get_mtk_vertex( iNode ) );
 
-                // get IG node index
-                uint tVertexIndex = mIGNodes( iNode )->get_index();
+                if (mFEMOnly == false)
+                {
+                    // get IG node index
+                    uint tVertexIndex = mIGNodes( iNode )->get_index();
 
-                // get IG node coordinates
-                Matrix< DDRMat > tVertexCoordsFromMesh;
-                mIGNodes( iNode )->get_vertex_coords( tVertexCoordsFromMesh );
+                    // get IG node coordinates
+                    Matrix<DDRMat> tVertexCoordsFromMesh;
+                    mIGNodes( iNode )->get_vertex_coords( tVertexCoordsFromMesh );
 
-                // get the pdv values from the MSI/GEN interface
-                Matrix< IndexMat > tVertexIndices( 1, 1, tVertexIndex );
-                moris::Cell< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-                this->get_design_variable_interface()->get_ig_pdv_value(
+                    // get the pdv values from the MSI/GEN interface
+                    Matrix<IndexMat> tVertexIndices( 1, 1, tVertexIndex );
+                    moris::Cell<Matrix<DDRMat>> tVertexCoordsFromGen( mSpaceDim );
+                    moris::Cell<Matrix<DDSMat>> tIsActiveDv;
+
+                    this->get_design_variable_interface()->get_ig_pdv_value(
                         tVertexIndices,
                         tGeoPdvType,
                         tVertexCoordsFromGen,
                         tIsActiveDv );
 
-                // set active flags for xyz
-                mIGNodes( iNode )->set_vertex_xyz_active_flags( tIsActiveDv );
+                    // set active flags for xyz
+                    mIGNodes(iNode)->set_vertex_xyz_active_flags( tIsActiveDv );
 
-                // reshape the XYZ values into a cell of vectors
-                for( uint iSpaceDim = 0; iSpaceDim < mSpaceDim; iSpaceDim++ )
-                {
-                    if ( tIsActiveDv( iSpaceDim )( 0 ) )
+                    // reshape the XYZ values into a cell of vectors
+                    for ( uint iSpaceDim = 0; iSpaceDim < mSpaceDim; iSpaceDim++ )
                     {
-                        MORIS_ERROR( equal_to(
-                                tVertexCoordsFromGen( iSpaceDim )( 0 ),
-                                tVertexCoordsFromMesh( iSpaceDim ), 1.0 ) ,
-                                "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ\n");
+                        if (tIsActiveDv( iSpaceDim )(0))
+                        {
+                            MORIS_ERROR( equal_to(
+                                            tVertexCoordsFromGen(iSpaceDim)(0),
+                                            tVertexCoordsFromMesh(iSpaceDim), 1.0),
+                                        "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ\n" );
+                        }
                     }
-                }
 
-                // get the id associated to the pdv
-                moris::Cell< moris::Matrix< DDSMat > > tPdvIds;
-                this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
+                    // get the id associated to the pdv
+                    moris::Cell<moris::Matrix<DDSMat>> tPdvIds;
+                    this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
                         tVertexIndices,
                         tGeoPdvType,
                         tPdvIds );
 
-                // set pdv ids for xyz
-                mIGNodes( iNode )->set_vertex_xyz_pdv_ids( tPdvIds );
+                    // set pdv ids for xyz
+                    mIGNodes( iNode )->set_vertex_xyz_pdv_ids( tPdvIds );
+                }
             }
 
             // print output
@@ -558,7 +577,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::reset_integration_xyz_pdv_assembly_indices(
-                        const Matrix< IndexMat > & aNodeIndices )
+                const Matrix< IndexMat > & aNodeIndices )
         {
             // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -607,9 +626,9 @@ namespace moris
         }
 
         void FEM_Model::set_integration_xyz_pdv_assembly_index(
-                                moris_index aNodeIndex,
-                                enum PDV_Type aPdvType,
-                                moris_index aXYZPdvAssemblyIndex )
+                moris_index aNodeIndex,
+                enum PDV_Type aPdvType,
+                moris_index aXYZPdvAssemblyIndex )
         {
             mIGNodes( aNodeIndex )->set_local_xyz_pdv_assembly_index( aXYZPdvAssemblyIndex, aPdvType );
         }
@@ -626,7 +645,7 @@ namespace moris
             moris::map< std::string, PDV_Type > tMSIDvTypeMap =
                     get_pdv_type_map();
 
-            // get string to dv type map
+            // get string to field type map
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
                     mtk::get_field_type_map();
 
@@ -637,7 +656,7 @@ namespace moris
                 {
                     // create properties
                     std::map< std::string, uint > tPropertyMap;
-                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
                     // create fields
                     std::map< std::string, uint > tFieldMap;
@@ -672,7 +691,7 @@ namespace moris
 
                     // create properties
                     std::map< std::string, uint > tPropertyMap;
-                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
                     // create fields
                     std::map< std::string, uint > tFieldMap;
@@ -781,10 +800,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void FEM_Model::create_properties(
-                std::map< std::string, uint >            & aPropertyMap,
-                moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      & aDvTypeMap,
-                std::shared_ptr< Library_IO >              aLibrary )
+                std::map< std::string, uint >              & aPropertyMap,
+                moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap,
+                moris::map< std::string, PDV_Type >        & aDvTypeMap,
+                moris::map< std::string, mtk::Field_Type > & aFieldTypeMap,
+                std::shared_ptr< Library_IO >                aLibrary )
         {
             // get the property parameter list
             moris::Cell< ParameterList > tPropParameterList = mParameterList( 0 );
@@ -821,13 +841,21 @@ namespace moris
                         aMSIDofTypeMap );
                 mProperties( iProp )->set_dof_type_list( tDofTypes );
 
-                // set dof dependencies
+                // set dv dependencies
                 moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "dv_dependencies" ),
                         tDvTypes,
                         aDvTypeMap );
                 mProperties( iProp )->set_dv_type_list( tDvTypes );
+
+                // set dof dependencies
+                moris::Cell< moris::Cell< mtk::Field_Type > > tFieldTypes;
+                string_to_cell_of_cell(
+                        tPropParameter.get< std::string >( "field_dependencies" ),
+                        tFieldTypes,
+                        aFieldTypeMap );
+                mProperties( iProp )->set_field_type_list( tFieldTypes );
 
                 // set function parameters
                 moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
@@ -892,13 +920,13 @@ namespace moris
             moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 
             // get the number of properties
-            uint tNumFields = tFieldParameterList.size();
+            sint tNumFields = tFieldParameterList.size();
 
             // create a list of property pointers
             mFields.resize( tNumFields, nullptr );
 
             // loop over the parameter lists
-            for ( uint iFields = 0; iFields < tNumFields; iFields++ )
+            for ( sint iFields = 0; iFields < tNumFields; iFields++ )
             {
                 // get property parameter list
                 ParameterList tFieldParameter = tFieldParameterList( iFields );
@@ -906,10 +934,9 @@ namespace moris
                 // get property name from parameter list
                 std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
-                mtk::Mesh_Pair tMeshPair = mMeshManager->get_mesh_pair( mMeshPairIndex );
-
                 // create a property pointer
-                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >( &tMeshPair, -1 );
+                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
+                        mMeshManager->get_mesh_pair( mMeshPairIndex ) );
 
                 // set a name for the property
                 tField->set_label( tFieldName );
@@ -918,14 +945,40 @@ namespace moris
                 aFieldMap[ tFieldName ] = iFields;
 
                 // set field type
-                tField->set_field_type( tFieldParameter.get< uint >( "field_type" ) );
+                moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                        mtk::get_field_type_map();
 
-               if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
-               {
-                   tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
-               }
+                // set field type
+                mtk::Field_Type tFieldType = tFieldTypeMap.find( tFieldParameter.get< std::string >( "field_type" ) );
+                tField->set_field_type( tFieldType );
 
-               mFields( iFields ) = tField;
+                mFieldTypeMap.resize( std::max( static_cast< uint >(tFieldType) + 1, ( uint )mFieldTypeMap.size() ), -1 );
+                mFieldTypeMap( static_cast< uint >(tFieldType) ) = iFields;
+
+                MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
+                        (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+
+                MORIS_ERROR( not ((not tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) and
+                        (not tFieldParameter.get< std::string >( "IQI_Name" ).empty()  )),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+
+                if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
+                {
+                    tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+                }
+
+                if( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
+                {
+                    tField->set_IQI_name( tFieldParameter.get< std::string >( "IQI_Name" ) );
+                }
+
+                if( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
+                {
+                    tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
+                }
+
+                mFields( iFields ) = tField;
             }
         }
 
@@ -3029,36 +3082,48 @@ namespace moris
                 }
             }
         }
+
         //-------------------------------------------------------------------------------------------------
 
-//        void FEM_Model::populate_fields()
-//        {
-//            mFields.resize( mIQIs.size(), nullptr );
-//
-//            std::shared_ptr< mtk::Mesh_Manager > tMeshManager = mMeshManager->get_pointer();
-//
-//            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-//            {
-//                mFields( Ik ) = std::make_shared< fem::Field >( tMeshManager, mMeshPairIndex, -1 );
-//
-//                mFields( Ik )->set_label( mIQIs( Ik )->get_name() );
-//            }
-//
-//            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
-//            {
-//                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
-//                {
-//                    mFemSets( Ik )->create_fields( mFields );
-//                }
-//            }
-//
-//            for( uint Ik = 0; Ik < mIQIs.size(); Ik ++ )
-//            {
-//                    mFields( Ik )->save_node_values_to_hdf5( "FEM_Field.hdf5" );
-//
-//                    //mFields( Ik )->save_field_to_exodus( "FEM_Field.exo" );
-//            }
-//        }
+        const std::shared_ptr< fem::Field > & FEM_Model::get_field( mtk::Field_Type tFieldType )
+        {
+            size_t tIndex = mFieldTypeMap( static_cast< sint >( tFieldType ) );
+            return mFields( tIndex );
+        }
+        //-------------------------------------------------------------------------------------------------
+
+        void FEM_Model::populate_fields()
+        {
+            Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
+            Cell< std::string >  tFieldIQINames;
+            tFieldToPopulate.reserve(mFields.size());
+            tFieldIQINames  .reserve(mFields.size());
+
+            for( uint Ik = 0; Ik < mFields.size(); Ik ++ )
+            {
+                if( mFields( Ik )->get_populate_field_with_IQI() )
+                {
+                    tFieldToPopulate.push_back( mFields( Ik ) );
+                    tFieldIQINames  .push_back( mFields( Ik )->get_IQI_name() );
+                }
+            }
+
+            for( uint Ik = 0; Ik < mFemSets.size(); Ik ++ )
+            {
+                if( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
+                {
+                    mFemSets( Ik )->populate_fields( tFieldToPopulate, tFieldIQINames );
+                }
+            }
+
+            // output fields to file. FIXME better should be done somewhere else.
+            for( uint Ik = 0; Ik < mFields.size(); Ik ++ )
+            {
+                mFields( Ik )->output_field_to_file();
+
+                //mFields( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
+            }
+        }
 
         //-------------------------------------------------------------------------------------------------
 

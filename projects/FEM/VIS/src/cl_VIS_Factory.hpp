@@ -48,15 +48,16 @@ namespace moris
             uint mNumRequestedSets;
             bool mOnlyPrimaryCells = false;
 
-            mtk::Mesh_Manager* mMesh = nullptr;
+            std::shared_ptr< mtk::Mesh_Manager > mMesh = nullptr;
             const uint         mMeshPairIndex;
 
             moris::Cell< std::string > tRequestedSetNames;
 
 
         public:
-            VIS_Factory( mtk::Mesh_Manager* aMesh,
-                     const uint         aMeshPairIndex ) : mMesh( aMesh ),
+            VIS_Factory(
+                    std::shared_ptr< mtk::Mesh_Manager > aMesh,
+                    const uint         aMeshPairIndex ) : mMesh( aMesh ),
                                                            mMeshPairIndex( aMeshPairIndex )
             {};
 

@@ -135,13 +135,19 @@ namespace moris
         void MM_Perfect_Gas::eval_EintDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the heat capacity
-            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
+            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );   
 
             // compute internal energy
-            mEintDof( tDofIndex ) = tIsochoricHeatCapacity * this->TemperatureDOF( aDofTypes );
+            mEintDof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->TemperatureDOF( aDofTypes );
+
+            // dof dependency of the property on the DoF type
+            if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
+            {
+                mEintDof( tDofIndex ) += this->temperature()( 0 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -149,13 +155,19 @@ namespace moris
         void MM_Perfect_Gas::eval_EintDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the heat capacity
-            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
+            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );            
 
             // compute internal energy
-            mEintDotDof( tDofIndex ) = tIsochoricHeatCapacity * this->TemperatureDotDOF( aDofTypes );
+            mEintDotDof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->TemperatureDotDOF( aDofTypes );
+
+            // dof dependency of the property on the DoF type
+            if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
+            {
+                mEintDotDof( tDofIndex ) += this->TemperatureDot()( 0 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
+            }            
         }
 
         //------------------------------------------------------------------------------
@@ -163,13 +175,19 @@ namespace moris
         void MM_Perfect_Gas::eval_dEintdxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the heat capacity
-            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
+            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );            
 
             // compute internal energy
-            mdEintdxDof( tDofIndex ) = tIsochoricHeatCapacity * this->dnTemperaturedxnDOF( aDofTypes, 1 );
+            mdEintdxDof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->dnTemperaturedxnDOF( aDofTypes, 1 );
+
+            // dof dependency of the property on the DoF type
+            if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
+            {
+                mdEintdxDof( tDofIndex ) += this->dnTemperaturedxn( 1 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
+            }              
         }       
 
         //------------------------------------------------------------------------------
@@ -177,13 +195,19 @@ namespace moris
         void MM_Perfect_Gas::eval_d2Eintdx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the heat capacity
-            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
+            std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );            
 
             // compute internal energy
-            md2Eintdx2Dof( tDofIndex ) = tIsochoricHeatCapacity * this->dnTemperaturedxnDOF( aDofTypes, 2 );
+            md2Eintdx2Dof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->dnTemperaturedxnDOF( aDofTypes, 2 );
+
+            // dof dependency of the property on the DoF type
+            if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
+            {
+                md2Eintdx2Dof( tDofIndex ) += this->dnTemperaturedxn( 2 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
+            }   
         }        
 
         //------------------------------------------------------------------------------
@@ -519,6 +543,104 @@ namespace moris
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Temperaturedx2DOF - Not implemented yet." );
         }          
+
+        //------------------------------------------------------------------------------
+        // THERMODYNAMIC QUANTITIES
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_VolumeExpansivity()
+        {
+            // compute value 1/T
+            mAlphaP = { 1.0 / this->temperature()( 0 ) };
+        }     
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // compute value -N/T^2
+            mAlphaPDof( tDofIndex ) = -1.0 * this->TemperatureDOF( aDofTypes ) / std::pow( this->temperature()( 0 ), 2.0 );
+        }   
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_IsothermalCompressibility()
+        {
+            // compute value 1/p
+            mBetaT = { 1.0 / this->pressure()( 0 ) };
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // compute value -N/p^2
+            mBetaTDof( tDofIndex ) = -1.0 * this->PressureDOF( aDofTypes ) / std::pow( this->pressure()( 0 ), 2.0 );
+        }   
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_Cv()
+        {
+            MORIS_ERROR( false, " MM_Perfect_Gas::eval_Cv - This function is not implemented yet. " );
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            MORIS_ERROR( false, " MM_Perfect_Gas::eval_CvDOF - This function is not implemented yet. " );
+        }     
+
+        //------------------------------------------------------------------------------  
+
+        // Cp as function of Cv
+        void MM_Perfect_Gas::eval_Cp()
+        {            
+            // evaluate Cp
+            mCp = this->Cv() + get_property( "SpecificGasConstant" )->val();
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // evaluate Cp
+            mCpDof( tDofIndex ) = this->CvDOF( aDofTypes );
+        }   
+
+        //------------------------------------------------------------------------------  
+
+        // Cp as function of Cv
+        void MM_Perfect_Gas::eval_Gamma()
+        {
+            // evaluate Gamma
+            mGamma = ( this->Cv() + get_property( "SpecificGasConstant" )->val() ) / ( this->Cv()( 0 ) );
+        }      
+
+        //------------------------------------------------------------------------------  
+
+        void MM_Perfect_Gas::eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get cv value
+            real tCv = this->Cv()( 0 );
+
+            // compute the DoF derivative
+            mGammaDof( tDofIndex ) = ( -1.0 * get_property( "SpecificGasConstant" )->val()( 0 ) / ( tCv * tCv ) ) * this->CvDOF( aDofTypes );
+        }     
 
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------

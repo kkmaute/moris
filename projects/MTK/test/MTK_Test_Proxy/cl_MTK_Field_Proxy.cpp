@@ -10,7 +10,7 @@ namespace moris
     namespace mtk
     {
         Field_Proxy::Field_Proxy(
-                mtk::Mesh_Pair * aMeshPairs,
+                mtk::Mesh_Pair   aMeshPairs,
                 uint const     & aDiscretizationMeshIndex )
         : Field( aMeshPairs,
                  aDiscretizationMeshIndex )

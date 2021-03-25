@@ -43,7 +43,7 @@ namespace moris
                 moris::sint mNY;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
-                Cell< moris::Cell< enum MSI::Dof_Type > > mListSecondaryOfDofTypes;
+                moris::Cell< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
 
                 moris::real mk = 2;
                 Matrix< DDRMat> mT;
@@ -88,12 +88,12 @@ namespace moris
                     mListOfDofTypes = aListOfDofTypes;
                 };
 
-                moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+                const moris::Cell< enum MSI::Dof_Type > & get_requested_dof_types()
                 {
                     return mListOfDofTypes;
                 };
 
-                void set_secondary_dof_types( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+                void set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
                 {
                     mListSecondaryOfDofTypes = aListOfDofTypes;
                 };

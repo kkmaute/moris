@@ -41,7 +41,7 @@ namespace moris
             get_field_value_user_defined = aFieldFunction;
 
             // Check field evaluation function
-            MORIS_ERROR(std::isfinite(this->get_field_value_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables)),
+            MORIS_ASSERT(std::isfinite(this->get_field_value_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables)),
                     "There is an error in a user-defined geometry field (field evaluates to nan/infinity).");
 
             // Set sensitivity evaluation function
@@ -70,7 +70,7 @@ namespace moris
                 // Check for values not nan/infinity
                 for (uint tSensitivityIndex = 0; tSensitivityIndex < mSensitivities.n_cols(); tSensitivityIndex++)
                 {
-                    MORIS_ERROR(std::isfinite(mSensitivities(tSensitivityIndex)),
+                    MORIS_ASSERT(std::isfinite(mSensitivities(tSensitivityIndex)),
                             "There is an error in a user-defined geometry sensitivity (evaluates to nan/infinity).");
                 }
             }

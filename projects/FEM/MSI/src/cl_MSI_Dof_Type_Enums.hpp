@@ -35,6 +35,7 @@ namespace moris
             P,           //< Pressure
             RHO,         //< Density
             VISCOSITY,   //< Turbulence viscosity
+            STRESS_DOF,  //< Stress Dof
             UNDEFINED,   //< Undefined
             END_ENUM     //
         };
@@ -65,6 +66,7 @@ namespace moris
             tMSIDofTypeMap["P"]           = MSI::Dof_Type::P;
             tMSIDofTypeMap["RHO"]         = MSI::Dof_Type::RHO;
             tMSIDofTypeMap["VISCOSITY"]   = MSI::Dof_Type::VISCOSITY;
+            tMSIDofTypeMap["STRESS_DOF"]  = MSI::Dof_Type::STRESS_DOF;
             tMSIDofTypeMap["UNDEFINED"]   = MSI::Dof_Type::UNDEFINED;
 
             return tMSIDofTypeMap;
@@ -96,6 +98,7 @@ namespace moris
             tMSIDofTypeMap[MSI::Dof_Type::P]           = "P";
             tMSIDofTypeMap[MSI::Dof_Type::RHO]         = "RHO";
             tMSIDofTypeMap[MSI::Dof_Type::VISCOSITY]   = "VISCOSITY";
+            tMSIDofTypeMap[MSI::Dof_Type::STRESS_DOF]  = "STRESS_DOF";
             tMSIDofTypeMap[MSI::Dof_Type::UNDEFINED]   = "UNDEFINED";
 
             return tMSIDofTypeMap;

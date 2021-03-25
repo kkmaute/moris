@@ -5,12 +5,13 @@ namespace moris
 {
     namespace sol
     {
-
         //--------------------------------------------------------------------------------------------------------------
 
-        Dist_Vector::Dist_Vector( Dist_Map* aMapClass, bool aManageMap )
-                : mMap( aMapClass ),
-                  mManageMap(aManageMap)
+        Dist_Vector::Dist_Vector(
+                Dist_Map* aMapClass,
+                bool      aManageMap )
+        : mMap( aMapClass ),
+          mManageMap(aManageMap)
         {
         }
 

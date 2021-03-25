@@ -48,7 +48,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     //        PetscInitializeNoArguments();
     //    }
 
-    moris::Cell< enum MSI::Dof_Type > tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
+    const moris::Cell< enum MSI::Dof_Type > & tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
 
     // delete pointers if they already exist
     this->delete_pointers();
@@ -196,27 +196,23 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
         }
 
         mLinearProblem->assemble_residual();
+    }
 
-        if( !mSolverInterface->get_is_forward_analysis() )
+    if( !mSolverInterface->get_is_forward_analysis() )
+    {
+        moris::Cell< enum MSI::Dof_Type >tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
+
+        if( tSecDofTypes.size() != 0)
         {
-            moris::Cell< enum MSI::Dof_Type >tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
+            moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
+            mSolverInterface->set_requested_dof_types( tSecDofTypes );
+            mSolverInterface->set_secondary_dof_types( tDofTypeUnion );
 
-            if( tSecDofTypes.size() != 0)
-            {
-                moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDofType = mMyNonLinSolver->get_dof_type_list();
-                mSolverInterface->set_requested_dof_types( tSecDofTypes );
-                mSolverInterface->set_secondary_dof_types( tDofType );
+            mLinearProblem->assemble_staggered_residual_contribution();
 
-                mLinearProblem->assemble_staggered_residual_contribution();
-
-                moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
-                moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSecondaryDofTypeList = mMyNonLinSolver->get_secundary_dof_type_list();
-                mSolverInterface->set_requested_dof_types( tDofTypeUnion );
-                mSolverInterface->set_secondary_dof_types( mSecondaryDofTypeList );
-            }
+            mSolverInterface->set_requested_dof_types( tDofTypeUnion );
+            mSolverInterface->set_secondary_dof_types( tSecDofTypes );
         }
-
-
     }
 }
 

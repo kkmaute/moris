@@ -91,7 +91,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Minimum level set value
-    moris::real tMinLevs = 1.0e-8;
+    moris::real tMinLevs = 1.0e-14;
 
     /* ------------------------------------------------------------------------ */
     // Flag for turning on/off ghost stabilization

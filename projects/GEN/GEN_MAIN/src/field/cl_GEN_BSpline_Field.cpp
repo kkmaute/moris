@@ -1,7 +1,5 @@
 #include "cl_GEN_BSpline_Field.hpp"
-#include "st_MTK_Mesh_Pair.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include "cl_MTK_Mapper.hpp"
@@ -21,17 +19,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         BSpline_Field::BSpline_Field(
-                sol::Dist_Vector*        aOwnedADVs,
-                const Matrix<DDUMat>&    aCoefficientIndices,
-                const Matrix<DDSMat>&    aOwnedADVIds,
-                const Matrix<DDSMat>&    aSharedADVIds,
-                uint                     aOwnedADVIdsOffset,
-                mtk::Interpolation_Mesh* aMesh,
-                std::shared_ptr<Field>   aField)
-                : Field(aCoefficientIndices, aSharedADVIds, aField)
-                , Field_Discrete_Integration(aMesh->get_num_nodes())
+                sol::Dist_Vector*      aOwnedADVs,
+                const Matrix<DDUMat>&  aCoefficientIndices,
+                const Matrix<DDSMat>&  aSharedADVIds,
+                uint                   aADVOffsetID,
+                mtk::Mesh_Pair         aMeshPair,
+                std::shared_ptr<Field> aField)
+                : Field(aCoefficientIndices, aSharedADVIds, aMeshPair, aField)
+                , Field_Discrete_Integration(aMeshPair.get_interpolation_mesh()->get_num_nodes())
                 , mSharedADVIds(aSharedADVIds)
-                , mMesh(aMesh)
+                , mMeshPair(aMeshPair)
         {
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
@@ -39,16 +36,17 @@ namespace moris
                     "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
 
             // Get B-spline mesh index
+            mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
             uint tDiscretizationMeshIndex = this->get_discretization_mesh_index();
 
             // Assign ADVs
             for (uint tCoefficient = 0; tCoefficient < aCoefficientIndices.length(); tCoefficient++)
             {
                 uint tCoefficientIndex = aCoefficientIndices(tCoefficient);
-                if ((uint) par_rank() == mMesh->get_entity_owner(tCoefficientIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
+                if ((uint) par_rank() == tMesh->get_entity_owner(tCoefficientIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
                 {
                     // Calculate ADV ID using offset
-                    sint tADVId = aOwnedADVIdsOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
+                    sint tADVId = aADVOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
                             tCoefficientIndex,
                             EntityRank::BSPLINE,
                             tDiscretizationMeshIndex);
@@ -60,26 +58,26 @@ namespace moris
 
             // Determine number of owned and shared node IDs
             uint tOwnedNodeCount = 0;
-            for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
-                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex))
+                if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex))
                 {
                     tOwnedNodeCount++;
                 }
             }
             Matrix<DDSMat> tOwnedNodeIDs(tOwnedNodeCount, 1);
-            Matrix<DDSMat> tSharedNodeIDs(mMesh->get_num_nodes(), 1);
+            Matrix<DDSMat> tSharedNodeIDs(tMesh->get_num_nodes(), 1);
 
             // Assign owned and shared node IDs
             tOwnedNodeCount = 0;
-            for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
-                sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
+                sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                         tNodeIndex,
                         EntityRank::NODE,
                         tDiscretizationMeshIndex);
                 tSharedNodeIDs(tNodeIndex) = tNodeID;
-                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex))
+                if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex))
                 {
                     tOwnedNodeIDs(tOwnedNodeCount++) = tNodeID;
                 }
@@ -108,7 +106,8 @@ namespace moris
 
         real BSpline_Field::get_field_value(uint aNodeIndex)
         {
-            sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
+            mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
+            sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                     aNodeIndex,
                     EntityRank::NODE,
                     this->get_discretization_mesh_index());
@@ -120,7 +119,8 @@ namespace moris
 
         const Matrix<DDRMat>& BSpline_Field::get_field_sensitivities(uint aNodeIndex)
         {
-            mSensitivities = trans(mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index()));
+            mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
+            mSensitivities = trans(tMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index()));
             return mSensitivities;
         }
 
@@ -128,7 +128,8 @@ namespace moris
 
         Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
-            return trans( mMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) );
+            mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
+            return trans( tMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -148,12 +149,8 @@ namespace moris
                 tCoeff( Ik ) = *mFieldVariables( Ik );
             }
 
-            // Create mesh pair
-            mtk::Mesh_Pair tMeshPair;
-            tMeshPair.mInterpolationMesh = mMesh;
-            tMeshPair.mIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
-
-            mtk::Field_Discrete* tField = new mtk::Field_Discrete( &tMeshPair, this->get_discretization_mesh_index());
+            // Create field
+            mtk::Field_Discrete* tField = new mtk::Field_Discrete(mMeshPair, this->get_discretization_mesh_index());
 
             // Use mapper
             mtk::Mapper tMapper;
@@ -163,18 +160,20 @@ namespace moris
 
             // Get coefficients
             Matrix<DDRMat> tNodalValues = tField->get_nodal_values();
+            this->unlock_field();
+            this->set_nodal_values(tNodalValues);
 
             // Clean up
-            delete tMeshPair.mIntegrationMesh;
             delete tField;
             //-----------------------------------------------------
 
             // Evaluate field at owned nodes
-            for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
+            mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
-                if ((uint) par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE ))
+                if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE ))
                 {
-                    sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
+                    sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,
                             EntityRank::NODE );
                     MORIS_ASSERT(tNodalValues( tNodeIndex ) != MORIS_REAL_MAX, "value is MORIS_REAL_MAX, check mapper");
@@ -191,9 +190,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        mtk::Interpolation_Mesh* BSpline_Field::get_mesh()
+        mtk::Mesh_Pair BSpline_Field::get_mesh_pair()
         {
-            return mMesh;
+            return mMeshPair;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -203,62 +202,28 @@ namespace moris
             // Mapper
             mtk::Mapper tMapper;
 
+            // New mesh
+            mtk::Interpolation_Mesh* tMesh = mMeshPair.get_interpolation_mesh();
+
             // Output field
-            mtk::Mesh_Pair tOutputMeshPair;
-            tOutputMeshPair.mInterpolationMesh = mMesh;
-            tOutputMeshPair.mIntegrationMesh =
-                    create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tOutputMeshPair.mInterpolationMesh);
-
-            mtk::Field_Discrete* tOutputField = new mtk::Field_Discrete( &tOutputMeshPair, this->get_discretization_mesh_index());
-
-            // Input mesh
-            mtk::Interpolation_Mesh* tInputMesh = aField->get_mesh();
-            if (not tInputMesh)
-            {
-                tInputMesh = mMesh;
-            }
+            mtk::Field_Discrete* tOutputField = new mtk::Field_Discrete(mMeshPair, this->get_discretization_mesh_index());
 
             // Nodal values
-            Matrix<DDRMat> tNodalValues(tInputMesh->get_num_nodes(), 1);
-            for (uint tNodeIndex = 0; tNodeIndex < tInputMesh->get_num_nodes(); tNodeIndex++)
+            Matrix<DDRMat> tNodalValues(tMesh->get_num_nodes(), 1);
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
                 tNodalValues(tNodeIndex) =
-                        aField->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                        aField->get_field_value(tNodeIndex, tMesh->get_node_coordinate(tNodeIndex));
             }
 
-            // Interpolation not needed
-            if (tInputMesh == mMesh)
-            {
-                tOutputField->unlock_field();
-                tOutputField->set_nodal_values(tNodalValues);
-                tMapper.map_input_field_to_output_field_2(tOutputField);
-            }
-            // Interpolation needed
-            else
-            {
-                // Input field
-                mtk::Mesh_Pair tInputMeshPair;
-                tInputMeshPair.mInterpolationMesh = tInputMesh;
-                tInputMeshPair.mIntegrationMesh =
-                        create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tInputMeshPair.mInterpolationMesh);
-
-                mtk::Field_Discrete* tInputField = new mtk::Field_Discrete(
-                        &tInputMeshPair,
-                        aField->get_discretization_mesh_index());
-
-                // Do interpolation
-                tInputField->unlock_field();
-                tInputField->set_nodal_values(tNodalValues);
-                tMapper.map_input_field_to_output_field(tInputField, tOutputField);
-
-                delete tInputMeshPair.mIntegrationMesh;
-            }
+            tOutputField->unlock_field();
+            tOutputField->set_nodal_values(tNodalValues);
+            tMapper.map_input_field_to_output_field_2(tOutputField);
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
 
             // Clean up
-            delete tOutputMeshPair.mIntegrationMesh;
             delete tOutputField;
 
             // Return mapped field

@@ -634,11 +634,14 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                            tActiveDvTypes );
+                    tProperty->get_non_unique_dof_dv_and_field_types(
+                            tActiveDofTypes,
+                            tActiveDvTypes,
+                            tActiveFieldTypes);
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -655,10 +658,12 @@ namespace moris
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes);
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -672,12 +677,14 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -691,12 +698,14 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -744,10 +753,12 @@ namespace moris
                     // get property non unique dof and dv types
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -761,12 +772,14 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tProperty->get_non_unique_dof_and_dv_types(
+                    tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes);
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -780,12 +793,14 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -799,12 +814,14 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );

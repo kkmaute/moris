@@ -11,7 +11,7 @@
 //LNA/src
 #include "cl_Matrix.hpp"
 #include "typedefs.hpp"
-#include "fn_reshape.hpp"
+#include "fn_vectorize.hpp"
 #include "fn_isfinite.hpp"
 //MRS/COR/src // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
@@ -66,6 +66,7 @@ namespace moris
                 // bool for building global dof type list and map
                 bool mGlobalDofBuild = true;
                 bool mGlobalDvBuild = true;
+                bool mGlobalFieldBuild = true;
 
                 // master and slave global dof type lists
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
@@ -92,12 +93,23 @@ namespace moris
                 moris::Cell< moris::Cell< mtk::Field_Type > > mMasterFieldTypes;
                 moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveFieldTypes;
 
+                // master and slave global dv type list
+                moris::Cell< moris::Cell< mtk::Field_Type > > mMasterGlobalFieldTypes;
+                moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveGlobalFieldTypes;
+
                 // master and slave properties
                 moris::Cell< std::shared_ptr< Property > > mMasterProp;
                 moris::Cell< std::shared_ptr< Property > > mSlaveProp;
 
                 // local string to int map for properties
                 std::map< std::string, uint > mPropertyMap;
+
+                // master and slave material models
+                moris::Cell< std::shared_ptr< fem::Material_Model > > mMasterMM;
+                moris::Cell< std::shared_ptr< fem::Material_Model > > mSlaveMM;
+
+                // Local string to int map for material models
+                std::map< std::string, uint > mMaterialMap;
 
                 // master and slave constitutive models
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mMasterCM;
@@ -521,6 +533,27 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set material model
+                 * @param[ in ] aMaterialModel       a material model pointer
+                 * @param[ in ] aMaterialModelString a string defining the material model
+                 * @param[ in ] aIsMaster            an enum for master or slave
+                 */
+                void set_material_model(
+                        std::shared_ptr< Material_Model > aMaterialModel,
+                        std::string                       aMaterialModelString,
+                        mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get material models
+                 * @param[ in ]  aIsMaster           enum master or slave
+                 * @param[ out ] aMaterialModels     cell of material model pointers
+                 */
+                moris::Cell< std::shared_ptr< Material_Model > > & get_material_models(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
                  * set constitutive model
                  * @param[ in ] aConstitutiveModel  a constitutive model pointer
                  * @param[ in ] aConstitutiveString a string defining the constitutive model
@@ -539,7 +572,6 @@ namespace moris
                  */
                 moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
 
                 //------------------------------------------------------------------------------
                 /**
@@ -567,7 +599,7 @@ namespace moris
                  * create a global dof type list including
                  * IWG, property, constitutive and stabilization dependencies
                  */
-                void build_global_dof_and_dv_type_list();
+                void build_global_dof_dv_and_field_type_list();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -677,6 +709,25 @@ namespace moris
                         Matrix< DDRMat > & aJacobians,
                         Matrix< DDRMat > & aJacobiansFD,
                         bool               aErrorPrint = false );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * check Jacobian that uses multiple dof types with FD
+                 * FIXME: FEM needs refactoring for mResidualDofTypes being a cell of cells
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aEpsilon      real for check
+                 * @param[ in ] aWStar        real weight associated to evaluation point
+                 * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
+                 * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+                 * @param[ in ] aErrorPrint   bool set to true to print non matching values in jacobian
+                 */
+                bool check_jacobian_multi_residual(
+                        real               aPerturbation,
+                        real               aEpsilon,
+                        real               aWStar,
+                        Matrix< DDRMat > & aJacobians,
+                        Matrix< DDRMat > & aJacobiansFD,
+                        bool               aErrorPrint = false );                        
 
                 //------------------------------------------------------------------------------
                 /**
@@ -852,10 +903,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * reset evaluation flags specific to child IWG
+                 */
+                virtual void reset_spec_eval_flags(){};
+
+                //------------------------------------------------------------------------------
+                /**
                  * build a list of dof types requested by the solver and owned by the IWG
                  * @param[ in ] aIsResidual bool true if residual evaluation
                  */
-                void build_requested_dof_type_list( const bool aIsResidual );
+                void build_requested_dof_type_list( const bool aIsStaggered );
 
         };
         //------------------------------------------------------------------------------

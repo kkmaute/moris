@@ -25,12 +25,10 @@ namespace moris
                 Matrix<DDRMat> mConstraints;               // constraints
                 Matrix<DDRMat> mObjectiveGradient;         // full gradient of the objectives with respect to the ADVs
                 Matrix<DDRMat> mConstraintGradient;        // full gradient of the constraints with respect to the ADVs
-                Matrix<DDRMat> mFiniteDifferenceEpsilons;  // Epsilon for finite differencing
 
                 std::string mRestartFile;                  // Restart file
-                std::string mFiniteDifferenceType;
 
-                real mADVNormTolerance = 1E-12;
+                real mADVNormTolerance = 1e-12;            // Tolerance for determining whether ADV vector has changed
 
                 uint mNumObjectives;                       // Number of objectives (should be one)
                 uint mNumConstraints;                      // Number of constraints
@@ -95,17 +93,16 @@ namespace moris
                 }
 
                 /**
-                 * Sets the ADV vector. Note that this also indicates to the interface that criteria values need to be
-                 * recomputed.
+                 * Computes design criteria for given ADV vector.
                  *
                  * @param vector of ADV values
                  */
-                void trigger_criteria_solve(const Matrix<DDRMat> & aNewADVs);
+                void compute_design_criteria(const Matrix<DDRMat> & aNewADVs);
 
                 /**
-                 * Computes the criteria gradients
+                 * Computes analytically the criteria gradients for current ADV vector of problem
                  */
-                void trigger_dcriteria_dadv_solve();
+                void compute_design_criteria_gradients(const Matrix<DDRMat> & aNewADVs);
 
                 /**
                  * Get reference to the adv upper bounds
@@ -154,6 +151,16 @@ namespace moris
                 const Matrix<DDRMat> & get_constraints();
 
                 /**
+                 * Sets objective and  constraint values
+                 *
+                 * @param[in] aObjectives - vector of objectives
+                 * @param[in] aConstraints - vector of constraints
+                 */
+                void set_objectives_and_constraints(
+                        const Matrix<DDRMat>& aObjectives,
+                        const Matrix<DDRMat>& aConstraints);
+
+                /**
                  * Returns the objective gradient, and computes it if not already available.
                  *
                  * @return full derivative matrix d(objective)_i/d(adv)_j
@@ -166,18 +173,6 @@ namespace moris
                  * @return full derivative matrix d(constraint)_i/d(adv)_j
                  */
                 const Matrix<DDRMat> & get_constraint_gradients();
-
-                /**
-                 * Sets the type of finite differencing used for the objectives and an epsilon
-                 *
-                 * @param aType std::string defining type; forward, backward, central, or none
-                 * @param (optional) aEpsilons vector of values for perturbing the ADVs
-                 */
-                void set_finite_differencing(
-                        std::string aType,
-                        Matrix<DDRMat> aEpsilons);
-
-                void set_finite_differencing(std::string aType);
 
                 /**
                  * Modifies the optimization solution. Not currently implemented.
@@ -251,47 +246,6 @@ namespace moris
                  * @return matrix d(constraint)_i/d(criteria)_j
                  */
                 virtual Matrix<DDRMat> compute_dconstraint_dcriteria() = 0;
-
-                /**
-                 * Function pointer which computes the objective gradient in a user-specified way
-                 */
-                void (Problem::*compute_objective_gradient)() = &Problem::compute_objective_gradient_analytical;
-
-                /**
-                 * Function pointer which computes the constraint gradients in a user-specified way
-                 */
-                void (Problem::*compute_constraint_gradient)() = &Problem::compute_constraint_gradient_analytical;
-
-                /**
-                 * Assembles the objective gradient from the explicit and implicit gradient terms.
-                 */
-                void compute_objective_gradient_analytical();
-
-                /**
-                 * Assembles the constraint gradient from the explicit and implicit gradient terms.
-                 */
-                void compute_constraint_gradient_analytical();
-
-                /**
-                 * Computes the objective gradient using forward or backward finite differencing
-                 */
-                void compute_objective_gradient_fd_bias();
-
-                /**
-                 * Computes the constraint gradient using forward or backward finite differencing
-                 */
-                void compute_constraint_gradient_fd_bias();
-
-                /**
-                 * Computes the objective gradient using central finite differencing
-                 */
-                void compute_objective_gradient_fd_central();
-
-                /**
-                 * Computes the constraint gradient using central finite differencing
-                 */
-                void compute_constraint_gradient_fd_central();
-
         };
     }
 }

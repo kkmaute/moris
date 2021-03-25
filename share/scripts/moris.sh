@@ -9,12 +9,15 @@
 #        3 - basename of input file (without .cpp)
 #        4 - run prefix, e.g., valgrind
 
-rm -f "$3".so
+sofile="$3.so"
+ofile="$3.o"
+
+rm -f $sofile $ofile
 
 if [ $1 = "opt" -o  $1 = "dbg" ];then
     moris_create_shared_object.sh $1 $3
     
-    if [ ! -f "$3".so ];then
+    if [ ! -f $sofile ];then
         echo ""
         echo " compilation failed"
         echo ""

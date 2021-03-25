@@ -67,7 +67,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) +=
-                                aWStar * ( trans( tVelocityFI->N() ) * tPropPressure->val()( 0 ) * mNormal );
+                                aWStar * ( tVelocityFI->N_trans() * tPropPressure->val()( 0 ) * mNormal );
             }
             // when total pressure is imposed
             else
@@ -88,7 +88,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) +=
-                                aWStar * ( tImposedPressure * trans( tVelocityFI->N() ) * mNormal );
+                                aWStar * ( tImposedPressure * tVelocityFI->N_trans() * mNormal );
             }
 
             // check for nan, infinity
@@ -148,7 +148,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * ( trans( tVelocityFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                                        aWStar * ( tVelocityFI->N_trans() * mNormal * tPropPressure->dPropdDOF( tDofType ) );
                     }
                 }
                 else
@@ -158,13 +158,13 @@ namespace moris
                     {
                         // compute derivative of imposed pressure with respect to velocities
                         const Matrix< DDRMat > tdpredvel =
-                                -1.0 * tPropDensity->val()( 0 ) * trans( tVelocityFI->val() ) * tVelocityFI->N();
+                                -1.0 * tPropDensity->val()( 0 ) * tVelocityFI->val_trans() * tVelocityFI->N();
 
                         // compute the jacobian/
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * ( trans( tVelocityFI->N() ) * mNormal * tdpredvel );
+                                        aWStar * ( tVelocityFI->N_trans() * mNormal * tdpredvel );
                     }
 
                     // if imposed total pressure property depends on the dof type
@@ -174,7 +174,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * ( trans( tVelocityFI->N() ) * mNormal * tPropTotalPressure->dPropdDOF( tDofType ) );
+                                        aWStar * ( tVelocityFI->N_trans() * mNormal * tPropTotalPressure->dPropdDOF( tDofType ) );
                     }
 
                     // if density property depends on the dof type
@@ -187,7 +187,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * ( tdpreddens * trans( tVelocityFI->N() ) * mNormal * tPropDensity->dPropdDOF( tDofType ) );
+                                        aWStar * ( tdpreddens * tVelocityFI->N_trans() * mNormal * tPropDensity->dPropdDOF( tDofType ) );
                     }
                 }
             }

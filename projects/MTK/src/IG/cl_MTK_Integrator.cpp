@@ -1,11 +1,11 @@
 //MTK/src
 #include "IG/cl_MTK_Integration_Rule.hpp"
 #include "IG/cl_MTK_Integrator.hpp"
+
 //LINALG/src
 #include "op_times.hpp"
 #include "fn_trans.hpp"
-#include "fn_reshape.hpp"
-
+#include "fn_vectorize.hpp"
 
 namespace moris
 {
@@ -100,10 +100,8 @@ namespace moris
         void Integrator::get_weights( Matrix< DDRMat > & aIntegrationWeights )
         {
             // get weights
-            aIntegrationWeights = reshape (
-                    trans( mSpaceWeights ) * mTimeWeights,
-                    1,
-                    mNumOfSpacePoints*mNumOfTimePoints );
+            aIntegrationWeights = trans(
+                vectorize ( trans( mSpaceWeights ) * mTimeWeights ) );
         }
 
         //------------------------------------------------------------------------------

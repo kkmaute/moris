@@ -64,6 +64,7 @@ namespace moris
                 STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
                 STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
                 STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+                STRUC_VON_MISES_STRESS,
 
                 INCOMPRESSIBLE_NS_VELOCITY_BULK,
                 INCOMPRESSIBLE_NS_PRESSURE_BULK,
@@ -78,6 +79,9 @@ namespace moris
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE,
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
 
+                COMPRESSIBLE_NS_BULK,
+                COMPRESSIBLE_NS_BOUNDARY,
+                
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
                 COMPRESSIBLE_NS_TEMPERATURE_BULK,
@@ -119,7 +123,7 @@ namespace moris
                 STABILIZATION,
                 L2_ERROR_ANALYTIC,
                 H1_ERROR_ANALYTIC,
-                H1_SEMI_ERROR,
+                H1_ERROR,
                 J_INTEGRAL,
                 LIFT_COEFF,
                 DRAG_COEFF,
@@ -172,6 +176,18 @@ namespace moris
                 VAN_DER_WAALS_FLUID,
                 END_CONSTITUTIVE_TYPE
         };        
+
+        //------------------------------------------------------------------------------
+
+        enum class Variable_Set
+        {
+                UNDEFINED,
+                CONSERVATIVE,
+                DENSITY_PRIMITIVE,
+                PRESSURE_PRIMITIVE,
+                ENTROPY,
+                END_CONSTITUTIVE_TYPE
+        };
 
         //------------------------------------------------------------------------------
 

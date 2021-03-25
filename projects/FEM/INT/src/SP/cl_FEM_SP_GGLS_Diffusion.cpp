@@ -111,6 +111,10 @@ namespace moris
             // time step size
             real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
+            // check for conductivity and time step larger zero
+            MORIS_ASSERT( tConductivity * tDeltat > MORIS_REAL_MIN,
+                    "SP_GGLS_Diffusion::eval_SP - conductivity and/or time step equal zero.\n");
+
             // get alpha
             real tAlpha = 0.0;
 
@@ -138,8 +142,18 @@ namespace moris
                 tAlpha = ( tDensity * tHeatCapacity * std::pow(tElementSize, 2.0) ) / ( 6.0 * tConductivity * tDeltat );
             }
 
-            // xi-bar value
-            moris::real tXibar = ( std::cosh( std::sqrt(6.0*tAlpha) ) + 2.0 ) / ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 )  -  (1.0/tAlpha);
+            // compute xi-bar value
+            real tXibar;
+
+            // check if tAlpha is clost to zero
+            if ( tAlpha < MORIS_REAL_MIN )
+            {
+                tXibar = 0.5;
+            }
+            else
+            {
+                tXibar = ( std::cosh( std::sqrt(6.0*tAlpha) ) + 2.0 ) / ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 )  -  (1.0/tAlpha);
+            }
 
             // compute stabilization parameter value
             mPPVal = {{  std::pow(tElementSize, 2.0) / 6.0  * tXibar }};
@@ -194,6 +208,10 @@ namespace moris
             real tAlpha        = 0.0;
             real tdfdT         = 0.0;
 
+            // check for conductivity and time step larger zero
+            MORIS_ASSERT( tConductivity * tDeltat > MORIS_REAL_MIN,
+                    "SP_GGLS_Diffusion::eval_SP - conductivity and/or time step equal zero.\n");
+
             // if there is a phase change
             if (tPropLatentHeat != nullptr)
             {
@@ -216,12 +234,22 @@ namespace moris
             }
 
             // get derivative of SP wrt to alpha d(k*tau)/d(alpha)
-            real dXibardAlpha =
-                    (4.0 -
-                    8.0 * std::cosh( std::sqrt(6.0*tAlpha) ) +
-                    4.0 * std::pow( std::cosh( std::sqrt(6.0*tAlpha) ) , 2.0 ) -
-                    std::pow( 6.0*tAlpha , 1.5 ) * std::sinh( std::sqrt(6.0*tAlpha) ) )
-                                    / ( 4.0 * std::pow( tAlpha , 2.0 ) * std::pow( ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 ) , 2.0 ) );
+            real dXibardAlpha;
+
+            // check if tAlpha is clost to zero
+            if ( tAlpha < MORIS_REAL_MIN )
+            {
+                dXibardAlpha = 0.0;
+            }
+            else
+            {
+                dXibardAlpha =
+                        (4.0 -
+                                8.0 * std::cosh( std::sqrt(6.0*tAlpha) ) +
+                                4.0 * std::pow( std::cosh( std::sqrt(6.0*tAlpha) ) , 2.0 ) -
+                                std::pow( 6.0*tAlpha , 1.5 ) * std::sinh( std::sqrt(6.0*tAlpha) ) )
+                                / ( 4.0 * std::pow( tAlpha , 2.0 ) * std::pow( ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 ) , 2.0 ) );
+            }
 
             moris::real tdSPdAlpha = std::pow(tElementSize, 2.0) / 6.0 * dXibardAlpha;
 

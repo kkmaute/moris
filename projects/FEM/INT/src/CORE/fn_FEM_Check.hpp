@@ -20,7 +20,8 @@ namespace moris
         bool check(
                 moris::Matrix< moris::DDRMat > & aMatrixCheck,
                 moris::Matrix< moris::DDRMat > & aMatrixRef,
-                moris::real                      aEpsilon )
+                moris::real                      aEpsilon,
+                bool                             aShowDifferences = true )
         {
             // check that matrices to compare have same size
             MORIS_ERROR(
@@ -53,7 +54,7 @@ namespace moris
                     tCheckBool = tCheckBool and ( ( tAbsolute < aEpsilon ) or ( tRelative < aEpsilon ) );
 
                     // for debug
-                    if ( ( tAbsolute > aEpsilon ) and ( tRelative > aEpsilon ) )
+                    if ( ( tAbsolute > aEpsilon ) and ( tRelative > aEpsilon ) and aShowDifferences )
                     {
                         std::cout<<"ii "<<ii<<" - jj "<<jj<<"\n"<<std::flush;
                         std::cout<<"aMatrixCheck( ii, jj ) "<<aMatrixCheck( ii, jj )<<"\n"<<std::flush;

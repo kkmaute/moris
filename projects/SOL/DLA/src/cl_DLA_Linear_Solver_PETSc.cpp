@@ -97,7 +97,7 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(
         Linear_Problem * aLinearSystem,
         const moris::sint       aIter )
 {
-    Tracer tTracer( "LinearSolver", "PETSc", "Solve" );
+    Tracer tTracer( "LinearAlgorithm", "PETSc", "Solve" );
 
     mSolverInterface = aLinearSystem->get_solver_input();
 

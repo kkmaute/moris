@@ -170,8 +170,10 @@ namespace moris
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
+            const Cell< std::string > & tMeshNames = mParameters->get_output_mesh_names();
+
             // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
-            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
+            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
 
             if( OutputMeshIndex.size() == 2 )
             {
@@ -189,9 +191,16 @@ namespace moris
                             this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
                     // register HMR interpolation and integration meshes
-                    mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true );
+                    mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( Ik+1 ) );
                 }
             }
+        }
+
+        // -----------------------------------------------------------------------------
+
+        bool HMR::get_mesh_name_exists( const std::string & aName ) const
+        {
+            return mParameters->get_mesh_name_exists( aName );
         }
 
         // -----------------------------------------------------------------------------
@@ -764,6 +773,28 @@ namespace moris
         Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aLagrangeMeshIndex)
         {
             return new Interpolation_Mesh_HMR( mDatabase, aLagrangeMeshIndex );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh(
+                const std::string & aName,
+                bool                aTMatricesExist )
+        {
+            moris_index tMeshIndex = mParameters->get_mesh_index_by_name( aName );
+
+            if( aTMatricesExist )
+            {
+                MORIS_ERROR(false, "HMR::create_interpolation_mesh( ),Implementation is missing");
+                //FIXME grab order and pattern for lagrange and bspline emsh from output mesh.
+                // return this->create_interpolation_mesh(  aOrder, aLagrangePattern, aBsplinePattern);
+            }
+            else
+            {
+                return this->create_interpolation_mesh( tMeshIndex );
+            }
+
+            return nullptr;
         }
 
         // -----------------------------------------------------------------------------
@@ -1583,8 +1614,6 @@ namespace moris
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
-            std::cout<<"Elements on refinement List: "<<aElementCounter<<std::endl;
-
             // flag elements in HMR
             this->put_elements_on_refinment_queue( tRefinementList );
 
@@ -1894,26 +1923,29 @@ namespace moris
             }
 
             // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-            Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
+            Integration_Mesh_HMR* tIntegrationUnionMesh =
+                    this->create_integration_mesh(
+                            tOrder,
+                            mParameters->get_union_pattern(),
+                            tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
-            mtk::Mesh_Pair tMeshPairUnion;
-            tMeshPairUnion.mInterpolationMesh = tUnionInterpolationMesh;
-            tMeshPairUnion.mIntegrationMesh   = tIntegrationUnionMesh;
+            mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh);
 
-            if ( par_rank() == 0 )
-            {
-                std::cout << "Number of nodes of tUnionInterpolationMesh " << tUnionInterpolationMesh->get_num_nodes() << std::endl;
-                std::cout << "Number of nodes of tIntegrationUnionMesh " << tIntegrationUnionMesh->get_num_nodes() << std::endl;
-                std::cout << "Number of nodes of tUnionField " << tUnionField->get_node_values().n_rows() << std::endl;
+            // FIXME: need for following operation not clear
+            // Extract and resize nodal data from tUnionField
+            Matrix<DDRMat> tUnionFieldData = tUnionField->get_node_values();
 
-                std::string tString="tUnionField->get_node_values(): " + std::to_string(par_rank());
-                print(tUnionField->get_node_values(),tString.c_str());
-            }
+            uint tNumNodesUnionMesh =tUnionInterpolationMesh->get_num_nodes();
 
-            mtk::Field_Discrete tFieldUnion( &tMeshPairUnion, 0 );
+            tUnionFieldData.resize( tNumNodesUnionMesh, tUnionFieldData.n_cols() );
+
+            // create union mesh for field
+            mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
             tFieldUnion.unlock_field();
-            tFieldUnion.set_nodal_values( tUnionField->get_node_values() );
+
+            // copy data onto field
+            tFieldUnion.set_nodal_values( tUnionFieldData );
 
             // create mapper
             mtk::Mapper tMapper;

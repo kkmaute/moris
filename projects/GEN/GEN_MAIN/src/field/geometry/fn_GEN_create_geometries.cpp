@@ -52,7 +52,13 @@ namespace moris
             for (uint tGeometryIndex = 0; tGeometryIndex < aGeometryParameterLists.size(); tGeometryIndex++)
             {
                 // Create geometry
-                std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary, nullptr, aMTKMesh);
+                std::shared_ptr<Geometry> tGeometry = create_geometry(
+                        aGeometryParameterLists(tGeometryIndex),
+                        aADVs,
+                        aLibrary,
+                        nullptr,
+                        aMTKMesh);
+
                 if (aGeometryParameterLists(tGeometryIndex).get<bool>("multilinear_intersections"))
                 {
                     tGeometry->set_intersection_interpolation("multilinear");
@@ -105,7 +111,13 @@ namespace moris
                     for (uint tVoxelID = 1; tVoxelID <= tNumVoxelIDs; tVoxelID++)
                     {
                         std::shared_ptr<Geometry> tGeometrySingleGrain =
-                                create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary, tGeometry, aMTKMesh, tVoxelID);
+                                create_geometry(
+                                        aGeometryParameterLists(tGeometryIndex),
+                                        aADVs,
+                                        aLibrary,
+                                        tGeometry,
+                                        aMTKMesh,
+                                        tVoxelID);
 
                         tGeometries.push_back( tGeometrySingleGrain );
                     }
@@ -230,7 +242,7 @@ namespace moris
             }
             else if (tGeometryType == "nodal_field")
             {
-                MORIS_ERROR(aMTKMesh != nullptr,"Mesh is a null ptr for nodal field geometry");
+                MORIS_ERROR(aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry");
                 return std::make_shared<ge::Mesh_Field_Geometry>(aMTKMesh, tParameters.mName, EntityRank::NODE);
             }
             else if (tGeometryType == "user_defined")
@@ -290,8 +302,8 @@ namespace moris
                 real tTargetYSpacing = aGeometryParameterList.get<real>("target_y_spacing");
 
                 MORIS_ERROR((tNumXHoles > 1 and tNumYHoles > 1) or (tTargetXSpacing and tTargetYSpacing),
-                            "In a swiss cheese parameter list, you must specify either a number of holes > 1 or a target "
-                            "spacing in each direction.");
+                            "In a swiss cheese parameter list, you must specify either a number of holes > 1 %s",
+                            "or a target spacing in each direction.\n");
 
                 if (tNumXHoles)
                 {
@@ -348,13 +360,14 @@ namespace moris
                 Cell<ParameterList>         aGeometryParameterLists,
                 Matrix<DDRMat>&             aADVs,
                 std::shared_ptr<Library_IO> aLibrary,
-                mtk::Mesh*   aMTKMesh);
+                mtk::Mesh*                  aMTKMesh);
+
         template
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 sol::Dist_Vector*&          aADVs,
                 std::shared_ptr<Library_IO> aLibrary,
-                mtk::Mesh*   aMTKMesh);
+                mtk::Mesh*                  aMTKMesh);
 
         //--------------------------------------------------------------------------------------------------------------
 

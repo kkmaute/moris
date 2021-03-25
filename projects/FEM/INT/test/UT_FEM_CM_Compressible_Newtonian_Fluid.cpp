@@ -25,7 +25,8 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive", "[CM_Compressible_Newtonian_Fluid_Density_Primitive]" )
+TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive", 
+        "[CM_Compressible_Newtonian_Fluid_Density_Primitive]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
@@ -559,6 +560,59 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive", "[CM_Compressibl
                         // check that analytical and FD match
                         bool tCheckEintDot = fem::check( tdEintDotdDof, tdEintDotdDofFD, tEpsilon );
                         REQUIRE( tCheckEintDot );
+
+                        //------------------------------------------------------------------------------
+                        //  Thermodynamic Quantitities - Material Model
+                        //------------------------------------------------------------------------------
+                        // evaluate dAlphaPdu
+                        Matrix< DDRMat > tdAlphaPdDof = tMMFluid->AlphaPDOF( tDofDerivative );
+
+                        // evaluate dQuantitydu by FD
+                        Matrix< DDRMat > tdAlphaPdDofFD;
+                        tMMFluid->eval_QuantityDOF_FD(
+                                tDofDerivative,
+                                tdAlphaPdDofFD,
+                                "AlphaP",
+                                tPerturbation,
+                                FDScheme_Type::POINT_5 );
+
+                        // check that analytical and FD match
+                        bool tCheckAlphaP = fem::check( tdAlphaPdDof, tdAlphaPdDofFD, tEpsilon );
+                        REQUIRE( tCheckAlphaP );        
+
+                        //------------------------------------------------------------------------------
+                        // evaluate dBetaTdu
+                        Matrix< DDRMat > tdBetaTdDof = tMMFluid->BetaTDOF( tDofDerivative );
+
+                        // evaluate dQuantitydu by FD
+                        Matrix< DDRMat > tdBetaTdDofFD;
+                        tMMFluid->eval_QuantityDOF_FD(
+                                tDofDerivative,
+                                tdBetaTdDofFD,
+                                "BetaT",
+                                tPerturbation,
+                                FDScheme_Type::POINT_5 );
+
+                        // check that analytical and FD match
+                        bool tCheckBetaT = fem::check( tdBetaTdDof, tdBetaTdDofFD, tEpsilon );
+                        REQUIRE( tCheckBetaT );
+
+                        //------------------------------------------------------------------------------
+                        // evaluate dCpdu
+                        Matrix< DDRMat > tdCpdDof = tMMFluid->CpDOF( tDofDerivative );
+
+                        // evaluate dQuantitydu by FD
+                        Matrix< DDRMat > tdCpdDofFD;
+                        tMMFluid->eval_QuantityDOF_FD(
+                                tDofDerivative,
+                                tdCpdDofFD,
+                                "Cp",
+                                tPerturbation,
+                                FDScheme_Type::POINT_5 );
+
+                        // check that analytical and FD match
+                        bool tCheckCp = fem::check( tdCpdDof, tdCpdDofFD, tEpsilon );
+                        REQUIRE( tCheckCp );                                                                   
                     }                 
 
                     //------------------------------------------------------------------------------
@@ -674,6 +728,63 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive", "[CM_Compressibl
                     REQUIRE( tCheckWorkFlux );
 
                     //------------------------------------------------------------------------------
+                    //  Div-Stress (Mechanical Div-Flux)
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdMechDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::MECHANICAL );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdMechDivFluxdDofFD;
+                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                            tDofDerivative,
+                            tdMechDivFluxdDofFD,
+                            tPerturbation,
+                            FDScheme_Type::POINT_5,
+                            CM_Function_Type::MECHANICAL );
+
+                    // check that analytical and FD match
+                    bool tCheckMechDivFlux = fem::check( tdMechDivFluxdDof, tdMechDivFluxdDofFD, tEpsilon );
+                    REQUIRE( tCheckMechDivFlux );
+
+                    //------------------------------------------------------------------------------
+                    //  Div-Flux (thermal Div-Flux)
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdThermalDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::THERMAL );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdThermalDivFluxdDofFD;
+                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                            tDofDerivative,
+                            tdThermalDivFluxdDofFD,
+                            tPerturbation,
+                            FDScheme_Type::POINT_5,
+                            CM_Function_Type::THERMAL );                                
+
+                    // check that analytical and FD match
+                    bool tCheckThermalDivFlux = fem::check( tdThermalDivFluxdDof, tdThermalDivFluxdDofFD, tEpsilon );
+                    REQUIRE( tCheckThermalDivFlux );
+
+                    //------------------------------------------------------------------------------
+                    //  Div-Work-Flux (work Div-Flux)
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdWorkDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::WORK );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdWorkDivFluxdDofFD;
+                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                            tDofDerivative,
+                            tdWorkDivFluxdDofFD,
+                            tPerturbation,
+                            FDScheme_Type::POINT_5,
+                            CM_Function_Type::WORK );                                                     
+
+                    // check that analytical and FD match
+                    bool tCheckWorkDivFlux = fem::check( tdWorkDivFluxdDof, tdWorkDivFluxdDofFD, 10.0 * tEpsilon );
+                    REQUIRE( tCheckWorkDivFlux );
+
+                    //------------------------------------------------------------------------------
                     // Mechanical Strain Rate
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
@@ -764,14 +875,15 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive", "[CM_Compressibl
 
 //------------------------------------------------------------------------------
 
-TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressible_Newtonian_Fluid_Pressure_Primitive]" )
+TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", 
+        "[CM_Compressible_Newtonian_Fluid_Pressure_Primitive]" )
 {
     // define an epsilon environment
-    real tEpsilon = 2.0E-6;
-    real tEpsilonCubic = 2.0E-5;
+    real tEpsilon = 5.0E-6;
+    real tEpsilonCubic = 5.0E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-6;
+    real tPerturbation = 1.0E-6;
     real tPerturbationCubic = 4.0E-6;
 
     // init geometry inputs
@@ -851,13 +963,13 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
     tCMMasterFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tMMFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    //tMMFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
     tCMMasterFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tMMFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
-    tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
+//     tMMFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+//     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
+//     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
     tCMMasterFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
@@ -865,9 +977,9 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
     tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // set size and populate the set master dof type map
-    tMMFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
-    tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
+//     tMMFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+//     tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
+//     tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
     tCMMasterFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
@@ -875,7 +987,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
     tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;    
 
     // build global dof type list
-    tMMFluid->get_global_dof_type_list();
+//     tMMFluid->get_global_dof_type_list();
     tCMMasterFluid->get_global_dof_type_list();
 
     // loop on the space dimension
@@ -1062,11 +1174,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tMMFluid->mSet->mMasterFIManager = &tFIManager;
+            //tMMFluid->mSet->mMasterFIManager = &tFIManager;
             tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            tMMFluid->set_field_interpolator_manager( &tFIManager );
+            //tMMFluid->set_field_interpolator_manager( &tFIManager );
             tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
@@ -1080,7 +1192,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tMMFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                //tMMFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
                 tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );                
 
                 // populate the requested master dof type for CM
@@ -1298,6 +1410,59 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
                         // check that analytical and FD match
                         bool tCheckEintDot = fem::check( tdEintDotdDof, tdEintDotdDofFD, tEpsilon );
                         REQUIRE( tCheckEintDot );
+
+                        //------------------------------------------------------------------------------
+                        //  Thermodynamic Quantitities - Material Model
+                        //------------------------------------------------------------------------------
+                        // evaluate dAlphaPdu
+                        Matrix< DDRMat > tdAlphaPdDof = tMMFluid->AlphaPDOF( tDofDerivative );
+
+                        // evaluate dQuantitydu by FD
+                        Matrix< DDRMat > tdAlphaPdDofFD;
+                        tMMFluid->eval_QuantityDOF_FD(
+                                tDofDerivative,
+                                tdAlphaPdDofFD,
+                                "AlphaP",
+                                tPerturbation,
+                                FDScheme_Type::POINT_5 );
+
+                        // check that analytical and FD match
+                        bool tCheckAlphaP = fem::check( tdAlphaPdDof, tdAlphaPdDofFD, tEpsilon );
+                        REQUIRE( tCheckAlphaP );        
+
+                        //------------------------------------------------------------------------------
+                        // evaluate dBetaTdu
+                        Matrix< DDRMat > tdBetaTdDof = tMMFluid->BetaTDOF( tDofDerivative );
+
+                        // evaluate dQuantitydu by FD
+                        Matrix< DDRMat > tdBetaTdDofFD;
+                        tMMFluid->eval_QuantityDOF_FD(
+                                tDofDerivative,
+                                tdBetaTdDofFD,
+                                "BetaT",
+                                tPerturbation,
+                                FDScheme_Type::POINT_5 );
+
+                        // check that analytical and FD match
+                        bool tCheckBetaT = fem::check( tdBetaTdDof, tdBetaTdDofFD, tEpsilon );
+                        REQUIRE( tCheckBetaT );
+
+                        //------------------------------------------------------------------------------
+                        // evaluate dCpdu
+                        Matrix< DDRMat > tdCpdDof = tMMFluid->CpDOF( tDofDerivative );
+
+                        // evaluate dQuantitydu by FD
+                        Matrix< DDRMat > tdCpdDofFD;
+                        tMMFluid->eval_QuantityDOF_FD(
+                                tDofDerivative,
+                                tdCpdDofFD,
+                                "Cp",
+                                tPerturbation,
+                                FDScheme_Type::POINT_5 );
+
+                        // check that analytical and FD match
+                        bool tCheckCp = fem::check( tdCpdDof, tdCpdDofFD, tEpsilon );
+                        REQUIRE( tCheckCp );                                                                                          
                     }                 
 
                     //------------------------------------------------------------------------------
@@ -1411,6 +1576,63 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", "[CM_Compressib
                     // check that analytical and FD match
                     bool tCheckWorkFlux = fem::check( tdWorkFluxdu, tdWorkFluxduFD, tEpsilon );
                     REQUIRE( tCheckWorkFlux );
+
+                    //------------------------------------------------------------------------------
+                    //  Div-Stress (Mechanical Div-Flux)
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdMechDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::MECHANICAL );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdMechDivFluxdDofFD;
+                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                            tDofDerivative,
+                            tdMechDivFluxdDofFD,
+                            tPerturbation,
+                            FDScheme_Type::POINT_5,
+                            CM_Function_Type::MECHANICAL );
+
+                    // check that analytical and FD match
+                    bool tCheckMechDivFlux = fem::check( tdMechDivFluxdDof, tdMechDivFluxdDofFD, tEpsilon );
+                    REQUIRE( tCheckMechDivFlux );
+
+                    //------------------------------------------------------------------------------
+                    //  Div-Flux (thermal Div-Flux)
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdThermalDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::THERMAL );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdThermalDivFluxdDofFD;
+                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                            tDofDerivative,
+                            tdThermalDivFluxdDofFD,
+                            tPerturbation,
+                            FDScheme_Type::POINT_5,
+                            CM_Function_Type::THERMAL );                                
+
+                    // check that analytical and FD match
+                    bool tCheckThermalDivFlux = fem::check( tdThermalDivFluxdDof, tdThermalDivFluxdDofFD, tEpsilon );
+                    REQUIRE( tCheckThermalDivFlux );
+
+                    //------------------------------------------------------------------------------
+                    //  Div-Work-Flux (work Div-Flux)
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdWorkDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::WORK );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdWorkDivFluxdDofFD;
+                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                            tDofDerivative,
+                            tdWorkDivFluxdDofFD,
+                            tPerturbation,
+                            FDScheme_Type::POINT_5,
+                            CM_Function_Type::WORK );                                                     
+
+                    // check that analytical and FD match
+                    bool tCheckWorkDivFlux = fem::check( tdWorkDivFluxdDof, tdWorkDivFluxdDofFD, 10.0 * tEpsilon );
+                    REQUIRE( tCheckWorkDivFlux );
 
                     //------------------------------------------------------------------------------
                     // Mechanical Strain Rate

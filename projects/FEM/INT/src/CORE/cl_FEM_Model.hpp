@@ -50,6 +50,7 @@ namespace moris
         class Stabilization_Parameter;
         class IWG;
         class IQI;
+        class Field;
     }
 
     namespace MSI
@@ -69,7 +70,7 @@ namespace moris
         class FEM_Model : public  MSI::Equation_Model
         {
                 // pointer to reference mesh
-                mtk::Mesh_Manager* mMeshManager = nullptr;
+                std::shared_ptr< mtk::Mesh_Manager > mMeshManager = nullptr;
                 moris_index        mMeshPairIndex;
 
                 // list of IP node pointers
@@ -96,14 +97,19 @@ namespace moris
 
                 // fixme remove ?
                 moris::Cell< std::shared_ptr< fem::Property > >                mProperties;
-                moris::Cell< std::shared_ptr< mtk::Field > >                   mFields;
+                moris::Cell< std::shared_ptr< fem::Field > >                   mFields;
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      mCMs;
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
                 moris::Cell< std::shared_ptr< fem::IWG > >                     mIWGs;
                 moris::Cell< std::shared_ptr< fem::IQI > >                     mIQIs;
 
+                moris::Cell< moris::sint > mFieldTypeMap;
+
                 //! requested IQI Names
                 moris::Cell< std::string > mRequestedIQINames;
+
+                // flag to skip GEN procedures
+                bool mFEMOnly = false;
 
                 //------------------------------------------------------------------------------
             public:
@@ -121,7 +127,7 @@ namespace moris
                  * @param[ in ] aSetInfo       cell of set user info
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                 * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                         const moris_index                 & aMeshPairIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo );
 
@@ -134,7 +140,7 @@ namespace moris
                  * @param[ in ] aDesignVariableInterface a design variable interface pointer
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                 * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                         const moris_index                 & aMeshPairIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo,
                         MSI::Design_Variable_Interface    * aDesignVariableInterface );
@@ -148,7 +154,7 @@ namespace moris
                  * @param[ in ] aLibrary       a file path for property functions
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                           * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                         const moris_index                           & aMeshPairIndex,
                         moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                         std::shared_ptr< Library_IO >                 aLibrary );
@@ -163,7 +169,7 @@ namespace moris
                  * @param[ in ] aDesignVariableInterface a design variable interface pointer
                  */
                 FEM_Model(
-                        mtk::Mesh_Manager                           * aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager >          aMeshManager,
                         const moris_index                           & aMeshPairIndex,
                         moris::Cell< moris::Cell< ParameterList > >   aParameterList,
                         std::shared_ptr< Library_IO >                 aLibrary,
@@ -407,10 +413,11 @@ namespace moris
                  * @param[ in ] aLibrary       a file path for property functions
                  */
                 void create_properties(
-                        std::map< std::string, uint >            & aPropertyMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap,
-                        std::shared_ptr< Library_IO >              aLibrary );
+                        std::map< std::string, uint >              & aPropertyMap,
+                        moris::map< std::string, MSI::Dof_Type >   & aMSIDofTypeMap,
+                        moris::map< std::string, PDV_Type >        & aDvTypeMap,
+                        moris::map< std::string, mtk::Field_Type > & aFieldTypeMap,
+                        std::shared_ptr< Library_IO >                aLibrary );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -591,8 +598,14 @@ namespace moris
                 void create_fem_set_info();
 
                 //------------------------------------------------------------------------------
+                /**
+                 * return field
+                 */
+                const std::shared_ptr< fem::Field > & get_field( mtk::Field_Type tFieldType );
 
-                //void populate_fields();
+                //------------------------------------------------------------------------------
+
+                void populate_fields();
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */

@@ -34,6 +34,8 @@ namespace moris
 
         // decomposition and decomposition related parameters
         tParameterList.insert( "input_file", "" );
+        tParameterList.insert( "periodic_workspace", false);
+        tParameterList.insert( "periodic_side_set_pair", "");
 
         return tParameterList;
     }

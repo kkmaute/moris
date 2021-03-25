@@ -191,6 +191,17 @@ namespace moris
         }
 
         /**
+         * @brief  Removes an element from the map
+         */
+        void
+        erase( const T1 & aK )
+        {
+            auto tIterator = mMap.find(aK);
+
+            mMap.erase( tIterator );
+        }
+
+        /**
          * @brief Print moris map on screen
          */
         void print( const std::string & aVarName = std::string() )

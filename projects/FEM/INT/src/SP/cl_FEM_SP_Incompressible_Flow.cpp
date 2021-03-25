@@ -147,8 +147,8 @@ namespace moris
             Matrix< DDRMat > tG;
             this->eval_G( tG );
 
-            // get flattened G
-            Matrix< DDRMat > tFlatG = reshape( tG, 1, tG.numel() );
+            // get flattened G to row vector
+            Matrix< DDRMat > tFlatG = trans ( vectorize( tG) );
 
             // get trace of G
             real tTrG = sum( diag_vec( tG ) );
@@ -202,8 +202,8 @@ namespace moris
             Matrix< DDRMat > tG;
             this->eval_G( tG );
 
-            // get flattened G
-            Matrix< DDRMat > tFlatG = reshape( tG, 1, tG.numel() );
+            // get flattened G to row vector
+            Matrix< DDRMat > tFlatG = trans( vectorize( tG ) );
 
             // get trace of G
             real tTrG = sum( diag_vec( tG ) );

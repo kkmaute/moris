@@ -35,7 +35,9 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Problem> aOptProb )
+void OptAlgGCMMA::solve(
+        uint aCurrentOptAlgInd,
+        std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     // Trace optimization
     Tracer tTracer( "OptimizationAlgorithm", "GCMMA", "Solve" );
@@ -56,9 +58,9 @@ void OptAlgGCMMA::solve( uint aCurrentOptAlgInd, std::shared_ptr<moris::opt::Pro
         this->gcmma_solve();
 
         // Communicate that optimization has finished
-        mRunning = false;
-        this->communicate_running_status();
+        mRunning = opt::Task::exit;
 
+        this->communicate_running_status();
     }
     else
     {
@@ -131,9 +133,6 @@ void opt_alg_gcmma_func_wrap(
         double&      aObjval,
         double*      aConval )
 {
-    // Proc 0 needs to communicate that it is still running
-    aOptAlgGCMMA->communicate_running_status();
-
     // Update the ADV matrix
     const Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
 
@@ -141,13 +140,13 @@ void opt_alg_gcmma_func_wrap(
     aOptAlgGCMMA->write_advs_to_file(tADVs);
 
     // Update for objectives and constraints
-    aOptAlgGCMMA->criteria_solve(tADVs);
+    aOptAlgGCMMA->compute_design_criteria(tADVs);
 
     // Convert outputs from type MORIS
-    aObjval = aOptAlgGCMMA->mProblem->get_objectives()(0);
+    aObjval = aOptAlgGCMMA->get_objectives()(0);
 
     // Update the pointer of constraints
-    auto tConval = aOptAlgGCMMA->mProblem->get_constraints().data();
+    auto tConval = aOptAlgGCMMA->get_constraints().data();
 
     std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
 }
@@ -164,16 +163,19 @@ void opt_alg_gcmma_grad_wrap(
     // Update the vector of active constraints flag
     aOptAlgGCMMA->mActive = Matrix< DDSMat >(*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
 
+    // Update the ADV matrix
+    const Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+
     // Update gradients
-    aOptAlgGCMMA->mProblem->trigger_dcriteria_dadv_solve();
+    aOptAlgGCMMA->compute_design_criteria_gradients(tADVs);
 
     // copy objective gradient
-    auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
+    auto tD_Obj = aOptAlgGCMMA->get_objective_gradients().data();
 
     std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
 
     // Get the constraint gradient as a MORIS Matrix
-    Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradients();
+    Matrix<DDRMat> tD_Con = aOptAlgGCMMA->get_constraint_gradients();
 
     // Assign to array
     for (moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )

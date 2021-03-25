@@ -23,6 +23,10 @@ namespace moris
         class Cell;
         class Set;
     }
+    namespace fem
+    {
+        class Field;
+    }
 
     namespace vis
     {
@@ -103,7 +107,7 @@ namespace moris
             bool mdQIdpMatExist = false;
 
             // bool for time continuity
-            bool mIsResidual = false;
+            bool mIsStaggered = false;
 
             Matrix< DDRMat > mTime;
 
@@ -214,7 +218,7 @@ namespace moris
              * get dv type list
              * @param[ in ] aIsMaster enum for master or slave
              */
-            moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
+            const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -222,7 +226,7 @@ namespace moris
              * get dv type map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            Matrix< DDSMat > & get_dv_type_map(
+            const Matrix< DDSMat > & get_dv_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -253,10 +257,18 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get field type list
+             * @param[ in ] aIsMaster enum for master or slave
+             */
+            const moris::Cell< moris::Cell< mtk::Field_Type > > & get_field_type_list(
+                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
              * get fieldtype map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            Matrix< DDSMat > & get_field_type_map(
+            const Matrix< DDSMat > & get_field_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -283,7 +295,7 @@ namespace moris
             /**
              * initialize set
              */
-            virtual void initialize_set( const bool aIsResidual )
+            virtual void initialize_set( const bool aIsStaggered )
             {
                 MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function");
             }
@@ -606,13 +618,13 @@ namespace moris
             /**
              * get requested dof types
              */
-            moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+            const moris::Cell < enum MSI::Dof_Type > & get_requested_dof_types();
 
             //------------------------------------------------------------------------------
             /**
              * get secondary dof types
              */
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secondary_dof_types();
+            const moris::Cell< enum MSI::Dof_Type > & get_secondary_dof_types();
 
             //------------------------------------------------------------------------------
             /**
@@ -684,6 +696,15 @@ namespace moris
                     const moris::Cell< std::string > & aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
+            }
+
+            //------------------------------------------------------------------------------
+
+            virtual void populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > >  & aFieldToPopulate,
+                    moris::Cell< std::string > const              & aFieldIQINames )
+            {
+                MORIS_ERROR( false, "populate_fields(), no child implementation.");
             }
 
             //------------------------------------------------------------------------------

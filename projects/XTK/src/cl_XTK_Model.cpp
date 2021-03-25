@@ -198,6 +198,9 @@ namespace xtk
 
         if(mParameterList.get<bool>("decompose"))
         {
+            mTriangulateAll = mParameterList.get<bool>("triangulate_all");
+
+
             if(mParameterList.get<bool>("cleanup_cut_mesh"))
             {
                 mCleanupMesh = true;
@@ -236,7 +239,7 @@ namespace xtk
         {
             this->construct_face_oriented_ghost_penalization_cells();
 
-            if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
+            if( mParameterList.get<bool>("visualize_ghost") )
             {
                 Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
 
@@ -256,8 +259,10 @@ namespace xtk
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = this->get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = this->get_enriched_integ_mesh();
 
+        std::string tXTKMeshName = "XTKMesh";
+
         // place the pair in mesh manager
-        mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
+        mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
 
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {
@@ -765,7 +770,7 @@ namespace xtk
                     for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
 
-                        if(mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(0),j) and mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(1),j) )
+                        if(mGeometryEngine->is_interface_vertex(tVerticesOnParentEdge(0),j) and mGeometryEngine->is_interface_vertex(tVerticesOnParentEdge(1),j) )
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
                         }
@@ -1108,7 +1113,7 @@ namespace xtk
         this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool, 3, tDecompData);
 
         // associate new nodes with geometry objects
-        create_new_node_association_with_geometry(tDecompData);
+        this->create_new_node_association_with_geometry(tDecompData);
 
         for(moris::size_t i = 0; i< tIntersectedCount; i++)
         {
@@ -1569,7 +1574,163 @@ namespace xtk
                 tDecompData.tParamCoordRelativeToParent,
                 mBackgroundMesh.get_all_node_coordinates_loc_inds());
     }
+    
+    void
+    Model::catch_all_unhandled_interfaces()
+    {
+        
+        MORIS_ERROR(this->check_for_all_cell_vertices_on_interface(),"All vertices of a cell on the interface");
 
+        MORIS_ERROR(this->check_for_degenerated_cells(),"Degenerated Cells Detected");
+
+        // iterate through child meshes
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            // child mesh vertex indices
+            moris::Matrix< moris::IndexMat > const & tVertexIndices = tChildMesh.get_node_indices();
+
+            // Keep track of which geomtries have interface vertices
+            moris::Matrix< moris::IndexMat > tGeometryInterfaceBool(1, mGeometryEngine->get_num_geometries(), (moris_index)false);
+
+            // iterate through the vertices of the child mesh and figure out which are interface nodes
+            // this loop is so I don't have to loop over all facets
+            for(moris::uint iV = 0; iV < tVertexIndices.numel(); iV++)
+            {
+                // iterate through geometries
+                for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
+                {
+                    if(mGeometryEngine->is_interface_vertex(tVertexIndices(iV),(moris_index)iG))
+                    {
+                        // mark as interface relative to the geometry
+                        tGeometryInterfaceBool(iG) = (moris_index) true;
+                        break;
+                    }
+                }
+            }
+
+            // get the facet to node
+            moris::Matrix< moris::IndexMat > const & tFacetToNode = tChildMesh.get_facet_to_node();
+
+            // iterate through geometries, check and flag facets that are on the interface
+            for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
+            {
+                if(tGeometryInterfaceBool(iG) == (moris_index)true)
+                {
+                    // iterate through the facets
+                    for(moris::uint iFacet = 0;  iFacet < tFacetToNode.n_rows(); iFacet++)
+                    {
+                        // if one is not on the interface, this will be false and the facet is not on the interface
+                        bool tIsInterfaceFacet = true;
+
+                        // iterate through nodes on facet
+                        for(moris::uint iV = 0; iV < tFacetToNode.n_cols(); iV++)
+                        {
+                            // if we aren't on the interface, then flip the flag and move onto the next facet in child mesh
+                           if(! mGeometryEngine->is_interface_vertex(tFacetToNode(iFacet,iV),(moris_index)iG) )
+                           {
+                               tIsInterfaceFacet = false;
+                               break;
+                           }
+                        }
+
+                        // if this is an interface facet, we need to update the interface data
+                        if(tIsInterfaceFacet)
+                        {
+                            tChildMesh.mark_facet_as_on_interface(iFacet,iG);
+                        }
+
+                        
+                    }
+                }
+            }
+
+        }        
+    }
+
+    bool
+    Model::check_for_all_cell_vertices_on_interface()
+    {
+        bool tPassCheck = true;
+
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            // Element to node
+            moris::Matrix< moris::IndexMat > const & tElementToNode = tChildMesh.get_element_to_node();
+
+           // iterate through geometries, check and flag facets that are on the interface
+            for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
+            {
+                // iterate through cells
+                for(moris::uint iC = 0 ; iC < tElementToNode.n_rows(); iC++)
+                {
+                    bool tAllVertsOnInterface = true;
+
+                    for(moris::uint iV = 0; iV < tElementToNode.n_cols(); iV++)
+                    {
+                        if(! mGeometryEngine->is_interface_vertex(tElementToNode(iC,iV),(moris_index)iG) )
+                        {
+                            tAllVertsOnInterface = false;
+                            break;
+                        }
+                    }
+
+                    if(tAllVertsOnInterface)
+                    {
+                        tPassCheck = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return tPassCheck;
+
+    }
+
+
+    bool
+    Model::check_for_degenerated_cells( )
+    {
+        Cell<moris_index> tDegenerateCells; 
+
+        moris::real tDegenerateTol = 1e-12;
+
+        // iterate through child meshes
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            moris::Matrix< moris::IndexMat > const & tCellInds = tChildMesh.get_element_inds();
+
+            for(moris::uint iC = 0; iC < tCellInds.numel(); iC++)
+            {
+                moris::mtk::Cell & tCell = mBackgroundMesh.get_mtk_cell(tCellInds(iC));
+                moris::real tBulkMeasure = tCell.compute_cell_measure();
+
+                std::cout<<"tBulkMeasure = "<<tBulkMeasure<<std::endl;
+
+                if(tBulkMeasure < tDegenerateTol)
+                {
+                    tDegenerateCells.push_back(tCellInds(iC));
+                }
+            }
+        }
+
+        if(tDegenerateCells.size() > 0)
+        {
+            std::cout<<"Number of Degenerated Cells: "<<tDegenerateCells.size()<<std::endl;
+            return false;
+        }
+
+        return true;
+    }
     // ----------------------------------------------------------------------------------
 
     void
@@ -2128,6 +2289,9 @@ namespace xtk
         // Change XTK model decomposition state flag
         mDecomposed = true;
 
+        // this catches the missed interfaces due to coincidence
+        this->catch_all_unhandled_interfaces();
+
         // Sort the children meshes into groups
         this->sort_children_meshes_into_groups();
 
@@ -2142,6 +2306,11 @@ namespace xtk
 
         // identify local subphases in child mesh
         this->identify_local_subphase_clusters_in_child_meshes();
+
+        // constructs the subphase double side sets internal to a child mesh 
+        // I do this here because it also figures out if the child mesh has inter child mesh interfaces
+        // this flag is needed for the cleanup cut mesh call
+        this->construct_internal_double_sides_between_subphases();
 
 
         // cleanup the mesh
@@ -2599,6 +2768,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             moris::Matrix< moris::IndexMat > & aNewPairBool)
     {
+
         // Note this method is independent of node ids for this reason Background_Mesh is not given the node Ids during this subdivision
         moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
 
@@ -2619,10 +2789,12 @@ namespace xtk
 
         // New child meshes
         moris::size_t tNumNewChildMeshes = 0;
-        moris::moris_index tNewIndex = 0;
-        Matrix<IndexMat> tIntersectedElementIndices(0, 0);
+
+        // New child mesh data
+        moris::moris_index                                      tNewIndex = 0;
+        Matrix<IndexMat>                                        tIntersectedElementIndices(0, 0);
         Cell<std::pair<moris::moris_index, moris::moris_index>> tNewChildElementPair(0);
-        Matrix<IndexMat> tElementNodeIndices(tNumElements, tNumNodesPerElement);
+        Matrix<IndexMat>                                        tElementNodeIndices(tNumElements, tNumNodesPerElement);
 
 
         // Loop over elements to check for intersections
@@ -2637,11 +2809,12 @@ namespace xtk
             {
                 tElementNodeIndices(tParentElementIndex, j) = tElementNodeIndicesTemp(j);
             }
+            
+            // is the cell intersected
+            bool tIsIntersected = mGeometryEngine->is_intersected( tElementNodeIndicesTemp, mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodeIndicesTemp));
 
             // Intersected elements are flagged via the Geometry_Engine
-            if (mGeometryEngine->is_intersected(
-                    tElementNodeIndicesTemp,
-                    mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodeIndicesTemp)))
+            if(tIsIntersected || mTriangulateAll)
             {
                 // Resize
                 tIntersectedElementIndices.resize(1, tIntersectedElementIndices.n_cols() + 1);
@@ -2835,7 +3008,29 @@ namespace xtk
         // tell the cut mesh to setup subphase to child mesh connectivity
         mCutMesh.setup_subphase_to_child_mesh_connectivity();
     }
+    // ----------------------------------------------------------------------------------
+    void
+    Model::construct_internal_double_sides_between_subphases()
+    {
+        // background mesh
+        moris_index tMyProcRank = par_rank();
+        moris::mtk::Interpolation_Mesh & tBGMesh = this->get_background_mesh().get_mesh_data();
 
+        uint tNumChildMeshes = this->get_cut_mesh().get_num_child_meshes();
+        
+        // iterate through children meshes
+        for(moris::uint iCM = 0; iCM < tNumChildMeshes; iCM++)
+        {
+            // get the child mesh
+            Child_Mesh * tChildMesh = & this->get_cut_mesh().get_child_mesh((moris_index)iCM);
+
+            if(tBGMesh.get_entity_owner(tChildMesh->get_parent_element_index(),EntityRank::ELEMENT) == (uint)tMyProcRank)
+            {
+                // tell the child mesh to construct its double side sets between subphases
+                tChildMesh->construct_internal_double_sides_between_subphases();
+            }
+        }
+    }
     // ----------------------------------------------------------------------------------
 
     void
@@ -3125,6 +3320,7 @@ namespace xtk
     void
     Model::cleanup_cut_mesh()
     {   
+        Tracer tTracer( "XTK", "Decomp", "Cleanup Mesh" );
         moris::uint tNumCutMeshes = mCutMesh.get_num_child_meshes();
         moris::Cell<moris::uint> tChildMeshesToKeep;
         moris::Cell<moris::uint> tChildMeshesToDelete;
@@ -3132,21 +3328,25 @@ namespace xtk
         for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
         {
             Child_Mesh & tCM = mCutMesh.get_child_mesh(iCM);
-
             Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
-            if(tSubphasebinBulkPhase.size() > 1)
-            {
+
+           if(tSubphasebinBulkPhase.size() > 1 or tCM.has_inter_child_mesh_interfaces())
+           {
                 tChildMeshesToKeep.push_back(iCM);
-            }
-            else
-            {
+           }
+           else
+           {
                 tChildMeshesToDelete.push_back(iCM);
-            }
+           }
         }
 
         mCutMesh.remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete);
 
         mBackgroundMesh.setup_downward_inheritance(mCutMesh);
+
+        MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
+        MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -3777,7 +3977,10 @@ namespace xtk
     void
     Model::construct_neighborhood()
     {
+        // size the member data
         mElementToElement.resize(this->get_num_elements_total());
+        mElementToElementSideOrds.resize(this->get_num_elements_total());
+        mElementToElementNeighborSideOrds.resize(this->get_num_elements_total());
 
         // add uncut neighborhood to connectivity
         // keep track of boundaries with an uncut mesh next to a cut mesh
@@ -4031,7 +4234,8 @@ namespace xtk
 
         // generate the element to element connectivity. this only captures the easy neighborhood relationships
         // where we consider elements neighbors if they share a full face
-        Matrix<IndexMat> tElementToElementMat = generate_element_to_element(tFaceToElement, mCutMesh.get_num_entities(EntityRank::ELEMENT), tNumFacePerElem, MORIS_INDEX_MAX);
+        moris::Matrix< moris::IndexMat > tElementToElementSharedFacet;
+        Matrix<IndexMat> tElementToElementMat = generate_element_to_element(tFaceToElement, mCutMesh.get_num_entities(EntityRank::ELEMENT), tNumFacePerElem, MORIS_INDEX_MAX,tElementToElementSharedFacet);
 
         moris::Matrix< moris::IndexMat > tCMElementInds = mCutMesh.get_all_element_inds();
 
@@ -4050,7 +4254,37 @@ namespace xtk
                 {
                     continue;
                 }
-                mElementToElement(tCMElementInds(iC)).push_back(tCMCellPtrs(tElementToElementMat(iC,iN)));
+
+                moris_index tFacetIndex         = tElementToElementSharedFacet(iC,iN);
+                moris_index tNeighborCellIndex  = tElementToElementMat(iC,iN);
+
+
+                // figure out my side ordinal
+                moris_index tMysideOrd   = MORIS_INDEX_MAX;
+                for(moris::uint iSO = 0; iSO < tElementToFace.n_cols(); iSO++)
+                {
+                    if(tElementToFace(iC,iSO) == (moris_index) tFacetIndex)
+                    {
+                        tMysideOrd = iSO;
+                    }
+                }
+
+                // figure out my neighbors side ordinal
+                moris_index tNeighborSideOrd = MORIS_INDEX_MAX;
+                for(moris::uint iSO = 0; iSO < tElementToFace.n_cols(); iSO++)
+                {
+                    if(tElementToFace(tNeighborCellIndex,iSO) == (moris_index) tFacetIndex)
+                    {
+                        tNeighborSideOrd = iSO;
+                    }
+                }
+
+                MORIS_ERROR(tNeighborSideOrd!= MORIS_INDEX_MAX,"Neighbor Side Ord Not Found");
+                MORIS_ERROR(tMysideOrd!= MORIS_INDEX_MAX,"My Cell Side Ord Not Found");
+                mElementToElement(tCMElementInds(iC)).push_back(tCMCellPtrs(tNeighborCellIndex));
+                mElementToElementSideOrds(tCMElementInds(iC)).push_back(tMysideOrd);
+                mElementToElementNeighborSideOrds(tCMElementInds(iC)).push_back(tNeighborSideOrd);
+
             }
         }
 
@@ -4387,6 +4621,7 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+
 
     moris::mtk::Integration_Mesh*
     Model::construct_output_mesh( Output_Options const & aOutputOptions )
@@ -5278,7 +5513,6 @@ namespace xtk
         // maximum row index and column index
         uint tMaxRow = 0;
         uint tMaxCol = 0;
-
         for (moris::uint i = 0; i < tNumGeom; i++)
         {
             bool tFoundNonInterfaceNode = false;
@@ -5286,16 +5520,14 @@ namespace xtk
             for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
                 Matrix<DDRMat> tCoord= mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
+
                 if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
                 {
-                    moris_index tPhaseIndex = mGeometryEngine->
-                            get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
-                                    mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
-                                    i);
+                    moris::uint tNodeIndex = (moris::uint)aElementToNodeIndex(aRowIndex, j);
+                    Matrix<DDRMat> tNodeCoord = mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
+                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry(tNodeIndex,tNodeCoord,i);
                     tFoundNonInterfaceNode = true;
                     tPhaseVotes(tPhaseIndex)++;
-
-
                 }
 
 
@@ -5305,18 +5537,6 @@ namespace xtk
             tPhaseVotes.max(tMaxRow,tMaxCol);
             tNodalPhaseVals(0,i) = tMaxCol;
 
-            //            if(tPhaseVotes(0) == tPhaseVotes(1))
-            //            {
-            //                std::cout<<"Parity Vote"<<std::endl;
-            //                std::cout<<"iGeom = "<<i<<std::endl;
-            //                std::cout<<"tMaxRow = "<<tMaxRow<<std::endl;
-            //                std::cout<<"tMaxCol = "<<tMaxCol<<std::endl;
-            //                std::cout<<"tPhaseVotes(0)  = "<<tPhaseVotes(0) <<std::endl;
-            //                std::cout<<"tPhaseVotes(1)  = "<<tPhaseVotes(1) <<std::endl;
-            //                throw;
-            //            }
-
-            // reset
             tPhaseVotes.fill(0);
 
             MORIS_ERROR(tFoundNonInterfaceNode,"Did not find a non-interface node for this element");

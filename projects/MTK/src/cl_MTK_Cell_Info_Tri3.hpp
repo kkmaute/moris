@@ -90,6 +90,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
+            Matrix<DDRMat>
+            get_vertex_loc_coord(moris_index const &aVertexOrdinal) const;
+
+            // ----------------------------------------------------------------------------------
+
             moris::real
             compute_cell_size_special(moris::mtk::Cell const *aCell) const;
 

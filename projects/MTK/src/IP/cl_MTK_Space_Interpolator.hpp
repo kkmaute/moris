@@ -56,6 +56,10 @@ namespace moris
                 // element geometry type
                 Geometry_Type mGeometryType;
 
+                // interpolation cell geometry type
+                Geometry_Type mIPMappingGeometryType;
+                uint mIPMappingNumSpaceParamDim;
+
                 // element shape
                 bool mRectangular = false;
 
@@ -165,11 +169,21 @@ namespace moris
                  * constructor
                  * @param[ in ] interpolation rule for geometry
                  * @param[ in ] flag true if side interpolation
-                 * @param[ in ] flag true if time side interpolation
                  */
                 Space_Interpolator(
-                        const mtk::Interpolation_Rule & aInterpolationRule,
-                        const bool                      aSpaceSideset = false );
+                        const Interpolation_Rule  & aInterpolationRule,
+                        const bool                  aSpaceSideset = false );
+
+                /**
+                 * constructor
+                 * @param[ in ] interpolation rule for geometry
+                 * @param[ in ] interpolation rule for geometry mapping
+                 * @param[ in ] flag true if side interpolation
+                 */
+                Space_Interpolator(
+                        const Interpolation_Rule  & aInterpolationRule,
+                        const Interpolation_Rule  & aIPMapInterpolationRule,
+                        const bool                  aSpaceSideset = false );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -241,6 +255,25 @@ namespace moris
                 Geometry_Type get_space_geometry_type()
                 {
                     return mGeometryType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * returns the boolean map flag
+                 */
+                bool get_map_flag()
+                {
+                    return mMapFlag;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * returns the initialied mapped point
+                 * will not necessarily be filled with a mapping yet
+                 */
+                Matrix< DDRMat > get_initialized_mapped_point()
+                {
+                    return mMappedPoint;
                 }
 
                 //------------------------------------------------------------------------------
@@ -651,6 +684,7 @@ namespace moris
                 void eval_inverse_space_jacobian_3d();
                 void eval_inverse_space_jacobian_2d_rect();
                 void eval_inverse_space_jacobian_3d_rect();
+                void eval_inverse_space_jacobian_2d_tri();
 
                 //------------------------------------------------------------------------------
                 /**

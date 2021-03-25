@@ -138,7 +138,7 @@ namespace moris
                         // Get pdof type Index
                         moris::uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;
 
-                        moris::uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex, 0 );
+                        moris::uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex );
 
                         // loop over all adofs in the matrix and create an adof if it does not exist, yet.
                         for ( moris::uint Ik = 0; Ik < tAdofMeshInd.numel(); Ik++ )

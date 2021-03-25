@@ -76,7 +76,7 @@ namespace moris
         {
             private:
                 // pointer to reference mesh
-                mtk::Mesh_Manager* mMeshManager = nullptr;
+                std::shared_ptr< mtk::Mesh_Manager > mMeshManager = nullptr;
                 moris_index        mMeshPairIndex;
 
                 // pointer to equation model (->FEM model)
@@ -126,11 +126,11 @@ namespace moris
                  * @param[ in ] aUseMultigrid  bool for multigrid use
                  */
                 Model(
-                        mtk::Mesh_Manager*                  aMeshManager,
-                        const uint                          aBSplineIndex,
-                        moris::Cell< fem::Set_User_Info > & aSetInfo,
-                        const moris_index                   aMeshPairIndex = 0,
-                        const bool                          aUseMultigrid  = false );
+                        std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                        const uint                           aBSplineIndex,
+                        moris::Cell< fem::Set_User_Info >  & aSetInfo,
+                        const moris_index                    aMeshPairIndex = 0,
+                        const bool                           aUseMultigrid  = false );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -143,7 +143,7 @@ namespace moris
                  * @param[ in ] aUseMultigrid  bool for multigrid use
                  */
                 Model(
-                        mtk::Mesh_Manager*                  aMeshManager,
+                        std::shared_ptr< mtk::Mesh_Manager >aMeshManager,
                         const uint                          aBSplineIndex,
                         moris::Cell< fem::Set_User_Info > & aSetInfo,
                         MSI::Design_Variable_Interface    * aDesignVariableInterface,

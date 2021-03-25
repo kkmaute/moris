@@ -21,7 +21,8 @@ namespace moris
                 uint aNumXElements,
                 uint aNumYElements,
                 uint aLagrangeOrder = 1,
-                uint aBSplineOrder = 1);
+                uint aBSplineOrder = 1,
+                uint aRefinement = 0);
     }
 }
 
