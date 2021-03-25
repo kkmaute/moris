@@ -24,16 +24,16 @@ namespace moris
         Ascii tAscii= Ascii( tFileName, FileMode::OPEN_RDONLY);
 
         // matrix used to compare against
-        Matrix< DDRMat > tRefMatrix = {{11,12,13,14},
+        Matrix< DDUMat > tRefMatrix = {{11,12,13,14},
                                        {21,22,23,24},
                                        {31,32,33,34}};
 
         uint tNumRows = tAscii.length();
-        Matrix< DDRMat > tRow;
+        Matrix< DDUMat > tRow;
         string_to_mat( tAscii.line( 0 ), tRow );
         uint tNumCols = tRow.n_cols();
 
-        Matrix< DDRMat > tMatrix( tNumRows,tNumCols );
+        Matrix< DDUMat > tMatrix( tNumRows,tNumCols );
 
         for( uint i = 0; i < tNumRows; i++ )
         {
