@@ -22,16 +22,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Compressible_Velocity_Dirichlet_Nitsche::reset_cluster_measures()
-        {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-        }
-
-        //------------------------------------------------------------------------------
-
         void SP_Compressible_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -85,14 +75,30 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Compressible_Velocity_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
+        {
+            return { mElementSizeTuple };
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_Compressible_Velocity_Dirichlet_Nitsche::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the viscosity and density property
             std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * ( tPropViscosity->val()( 0 ) / mElementSize );
+            mPPVal = mParameters( 0 ) * tPropViscosity->val()( 0 ) / tElementSize;
         }
 
         //------------------------------------------------------------------------------
@@ -100,6 +106,12 @@ namespace moris
         void SP_Compressible_Velocity_Dirichlet_Nitsche::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -119,7 +131,7 @@ namespace moris
             {
                 // compute contribution from viscosity
                 mdPPdMasterDof( tDofIndex ) +=
-                        mParameters( 0 )( 0 ) * tPropViscosity->dPropdDOF( aDofTypes ) / mElementSize;
+                        mParameters( 0 )( 0 ) * tPropViscosity->dPropdDOF( aDofTypes ) / tElementSize;
             }
         }
 

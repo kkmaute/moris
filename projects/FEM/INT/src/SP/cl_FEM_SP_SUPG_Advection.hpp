@@ -66,12 +66,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * reset the cluster measures required for this SP
-                 */
-                void reset_cluster_measures(){}
-
-                //------------------------------------------------------------------------------
-                /**
                  * set dof types
                  * @param[ in ] aDofTypes a cell of cell of dof types
                  * @param[ in ] aDofStrings list of strings describing the dof types

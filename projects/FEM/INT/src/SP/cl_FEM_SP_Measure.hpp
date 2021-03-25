@@ -1,73 +1,62 @@
 /*
- * cl_FEM_SP_Viscous_Ghost.hpp
+ * cl_FEM_SP_Measure.hpp
  *
- *  Created on: Mar 21, 2020
+ *  Created on: Mar 01, 2021
  *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_VISCOUS_GHOST_HPP_
-#define SRC_FEM_CL_FEM_SP_VISCOUS_GHOST_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_MEASURE_HPP_
+#define SRC_FEM_CL_FEM_SP_MEASURE_HPP_
 
 #include <map>
-//MRS/CON/src
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
-//LINALG/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-//FEM/INT/src
-#include "cl_FEM_Field_Interpolator.hpp"
-#include "cl_FEM_Constitutive_Model.hpp"
-#include "cl_FEM_Stabilization_Parameter.hpp"
+
+#include "typedefs.hpp"                     //MRS/COR/src
+#include "cl_Cell.hpp"                      //MRS/CON/src
+
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "linalg_typedefs.hpp"              //LINALG/src
+
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
+#include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_Cluster_Measure.hpp"
 
 namespace moris
 {
     namespace fem
     {
         //------------------------------------------------------------------------------
-        /*
-         * Stabilization parameter for face-oriented viscous ghost-penalty
-         * gamma_mu = alpha_mu * viscosity * h^(2*(i-1)+1)
-         * where i = interpolation order
-         * from Schott et al. (2015)
-         */
-        class SP_Viscous_Ghost : public Stabilization_Parameter
+
+        class SP_Measure : public Stabilization_Parameter
         {
 
                 //------------------------------------------------------------------------------
             private:
-
-                // default tuple for element size to define cluster measure
-                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Master_Slave > mElementSizeTuple =
+                // default element size cluster measure tuple specification
+                // can be modified through input file
+                std::tuple<
+                fem::Measure_Type,
+                mtk::Primary_Void,
+                mtk::Master_Slave > mElementSizeTuple =
                         std::make_tuple(
                                 fem::Measure_Type::CELL_LENGTH_MEASURE,
                                 mtk::Primary_Void::PRIMARY,
                                 mtk::Master_Slave::MASTER );
 
-                // property type for the SP
-                enum class Property_Type
-                {
-                        VISCOSITY,  // fluid viscosity
-                        MAX_ENUM
-                };
-
             public:
-                /*
-                 * Rem: mParameters( 0 ) - alpha_mu
-                 */
 
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
                  */
-                SP_Viscous_Ghost();
+                SP_Measure();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~SP_Viscous_Ghost(){};
+                ~SP_Measure(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -101,6 +90,19 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set cluster measure types
+                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
+                 * @param[ in ] aClusterMeasureTypes  list of strings describing the cluster measure types
+                 */
+                void set_cluster_measure_type_list(
+                        moris::Cell< std::tuple<
+                        fem::Measure_Type,
+                        mtk::Primary_Void,
+                        mtk::Master_Slave > >      & aClusterMeasureTuples,
+                        moris::Cell< std::string > & aClusterMeasureNames );
+
+                //------------------------------------------------------------------------------
+                /**
                  * get cluster measure tuples
                  * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
                  */
@@ -111,25 +113,30 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter value
+                 * evaluate the penalty parameter value
                  */
                 void eval_SP();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter derivative wrt to a master dof type
+                 * evaluate the penalty parameter derivative wrt to a master dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dPPdMasterDOF ( 1 x numDerDof )
                  */
-                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, "SP_Measure - eval_dSPdMasterDOF: not implemented." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the penalty parameter derivative wrt to a master dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 * dPPdMasterDV ( 1 x numDerDv )
                  */
                 void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Viscous_Ghost::eval_dSPdMasterDV - not implemented." );
+                    MORIS_ERROR( false, "SP_Measure - eval_dSPdMasterDV: not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
@@ -138,4 +145,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_VISCOUS_GHOST_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_MEASURE_HPP_ */

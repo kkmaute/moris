@@ -20,6 +20,7 @@
 #include "cl_FEM_SP_Stab_Penalty_Contact.hpp"
 #include "cl_FEM_SP_Penalty_Contact.hpp"
 #include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
+#include "cl_FEM_SP_Measure.hpp"
 
 namespace moris
 {
@@ -88,6 +89,9 @@ namespace moris
 
                 case fem::Stabilization_Type::STAB_PENALTY_CONTACT :
                     return std::make_shared< SP_Stab_Penalty_Contact >();
+
+                case fem::Stabilization_Type::MEASURE :
+                	return std::make_shared< SP_Measure >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

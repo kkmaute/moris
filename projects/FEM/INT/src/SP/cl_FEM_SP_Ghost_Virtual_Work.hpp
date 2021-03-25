@@ -33,8 +33,12 @@ namespace moris
                 //------------------------------------------------------------------------------
             private:
 
-                // cluster measures for the SP
-                moris::real mElementSize = 1.0;
+                // default tuple for element size to define cluster measure
+                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Master_Slave > mElementSizeTuple =
+                        std::make_tuple(
+                                fem::Measure_Type::CELL_LENGTH_MEASURE,
+                                mtk::Primary_Void::PRIMARY,
+                                mtk::Master_Slave::MASTER );
 
             public:
 
@@ -50,12 +54,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_Ghost_Virtual_Work(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * reset the cluster measures required for this SP
-                 */
-                void reset_cluster_measures();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -86,6 +84,16 @@ namespace moris
                 {
                     Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
                 }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get cluster measure tuples
+                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
+                 */
+                moris::Cell< std::tuple<
+                fem::Measure_Type,
+                mtk::Primary_Void,
+                mtk::Master_Slave > > get_cluster_measure_tuple_list();
 
                 //------------------------------------------------------------------------------
                 /**

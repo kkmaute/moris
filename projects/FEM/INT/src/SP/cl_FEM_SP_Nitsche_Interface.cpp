@@ -29,24 +29,36 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Nitsche_Interface::reset_cluster_measures()
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Nitsche_Interface::get_cluster_measure_tuple_list()
         {
-            // evaluate cluster measures from the cluster
-            mMasterVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-            mSlaveVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::SLAVE );
-            mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
+            return { mMasterVolumeTuple, mSlaveVolumeTuple, mInterfaceSurfaceTuple };
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Nitsche_Interface::eval_SP()
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
+            // get interface surface cluster measure value
+            real tInterfaceSurface = mCluster->get_cluster_measure(
+                    std::get<0>( mInterfaceSurfaceTuple ),
+                    std::get<1>( mInterfaceSurfaceTuple ),
+                    std::get<2>( mInterfaceSurfaceTuple ) )->val()( 0 );
+
             // init SP values
             mPPVal.set_size( 3, 1, 0.0 );
 
@@ -61,16 +73,16 @@ namespace moris
             real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
 
             // compute the mean property value
-            real tDeno = ( mMasterVolume / tMasterMaterial ) + ( mSlaveVolume / tSlaveMaterial );
+            real tDeno = ( tMasterVolume / tMasterMaterial ) + ( tSlaveVolume / tSlaveMaterial );
 
             // compute Nitsche SP value
-            mPPVal( 0 ) = 2.0 * mParameters( 0 )( 0 ) * mInterfaceSurface / tDeno;
+            mPPVal( 0 ) = 2.0 * mParameters( 0 )( 0 ) * tInterfaceSurface / tDeno;
 
             // compute master weight SP value
-            mPPVal( 1 ) = ( mMasterVolume / tMasterMaterial ) / tDeno;
+            mPPVal( 1 ) = ( tMasterVolume / tMasterMaterial ) / tDeno;
 
             // compute slave weight SP value
-            mPPVal( 2 ) = ( mSlaveVolume / tSlaveMaterial ) / tDeno;
+            mPPVal( 2 ) = ( tSlaveVolume / tSlaveMaterial ) / tDeno;
         }
 
         //------------------------------------------------------------------------------
@@ -78,6 +90,18 @@ namespace moris
         void SP_Nitsche_Interface::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -105,24 +129,24 @@ namespace moris
             real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
 
             // compute the mean property value
-            real tDeno = ( mMasterVolume / tMasterMaterial ) + ( mSlaveVolume / tSlaveMaterial );
+            real tDeno = ( tMasterVolume / tMasterMaterial ) + ( tSlaveVolume / tSlaveMaterial );
 
             // if master property depends on dof type
             if ( tMasterPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute Nitsche SP derivative
                 mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                        this->val()( 0 ) * mMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
+                        this->val()( 0 ) * tMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tMasterMaterial, 2 ) * tDeno );
 
                 // compute master weight derivative
                 mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
-                        this->val()( 1 ) * mSlaveVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
+                        this->val()( 1 ) * tSlaveVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
                         ( tMasterMaterial * tSlaveMaterial * tDeno );
 
                 // compute slave weight derivative
                 mdPPdMasterDof( tDofIndex ).get_row( 2 ) +=
-                        this->val()( 2 ) * mMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
+                        this->val()( 2 ) * tMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tMasterMaterial, 2 ) * tDeno );
             }
         }
@@ -132,6 +156,18 @@ namespace moris
         void SP_Nitsche_Interface::eval_dSPdSlaveDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -159,24 +195,24 @@ namespace moris
             real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
 
             // compute the mean property value
-            real tDeno = ( mMasterVolume / tMasterMaterial ) + ( mSlaveVolume / tSlaveMaterial );
+            real tDeno = ( tMasterVolume / tMasterMaterial ) + ( tSlaveVolume / tSlaveMaterial );
 
             // if indirect dependency on the dof type
             if ( tSlavePropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute Nitsche SP derivative
                 mdPPdSlaveDof( tDofIndex ).get_row( 0 ) +=
-                        this->val()( 0 ) * mSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
+                        this->val()( 0 ) * tSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
                 // compute master weight SP derivative
                 mdPPdSlaveDof( tDofIndex ).get_row( 1 ) +=
-                        this->val()( 1 ) * mSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
+                        this->val()( 1 ) * tSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
                 // compute slave weight SP derivative
                 mdPPdSlaveDof( tDofIndex ).get_row( 2 ) -=
-                        this->val()( 2 ) * mMasterVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
+                        this->val()( 2 ) * tMasterVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
                         ( tMasterMaterial * tSlaveMaterial * tDeno );
             }
         }
