@@ -215,6 +215,19 @@ namespace moris
                 return mCellInfo->compute_cell_side_size(this, aSideOrdinal);
             }
             //------------------------------------------------------------------------------
+
+            moris::real
+            compute_cell_side_measure_deriv(
+                    moris_index const & aCellSideOrd,
+                    uint aLocalVertexID,
+                    uint aDirection) const
+            {
+                MORIS_ERROR(0,"compute_cell_side_measure_deriv - Not implemented.");
+                return 0.0;
+            }
+
+            //------------------------------------------------------------------------------
+
         };
         //------------------------------------------------------------------------------
     } /* namespace mtk */

@@ -33,9 +33,19 @@ namespace moris
                 //------------------------------------------------------------------------------
             private:
 
-                real mMasterVolume     = 0.5; // volume on master
-                real mSlaveVolume      = 0.5; // volume on slave
-                real mInterfaceSurface = 1.0; // surface on master/slave interface
+                // default tuple for master volume size to define cluster measure
+                std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Master_Slave > mMasterVolumeTuple =
+                        std::make_tuple(
+                                fem::Measure_Type::CELL_MEASURE,
+                                mtk::Primary_Void::PRIMARY,
+                                mtk::Master_Slave::MASTER );
+
+                // default tuple for slave volume size to define cluster measure
+                std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Master_Slave > mSlaveVolumeTuple =
+                        std::make_tuple(
+                                fem::Measure_Type::CELL_MEASURE,
+                                mtk::Primary_Void::VOID,
+                                mtk::Master_Slave::SLAVE );
 
             public:
 
@@ -50,12 +60,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_Reciprocal_Total_Volume(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * reset the cluster measures required for this SP
-                 */
-                void reset_cluster_measures();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -86,6 +90,16 @@ namespace moris
                 {
                     Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
                 }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get cluster measure tuples
+                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
+                 */
+                moris::Cell< std::tuple<
+                fem::Measure_Type,
+                mtk::Primary_Void,
+                mtk::Master_Slave > > get_cluster_measure_tuple_list();
 
                 //------------------------------------------------------------------------------
                 /**

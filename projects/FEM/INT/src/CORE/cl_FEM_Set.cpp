@@ -70,6 +70,9 @@ namespace moris
             // set size for the equation objects list
             mEquationObjList.resize( tNumMeshClusters, nullptr );
 
+            // get cluster measures used on set
+            this->build_cluster_measure_tuples_and_map();
+
             // create a fem cluster factory
             fem::Element_Factory tClusterFactory;
 
@@ -913,6 +916,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Set::create_dof_and_dv_type_maps()
         {
             // get number of master dof types
@@ -1196,6 +1200,9 @@ namespace moris
             // loop over the IWGs
             for( auto tIWG : mIWGs)
             {
+                // set the fem cluster to IWG
+                tIWG->set_cluster_pointer( aCluster );
+
                 // get the SP from the IWG
                 moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs =
                         tIWG->get_stabilization_parameters();
@@ -1220,6 +1227,9 @@ namespace moris
             // loop over the IQIs
             for( auto tIQI : mIQIs)
             {
+                // set the fem cluster to IQI
+                tIQI->set_cluster_pointer( aCluster );
+
                 // get the SP from the IQI
                 moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs =
                         tIQI->get_stabilization_parameters();
@@ -1235,6 +1245,190 @@ namespace moris
                     }
                 }
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Set::build_cluster_measure_tuples_and_map()
+        {
+            // init cluster measure counter
+            uint tCMEACounter = 0;
+
+            // loop over the IWGs
+            for( auto tIWG : mIWGs)
+            {
+                // get the SP from the IWG
+                moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs =
+                        tIWG->get_stabilization_parameters();
+
+                // loop over the SP
+                for( const std::shared_ptr< Stabilization_Parameter > & tSP : tSPs )
+                {
+                    // check if SP is null
+                    if( tSP != nullptr )
+                    {
+                        // get list of cluster measure tuple from SP
+                        moris::Cell< std::tuple<
+                        fem::Measure_Type,
+                        mtk::Primary_Void,
+                        mtk::Master_Slave > > tClusterMEASPTuples =
+                                tSP->get_cluster_measure_tuple_list();
+
+                        // add number of cluster measure tuple to counter
+                        tCMEACounter += tClusterMEASPTuples.size();
+                    }
+                }
+            }
+
+            // loop over the IQIs
+            for( auto tIQI : mIQIs)
+            {
+                // get the SP from the IQI
+                moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs =
+                        tIQI->get_stabilization_parameters();
+
+                // loop over the SPs
+                for( const std::shared_ptr< Stabilization_Parameter > & tSP : tSPs )
+                {
+                    // check if SP is null
+                    if( tSP != nullptr )
+                    {
+                        // get list of cluster measure tuple from SP
+                        moris::Cell< std::tuple<
+                        fem::Measure_Type,
+                        mtk::Primary_Void,
+                        mtk::Master_Slave > > tClusterMEASPTuples =
+                                tSP->get_cluster_measure_tuple_list();
+
+                        // add number of cluster measure tuple to counter
+                        tCMEACounter += tClusterMEASPTuples.size();
+                    }
+                }
+            }
+            // init size for cell of cluster measure tuples
+            mClusterMEATuples.resize( tCMEACounter );
+
+            // reset CMECounter
+            tCMEACounter = 0;
+
+            // loop over the IWGs
+            for( auto tIWG : mIWGs)
+            {
+                // get the SP from the IWG
+                moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs =
+                        tIWG->get_stabilization_parameters();
+
+                // loop over the SP
+                for( const std::shared_ptr< Stabilization_Parameter > & tSP : tSPs )
+                {
+                    // check if SP is null
+                    if( tSP != nullptr )
+                    {
+                        // get list of cluster measure tuple from SP
+                        moris::Cell< std::tuple<
+                        fem::Measure_Type,
+                        mtk::Primary_Void,
+                        mtk::Master_Slave > > tClusterMEASPTuples =
+                                tSP->get_cluster_measure_tuple_list();
+
+                        // loop over the cluster measure tuples from SP
+                        for( uint iCMEA = 0; iCMEA < tClusterMEASPTuples.size(); iCMEA++ )
+                        {
+                            // check if the cluster measure tuple already in map
+                            if( mClusterMEAMap.find( tClusterMEASPTuples( iCMEA ) ) == mClusterMEAMap.end() )
+                            {
+                                // add cluster measure tuple in map
+                                mClusterMEAMap[ tClusterMEASPTuples( iCMEA ) ] = tCMEACounter;
+
+                                // add cluster measure tuple to list
+                                mClusterMEATuples( tCMEACounter ) = tClusterMEASPTuples( iCMEA );
+
+                                // update counter
+                                tCMEACounter++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // loop over the IQIs
+            for( auto tIQI : mIQIs)
+            {
+                // get the SP from the IQI
+                moris::Cell< std::shared_ptr< Stabilization_Parameter > > & tSPs =
+                        tIQI->get_stabilization_parameters();
+
+                // loop over the SPs
+                for( const std::shared_ptr< Stabilization_Parameter > & tSP : tSPs )
+                {
+                    // check if SP is null
+                    if( tSP != nullptr )
+                    {
+                        // get list of cluster measure tuple from SP
+                        moris::Cell< std::tuple<
+                        fem::Measure_Type,
+                        mtk::Primary_Void,
+                        mtk::Master_Slave > > tClusterMEASPTuples =
+                                tSP->get_cluster_measure_tuple_list();
+
+                        // loop over the cluster measure tuples from SP
+                        for( uint iCMEA = 0; iCMEA < tClusterMEASPTuples.size(); iCMEA++ )
+                        {
+                            // check if the cluster measure tuple already in map
+                            if( mClusterMEAMap.find( tClusterMEASPTuples( iCMEA ) ) == mClusterMEAMap.end() )
+                            {
+                                // add cluster measure tuple in map
+                                mClusterMEAMap[ tClusterMEASPTuples( iCMEA ) ] = tCMEACounter;
+
+                                // add cluster measure tuple to list
+                                mClusterMEATuples( tCMEACounter ) = tClusterMEASPTuples( iCMEA );
+
+                                // update counter
+                                tCMEACounter++;
+                            }
+                        }
+                    }
+                }
+            }
+            // shrink to fit as list of tuples shorter than what was reserved
+            mClusterMEATuples.resize( tCMEACounter );
+
+            // set build bool to true
+            mBuildClusterMEA = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > & Set::get_cluster_measure_tuples()
+        {
+            // check that tuples were built
+            if( mBuildClusterMEA == false )
+            {
+                // if not build list
+                this->build_cluster_measure_tuples_and_map();
+            }
+
+            return mClusterMEATuples;
+        }
+
+        //------------------------------------------------------------------------------
+
+        std::map< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave >, uint > & Set::get_cluster_measure_map()
+        {
+            // check that map was built
+            if( mBuildClusterMEA == false )
+            {
+                // if not build map
+                this->build_cluster_measure_tuples_and_map();
+            }
+
+            return mClusterMEAMap;
         }
 
         //------------------------------------------------------------------------------
@@ -1899,6 +2093,7 @@ namespace moris
                     mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
                 }
             }
+
         }
 
         //------------------------------------------------------------------------------

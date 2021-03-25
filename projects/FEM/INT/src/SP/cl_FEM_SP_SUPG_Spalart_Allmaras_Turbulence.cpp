@@ -87,22 +87,28 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers(){}
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_SUPG_Spalart_Allmaras_Turbulence::get_cluster_measure_tuple_list()
+        {
+            return { mElementSizeTuple };
+        }
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::reset_cluster_measures()
-        {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-        }
+        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers(){}
 
         //------------------------------------------------------------------------------
 
         void SP_SUPG_Spalart_Allmaras_Turbulence::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // set size for SP values
             mPPVal.set_size( 1, 1, 0.0 );
 
@@ -130,8 +136,8 @@ namespace moris
 
             // evaluate tau
             real tTau =
-                    std::pow( 2.0 * tNormA / mElementSize, 2 ) +
-                    std::pow( 4.0 * tK / std::pow( mElementSize, 2.0 ), 2 ) +
+                    std::pow( 2.0 * tNormA / tElementSize, 2 ) +
+                    std::pow( 4.0 * tK / std::pow( tElementSize, 2.0 ), 2 ) +
                     std::pow( tSource, 2 );
 
             // set tau
@@ -143,6 +149,12 @@ namespace moris
         void SP_SUPG_Spalart_Allmaras_Turbulence::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -169,10 +181,10 @@ namespace moris
             real tNormA = std::sqrt( dot( tModVelocity, tModVelocity ) );
 
             // tau A
-            real tTauA = 2.0 * tNormA / mElementSize;
+            real tTauA = 2.0 * tNormA / tElementSize;
 
             // tau K
-            real tTauK = 4.0 * this->compute_diffusion_coefficient() / std::pow( mElementSize, 2.0 );
+            real tTauK = 4.0 * this->compute_diffusion_coefficient() / std::pow( tElementSize, 2.0 );
 
             // tau S
             real tTauS = this->compute_production_coefficient() +
@@ -188,7 +200,7 @@ namespace moris
             {
                 // add contribution to dSPdu
                 tdtauAdu +=
-                        2.0 * trans( tModVelocity ) * tVelocityFI->N() / ( mElementSize * tNormA );
+                        2.0 * trans( tModVelocity ) * tVelocityFI->N() / ( tElementSize * tNormA );
             }
 
             // if dof type is velocity
@@ -197,13 +209,13 @@ namespace moris
                 // evaluate dadu
                 tdtauAdu -=
                         2.0 * trans( tModVelocity ) * ( mCb2 * tViscosityFI->dnNdxn( 1 ) / mSigma ) /
-                        ( mElementSize * tNormA );
+                        ( tElementSize * tNormA );
             }
 
             // compute tdtauKdu
             Matrix< DDRMat > tddiffusiondu;
             this->compute_ddiffusiondu( aDofTypes, tddiffusiondu );
-            tdtauKdu = 4.0 * tddiffusiondu / std::pow( mElementSize, 2.0 );
+            tdtauKdu = 4.0 * tddiffusiondu / std::pow( tElementSize, 2.0 );
 
             // compute tdtauSdu
             Matrix< DDRMat > tdproductiondu;

@@ -8,6 +8,7 @@
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 
@@ -122,6 +123,15 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tSPSUPGSA->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY } }, mtk::Master_Slave::MASTER );
     tSPSUPGSA->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPSUPGSA->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPIncFlow->set_cluster( tCluster );
+    tSPNitsche->set_cluster( tCluster );
+    tSPViscousGhost->set_cluster( tCluster );
+    tSPConvectiveGhost->set_cluster( tCluster );
+    tSPPressureGhost->set_cluster( tCluster );
+    tSPSUPGSA->set_cluster( tCluster );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();

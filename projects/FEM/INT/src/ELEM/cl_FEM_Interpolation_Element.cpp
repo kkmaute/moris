@@ -1199,17 +1199,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Interpolation_Element::compute_volume()
-        {
-            // set the field interpolators coefficients
-            this->set_field_interpolators_coefficients();
-
-            // ask cluster to compute volume
-            return mFemCluster( 0 )->compute_volume();
-        }
-
-        //------------------------------------------------------------------------------
-
         void Interpolation_Element::populate_fields(
                 moris::Cell< std::shared_ptr< fem::Field > > & aFields,
                 moris::Cell< std::string > const             & tFieldIQINames)

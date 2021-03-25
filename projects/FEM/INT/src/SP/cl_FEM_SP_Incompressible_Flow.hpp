@@ -69,15 +69,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * reset the cluster measures required for this SP
-                 */
-                void reset_cluster_measures()
-                {
-                    // No cluster measure
-                }
-
-                //------------------------------------------------------------------------------
-                /**
                  * set function pointers for evaluation
                  */
                 void set_function_pointers();

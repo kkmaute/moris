@@ -13,6 +13,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //FEM//INT//src
@@ -101,10 +102,14 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG
-    = tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
+            tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
     tSPSUPG->set_dof_type_list( { tVelDofTypes } );
     tSPSUPG->set_property( tPropConductivity, "Conductivity", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPSUPG->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

@@ -647,40 +647,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Element_Double_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
-        {
-            // get treated side ordinal on the master and on the slave
-            uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-            uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
-
-            // set the master/slave ig geometry interpolator physical/parametric space and time coefficients
-            this->init_ig_geometry_interpolator( tMasterSideOrd, tSlaveSideOrd );
-
-            //get number of integration points
-            uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
-
-            // initialize volume
-            real tVolume = 0;
-
-            // get geometry interpolator
-            Geometry_Interpolator * tIGGI =
-                    mSet->get_field_interpolator_manager( aIsMaster )->get_IG_geometry_interpolator();
-
-            // loop over integration points
-            for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-            {
-                // set integration point for geometry interpolator
-                tIGGI->set_space_time( mSet->get_integration_points().get_column( iGP ) );
-
-                // compute and add integration point contribution to volume
-                tVolume += tIGGI->det_J() * mSet->get_integration_weights()( iGP );
-            }
-
-            // return the volume value
-            return tVolume;
-        }
-
-        //------------------------------------------------------------------------------
-
     } /* namespace fem */
 } /* namespace moris */

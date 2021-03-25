@@ -9,6 +9,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //LINALG/src
@@ -117,6 +118,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPIncFlow->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -480,6 +485,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPIncFlow->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

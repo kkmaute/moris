@@ -107,12 +107,6 @@ namespace moris
                 void compute_quantity_of_interest_elemental( const uint aMeshIndex );
 
                 //------------------------------------------------------------------------------
-                /**
-                 * compute volume over the element
-                 */
-                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
             protected:
 
                 //------------------------------------------------------------------------------

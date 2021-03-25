@@ -9,6 +9,9 @@
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"   //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
+// FEM/MSI/src
+#include "cl_MSI_Equation_Model.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -104,6 +107,58 @@ namespace moris
                 default:
                     MORIS_ERROR( false, "Cluster::Cluster - No element type specified" );
             }
+
+            // get cluster measure map from set
+            mClusterMEAMap = mSet->get_cluster_measure_map();
+
+            // get cluster measure tuples from set
+            moris::Cell< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Master_Slave > > tClusterMEATuples = mSet->get_cluster_measure_tuples();
+
+            // build the cluster measures from tuples
+            mClusterMEA.resize( tClusterMEATuples.size(), nullptr );
+            for( uint iCMEA = 0; iCMEA < tClusterMEATuples.size(); iCMEA++ )
+            {
+                mClusterMEA( iCMEA ) = std::make_shared< Cluster_Measure >(
+                        std::get<0>( tClusterMEATuples( iCMEA ) ),
+                        std::get<1>( tClusterMEATuples( iCMEA ) ),
+                        std::get<2>( tClusterMEATuples( iCMEA ) ),
+                        this );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        Cluster::Cluster()
+        {
+            // FIXME could only collect from SP
+            // create default cluster measure
+            mClusterMEA.resize( 4, nullptr );
+            mClusterMEA( 0 ) = std::make_shared< Cluster_Measure >();
+            mClusterMEA( 1 ) = std::make_shared< Cluster_Measure >();
+            mClusterMEA( 2 ) = std::make_shared< Cluster_Measure >();
+            mClusterMEA( 3 ) = std::make_shared< Cluster_Measure >();
+
+            // FIXME could only collect from SP
+            // fill the cluster measure access map
+            mClusterMEAMap[ std::make_tuple(
+                    fem::Measure_Type::CELL_SIDE_MEASURE,
+                    mtk::Primary_Void::PRIMARY,
+                    mtk::Master_Slave::MASTER ) ] = 0;
+            mClusterMEAMap[ std::make_tuple(
+                    fem::Measure_Type::CELL_MEASURE,
+                    mtk::Primary_Void::PRIMARY,
+                    mtk::Master_Slave::MASTER ) ] = 1;
+            mClusterMEAMap[ std::make_tuple(
+                    fem::Measure_Type::CELL_MEASURE,
+                    mtk::Primary_Void::PRIMARY,
+                    mtk::Master_Slave::SLAVE ) ] = 2;
+            mClusterMEAMap[ std::make_tuple(
+                    fem::Measure_Type::CELL_LENGTH_MEASURE,
+                    mtk::Primary_Void::PRIMARY,
+                    mtk::Master_Slave::MASTER ) ] = 3;
         }
 
         //------------------------------------------------------------------------------
@@ -115,6 +170,25 @@ namespace moris
                 delete tElements;
             }
             mElements.clear();
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< IndexMat > & Cluster::get_side_ordinal_info(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                    return mMasterListOfSideOrdinals;
+
+                case mtk::Master_Slave::SLAVE :
+                    return mSlaveListOfSideOrdinals;
+
+                default:
+                    MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be master or slave." );
+                    return mMasterListOfSideOrdinals;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -263,6 +337,9 @@ namespace moris
 
         void Cluster::compute_jacobian()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -275,6 +352,9 @@ namespace moris
 
         void Cluster::compute_residual()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -287,6 +367,9 @@ namespace moris
 
         void Cluster::compute_jacobian_and_residual()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -299,6 +382,12 @@ namespace moris
 
         void Cluster::compute_dRdp()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
+            // reset cluster measures derivatives
+            this->reset_cluster_measure_derivatives();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -311,6 +400,12 @@ namespace moris
 
         void Cluster::compute_dQIdp_explicit()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
+            // reset cluster measures derivatives
+            this->reset_cluster_measure_derivatives();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -323,6 +418,12 @@ namespace moris
 
         void Cluster::compute_dRdp_and_dQIdp()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
+            // reset cluster measures derivatives
+            this->reset_cluster_measure_derivatives();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -335,6 +436,9 @@ namespace moris
 
         void Cluster::compute_dQIdu()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -347,6 +451,9 @@ namespace moris
 
         void Cluster::compute_QI()
         {
+            // reset cluster measures
+            this->reset_cluster_measure();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -361,6 +468,11 @@ namespace moris
                 const uint                         aMeshIndex,
                 enum vis::Field_Type               aFieldType )
         {
+            // FIXME
+            // cannot do it here cause vis mesh
+            // reset cluster measures
+            //this->reset_cluster_measure();
+
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
@@ -371,20 +483,54 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Cluster::compute_volume()
+        std::shared_ptr< Cluster_Measure > & Cluster::get_cluster_measure(
+                fem::Measure_Type aMeasureType,
+                mtk::Primary_Void aIsPrimary,
+                mtk::Master_Slave aIsMaster )
         {
-            // init cluster volume
-            real tClusterVolume = 0;
+            // init cluster index
+            uint tClusterMEAIndex = UINT_MAX;
 
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            // check if the cluster measure exists in map
+            if( mClusterMEAMap.find( std::make_tuple(
+                    aMeasureType,
+                    aIsPrimary,
+                    aIsMaster ) ) != mClusterMEAMap.end() )
             {
-                // add volume contribution for the IG element
-                tClusterVolume += mElements( iElem )->compute_volume();
+                // add the mesh set name map
+                tClusterMEAIndex = mClusterMEAMap[ std::make_tuple(
+                        aMeasureType,
+                        aIsPrimary,
+                        aIsMaster ) ];
             }
 
-            // return cluster volume value
-            return tClusterVolume;
+            MORIS_ERROR( tClusterMEAIndex != UINT_MAX, "Cluster measure not found!" );
+
+            return mClusterMEA( tClusterMEAIndex );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Cluster::reset_cluster_measure()
+        {
+            // loop over cluster measures
+            for( uint iCMEA = 0; iCMEA < mClusterMEA.size(); iCMEA++ )
+            {
+                // evaluate each cluster measure
+                mClusterMEA( iCMEA )->eval_cluster_measure();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Cluster::reset_cluster_measure_derivatives()
+        {
+            // loop over cluster measures
+            for( uint iCMEA = 0; iCMEA < mClusterMEA.size(); iCMEA++ )
+            {
+                // evaluate each cluster measure
+                mClusterMEA( iCMEA )->eval_cluster_measure_derivatives();
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -402,6 +548,106 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::Matrix< DDRMat > Cluster::compute_cluster_cell_measure_derivative(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster )
+        {
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                    "Cluster::compute_cluster_cell_measure_derivative - empty cluster.");
+
+            // get vertices indices for sensitivity
+            moris::Matrix< moris::IndexMat > tVerticesIndices;
+            this->get_vertex_indices_in_cluster_for_sensitivity( tVerticesIndices );
+
+            // get the vertex pointers in cluster
+            moris::Cell<moris::mtk::Vertex const *> tVertices =
+                    mMeshCluster->get_vertices_in_cluster( aIsMaster );
+
+            // get the requested geo pdv types
+            moris::Cell < enum PDV_Type > tGeoPdvType;
+            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+            // get local assembly indices
+            Matrix< DDSMat > tGeoLocalAssembly;
+            if( mSet->get_geo_pdv_assembly_flag() )
+            {
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
+                        tVerticesIndices,
+                        tGeoPdvType,
+                        tGeoLocalAssembly );
+            }
+
+            // get number of pdv on cluster
+            uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
+
+            // fill matrix with derivatives
+            Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
+
+            // create container for the ig cells in cluster
+            moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+            // get the primary ig cells in cluster
+            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            {
+                tCells = &mMeshCluster->get_primary_cells_in_cluster();
+            }
+            // get the void ig cells in cluster
+            else
+            {
+                tCells = &mMeshCluster->get_void_cells_in_cluster();
+            }
+
+            // loop over the vertices in cluster
+            for( uint iNode = 0; iNode < tVertices.size(); iNode++ )
+            {
+                // get the node coordinates
+                Matrix< DDRMat > tPerturbedNodeCoords = tVertices( iNode )->get_coords();
+
+                // loop over the ig cells in cluster
+                for( auto iC = tCells->cbegin(); iC < tCells->cend(); iC++ )
+                {
+                    // get the cell coordinates
+                    Matrix< DDRMat > tCellCoords = (*iC)->get_vertex_coords();
+
+                    // get number of nodes in this cell
+                    uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+
+                    // check if this cell in cluster is affected by the perturbed node
+                    bool tIsAffected = false;                     // flag true if cell is affected by perturbed node
+                    uint tLocalVertexID = UINT_MAX;
+
+                    // loop over the nodes of the cell
+                    for( uint iNode = 0; iNode < tNumNodesInCell; iNode++ )
+                    {
+                        // check if perturbed node affects this cell by using the distance between two nodes
+                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iNode ) ) < 1e-12 );
+
+                        if( tIsAffected == true )
+                        {
+                            tLocalVertexID = iNode;
+                            break;
+                        }
+                    }
+                    if( tIsAffected == true )
+                    {
+                        for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
+                        {
+                            if( tGeoLocalAssembly( iNode, iSpace ) != -1 )
+                            {
+                                // add contribution from the cell to the cluster side measure
+                                tDerivatives( tGeoLocalAssembly( iNode, iSpace ) ) +=
+                                        (*iC)->compute_cell_measure_deriv( tLocalVertexID, iSpace );
+                            }
+                        }
+                    }
+                }
+            }
+            return tDerivatives;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::real Cluster::compute_cluster_cell_side_measure(
                 const mtk::Primary_Void aPrimaryOrVoid ,
                 const mtk::Master_Slave aIsMaster ) const
@@ -411,6 +657,104 @@ namespace moris
                     "Cluster::compute_cluster_cell_side_measure - empty cluster.");
 
             return mMeshCluster->compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::Matrix< DDRMat > Cluster::compute_cluster_cell_side_measure_derivative(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster )
+        {
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                    "Cluster::compute_cluster_cell_side_measure_derivative - empty cluster.");
+
+            // get vertices indices for sensitivity
+            moris::Matrix< moris::IndexMat > tVerticesIndices;
+            this->get_vertex_indices_in_cluster_for_sensitivity( tVerticesIndices );
+
+            // get the vertex pointers in cluster
+            moris::Cell<moris::mtk::Vertex const *> tVertices =
+                    mMeshCluster->get_vertices_in_cluster( aIsMaster );
+
+            // get the requested geo pdv types
+            moris::Cell < enum PDV_Type > tGeoPdvType;
+            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+            // get local assembly indices
+            Matrix< DDSMat > tGeoLocalAssembly;
+            if( mSet->get_geo_pdv_assembly_flag() )
+            {
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
+                        tVerticesIndices,
+                        tGeoPdvType,
+                        tGeoLocalAssembly );
+            }
+
+            // get number of pdv on cluster
+            uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
+
+            // fill matrix with derivatives
+            Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
+
+            //get the primary ig cells in cluster
+            moris::Cell<mtk::Cell const *> const & tCells =
+                    mMeshCluster->get_primary_cells_in_cluster();
+
+            // get the ig cell side ordinals
+            moris::Matrix<IndexMat> tSideOrds =
+                    mMeshCluster->get_cell_side_ordinals( aIsMaster );
+
+            // loop over the vertices in cluster
+            for( uint iNode = 0; iNode < tVertices.size(); iNode++ )
+            {
+                // get the node coordinates
+                Matrix< DDRMat > tPerturbedNodeCoords = tVertices( iNode )->get_coords();
+
+                // loop over the ig cells in cluster
+                for( moris::uint iC = 0 ; iC < tCells.size(); iC++ )
+                {
+                    // get the cell coordinates
+                    Matrix< DDRMat > tCellCoords =
+                            tCells( iC )->get_cell_physical_coords_on_side_ordinal(tSideOrds(iC));
+
+                    // check if this cell in cluster is affected by the perturbed node
+                    uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+
+                    // check if this cell in cluster is affected by the perturbed node
+                    bool tIsAffected = false;                     // flag true if cell is affected by perturbed node
+                    uint tLocalVertexID = UINT_MAX;
+
+                    // loop over the nodes of the cell
+                    for( uint iNode = 0; iNode < tNumNodesInCell; iNode++ )
+                    {
+                        // check if perturbed node affects this cell by using the distance between two nodes
+                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iNode ) ) < 1e-12 );
+
+                        if( tIsAffected == true )
+                        {
+                            tLocalVertexID = iNode;
+                            break;
+                        }
+                    }
+                    if( tIsAffected == true )
+                    {
+                        for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
+                        {
+                            if( tGeoLocalAssembly( iNode, iSpace ) != -1 )
+                            {
+                                // add contribution from the cell to the cluster side measure
+                                tDerivatives( tGeoLocalAssembly( iNode, iSpace ) ) +=
+                                        tCells( iC )->compute_cell_side_measure_deriv(
+                                                tSideOrds( iC ),
+                                                tLocalVertexID,
+                                                iSpace );
+                            }
+                        }
+                    }
+                }
+            }
+            return tDerivatives;
         }
 
         //------------------------------------------------------------------------------
@@ -479,44 +823,115 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::real Cluster::compute_ip_cell_length_measure(
-        		const mtk::Master_Slave aIsMaster ) const
+        moris::Matrix< DDRMat > Cluster::compute_cluster_cell_length_measure_derivative(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster )
         {
-        	// check that the mesh cluster was set
-        	MORIS_ASSERT( mInterpolationElement != NULL,
-        			"Cluster::compute_ip_cell_length_measure - empty interpolation element.");
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mMeshCluster != NULL,
+                    "Cluster::compute_cluster_cell_length_measure_derivative - empty cluster.");
 
-        	// compute the volume of the master IP cell
-        	real tVolume = reinterpret_cast< fem::Interpolation_Element* >( mInterpolationElement )->
-        			get_ip_cell( mtk::Master_Slave::MASTER )->compute_cell_measure();
+            // get spatial dimension from IP geometry interpolator
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
+                    get_IP_geometry_interpolator()->
+                    get_number_of_space_dimensions();
 
-        	// get spatial dimension from IP geometry interpolator
-        	uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
-        			get_IP_geometry_interpolator()->
-					get_number_of_space_dimensions();
+            // init volume of the custer
+            real tVolume = 0.0;
 
-        	// compute element size
-        	switch ( tSpaceDim )
-        	{
-        	case 3 :
-        	{
-        		// compute length from volume
-        		return std::pow( 6.0 * tVolume / M_PI, 1.0 / 3.0 );
-        	}
-        	case 2 :
-        	{
-        		// compute length from volume
-        		return std::pow( 4.0 * tVolume / M_PI, 1.0 / 2.0 );
-        	}
-        	case 1 :
-        	{
-        		return tVolume;
-        	}
+            // init derivatives
+            Matrix< DDRMat > tDerivatives;
 
-        	default:
-        		MORIS_ERROR( false, "Cluster::compute_ip_cell_length_measure - space dimension can only be 1, 2, or 3. ");
-        		return 0.0;
-        	}
+            // switch on set type
+            fem::Element_Type tElementType = mSet->get_element_type();
+            switch( tElementType )
+            {
+                case fem::Element_Type::BULK :
+                case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY :
+                {
+                    tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+                    tDerivatives = this->compute_cluster_cell_measure_derivative( aPrimaryOrVoid, aIsMaster );
+                    break;
+                }
+                case fem::Element_Type::SIDESET :
+                case fem::Element_Type::DOUBLE_SIDESET :
+                {
+                    tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
+                    tDerivatives = this->compute_cluster_cell_side_measure_derivative( aPrimaryOrVoid, aIsMaster );
+                    tSpaceDim = tSpaceDim - 1;
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false, "Undefined set type" );
+            }
+
+            // compute element size
+            switch ( tSpaceDim )
+            {
+                case 3 :
+                {
+                    // compute derivative of length from volume
+                    real tdLengthdVolume = 2.0 * std::pow( 6.0 * tVolume / M_PI, -2.0 / 3.0 ) / M_PI;
+                    return tdLengthdVolume * tDerivatives;
+                }
+                case 2 :
+                {
+                    // compute derivative of length from volume
+                    real tdLengthdVolume = 2.0 * std::pow( 4.0 * tVolume / M_PI, -1.0 / 2.0 ) / M_PI;
+                    return tdLengthdVolume * tDerivatives;
+                }
+                case 1 :
+                {
+                    return tDerivatives;
+                }
+
+                default:
+                    MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure_derivative - space dimension can only be 1, 2, or 3. ");
+                    return tDerivatives;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::real Cluster::compute_ip_cell_length_measure(
+                const mtk::Master_Slave aIsMaster ) const
+        {
+            // check that the mesh cluster was set
+            MORIS_ASSERT( mInterpolationElement != NULL,
+                    "Cluster::compute_ip_cell_length_measure - empty interpolation element.");
+
+            // compute the volume of the master IP cell
+            real tVolume = reinterpret_cast< fem::Interpolation_Element* >( mInterpolationElement )->
+                    get_ip_cell( mtk::Master_Slave::MASTER )->compute_cell_measure();
+
+            // get spatial dimension from IP geometry interpolator
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
+                    get_IP_geometry_interpolator()->
+                    get_number_of_space_dimensions();
+
+            // compute element size
+            switch ( tSpaceDim )
+            {
+                case 3 :
+                {
+                    // compute length from volume
+                    return std::pow( 6.0 * tVolume / M_PI, 1.0 / 3.0 );
+                }
+                case 2 :
+                {
+                    // compute length from volume
+                    return std::pow( 4.0 * tVolume / M_PI, 1.0 / 2.0 );
+                }
+                case 1 :
+                {
+                    return tVolume;
+                }
+
+                default:
+                    MORIS_ERROR( false, "Cluster::compute_ip_cell_length_measure - space dimension can only be 1, 2, or 3. ");
+                    return 0.0;
+            }
         }
 
         //------------------------------------------------------------------------------

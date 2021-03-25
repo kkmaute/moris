@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 
@@ -124,6 +125,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
     tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -548,6 +553,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
     tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -977,6 +986,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -1401,6 +1414,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
     tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

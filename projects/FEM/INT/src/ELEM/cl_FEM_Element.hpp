@@ -459,49 +459,6 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
-                /**
-                 * compute volume of the integration element
-                 * @param[ in ] aIsMaster enum master or slave
-                 */
-                virtual real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
-                    return 0.0;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute size of the integration element
-                 * @param[ in ] aSpaceDim space dimension
-                 * FIXME should be held by the FEM Set
-                 * @param[ in ] aIsMaster enum master or slave
-                 */
-                real compute_size(
-                        uint              aSpaceDim,
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    //evaluate the volume
-                    real tVolume = this->compute_volume( aIsMaster );
-
-                    // compute the element size
-                    switch ( aSpaceDim )
-                    {
-                        case 3 :
-                            return std::pow( 6 * tVolume / M_PI, 1.0 / 3.0 );
-
-                        case 2 :
-                            return std::pow( 4 * tVolume / M_PI, 1.0 / 2.0 );
-
-                        case 1 :
-                            return tVolume;
-
-                        default:
-                            MORIS_ERROR( false, "Element::compute_size - space dimension can only be 1, 2, or 3. ");
-                            return tVolume;
-                    }
-                }
-
-                //------------------------------------------------------------------------------
         };
 
         //------------------------------------------------------------------------------

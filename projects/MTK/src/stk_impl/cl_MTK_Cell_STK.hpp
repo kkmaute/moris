@@ -295,6 +295,17 @@ public:
 
     //------------------------------------------------------------------------------
 
+        moris::real
+        compute_cell_side_measure_deriv(
+                moris_index const & aCellSideOrd,
+                uint aVertexID,
+                uint aDirection) const
+        {
+            return mCellInfo->compute_cell_side_size_deriv(this, aCellSideOrd, aVertexID, aDirection);
+        }
+
+    //------------------------------------------------------------------------------
+
     /**
      * returns an enum that defines the geometry type of the element
      */
