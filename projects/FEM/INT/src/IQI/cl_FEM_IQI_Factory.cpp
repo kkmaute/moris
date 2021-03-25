@@ -27,6 +27,7 @@
 #include "cl_FEM_IQI_Total_Pressure.hpp"
 #include "cl_FEM_IQI_Mass_Flow.hpp"
 #include "cl_FEM_IQI_Thermal_Energy.hpp"
+#include "cl_FEM_IQI_Stabilization.hpp"
 
 namespace moris
 {
@@ -45,6 +46,9 @@ namespace moris
 
                 case IQI_Type::PROPERTY :
                     return std::make_shared< IQI_Property >();
+
+                case IQI_Type::STABILIZATION :
+                	return std::make_shared< IQI_Stabilization >();
 
                 case IQI_Type::VOLUME :
                     return std::make_shared< IQI_Volume >();
