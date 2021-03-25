@@ -33,7 +33,9 @@ namespace moris
     namespace fem
     {
         class Set;
+        class Cluster;
         class Field_Interpolator_Manager;
+
         //------------------------------------------------------------------------------
         /**
          * Integrand of a quantity of interest
@@ -44,6 +46,9 @@ namespace moris
 
             // FEM set pointer
             fem::Set * mSet = nullptr;
+
+            // cluster pointer
+            fem::Cluster * mCluster = nullptr;
 
             // FEM IQI type
             enum fem::IQI_Type mFEMIQIType;
@@ -338,6 +343,16 @@ namespace moris
 
                 // set function pointer for dQIdu, dQIdp
                 this->set_function_pointers();
+            }
+
+            //------------------------------------------------------------------------------
+            /*
+             * set fem cluster pointer
+             * @param[ in ] aClusterPointer a FEM cluster pointer
+             */
+            void set_cluster_pointer( fem::Cluster * aClusterPointer )
+            {
+                mCluster = aClusterPointer;
             }
 
             //------------------------------------------------------------------------------
@@ -722,6 +737,19 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * add the contribution of the cluster measure derivatives to the derivative of
+             * the quantity of interest wrt to geometry dv by finite difference
+             * @param[ in ] aWStar        weight associated to evaluation point
+             * @param[ in ] aPerturbation pdv relative perturbation size
+             * @param[ in ] aFDSchemeType enum for FD scheme
+             */
+            void add_cluster_measure_dQIdp_FD_geometry(
+                    moris::real        aWStar,
+                    moris::real        aPerturbation,
+                    fem::FDScheme_Type aFDSchemeType );
+
+            //------------------------------------------------------------------------------
+            /**
              * Evaluate the quantity of interest.
              * @param[ out ] aQIVal quantity of interest matrix to fill
              */
@@ -799,10 +827,10 @@ namespace moris
              * @param[ out ] tDeltaH              perturbation size built for finite difference
              */
             real check_ig_coordinates_inside_ip_element(
-            		const real & aPerturbation,
-					const real & aCoefficientToPerturb,
-					const uint & aSpatialDirection,
-					fem::FDScheme_Type & aUsedFDScheme );
+                    const real & aPerturbation,
+                    const real & aCoefficientToPerturb,
+                    const uint & aSpatialDirection,
+                    fem::FDScheme_Type & aUsedFDScheme );
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
