@@ -224,10 +224,17 @@ namespace moris
             MORIS_ASSERT( aDirection < 2,"Cell_Info_Tri3::compute_cell_size_deriv directions can only be 0 or 1.\n");
             MORIS_ASSERT( aLocalVertexID < 3,"Cell_Info_Tri3::compute_cell_size_deriv vertex IDs must be 0, 1, or 2.\n");
 
+            // get sign
+            const Matrix<DDRMat> tNodeCoords10 = tVertices(1)->get_coords() - tVertices(0)->get_coords();
+            const Matrix<DDRMat> tNodeCoords20 = tVertices(2)->get_coords() - tVertices(0)->get_coords();
+
+            real tSign = tNodeCoords10(0) * tNodeCoords20(1) - tNodeCoords20(0) * tNodeCoords10(1);
+            tSign = tSign / std::abs( tSign );
+
             // computes the derivative of the area wrt to the single dof/direction.
-            moris::real tAreaDeriv = 0.5 * std::pow(-1.0, aDirection) *
-                                           ( tNodeCoordsA( tDirIndexMap( aDirection ) ) -
-                                             tNodeCoordsB( tDirIndexMap( aDirection ) ) );
+            moris::real tAreaDeriv = 0.5 * tSign * std::pow( -1.0, aDirection ) *
+                    ( tNodeCoordsA( tDirIndexMap( aDirection ) ) -
+                            tNodeCoordsB( tDirIndexMap( aDirection ) ) );
 
             return tAreaDeriv;
         }
@@ -245,5 +252,36 @@ namespace moris
 
             return moris::norm(tLVec);
         }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Tri3::compute_cell_side_size_deriv(
+                moris::mtk::Cell const * aCell,
+                moris_index const      & aSideOrd,
+                uint                     aLocalVertexID,
+                uint                     aDirection ) const
+        {
+            moris::Cell<mtk::Vertex const *> tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
+
+            // Getting adjacent vertices to vertex of interest
+            const Matrix<DDRMat> tNodeCoordsA = tVertices( 0 )->get_coords();
+            const Matrix<DDRMat> tNodeCoordsB = tVertices( 1 )->get_coords();
+
+            // Computing the side length
+            moris::real tLength = moris::norm(tNodeCoordsB - tNodeCoordsA);
+
+            MORIS_ASSERT(tNodeCoordsA.numel() == 2,"Cell_Info_Tri3::compute_cell_side_size_deriv only works in 2D.\n");
+            MORIS_ASSERT( aDirection < 2,"Cell_Info_Tri3::compute_cell_side_size_deriv directions can only be 0 or 1.\n");
+            MORIS_ASSERT( aLocalVertexID < 2,"Cell_Info_Tri3::compute_cell_side_size_deriv vertex IDs must be 0, 1.\n");
+
+            // computes the derivative of the area wrt to the single dof/direction.
+            moris::real tLengthDeriv = std::pow( -1.0, aLocalVertexID + 1 ) *
+                    ( tNodeCoordsB( aDirection ) - tNodeCoordsA( aDirection ) ) / tLength;
+
+            return tLengthDeriv;
+        }
+
+
     } // namespace mtk
 } // namespace moris

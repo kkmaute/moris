@@ -269,5 +269,18 @@ namespace moris
             return tCellSizeDeriv;
         }
         
+        // ---------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info::compute_cell_side_size_deriv(
+                moris::mtk::Cell const *aCell,
+                moris_index const      &aSideOrd,
+                uint                    aLocalVertexID,
+                uint                    aDirection ) const
+        {
+            MORIS_ERROR(false,"Cell_Info::compute_cell_side_size_deriv not implemented for this cell.");
+            return 0.0;
+        }
+
     } // namespace mtk
 } // namespace moris
