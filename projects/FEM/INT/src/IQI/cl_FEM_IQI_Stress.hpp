@@ -79,9 +79,9 @@ namespace moris
                 /**
                  * gets the stress vector from the constitutive model and sorts it into a format standardized
                  * (independent of 2D-plane strain, 2D-plain stress, and 3D)
-                 * @param[ out ] tStressVector vector with 6 entries containing the normal and shear stress values
+                 * @param[ out ] aStressVector vector with 6 entries containing the normal and shear stress values
                  */
-                Matrix< DDRMat > get_stress_vector();
+                void get_stress_vector( Matrix< DDRMat > & aStressVector );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -117,8 +117,6 @@ namespace moris
                  * @param[ out ] tStressValue the value of the requested principal stress
                  */
                 real eval_shear_stress( uint aStressIndex );
-
-                //------------------------------------------------------------------------------
 
                 //------------------------------------------------------------------------------
                 /**
