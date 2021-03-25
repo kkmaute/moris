@@ -2890,6 +2890,16 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
@@ -3058,6 +3068,16 @@ namespace moris
 
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
+
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -3229,6 +3249,16 @@ namespace moris
 
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
+
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -3462,6 +3492,16 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry_double(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
                     "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
@@ -3507,6 +3547,9 @@ namespace moris
                 std::shared_ptr< Cluster_Measure > & tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
 
+                // number of pdv to assemble
+                uint tNumPdvToAssemble = tClusterMeasure->dMEAdPDV().numel() - 1;
+
                 // set starting point for FD
                 uint tStartPoint = 0;
 
@@ -3517,7 +3560,7 @@ namespace moris
                     // add unperturbed residual contribution to dRdp
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
-                            { 0,    tClusterMeasure->dMEAdPDV().numel() } ) +=
+                            { 0,    tNumPdvToAssemble } ) +=
                                     tFDScheme( 1 )( 0 ) * tResidual * tClusterMeasure->dMEAdPDV() /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -3541,7 +3584,7 @@ namespace moris
                     // evaluate dRdpGeo
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
-                            { 0,    tClusterMeasure->dMEAdPDV().numel() } ) +=
+                            { 0, tNumPdvToAssemble } ) +=
                                     tFDScheme( 1 )( iPoint ) *
                                     mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) *
                                     tClusterMeasure->dMEAdPDV() /
@@ -3605,8 +3648,13 @@ namespace moris
                 std::shared_ptr< Cluster_Measure > & tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
 
+                if( mIsGhost )
+                {
+                    print(tClusterMeasure->dMEAdPDV(),"tClusterMeasure->dMEAdPDV()");
+                }
+
                 // get end pdv index
-                uint tEndPdvIndex = tClusterMeasure->dMEAdPDV().numel();
+                uint tEndPdvIndex = tClusterMeasure->dMEAdPDV().numel() - 1;
 
                 // set starting point for FD
                 uint tStartPoint = 0;
