@@ -518,33 +518,23 @@ namespace moris
             // get IP Mesh to determine nodal value mapping
             mtk::Mesh * tIPMesh = mMeshPair.get_interpolation_mesh();
 
-            // check num nodes matches
-            MORIS_ASSERT( tIPMesh->get_num_nodes() == tNumNodes, "Field::load_field_from_exodus"
-                    " - number of IP nodes do not match field nodes");
-
-            // init index and id variables
-            moris_index tIPVertexIndex;
-            moris_id tIPVertexID;
-
            // loop over all requested field indices
-            for (uint tIndex=0; tIndex < mNumberOfFields; ++tIndex)
+            for ( uint tIndex=0; tIndex < mNumberOfFields; ++tIndex )
             {
                 // get exodus field index
                 moris_index tExoFieldIndex = aFiledIndices(tIndex);
 
                 // get exodus field for current field index
-                const Matrix<DDRMat> & tExodusData = tExoIO.get_nodal_field_vector( aTimeIndex, tExoFieldIndex);
+                const Matrix<DDRMat> & tExodusData = tExoIO.get_nodal_field_vector( aTimeIndex, tExoFieldIndex );
 
-                // assign nodal values based on Field index to node id mapping and from
-                for (uint i = 0; i<tNumNodes; ++i)
+                for ( uint iNodeIndex = 0; iNodeIndex<tNumNodes; ++iNodeIndex )
                 {
-                    // getting moris index and id for this vertex
-                    tIPVertexIndex = tIPMesh->get_mtk_vertex(i).get_index();
-                    tIPVertexID = tIPMesh->get_mtk_vertex(i).get_id();
+                    // getting mtk mesh id for this vertex
+                    moris_id tIPVertexID = tIPMesh->get_mtk_vertex( iNodeIndex ).get_id();
 
                     // assign nodal value at IP mesh index based on Field index of the same node
                     // Note that the indices won't necessarily match for the same vertex
-                    tNodalValues( tIPVertexIndex,tIndex ) =
+                    tNodalValues( iNodeIndex,tIndex ) =
                             tExodusData( tExoIO.get_node_index_by_Id( tIPVertexID ) );
                 }
             }
