@@ -137,16 +137,6 @@ v                 * @return single integration cell side ordinal
                         const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const  = 0;
 
                 // ----------------------------------------------------------------------------------
-                /*!
-                 * Access vertex local index in cluster
-                 * @param[in] aVertex MTK Vertex
-                 * @return Vertex cluster index
-                 */
-                virtual
-                moris::moris_index
-                get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const = 0;
-
-                // ----------------------------------------------------------------------------------
 
                 //##############################################
                 // Size Access

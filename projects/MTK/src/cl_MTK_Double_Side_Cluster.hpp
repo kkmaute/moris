@@ -25,10 +25,10 @@ namespace moris
                  */
 
                 // Master side cluster
-                moris::mtk::Side_Cluster * mMasterSideCluster;
+                moris::mtk::Cluster const * mMasterSideCluster;
 
                 // Slave side cluster
-                moris::mtk::Side_Cluster * mSlaveSideCluster;
+                moris::mtk::Cluster const * mSlaveSideCluster;
 
 
                 /*!
@@ -71,8 +71,8 @@ namespace moris
                  * @param[in] aMasterToSlaveVertexPair) Vertices on the sides of the clusters
                  */
                 Double_Side_Cluster(
-                        moris::mtk::Side_Cluster *                      aMasterSideCluster,
-                        moris::mtk::Side_Cluster *                      aSlaveSideCluster,
+                        moris::mtk::Cluster const *                           aMasterSideCluster,
+                        moris::mtk::Cluster const *                           aSlaveSideCluster,
                         moris::Cell<moris::mtk::Vertex const *> const & aMasterToSlaveVertexPair);
 
                 //##############################################
@@ -109,7 +109,7 @@ namespace moris
                 /*!
                  * @return const master side cluster
                  */
-                moris::mtk::Side_Cluster const &
+                moris::mtk::Cluster const &
                 get_master_side_cluster() const;
 
                 //----------------------------------------------------------------
@@ -117,29 +117,12 @@ namespace moris
                 /*!
                  * @return const slave side cluster
                  */
-                moris::mtk::Side_Cluster const &
+                moris::mtk::Cluster const &
                 get_slave_side_cluster() const;
 
                 //----------------------------------------------------------------
 
-                /*!
-                 * @return  master side cluster
-                 */
-                moris::mtk::Side_Cluster &
-                get_master_side_cluster();
-
-                //----------------------------------------------------------------
-
-                /*!
-                 * @return master side cluster in this double sided side cluster
-                 */
-                moris::mtk::Side_Cluster &
-                get_slave_side_cluster();
-
-                //----------------------------------------------------------------
-
-
-                moris::mtk::Side_Cluster const &
+                moris::mtk::Cluster const &
                 get_cluster(
                         const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
@@ -420,16 +403,6 @@ namespace moris
                  */
                 moris_index
                 get_slave_dim_of_param_coord() const;
-                //----------------------------------------------------------------
-
-                moris::uint
-                get_master_num_sides() const;
-
-                //----------------------------------------------------------------
-
-                moris::uint
-                get_slave_num_sides() const;
-
                 //----------------------------------------------------------------
 
                 moris::uint

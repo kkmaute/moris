@@ -201,7 +201,17 @@ namespace moris
             return 0;
         }
 
+        
+
         // ----------------------------------------------------------------------------
+
+        void
+        Integration_Mesh::add_double_side_set(mtk::Set* aDblSideSet)
+        {
+            mListofDoubleSideSets.push_back(aDblSideSet); 
+            this->collect_all_sets();  
+        }
+
 
         void 
         Integration_Mesh::collect_all_sets()
