@@ -1192,6 +1192,65 @@ namespace moris
                                 tCM,
                                 tCMNamesPair( iCM )( 1 ) );
                     }
+
+                    // get the cluster measures specifications
+                    moris::Cell< moris::Cell< std::string > > tClusterMeasureTypes;
+                    string_to_cell_of_cell(
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
+                            tClusterMeasureTypes );
+
+                    // get the cluster measures names
+                    moris::Cell< std::string > tClusterMeasureNames;
+                    string_to_cell( std::get< 1 >(tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
+                            tClusterMeasureNames );
+
+                    // build a cell of tuples describing the cluster measures specifications
+                    moris::Cell< std::tuple<
+                    fem::Measure_Type,
+                    mtk::Primary_Void,
+                    mtk::Master_Slave > > tClusterMeasureTuples( tClusterMeasureNames.size() );
+
+                    // get fem::Measure_Type, mtk::Primary_Void and mtk::Master_Slave map
+                    // to convert string to enums
+                    moris::map< std::string, fem::Measure_Type > tFemMeasureMap = fem::get_measure_type_map();
+                    moris::map< std::string, mtk::Primary_Void > tMtkPrimaryMap = mtk::get_primary_type_map();
+                    moris::map< std::string, mtk::Master_Slave > tMtkMasterMap = mtk::get_master_type_map();
+
+                    // loop over cluster measures names
+                    for( uint iCMEA = 0; iCMEA < tClusterMeasureNames.size(); iCMEA++ )
+                    {
+                        // check that measure type is member of map
+                        MORIS_ERROR( tFemMeasureMap.key_exists( tClusterMeasureTypes( iCMEA )( 0 ) ),
+                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                tClusterMeasureTypes( iCMEA )( 0 ).c_str() );
+
+                        // get fem measure type from map
+                        fem::Measure_Type tFemMeasureType = tFemMeasureMap.find( tClusterMeasureTypes( iCMEA )( 0 ) );
+
+                        // check that primary type is member of map
+                        MORIS_ERROR( tMtkPrimaryMap.key_exists( tClusterMeasureTypes( iCMEA )( 1 ) ),
+                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                tClusterMeasureTypes( iCMEA )( 1 ).c_str() );
+
+                        // get mtk primary type from map
+                        mtk::Primary_Void tMtkPrimaryType = tMtkPrimaryMap.find( tClusterMeasureTypes( iCMEA )( 1 ) );
+
+                        // check that master type is member of map
+                        MORIS_ERROR( tMtkMasterMap.key_exists( tClusterMeasureTypes( iCMEA )( 2 ) ),
+                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                tClusterMeasureTypes( iCMEA )( 2 ).c_str() );
+
+                        // get mtk master type from map
+                        mtk::Master_Slave tMtkMasterType = tMtkMasterMap.find( tClusterMeasureTypes( iCMEA )( 2 ) );
+
+                        // build the cluster measure specification tuple and set it in cell of tuples
+                        tClusterMeasureTuples( iCMEA ) = std::make_tuple( tFemMeasureType, tMtkPrimaryType, tMtkMasterType );
+                    }
+
+                    // set the cell of cluster measure specification tuples to the SP
+                    mSPs( iSP )->set_cluster_measure_type_list(
+                            tClusterMeasureTuples,
+                            tClusterMeasureNames );
                 }
             }
         }

@@ -125,10 +125,24 @@ namespace moris
             Matrix< DDSMat > mUniqueDvTypeMap;
             Matrix< DDSMat > mUniqueFieldTypeMap;
 
-
             // map visualization cell id to position in vector
             moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
             moris::Cell< uint >                    mMtkIgCellOnSet;
+
+            // cluster measure specifications on set
+            moris::Cell< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Master_Slave > > mClusterMEATuples;
+
+            // cluster measure specification map on set
+            std::map< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Master_Slave >, uint > mClusterMEAMap;
+
+            // flag for cluster measure tuples and map
+            bool mBuildClusterMEA = false;
 
             // bool for time continuity
             bool mTimeContinuity = false;
@@ -551,6 +565,32 @@ namespace moris
              * @param[ in ] aFemCluster fem cluster pointer
              */
             void set_IQI_cluster_for_stabilization_parameters( fem::Cluster * aFemCluster );
+
+            //------------------------------------------------------------------------------
+            /*
+             * build cluster measure specification list and map required on set
+             */
+            void build_cluster_measure_tuples_and_map();
+
+            //------------------------------------------------------------------------------
+            /*
+             * get cluster measures required on set
+             * return cell of tuple with cluster measure specifications
+             */
+            moris::Cell< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Master_Slave > > & get_cluster_measure_tuples();
+
+            //------------------------------------------------------------------------------
+            /*
+             * get cluster measures required on set
+             * return cell of tuple with cluster measure specifications
+             */
+            std::map< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Master_Slave >, uint > & get_cluster_measure_map();
 
             //------------------------------------------------------------------------------
             /**
