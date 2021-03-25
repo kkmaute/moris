@@ -142,7 +142,8 @@ namespace xtk
     //----------------------------------------------------------------
 
     moris::moris_index
-    Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const
+    Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
+                                            const mtk::Master_Slave aIsMaster) const
     {
 
         // if(mTrivial ||  mChildMesh == nullptr)

@@ -25,14 +25,12 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         Double_Side_Cluster::Double_Side_Cluster(
-                moris::mtk::Side_Cluster *                      aMasterSideCluster,
-                moris::mtk::Side_Cluster *                      aSlaveSideCluster,
+                moris::mtk::Cluster const *                      aMasterSideCluster,
+                moris::mtk::Cluster const *                      aSlaveSideCluster,
                 moris::Cell<moris::mtk::Vertex const *> const & aLeftToRightVertexPair )
         : mMasterSideCluster(aMasterSideCluster),
           mSlaveSideCluster(aSlaveSideCluster)
         {
-            MORIS_ASSERT(this->get_master_num_sides() == this->get_slave_num_sides(),"Number of sides in master cluster do not match the number in slave cluster");
-
             if(!this->is_master_trivial())
             {
                 MORIS_ASSERT(this->get_master_num_vertices_in_cluster() == this->get_slave_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
@@ -81,7 +79,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::mtk::Side_Cluster const &
+        moris::mtk::Cluster const &
         Double_Side_Cluster::get_master_side_cluster() const
         {
             return *mMasterSideCluster;
@@ -89,7 +87,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::mtk::Side_Cluster const &
+        moris::mtk::Cluster const &
         Double_Side_Cluster::get_slave_side_cluster() const
         {
             return *mSlaveSideCluster;
@@ -97,23 +95,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::mtk::Side_Cluster &
-        Double_Side_Cluster::get_master_side_cluster()
-        {
-            return *mMasterSideCluster;
-        }
-
-        //----------------------------------------------------------------------------------
-
-        moris::mtk::Side_Cluster &
-        Double_Side_Cluster::get_slave_side_cluster()
-        {
-            return *mSlaveSideCluster;
-        }
-
-        //----------------------------------------------------------------------------------
-
-        moris::mtk::Side_Cluster const &
+        moris::mtk::Cluster const &
         Double_Side_Cluster::get_cluster(
                 const mtk::Master_Slave aIsMaster ) const
         {
@@ -212,11 +194,11 @@ namespace moris
         {
             if ( aIsMaster == mtk::Master_Slave::MASTER )
             {
-                return this->get_master_side_cluster().get_cells_in_side_cluster();
+                return this->get_master_side_cluster().get_primary_cells_in_cluster();
             }
             else if( aIsMaster ==  mtk::Master_Slave::SLAVE )
             {
-                return this->get_slave_side_cluster().get_cells_in_side_cluster();
+                return this->get_slave_side_cluster().get_primary_cells_in_cluster();
             }
             else
             {
@@ -230,7 +212,7 @@ namespace moris
         moris::Cell<mtk::Cell const *> const &
         Double_Side_Cluster::get_master_integration_cells() const
         {
-            return this->get_master_side_cluster().get_cells_in_side_cluster();
+            return this->get_master_side_cluster().get_primary_cells_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
@@ -238,7 +220,7 @@ namespace moris
         moris::Cell<mtk::Cell const *> const &
         Double_Side_Cluster::get_slave_integration_cells() const
         {
-            return this->get_slave_side_cluster().get_cells_in_side_cluster();
+            return this->get_slave_side_cluster().get_primary_cells_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
@@ -558,7 +540,7 @@ namespace moris
                 const mtk::Primary_Void aPrimaryOrVoid,
                 const mtk::Master_Slave aIsMaster       ) const
         {
-            moris::mtk::Side_Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
             return tCluster.compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
         }
 
@@ -569,7 +551,7 @@ namespace moris
                 const mtk::Primary_Void aPrimaryOrVoid,
                 const mtk::Master_Slave aIsMaster       ) const
         {
-            moris::mtk::Side_Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
             return tCluster.compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
         }
 
@@ -593,22 +575,6 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::uint
-        Double_Side_Cluster::get_master_num_sides() const
-        {
-            return this->get_master_side_cluster().get_num_sides_in_cluster();
-        }
-
-
-        //----------------------------------------------------------------------------------
-
-        moris::uint
-        Double_Side_Cluster::get_slave_num_sides() const
-        {
-            return this->get_slave_side_cluster().get_num_sides_in_cluster();
-        }
-
-        //----------------------------------------------------------------------------------
 
         moris::uint
         Double_Side_Cluster::get_master_num_vertices_in_cluster() const

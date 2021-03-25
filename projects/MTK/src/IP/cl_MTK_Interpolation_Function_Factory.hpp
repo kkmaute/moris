@@ -51,9 +51,9 @@ namespace moris
              * creates an interpolation function according to a given rule
              */
             Interpolation_Function_Base *  create_interpolation_function(
-                    const Geometry_Type       & aGeometryType,
-                    const Interpolation_Type       & aInterpolationType,
-                    const Interpolation_Order & aInterpolationOrder );
+                    const Geometry_Type        & aGeometryType,
+                    const Interpolation_Type   & aInterpolationType,
+                    const Interpolation_Order  & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
