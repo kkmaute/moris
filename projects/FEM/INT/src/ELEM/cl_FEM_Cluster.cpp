@@ -811,7 +811,7 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_length_measure - empty cluster.");
 
-            // init volume of the custer
+            // initialize volume of the cluster
             real tVolume = 0.0;
 
             // get spatial dimension from IP geometry interpolator
@@ -880,7 +880,7 @@ namespace moris
                     get_IP_geometry_interpolator()->
                     get_number_of_space_dimensions();
 
-            // init volume of the custer
+            // initialize volume of the cluster
             real tVolume = 0.0;
 
             // init derivatives
@@ -980,9 +980,52 @@ namespace moris
         
         //------------------------------------------------------------------------------
 
-        real Cluster::compute_volume()
+        real Cluster::compute_volume_new()
         {
-            // init cluster volume
+            // new way to compute cluster volume
+
+            const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
+            const mtk::Master_Slave tIsMaster      = mtk::Master_Slave::MASTER;
+
+            real tClusterVolume = 0.0;
+
+            // switch on set type
+            fem::Element_Type tElementType = mSet->get_element_type();
+
+            switch( tElementType )
+            {
+                case fem::Element_Type::BULK :
+                case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY :
+                {
+                    tClusterVolume = mMeshCluster->compute_cluster_cell_measure( tPrimaryOrVoid, tIsMaster );
+                    break;
+                }
+                case fem::Element_Type::SIDESET :
+                case fem::Element_Type::DOUBLE_SIDESET :
+                {
+                    tClusterVolume = mMeshCluster->compute_cluster_cell_side_measure( tPrimaryOrVoid, tIsMaster );
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false, "Undefined set type" );
+            }
+
+            // check for zero or negative volume
+             MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN,
+                     "Cluster::compute_volume - volume of cluster is smaller / equal zero: %e\n",
+                     tClusterVolume);
+
+            return tClusterVolume;
+        }
+
+            //------------------------------------------------------------------------------
+
+            real Cluster::compute_volume()
+            {
+            // old way to compute cluster volume
+
+            // initialize cluster volume
             real tClusterVolume = 0;
 
             // loop over the IG elements
@@ -996,6 +1039,11 @@ namespace moris
              MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN, 
                      "Cluster::compute_volume - volume of cluster is smaller / equal zero: %e\n",
                      tClusterVolume);
+
+             // check for consistency between old and new way to compute cluster volume
+             MORIS_ASSERT( std::abs( tClusterVolume - this->compute_volume_new()) < 1e-8*tClusterVolume,
+                     "Cluster::compute_volume - inconsistent volume computation: %e vs %e\n",
+                     tClusterVolume,this->compute_volume_new());
 
             // return cluster volume value
             return tClusterVolume;
@@ -1024,6 +1072,12 @@ namespace moris
                 // add volume contribution for the IG element
                 tClusterVolume += tRelativeVolume(iElem);
             }
+
+            // check for consistent cluster volume computation
+            // FIXME: commented out as cluster measures are missing
+            //            MORIS_ASSERT ( std::abs( tClusterVolume - this->compute_volume() ) < 1e-8*tClusterVolume,
+            //                    "Cluster::compute_relative_volume - inconsistent volume computation: %e vs %e\n",
+            //                    tClusterVolume,this->compute_volume());
 
             // compute relative volumes of each element in cluster; if total volume is close to zero
             // fill vector with negative one

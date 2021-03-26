@@ -70,7 +70,7 @@ namespace moris
 
                 // acceptable volume error
                 // IG cells with a relative volume below this threshold are ignored
-                const real mVolumeError = 1e-4;
+                const real mVolumeError = 1e-6;
 
                 // cluster measures
                 moris::Cell< std::shared_ptr< Cluster_Measure > > mClusterMEA;
@@ -353,6 +353,7 @@ namespace moris
                  * compute the cluster volume
                  */
                 real compute_volume();
+                real compute_volume_new();
 
                 //------------------------------------------------------------------------------
                 /**
