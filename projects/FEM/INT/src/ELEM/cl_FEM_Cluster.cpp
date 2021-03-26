@@ -662,17 +662,18 @@ namespace moris
                     uint tLocalVertexID = UINT_MAX;
 
                     // loop over the nodes of the cell
-                    for( uint iNode = 0; iNode < tNumNodesInCell; iNode++ )
+                    for( uint jNode = 0; jNode < tNumNodesInCell; jNode++ )
                     {
                         // check if perturbed node affects this cell by using the distance between two nodes
-                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iNode ) ) < 1e-12 );
+                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( jNode ) ) < 1e-12 );
 
                         if( tIsAffected == true )
                         {
-                            tLocalVertexID = iNode;
+                            tLocalVertexID = jNode;
                             break;
                         }
                     }
+                    
                     if( tIsAffected == true )
                     {
                         for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
@@ -770,14 +771,14 @@ namespace moris
                     uint tLocalVertexID = UINT_MAX;
 
                     // loop over the nodes of the cell
-                    for( uint iNode = 0; iNode < tNumNodesInCell; iNode++ )
+                    for( uint jNode = 0; jNode < tNumNodesInCell; jNode++ )
                     {
                         // check if perturbed node affects this cell by using the distance between two nodes
-                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iNode ) ) < 1e-12 );
+                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( jNode ) ) < 1e-12 );
 
                         if( tIsAffected == true )
                         {
-                            tLocalVertexID = iNode;
+                            tLocalVertexID = jNode;
                             break;
                         }
                     }
