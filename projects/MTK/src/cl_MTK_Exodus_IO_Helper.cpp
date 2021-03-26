@@ -8,25 +8,23 @@ namespace moris
     namespace mtk
     {
         Exodus_IO_Helper::Exodus_IO_Helper(
-                const char * aExodusFile,
-                const int    aTimeStepIndex,
-                const bool   aBuildGlobal,
-                const bool   aVerbose)
+                const std::string & aExodusFile,
+                const int           aTimeStepIndex,
+                const bool          aBuildGlobal,
+                const bool          aVerbose)
         {
             mVerbose       = aVerbose;
             mBuildGlobal   = aBuildGlobal;
 
             mTimeStepIndex = aTimeStepIndex;
 
-            mTitle = new char[MAX_LINE_LENGTH+1];
-            int cpu_ws = sizeof( real );         // word size in bytes of the floating point variables used in moris
-            int io_ws  = 0;                      // word size as stored in exodus
+            mTitle           = get_file_name(aExodusFile);
+            int cpu_ws       = sizeof( real );         // word size in bytes of the floating point variables used in moris
+            int io_ws        = 0;                      // word size as stored in exodus
             float exoVersion = 0.0;
 
-            get_file_name(aExodusFile, NULL, mTitle);
-
             mExoFileId = ex_open(
-                    mTitle,
+                    mTitle.c_str(),
                     EX_WRITE,
                     &cpu_ws,
                     &io_ws,
@@ -58,7 +56,6 @@ namespace moris
         Exodus_IO_Helper::~Exodus_IO_Helper()
         {
             ex_close(mExoFileId);
-            delete [] mTitle;
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -92,14 +89,12 @@ namespace moris
             int cpu_ws = sizeof( moris::real );         // word size in bytes of the floating point variables used in moris
             int io_ws  = sizeof( moris::real );         // word size as stored in exodus
 
-            // Create a new exodus
-            char * tNewTitle = new char[MAX_LINE_LENGTH+1];
-
             // Create the file name
-            get_file_name(aFileName.c_str(), NULL, tNewTitle);
+            std::string tNewTitle = get_file_name(aFileName.c_str());
 
             // Create a new exodus file (clobber if already there)
-            int tNewExoFileId = ex_create(tNewTitle,
+            int tNewExoFileId = ex_create(
+                    tNewTitle.c_str(),
                     EX_CLOBBER,
                     &cpu_ws,
                     &io_ws);
@@ -240,9 +235,12 @@ namespace moris
         void
         Exodus_IO_Helper::get_init_mesh_data()
         {
+            char *tTitleChar = new char[mTitle.length() + 1];
+            strcpy(tTitleChar, mTitle.c_str());
+
             mErrFlag = ex_get_init(
                     mExoFileId,
-                    mTitle,
+                    tTitleChar,
                     &mNumDim,
                     &mNumNodes,
                     &mNumElem,
@@ -252,12 +250,14 @@ namespace moris
 
             MORIS_ERROR(!mErrFlag, "Error reading initial global data!");
 
+            delete [] tTitleChar;
+
             if (mVerbose)
             {
                 int tRank = par_rank();
 
                 MORIS_LOG_INFO( " [%d] Parameters read from exodus file",tRank);
-                MORIS_LOG_INFO( " [%d] Title:          %s",tRank,mTitle);
+                MORIS_LOG_INFO( " [%d] Title:          %s",tRank,mTitle.c_str());
                 MORIS_LOG_INFO( " [%d] num_dim:        %d",tRank,mNumDim);
                 MORIS_LOG_INFO( " [%d] num_nodes:      %d",tRank,mNumNodes);
                 MORIS_LOG_INFO( " [%d] num_elem:       %d",tRank,mNumElem);
@@ -1098,66 +1098,73 @@ namespace moris
 
         // ---------------------------------------------------------------------------------------------
 
-        void
+        std::string
         Exodus_IO_Helper::get_file_name(
-                const char *base,
-                const char *other,
-                char       *output)
+                const std::string & base,
+                const std::string & other)
         {
-            int nprocs = par_size();
-            int rank = par_rank();
-            int i1 = 0;
-            int iTemp1 = 0;
-            int iMaxDigit = 0;
-            int iMyDigit = 0;
+            // initialize string
+            std::string output(base);
 
-            char cTemp[128];
-
-            output[0] = '\0';
-
-            strcpy(output, base);
-
-            if (other != NULL)
+            // add extra string
+            if ( other.size() > 0 )
             {
-                strcat(output, ".");
-                strcat(output, other);
+                output += "." + other;
             }
 
-            if (nprocs > 1)
+            // number of processors
+            uint tNprocs = par_size();
+
+            // for parallel runs: add processor and rank with leading zeros
+            if ( tNprocs > 1)
             {
-                /*
-                 * Find out the number of digits needed to specify the processor ID.
-                 * This allows numbers like 01-99, i.e., prepending zeros to the
-                 * name to preserve proper alphabetic sorting of the files.
-                 */
+                // add total number of processors
+                output += "." + std::to_string(tNprocs);
 
-                iTemp1 = nprocs;
-                do {
-                    iTemp1 /= 10;
-                    iMaxDigit++;
-                } while (iTemp1 >= 1);
+                // write processor rank with leading zeros
+                char tRankChar[128];
 
-                iTemp1 = rank;
-                do {
-                    iTemp1 /= 10;
-                    iMyDigit++;
-                } while (iTemp1 >= 1);
+                uint tProcs = std::floor(std::log10(tNprocs));
 
-                strcat(output, ".");
-                sprintf(cTemp, "%d", nprocs);
-                strcat(output, cTemp);
-                strcat(output, ".");
-
-                /*
-                 * Append the proper number of zeros to the filename.
-                 */
-                for (i1 = 0; i1 < iMaxDigit - iMyDigit; i1++) {
-                    strcat(output, "0");
+                switch (tProcs)
+                {
+                    case 0:
+                    {
+                        sprintf(tRankChar,".%d",par_rank());
+                        break;
+                    }
+                    case 1:
+                    {
+                        sprintf(tRankChar,".01%d",par_rank());
+                        break;
+                    }
+                    case 2:
+                    {
+                        sprintf(tRankChar,".02%d",par_rank());
+                        break;
+                    }
+                    case 3:
+                    {
+                        sprintf(tRankChar,".03%d",par_rank());
+                        break;
+                    }
+                    case 4:
+                    {
+                        sprintf(tRankChar,".04%d",par_rank());
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR(false,
+                                "Exodus_IO_Helper::get_file_name - too many processors for defining name.\n");
+                    }
                 }
 
-                sprintf(cTemp, "%d", rank);
-                strcat(output, cTemp);
+                // add rank information to name
+                output += tRankChar;
             }
+
+            return output;
         }
 
         // ---------------------------------------------------------------------------------------------
