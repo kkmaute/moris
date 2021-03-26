@@ -121,6 +121,9 @@ namespace moris
             // local string to int map for stabilizations
             std::map< std::string, uint > mStabilizationMap;
 
+            // active cluster measure on IQI flag
+            bool mActiveCMEAFlag = false;
+
             // local string to dof enum map
             std::map< std::string, MSI::Dof_Type > mMasterDofMap;
             std::map< std::string, MSI::Dof_Type > mSlaveDofMap;

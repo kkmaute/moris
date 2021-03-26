@@ -728,6 +728,9 @@ namespace moris
 
             // set the stabilization parameter in the stabilization parameter cell
             this->get_stabilization_parameters()( mStabilizationMap[ aStabilizationString ] ) = aStabilizationParameter;
+
+            // set active cluster measure on IWG flag on/off
+            mActiveCMEAFlag = mActiveCMEAFlag || ( aStabilizationParameter->get_cluster_measure_tuple_list().size() > 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -2890,15 +2893,15 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
-//            // add contribution of cluster measure to dRdp
-//            if( mStabilizationParam.size() > 0 )
-//            {
-//                // add their contribution to dQIdp
-//                this->add_cluster_measure_dRdp_FD_geometry(
-//                        aWStar,
-//                        aPerturbation,
-//                        aFDSchemeType );
-//            }
+            // add contribution of cluster measure to dRdp
+            if( mActiveCMEAFlag )
+            {
+                // add their contribution to dQIdp
+                this->add_cluster_measure_dRdp_FD_geometry(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType );
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -3069,15 +3072,15 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
-//            // add contribution of cluster measure to dRdp
-//            if( mStabilizationParam.size() > 0 )
-//            {
-//                // add their contribution to dQIdp
-//                this->add_cluster_measure_dRdp_FD_geometry(
-//                        aWStar,
-//                        aPerturbation,
-//                        aFDSchemeType );
-//            }
+            // add contribution of cluster measure to dRdp
+            if( mActiveCMEAFlag )
+            {
+                // add their contribution to dQIdp
+                this->add_cluster_measure_dRdp_FD_geometry(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType );
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -3250,15 +3253,15 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
-//            // add contribution of cluster measure to dRdp
-//            if( mStabilizationParam.size() > 0 )
-//            {
-//                // add their contribution to dQIdp
-//                this->add_cluster_measure_dRdp_FD_geometry(
-//                        aWStar,
-//                        aPerturbation,
-//                        aFDSchemeType );
-//            }
+            // add contribution of cluster measure to dRdp
+            if( mActiveCMEAFlag )
+            {
+                // add their contribution to dQIdp
+                this->add_cluster_measure_dRdp_FD_geometry(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType );
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -3492,15 +3495,15 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
-//            // add contribution of cluster measure to dRdp
-//            if( mStabilizationParam.size() > 0 )
-//            {
-//                // add their contribution to dQIdp
-//                this->add_cluster_measure_dRdp_FD_geometry_double(
-//                        aWStar,
-//                        aPerturbation,
-//                        aFDSchemeType );
-//            }
+            // add contribution of cluster measure to dRdp
+            if( mActiveCMEAFlag )
+            {
+                // add their contribution to dQIdp
+                this->add_cluster_measure_dRdp_FD_geometry_double(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType );
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
@@ -3533,7 +3536,7 @@ namespace moris
                             { 0, 0 } );
 
             // init perturbation
-            real tDeltaH = aPerturbation;
+            real tDeltaH = 0.0;
 
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
@@ -3547,8 +3550,17 @@ namespace moris
                 std::shared_ptr< Cluster_Measure > & tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
 
+                // evaluate the perturbation
+                tDeltaH = this->build_perturbation_size(
+                        aPerturbation,
+                        tClusterMeasure->val()( 0 ),
+                        tClusterMeasure->val()( 0 ) );
+
                 // number of pdv to assemble
                 uint tNumPdvToAssemble = tClusterMeasure->dMEAdPDV().numel() - 1;
+
+                //print( tClusterMeasure->val(), "tClusterMeasure->val()" );
+                //print( tClusterMeasure->dMEAdPDV(), "tClusterMeasure->dMEAdPDV()" );
 
                 // set starting point for FD
                 uint tStartPoint = 0;
@@ -3634,7 +3646,7 @@ namespace moris
                     mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
 
             // init perturbation
-            real tDeltaH = aPerturbation;
+            real tDeltaH = 0.0;
 
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
@@ -3648,10 +3660,14 @@ namespace moris
                 std::shared_ptr< Cluster_Measure > & tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
 
-                if( mIsGhost )
-                {
-                    print(tClusterMeasure->dMEAdPDV(),"tClusterMeasure->dMEAdPDV()");
-                }
+                // evaluate the perturbation
+                tDeltaH = this->build_perturbation_size(
+                        aPerturbation,
+                        tClusterMeasure->val()( 0 ),
+                        tClusterMeasure->val()( 0 ) );
+
+                //print( tClusterMeasure->val(), "tClusterMeasure->val()" );
+                //print(tClusterMeasure->dMEAdPDV(),"tClusterMeasure->dMEAdPDV()");
 
                 // get end pdv index
                 uint tEndPdvIndex = tClusterMeasure->dMEAdPDV().numel() - 1;

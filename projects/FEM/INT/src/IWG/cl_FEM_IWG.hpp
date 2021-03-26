@@ -124,6 +124,9 @@ namespace moris
                 // local string to int map for stabilizations
                 std::map< std::string, uint > mStabilizationMap;
 
+                // active cluster measure on IWG flag
+                bool mActiveCMEAFlag = false;
+
                 // interpolation order for IWG
                 uint mOrder = MORIS_UINT_MAX;
 
