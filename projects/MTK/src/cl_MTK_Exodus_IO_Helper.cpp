@@ -30,7 +30,7 @@ namespace moris
                     &io_ws,
                     &exoVersion);
 
-            MORIS_ERROR(mExoFileId!=-1,"Cannot open exodus file: %s",mTitle);
+            MORIS_ERROR(mExoFileId!=-1,"Cannot open exodus file: %s",mTitle.c_str());
 
             MORIS_ERROR( cpu_ws == io_ws,
                     "Word size of floating point variables stored in exodus file and used in moris are not the same.");
