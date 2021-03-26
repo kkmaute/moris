@@ -95,6 +95,16 @@ namespace moris
                 void compute_dQIdp_explicit();
 
                 //------------------------------------------------------------------------------
+                /**
+                 * compute volume over the element
+                 */
+                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    MORIS_ERROR( false, "Element_Time_Boundary::compute_volume - not implemented." );
+                    return 0.0;
+                }
+
+                //------------------------------------------------------------------------------
             private:
 
                 //------------------------------------------------------------------------------

@@ -459,6 +459,15 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+                /**
+                 * compute volume of the integration element
+                 * @param[ in ] aIsMaster enum master or slave
+                 */
+                virtual real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
+                    return 0.0;
+                }
         };
 
         //------------------------------------------------------------------------------
