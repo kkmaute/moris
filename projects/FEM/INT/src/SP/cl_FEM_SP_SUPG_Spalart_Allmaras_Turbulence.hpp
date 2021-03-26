@@ -60,6 +60,9 @@ namespace moris
                 real mRLim = 10.0;
                 real mCn1 = 16.0;
 
+                // internal threshold
+                const real mEpsilon = 1e-18;
+
                 // property type for the SP
                 enum class SP_Property_Type
                 {
