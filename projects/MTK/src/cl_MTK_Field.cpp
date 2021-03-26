@@ -499,7 +499,7 @@ namespace moris
                 const Matrix<DDUMat> & aFiledIndices)
         {
             // open and query exodus file
-            Exodus_IO_Helper tExoIO(aFileName.c_str(),0,false,false);
+            Exodus_IO_Helper tExoIO(aFileName,0,false,false);
 
             // check that number of requested field indices is equal to number of fields in nodal data
             MORIS_ERROR( aFiledIndices.numel() == mNumberOfFields,
@@ -518,23 +518,23 @@ namespace moris
             // get IP Mesh to determine nodal value mapping
             mtk::Mesh * tIPMesh = mMeshPair.get_interpolation_mesh();
 
-           // loop over all requested field indices
-            for ( uint tIndex=0; tIndex < mNumberOfFields; ++tIndex )
+            // loop over all requested field indices
+            for (uint tFieldIndex=0; tFieldIndex < mNumberOfFields; ++tFieldIndex)
             {
                 // get exodus field index
-                moris_index tExoFieldIndex = aFiledIndices(tIndex);
+                moris_index tExoFieldIndex = aFiledIndices(tFieldIndex);
 
                 // get exodus field for current field index
                 const Matrix<DDRMat> & tExodusData = tExoIO.get_nodal_field_vector( aTimeIndex, tExoFieldIndex );
 
-                for ( uint iNodeIndex = 0; iNodeIndex<tNumNodes; ++iNodeIndex )
+                // assign nodal values based on Field index to node id mapping and from
+                for (uint tNodeIndex = 0; tNodeIndex<tNumNodes; ++tNodeIndex)
                 {
                     // getting mtk mesh id for this vertex
-                    moris_id tIPVertexID = tIPMesh->get_mtk_vertex( iNodeIndex ).get_id();
+                    moris_id tIPVertexID = tIPMesh->get_mtk_vertex(tNodeIndex).get_id();
 
-                    // assign nodal value at IP mesh index based on Field index of the same node
-                    // Note that the indices won't necessarily match for the same vertex
-                    tNodalValues( iNodeIndex,tIndex ) =
+                    // assign nodal value based on node IDs
+                    tNodalValues( tNodeIndex, tFieldIndex ) =
                             tExodusData( tExoIO.get_node_index_by_Id( tIPVertexID ) );
                 }
             }

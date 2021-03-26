@@ -44,7 +44,7 @@ namespace moris
             Matrix< Matrix_Type > const & aA,
             Matrix< Matrix_Type >       & aSorted,
             char const                  * aDirection,
-            Num_Type                      aDimension)
+            Num_Type                      aDimension = 0)
     {
         sort( aA.matrix_data(), aSorted, aDirection, aDimension);
     }

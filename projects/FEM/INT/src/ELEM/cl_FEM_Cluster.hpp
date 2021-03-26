@@ -22,10 +22,10 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "IG/cl_MTK_Integrator.hpp"            //MTK/src
+#include "IG/cl_MTK_Integrator.hpp"         //MTK/src
 #include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
-#include "cl_FEM_Interpolation_Element.hpp"       //FEM/INT/src
+#include "cl_FEM_Interpolation_Element.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster_Measure.hpp"       //FEM/INT/src
 
 namespace moris
@@ -59,11 +59,18 @@ namespace moris
                 // list of pointers to element
                 moris::Cell< fem::Element * > mElements;
 
+                // flag for all IG element whether or not to compute residual and QI (and derivatives)
+                Matrix<DDUMat> mComputeResidualAndIQI;
+
                 // pointer to the fem set
                 Set * mSet;
 
                 // element type
                 Element_Type mElementType;
+
+                // acceptable volume error
+                // IG cells with a relative volume below this threshold are ignored
+                const real mVolumeError = 1e-6;
 
                 // cluster measures
                 moris::Cell< std::shared_ptr< Cluster_Measure > > mClusterMEA;
@@ -340,9 +347,42 @@ namespace moris
                  */
                 moris::real compute_ip_cell_length_measure(
                         const mtk::Master_Slave aIsMaster ) const;
+                        
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the cluster volume
+                 */
+                real compute_volume();
+                real compute_volume_new();
 
                 //------------------------------------------------------------------------------
-            protected:
+                /**
+                 * compute volume for each element in cluster relative to total volume of all elements;
+                 * if volume is zero or negative the return matrix is filled with negative one
+                 *
+                 * @return vector with relative volumes
+                 */
+                Matrix<DDRMat> compute_relative_volume();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute elements to be considered/ignored for residual and IQI computation
+                 */
+                void determine_elements_for_residual_and_iqi_computation();
+
+                //------------------------------------------------------------------------------
+                /*
+                 * Compute the threshold such that the total volume of all elements with a relative element volume
+                 * smaller than this threshold is less than a give volume error
+                 *
+                 * @param[ in ] tRelativeElementVolume vector of element volumes
+                 * @param[ in ] tVolumeError           accetable volume erro
+                 *
+                 * @return threshold value
+                 */
+                real compute_volume_drop_threshold(
+                        const Matrix<DDRMat> & tRelativeElementVolume,
+                        const real           & tVolumeError);
 
                 //------------------------------------------------------------------------------
         };

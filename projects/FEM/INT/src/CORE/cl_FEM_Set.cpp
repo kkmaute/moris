@@ -110,7 +110,11 @@ namespace moris
                 }
 
                 // create an interpolation element
-                mEquationObjList( iCluster ) = new fem::Interpolation_Element( mElementType, tInterpolationCell, mNodes, this );
+                mEquationObjList( iCluster ) = new fem::Interpolation_Element(
+                        mElementType,
+                        tInterpolationCell,
+                        mNodes,
+                        this );
 
                 // create a fem cluster
                 std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >(
@@ -2093,7 +2097,6 @@ namespace moris
                     mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
                 }
             }
-
         }
 
         //------------------------------------------------------------------------------

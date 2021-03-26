@@ -46,11 +46,6 @@ namespace moris
     {
         return sum( aA.matrix_data() );
     }*/
-
-
 }
-
-
-
 
 #endif /* PROJECTS_LINALG_SRC_FN_SUM_HPP_ */

@@ -375,7 +375,10 @@ namespace moris
             Matrix<DDRMat> tNorms  = {{0.0,0.0,1.0}};
 
             moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::Plane>(tCenter(0), tCenter(1), tCenter(2), tNorms(0), tNorms(1), tNorms(2));
+            tGeometryVector(0) =
+                    std::make_shared<moris::ge::Plane>(
+                            tCenter(0), tCenter(1), tCenter(2),
+                            tNorms(0),  tNorms(1),  tNorms(2));
 
             // Initialize field information container
             mtk::MtkFieldsInfo tFieldsInfo;
@@ -386,7 +389,8 @@ namespace moris
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
-            moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+            moris::mtk::Interpolation_Mesh* tInterpMesh1 =
+                    moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
@@ -504,7 +508,8 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm =
+                    tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
             tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
@@ -518,7 +523,8 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm =
+                    tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
             tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
@@ -535,7 +541,8 @@ namespace moris
             // STEP 3: create time Solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             tsa::Time_Solver_Factory tTimeSolverFactory;
-            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm =
+                    tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
 
             tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
 
@@ -598,6 +605,7 @@ namespace moris
                 tCheckNodalSolution = tCheckNodalSolution
                         && ( std::abs( tSolution11( i ) - tGoldSolution( i ) ) < 1e-08 );
             }
+
             // check bool is true
             REQUIRE( tCheckNodalSolution );
 

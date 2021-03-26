@@ -6,12 +6,15 @@
  */
 #include <iostream>
 
-#include "cl_FEM_Element.hpp" //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"   //FEM/INT/src
+#include "cl_FEM_Element.hpp"                    //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"                    //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
-// FEM/MSI/src
+
 #include "cl_MSI_Equation_Model.hpp"
+
 #include "fn_norm.hpp"
+#include "fn_sort.hpp"
+#include "fn_sum.hpp"
 
 namespace moris
 {
@@ -127,6 +130,9 @@ namespace moris
                         std::get<2>( tClusterMEATuples( iCMEA ) ),
                         this );
             }
+
+            // initialize flags for computing residuals and IQIs (default: on)
+            mComputeResidualAndIQI.set_size(tNumMasterIGCells,1,1);
         }
 
         //------------------------------------------------------------------------------
@@ -203,8 +209,8 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::get_vertices_local_coordinates_wrt_interp_cell - empty cluster.");
 
-                // get the vertices param coords from the cluster
-                return mMeshCluster->get_vertices_local_coordinates_wrt_interp_cell();
+            // get the vertices param coords from the cluster
+            return mMeshCluster->get_vertices_local_coordinates_wrt_interp_cell();
         }
 
         //------------------------------------------------------------------------------
@@ -239,7 +245,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat > Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
+        moris::Matrix< moris::DDRMat >
+        Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index aCellIndexInCluster,
                 moris::moris_index aSideOrdinal,
                 mtk::Master_Slave  aIsMaster )
@@ -258,7 +265,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat > Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
+        moris::Matrix< moris::DDRMat >
+        Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index aPrimaryCellIndexInCluster )
         {
             // check that bulk cluster
@@ -343,8 +351,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the jacobian for the IG element
-                mElements( iElem )->compute_jacobian();
+                // check whether to compute jacobian
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute the jacobian for the IG element
+                    mElements( iElem )->compute_jacobian();
+                }
             }
         }
 
@@ -358,8 +370,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the residual for the IG element
-                mElements( iElem )->compute_residual();
+                // check whether to compute residual
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute the residual for the IG element
+                    mElements( iElem )->compute_residual();
+                }
             }
         }
 
@@ -373,8 +389,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the jacobian and residual for the IG element
-                mElements( iElem )->compute_jacobian_and_residual();
+                // check whether to compute residual and jacobian for this element
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute the jacobian and residual for the IG element
+                    mElements( iElem )->compute_jacobian_and_residual();
+                }
             }
         }
 
@@ -391,8 +411,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute dRdp for the IG element
-                mElements( iElem )->compute_dRdp();
+                // check whether to compute derivative of residual
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute dRdp for the IG element
+                    mElements( iElem )->compute_dRdp();
+                }
             }
         }
 
@@ -409,11 +433,15 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute dQIdp for the IG element
-                mElements( iElem )->compute_dQIdp_explicit();
+                // check whether to compute derivative of QI
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute dQIdp for the IG element
+                    mElements( iElem )->compute_dQIdp_explicit();
+                }
             }
         }
-        
+
         //------------------------------------------------------------------------------
 
         void Cluster::compute_dRdp_and_dQIdp()
@@ -427,8 +455,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute dRdp and dQIdp for the IG element
-                mElements( iElem )->compute_dRdp_and_dQIdp();
+                // check whether to compute derivative of residual and QI
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute dRdp and dQIdp for the IG element
+                    mElements( iElem )->compute_dRdp_and_dQIdp();
+                }
             }
         }
 
@@ -442,8 +474,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the dQIdu for the IG element
-                mElements( iElem )->compute_dQIdu();
+                // check whether to compute derivative of QI
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute the dQIdu for the IG element
+                    mElements( iElem )->compute_dQIdu();
+                }
             }
         }
 
@@ -457,8 +493,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the quantities of interest for the IG element
-                mElements( iElem )->compute_QI();
+                // check whether to compute QI
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute the quantities of interest for the IG element
+                    mElements( iElem )->compute_QI();
+                }
             }
         }
 
@@ -476,8 +516,12 @@ namespace moris
             // loop over the IG elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the quantity of interest for the IG element
-                mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aFieldType );
+                // check whether to compute QI
+                if ( mComputeResidualAndIQI(iElem) )
+                {
+                    // compute the quantity of interest for the IG element
+                    mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aFieldType );
+                }
             }
         }
 
@@ -799,7 +843,7 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_length_measure - empty cluster.");
 
-            // init volume of the custer
+            // initialize volume of the cluster
             real tVolume = 0.0;
 
             // get spatial dimension from IP geometry interpolator
@@ -868,7 +912,7 @@ namespace moris
                     get_IP_geometry_interpolator()->
                     get_number_of_space_dimensions();
 
-            // init volume of the custer
+            // initialize volume of the cluster
             real tVolume = 0.0;
 
             // init derivatives
@@ -964,6 +1008,204 @@ namespace moris
                     MORIS_ERROR( false, "Cluster::compute_ip_cell_length_measure - space dimension can only be 1, 2, or 3. ");
                     return 0.0;
             }
+        }
+        
+        //------------------------------------------------------------------------------
+
+        real Cluster::compute_volume_new()
+        {
+            // new way to compute cluster volume
+
+            const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
+            const mtk::Master_Slave tIsMaster      = mtk::Master_Slave::MASTER;
+
+            real tClusterVolume = 0.0;
+
+            // switch on set type
+            fem::Element_Type tElementType = mSet->get_element_type();
+
+            switch( tElementType )
+            {
+                case fem::Element_Type::BULK :
+                case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY :
+                {
+                    tClusterVolume = mMeshCluster->compute_cluster_cell_measure( tPrimaryOrVoid, tIsMaster );
+                    break;
+                }
+                case fem::Element_Type::SIDESET :
+                case fem::Element_Type::DOUBLE_SIDESET :
+                {
+                    tClusterVolume = mMeshCluster->compute_cluster_cell_side_measure( tPrimaryOrVoid, tIsMaster );
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false, "Undefined set type" );
+            }
+
+            // check for zero or negative volume
+             MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN,
+                     "Cluster::compute_volume - volume of cluster is smaller / equal zero: %e\n",
+                     tClusterVolume);
+
+            return tClusterVolume;
+        }
+
+            //------------------------------------------------------------------------------
+
+            real Cluster::compute_volume()
+            {
+            // old way to compute cluster volume
+
+            // initialize cluster volume
+            real tClusterVolume = 0;
+
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // add volume contribution for the IG element
+                tClusterVolume += mElements( iElem )->compute_volume();
+            }
+
+            // check for zero or negative volume
+             MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN, 
+                     "Cluster::compute_volume - volume of cluster is smaller / equal zero: %e\n",
+                     tClusterVolume);
+
+             // check for consistency between old and new way to compute cluster volume
+             MORIS_ASSERT( std::abs( tClusterVolume - this->compute_volume_new()) < 1e-8*tClusterVolume,
+                     "Cluster::compute_volume - inconsistent volume computation: %e vs %e\n",
+                     tClusterVolume,this->compute_volume_new());
+
+            // return cluster volume value
+            return tClusterVolume;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Cluster::compute_relative_volume()
+        {
+            // number of elements in cluster
+            uint tNumberofElements = mElements.size();
+            
+            // allocate vector of relative volumes
+            Matrix<DDRMat> tRelativeVolume(tNumberofElements,1,0.0);
+            
+            // initialize cluster volume
+            real tClusterVolume = 0.0;
+
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // compute and store volume of current element
+                // if it smaller than zero; set it to zero
+                tRelativeVolume(iElem) = std::max( mElements( iElem )->compute_volume(), 0.0 );
+
+                // add volume contribution for the IG element
+                tClusterVolume += tRelativeVolume(iElem);
+            }
+
+            // check for consistent cluster volume computation
+            // FIXME: commented out as cluster measures are missing
+            //            MORIS_ASSERT ( std::abs( tClusterVolume - this->compute_volume() ) < 1e-8*tClusterVolume,
+            //                    "Cluster::compute_relative_volume - inconsistent volume computation: %e vs %e\n",
+            //                    tClusterVolume,this->compute_volume());
+
+            // compute relative volumes of each element in cluster; if total volume is close to zero
+            // fill vector with negative one
+            if ( tClusterVolume > MORIS_REAL_MIN )
+            {
+                tRelativeVolume = 1.0/tClusterVolume * tRelativeVolume;
+
+                // check that summation of volumes has been done correctly
+                MORIS_ASSERT( std::abs( 1.0 - sum(tRelativeVolume) ) < 10.*MORIS_REAL_EPS,
+                        "Cluster::compute_relative_volume - relative volumes do not sum up to one: %e.\n",
+                        sum(tRelativeVolume));
+            }
+            else
+            {
+                tRelativeVolume.fill(-1.0);
+            }
+
+            // return relative volumes
+            return tRelativeVolume;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Cluster::determine_elements_for_residual_and_iqi_computation()
+        {
+            // reset flags
+            mComputeResidualAndIQI.fill(1);
+
+            // skip remainder if there is only one element
+            if ( mElements.size() == 1 )
+            {
+                return;
+            }
+
+            // determine whether IG element should be used for computation of residual and and jacobian
+            Matrix<DDRMat> tRelativeElementVolume = this->compute_relative_volume();
+
+            // check for degenerated element, i.e. all components of tRelativeElementVolume are negative
+            if ( tRelativeElementVolume(0) < 0.0 )
+            {
+                mComputeResidualAndIQI.fill(0);
+                return;
+            }
+
+            // get drop tolerance
+            real tElementDropTolerance = this->compute_volume_drop_threshold(
+                    tRelativeElementVolume,
+                    mVolumeError);
+
+            // check that drop tolerance is positive
+            MORIS_ASSERT( tElementDropTolerance > -MORIS_REAL_MIN,
+                    "Cluster::determine_elements_for_residual_and_iqi_computation - %s",
+                    "drop tolerance is negative.\n");
+
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // set flag to false (0) if element volume is smaller than threshold
+                if (tRelativeElementVolume(iElem) < tElementDropTolerance)
+                {
+                    mComputeResidualAndIQI(iElem)=0;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Cluster::compute_volume_drop_threshold(
+                 const Matrix<DDRMat> & tRelativeElementVolume,
+                 const real           & tVolumeError)
+        {
+            // create copy of vector of relative element volumes
+            Matrix<DDRMat> tSortedVolumes = tRelativeElementVolume;
+
+            // sort volumes
+            sort(tRelativeElementVolume,tSortedVolumes,"descend",0);
+
+            // initialize sum of relative volumes
+            real tSum = 0;
+
+            // find threshold
+            for (uint iElem = 0; iElem<tRelativeElementVolume.numel();++iElem)
+            {
+                // check if error criterion is satisfied and if so
+                // return current relative element volume as threshold
+                if ( 1.0 - tSum < tVolumeError )
+                {
+                    return tSortedVolumes(iElem);
+                }
+
+                // add to sum of relative element volumes
+                tSum += tSortedVolumes(iElem);
+            }
+
+            // if all elements are needed return 0
+            return 0.0;
         }
 
         //------------------------------------------------------------------------------

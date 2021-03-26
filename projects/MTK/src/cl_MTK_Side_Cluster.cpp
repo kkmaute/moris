@@ -61,7 +61,8 @@ namespace moris
                 const mtk::Primary_Void aPrimaryOrVoid,
                 const mtk::Master_Slave aIsMaster     ) const
         {
-            MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,"Side cluster only operates on primary cells.");
+            MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
+                    "Side cluster only operates on primary cells.");
 
             moris::real tMeasure = 0.0;
 
@@ -200,24 +201,30 @@ namespace moris
                 moris::moris_index      aClusterLocalIndex,
                 const mtk::Master_Slave aIsMaster ) const
         {
-            MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),"Integration Cell Cluster index out of bounds");
+            MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),
+                    "Integration Cell Cluster index out of bounds");
 
             // get side ordinal of interest
             moris_index tSideOrdinal = this->get_cell_side_ordinal(aClusterLocalIndex);
 
             // get the integration cell of interest
-            moris::mtk::Cell const * tIntegrationCell = this->get_cells_in_side_cluster()(aClusterLocalIndex);
+            moris::mtk::Cell const * tIntegrationCell =
+                    this->get_cells_in_side_cluster()(aClusterLocalIndex);
 
             // get the vertex pointers on the side
-            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tIntegrationCell->get_vertices_on_side_ordinal(tSideOrdinal);
+            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide =
+                    tIntegrationCell->get_vertices_on_side_ordinal(tSideOrdinal);
 
             // allocate output (nnode x dim_xsi)
-            moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnSide.size(), this->get_dim_of_param_coord());
+            moris::Matrix<moris::DDRMat> tVertexParamCoords(
+                    tVerticesOnSide.size(),
+                    this->get_dim_of_param_coord());
 
             // iterate through vertices and collect local coordinates
             for(moris::uint i = 0; i < tVerticesOnSide.size(); i++)
             {
-                tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnSide(i)).get_row(0);
+                tVertexParamCoords.get_row(i) =
+                        this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnSide(i)).get_row(0);
             }
 
             return tVertexParamCoords;

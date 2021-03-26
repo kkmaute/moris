@@ -47,6 +47,9 @@ namespace moris
                 // default dof type
                 MSI::Dof_Type mMasterDofTemp = MSI::Dof_Type::TEMP;
 
+                // internal threshold
+                const real mEpsilon = 1e-18;
+
                 // property type for the SP
                 enum class Property_Type
                 {

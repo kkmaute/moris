@@ -36,22 +36,27 @@ namespace moris
                 MSI::Dof_Type mMasterDofVelocity = MSI::Dof_Type::VX;
                 MSI::Dof_Type mMasterDofPressure = MSI::Dof_Type::P;
 
+                // internal threshold
+                const real mEpsilon = 1e-18;
+
                 // property type for the SP
                 enum class Property_Type
                 {
-                    DENSITY, // fluid density
-                    VISCOSITY,  // fluid viscosity
+                    DENSITY,          // fluid density
+                    VISCOSITY,        // fluid viscosity
                     INV_PERMEABILITY, // inverse of the permeability for flow through porous media
                     MAX_ENUM
                 };
 
                 // pointer to function for G evaluation
                 void ( * mEvalGFunc )(
-                        Matrix< DDRMat >   & aG,
+                        Matrix< DDRMat >         & aG,
                         const Matrix< DDRMat >   & aInvSpaceJacobian );
 
                 /*
-                 * Rem: mParameters( 0 ) - CI = 36
+                 * Rem: mParameters( 0 ) - CI = 36,60,128 for linear, quadratic, cubic;
+                 * see: STABILIZED FINITE ELEMENT METHODS FOR FLUID DYNAMICS USING A HIERARCHICAL BASIS
+                 *      by Christian H. Whiting
                  */
             public:
 
@@ -139,7 +144,7 @@ namespace moris
                  * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
                  */
                 static void eval_G_2d(
-                        Matrix< DDRMat > & aG,
+                        Matrix< DDRMat >       & aG,
                         const Matrix< DDRMat > & aInvSpaceJacobian );
 
                 /**
@@ -148,7 +153,7 @@ namespace moris
                  * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
                  */
                 static void eval_G_3d(
-                        Matrix< DDRMat > & aG,
+                        Matrix< DDRMat >       & aG,
                         const Matrix< DDRMat > & aSpaceJacobian );
 
                 //------------------------------------------------------------------------------

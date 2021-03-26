@@ -18,7 +18,7 @@ namespace moris
             ET const                     & aA,
             moris::Matrix< Matrix_Type > & aSorted )
     {
-        aSorted = sort( aA );
+        aSorted = arma::sort( aA );
     }
 
     template< typename ET, typename Matrix_Type, typename Num_Type >
@@ -27,9 +27,9 @@ namespace moris
             ET const                     & aA,
             moris::Matrix< Matrix_Type > & aSorted,
             char const                   * aDirection,
-            Num_Type                       aDimension )
+            Num_Type                       aDimension = 0 )
     {
-        aSorted = sort( aA, aDirection, aDimension);
+        aSorted = arma::sort( aA, aDirection, aDimension);
     }
 }
 

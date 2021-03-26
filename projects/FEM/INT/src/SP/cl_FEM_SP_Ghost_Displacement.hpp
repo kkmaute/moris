@@ -39,7 +39,10 @@ namespace moris
                                 fem::Measure_Type::CELL_LENGTH_MEASURE,
                                 mtk::Primary_Void::PRIMARY,
                                 mtk::Master_Slave::MASTER );
-
+                                
+                // order of weak form of governing questions
+                real mWeakFormOrder = 1.0;
+                
                 // property type for the SP
                 enum class SP_Property_Type
                 {

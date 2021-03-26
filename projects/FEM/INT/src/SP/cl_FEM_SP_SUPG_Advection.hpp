@@ -46,6 +46,9 @@ namespace moris
                     MAX_ENUM
                 };
 
+                // internal threshold
+                const real mEpsilon = 1e-18;
+
                 /*
                  * Rem: mParameters - no parameters needed
                  */
