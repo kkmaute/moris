@@ -22,6 +22,12 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
+
+            // extract order of weak form of governing equations (default = 1)
+            if (mParameters.size() > 1)
+            {
+                mWeakFormOrder =  mParameters( 1 )( 0 );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -46,7 +52,7 @@ namespace moris
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) *
-                    std::pow( tElementSize, 2 * ( mOrder - 1 ) + 1 ) *
+                    std::pow( tElementSize, 2 * ( mOrder - mWeakFormOrder ) + 1 ) *
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
         }
 
@@ -86,7 +92,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) *
-                        std::pow( tElementSize, 2 * ( mOrder - 1 ) + 1 ) *
+                        std::pow( tElementSize, 2 * ( mOrder - mWeakFormOrder ) + 1 ) *
                         tPropMaterial->dPropdDOF( aDofTypes );
             }
         }
@@ -94,5 +100,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
