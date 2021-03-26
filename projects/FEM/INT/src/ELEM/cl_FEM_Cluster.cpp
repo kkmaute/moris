@@ -599,10 +599,11 @@ namespace moris
             }
 
             // loop over the vertices in cluster
-            for( uint iNode = 0; iNode < tVertices.size(); iNode++ )
+            for( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
             {
                 // get the node coordinates
-                Matrix< DDRMat > tPerturbedNodeCoords = tVertices( iNode )->get_coords();
+                Matrix< DDRMat > tPerturbedNodeCoords =
+                        tVertices( iClusterNode )->get_coords();
 
                 // loop over the ig cells in cluster
                 for( auto iC = tCells->cbegin(); iC < tCells->cend(); iC++ )
@@ -613,30 +614,45 @@ namespace moris
                     // get number of nodes in this cell
                     uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
 
+                    // FIXME could be done with node index
                     // check if this cell in cluster is affected by the perturbed node
-                    bool tIsAffected = false;                     // flag true if cell is affected by perturbed node
+                    // flag true if cell is affected by perturbed cluster node
+                    bool tIsAffected = false;
+
+                    // init cell local node index
                     uint tLocalVertexID = UINT_MAX;
 
                     // loop over the nodes of the cell
-                    for( uint iNode = 0; iNode < tNumNodesInCell; iNode++ )
+                    for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
                     {
-                        // check if perturbed node affects this cell by using the distance between two nodes
-                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iNode ) ) < 1e-12 );
+                        // check if perturbed cluster node affects this cell by using the distance between two nodes
+                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
 
+                        // if the cell is affected by perturbed cluster node
                         if( tIsAffected == true )
                         {
-                            tLocalVertexID = iNode;
+                            // get cell local node index
+                            tLocalVertexID = iCellNode;
+
+                            // break the loop as node correspondence was found
                             break;
                         }
                     }
+
+                    // if the cell is affected by perturbed cluster node
                     if( tIsAffected == true )
                     {
+                        // loop over the space directions
                         for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
                         {
-                            if( tGeoLocalAssembly( iNode, iSpace ) != -1 )
+                            // get the pdv assembly index
+                            sint tPDVAssemblyIndex = tGeoLocalAssembly( iClusterNode, iSpace );
+
+                            // if pdv assembly index is set
+                            if( tPDVAssemblyIndex != -1 )
                             {
-                                // add contribution from the cell to the cluster side measure
-                                tDerivatives( tGeoLocalAssembly( iNode, iSpace ) ) +=
+                                // add contribution from the cell to the cluster measure
+                                tDerivatives( tPDVAssemblyIndex ) +=
                                         (*iC)->compute_cell_measure_deriv( tLocalVertexID, iSpace );
                             }
                         }
@@ -706,10 +722,11 @@ namespace moris
                     mMeshCluster->get_cell_side_ordinals( aIsMaster );
 
             // loop over the vertices in cluster
-            for( uint iNode = 0; iNode < tVertices.size(); iNode++ )
+            for( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
             {
                 // get the node coordinates
-                Matrix< DDRMat > tPerturbedNodeCoords = tVertices( iNode )->get_coords();
+                Matrix< DDRMat > tPerturbedNodeCoords =
+                        tVertices( iClusterNode )->get_coords();
 
                 // loop over the ig cells in cluster
                 for( moris::uint iC = 0 ; iC < tCells.size(); iC++ )
@@ -721,30 +738,45 @@ namespace moris
                     // check if this cell in cluster is affected by the perturbed node
                     uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
 
+                    // FIXME could be done with node index
                     // check if this cell in cluster is affected by the perturbed node
-                    bool tIsAffected = false;                     // flag true if cell is affected by perturbed node
+                    // flag true if cell is affected by perturbed cluster node
+                    bool tIsAffected = false;
+
+                    // init cell local node index
                     uint tLocalVertexID = UINT_MAX;
 
                     // loop over the nodes of the cell
-                    for( uint iNode = 0; iNode < tNumNodesInCell; iNode++ )
+                    for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
                     {
-                        // check if perturbed node affects this cell by using the distance between two nodes
-                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iNode ) ) < 1e-12 );
+                        // check if perturbed cluster node affects this cell by using the distance between two nodes
+                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
 
+                        // if the cell is affected by perturbed cluster node
                         if( tIsAffected == true )
                         {
-                            tLocalVertexID = iNode;
+                            // get cell local node index
+                            tLocalVertexID = iCellNode;
+
+                            // break the loop as node correspondence was found
                             break;
                         }
                     }
+
+                    // if the cell is affected by perturbed cluster node
                     if( tIsAffected == true )
                     {
+                        // loop over the space directions
                         for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
                         {
-                            if( tGeoLocalAssembly( iNode, iSpace ) != -1 )
+                            // get the pdv assembly index
+                            sint tPDVAssemblyIndex = tGeoLocalAssembly( iClusterNode, iSpace );
+
+                            // if pdv assembly index is set
+                            if( tPDVAssemblyIndex != -1 )
                             {
                                 // add contribution from the cell to the cluster side measure
-                                tDerivatives( tGeoLocalAssembly( iNode, iSpace ) ) +=
+                                tDerivatives( tPDVAssemblyIndex ) +=
                                         tCells( iC )->compute_cell_side_measure_deriv(
                                                 tSideOrds( iC ),
                                                 tLocalVertexID,
