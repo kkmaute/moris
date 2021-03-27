@@ -101,6 +101,10 @@ namespace moris
             // get number of bases for the elements used
             uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
 
+            // check Dof dependencies
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
+                    "IWG_Compressible_NS_Bulk::assemble_variable_DOF_set() - List of Dof Dependencies not supported. See error messages above." );
+
             // assemble field var vector and matrix based on number of spatial dimensions
 
             // initialize the cell and matrices 
@@ -189,7 +193,11 @@ namespace moris
             for ( uint iMat = 0; iMat < tNumSpaceDims + 1; iMat++)
             {
                 mADOF( iMat ).assign( tNumSpaceDims + 2, tEmptyADof );
-            }      
+            } 
+
+            // check Dof dependencies
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
+                    "IWG_Compressible_NS_Bulk::eval_A_DOF_matrices() - List of Dof Dependencies not supported. See error messages above." );     
 
             // evaluate the derivatives for each of the matrices and store them
             eval_A0_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 0 ) ); 

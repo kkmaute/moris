@@ -37,7 +37,7 @@ namespace moris
             mPropertyMap[ "BodyHeatLoad" ]         = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
 
             // set size for the material model pointer cell
-            mMasterMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mMasterMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
 
             // populate the material map
             mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
@@ -78,7 +78,7 @@ namespace moris
 #endif
             // check residual dof types
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
-                "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
+                    "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // assemble flux matrices
             this->assemble_variable_set();
@@ -234,7 +234,7 @@ namespace moris
 #endif
             // check residual dof types
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
-                "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
+                    "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // assemble flux matrices
             this->assemble_variable_set();
