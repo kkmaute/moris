@@ -15,6 +15,7 @@ namespace moris
 {
     namespace fem
     {
+        
         //------------------------------------------------------------------------------
 
         void eval_A( 
@@ -304,7 +305,7 @@ namespace moris
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
-                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYjl_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
+                    "fn_FEM_IWG_Compressible_NS::eval_KijYj - list of aResidualDofTypes not supported, see error messages above." );
 
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
@@ -317,7 +318,7 @@ namespace moris
 
             // velocity term
             aKijYj( { 0, tNumSpaceDims - 1 }, { 1, tNumSpaceDims } ) = 
-                    unfold_flat_tensor( aCM->flux( CM_Function_Type::WORK ) ).matrix_data();
+                    unfold_flat_tensor( aCM->flux( CM_Function_Type::MECHANICAL ) ).matrix_data();
 
             // temperature term
             aKijYj( { 0, tNumSpaceDims - 1 }, { tNumSpaceDims + 1, tNumSpaceDims + 1 } ) = 
@@ -332,10 +333,9 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
                 Matrix< DDRMat >                      & aKijYji )
         {
-
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
-                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYji_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
+                    "fn_FEM_IWG_Compressible_NS::eval_KijYji - list of aResidualDofTypes not supported, see error messages above." );
 
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
@@ -356,134 +356,72 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
-
-        void eval_KijYjDOF( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >    & aDofType,
-                moris::Cell< Matrix< DDRMat > >       & aKijYjDOF )
+        
+        void eval_dKijdxi( 
+                std::shared_ptr< Property >       aPropDynamicViscosity,  
+                std::shared_ptr< Property >       aPropThermalConductivity,
+                Field_Interpolator_Manager      * aMasterFIManager,
+                moris::Cell< Matrix< DDRMat > > & adKijdxi )
         {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
-                    "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - list of aResidualDofTypes not supported, see error messages above." );
-
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
             
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+            tFIVelocity->gradx( 1 )( 0, 0 );
 
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();  
+            // initialize cell of matrices
+            Matrix< DDRMat > tZeroMat( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+            adKijdxi.assign( tNumSpaceDims, tZeroMat );
 
-            // initialize dKijYj/dDOF, each cell entry represents the dof derivs of one column of Kij*Y,j
-            aKijYjDOF.reserve( tNumSpaceDims + 2 );
+            // FIXME: spatial derivatives of properties not considered
+
+            // get commonly used values 
+            real tMu = aPropDynamicViscosity->val()( 0 );
+            //tKa = aPropThermalConductivity->val()( 0 );
+            Matrix< DDRMat > tGradVel = tFIVelocity->gradx( 1 );
             
-            // density / pressure residual - simply zero matrix
-            aKijYjDOF( 0 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
-
-            // velocity residual
-            // get the viscous stress Dof Deriv
-            Matrix< DDRMat > tdTaudDOF = aCM->dFluxdDOF( aDofType, CM_Function_Type::MECHANICAL );
-
-            // check that sizes match 
-            MORIS_ASSERT( ( tdTaudDOF.n_rows() == 3 * tNumSpaceDims - 3 ) and ( tdTaudDOF.n_cols() == tNumBases ),
-                    "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - size of tdTaudDOF incorrect" );
-
-            // fill cells
-            for ( uint iCol = 0; iCol < tNumSpaceDims; iCol++ ) 
-            {
-                aKijYjDOF( iCol + 1 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
-            }
-
-            // put dof derivatives of stress tensor entries into right places
+            // fill 
             if ( tNumSpaceDims == 2 )
             {
-                // first column
-                aKijYjDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 0, 0 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 2, 2 }, { 0, tNumBases - 1 } );
+                adKijdxi( 0 )( 4, 1 ) = 
+                        ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 0, 0 ) - tGradVel( 1, 1 ) );
+                adKijdxi( 0 )( 4, 2 ) = 
+                        tGradVel( 1, 0 ) * tMu + tGradVel( 0, 1 ) * tMu; 
 
-                // second column
-                aKijYjDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 2, 2 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 2 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 1, 1 }, { 0, tNumBases - 1 } );
-            } 
+                adKijdxi( 1 )( 4, 1 ) = 
+                        tGradVel( 1, 0 ) * tMu + tGradVel( 0, 1 ) * tMu;
+                adKijdxi( 1 )( 4, 2 ) = 
+                        ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 1, 1 ) - tGradVel( 0, 0 ) );
+            }
             else if ( tNumSpaceDims == 3 )
             {
-                // first column
-                aKijYjDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 0, 0 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 5, 5 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 1 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 4, 4 }, { 0, tNumBases - 1 } );
+                adKijdxi( 0 )( 4, 1 ) = 
+                        ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 0, 0 ) - tGradVel( 1, 1 ) - tGradVel( 2, 2 ) );
+                adKijdxi( 0 )( 4, 2 ) = 
+                        tGradVel( 1, 0 ) * tMu + tGradVel( 0, 1 ) * tMu; 
+                adKijdxi( 0 )( 4, 3 ) = 
+                        tGradVel( 2, 0 ) * tMu + tGradVel( 0, 2 ) * tMu;
 
-                // second column
-                aKijYjDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 5, 5 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 2 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 1, 1 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 2 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 3, 3 }, { 0, tNumBases - 1 } );
+                adKijdxi( 1 )( 4, 1 ) = 
+                        tGradVel( 1, 0 ) * tMu + tGradVel( 0, 1 ) * tMu;
+                adKijdxi( 1 )( 4, 2 ) = 
+                        ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 1, 1 ) - tGradVel( 0, 0 ) - tGradVel( 2, 2 ) );
+                adKijdxi( 1 )( 4, 3 ) = 
+                        tGradVel( 2, 1 ) * tMu + tGradVel( 1, 2 ) * tMu;
 
-                // third column
-                aKijYjDOF( 3 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 4, 4 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 3 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 3, 3 }, { 0, tNumBases - 1 } );
-                aKijYjDOF( 3 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                        tdTaudDOF( { 2, 2 }, { 0, tNumBases - 1 } );
+                adKijdxi( 2 )( 4, 1 ) = 
+                        tGradVel( 2, 0 ) * tMu + tGradVel( 0, 2 ) * tMu;
+                adKijdxi( 2 )( 4, 2 ) = 
+                        tGradVel( 2, 1 ) * tMu + tGradVel( 1, 2 ) * tMu;
+                adKijdxi( 2 )( 4, 3 ) = 
+                        ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 2, 2 ) - tGradVel( 0, 0 ) - tGradVel( 1, 1 ) );
             }
             else
             {
-                MORIS_ERROR( false, 
-                        "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - number of spatial dimensions != {2,3}" );
+                MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKijdxi - Number of spatial dimensions must be 2 or 3." );
             }
-
-            // temperature residual
-            aKijYjDOF( tNumSpaceDims + 1  ) = 
-                    aCM->dFluxdDOF( aDofType, CM_Function_Type::WORK ) - aCM->dFluxdDOF( aDofType, CM_Function_Type::THERMAL );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void eval_KijYjiDOF( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >    & aDofType,
-                Matrix< DDRMat >                      & aKijYjiDOF )
-        {
-
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
-                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYji_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
-
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();     
-
-            // initialize KijYj
-            aKijYjiDOF.set_size( tNumSpaceDims + 2, tNumBases, 0.0 );
-
-            // velocity residual
-            aKijYjiDOF( { 1, tNumSpaceDims }, { 0, tNumBases - 1 } ) = 
-                    aCM->ddivfluxdu( aDofType, CM_Function_Type::MECHANICAL ).matrix_data();
-
-            // temperature residual
-            aKijYjiDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumBases - 1 } ) = 
-                    aCM->ddivfluxdu( aDofType, CM_Function_Type::WORK ) - aCM->ddivfluxdu( aDofType, CM_Function_Type::THERMAL );
-        }
+        } 
 
         //------------------------------------------------------------------------------
 
