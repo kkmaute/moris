@@ -26,7 +26,7 @@ namespace moris
                 std::string tFileOutputwElemCmap = tPrefix + "projects/MTK/test/Test_Files/mtk_2_proc_test_elem_cmap.exo";
 
                 // initialize exodus io help
-                Exodus_IO_Helper tExoIO(tFileOutput.c_str());
+                Exodus_IO_Helper tExoIO(tFileOutput);
 
                 // element cmap data;
                 if(par_rank() == 0)

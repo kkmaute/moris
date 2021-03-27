@@ -18,6 +18,8 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+        // FIXME: dividing by zero not properly and consistently handled
+        //------------------------------------------------------------------------------
 
         SP_SUPG_Spalart_Allmaras_Turbulence::SP_SUPG_Spalart_Allmaras_Turbulence()
         {
@@ -87,22 +89,28 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers(){}
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_SUPG_Spalart_Allmaras_Turbulence::get_cluster_measure_tuple_list()
+        {
+            return { mElementSizeTuple };
+        }
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::reset_cluster_measures()
-        {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-        }
+        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers(){}
 
         //------------------------------------------------------------------------------
 
         void SP_SUPG_Spalart_Allmaras_Turbulence::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // set size for SP values
             mPPVal.set_size( 1, 1, 0.0 );
 
@@ -121,18 +129,24 @@ namespace moris
             // compute norm( uTilde )
             real tNormA = std::sqrt( dot( tModVelocity, tModVelocity ) );
 
-            // compute the diffusion coefficient
-            real tK = this->compute_diffusion_coefficient();
+            // threshold tNormA (for consistency with derivative computation)
+            tNormA = std::max(tNormA,mEpsilon);
 
-            // compute the source
-            real tSource = this->compute_production_coefficient() +
+            // tau A
+            real tTauA = 2.0 * tNormA / tElementSize;
+
+            // tau K
+            real tTauK = 4.0 * this->compute_diffusion_coefficient() / std::pow( tElementSize, 2.0 );
+
+            // tau S
+            real tTauS = this->compute_production_coefficient() +
                     this->compute_wall_destruction_coefficient();
 
             // evaluate tau
-            real tTau =
-                    std::pow( 2.0 * tNormA / mElementSize, 2 ) +
-                    std::pow( 4.0 * tK / std::pow( mElementSize, 2.0 ), 2 ) +
-                    std::pow( tSource, 2 );
+            real tTau = std::pow( tTauA, 2 ) + std::pow( tTauK, 2 ) + std::pow( tTauS, 2 );
+
+            // threshold tau
+            tTau = std::max(tTau, mEpsilon);
 
             // set tau
             mPPVal = {{ std::pow( tTau, -0.5 ) }};
@@ -143,6 +157,12 @@ namespace moris
         void SP_SUPG_Spalart_Allmaras_Turbulence::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -168,11 +188,14 @@ namespace moris
             // evaluate norm( uTilde )
             real tNormA = std::sqrt( dot( tModVelocity, tModVelocity ) );
 
+            // threshold tNormA (for consistency with derivative computation)
+            tNormA = std::max(tNormA,mEpsilon);
+
             // tau A
-            real tTauA = 2.0 * tNormA / mElementSize;
+            real tTauA = 2.0 * tNormA / tElementSize;
 
             // tau K
-            real tTauK = 4.0 * this->compute_diffusion_coefficient() / std::pow( mElementSize, 2.0 );
+            real tTauK = 4.0 * this->compute_diffusion_coefficient() / std::pow( tElementSize, 2.0 );
 
             // tau S
             real tTauS = this->compute_production_coefficient() +
@@ -184,26 +207,26 @@ namespace moris
             Matrix< DDRMat > tdtauSdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity && tNormA > MORIS_REAL_MIN )
+            if( aDofTypes( 0 ) == mMasterDofVelocity && tNormA > mEpsilon )
             {
                 // add contribution to dSPdu
                 tdtauAdu +=
-                        2.0 * trans( tModVelocity ) * tVelocityFI->N() / ( mElementSize * tNormA );
+                        2.0 * trans( tModVelocity ) * tVelocityFI->N() / ( tElementSize * tNormA );
             }
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofViscosity && tNormA > MORIS_REAL_MIN )
+            if( aDofTypes( 0 ) == mMasterDofViscosity && tNormA > mEpsilon )
             {
                 // evaluate dadu
                 tdtauAdu -=
                         2.0 * trans( tModVelocity ) * ( mCb2 * tViscosityFI->dnNdxn( 1 ) / mSigma ) /
-                        ( mElementSize * tNormA );
+                        ( tElementSize * tNormA );
             }
 
             // compute tdtauKdu
             Matrix< DDRMat > tddiffusiondu;
             this->compute_ddiffusiondu( aDofTypes, tddiffusiondu );
-            tdtauKdu = 4.0 * tddiffusiondu / std::pow( mElementSize, 2.0 );
+            tdtauKdu = 4.0 * tddiffusiondu / std::pow( tElementSize, 2.0 );
 
             // compute tdtauSdu
             Matrix< DDRMat > tdproductiondu;
@@ -213,11 +236,14 @@ namespace moris
             tdtauSdu = tdproductiondu + tdwalldestructiondu;
 
             // evaluate tau
-            Matrix< DDRMat > tTau = this->val();
+            real tTau = std::pow( tTauA, 2 ) + std::pow( tTauK, 2 ) + std::pow( tTauS, 2 );
 
-            // scale dSPdu
-            mdPPdMasterDof( tDofIndex ) = - 0.5 * std::pow( tTau( 0 ), 3 ) *
+            // compute dSPdu
+            if ( tTau > mEpsilon )
+            {
+                mdPPdMasterDof( tDofIndex ) = - 0.5 * std::pow( tTau, -1.5 ) *
                     ( 2.0 * tTauA * tdtauAdu + 2.0 * tTauK * tdtauKdu + 2.0 * tTauS * tdtauSdu );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -338,7 +364,11 @@ namespace moris
 
             // check negative/zero wall distance
             MORIS_ERROR( tWallDistance > 0.0,
-                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_wall_destruction_coefficient - Negative or zero wall distance, exiting!");
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_wall_destruction_coefficient - %s",
+                    "Negative or zero wall distance.\n");
+
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -396,7 +426,11 @@ namespace moris
 
             // check negative/zero wall distance
             MORIS_ERROR( tWallDistance > 0.0,
-                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_dwalldestructiondu - Negative or zero wall distance, exiting!");
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_dwalldestructiondu - %s",
+                    "Negative or zero wall distance.\n");
+
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -455,7 +489,7 @@ namespace moris
             Field_Interpolator * tFIModViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
-            // get the wall distance property
+            // get the viscosity property
             std::shared_ptr< Property > & tPropKinViscosity =
                     mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
 
@@ -689,7 +723,10 @@ namespace moris
             Matrix< DDRMat > tWijWij = trans( tWij ) * tWij;
 
             // compute s
-            return std::sqrt( 2.0 * tWijWij( 0 ) );
+            real tS = std::sqrt( 2.0 * tWijWij( 0 ) );
+
+            // threshold s for consistency with derivative
+            return std::max(tS,mEpsilon);
         }
 
         //------------------------------------------------------------------------------
@@ -702,19 +739,22 @@ namespace moris
             Field_Interpolator * tDerFI =
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // init dsdu
+            // initialize dsdu
             adsdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
-            // compute sbar
-            real tS = this->compute_s();
+            // compute wij
+            Matrix< DDRMat > tWij;
+            this->compute_wij( tWij );
 
-            // if s is greater than zero
-            if( tS > MORIS_REAL_MIN )
+            // compute WijWij
+            Matrix< DDRMat > tWijWij = trans( tWij ) * tWij;
+
+            // compute s
+            real tS = std::sqrt( 2.0 * tWijWij( 0 ) );
+
+            // compute derivative
+            if (tS > mEpsilon)
             {
-                // compute wij
-                Matrix< DDRMat > tWij;
-                this->compute_wij( tWij );
-
                 // compute dwijdu
                 Matrix< DDRMat > tdWijdu;
                 this->compute_dwijdu( aDofTypes, tdWijdu );
@@ -894,7 +934,11 @@ namespace moris
 
             // check negative/zero wall distance
             MORIS_ERROR( tWallDistance > 0.0,
-                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_sbar - Negative or zero wall distance, exiting!");
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_sbar - %s",
+                    "Negative or zero wall distance.\n");
+
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
 
             // compute fv2
             real tFv2 = this->compute_fv2();
@@ -930,6 +974,9 @@ namespace moris
             // check negative/zero wall distance
             MORIS_ERROR( tWallDistance > 0.0,
                     "SP_SUPG_Spalart_Allmaras_Turbulence::compute_dsbardu - Negative or zero wall distance, exiting!");
+
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
 
             // compute fv2
             real tFv2 = this->compute_fv2();
@@ -1124,6 +1171,9 @@ namespace moris
             MORIS_ERROR( tWallDistance > 0.0,
                     "SP_SUPG_Spalart_Allmaras_Turbulence::compute_r - Negative or zero wall distance, exiting!");
 
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
+
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
 
@@ -1171,6 +1221,9 @@ namespace moris
                 // check negative/zero wall distance
                 MORIS_ERROR( tWallDistance > 0.0,
                         "SP_SUPG_Spalart_Allmaras_Turbulence::compute_drdu - Negative or zero wall distance, exiting!");
+
+                // threshold wall distance
+                tWallDistance = std::max(tWallDistance,mEpsilon);
 
                 // compute stilde
                 real tSTilde = this->compute_stilde();
@@ -1258,5 +1311,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

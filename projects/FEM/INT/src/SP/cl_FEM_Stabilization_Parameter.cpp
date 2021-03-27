@@ -8,6 +8,7 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Cluster_Measure.hpp"
 
 namespace moris
 {
@@ -53,6 +54,14 @@ namespace moris
                 }
             }
             std::cout<<"----------"<<std::endl;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Stabilization_Parameter::set_cluster( fem::Cluster * aCluster )
+        {
+            // set a cluster
+            mCluster = aCluster;
         }
 
         //------------------------------------------------------------------------------
@@ -668,12 +677,14 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -687,12 +698,14 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -780,12 +793,14 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -799,12 +814,14 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv types
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );

@@ -13,6 +13,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
 
+#include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
+
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -54,7 +57,7 @@ namespace moris
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
             this->create_stk(tSTKParameterList);
-            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get());
+            
 
             // moris::mtk::Cell tCell
 
@@ -176,7 +179,24 @@ namespace moris
 
             // construct the meshes
             mIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>( tMeshFile, tSuppMeshData, true );
-            mIgMesh = std::make_shared<mtk::Integration_Mesh_STK> ( *mIpMesh, tCellClusterData);
+
+            mIgMesh = std::make_shared<mtk::Integration_Mesh_STK> ( *mIpMesh, tCellClusterData );
+
+            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get());
+
+            if(aParameterLists(0)(0).get<bool>("periodic_workspace"))
+            {
+                std::cout<<" Periodic BCs "<<std::endl;
+                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mPerformerManager->mMTKPerformer( 0 ),0,aParameterLists(0)(0));
+                tPBCHelper.setup_periodic_boundary_conditions();
+
+                // call some function in MTK to setup periodic boundary conditions
+            }
+
+            // output the mesh
+            moris::mtk::Writer_Exodus tWriter(mIgMesh.get());
+            tWriter.write_mesh("", "stk_fem_mesh.exo", "", "temp.exo");
+            tWriter.close_file();
         }
 
         //--------------------------------------------------------------------------------------------------------------

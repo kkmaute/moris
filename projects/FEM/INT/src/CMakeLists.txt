@@ -13,7 +13,8 @@ set(INT_INCLUDES
 	"CM"
     "SP"
 	"IWG"
-    "IQI")
+    "IQI"
+    "MEA")
 
 set(INT_INTERNAL_INCLUDES)
 
@@ -113,6 +114,7 @@ set(HEADERS
     SP/cl_FEM_SP_Ghost_Virtual_Work.hpp 
     SP/cl_FEM_SP_Stab_Penalty_Contact.hpp
     SP/cl_FEM_SP_Penalty_Contact.hpp 
+    SP/cl_FEM_SP_Measure.hpp
 
 
     IWG/cl_FEM_IWG_Factory.hpp
@@ -204,8 +206,10 @@ set(HEADERS
     IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
     IQI/cl_FEM_IQI_Total_Pressure.hpp
     IQI/cl_FEM_IQI_Mass_Flow.hpp
-    IQI/cl_FEM_IQI_Thermal_Energy.hpp   
-    
+    IQI/cl_FEM_IQI_Thermal_Energy.hpp  
+    IQI/cl_FEM_IQI_Stabilization.hpp
+     
+    MEA/cl_FEM_Cluster_Measure.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -287,6 +291,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Ghost_Virtual_Work.cpp 
     SP/cl_FEM_SP_Stab_Penalty_Contact.cpp
     SP/cl_FEM_SP_Penalty_Contact.cpp  
+    SP/cl_FEM_SP_Measure.cpp
 
 
     IWG/cl_FEM_IWG.cpp
@@ -383,6 +388,9 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Total_Pressure.cpp
     IQI/cl_FEM_IQI_Mass_Flow.cpp
     IQI/cl_FEM_IQI_Thermal_Energy.cpp
+    IQI/cl_FEM_IQI_Stabilization.cpp
+    
+    MEA/cl_FEM_Cluster_Measure.cpp
     
     )
 

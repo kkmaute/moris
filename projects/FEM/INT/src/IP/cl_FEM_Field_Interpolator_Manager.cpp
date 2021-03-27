@@ -111,12 +111,14 @@ namespace moris
             if( mIPGeometryInterpolator != nullptr && mGeometryInterpolatorOwned )
             {
                 delete mIPGeometryInterpolator;
+                mIPGeometryInterpolator = nullptr;
             }
 
             // delete the IG geometry interpolator pointer
             if( mIGGeometryInterpolator != nullptr && mGeometryInterpolatorOwned )
             {
                 delete mIGGeometryInterpolator;
+                mIGGeometryInterpolator = nullptr;
             }
         }
 
@@ -287,6 +289,9 @@ namespace moris
                 false );
 
             // create a geometry interpolator for IG cells
+            // IG interpolation requires knowledge about  the IP Element in 
+            // order to have an appropriate mapping for integration points, 
+            // tIPGeometryInterpolationRule
             mIGGeometryInterpolator = new Geometry_Interpolator(
                 tIGGeometryInterpolationRule,
                 tIPGeometryInterpolationRule, 

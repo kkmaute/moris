@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -98,6 +99,10 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -405,6 +410,10 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Unsymmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -711,6 +720,10 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -1032,6 +1045,10 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -1364,6 +1381,10 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -1694,6 +1715,10 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

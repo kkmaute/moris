@@ -20,6 +20,7 @@
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
 
 // Detailed Logging package
 //#include "cl_Tracer.hpp"
@@ -302,6 +303,7 @@ void Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
 
 void Time_Solver::solve()
 {
+    Tracer tTracer( "TimeSolver", "Forward Analysis", "Solve" );
     // flags if thats the master time solver and if this is a forward solve
     mIsMasterTimeSolver = true;
     mIsForwardSolve = true;
@@ -398,6 +400,7 @@ void Time_Solver::solve()
 
 void Time_Solver::solve_sensitivity()
 {
+    Tracer tTracer( "TimeSolver", "Sensitivity Analysis", "Solve" );
     mIsForwardSolve = false;
 
     // create map object

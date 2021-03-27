@@ -131,6 +131,18 @@ namespace moris
             moris::real
             compute_cell_side_size(moris::mtk::Cell const *aCell,
                                    moris_index const &aSideOrd) const;
+
+            // ----------------------------------------------------------------------------------
+
+            moris::real
+            compute_cell_side_size_deriv(
+                    moris::mtk::Cell const *aCell,
+                    moris_index const      &aSideOrd,
+                    uint                    aLocalVertexID,
+                    uint                    aDirection ) const;
+
+            // ----------------------------------------------------------------------------------
+
         };
     } // namespace mtk
 } // namespace moris

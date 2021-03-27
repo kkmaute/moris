@@ -1860,7 +1860,7 @@ namespace mtk
             case (stk::topology::TET_4)     : return CellTopology::TET4;   break;
             case (stk::topology::TET_10)    : return CellTopology::TET10;  break;
             case (stk::topology::HEX_8)     : return CellTopology::HEX8;   break;
-            case (stk::topology::HEX_27)     : return CellTopology::HEX27;   break;
+            case (stk::topology::HEX_27)    : return CellTopology::HEX27;   break;
             case (stk::topology::WEDGE_6)   : return CellTopology::PRISM6; break;
             default: MORIS_ERROR(0,"Unhandled stk topology passed in, only ones currently used in MORIS have been added"); return CellTopology::INVALID; break;
 

@@ -1,6 +1,7 @@
 #include "catch.hpp"
-#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
+#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
+#include "IG/cl_MTK_Integrator.hpp"         //MTK/src
+#include "fn_vectorize.hpp"                 //LINALG/src
 
 using namespace moris;
 using namespace fem;
@@ -138,7 +139,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             tTimeInterpolation->eval_N( tTau, tNTime );
 
             // build space time interpolation functions for integration mesh
-            Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
+            Matrix< DDRMat > tN = trans( vectorize( trans( tNIntegSpace ) * tNTime ) );
 
             // get the parametric coordinates of the integration mesh in interpolation mesh
             Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
@@ -352,7 +353,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                tTimeInterpolation->eval_N( tTau, tNTime );
 
                // build space time interpolation functions for integration mesh
-               Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
+               Matrix< DDRMat > tN = trans( vectorize( trans( tNIntegSpace ) * tNTime ) );
 
                // get the parametric coordinates of the integration mesh in interpolation mesh
                Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
@@ -589,7 +590,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             tTimeInterpolation->eval_N( tTau, tNTime );
 
             // build space time interpolation functions for integration mesh
-            Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
+            Matrix< DDRMat > tN = trans( vectorize( trans( tNIntegSpace ) * tNTime ) );
 
             // get the parametric coordinates of the integration mesh in interpolation mesh
             Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
@@ -816,7 +817,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                tTimeInterpolation->eval_N( tTau, tNTime );
 
                // build space time interpolation functions for integration mesh
-               Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
+               Matrix< DDRMat > tN = trans( vectorize( trans( tNIntegSpace ) * tNTime ) );
 
                // get the parametric coordinates of the integration mesh in interpolation mesh
                Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );

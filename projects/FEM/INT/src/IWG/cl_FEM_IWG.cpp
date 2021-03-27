@@ -7,6 +7,8 @@
 
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Model.hpp"
 
@@ -861,16 +863,19 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv type lists
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // update dof and dv counters
-                    tMasterDofCounter += tActiveDofTypes.size();
-                    tMasterDvCounter  += tActiveDvTypes.size();
+                    tMasterDofCounter   += tActiveDofTypes.size();
+                    tMasterDvCounter    += tActiveDvTypes.size();
+                    tMasterFieldCounter += tActiveFieldTypes.size();
 
                 }
             }
@@ -881,12 +886,14 @@ namespace moris
                 if( tCM != nullptr )
                 {
                     // get CM non unique dof and dv type lists
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // update dof and dv counters
                     tSlaveDofCounter += tActiveDofTypes.size();
@@ -1047,16 +1054,19 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get CM non unique dof and dv type lists
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
+                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv lists
                     aDofTypes( 0 ).append( tActiveDofTypes );
                     aDvTypes( 0 ).append( tActiveDvTypes );
+                    aFieldTypes( 0 ).append( tActiveFieldTypes );
                 }
             }
 
@@ -1068,14 +1078,17 @@ namespace moris
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
-                    tCM->get_non_unique_dof_and_dv_types(
+                    tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
-                            tActiveDvTypes );
+                            tActiveDvTypes,
+                            tActiveFieldTypes );
 
                     // populate the dof and dv lists
                     aDofTypes( 1 ).append( tActiveDofTypes );
                     aDvTypes( 1 ).append( tActiveDvTypes );
+                    aFieldTypes( 0 ).append( tActiveFieldTypes );
                 }
             }
 
@@ -1307,6 +1320,27 @@ namespace moris
 
                             // put the dv type in the global type list
                             mMasterGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        }
+                    }
+
+                    // get field types for constitutive model
+                    const moris::Cell< moris::Cell< mtk::Field_Type > > & tActiveFieldTypes =
+                            tCM->get_global_field_type_list();
+
+                    // loop on property field type
+                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
+                    {
+                        // get set index for field type
+                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+
+                        // if field enum not in the list
+                        if ( tFieldCheckList( tFieldTypeIndex) != 1 )
+                        {
+                            // put the field type in the check list
+                            tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                            // put the field type in the global type list
+                            mMasterGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
                         }
                     }
                 }
@@ -1562,6 +1596,27 @@ namespace moris
                             mSlaveGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
                         }
                     }
+
+                    // get field types for constitutive model
+                    const moris::Cell< moris::Cell< mtk::Field_Type > > & tActiveFieldTypes =
+                            tCM->get_field_type_list();
+
+                    // loop on constitutive model field type
+                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
+                    {
+                        // get set index for field type
+                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+
+                        // if field enum not in the list
+                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
+                        {
+                            // put the field type in the check list
+                            tFieldCheckList( tFieldTypeIndex ) = 1;
+
+                            // put the field type in the global type list
+                            mSlaveGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
+                        }
+                    }
                 }
             }
 
@@ -1571,8 +1626,8 @@ namespace moris
                 if ( tSP != nullptr )
                 {
                     // get dof types for constitutive model
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofTypes =
+                            tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -2622,70 +2677,70 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real IWG::check_ig_coordinates_inside_ip_element(
-        		const real & aPerturbation,
+                const real & aPerturbation,
                 const real & aCoefficientToPerturb,
                 const uint & aSpatialDirection,
                 fem::FDScheme_Type & aUsedFDScheme )
         {
-        	// FIXME: only works for rectangular IP elements
-        	// FIXME: only works for forward, backward, central, not for higher as 5-point FD
+            // FIXME: only works for rectangular IP elements
+            // FIXME: only works for forward, backward, central, not for higher as 5-point FD
 
-        	// get the IP element geometry interpolator
-        	Geometry_Interpolator * tIPGI =
-        			mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+            // get the IP element geometry interpolator
+            Geometry_Interpolator * tIPGI =
+                    mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
-        	// IP element max/min
-        	real tMaxIP = max( tIPGI->get_space_coeff().get_column( aSpatialDirection ) ); // get maximum values of coordinates of IP nodes
-        	real tMinIP = min( tIPGI->get_space_coeff().get_column( aSpatialDirection ) ); // get minimum values of coordinates of IP nodes
+            // IP element max/min
+            real tMaxIP = max( tIPGI->get_space_coeff().get_column( aSpatialDirection ) ); // get maximum values of coordinates of IP nodes
+            real tMinIP = min( tIPGI->get_space_coeff().get_column( aSpatialDirection ) ); // get minimum values of coordinates of IP nodes
 
-        	// get maximum possible perturbation
-        	real tMaxPerturb = (tMaxIP-tMinIP)/3.0;
+            // get maximum possible perturbation
+            real tMaxPerturb = (tMaxIP-tMinIP)/3.0;
 
-        	// compute the perturbation value
-        	real tDeltaH = build_perturbation_size( aPerturbation, aCoefficientToPerturb, tMaxPerturb );
+            // compute the perturbation value
+            real tDeltaH = build_perturbation_size( aPerturbation, aCoefficientToPerturb, tMaxPerturb );
 
-        	// check that IG node coordinate is consistent with minimum and maximum IP coordinates
-        	MORIS_ASSERT(
-        			tMaxIP >= aCoefficientToPerturb - tDeltaH &&
-					tMinIP <= aCoefficientToPerturb + tDeltaH,
-					"ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
-					aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb);
+            // check that IG node coordinate is consistent with minimum and maximum IP coordinates
+            MORIS_ASSERT(
+                    tMaxIP >= aCoefficientToPerturb - tDeltaH &&
+                    tMinIP <= aCoefficientToPerturb + tDeltaH,
+                    "ERROR: IG coordinates are outside IP element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  \n",
+                    aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb);
 
-        	// check point location
-        	if( aCoefficientToPerturb + tDeltaH >= tMaxIP )
-        	{
-        	    aUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+            // check point location
+            if( aCoefficientToPerturb + tDeltaH >= tMaxIP )
+            {
+                aUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
 
-        		// check for correctness of perturbation size for backward FD
-        		MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
-        				"ERROR: backward perturbation size exceed limits of interpolation element:\n",
-						"dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-						aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
-        	}
-        	else
-        	{
-        		if( aCoefficientToPerturb - tDeltaH <= tMinIP )
-        		{
-        		    aUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                // check for correctness of perturbation size for backward FD
+                MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
+                        "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                        "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                        aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
+            }
+            else
+            {
+                if( aCoefficientToPerturb - tDeltaH <= tMinIP )
+                {
+                    aUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
 
-        			// check for correctness of perturbation size for forward FD
-					MORIS_ASSERT( tDeltaH < tMaxIP - aCoefficientToPerturb,
-							"ERROR: forward perturbation size exceeds limits of interpolation element:\n",
-							"dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-							aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
-        		}
-        		else
-        		{
-        			// check for correctness of perturbation size for central FD
-        			MORIS_ASSERT(
-        			        tDeltaH < tMaxIP - aCoefficientToPerturb &&
-        			        tDeltaH < aCoefficientToPerturb - tMinIP,
-							"ERROR: central perturbation size exceed limits of interpolation element:\n"
-							"dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
-							aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
-        		}
-        	}
-        	return tDeltaH;
+                    // check for correctness of perturbation size for forward FD
+                    MORIS_ASSERT( tDeltaH < tMaxIP - aCoefficientToPerturb,
+                            "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+                            "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                            aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
+                }
+                else
+                {
+                    // check for correctness of perturbation size for central FD
+                    MORIS_ASSERT(
+                            tDeltaH < tMaxIP - aCoefficientToPerturb &&
+                            tDeltaH < aCoefficientToPerturb - tMinIP,
+                            "ERROR: central perturbation size exceed limits of interpolation element:\n"
+                            "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
+                            aSpatialDirection,tMinIP,tMaxIP,aCoefficientToPerturb,tMaxPerturb,tDeltaH,aPerturbation);
+                }
+            }
+            return tDeltaH;
         }
 
         //------------------------------------------------------------------------------
@@ -2835,6 +2890,16 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
@@ -2909,13 +2974,13 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                    	// provide adapted perturbation and FD scheme considering ip element boundaries
-                    	fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                    	tDeltaH = this->check_ig_coordinates_inside_ip_element(
-                    			aPerturbation,
-								tCoeff( iCoeffRow, iCoeffCol ),
-								iCoeffCol,
-								tUsedFDScheme );
+                        // provide adapted perturbation and FD scheme considering ip element boundaries
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                                aPerturbation,
+                                tCoeff( iCoeffRow, iCoeffCol ),
+                                iCoeffCol,
+                                tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
@@ -3004,6 +3069,16 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
@@ -3076,13 +3151,13 @@ namespace moris
                     // if pdv is active
                     if( tPdvAssemblyIndex != -1 )
                     {
-                    	// provide adapted perturbation and FD scheme considering ip element boundaries
-                    	fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                    	tDeltaH = this->check_ig_coordinates_inside_ip_element(
-                    			aPerturbation,
-								tCoeff( iCoeffRow, iCoeffCol ),
-								iCoeffCol,
-								tUsedFDScheme );
+                        // provide adapted perturbation and FD scheme considering ip element boundaries
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                                aPerturbation,
+                                tCoeff( iCoeffRow, iCoeffCol ),
+                                iCoeffCol,
+                                tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
@@ -3174,6 +3249,16 @@ namespace moris
 
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
+
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
@@ -3289,13 +3374,13 @@ namespace moris
 
                     if ( tPdvAssemblyIndex != -1 )
                     {
-                    	// provide adapted perturbation and FD scheme considering ip element boundaries
-                    	fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                    	tDeltaH = this->check_ig_coordinates_inside_ip_element(
-                    			aPerturbation,
-                    			tMasterCoeff( iCoeffRow, iCoeffCol ),
-								iCoeffCol,
-								tUsedFDScheme );
+                        // provide adapted perturbation and FD scheme considering ip element boundaries
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                                aPerturbation,
+                                tMasterCoeff( iCoeffRow, iCoeffCol ),
+                                iCoeffCol,
+                                tUsedFDScheme );
 
                         // finalize FD scheme
                         fd_scheme( tUsedFDScheme, tFDScheme );
@@ -3407,10 +3492,239 @@ namespace moris
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
 
+//            // add contribution of cluster measure to dRdp
+//            if( mStabilizationParam.size() > 0 )
+//            {
+//                // add their contribution to dQIdp
+//                this->add_cluster_measure_dRdp_FD_geometry_double(
+//                        aWStar,
+//                        aPerturbation,
+//                        aFDSchemeType );
+//            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
                     "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
         }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::add_cluster_measure_dRdp_FD_geometry(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType )
+        {
+            MORIS_LOG( "IWG::add_cluster_measure_dRdp_FD_geometry - Not tested!" );
+
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
+            // get the residual dof type index in the set
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+            uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tResidual =
+                    mSet->get_residual()( 0 )(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0, 0 } );
+
+            // init perturbation
+            real tDeltaH = aPerturbation;
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumFDPoints = tFDScheme( 0 ).size();
+
+            // loop over the cluster measures
+            for( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
+            {
+                // get treated cluster measure
+                std::shared_ptr< Cluster_Measure > & tClusterMeasure =
+                        mCluster->get_cluster_measures()( iCMEA );
+
+                // number of pdv to assemble
+                uint tNumPdvToAssemble = tClusterMeasure->dMEAdPDV().numel() - 1;
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward add unperturbed contribution
+                if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed residual contribution to dRdp
+                    mSet->get_drdpgeo()(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0,    tNumPdvToAssemble } ) +=
+                                    tFDScheme( 1 )( 0 ) * tResidual * tClusterMeasure->dMEAdPDV() /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
+
+                // loop over point of FD scheme
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // perturb the cluster measure
+                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaH );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset and evaluate the residual plus
+                    mSet->get_residual()( 0 ).fill( 0.0 );
+                    this->compute_residual( aWStar );
+
+                    // evaluate dRdpGeo
+                    mSet->get_drdpgeo()(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0, tNumPdvToAssemble } ) +=
+                                    tFDScheme( 1 )( iPoint ) *
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) *
+                                    tClusterMeasure->dMEAdPDV() /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // reset cluster measures
+                    mCluster->reset_cluster_measure();
+                }
+            }
+
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::add_cluster_measure_dRdp_FD_geometry_double(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType )
+        {
+            MORIS_LOG( "IWG::add_cluster_measure_dRdp_FD_geometry_double - Not tested!" );
+
+            // storage residual value
+            Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
+            // get the residual dof type index in the set
+            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+
+            // get the slave residual dof type index in the set
+            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+            uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tMasterResidual =
+                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+            Matrix< DDRMat > tSlaveResidual =
+                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+            // init perturbation
+            real tDeltaH = aPerturbation;
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumFDPoints = tFDScheme( 0 ).size();
+
+            // loop over the cluster measures
+            for( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
+            {
+                // get treated cluster measure
+                std::shared_ptr< Cluster_Measure > & tClusterMeasure =
+                        mCluster->get_cluster_measures()( iCMEA );
+
+                if( mIsGhost )
+                {
+                    print(tClusterMeasure->dMEAdPDV(),"tClusterMeasure->dMEAdPDV()");
+                }
+
+                // get end pdv index
+                uint tEndPdvIndex = tClusterMeasure->dMEAdPDV().numel() - 1;
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward add unperturbed contribution
+                if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed master residual contribution to dRdp
+                    mSet->get_drdpgeo()(
+                            { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                            { 0, tEndPdvIndex } ) +=
+                                    tFDScheme( 1 )( 0 ) * tMasterResidual * tClusterMeasure->dMEAdPDV() /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // add unperturbed slave residual contribution to dRdp
+                    mSet->get_drdpgeo()(
+                            { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                            { 0, tEndPdvIndex } ) +=
+                                    tFDScheme( 1 )( 0 ) * tSlaveResidual * tClusterMeasure->dMEAdPDV() /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
+
+                // loop over point of FD scheme
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // perturb the cluster measure
+                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaH );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset and evaluate the residual plus
+                    mSet->get_residual()( 0 ).fill( 0.0 );
+                    this->compute_residual( aWStar );
+
+                    // evaluate dMasterRdpGeo
+                    mSet->get_drdpgeo()(
+                            { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                            { 0, tEndPdvIndex } ) +=
+                                    tFDScheme( 1 )( iPoint ) *
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) *
+                                    tClusterMeasure->dMEAdPDV() /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // evaluate dSlaveRdpGeo
+                    mSet->get_drdpgeo()(
+                            { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                            { 0, tEndPdvIndex } ) +=
+                                    tFDScheme( 1 )( iPoint ) *
+                                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) *
+                                    tClusterMeasure->dMEAdPDV() /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // reset cluster measures
+                    mCluster->reset_cluster_measure();
+                }
+            }
+
+            // reset the value of the residual
+            mSet->get_residual()( 0 ) = tResidualStore;
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
+        }
+
 
         //------------------------------------------------------------------------------
 

@@ -13,31 +13,44 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
-        void SP_Reciprocal_Total_Volume::reset_cluster_measures()
+
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Reciprocal_Total_Volume::get_cluster_measure_tuple_list()
         {
-            // evaluate cluster measures from the cluster
-            mMasterVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-            mSlaveVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::VOID,
-                    mtk::Master_Slave::SLAVE );
+            return { mMasterVolumeTuple, mSlaveVolumeTuple };
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Reciprocal_Total_Volume::eval_SP()
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
             // compute stabilization parameter value
-            mPPVal = {{ 1 / ( mMasterVolume + mSlaveVolume ) }};
+            mPPVal = {{ 1 / ( tMasterVolume + tSlaveVolume ) }};
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Reciprocal_Total_Volume::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdMasterDOF(), not implemented for this SP" );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Reciprocal_Total_Volume::eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdSlaveDOF(), not implemented for this SP" );

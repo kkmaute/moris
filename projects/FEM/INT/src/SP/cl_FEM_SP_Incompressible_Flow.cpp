@@ -133,11 +133,15 @@ namespace moris
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
             real tViscosity = tViscosityProp->val()( 0 );
+
+            // get impermeability
             real tInvPermeab = 0.0;
             if (tInvPermeabProp != nullptr)
+            {
                 tInvPermeab = tInvPermeabProp->val()( 0 );
+            }
 
-            // get the parameter
+            // get element inverse estimate
             real tCI = mParameters( 0 )( 0 );
 
             // get the time step
@@ -147,8 +151,8 @@ namespace moris
             Matrix< DDRMat > tG;
             this->eval_G( tG );
 
-            // get flattened G
-            Matrix< DDRMat > tFlatG = reshape( tG, 1, tG.numel() );
+            // get flattened G to row vector
+            Matrix< DDRMat > tFlatG = trans ( vectorize( tG) );
 
             // get trace of G
             real tTrG = sum( diag_vec( tG ) );
@@ -156,10 +160,17 @@ namespace moris
             // evaluate tauM = mPPVal( 0 )
             Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
-            real tPPVal = std::pow( 2.0 * tDensity / tDeltaT, 2.0 )
-            + std::pow( tDensity, 2.0 ) * tvivjGij( 0 )
-            + tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 )
-            + std::pow( tInvPermeab, 2.0 );
+
+            real tPPVal =
+                    std::pow( 2.0 * tDensity / tDeltaT, 2.0 ) +
+                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) +
+                    tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
+                    std::pow( tInvPermeab, 2.0 );
+
+            // threshold tPPVal
+            tPPVal = std::max(tPPVal,mEpsilon);
+
+            // evaluate tauM
             mPPVal( 0 ) = std::pow( tPPVal, -0.5 );
 
             // evaluate tauC = mPPVal( 1 )
@@ -192,7 +203,14 @@ namespace moris
             real tDensity   = tDensityProp->val()( 0 );
             real tViscosity = tViscosityProp->val()( 0 );
 
-            // get the parameter
+            // get impermeability
+            real tInvPermeab = 0.0;
+            if (tInvPermeabProp != nullptr)
+            {
+                tInvPermeab = tInvPermeabProp->val()( 0 );
+            }
+
+            // get element inverse estimate
             real tCI = mParameters( 0 )( 0 );
 
             // get the time step
@@ -202,8 +220,8 @@ namespace moris
             Matrix< DDRMat > tG;
             this->eval_G( tG );
 
-            // get flattened G
-            Matrix< DDRMat > tFlatG = reshape( tG, 1, tG.numel() );
+            // get flattened G to row vector
+            Matrix< DDRMat > tFlatG = trans( vectorize( tG ) );
 
             // get trace of G
             real tTrG = sum( diag_vec( tG ) );
@@ -212,47 +230,62 @@ namespace moris
             Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
-            // if velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity )
-            {
-                mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                        -0.5 * std::pow( this->val()( 0 ), 3 ) *
-                        std::pow( tDensity, 2.0 ) *
-                        ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
-            }
+            real tPPVal =
+                    std::pow( 2.0 * tDensity / tDeltaT, 2.0 ) +
+                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) +
+                    tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
+                    std::pow( tInvPermeab, 2.0 );
 
-            // if density
-            if( tDensityProp->check_dof_dependency( aDofTypes ) )
+            // compute derivatives if tPPVal is not thresholded
+            if ( tPPVal > mEpsilon )
             {
-                mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                        -0.5 * std::pow( this->val()( 0 ), 3 ) *
-                        (   8.0 * tDensity / tDeltaT * tDensityProp->dPropdDOF( aDofTypes )
-                                + 2.0 * tDensity * tvivjGij( 0 ) * tDensityProp->dPropdDOF( aDofTypes ) );
-            }
+                // common factor for evaluations below
+                real tPreFactor = -0.5 * std::pow( tPPVal, -1.5 );
 
-            // if viscosity
-            if( tViscosityProp->check_dof_dependency( aDofTypes ) )
-            {
-                mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                        -0.5 * std::pow( this->val()( 0 ), 3 ) *
-                        ( tCI * 2.0 * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
-            }
-
-            // if permeability
-            if (tInvPermeabProp != nullptr)
-            {
-                if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
+                // if velocity
+                if( aDofTypes( 0 ) == mMasterDofVelocity )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) -=
-                            tInvPermeabProp->val()(0) * std::pow( this->val()( 0 ), 3.0 ) *
-                            tInvPermeabProp->dPropdDOF( aDofTypes );
+                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                            tPreFactor * std::pow( tDensity, 2.0 ) *
+                            ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
                 }
-            }
 
-            // dtauCdDOF
-            mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
-                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
-                    ( tTrG * std::pow( this->val()( 0 ), 2.0 ) );
+                // if density
+                if( tDensityProp->check_dof_dependency( aDofTypes ) )
+                {
+                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                            tPreFactor *
+                            ( 8.0 * tDensity / tDeltaT / tDeltaT + 2.0 * tDensity * tvivjGij( 0 ) ) *
+                            tDensityProp->dPropdDOF( aDofTypes );
+                }
+
+                // if viscosity
+                if( tViscosityProp->check_dof_dependency( aDofTypes ) )
+                {
+                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                            tPreFactor *
+                            ( 2.0 * tCI * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
+                }
+
+                // if permeability
+                if (tInvPermeabProp != nullptr)
+                {
+                    if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
+                    {
+                        mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                                tPreFactor *
+                                ( 2.0 * tInvPermeabProp->val()(0) * tInvPermeabProp->dPropdDOF( aDofTypes ) );
+                    }
+                }
+
+                // evaluate tauM
+                real tTauM = std::pow( tPPVal, -0.5 );
+
+                // dtauCdDOF
+                mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
+                        mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
+                        ( tTrG * std::pow( tTauM, 2.0 ) );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -271,6 +304,8 @@ namespace moris
             this->mEvalGFunc( aG, tSpaceJacobian );
         }
 
+        //------------------------------------------------------------------------------
+
         void SP_Incompressible_Flow::eval_G_2d(
                 Matrix< DDRMat > & aG,
                 const Matrix< DDRMat > & aInvSpaceJacobian )
@@ -284,6 +319,8 @@ namespace moris
             aG( 1, 0 ) = aG( 0, 1 );
             aG( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 );
         }
+
+        //------------------------------------------------------------------------------
 
         void SP_Incompressible_Flow::eval_G_3d(
                 Matrix< DDRMat > & aG,
@@ -319,5 +356,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

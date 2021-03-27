@@ -135,6 +135,33 @@ namespace moris
             // -------------------------------------------------------------------------
 
             /**
+             * @brief Reshape object while preserving elements in the original layout
+             *
+             * @param[in] aNumRows Number of Rows.
+             * @param[in] aNumCols Number of Columns.
+            */
+            void
+            reshape(
+                    const size_t & aNumRows,
+                    const size_t & aNumCols)
+            {
+                MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+            }
+
+            // -------------------------------------------------------------------------
+
+            /**
+             * @brief In-place / in-situ transpose of matrix X
+            */
+            void
+            inplace_trans()
+            {
+                MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+            }
+
+            // -------------------------------------------------------------------------
+
+            /**
              * Initialization operator.
              *
              * @param[in] aVal A given value to set all elements to that.

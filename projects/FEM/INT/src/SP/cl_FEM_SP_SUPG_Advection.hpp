@@ -46,6 +46,9 @@ namespace moris
                     MAX_ENUM
                 };
 
+                // internal threshold
+                const real mEpsilon = 1e-18;
+
                 /*
                  * Rem: mParameters - no parameters needed
                  */
@@ -63,12 +66,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_SUPG_Advection(){}
-
-                //------------------------------------------------------------------------------
-                /**
-                 * reset the cluster measures required for this SP
-                 */
-                void reset_cluster_measures(){}
 
                 //------------------------------------------------------------------------------
                 /**

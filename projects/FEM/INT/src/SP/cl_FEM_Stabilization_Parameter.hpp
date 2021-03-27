@@ -23,6 +23,8 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 //GEN/src
 #include "cl_GEN_Pdv_Enums.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
 
 namespace moris
 {
@@ -31,6 +33,7 @@ namespace moris
         class Cluster;
         class Set;
         class Field_Interpolator_Manager;
+        class Cluster_Measure;
 
         //------------------------------------------------------------------------------
         /**
@@ -264,24 +267,36 @@ namespace moris
                  * set cluster
                  * @param[ in ] aCluster a fem cluster pointer
                  */
-                void set_cluster( fem::Cluster * aCluster )
-                {
-                    // set a cluster
-                    mCluster = aCluster;
-
-                    // reset cluster measures
-                    this->reset_cluster_measures();
-                }
+                void set_cluster( fem::Cluster * aCluster );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * reset cluster measures
-                 * NOTE: only implement if your stabilization parameter requires
-                 * cluster measure access. Otherwise no-op.
+                 * set cluster measure types
+                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
+                 * @param[ in ] aClusterMeasureTypes  list of strings describing the cluster measure types
                  */
-                virtual void reset_cluster_measures()
+                virtual void set_cluster_measure_type_list(
+                        moris::Cell< std::tuple<
+                        fem::Measure_Type,
+                        mtk::Primary_Void,
+                        mtk::Master_Slave > >      & aClusterMeasureTuples,
+                        moris::Cell< std::string > & aClusterMeasureNames )
+                {}
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get cluster measure tuples
+                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
+                 */
+                virtual moris::Cell< std::tuple<
+                fem::Measure_Type,
+                mtk::Primary_Void,
+                mtk::Master_Slave > > get_cluster_measure_tuple_list()
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::reset_cluster_measures - not implemented for base class." );
+                    return moris::Cell< std::tuple<
+                            fem::Measure_Type,
+                            mtk::Primary_Void,
+                            mtk::Master_Slave > >( 0 );
                 }
 
                 //------------------------------------------------------------------------------

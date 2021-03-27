@@ -99,6 +99,12 @@ public:
         return mCellInfo->compute_cell_side_size(this,aCellSideOrd);
     }
 
+    moris::real
+    compute_cell_side_measure_deriv(moris_index const & aCellSideOrd, uint aLocalVertexID, uint aDirection) const
+    {
+        return mCellInfo->compute_cell_side_size_deriv(this, aCellSideOrd, aLocalVertexID, aDirection);
+    }
+
 private:
     moris_id               mCellId;
     moris_id               mCellIndex;

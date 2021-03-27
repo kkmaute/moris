@@ -111,8 +111,9 @@ namespace xtk
     //----------------------------------------------------------------
     
     moris::Matrix<moris::DDRMat>
-    Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-            const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell(
+            moris::mtk::Vertex const * aVertex,
+            const mtk::Master_Slave    aIsMaster ) const
     {
         if(mChildMesh != nullptr)
         {
@@ -141,7 +142,8 @@ namespace xtk
     //----------------------------------------------------------------
 
     moris::moris_index
-    Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const
+    Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
+                                            const mtk::Master_Slave aIsMaster) const
     {
 
         // if(mTrivial ||  mChildMesh == nullptr)

@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -79,6 +80,10 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
     tSP->set_parameters( { {{ 1.0 }} });
     tSP->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSP->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

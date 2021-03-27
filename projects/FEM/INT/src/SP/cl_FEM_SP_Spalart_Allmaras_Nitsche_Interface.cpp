@@ -30,22 +30,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Spalart_Allmaras_Nitsche_Interface::reset_cluster_measures()
-        {
-            // evaluate cluster measures from the cluster
-            mMasterVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-            mSlaveVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::SLAVE );
-            mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-        }
-
-        //------------------------------------------------------------------------------
-
         void SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -121,8 +105,36 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Spalart_Allmaras_Nitsche_Interface::get_cluster_measure_tuple_list()
+        {
+            return { mMasterVolumeTuple, mSlaveVolumeTuple, mInterfaceSurfaceTuple };
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_Spalart_Allmaras_Nitsche_Interface::eval_SP()
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
+            // get interface surface cluster measure value
+            real tInterfaceSurface = mCluster->get_cluster_measure(
+                    std::get<0>( mInterfaceSurfaceTuple ),
+                    std::get<1>( mInterfaceSurfaceTuple ),
+                    std::get<2>( mInterfaceSurfaceTuple ) )->val()( 0 );
+
             // init SP values
             mPPVal.set_size( 3, 1, 0.0 );
 
@@ -131,16 +143,16 @@ namespace moris
             real tSlaveMaterial  = this->compute_diffusion_coefficient( mtk::Master_Slave::SLAVE );
 
             // compute weighted property
-            real tDeno = mMasterVolume / tMasterMaterial + mSlaveVolume / tSlaveMaterial;
+            real tDeno = tMasterVolume / tMasterMaterial + tSlaveVolume / tSlaveMaterial;
 
             // compute Nitsche parameter value
-            mPPVal( 0 ) = 2.0 * mParameters( 0 )( 0 ) * mInterfaceSurface / tDeno;
+            mPPVal( 0 ) = 2.0 * mParameters( 0 )( 0 ) * tInterfaceSurface / tDeno;
 
             // compute master weight value
-            mPPVal( 1 ) = ( mMasterVolume / tMasterMaterial ) / tDeno;
+            mPPVal( 1 ) = ( tMasterVolume / tMasterMaterial ) / tDeno;
 
             // compute slave weight value
-            mPPVal( 2 ) = ( mSlaveVolume / tSlaveMaterial ) / tDeno;
+            mPPVal( 2 ) = ( tSlaveVolume / tSlaveMaterial ) / tDeno;
         }
 
         //------------------------------------------------------------------------------
@@ -148,6 +160,18 @@ namespace moris
         void SP_Spalart_Allmaras_Nitsche_Interface::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -169,7 +193,7 @@ namespace moris
             real tSlaveMaterial  = this->compute_diffusion_coefficient( mtk::Master_Slave::SLAVE );
 
             // compute weighted property
-            real tDeno = mMasterVolume / tMasterMaterial + mSlaveVolume / tSlaveMaterial;
+            real tDeno = tMasterVolume / tMasterMaterial + tSlaveVolume / tSlaveMaterial;
 
             // get the master material diffusion coefficient derivatives
             Matrix< DDRMat > tMasterdmaterialdu;
@@ -177,17 +201,17 @@ namespace moris
 
             // compute derivative of Nitsche SP FIXME ????
             mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                    this->val()( 0 ) * mMasterVolume * tMasterdmaterialdu /
+                    this->val()( 0 ) * tMasterVolume * tMasterdmaterialdu /
                     ( std::pow( tMasterMaterial, 2 ) * tDeno );
 
             // compute derivative of master weight SP
             mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
-                    this->val()( 1 ) * mSlaveVolume * tMasterdmaterialdu /
+                    this->val()( 1 ) * tSlaveVolume * tMasterdmaterialdu /
                     ( tMasterMaterial * tSlaveMaterial * tDeno );
 
             // compute derivative of the slave weight SP
             mdPPdMasterDof( tDofIndex ).get_row( 2 ) +=
-                    this->val()( 2 ) * mMasterVolume * tMasterdmaterialdu /
+                    this->val()( 2 ) * tMasterVolume * tMasterdmaterialdu /
                     ( std::pow( tMasterMaterial, 2 ) * tDeno );
         }
 
@@ -196,6 +220,18 @@ namespace moris
         void SP_Spalart_Allmaras_Nitsche_Interface::eval_dSPdSlaveDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get master volume cluster measure value
+            real tMasterVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mMasterVolumeTuple ),
+                    std::get<1>( mMasterVolumeTuple ),
+                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+
+            // get slave volume cluster measure value
+            real tSlaveVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mSlaveVolumeTuple ),
+                    std::get<1>( mSlaveVolumeTuple ),
+                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -214,7 +250,7 @@ namespace moris
             real tSlaveMaterial  = this->compute_diffusion_coefficient( mtk::Master_Slave::SLAVE );
 
             // compute weighted property
-            real tDeno = mMasterVolume / tMasterMaterial + mSlaveVolume / tSlaveMaterial;
+            real tDeno = tMasterVolume / tMasterMaterial + tSlaveVolume / tSlaveMaterial;
 
             // get the slave material diffusion coefficient derivatives
             Matrix< DDRMat > tSlavedmaterialdu;
@@ -222,17 +258,17 @@ namespace moris
 
             // compute derivative of Nitsche SP FIXME ????
             mdPPdSlaveDof( tDofIndex ).get_row( 0 ) +=
-                    this->val()( 0 ) * mSlaveVolume * tSlavedmaterialdu /
+                    this->val()( 0 ) * tSlaveVolume * tSlavedmaterialdu /
                     ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
             // compute derivative of master weight SP
             mdPPdSlaveDof( tDofIndex ).get_row( 1 ) +=
-                    this->val()( 1 ) * mSlaveVolume * tSlavedmaterialdu /
+                    this->val()( 1 ) * tSlaveVolume * tSlavedmaterialdu /
                     ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
             // compute derivative of the slave weight SP
             mdPPdSlaveDof( tDofIndex ).get_row( 2 ) -=
-                    this->val()( 2 ) * mMasterVolume * tSlavedmaterialdu /
+                    this->val()( 2 ) * tMasterVolume * tSlavedmaterialdu /
                     ( tMasterMaterial * tSlaveMaterial * tDeno );
         }
 

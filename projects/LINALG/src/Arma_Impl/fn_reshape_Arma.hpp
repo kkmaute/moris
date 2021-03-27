@@ -14,21 +14,15 @@
 
 namespace moris
 {
-
-template<  typename Matrix_Type, typename INT >
-
-arma::Mat< Matrix_Type >
-reshape(
-		arma::Mat< Matrix_Type >   	& aA,
-		INT 			  			  aB,
-		INT				  			  aC )
-{
-	arma::Mat< Matrix_Type > tM2 = aA;
-	tM2.reshape(aB, aC);
-
-    return tM2;
-}
-
+    template< typename Matrix_Type >
+    arma::Mat< Matrix_Type >
+    reshape(
+            const arma::Mat< Matrix_Type > & aA,
+            const size_t                   & aB,
+            const size_t                   & aC )
+    {
+        return arma::reshape(aA, aB, aC);;
+    }
 } /* moris namespace */
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_RESHAPE_ARMA_HPP_ */

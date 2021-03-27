@@ -165,6 +165,13 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+      moris::real
+      Cell_XTK_CM::compute_cell_side_measure_deriv(moris_index const &aSideOrdinal, uint aLocalVertexID, uint aDirection) const
+      {
+          return mChildMeshPtr->get_cell_info()->compute_cell_side_size_deriv(this, aSideOrdinal, aLocalVertexID, aDirection);
+      }
+
+    // ----------------------------------------------------------------------------------
     // Cell get functions
     // ----------------------------------------------------------------------------------
     Matrix<DDRMat>

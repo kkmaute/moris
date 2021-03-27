@@ -10,7 +10,6 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
-#include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
@@ -58,7 +57,7 @@ namespace moris
 
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj );
+                    tDensityFI->val()( 0 ) * tVelocityFI->N_trans() * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -109,7 +108,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tNormalMatrix * tUiUj * tFIDensity->N() );
+                                    tFIVelocity->N_trans() * tNormalMatrix * tUiUj * tFIDensity->N() );
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
@@ -127,7 +126,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tNormalMatrix * tdUiUjdDOF );
+                                    tFIDensity->val()( 0 ) * tFIVelocity->N_trans() * tNormalMatrix * tdUiUjdDOF );
                 }
             }
 

@@ -113,12 +113,22 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * set cluster
-                 * @param[ in ] aCluster pointer to a fem cluster
-                 * @param[ in ] aIndex   mesh index
+                 * @param[ in ] aCluster     pointer to a fem cluster
+                 * @param[ in ] aMeshIndex   mesh index
                  */
                 void set_cluster(
                         std::shared_ptr< fem::Cluster > aCluster,
                         const uint                      aMeshIndex );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get cluster
+                 *
+                 * @param[ in ] aIndex   mesh index
+                 *
+                 * @ return   const reference to shared pointer of cluster
+                 */
+                const std::shared_ptr< fem::Cluster > & get_cluster( const uint aIndex );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -209,11 +219,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
             protected:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the cluster volume
-                 */
-                real compute_volume();
 
                 //------------------------------------------------------------------------------
                 /**

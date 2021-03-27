@@ -21,7 +21,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Writer_Exodus::Writer_Exodus(mtk::Mesh* aMeshPointer)
-                        : mMesh(aMeshPointer)
+        : mMesh(aMeshPointer)
         {
             this->set_error_options(true, true, true);
         }

@@ -112,7 +112,10 @@ namespace moris
             {
                 if( !mSolverWarehouse->get_output_to_matlab_string().empty() )
                 {
-                    mMat->save_matrix_to_matlab_file( mSolverWarehouse->get_output_to_matlab_string().c_str());
+                    // Get the nonlinear system index
+                    uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver" , LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR);
+
+                    mMat->save_matrix_to_matlab_file( (mSolverWarehouse->get_output_to_matlab_string() +"."+ std::to_string(tNonlinearSystemIndex)).c_str());
                 }
             }
 

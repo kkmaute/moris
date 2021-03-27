@@ -38,7 +38,7 @@ namespace moris
                 virtual
                 moris_index
                 get_vertex_cluster_index( const Vertex * aVertex,
-                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+                                          const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
                 {
                     MORIS_ERROR(false, "get_vertex_cluster_index(): not implemented for this cluster type");
                     return 0;
@@ -168,7 +168,8 @@ namespace moris
                  */
                 virtual
                 moris::real
-                compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                compute_cluster_cell_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
                 /*
@@ -177,7 +178,8 @@ namespace moris
                  */
                 virtual
                 moris::real
-                compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                compute_cluster_cell_side_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
                 // ---------------------------------------------

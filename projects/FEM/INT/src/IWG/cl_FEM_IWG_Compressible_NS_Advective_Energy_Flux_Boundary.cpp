@@ -10,7 +10,6 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
-#include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
@@ -52,7 +51,7 @@ namespace moris
 
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    trans( tFITemp->N() ) * (
+                    tFITemp->N_trans() * (
                             tCMFluid->traction( mNormal, CM_Function_Type::ENERGY ) -
                             tCMFluid->traction( mNormal, CM_Function_Type::WORK ) ) );
 
@@ -99,7 +98,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFITemp->N() ) * (
+                                    tFITemp->N_trans() * (
                                             tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::ENERGY ) -
                                             tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::WORK   ) ) );
                 }

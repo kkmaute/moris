@@ -26,24 +26,30 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Dirichlet_Nitsche::reset_cluster_measures()
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
         {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
+            return { mElementSizeTuple };
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Dirichlet_Nitsche::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the material property
             std::shared_ptr< Property > & tPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * tPropMaterial->val() / mElementSize;
+            mPPVal = mParameters( 0 ) * tPropMaterial->val() / tElementSize;
         }
 
         //------------------------------------------------------------------------------
@@ -51,6 +57,12 @@ namespace moris
         void SP_Dirichlet_Nitsche::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -76,7 +88,7 @@ namespace moris
             {
                 // compute derivative with indirect dependency through properties
                 mdPPdMasterDof( tDofIndex ) +=
-                        mParameters( 0 ) * tPropMaterial->dPropdDOF( aDofTypes ) / mElementSize;
+                        mParameters( 0 ) * tPropMaterial->dPropdDOF( aDofTypes ) / tElementSize;
             }
         }
 

@@ -49,7 +49,7 @@ namespace moris
             tParameterList.insert("intersection_mode", "LEVEL_SET"); // Level-set isocontour level
             tParameterList.insert("isocontour_threshold", 0.0);      // Level-set isocontour level
             tParameterList.insert("isocontour_tolerance", 1e-12);      // Interface tolerance based on geometry value
-            tParameterList.insert("intersection_tolerance", 0.0);    // Interface tolerance based on intersection distance
+            tParameterList.insert("intersection_tolerance", 1e-12);    // Interface tolerance based on intersection distance
             tParameterList.insert("output_mesh_file", "");           // File name for exodus mesh, if default no mesh is written
             tParameterList.insert("geometry_field_file", "");        // Base file name (without extension) for saving geometry fields
             tParameterList.insert("time_offset", 0.0 );              // Time offset for writing files in optimization process

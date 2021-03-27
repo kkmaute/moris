@@ -279,6 +279,9 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
+                void
+                add_double_side_set(mtk::Set* aDblSideSet);
+
             protected:
 
                 void collect_all_sets();

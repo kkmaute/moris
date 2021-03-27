@@ -352,7 +352,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set("lower_bounds"      , std::to_string( 0.1 ) );
         tParameterlist( 0 )( 0 ).set("upper_bounds"      , std::to_string( 0.7 ) ); 
 
-        tParameterlist( 0 )( 0 ).set("isocontour_tolerance", 0.0);      // Interface tolerance based on geometry value
+        tParameterlist( 0 )( 0 ).set("isocontour_tolerance", 1e-12);      // Interface tolerance based on geometry value
 
         // init geometry counter
         uint tGeoCounter = 0;

@@ -99,7 +99,7 @@ namespace moris
 
                 moris::Cell< moris::mtk::Writer_Exodus * >  mWriter;
 
-                std::shared_ptr< mtk::Mesh_Manager >             mMTKMesh = nullptr;
+                std::shared_ptr< mtk::Mesh_Manager >     mMTKMesh = nullptr;
 
                 moris::uint                     mMTKMeshPairIndex = MORIS_UINT_MAX;
 

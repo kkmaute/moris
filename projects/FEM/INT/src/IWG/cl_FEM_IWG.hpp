@@ -11,7 +11,7 @@
 //LNA/src
 #include "cl_Matrix.hpp"
 #include "typedefs.hpp"
-#include "fn_reshape.hpp"
+#include "fn_vectorize.hpp"
 #include "fn_isfinite.hpp"
 //MRS/COR/src // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
@@ -32,6 +32,7 @@ namespace moris
     namespace fem
     {
         class Set;
+        class Cluster;
         class Field_Interpolator_Manager;
         class FEM_Model;
 
@@ -45,6 +46,9 @@ namespace moris
 
                 // FEM set pointer
                 fem::Set * mSet = nullptr;
+
+                // cluster pointer
+                fem::Cluster * mCluster = nullptr;
 
                 // nodal weak BCs
                 Matrix< DDRMat > mNodalWeakBCs;
@@ -309,6 +313,16 @@ namespace moris
 
                     // set function pointer
                     this->set_function_pointers();
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * set fem cluster pointer
+                 * @param[ in ] aClusterPointer a FEM cluster pointer
+                 */
+                void set_cluster_pointer( fem::Cluster * aClusterPointer )
+                {
+                    mCluster = aClusterPointer;
                 }
 
                 //------------------------------------------------------------------------------
@@ -801,6 +815,32 @@ namespace moris
                         fem::FDScheme_Type                  aFDSchemeType,
                         Matrix< DDSMat >                  & aGeoLocalAssembly,
                         moris::Cell< Matrix< IndexMat > > & aVertexIndices );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * add the contribution of the cluster measure derivatives to the derivative of
+                 * the quantity of interest wrt to geometry dv by finite difference
+                 * @param[ in ] aWStar        weight associated to evaluation point
+                 * @param[ in ] aPerturbation pdv relative perturbation size
+                 * @param[ in ] aFDSchemeType enum for FD scheme
+                 */
+                void add_cluster_measure_dRdp_FD_geometry(
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType );
+
+                /**
+                 * add the contribution of the cluster measure derivatives to the derivative of
+                 * the quantity of interest wrt to geometry dv by finite difference
+                 * for double sideset
+                 * @param[ in ] aWStar        weight associated to evaluation point
+                 * @param[ in ] aPerturbation pdv relative perturbation size
+                 * @param[ in ] aFDSchemeType enum for FD scheme
+                 */
+                void add_cluster_measure_dRdp_FD_geometry_double(
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType );
 
                 //------------------------------------------------------------------------------
                 /**

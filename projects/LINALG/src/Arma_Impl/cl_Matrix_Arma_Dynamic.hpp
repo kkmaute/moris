@@ -165,6 +165,20 @@ namespace moris
             }
 
             void
+            reshape(
+                    const size_t & aNumRows,
+                    const size_t & aNumCols)
+            {
+                mMatrix.reshape(aNumRows, aNumCols);
+            }
+
+            void
+            inplace_trans()
+            {
+                arma::inplace_trans(mMatrix);
+            }
+
+            void
             fill(const Type & aFillValue)
             {
                 mMatrix.fill(aFillValue);

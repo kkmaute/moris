@@ -9,6 +9,7 @@
 #define SRC_FEM_CL_FEM_ENUMS_HPP_
 
 #include "assert.hpp"
+#include "cl_Map.hpp"
 
 namespace moris
 {
@@ -121,6 +122,7 @@ namespace moris
                 DOF,
                 MAX_DOF,
                 PROPERTY,
+                STABILIZATION,
                 L2_ERROR_ANALYTIC,
                 H1_ERROR_ANALYTIC,
                 H1_ERROR,
@@ -230,20 +232,33 @@ namespace moris
             SPALART_ALLMARAS_NITSCHE_INTERFACE,
             PENALTY_CONTACT,
             STAB_PENALTY_CONTACT,
+            MEASURE,
             END_STABILIZATION_TYPE
         };
 
         //------------------------------------------------------------------------------
 
-        enum class Cluster_Measure
+        enum class Measure_Type
         {
                 UNDEFINED,
-                MASTER_VOLUME,
-                SLAVE_VOLUME,
-                INTERFACE_SURFACE,
-                ELEMENT_SIZE,
-                END_CLUSTER_MEASURE
+                CELL_MEASURE,
+                CELL_SIDE_MEASURE,
+                CELL_LENGTH_MEASURE,
+                END_MEASURE_TYPE
         };
+
+        map< std::string, enum fem::Measure_Type > get_measure_type_map()
+        {
+            map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
+
+            tFemMeasureTypeMap["UNDEFINED"]           = fem::Measure_Type::UNDEFINED;
+            tFemMeasureTypeMap["CELL_MEASURE"]        = fem::Measure_Type::CELL_MEASURE;
+            tFemMeasureTypeMap["CELL_SIDE_MEASURE"]   = fem::Measure_Type::CELL_SIDE_MEASURE;
+            tFemMeasureTypeMap["CELL_LENGTH_MEASURE"] = fem::Measure_Type::CELL_LENGTH_MEASURE;
+            tFemMeasureTypeMap["END_MEASURE_TYPE"]    = fem::Measure_Type::END_MEASURE_TYPE;
+
+            return tFemMeasureTypeMap;
+        }
 
         //------------------------------------------------------------------------------
 

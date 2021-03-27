@@ -15,26 +15,16 @@
 
 namespace moris
 {
-namespace linalg_internal
-{
-template<typename ET >
-auto
-trans( const ET &  A)
-->decltype( arma::strans( A ) )
-{
-    return arma::strans( A );
+    namespace linalg_internal
+    {
+        template<typename ET >
+        auto
+        trans( const ET & A)
+        ->decltype( arma::strans( A ) )
+        {
+            return arma::strans( A );
+        }
+    }
 }
-
-template<typename ET >
-auto
-trans( ET & A)
-->decltype( arma::strans( A ) )
-{
-    return arma::strans( A );
-}
-}
-}
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_TRANS_ARMA_HPP_ */

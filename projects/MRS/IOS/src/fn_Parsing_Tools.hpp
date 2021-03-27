@@ -649,6 +649,7 @@ namespace moris
                             T tComponent = aMap.find( tStringMat.substr( 0, tPosSubString ) );
                             aCellCell( tCount )( tCount1++ ) = tComponent;
                             tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
+                            tPosSubString = tStringMat.find( "," );
                         }
                     }
 
@@ -674,6 +675,7 @@ namespace moris
                             T tComponent = aMap.find( tString.substr( 0, tPosSubString ) );
                             aCellCell( tCount )( tCount1++ ) = tComponent;
                             tString =  tString.substr( tPosSubString+1, tString.size() );
+                            tPosSubString = tString.find( "," );
                         }
                     }
 
@@ -745,6 +747,7 @@ namespace moris
                         {
                             aCellCell( tCount )( tCount1++ ) = tStringMat.substr( 0, tPosSubString );
                             tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
+                            tPosSubString = tStringMat.find( "," );
                         }
                     }
 
@@ -767,7 +770,8 @@ namespace moris
                         if( tPosSubString < tString.size() )
                         {
                             aCellCell( tCount )( tCount1++ ) = tString.substr( 0, tPosSubString );
-                            tString =  tString.substr( tPosSubString+1, tString.size() );
+                            tString = tString.substr( tPosSubString+1, tString.size() );
+                            tPosSubString = tString.find( "," );
                         }
                     }
 

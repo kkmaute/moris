@@ -61,8 +61,8 @@ namespace moris
             this->compute_dnNdxn( tSlavedNdx, mtk::Master_Slave::SLAVE );
 
             // premultiply common terms
-            Matrix< DDRMat > tConvectivePreMultiply = tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
-            tConvectivePreMultiply = reshape( tConvectivePreMultiply, tConvectivePreMultiply.numel(), 1 );
+            Matrix< DDRMat > tConvectivePreMultiply = vectorize(
+                    tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) );
 
             // compute master residual
             mSet->get_residual()( 0 )(
@@ -151,8 +151,9 @@ namespace moris
                 if ( tSPConvective->check_dof_dependency( tDofType ) )
                 {
                     // premultiply common terms
-                    Matrix< DDRMat > tConvectivePreMultiply = ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
-                    tConvectivePreMultiply = reshape( tConvectivePreMultiply, tConvectivePreMultiply.numel(), 1 );
+                    Matrix< DDRMat > tConvectivePreMultiply = vectorize(
+                            tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
+
                     tConvectivePreMultiply = tConvectivePreMultiply * tSPConvective->dSPdMasterDOF( tDofType );
 
                     // add contribution to jacobian

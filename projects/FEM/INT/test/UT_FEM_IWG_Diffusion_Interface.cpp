@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -102,6 +103,10 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
     tSPNitscheInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
     tSPNitscheInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitscheInterface->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

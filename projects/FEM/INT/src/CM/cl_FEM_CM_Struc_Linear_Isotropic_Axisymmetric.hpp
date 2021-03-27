@@ -27,6 +27,7 @@ namespace moris
                 std::shared_ptr< Property > mPropEMod    = nullptr;
                 std::shared_ptr< Property > mPropPoisson = nullptr;
                 std::shared_ptr< Property > mPropCTE     = nullptr;
+                std::shared_ptr< Property > mPropTemp    = nullptr;
                 std::shared_ptr< Property > mPropTRef    = nullptr;
                 std::shared_ptr< Property > mPropRotAxis = nullptr;
 
@@ -43,6 +44,7 @@ namespace moris
                         EMOD,
                         NU,
                         CTE,
+                        TEMP_PROP,
                         TEMP_REF,
                         ROT_AXI,
                         MAX_ENUM

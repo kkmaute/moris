@@ -184,6 +184,11 @@ namespace xtk
         compute_cell_side_measure(moris_index const &aSideOrdinal) const;
 
         //------------------------------------------------------------------------------
+
+        moris::real
+        compute_cell_side_measure_deriv(moris_index const &aSideOrdinal, uint aLocalVertexID, uint aDirection) const;
+
+        //------------------------------------------------------------------------------
         /*!
          * @brief capacity of the cell
          */

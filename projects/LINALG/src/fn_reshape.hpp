@@ -21,29 +21,25 @@
 
 namespace moris
 {
-/**
- * @brief reshape vector.
- *
- * @param[in] aA     Vector.
- * @param[in] aB     number of rows
- * @param[in] aC     number of columns
- *
- * @return  reshaped vector
- */
+    /**
+     * @brief reshape vector.
+     *
+     * @param[in] aA     matrix
+     * @param[in] aB     number of rows
+     * @param[in] aC     number of columns
+     *
+     * @return  reshaped vector
+     */
 
-template< typename Matrix_Type, typename T3, typename T4 >
-auto
-reshape(
-        moris::Matrix< Matrix_Type > & aA,
-        T3                aB,
-        T4                aC)
--> decltype( reshape( aA.matrix_data(),aB,aC) )
-{
-    return reshape( aA.matrix_data(),aB,aC );
+    template< typename Matrix_Type >
+    auto
+    reshape(
+            const moris::Matrix< Matrix_Type > & aA,
+            const size_t                       & aB,
+            const size_t                       & aC)
+    -> decltype( reshape( aA.matrix_data(),aB,aC) )
+    {
+        return reshape( aA.matrix_data(),aB,aC );
+    }
 }
-
-}
-
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_RESHAPE_HPP_ */
