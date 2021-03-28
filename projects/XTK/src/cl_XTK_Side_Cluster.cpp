@@ -204,10 +204,16 @@ namespace xtk
     {
         if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
+            MORIS_ASSERT( mAssociatedCellCluster,
+                    "Side_Cluster::compute_cluster_cell_measure - Associated cell cluster not set.\n");
+
             return mAssociatedCellCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
         }
         else
         {
+            MORIS_ASSERT( mInterpolationCell,
+                    "Side_Cluster::compute_cluster_cell_measure - Interpolation cell not set.\n");
+
             return mInterpolationCell->compute_cell_measure();
         }
     }
