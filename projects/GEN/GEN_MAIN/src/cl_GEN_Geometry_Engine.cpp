@@ -51,8 +51,11 @@ namespace moris
             mIsocontourTolerance   = aParameterLists(0)(0).get<real>("isocontour_tolerance");
             mIntersectionTolerance = aParameterLists(0)(0).get<real>("intersection_tolerance");
 
-            MORIS_ERROR(mIsocontourTolerance > 1e-14,"Isocontour tolerance should not be exactly 0. Pick something greater than 1e-14");
-            MORIS_ERROR(mIntersectionTolerance > 1e-14,"Intersection tolerance should not be exactly 0. Pick something greater than 1e-14");
+            MORIS_ERROR(mIsocontourTolerance > 1e-14,
+                    "Geometry_Engine::Geometry_Engine - Isocontour tolerance should be larger than 1e-14");
+
+            MORIS_ERROR(mIntersectionTolerance > 1e-14,
+                    "Geometry_Engine::Geometry_Engine - Intersection tolerance should be larger than 1e-14");
 
             // Requested IQIs
             mRequestedIQIs = string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") );
@@ -148,13 +151,16 @@ namespace moris
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
 
-            MORIS_ERROR(mIsocontourTolerance > 1e-14,"Isocontour tolerance should not be exactly 0. Pick something greater than 1e-14");
-            MORIS_ERROR(mIntersectionTolerance > 1e-14,"Intersection tolerance should not be exactly 0. Pick something greater than 1e-14");
+            MORIS_ERROR(mIsocontourTolerance > 1e-14,
+                    "Geometry_Engine::Geometry_Engine - Isocontour tolerance should be larger than 1e-14");
 
+            MORIS_ERROR(mIntersectionTolerance > 1e-14,
+                    "Geometry_Engine::Geometry_Engine - Intersection tolerance should be larger than 1e-14");
 
             mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
                     aMesh->get_mesh_type(),
                     aMesh);
+
             mtk::Mesh_Pair tMeshPair(aMesh, tIntegrationMesh);
             this->distribute_advs(tMeshPair);
         }
@@ -254,7 +260,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Geometry_Engine::is_intersected(const Matrix<IndexMat>& aNodeIndices, const Matrix<DDRMat>& aNodeCoordinates)
+        bool Geometry_Engine::is_intersected(
+                const Matrix<IndexMat> & aNodeIndices,
+                const Matrix<DDRMat>   & aNodeCoordinates)
         {
             // Check input
             MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
@@ -270,7 +278,8 @@ namespace moris
                 case Intersection_Mode::LEVEL_SET:
                 {
                     // Initialize by evaluating the first node
-                    real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+                    real tMin = mGeometries(mActiveGeometryIndex)->
+                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
                     real tMax = tMin;
 
                     // Evaluate the rest of the nodes
@@ -279,6 +288,7 @@ namespace moris
                         real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
                                 aNodeIndices(tNodeCount),
                                 aNodeCoordinates.get_row(tNodeCount));
+
                         tMin = std::min(tMin, tEval);
                         tMax = std::max(tMax, tEval);
                     }
@@ -1501,7 +1511,8 @@ namespace moris
         void
         Geometry_Engine::setup_initial_geometric_proximities(mtk::Interpolation_Mesh* aMesh)
         {
-            mVertexGeometricProximity = Cell<Geometric_Proximity>(aMesh->get_num_nodes(),Geometric_Proximity(mGeometries.size()));
+            mVertexGeometricProximity =
+                    Cell<Geometric_Proximity>(aMesh->get_num_nodes(),Geometric_Proximity(mGeometries.size()));
 
             // iterate through vertices then geometries
             for(uint iV = 0; iV < aMesh->get_num_nodes(); iV++)
@@ -1522,10 +1533,8 @@ namespace moris
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
                     mVertexGeometricProximity(iV).set_geometric_proximity(tGeomProxIndex,iGeometryIndex);
-
                 }
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
