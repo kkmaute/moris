@@ -48,7 +48,6 @@ namespace moris
         void
         Cell::set_mtk_cell_info( std::shared_ptr<moris::mtk::Cell_Info> aCellInfo)
         {
-            std::cout<<"SETTING set_mtk_cell_info"<<std::endl;
             mCellInfo = aCellInfo;
         }
 
@@ -358,8 +357,7 @@ namespace moris
                 uint                aLocalVertexID,
                 uint                aDirection ) const
         {
-            MORIS_ERROR(0,"Compute cell side measure deriv not implemented");
-            return 0.0;
+             return this->get_cell_info()->compute_cell_side_size_deriv(this, aCellSideOrd, aLocalVertexID, aDirection);
         }
 
         //------------------------------------------------------------------------------
