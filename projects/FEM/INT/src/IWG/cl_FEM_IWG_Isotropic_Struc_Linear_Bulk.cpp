@@ -64,7 +64,7 @@ namespace moris
             std::shared_ptr< Property > & tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
-            MORIS_ASSERT( !(tCMElasticity->get_constitutive_type() == Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC
+            MORIS_ASSERT( !(tCMElasticity->get_plane_type() == Model_Type::AXISYMMETRIC
                     and tPropThickness == nullptr),
                     "IWG_Isotropic_Struc_Linear_Bulk::compute_residual - must define axis of rotation "
                     "using IWG \"Thickness\" property as {{x1,y1},{x2,y2}} if using axisymmetric formulation");
@@ -131,7 +131,7 @@ namespace moris
             std::shared_ptr< Property > & tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
-            MORIS_ASSERT( !(tCMElasticity->get_constitutive_type() == Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC
+            MORIS_ASSERT( !(tCMElasticity->get_plane_type() == Model_Type::AXISYMMETRIC
                     and tPropThickness == nullptr),
                     "IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian - must define axis of rotation "
                     "using IWG \"Thickness\" property as {{x1,y1},{x2,y2}} if using axisymmetric formulation");

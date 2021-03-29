@@ -523,6 +523,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * @return plane type
+                 */
+                virtual
+                Model_Type get_plane_type() const
+                {
+                    return Model_Type::UNDEFINED;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get properties
                  * @param[ out ] mProperties cell of property pointers
                  */

@@ -156,7 +156,6 @@ namespace moris
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
-                STRUC_LIN_ISO_AXISYMMETRIC,
                 FLUID_INCOMPRESSIBLE,
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,
@@ -194,6 +193,7 @@ namespace moris
                 UNDEFINED,
                 PLANE_STRESS,
                 PLANE_STRAIN,
+                AXISYMMETRIC,
                 FULL,
                 HYDROSTATIC, // not implemented yet
                 DEVIATORIC,

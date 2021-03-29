@@ -1027,14 +1027,15 @@ namespace moris
                 // set CM name
                 tCM->set_name( tCMName );
 
-                // set CM space dimension
-                tCM->set_space_dim( mSpaceDim );
-
-                // set CM model type
+                // set CM model type. must come before "set_space_dim"
+                // fixme: currently cannot set a plane type and tensor type at the same time from an input file
                 if( tCMModelType != fem::Model_Type::UNDEFINED )
                 {
                     tCM->set_model_type( tCMModelType );
                 }
+
+                // set CM space dimension
+                tCM->set_space_dim( mSpaceDim );
 
                 // set CM dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
@@ -2247,9 +2248,6 @@ namespace moris
                 // fill CM map
                 aCMMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
 
-                // set CM space dimension
-                mCMs( iCM )->set_space_dim( mSpaceDim );
-
                 // set CM model type
                 fem::Model_Type tCMModelType =
                         static_cast< fem::Model_Type >( tCMParameterList( iCM ).get< uint >( "model_type" ) );
@@ -2257,6 +2255,9 @@ namespace moris
                 {
                     mCMs( iCM )->set_model_type( tCMModelType );
                 }
+
+                // set CM space dimension
+                mCMs( iCM )->set_space_dim( mSpaceDim );
 
                 // set CM dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
