@@ -119,7 +119,7 @@ namespace moris
         void SP_Incompressible_Flow::eval_SP()
         {
             // set size for SP values
-            mPPVal.set_size( 2, 1, 0.0 );
+            mPPVal.set_size( 2, 1);
 
             // get the velocity and pressure FIs
             Field_Interpolator * tVelocityFI =
@@ -147,7 +147,7 @@ namespace moris
             // get the time step
             real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
-            // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
+            // evaluate Gij = sum_k dxi_k/dx_i dxi_k/dx_j
             Matrix< DDRMat > tG;
             this->eval_G( tG );
 
@@ -171,7 +171,10 @@ namespace moris
             tPPVal = std::max(tPPVal,mEpsilon);
 
             // evaluate tauM
-            mPPVal( 0 ) = std::pow( tPPVal, -0.5 );
+            real tTauM = std::pow( tPPVal, -0.5 );
+
+            // threshold tauM
+            mPPVal( 0 ) = std::max(tTauM,mEpsilon);
 
             // evaluate tauC = mPPVal( 1 )
             mPPVal( 1 ) = 1.0 / ( mPPVal( 0 ) * tTrG );
@@ -188,7 +191,7 @@ namespace moris
             // get the dof type FI
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set matrix size
+            // set matrix size and initialize
             mdPPdMasterDof( tDofIndex ).set_size( 2, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the velocity FI
@@ -282,9 +285,12 @@ namespace moris
                 real tTauM = std::pow( tPPVal, -0.5 );
 
                 // dtauCdDOF
-                mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
+                if ( tTauM > mEpsilon )
+                {
+                    mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
                         mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
                         ( tTrG * std::pow( tTauM, 2.0 ) );
+                }
             }
         }
 
@@ -293,7 +299,7 @@ namespace moris
         void SP_Incompressible_Flow::eval_G( Matrix< DDRMat > & aG )
         {
             // get the space jacobian from IP geometry interpolator
-            const Matrix< DDRMat > & tSpaceJacobian =
+            const Matrix< DDRMat > & tInvSpaceJacobian =
                     mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
 
             // FIXME should not be here
@@ -301,17 +307,17 @@ namespace moris
             this->set_function_pointers();
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
-            this->mEvalGFunc( aG, tSpaceJacobian );
+            this->mEvalGFunc( aG, tInvSpaceJacobian );
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Incompressible_Flow::eval_G_2d(
-                Matrix< DDRMat > & aG,
+                Matrix< DDRMat >       & aG,
                 const Matrix< DDRMat > & aInvSpaceJacobian )
         {
             // set size for aG
-            aG.set_size( 2, 2, 0.0 );
+            aG.set_size( 2, 2);
 
             // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
             aG( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 );
@@ -323,11 +329,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Incompressible_Flow::eval_G_3d(
-                Matrix< DDRMat > & aG,
+                Matrix< DDRMat >       & aG,
                 const Matrix< DDRMat > & aInvSpaceJacobian )
         {
             // set size for aG
-            aG.set_size( 3, 3, 0.0 );
+            aG.set_size( 3, 3);
 
             // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
             aG( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 )
