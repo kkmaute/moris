@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -94,6 +95,10 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -164,8 +169,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
         tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -402,6 +407,10 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -472,8 +481,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
         tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -711,6 +720,10 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -783,9 +796,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
         tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1034,6 +1047,10 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -1106,9 +1123,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1367,6 +1384,10 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -1439,9 +1460,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1700,6 +1721,10 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPDirichletNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -1772,9 +1797,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )

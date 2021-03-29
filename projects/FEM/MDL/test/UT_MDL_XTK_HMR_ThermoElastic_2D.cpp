@@ -287,8 +287,8 @@ namespace moris
             tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso1->set_property( tCTE, "CTE" );
             tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -298,8 +298,8 @@ namespace moris
             tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso2->set_property( tCTE, "CTE" );
             tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
@@ -763,8 +763,8 @@ namespace moris
             tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso1->set_property( tCTE, "CTE" );
             tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -774,8 +774,8 @@ namespace moris
             tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso2->set_property( tCTE, "CTE" );
             tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );

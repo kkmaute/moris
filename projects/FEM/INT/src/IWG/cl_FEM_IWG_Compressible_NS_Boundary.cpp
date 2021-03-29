@@ -8,6 +8,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Boundary.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "fn_FEM_IWG_Compressible_NS.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"
@@ -51,8 +52,8 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( this->check_residual_dof_types(), 
-                "IWG_Compressible_NS_Boundary::compute_residual() - Only pressure or density primitive variables supported for now." );
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+                    "IWG_Compressible_NS_Boundary::compute_residual() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             //uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -125,8 +126,8 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( this->check_residual_dof_types(), 
-                "IWG_Compressible_NS_Boundary::compute_jacobian() - Only pressure or density primitive variables supported for now." );
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+                    "IWG_Compressible_NS_Boundary::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -236,59 +237,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
-        bool IWG_Compressible_NS_Boundary::check_residual_dof_types()
-        {
-            // initialize
-            bool tCheck = true;
-
-            // FIXME: only density and pressure primitive variables supported for now
-
-            // check that there are exactly 3 residual DoF types
-            tCheck = tCheck && ( mResidualDofType.size() == 3 );
-            MORIS_ASSERT( mResidualDofType.size() == 3,
-                    "IWG_Compressible_NS_Boundary::check_residual_dof_types() - List of Residual DoF types must be of length 3 for pressure primitive variables." );
-
-            // check that the right DoF types are present
-            tCheck = tCheck && ( mResidualDofType( 0 ) == MSI::Dof_Type::RHO || mResidualDofType( 0 ) == MSI::Dof_Type::P );
-            MORIS_ASSERT( tCheck,
-                    "IWG_Compressible_NS_Boundary::check_residual_dof_types() - First DoF type must be density or pressure." );
-            tCheck = tCheck && ( mResidualDofType( 1 ) == MSI::Dof_Type::VX );
-            tCheck = tCheck && ( mResidualDofType( 2 ) == MSI::Dof_Type::TEMP );
-            MORIS_ASSERT( tCheck,
-                    "IWG_Compressible_NS_Boundary::check_residual_dof_types() - Second and third DoF types must be velocity and temperature." );
-
-            // set variables Types
-            if ( mVariableSet == fem::Variable_Set::UNDEFINED )
-            {
-                if ( mResidualDofType( 0 ) == MSI::Dof_Type::RHO )
-                {
-                    mVariableSet = fem::Variable_Set::DENSITY_PRIMITIVE;
-                }
-                else if ( mResidualDofType( 0 ) == MSI::Dof_Type::P )
-                {
-                    mVariableSet = fem::Variable_Set::PRESSURE_PRIMITIVE;
-                }
-                else
-                {
-                    MORIS_ERROR( false,
-                        "IWG_Compressible_NS_Boundary::check_residual_dof_types() - Something went wrong. Only Density or Pressure supported as first DoF types." );
-                }
-            }
-            else if ( mResidualDofType( 0 ) == MSI::Dof_Type::RHO || mResidualDofType( 0 ) == MSI::Dof_Type::P )
-            {
-                // do nothing, variable set already defined
-            }
-            else
-            {
-                MORIS_ERROR( false,
-                    "IWG_Compressible_NS_Boundary::check_residual_dof_types() - Something went wrong; variable set not supported yet." );
-            }
-
-            // return whether check was successful or not
-            return tCheck;
-        }
-
-        //------------------------------------------------------------------------------
+        
     } /* namespace fem */
 } /* namespace moris */

@@ -57,26 +57,6 @@ namespace moris
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
             this->create_stk(tSTKParameterList);
-            
-
-            // moris::mtk::Cell tCell
-
-            // // verify these meshes
-            // mtk::Mesh_Checker tMeshChecker(0,mIpMesh.get(),mIgMesh.get());
-            // tMeshChecker.perform();
-            // tMeshChecker.print_diagnostics();
-
-            // load gen parameter list
-//            std::string tGENString = "GENParameterList";
-//            Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
-//            moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
-//            tGENParameterListFunc( tGENParameterList );
-
-            // Create GE performer
-//            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary, mPerformerManager->mMTKPerformer( 0 ) );
-
-            // create MTK performer - will be used for XTK mesh
-            //mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
 
             // create MDL performer
             mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
@@ -92,53 +72,16 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-            // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-            // Trace GEN
-//            Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
-//
-//                mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-//                        mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
-//
-//                // Get ADVs
-//                aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
-//                aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-//                aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Workflow_STK_FEM::perform(const Matrix<DDRMat> & aNewADVs)
         {
-            // Set new advs in GE
-//            mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
 
-            // Stage 1: HMR refinement
-
-            // Stage 2: XTK -----------------------------------------------------------------------------
-            //this->create_xtk();
-
-            // Compute level set data in GEN
-//            mPerformerManager->mGENPerformer( 0 )->reset_mesh_information(
-//                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
-
-            // Output GEN fields, if requested
-//            mPerformerManager->mGENPerformer( 0 )->output_fields(
-//                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
-
-            // XTK perform - decompose - enrich - ghost - multigrid
-            //mPerformerManager->mXTKPerformer( 0 )->perform();
-
-            // Assign PDVs
-//            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 0 ) );
-
-            // Stage 3: MDL perform ---------------------------------------------------------------------
-
-//            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
-//                                mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+            // Stage 1: MDL perform ---------------------------------------------------------------------
 
             mPerformerManager->mMDLPerformer( 0 )->initialize();
-
-            //mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();

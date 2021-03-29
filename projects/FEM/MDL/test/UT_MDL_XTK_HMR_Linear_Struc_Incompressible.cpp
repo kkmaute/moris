@@ -280,9 +280,9 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
                                               { "Displacement", "Pressure" } );
         tCMStrucLinIsoDev->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIsoDev->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIsoDev->set_space_dim( 2 );
         tCMStrucLinIsoDev->set_model_type(fem::Model_Type::PLANE_STRESS);
         tCMStrucLinIsoDev->set_model_type(fem::Model_Type::DEVIATORIC);
+        tCMStrucLinIsoDev->set_space_dim( 2 );
         tCMStrucLinIsoDev->set_local_properties();
 
         // define stabilization parameters

@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -85,7 +86,8 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterElastLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterElastLinIso->set_dof_type_list( tDofTypes );
     tCMMasterElastLinIso->set_property( tPropMasterYoungModulus, "YoungsModulus" );
     tCMMasterElastLinIso->set_property( tPropMasterPoissonRatio, "PoissonRatio" );
@@ -93,7 +95,8 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
     tCMMasterElastLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveElastLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMSlaveElastLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMSlaveElastLinIso->set_dof_type_list( tDofTypes );
     tCMSlaveElastLinIso->set_property( tPropSlaveYoungModulus, "YoungsModulus" );
     tCMSlaveElastLinIso->set_property( tPropSlavePoissonRatio, "PoissonRatio" );
@@ -106,6 +109,10 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
       std::shared_ptr< fem::Stabilization_Parameter > tSP1 =
               tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
       tSP1->set_parameters( {{{ 100.0 }} });
+
+      // create a dummy fem cluster and set it to SP
+      fem::Cluster * tCluster = new fem::Cluster();
+      tSP1->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

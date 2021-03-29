@@ -322,7 +322,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         moris::real
-        Cell::compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const
+        Cell::compute_cell_measure_deriv(
+                uint aLocalVertexID,
+                uint aDirection) const
         {
           return this->get_cell_info()->compute_cell_size_deriv(this, aLocalVertexID, aDirection);
         }
@@ -348,6 +350,18 @@ namespace moris
             return this->get_cell_info()->get_cell_integration_order();
         }
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        moris::real
+        Cell::compute_cell_side_measure_deriv(
+                moris_index const & aCellSideOrd,
+                uint                aLocalVertexID,
+                uint                aDirection ) const
+        {
+            MORIS_ERROR(0,"Compute cell side measure deriv not implemented");
+            return 0.0;
+        }
+
         //------------------------------------------------------------------------------
 
     }

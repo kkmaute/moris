@@ -641,7 +641,20 @@ namespace moris
                 tParameterlist( Ik ).resize(1);
             }
 
-            tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+            // choose solver type based on problem size
+            // FIXME: solver should be received from solver warehouse
+            uint tNumberOfCoefficients = aField->get_number_of_coefficients();
+
+            if ( tNumberOfCoefficients*par_size() < 100000 )
+            {
+                tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+            }
+            else
+            {
+                tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
+                tParameterlist( 0 )( 0 ).set( "fact: level-of-fill", 1);
+            }
 
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();

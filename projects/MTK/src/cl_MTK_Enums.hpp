@@ -108,12 +108,26 @@ namespace moris
                 UNDEFINED
         };
 
+        //------------------------------------------------------------------------------
+
         enum class Master_Slave
         {
                 MASTER,
                 SLAVE,
                 UNDEFINED
         };
+
+        moris::map< std::string, Master_Slave > get_master_type_map()
+        {
+            moris::map< std::string, Master_Slave > tMasterTypeMap;
+
+            tMasterTypeMap["MASTER"]    = Master_Slave::MASTER;
+            tMasterTypeMap["SLAVE"]     = Master_Slave::SLAVE;
+            tMasterTypeMap["UNDEFINED"] = Master_Slave::UNDEFINED;
+            return tMasterTypeMap;
+        }
+
+        //------------------------------------------------------------------------------
 
         enum class Primary_Void
         {
@@ -122,6 +136,19 @@ namespace moris
                 INTERP,
                 UNDEFINED
         };
+
+        moris::map< std::string, Primary_Void > get_primary_type_map()
+        {
+            moris::map< std::string, Primary_Void > tPrimaryTypeMap;
+
+            tPrimaryTypeMap["PRIMARY"]   = Primary_Void::PRIMARY;
+            tPrimaryTypeMap["VOID"]      = Primary_Void::VOID;
+            tPrimaryTypeMap["INTERP"]    = Primary_Void::INTERP;
+            tPrimaryTypeMap["UNDEFINED"] = Primary_Void::UNDEFINED;
+            return tPrimaryTypeMap;
+        }
+
+        //------------------------------------------------------------------------------
 
         enum class Field_Type
         {

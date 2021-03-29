@@ -323,16 +323,23 @@ namespace moris
             // ASSIGN DEFAULT PARAMETER VALUES
             // https://docs.trilinos.org/dev/packages/belos/doc/html/classBelos_1_1SolverFactory.html#ad86e61fb180a73c6dd5dbf458df6a86f
 
+            // Examples
+            // https://docs.trilinos.org/dev/packages/belos/doc/html/examples.html
+
             // Determine which solver is used by string
             // options are: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
             //              Pseudoblock TFQMR, Seed GMRES, Seed CG
-            tLinAlgorithmParameterList.insert( "Solver Type" ,  "GMRES" );
+            tLinAlgorithmParameterList.insert( "Solver Type" , "GMRES" );
 
-            tLinAlgorithmParameterList.insert( "Verbosity" ,  INT_MAX );
+            // Level of output details
+            // Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails
+            tLinAlgorithmParameterList.insert( "Verbosity" , INT_MAX );
 
-            tLinAlgorithmParameterList.insert( "Num Blocks", INT_MAX   );
+            // Maximum number of blocks in Krylov factorization
+            tLinAlgorithmParameterList.insert( "Num Blocks", INT_MAX );
 
-            tLinAlgorithmParameterList.insert( "Block Size", INT_MAX   );
+            // Block size to be used by iterative solver
+            tLinAlgorithmParameterList.insert( "Block Size", INT_MAX );
 
             // Allowable Belos solver iterations
             tLinAlgorithmParameterList.insert( "Maximum Iterations" , INT_MAX );
@@ -341,7 +348,7 @@ namespace moris
             tLinAlgorithmParameterList.insert( "Maximum Restarts" , INT_MAX );
 
             // set convergence criteria
-            tLinAlgorithmParameterList.insert( "Convergence Tolerance" ,  1e-08 );
+            tLinAlgorithmParameterList.insert( "Convergence Tolerance" , 1e-08 );
 
             create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
 

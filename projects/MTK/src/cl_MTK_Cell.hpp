@@ -272,7 +272,9 @@ namespace moris
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              */
             virtual moris::real
-            compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const;
+            compute_cell_measure_deriv(
+                    uint aLocalVertexID,
+                    uint aDirection) const;
 
             //------------------------------------------------------------------------------
 
@@ -281,6 +283,20 @@ namespace moris
              */
             virtual moris::real
             compute_cell_side_measure(moris_index const &aCellSideOrd) const;
+
+            //------------------------------------------------------------------------------
+
+            /*
+             * Derivative of the surface Area on side of cell in 3D, line length on side in 2D
+             * @param[in] aCellSideOrd    Side Ordinal for the considered cell side
+             * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, 3, etc).
+             * @param[in] aDirection      Direction to take derivative (0,1, or 2).
+             */
+            virtual moris::real
+            compute_cell_side_measure_deriv(
+                    moris_index const &aCellSideOrd,
+                    uint               aLocalVertexID,
+                    uint               aDirection ) const;
 
             //------------------------------------------------------------------------------
 

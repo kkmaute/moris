@@ -22,16 +22,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Turbulence_Dirichlet_Nitsche::reset_cluster_measures()
-        {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-        }
-
-        //------------------------------------------------------------------------------
-
         void SP_Turbulence_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -85,10 +75,26 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Turbulence_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
+        {
+            return { mElementSizeTuple };
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_Turbulence_Dirichlet_Nitsche::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * this->compute_diffusion_coefficient() / mElementSize;
+            mPPVal = mParameters( 0 ) * this->compute_diffusion_coefficient() / tElementSize;
         }
 
         //------------------------------------------------------------------------------
@@ -96,6 +102,12 @@ namespace moris
         void SP_Turbulence_Dirichlet_Nitsche::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -118,7 +130,7 @@ namespace moris
 
             // add contribution from diffusion coefficient
             mdPPdMasterDof( tDofIndex ) +=
-                    mParameters( 0 ) * tdDiffusiondu / mElementSize;
+                    mParameters( 0 ) * tdDiffusiondu / tElementSize;
         }
 
         //------------------------------------------------------------------------------

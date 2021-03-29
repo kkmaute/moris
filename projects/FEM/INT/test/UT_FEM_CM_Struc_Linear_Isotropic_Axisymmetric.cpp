@@ -74,7 +74,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );

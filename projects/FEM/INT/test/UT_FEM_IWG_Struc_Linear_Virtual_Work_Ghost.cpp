@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -96,11 +97,15 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
     tCMSlaveElastLinIso->set_local_properties();
 
     // define stabilization parameters
-      fem::SP_Factory tSPFactory;
+    fem::SP_Factory tSPFactory;
 
-      std::shared_ptr< fem::Stabilization_Parameter > tSP1 =
-              tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
-      tSP1->set_parameters( {{{ 100.0 }} });
+    std::shared_ptr< fem::Stabilization_Parameter > tSP1 =
+            tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
+    tSP1->set_parameters( {{{ 100.0 }} });
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSP1->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -144,10 +149,10 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
         tIWG->set_normal( tNormal );
 
         // set space dim for CM
-        tCMMasterElastLinIso->set_space_dim( iSpaceDim );
         tCMMasterElastLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMSlaveElastLinIso->set_space_dim( iSpaceDim );
+        tCMMasterElastLinIso->set_space_dim( iSpaceDim );
         tCMSlaveElastLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMSlaveElastLinIso->set_space_dim( iSpaceDim );
 
         // set geometry inputs
         //------------------------------------------------------------------------------

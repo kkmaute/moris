@@ -10,6 +10,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //LINALG/src
@@ -86,6 +87,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tSPSUPG->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPSUPG->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPSUPG->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -404,6 +409,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tSPSUPG->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPSUPG->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPSUPG->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

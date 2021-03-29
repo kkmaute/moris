@@ -22,18 +22,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Viscous_Ghost::reset_cluster_measures()
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Viscous_Ghost::get_cluster_measure_tuple_list()
         {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
+            return { mElementSizeTuple };
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Viscous_Ghost::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the viscosity property
             std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
@@ -42,7 +48,7 @@ namespace moris
             mPPVal =
                     mParameters( 0 ) *
                     tViscosityProp->val()( 0 ) *
-                    std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 );
+                    std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -50,6 +56,12 @@ namespace moris
         void SP_Viscous_Ghost::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -69,7 +81,7 @@ namespace moris
                 // compute contribution from viscosity
                 mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) *
-                        std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 ) *
+                        std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 ) *
                         tViscosityProp->dPropdDOF( aDofTypes );
             }
         }

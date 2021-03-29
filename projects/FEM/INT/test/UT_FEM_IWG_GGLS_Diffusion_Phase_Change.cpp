@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -164,6 +165,9 @@ namespace moris
             tSPGGLSParam->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
             tSPGGLSParam->set_property( tPropMasterHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
 
+            // create a dummy fem cluster and set it to SP
+            fem::Cluster * tCluster = new fem::Cluster();
+            tSPGGLSParam->set_cluster( tCluster );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;

@@ -7,6 +7,7 @@
 
 #include "cl_FEM_IQI.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_norm.hpp"
@@ -2242,6 +2243,16 @@ namespace moris
             // reset QI value
             mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
 
+            // add contribution of cluster measure to dQIdp
+            if( mStabilizationParam.size() > 0 )
+            {
+                // add their contribution to dQIdp
+                this->add_cluster_measure_dQIdp_FD_geometry(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType );
+            }
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
@@ -2401,6 +2412,105 @@ namespace moris
 
                 // reset normal
                 this->set_normal( tNormal );
+            }
+
+            // reset QI value
+            mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
+
+            // add contribution of cluster measure to dQIdp
+            if( mStabilizationParam.size() > 0 )
+            {
+                // add their contribution to dQIdp
+                this->add_cluster_measure_dQIdp_FD_geometry(
+                        aWStar,
+                        aPerturbation,
+                        aFDSchemeType );
+            }
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
+                    "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI::add_cluster_measure_dQIdp_FD_geometry(
+                moris::real                         aWStar,
+                moris::real                         aPerturbation,
+                fem::FDScheme_Type                  aFDSchemeType )
+        {
+            // get the IQI index
+            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+
+            // store QI value
+            Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
+
+            // reset the QI
+            mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+            // compute the QI
+            this->compute_QI( aWStar );
+
+            // store QI value
+            Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+
+            // FIXME init perturbation
+            real tDeltaH = aPerturbation;
+
+            // loop over the cluster measures
+            for( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
+            {
+                // get treated cluster measure
+                std::shared_ptr< Cluster_Measure > & tClusterMeasure =
+                        mCluster->get_cluster_measures()( iCMEA );
+
+                // create FD scheme
+                fd_scheme( aFDSchemeType, tFDScheme );
+                uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward fd
+                if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed QI contribution to dQIdp
+                    mSet->get_dqidpgeo()( tIQIAssemblyIndex ) +=
+                            tFDScheme( 1 )( 0 ) * tQI( 0 ) * tClusterMeasure->dMEAdPDV() /
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
+
+                // loop over point of FD scheme
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // perturb the cluster measure
+                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaH );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset the QI
+                    mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+                    // compute the QI
+                    this->compute_QI( aWStar );
+
+                    // evaluate dQIdpGeo
+                    mSet->get_dqidpgeo()( tIQIAssemblyIndex ) +=
+                            tFDScheme( 1 )( iPoint ) *
+                            mSet->get_QI()( tIQIAssemblyIndex )( 0 ) * tClusterMeasure->dMEAdPDV()/
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // reset cluster measures
+                    mCluster->reset_cluster_measure();
+                }
             }
 
             // reset QI value

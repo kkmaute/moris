@@ -446,8 +446,8 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tCMStrucLinIso1->set_property( tPropEMod, "YoungsModulus" );
                 tCMStrucLinIso1->set_property( tPropNua, "PoissonRatio" );
-                tCMStrucLinIso1->set_space_dim( 2 );
                 tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+                tCMStrucLinIso1->set_space_dim( 2 );
                 tCMStrucLinIso1->set_local_properties();
 
                 // define stabilization parameters

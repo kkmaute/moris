@@ -9,6 +9,7 @@
 #define SRC_FEM_CL_FEM_ENUMS_HPP_
 
 #include "assert.hpp"
+#include "cl_Map.hpp"
 
 namespace moris
 {
@@ -80,6 +81,8 @@ namespace moris
 
                 COMPRESSIBLE_NS_BULK,
                 COMPRESSIBLE_NS_BOUNDARY,
+                COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE,
                 
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
@@ -119,6 +122,7 @@ namespace moris
                 DOF,
                 MAX_DOF,
                 PROPERTY,
+                STABILIZATION,
                 L2_ERROR_ANALYTIC,
                 H1_ERROR_ANALYTIC,
                 H1_ERROR,
@@ -156,7 +160,6 @@ namespace moris
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
-                STRUC_LIN_ISO_AXISYMMETRIC,
                 FLUID_INCOMPRESSIBLE,
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,
@@ -194,6 +197,7 @@ namespace moris
                 UNDEFINED,
                 PLANE_STRESS,
                 PLANE_STRAIN,
+                AXISYMMETRIC,
                 FULL,
                 HYDROSTATIC, // not implemented yet
                 DEVIATORIC,
@@ -221,26 +225,40 @@ namespace moris
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
             COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE,
+            COMPRESSIBLE_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
             TURBULENCE_DIRICHLET_NITSCHE,
             SPALART_ALLMARAS_NITSCHE_INTERFACE,
             PENALTY_CONTACT,
             STAB_PENALTY_CONTACT,
+            MEASURE,
             END_STABILIZATION_TYPE
         };
 
         //------------------------------------------------------------------------------
 
-        enum class Cluster_Measure
+        enum class Measure_Type
         {
                 UNDEFINED,
-                MASTER_VOLUME,
-                SLAVE_VOLUME,
-                INTERFACE_SURFACE,
-                ELEMENT_SIZE,
-                END_CLUSTER_MEASURE
+                CELL_MEASURE,
+                CELL_SIDE_MEASURE,
+                CELL_LENGTH_MEASURE,
+                END_MEASURE_TYPE
         };
+
+        map< std::string, enum fem::Measure_Type > get_measure_type_map()
+        {
+            map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
+
+            tFemMeasureTypeMap["UNDEFINED"]           = fem::Measure_Type::UNDEFINED;
+            tFemMeasureTypeMap["CELL_MEASURE"]        = fem::Measure_Type::CELL_MEASURE;
+            tFemMeasureTypeMap["CELL_SIDE_MEASURE"]   = fem::Measure_Type::CELL_SIDE_MEASURE;
+            tFemMeasureTypeMap["CELL_LENGTH_MEASURE"] = fem::Measure_Type::CELL_LENGTH_MEASURE;
+            tFemMeasureTypeMap["END_MEASURE_TYPE"]    = fem::Measure_Type::END_MEASURE_TYPE;
+
+            return tFemMeasureTypeMap;
+        }
 
         //------------------------------------------------------------------------------
 

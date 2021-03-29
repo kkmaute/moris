@@ -107,13 +107,6 @@ namespace moris
                 void compute_dRdp( real aWStar );
 
                 //------------------------------------------------------------------------------
-                /**
-                 * check that the set of residual DoF types is valid
-                 * and supported by the implementation
-                 */
-                bool check_residual_dof_types();
-
-                //------------------------------------------------------------------------------
 
         };
         //------------------------------------------------------------------------------

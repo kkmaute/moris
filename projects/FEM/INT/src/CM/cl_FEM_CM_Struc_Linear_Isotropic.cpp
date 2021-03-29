@@ -5,6 +5,7 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
+#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -24,6 +25,7 @@ namespace moris
             mPropertyMap[ "CTE" ]                  = static_cast< uint >( CM_Property_Type::CTE );
             mPropertyMap[ "PropertyTemperature" ]  = static_cast< uint >( CM_Property_Type::TEMP_PROP );
             mPropertyMap[ "ReferenceTemperature" ] = static_cast< uint >( CM_Property_Type::TEMP_REF );
+            mPropertyMap[ "AxisymRotationAxis" ]   = static_cast< uint >( CM_Property_Type::ROT_AXI );
         }
 
         //------------------------------------------------------------------------------
@@ -88,6 +90,9 @@ namespace moris
             // set the reference temperature property
             mPropTRef = get_property( "ReferenceTemperature" );
 
+            // set the reference temperature property
+            mPropRotAxis = get_property( "AxisymRotationAxis" );
+
             // check that essential properties exist
             MORIS_ASSERT( mPropEMod,
                     "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n");
@@ -100,6 +105,12 @@ namespace moris
             {
                 MORIS_ASSERT( mPropTRef,
                         "CM_Struc_Linear_Isotropic::set_local_properties - ReferenceTemperature property does not exist.\n");
+            }
+
+            if ( mPlaneType == Model_Type::AXISYMMETRIC )
+            {
+                MORIS_ASSERT( mPropRotAxis,
+                        "CM_Struc_Linear_Isotropic::set_local_properties - Rotation Axis property not defined.\n");
             }
         }
 
@@ -115,26 +126,28 @@ namespace moris
                     m_eval_teststrain   = &CM_Struc_Linear_Isotropic::eval_teststrain_2d;
                     m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_2d;
 
-                    mStrain.set_size( 3, 1, 0.0 );
-
                     switch( mPlaneType )
                     {
                         case Model_Type::PLANE_STRESS :
                         {
+                            mStrain.set_size( 3, 1, 0.0 );
+                            mConst.set_size( 3, 3, 0.0 );
                             m_eval_inv_bulk_modulus = &CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_plane_stress;
+
+                            // list number of normal stresses and strains
+                            mNumNormalStress = 2;
+                            mNumNormalStrain = 2;
 
                             switch( mTensorType )
                             {
                                 case Model_Type::FULL :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::full_plane_stress;
-                                    mConst.set_size( 3, 3, 0.0 );
                                     break;
                                 }
                                 case Model_Type::DEVIATORIC :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_plane_stress;
-                                    mConst.set_size( 3, 3, 0.0 );
                                     break;
                                 }
                                 default:
@@ -146,18 +159,23 @@ namespace moris
                         }
                         case Model_Type::PLANE_STRAIN :
                         {
+                            mStrain.set_size( 3, 1, 0.0 );
+                            mConst.set_size( 4, 3, 0.0 );
+
+                            // list number of normal stresses and strains
+                            mNumNormalStress = 3;
+                            mNumNormalStrain = 2;
+
                             switch( mTensorType )
                             {
                                 case Model_Type::FULL :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::full_plane_strain;
-                                    mConst.set_size( 4, 3, 0.0 );
                                     break;
                                 }
                                 case Model_Type::DEVIATORIC :
                                 {
                                     mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_plane_strain;
-                                    mConst.set_size( 4, 3, 0.0 );
                                     break;
                                 }
                                 default:
@@ -167,9 +185,38 @@ namespace moris
                             }
                             break;
                         }
+                        case Model_Type::AXISYMMETRIC :
+                        {
+                            mStrain.set_size( 4, 1, 0.0 );
+                            mConst.set_size( 4, 4, 0.0 );
+
+                            // list number of normal stresses and strains
+                            mNumNormalStress = 3;
+                            mNumNormalStrain = 3;
+
+                            switch( mTensorType )
+                            {
+                                case Model_Type::FULL :
+                                {
+                                    mConstFunc = &CM_Struc_Linear_Isotropic::full_axisymmetric;
+                                    break;
+                                }
+                                case Model_Type::DEVIATORIC :
+                                {
+                                    mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_axisymmetric;
+                                    break;
+                                }
+                                default:
+                                {
+                                    MORIS_ERROR(false, "Only full and deviatoric tensors implemented for axisymmetric");
+                                }
+                            }
+                            break;
+                        }
                         default:
                         {
-                            MORIS_ERROR(false, "Linear isotropic elasticity in 2d requires plane stress or plane strain models");
+                            MORIS_ERROR(false, "Linear isotropic elasticity in 2d requires "
+                                    "plane stress, plane strain, or axisymmetric models");
                         }
                     }
                     break;
@@ -181,19 +228,22 @@ namespace moris
                     m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_3d;
 
                     mStrain.set_size( 6, 1, 0.0 );
+                    mConst.set_size( 6, 6, 0.0 );
+
+                    // list number of normal stresses and strains
+                    mNumNormalStress = 3;
+                    mNumNormalStrain = 3;
 
                     switch(mTensorType)
                     {
                         case Model_Type::FULL :
                         {
                             mConstFunc = &CM_Struc_Linear_Isotropic::full_3d;
-                            mConst.set_size( 6, 6, 0.0 );
                             break;
                         }
                         case Model_Type::DEVIATORIC :
                         {
                             mConstFunc = &CM_Struc_Linear_Isotropic::deviatoric_3d;
-                            mConst.set_size( 6, 6, 0.0 );
                             break;
                         }
                         default:
@@ -225,11 +275,11 @@ namespace moris
                         mFIManager->get_field_interpolators_for_type( mDofPressure );
 
                 // create identity matrix
-                Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
+                Matrix< DDRMat > tI( mNumNormalStress, 1, 1.0 );
 
                 // evaluate pressure contribution to flux
-                Matrix< DDRMat > tP( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
-                tP( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPressureFI->val();
+                Matrix< DDRMat > tP( mConst.n_rows(), 1, 0.0 );
+                tP( { 0, mNumNormalStress - 1 }, { 0, 0 } ) = tI * tPressureFI->val();
 
                 // add contribution to the flux
                 mFlux -= tP;
@@ -286,18 +336,40 @@ namespace moris
 
             // evaluate the strain
             mStrain.fill( 0.0 );
-            mStrain( 0, 0 ) = tDisplGradx( 0, 0 );
-            mStrain( 1, 0 ) = tDisplGradx( 1, 1 );
-            mStrain( 2, 0 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
+
+            // x and y normal strains
+            mStrain( 0 ) = tDisplGradx( 0, 0 );
+            mStrain( 1 ) = tDisplGradx( 1, 1 );
+
+            // assign normal strain in azimuthal direction
+            if ( mPlaneType == Model_Type::AXISYMMETRIC )
+            {
+                // get the displacements and outward radial vector for azimuthal strain
+                Matrix< DDRMat > tDispl = mFIManager->get_field_interpolators_for_type(mDofDispl)->val();
+                Matrix< DDRMat > tOtbdRadVec = mPropRotAxis->val();
+
+                // normal strain in azimuthal direction u_r / r
+                // here {u}.*{n_r} / (r) where {n_r} = unit outward radial vector from line to point
+                mStrain( 2 ) = dot( tDispl, tOtbdRadVec({2,3}) ) / ( tOtbdRadVec(1) );
+
+                // 12 shear stress
+                mStrain( 3 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
+            }
+
+            // 12 shear stress for plane stress or plane strain
+            else
+            {
+                mStrain( 2 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
+            }
 
             // if thermal expansion
             if ( mPropCTE )
             {
                 // build thermal expansion vector
-                Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
-                Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
+                Matrix< DDRMat > tThermalExpansionVector( mStrain.numel(), 1, 0.0 );
+                Matrix< DDRMat > tI( mNumNormalStrain, 1, 1.0 );
 
-                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
+                tThermalExpansionVector( { 0, mNumNormalStrain - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // get temperature field interpolator
                 Field_Interpolator* tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemp );
@@ -391,12 +463,45 @@ namespace moris
             uint tNumBases = tFIDispl->get_number_of_space_time_bases();
 
             // build the test strain
-            mTestStrain.set_size( 3, tNumBases * 2, 0.0 );
-            mTestStrain( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 2, 2 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+            mTestStrain.set_size( mStrain.numel(), tNumBases * 2, 0.0 );
 
+            // [dN/dx1]
+            mTestStrain( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+
+            // [dN/dx2]
             mTestStrain( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-            mTestStrain( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+
+            if ( mPlaneType == Model_Type::AXISYMMETRIC )
+            {
+                // get the displacements and outward radial vector for azimuthal strain
+                // in the form tOtbdRadVec = {{2*pi*r},{r},{n1},{n2}}
+                // where n1 and n2 are components of the unit outboard normal
+                Matrix< DDRMat > tOtbdRadVec = mPropRotAxis->val();
+
+                // compute interpolation function and location
+                const Matrix< DDRMat > & tN = tFIDispl->NBuild().matrix_data();
+
+                /*
+                 * Axisymmetric strain using u_r and radial location
+                 * This is essentially [N]*{u}.*{n_r}/r.
+                 * Since {u} = {{u1},{0}} for the u1 vector,  {u}.*{n_r} = u1*n_r1
+                 * Same goes for u2 direction
+                 */
+                mTestStrain( { 2, 2 }, { 0, tNumBases - 1 } )             = tN * tOtbdRadVec(2) / tOtbdRadVec(1);
+                mTestStrain( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tN * tOtbdRadVec(3) / tOtbdRadVec(1);
+
+                // [ dN/dX2   dN/dX1 ]
+                mTestStrain( { 3, 3 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mTestStrain( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            }
+
+            // plane stress and plane strain
+            else
+            {
+                // [ dN/dX2   dN/dX1 ]
+                mTestStrain( { 2, 2 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mTestStrain( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -526,7 +631,7 @@ namespace moris
 
             // init mdFluxdDof
             mdFluxdDof( tDofIndex ).set_size(
-                    ( mSpaceDim - 1 ) * 3,
+                    mConst.n_rows(),
                     tFI->get_number_of_space_time_coefficients(),
                     0.0 );
 
@@ -541,9 +646,9 @@ namespace moris
             if ( aDofTypes( 0 ) == mDofPressure )
             {
                 // create identity matrix
-                Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-                Matrix< DDRMat > tII( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
-                tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
+                Matrix< DDRMat > tI( mNumNormalStress, 1, 1.0 );
+                Matrix< DDRMat > tII( mConst.n_rows(), 1, 0.0 );
+                tII( { 0, mNumNormalStress - 1 }, { 0, 0 } ) = tI.matrix_data();
 
                 // get shape function for presure field
                 Matrix< DDRMat > tPressureN = tFI->N();
@@ -637,7 +742,7 @@ namespace moris
 
             // init mdStraindDof
             mdStraindDof( tDofIndex ).set_size(
-                    ( mSpaceDim - 1 ) * 3,
+                    mStrain.numel(),
                     tFI->get_number_of_space_time_coefficients(),
                     0.0 );
 
@@ -652,9 +757,9 @@ namespace moris
             if ( mPropCTE && aDofTypes( 0 ) == mDofTemp )
             {
                 // build thermal expansion vector
-                Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
-                Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
+                Matrix< DDRMat > tThermalExpansionVector( mStrain.numel(), 1, 0.0 );
+                Matrix< DDRMat > tI( mNumNormalStrain, 1, 1.0 );
+                tThermalExpansionVector( { 0, mNumNormalStrain - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // compute derivatives
                 mdStraindDof( tDofIndex ) -= tThermalExpansionVector * tFI->N();
@@ -664,10 +769,10 @@ namespace moris
             if ( mPropCTE )
             {
                 // create identity matrix
-                Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-                Matrix< DDRMat > tII( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
+                Matrix< DDRMat > tI( mNumNormalStrain, 1, 1.0 );
+                Matrix< DDRMat > tII( mStrain.numel(), 1, 0.0 );
 
-                tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
+                tII( { 0, mNumNormalStrain - 1 }, { 0, 0 } ) = tI.matrix_data();
 
                 //  dof dependency of CTE
                 if ( mPropCTE->check_dof_dependency( aDofTypes ) )
@@ -723,11 +828,12 @@ namespace moris
                 const Matrix< DDRMat > & aNormal,
                 Matrix< DDRMat >       & aFlatNormal )
         {
-            aFlatNormal.set_size( 2, 3, 0.0 );
+            // num cols based on number of flux terms
+            aFlatNormal.set_size( 2, mConst.n_rows(), 0.0 );
             aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
-            aFlatNormal( 0, 2 ) = aNormal( 1, 0 );
+            aFlatNormal( 0, mConst.n_rows() - 1 ) = aNormal( 1, 0 );
             aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
-            aFlatNormal( 1, 2 ) = aNormal( 0, 0 );
+            aFlatNormal( 1, mConst.n_rows() - 1 ) = aNormal( 0, 0 );
         }
 
         void CM_Struc_Linear_Isotropic::flatten_normal_3d(
@@ -765,8 +871,9 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::set_model_type( Model_Type aModelType )
         {
+            // fixme: currently cannot set plane type and a tensor type at the same time from an input file
             // store model type based on input
-            if ( aModelType == Model_Type::PLANE_STRESS or aModelType == Model_Type::PLANE_STRAIN )
+            if ( aModelType == Model_Type::PLANE_STRESS or aModelType == Model_Type::PLANE_STRAIN or aModelType == Model_Type::AXISYMMETRIC )
             {
                 mPlaneType = aModelType;
             }
@@ -779,9 +886,6 @@ namespace moris
                 MORIS_ASSERT( false,
                         "CM_Struc_Linear_Isotropic::set_model_type - Specified linear isotropic elasticity model type doesn't exist." );
             }
-
-            // set function pointers
-            this->set_function_pointers();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -882,6 +986,50 @@ namespace moris
             mConst( 2, 0 ) = tPre;
             mConst( 2, 1 ) = tPre;
             mConst( 3, 2 ) = tPre * 3.0 / 2.0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::full_axisymmetric(
+                moris::real aEmod,
+                moris::real aNu )
+        {
+            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+
+            mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
+            mConst( 0, 1 ) = tPre * aNu;
+            mConst( 1, 0 ) = tPre * aNu;
+            mConst( 1, 1 ) = tPre * ( 1.0 - aNu );
+            mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+
+            // axisymmetric contribution
+            mConst( 0, 2 ) = tPre * aNu;
+            mConst( 1, 2 ) = tPre * aNu;
+            mConst( 2, 0 ) = tPre * aNu;
+            mConst( 2, 1 ) = tPre * aNu;
+            mConst( 2, 2 ) = tPre * ( 1.0 - aNu );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::deviatoric_axisymmetric(
+                moris::real aEmod,
+                moris::real aNu )
+        {
+            moris::real tPre = aEmod / (3.0 * (1.0 + aNu ) );
+
+            mConst( 0, 0 ) = tPre * 4.0;
+            mConst( 0, 1 ) = tPre;
+            mConst( 1, 0 ) = tPre;
+            mConst( 1, 1 ) = tPre * 4.0;
+            mConst( 3, 3 ) = tPre * 3.0 / 2.0;
+
+            // axisymmetric contribution
+            mConst( 0, 2 ) = tPre;
+            mConst( 1, 2 ) = tPre;
+            mConst( 2, 0 ) = tPre;
+            mConst( 2, 1 ) = tPre;
+            mConst( 2, 2 ) = tPre * 4.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------

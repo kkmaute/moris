@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 
@@ -88,6 +89,11 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             tSPFactory.create_SP( fem::Stabilization_Type::TIME_VELOCITY_GHOST );
     tSPTimeGhost->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
     tSPTimeGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPViscousGhost->set_cluster( tCluster );
+    tSPTimeGhost->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -418,6 +424,10 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     tSPConvectiveGhost->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
     tSPConvectiveGhost->set_parameters( {{{ 1.0 }} });
     tSPConvectiveGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPConvectiveGhost->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

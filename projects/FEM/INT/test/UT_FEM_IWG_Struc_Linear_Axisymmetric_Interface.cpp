@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -83,7 +84,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
@@ -91,7 +93,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     tCMMasterStrucLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMSlaveStrucLinIso->set_dof_type_list( tDofTypes );
     tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
     tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
@@ -106,6 +109,10 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     tSPNitscheInterface->set_parameters( { {{ 100.0 }} } );
     tSPNitscheInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
     tSPNitscheInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitscheInterface->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

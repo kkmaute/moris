@@ -32,7 +32,7 @@ namespace moris
                 int mNumElemBlk   = -1;
                 int mNumNodeSets  = -1;
                 int mNumSideSets  = -1;
-                char * mTitle     = nullptr;
+                std::string mTitle;
 
                 // Coordinates
                 Matrix<DDRMat> mX;
@@ -196,10 +196,9 @@ namespace moris
                  * from seacas test rd_wt_mesh.c
                  *
                  */
-                void get_file_name(
-                        const char *base,
-                        const char *other,
-                        char       *output);
+                std::string get_file_name(
+                        const std::string & base,
+                        const std::string & other = "");
 
                 static void setup_names(
                         int nnames, std::vector<char>& storage,
@@ -208,10 +207,10 @@ namespace moris
             public:
 
                 Exodus_IO_Helper(
-                        const char * aExodusFile,
-                        const int    aTimeStepIndex = 0,
-                        const bool   aBuildGlobal   = false,
-                        const bool   aVerbose       = false);
+                        const std::string & aExodusFile,
+                        const int           aTimeStepIndex = 0,
+                        const bool          aBuildGlobal   = false,
+                        const bool          aVerbose       = false);
 
                 ~Exodus_IO_Helper();
 

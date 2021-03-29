@@ -22,17 +22,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Time_Velocity_Ghost::reset_cluster_measures()
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Time_Velocity_Ghost::get_cluster_measure_tuple_list()
         {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
+            return { mElementSizeTuple };
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Time_Velocity_Ghost::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the density property
             std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
@@ -42,7 +49,7 @@ namespace moris
 
             // compute stabilization parameter value
             mPPVal =
-                    mParameters( 0 ) * std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 3.0 ) *
+                    mParameters( 0 ) * std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 3.0 ) *
                     tDensityProp->val()( 0 )  / ( mParameters( 1 )( 0 ) * tDeltaT );
         }
 
@@ -51,6 +58,12 @@ namespace moris
         void SP_Time_Velocity_Ghost::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -72,7 +85,7 @@ namespace moris
             {
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ) +=
-                        mParameters( 0 ) * std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 3.0 ) *
+                        mParameters( 0 ) * std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 3.0 ) *
                         tDensityProp->dPropdDOF( aDofTypes ) / ( mParameters( 1 )( 0 ) * tDeltaT );
             }
         }

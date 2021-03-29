@@ -299,6 +299,19 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        moris::real
+        Cell_Info_Quad4::compute_cell_side_size_deriv(
+                moris::mtk::Cell const * aCell,
+                moris_index const      & aSideOrd,
+                uint                     aLocalVertexID,
+                uint                     aDirection ) const
+        {
+            MORIS_ERROR(false,"compute_cell_side_size_deriv not implemented for Cell_Info_Quad4 yet.");
+            return 0.0;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         void
         Cell_Info_Quad4::eval_N(
                 const Matrix< DDRMat > & aXi,

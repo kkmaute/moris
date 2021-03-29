@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -102,6 +103,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tSPNitscheInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
     tSPNitscheInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitscheInterface->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -145,10 +150,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         tIWG->set_normal( tNormal );
 
         // set space dim for CM
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMSlaveStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMSlaveStrucLinIso->set_space_dim( iSpaceDim );
         tSPNitscheInterface->set_space_dim( iSpaceDim );
 
         // set geometry inputs
