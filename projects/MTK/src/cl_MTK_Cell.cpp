@@ -36,9 +36,19 @@ namespace moris
             return mCellInfo.get();
         }
         //------------------------------------------------------------------------------
+
+        std::shared_ptr<mtk::Cell_Info>
+        Cell::get_cell_info_sp() const
+        {
+            MORIS_ASSERT(mCellInfo != nullptr,"Cell info not set");
+            return mCellInfo;
+        }
+
+        //------------------------------------------------------------------------------
         void
         Cell::set_mtk_cell_info( std::shared_ptr<moris::mtk::Cell_Info> aCellInfo)
         {
+            std::cout<<"SETTING set_mtk_cell_info"<<std::endl;
             mCellInfo = aCellInfo;
         }
 

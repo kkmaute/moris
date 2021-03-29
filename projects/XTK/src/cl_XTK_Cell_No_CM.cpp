@@ -13,15 +13,12 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-    Cell_XTK_No_CM::Cell_XTK_No_CM(moris::moris_id              aElementId,
-                                   moris::moris_index          aElementIndex,
-                                   moris::moris_index          aElementOwner,
-                                   mtk::Cell_Info const *      aCellInfo,
-                                   moris::Cell< mtk::Vertex* > aVertices):
-                           mCellInfo(aCellInfo),
-                           mCellId(aElementId),
-                           mCellInd(aElementIndex),
-                           mCellOwner(aElementOwner),
+    Cell_XTK_No_CM::Cell_XTK_No_CM(moris::moris_id                 aElementId,
+                                   moris::moris_index              aElementIndex,
+                                   moris::moris_index              aElementOwner,
+                                   std::shared_ptr<mtk::Cell_Info> aCellInfo,
+                                   moris::Cell< mtk::Vertex* >     aVertices)
+                                   : Cell(aElementId,aElementIndex,aElementOwner, aCellInfo),
                            mCellVertices(aVertices)
                            {}
 
@@ -47,38 +44,6 @@ namespace xtk
         return tVertexCoords;
     }
 
-    moris::Cell<moris::mtk::Vertex const *>
-    Cell_XTK_No_CM::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-        moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
-
-        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_node_to_facet_map(aSideOrdinal);
-
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
-        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
-        {
-            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
-        }
-        return tVerticesOnSide;
-    }
-
-    moris::real
-    Cell_XTK_No_CM::compute_cell_measure() const
-    {
-       return mCellInfo->compute_cell_size(this);
-    }
-
-    moris::real
-    Cell_XTK_No_CM::compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const
-    {
-       return mCellInfo->compute_cell_size_deriv(this, aLocalVertexID, aDirection);
-    }
-
-    moris::real
-    Cell_XTK_No_CM::compute_cell_side_measure(moris_index const & aSideOrdinal) const
-    {
-       return mCellInfo->compute_cell_side_size(this,aSideOrdinal);
-    }
 
 }
 

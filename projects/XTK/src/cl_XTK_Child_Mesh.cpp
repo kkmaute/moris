@@ -286,7 +286,12 @@ namespace xtk
         return mConnectivity.get();
     }
     // ----------------------------------------------------------------------------------
-
+    std::shared_ptr<moris::mtk::Cell_Info>
+    Child_Mesh::get_cell_info_sp() const
+    {
+        return mConnectivity;
+    }
+    // ----------------------------------------------------------------------------------
     moris::Matrix< moris::IndexMat > const &
     Child_Mesh::get_element_to_node() const
     {

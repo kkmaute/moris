@@ -1582,7 +1582,7 @@ namespace xtk
         
         MORIS_ERROR(this->check_for_all_cell_vertices_on_interface(),"All vertices of a cell on the interface");
 
-        MORIS_ERROR(this->check_for_degenerated_cells(),"Degenerated Cells Detected");
+        // MORIS_ERROR(this->check_for_degenerated_cells(),"Degenerated Cells Detected");
 
         // iterate through child meshes
         for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
@@ -2319,8 +2319,8 @@ namespace xtk
         // cleanup the mesh
         if(mCleanupMesh)
         {
-            Mesh_Cleanup tMeshCleanup(this,&mParameterList);
-            tMeshCleanup.perform();
+            // Mesh_Cleanup tMeshCleanup(this,&mParameterList);
+            // tMeshCleanup.perform();
         }
 
         // this catches the missed interfaces due to coincidence

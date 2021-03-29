@@ -295,7 +295,7 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-                std::shared_ptr<Cell_Info> tHex8 = std::shared_ptr<Cell_Info_Hex8>();
+                std::shared_ptr<Cell_Info> tHex8 = std::make_shared<Cell_Info_Hex8>();
                 Cell_STK tCell(tHex8, 1, 0, tElementVertices, tMesh);
 
                 // Some checks on the cell

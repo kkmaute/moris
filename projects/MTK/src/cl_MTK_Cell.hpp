@@ -75,6 +75,11 @@ namespace moris
             //------------------------------------------------------------------------------
             mtk::Cell_Info  const *
             get_cell_info() const;
+
+            //------------------------------------------------------------------------------
+
+            std::shared_ptr<mtk::Cell_Info>
+            get_cell_info_sp() const;
             //------------------------------------------------------------------------------
             void
             set_mtk_cell_info( std::shared_ptr<moris::mtk::Cell_Info> aCellInfo);
