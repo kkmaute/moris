@@ -38,9 +38,6 @@ namespace moris
                 MSI::Dof_Type mDofVelocity    = MSI::Dof_Type::VX;
                 MSI::Dof_Type mDofTemperature = MSI::Dof_Type::TEMP;
 
-                // flag indicating what variable set is being used
-                fem::Variable_Set mVariableSet = fem::Variable_Set::UNDEFINED;
-
                 // storage for flux jacobians
                 bool mFluxAMatEval = true;
                 bool mFluxADofMatEval = true;
@@ -194,26 +191,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * Compute Flux matrices for residual computation
-                 */
-                void compute_Flux_Matrices();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * check that the set of residual DoF types is valid
-                 * and supported by the implementation
-                 */
-                bool check_residual_dof_types();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * check that the set of DoF dependencies is valid
-                 * and supported by the implementation
-                 */
-                bool check_dof_dependencies();
-
-                //------------------------------------------------------------------------------
-                /**
                  * assemble the state variables and their derivatives
                  * into vectors and matrices
                  */
@@ -237,11 +214,6 @@ namespace moris
                  * evaluate the DoF derivatives of the A flux matrices for the Jacobians
                  */
                 void eval_A_DOF_matrices();
-                
-                void eval_A0_DOF();
-                void eval_A1_DOF(); 
-                void eval_A2_DOF(); 
-                void eval_A3_DOF();                  
 
                 //------------------------------------------------------------------------------
                 /**

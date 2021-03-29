@@ -151,6 +151,15 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
+            moris::real
+            compute_cell_side_size_deriv(
+                    moris::mtk::Cell const *aCell,
+                    moris_index const      &aSideOrd,
+                    uint                    aLocalVertexID,
+                    uint                    aDirection ) const;
+
+            // ----------------------------------------------------------------------------------
+
             void
             eval_N(const Matrix<DDRMat> &aXi,
                    Matrix<DDRMat> &aNXi) const;

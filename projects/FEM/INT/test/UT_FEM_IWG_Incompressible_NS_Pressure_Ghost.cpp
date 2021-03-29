@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 
@@ -91,6 +92,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
     tSPPressureGhost->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
     tSPPressureGhost->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPPressureGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPPressureGhost->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

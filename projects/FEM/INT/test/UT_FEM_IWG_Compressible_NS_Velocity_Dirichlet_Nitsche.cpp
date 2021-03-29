@@ -9,6 +9,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //LINALG/src
@@ -134,6 +135,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
             tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE );
     tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
     tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // loop over different Nitsche types
     for( uint iNitsche = 0; iNitsche < 2; iNitsche++ )
@@ -583,6 +588,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
     tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
     tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
+
     // loop over different Nitsche types
     for( uint iNitsche = 0; iNitsche < 2; iNitsche++ )
     {
@@ -1017,6 +1026,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
             tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE );
     tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
     tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // loop over different Nitsche types
     for( uint iNitsche = 0; iNitsche < 2; iNitsche++ )

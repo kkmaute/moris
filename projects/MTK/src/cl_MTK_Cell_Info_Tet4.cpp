@@ -298,6 +298,48 @@ namespace moris
 
             return norm(cross(tNodeCoords10, tNodeCoords20)) / 2.0;
         }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Cell_Info_Tet4::compute_cell_side_size_deriv(
+                moris::mtk::Cell const * aCell,
+                moris_index const      & aSideOrd,
+                uint                     aLocalVertexID,
+                uint                     aDirection ) const
+        {
+            // get vertex pointers on cell side
+            moris::Cell<mtk::Vertex const *> tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
+
+            // permutation vector used to index correct vertices
+            moris::Matrix< DDUMat > tVertIndexMap = {{1,2,0,1}};
+
+            // getting adjacent vertices to vertex of interest
+            const Matrix<DDRMat> tNodeCoordsA = tVertices( tVertIndexMap( aLocalVertexID ))->get_coords();
+            const Matrix<DDRMat> tNodeCoordsB = tVertices( tVertIndexMap( aLocalVertexID + 1 ))->get_coords();
+
+            MORIS_ASSERT(tNodeCoordsA.numel() == 3,"Cell_Info_Tet4::compute_cell_size_deriv only works in 3D.\n");
+            MORIS_ASSERT( aDirection < 3,"Cell_Info_Tet4::compute_cell_size_deriv directions can only be 0, 1, or 2.\n");
+            MORIS_ASSERT( aLocalVertexID < 3,"Cell_Info_Tet4::compute_cell_size_deriv vertex IDs must be 0, 1, or 3.\n");
+
+            // get cell side measure
+            const Matrix<DDRMat> tNodeCoords0  = tVertices(0)->get_coords();
+            const Matrix<DDRMat> tNodeCoords10 = tVertices(1)->get_coords() - tNodeCoords0;
+            const Matrix<DDRMat> tNodeCoords20 = tVertices(2)->get_coords() - tNodeCoords0;
+            Matrix< DDRMat > tCross = cross( tNodeCoords10, tNodeCoords20 );
+            real tArea = norm( tCross );
+
+            // derivative of the cross product wrt coordinate specified by aLocalVertexID and aDirection
+            Matrix< DDRMat > tSelect( 1, 3, 0.0 );
+            tSelect( aDirection ) = 1.0;
+            Matrix< DDRMat > tCrossDerivative = cross( tSelect, tNodeCoordsA - tNodeCoordsB );
+
+            // computes the derivative of the area wrt to the single dof/direction.
+            moris::real tAreaDeriv = 0.5 * dot( tCross, tCrossDerivative ) / tArea;
+
+            return tAreaDeriv;
+        }
+
         // ----------------------------------------------------------------------------------
     } // namespace mtk
 } // namespace moris

@@ -8,6 +8,7 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Cluster_Measure.hpp"
 
 namespace moris
 {
@@ -53,6 +54,14 @@ namespace moris
                 }
             }
             std::cout<<"----------"<<std::endl;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Stabilization_Parameter::set_cluster( fem::Cluster * aCluster )
+        {
+            // set a cluster
+            mCluster = aCluster;
         }
 
         //------------------------------------------------------------------------------

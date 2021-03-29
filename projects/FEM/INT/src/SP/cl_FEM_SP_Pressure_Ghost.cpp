@@ -23,16 +23,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Pressure_Ghost::reset_cluster_measures()
-        {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
-        }
-
-        //------------------------------------------------------------------------------
-
         void SP_Pressure_Ghost::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -85,8 +75,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Pressure_Ghost::get_cluster_measure_tuple_list()
+        {
+            return { mElementSizeTuple };
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_Pressure_Ghost::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the viscosity and density property
             std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
@@ -113,12 +119,12 @@ namespace moris
 
             // compute deltaP
             real tDeltaP =
-                    tViscosityProp->val()( 0 ) / mElementSize +
+                    tViscosityProp->val()( 0 ) / tElementSize +
                     tDensityProp->val()( 0 ) * tInfinityNorm / 6.0 +
-                    tDensityProp->val()( 0 ) * mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT );
+                    tDensityProp->val()( 0 ) * tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT );
 
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2 * mOrder ) / tDeltaP;
+            mPPVal = mParameters( 0 ) * std::pow( tElementSize, 2 * mOrder ) / tDeltaP;
         }
 
         //------------------------------------------------------------------------------
@@ -126,6 +132,12 @@ namespace moris
         void SP_Pressure_Ghost::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -165,9 +177,9 @@ namespace moris
 
             // compute deltaP
             real tDeltaP = 
-                    tViscosityProp->val()( 0 ) / mElementSize +
+                    tViscosityProp->val()( 0 ) / tElementSize +
                     tDensityProp->val()( 0 ) * tInfinityNorm / 6.0 +
-                    tDensityProp->val()( 0 ) * mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT );
+                    tDensityProp->val()( 0 ) * tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT );
 
             // if dof type == velocity
             if( aDofTypes( 0 ) == mMasterDofVelocity )
@@ -181,7 +193,7 @@ namespace moris
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ) -=
-                        mParameters( 0 )( 0 ) * std::pow( mElementSize, 2 * mOrder ) *
+                        mParameters( 0 )( 0 ) * std::pow( tElementSize, 2 * mOrder ) *
                         tDensityProp->val()( 0 ) * tdInfinityNormdu /
                         ( 6.0 * std::pow( tDeltaP, 2.0 ) );
             }
@@ -191,9 +203,9 @@ namespace moris
             {
                 // compute contribution from viscosity
                 mdPPdMasterDof( tDofIndex ) -=
-                        mParameters( 0 )( 0 ) * std::pow( mElementSize, 2 * mOrder ) *
+                        mParameters( 0 )( 0 ) * std::pow( tElementSize, 2 * mOrder ) *
                         tViscosityProp->dPropdDOF( aDofTypes ) /
-                        ( mElementSize * std::pow( tDeltaP, 2.0 ) );
+                        ( tElementSize * std::pow( tDeltaP, 2.0 ) );
             }
 
             // if density depends on dof type
@@ -201,9 +213,9 @@ namespace moris
             {
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ) -=
-                        mParameters( 0 )( 0 ) * std::pow( mElementSize, 2 * mOrder ) *
+                        mParameters( 0 )( 0 ) * std::pow( tElementSize, 2 * mOrder ) *
                         tDensityProp->dPropdDOF( aDofTypes ) *
-                        ( tInfinityNorm / 6.0 + mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) ) /
+                        ( tInfinityNorm / 6.0 + tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) ) /
                         std::pow( tDeltaP, 2.0 );
             }
         }

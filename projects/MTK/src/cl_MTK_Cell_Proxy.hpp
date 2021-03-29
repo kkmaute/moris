@@ -22,17 +22,16 @@ namespace moris
         {
             //------------------------------------------------------------------------------
         public:
-            moris::moris_id mId = gNoID;
+            moris::moris_id mId       = gNoID;
             moris::moris_index mIndex = gNoIndex;
-            moris::moris_id mOwner = gNoID;
-            //moris::uint              mNumVerts = MORIS_UNIT_MAX;
+            moris::moris_id mOwner    = gNoID;
 
             moris::Cell<Vertex *> mVertices;
-            moris::uint mSpatialDim = 3;
-            enum Geometry_Type mGeometryType = Geometry_Type::UNDEFINED;
+            moris::uint mSpatialDim               = 3;
+            enum Geometry_Type mGeometryType      = Geometry_Type::UNDEFINED;
             enum Interpolation_Order mInterpOrder = Interpolation_Order::UNDEFINED;
-            enum Integration_Order mIntegOrder = Integration_Order::UNDEFINED;
-            moris::mtk::Cell_Info *mCellInfo;
+            enum Integration_Order mIntegOrder    = Integration_Order::UNDEFINED;
+            moris::mtk::Cell_Info *mCellInfo      = nullptr;
 
             //------------------------------------------------------------------------------
 
@@ -216,6 +215,19 @@ namespace moris
                 return mCellInfo->compute_cell_side_size(this, aSideOrdinal);
             }
             //------------------------------------------------------------------------------
+
+            moris::real
+            compute_cell_side_measure_deriv(
+                    moris_index const & aCellSideOrd,
+                    uint aLocalVertexID,
+                    uint aDirection) const
+            {
+                MORIS_ERROR(0,"compute_cell_side_measure_deriv - Not implemented.");
+                return 0.0;
+            }
+
+            //------------------------------------------------------------------------------
+
         };
         //------------------------------------------------------------------------------
     } /* namespace mtk */

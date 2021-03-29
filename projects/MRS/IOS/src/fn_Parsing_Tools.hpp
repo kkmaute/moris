@@ -17,10 +17,41 @@
 #include "typedefs.hpp"
 #include "IO_Tools.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_Cell.hpp"
 #include "cl_Map.hpp"
 
 namespace moris
 {
+    // -----------------------------------------------------------------------------
+    /**
+     * splits string into substrings based on delimiter
+     *
+     * @param[in] aString  input string
+     * @param[in] aDelim   delimiter
+     *
+     * @return  cell of strings
+     */
+
+    Cell<std::string>
+    split_string(
+            const std::string  & aString,
+            const std::string  & aDelim)
+    {
+        // create empty cell of strings
+        Cell<std::string> tCellOfStrings;
+
+        size_t start;
+        size_t end = 0;
+
+        while ((start = aString.find_first_not_of(aDelim, end)) != std::string::npos)
+        {
+            end = aString.find(aDelim, start);
+            tCellOfStrings.push_back(aString.substr(start, end - start));
+        }
+
+        return tCellOfStrings;
+    }
+
     // -----------------------------------------------------------------------------
     /**
      * removes leading whitespace of string
@@ -106,7 +137,7 @@ namespace moris
             // check if delimiter is first element of string
             bool isFirst = aString.front() ==aDelimiter[id] ? true : false;
 
-            // check if delimiter is first element of string
+            // check if delimiter is last element of string
             bool isLast = aString.back() == aDelimiter[id] ? true : false;
 
             // get char* of current delimiter
@@ -156,6 +187,51 @@ namespace moris
                 }
             }
             if (isLast) aString += tDelim;
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+    /**
+     * splits a string in sub-strings based on a delimiter and then converts substrings
+     * to numerical values which are stored in a vector
+     *
+     * @param[in] aString    const std::string
+     * @param[in] aDelimiter const std::string (size = 1)
+     *
+     * @param[out] aMat      matrix
+     */
+    template < typename T >
+    void delimited_string_to_mat(
+            const std::string & aString,
+            const std::string & aDelim,
+            Matrix< T >       & aMat )
+    {
+        // check for empty string
+        if (aString.size() == 0 )
+        {
+            aMat.set_size(0,0);
+            return;
+        }
+
+        // split string into substrings
+        Cell<std::string> tSubStringVec = split_string(aString,aDelim);
+
+        // get number of substrings
+        uint tNumberOfSubStrings = tSubStringVec.size();
+
+        if ( tNumberOfSubStrings == 0)
+        {
+            aMat.set_size(0,0);
+            return;
+        }
+
+        // set size of matrix
+        aMat.set_size(tNumberOfSubStrings,1);
+
+        // convert strings to numerical value
+        for (uint tStrgIndex=0; tStrgIndex<tNumberOfSubStrings; ++tStrgIndex)
+        {
+            aMat(tStrgIndex) =  stod( tSubStringVec(tStrgIndex) );
         }
     }
 
@@ -649,6 +725,7 @@ namespace moris
                             T tComponent = aMap.find( tStringMat.substr( 0, tPosSubString ) );
                             aCellCell( tCount )( tCount1++ ) = tComponent;
                             tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
+                            tPosSubString = tStringMat.find( "," );
                         }
                     }
 
@@ -674,6 +751,7 @@ namespace moris
                             T tComponent = aMap.find( tString.substr( 0, tPosSubString ) );
                             aCellCell( tCount )( tCount1++ ) = tComponent;
                             tString =  tString.substr( tPosSubString+1, tString.size() );
+                            tPosSubString = tString.find( "," );
                         }
                     }
 
@@ -745,6 +823,7 @@ namespace moris
                         {
                             aCellCell( tCount )( tCount1++ ) = tStringMat.substr( 0, tPosSubString );
                             tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
+                            tPosSubString = tStringMat.find( "," );
                         }
                     }
 
@@ -767,7 +846,8 @@ namespace moris
                         if( tPosSubString < tString.size() )
                         {
                             aCellCell( tCount )( tCount1++ ) = tString.substr( 0, tPosSubString );
-                            tString =  tString.substr( tPosSubString+1, tString.size() );
+                            tString = tString.substr( tPosSubString+1, tString.size() );
+                            tPosSubString = tString.find( "," );
                         }
                     }
 

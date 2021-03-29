@@ -20,7 +20,7 @@ namespace moris
     template< typename ET, typename Matrix_Type >
     void
     sort( const Eigen::MatrixBase<ET> & aA,
-                moris::Matrix< Matrix_Type > & aSorted )
+            moris::Matrix< Matrix_Type > & aSorted )
     {
         typedef typename Matrix< Matrix_Type >::Data_Type Type;
 
@@ -29,11 +29,11 @@ namespace moris
         // 1. Create copy  of input  matrix
         // 2. Sort matrix using std::sort
         aSorted.matrix_data() = aA;
-        
-		// make sure that matrix is row or col matrix
-		MORIS_ASSERT( aSorted.n_rows() == 1 || aSorted.n_cols() == 1,
-	                 "sort() can only be performed on a vector" );
-                
+
+        // make sure that matrix is row or col matrix
+        MORIS_ASSERT( aSorted.n_rows() == 1 || aSorted.n_cols() == 1,
+                "sort() can only be performed on a vector" );
+
         Type * tData = aSorted.data();
         moris::uint tLen = aSorted.numel();
         std::sort(tData,tData+tLen);
@@ -41,15 +41,13 @@ namespace moris
 
     template< typename ET, typename Matrix_Type, typename Num_Type>
     void
-    sort( const Eigen::MatrixBase<ET>  & aA,
-    	  moris::Matrix< Matrix_Type > & aSorted,
-    	  char const				   * aDirection,
-    	  Num_Type	 				   aDimension )
+    sort( const Eigen::MatrixBase<ET>    & aA,
+            moris::Matrix< Matrix_Type > & aSorted,
+            char const                   * aDirection,
+            Num_Type                       aDimension = 0)
     {
-    	MORIS::ERROR(false, "sort(mat, matSorted, dir, dim) in Eigen not implemented yet");
-    	// Not implemented because we might be removing Eigen from moris. (July, 2019)
+        MORIS::ERROR(false, "sort(mat, matSorted, dir, dim) in Eigen not implemented yet");
     }
-
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_EIGEN_HPP_ */

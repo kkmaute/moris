@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -108,6 +109,10 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
       std::shared_ptr< fem::Stabilization_Parameter > tSP1 =
               tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
       tSP1->set_parameters( {{{ 100.0 }} });
+
+      // create a dummy fem cluster and set it to SP
+      fem::Cluster * tCluster = new fem::Cluster();
+      tSP1->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

@@ -8,6 +8,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Bulk.hpp"
+#include "fn_FEM_IWG_Compressible_NS.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -36,7 +37,7 @@ namespace moris
             mPropertyMap[ "BodyHeatLoad" ]         = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
 
             // set size for the material model pointer cell
-            mMasterMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mMasterMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
 
             // populate the material map
             mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
@@ -76,8 +77,8 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( this->check_residual_dof_types(), 
-                "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+                    "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // assemble flux matrices
             this->assemble_variable_set();
@@ -232,8 +233,8 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( this->check_residual_dof_types(), 
-                "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+                    "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // assemble flux matrices
             this->assemble_variable_set();
@@ -272,7 +273,8 @@ namespace moris
             // std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
 
             // check DoF dependencies
-            MORIS_ASSERT( this->check_dof_dependencies(), "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
+                    "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
             // get the indeces for assembly
             sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -491,7 +493,8 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // check DoF dependencies
-            MORIS_ASSERT( this->check_dof_dependencies(), "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
+                    "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported. See error message above." );
 
             // get the indeces for assembly
             sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -587,97 +590,7 @@ namespace moris
             {
                 return mMultipMat3D;
             }
-        }        
-
-        //------------------------------------------------------------------------------
-
-        bool IWG_Compressible_NS_Bulk::check_residual_dof_types()
-        {
-            // initialize
-            bool tCheck = true;
-
-            // FIXME: only density and pressure primitive variables supported for now
-
-            // check that there are exactly 3 residual DoF types
-            tCheck = tCheck && ( mResidualDofType.size() == 3 );
-            MORIS_ASSERT( mResidualDofType.size() == 3,
-                    "IWG_Compressible_NS_Bulk::check_residual_dof_types() - List of Residual DoF types must be of length 3 for pressure primitive variables." );
-
-            // check that the right DoF types are present
-            tCheck = tCheck && ( mResidualDofType( 0 ) == MSI::Dof_Type::RHO || mResidualDofType( 0 ) == MSI::Dof_Type::P );
-            MORIS_ASSERT( tCheck,
-                    "IWG_Compressible_NS_Bulk::check_residual_dof_types() - First DoF type must be density or pressure." );
-            tCheck = tCheck && ( mResidualDofType( 1 ) == MSI::Dof_Type::VX );
-            tCheck = tCheck && ( mResidualDofType( 2 ) == MSI::Dof_Type::TEMP );
-            MORIS_ASSERT( tCheck,
-                    "IWG_Compressible_NS_Bulk::check_residual_dof_types() - Second and third DoF types must be velocity and temperature." );
-
-            // set variables Types
-            if ( mVariableSet == fem::Variable_Set::UNDEFINED )
-            {
-                if ( mResidualDofType( 0 ) == MSI::Dof_Type::RHO )
-                {
-                    mVariableSet = fem::Variable_Set::DENSITY_PRIMITIVE;
-                }
-                else if ( mResidualDofType( 0 ) == MSI::Dof_Type::P )
-                {
-                    mVariableSet = fem::Variable_Set::PRESSURE_PRIMITIVE;
-                }
-                else
-                {
-                    MORIS_ERROR( false,
-                        "IWG_Compressible_NS_Bulk::check_residual_dof_types() - Something went wrong. Only Density or Pressure supported as first DoF types." );
-                }
-            }
-            else if ( mResidualDofType( 0 ) == MSI::Dof_Type::RHO || mResidualDofType( 0 ) == MSI::Dof_Type::P )
-            {
-                // do nothing, variable set already defined
-            }
-            else
-            {
-                MORIS_ERROR( false,
-                    "IWG_Compressible_NS_Bulk::check_residual_dof_types() - Something went wrong; variable set not supported yet." );
-            }
-
-            // return whether check was successful or not
-            return tCheck;
-        }
-
-        //------------------------------------------------------------------------------
-
-        bool IWG_Compressible_NS_Bulk::check_dof_dependencies()
-        {  
-            // compute and check the number of dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size(); 
-            MORIS_ERROR( tNumDofDependencies == 3, "IWG_Compressible_NS_Bulk::check_dof_dependencies() - More than three DoF dependencies." );       
-
-            // check dof dependencies and ordering
-            bool tCheck = ( mRequestedMasterGlobalDofTypes( 0 )( 0 ) == MSI::Dof_Type::RHO ) || ( mRequestedMasterGlobalDofTypes( 0 )( 0 ) == MSI::Dof_Type::P );
-            tCheck = tCheck && ( mRequestedMasterGlobalDofTypes( 1 )( 0 ) == MSI::Dof_Type::VX );
-            tCheck = tCheck && ( mRequestedMasterGlobalDofTypes( 2 )( 0 ) == MSI::Dof_Type::TEMP );
-
-            MORIS_ERROR( tCheck, 
-                    "IWG_Compressible_NS_Bulk::check_dof_dependencies() - Only Pressure and Density Primitive variables supported for now."
-                    "DoF ordering must be (rho,u,T) or (p,u,T)." );
-        
-            // check that the assembly map is a connected block            
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof2Index      = mSet->get_dof_index_for_type( mResidualDofType( 1 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 ), mtk::Master_Slave::MASTER );            
-            sint tDofDep1Index         = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofDep2Index         = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 1 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofDep3Index         = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDep1StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofDep1Index, 1 );
-            uint tMasterDep2StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof2Index )( tDofDep2Index, 0 );
-            uint tMasterDep2StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof2Index )( tDofDep2Index, 1 );
-            uint tMasterDep3StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofDep3Index, 0 );
-            MORIS_ERROR( ( tMasterDep1StopIndex + 1 == tMasterDep2StartIndex ) && ( tMasterDep2StopIndex + 1 == tMasterDep3StartIndex ),
-                    "IWG_Compressible_NS_Bulk::check_dof_dependencies() - Assembly map is not connected." );
-
-            return tCheck;
-
-            std::cout << "Check passed. \n" << std::flush;
-        }
+        }       
 
         //------------------------------------------------------------------------------
 

@@ -9,6 +9,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //LINALG/src
@@ -93,6 +94,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
     tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -424,6 +429,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
     tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
 
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -753,6 +762,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
     tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -1084,6 +1097,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
     tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

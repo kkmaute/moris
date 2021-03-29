@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
 //MTK/src
@@ -99,6 +100,10 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
     std::shared_ptr< fem::Stabilization_Parameter > tSPGhostVW =
             tSPFactory.create_SP( fem::Stabilization_Type::GHOST_VW );
     tSPGhostVW->set_parameters( { {{ 1.0 }} });
+
+    // create a dummy fem cluster and set it to SP
+    fem::Cluster * tCluster = new fem::Cluster();
+    tSPGhostVW->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

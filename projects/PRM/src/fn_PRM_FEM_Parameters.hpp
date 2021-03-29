@@ -107,6 +107,7 @@ namespace moris
             tParameterList.insert( "slave_properties",           std::string( "" ) );
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
+            tParameterList.insert( "cluster_measures",           std::pair< std::string, std::string >( "", "" ) );
 
             tParameterList.insert( "master_phase_name",          std::string( "" ) );
             tParameterList.insert( "slave_phase_name",           std::string( "" ) );

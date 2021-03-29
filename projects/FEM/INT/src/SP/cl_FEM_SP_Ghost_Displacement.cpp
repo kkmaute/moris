@@ -22,25 +22,37 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
+
+            // extract order of weak form of governing equations (default = 1)
+            if (mParameters.size() > 1)
+            {
+                mWeakFormOrder =  mParameters( 1 )( 0 );
+            }
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_Ghost_Displacement::reset_cluster_measures()
+        moris::Cell< std::tuple<
+        fem::Measure_Type,
+        mtk::Primary_Void,
+        mtk::Master_Slave > > SP_Ghost_Displacement::get_cluster_measure_tuple_list()
         {
-            // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure(
-                    mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
+            return { mElementSizeTuple };
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Ghost_Displacement::eval_SP()
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) *
-                    std::pow( mElementSize, 2 * ( mOrder - 1 ) + 1 ) *
+                    std::pow( tElementSize, 2 * ( mOrder - mWeakFormOrder ) + 1 ) *
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
         }
 
@@ -49,6 +61,12 @@ namespace moris
         void SP_Ghost_Displacement::eval_dSPdMasterDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get element size cluster measure value
+            real tElementSize = mCluster->get_cluster_measure(
+                    std::get<0>( mElementSizeTuple ),
+                    std::get<1>( mElementSizeTuple ),
+                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -74,7 +92,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) *
-                        std::pow( mElementSize, 2 * ( mOrder - 1 ) + 1 ) *
+                        std::pow( tElementSize, 2 * ( mOrder - mWeakFormOrder ) + 1 ) *
                         tPropMaterial->dPropdDOF( aDofTypes );
             }
         }
@@ -82,5 +100,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
