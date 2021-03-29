@@ -280,8 +280,8 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
@@ -289,8 +289,8 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
@@ -867,8 +867,8 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso1->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
@@ -876,8 +876,8 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso2->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
@@ -1184,8 +1184,8 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tCMStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso->set_property( tPropNu, "PoissonRatio" );
-        tCMStrucLinIso->set_space_dim( 2 );
         tCMStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso->set_space_dim( 2 );
         tCMStrucLinIso->set_local_properties();
 
         // define stabilization parameters

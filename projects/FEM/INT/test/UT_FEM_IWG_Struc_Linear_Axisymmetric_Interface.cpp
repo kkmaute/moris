@@ -83,7 +83,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
@@ -91,7 +92,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     tCMMasterStrucLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMSlaveStrucLinIso->set_dof_type_list( tDofTypes );
     tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
     tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );

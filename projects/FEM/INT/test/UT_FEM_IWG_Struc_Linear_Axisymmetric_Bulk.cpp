@@ -75,7 +75,8 @@ TEST_CASE( "IWG_Elasticity_Axisymmetric_Bulk", "[moris],[fem],[axi],[IWG_Elastic
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
@@ -354,7 +355,8 @@ TEST_CASE( "IWG_Elasticity_Axi_Bulk_Mixed_Displacement", "[moris],[fem],[axi],[I
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
@@ -413,8 +415,8 @@ TEST_CASE( "IWG_Elasticity_Axi_Bulk_Mixed_Displacement", "[moris],[fem],[axi],[I
         }
 
         // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );\
         tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )

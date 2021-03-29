@@ -136,9 +136,9 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed_Pressure
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
