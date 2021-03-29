@@ -1,0 +1,20 @@
+## /home/gates/apps/Cubit-15.3-Lin64/bin/clarox
+## Cubit Version 15.3
+## Cubit Build 411343
+## Revised 2017-12-05 09:40:29 -0700 (Tue, 05 Dec 2017)
+## Running 03/18/2021 10:59:58 AM
+## Command Options:
+undo on
+open "/home/gates/codes/moris/projects/EXA/structure/linear/Beam_Temperature_Field/oneElement_Geometry.cub"
+renumber node 259 start_id 1
+renumber node 262 start_id 2
+renumber node 261 start_id 3
+renumber node 257 start_id 4
+renumber node 258 start_id 5
+renumber node 260 start_id 6
+save as "/home/gates/codes/moris/projects/EXA/structure/linear/Beam_Temperature_Field/oneElement_Geometry.cub" overwrite
+undo group begin
+set exodus netcdf4 off
+set large exodus file on
+export mesh "/home/gates/codes/moris/projects/EXA/structure/linear/Beam_Temperature_Field/element_geometry3.e" overwrite
+undo group end
