@@ -20,32 +20,15 @@ namespace moris
     namespace hmr
     {
 // ----------------------------------------------------------------------------
-
-        /**
-        * Returns the geometry type of this element
-        *
-        * @return mtk::Geometry_Type
-        */
         template<>
-        mtk::Geometry_Type
-        Lagrange_Element< 3, 8 >::get_geometry_type() const
+        void
+        Lagrange_Element< 3, 8 >::set_cell_info() 
         {
-            return mtk::Geometry_Type::HEX;
+            std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = std::make_shared<moris::mtk::Cell_Info_Hex8 >();
+
+            this->set_mtk_cell_info( tCellInfo );
         }
 
-// ----------------------------------------------------------------------------
-
-        /**
-        * Returns the interpolation order of this element
-        *
-        * @return mtk::Interpolation_Order
-        */
-        template<>
-        mtk::Interpolation_Order
-        Lagrange_Element< 3, 8 >::get_interpolation_order() const
-        {
-            return mtk::Interpolation_Order::LINEAR;
-        }
 
 // ----------------------------------------------------------------------------
 
@@ -109,96 +92,7 @@ namespace moris
                 aBasis( k ) = mNodes[ k ]->get_memory_index();
             }
         }
-
 // ----------------------------------------------------------------------------
-
-        template<>
-        moris::Cell<moris::mtk::Vertex const *>
-        Lagrange_Element< 3, 8 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-        {
-            MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
-            moris::mtk::Cell_Info_Hex8 tConn;
-            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_node_to_face_map(aSideOrdinal);
-            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
-            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(4);
-            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
-            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
-            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
-            tVerticesOnSide(3) = tVertices(tNodeOrdsOnSide(3));
-            return tVerticesOnSide;
-        }
-// ----------------------------------------------------------------------------
-
-        template<>
-        moris::Cell<moris::mtk::Vertex const *>
-        Lagrange_Element< 3, 8 >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-        {
-            return this->get_vertices_on_side_ordinal(aSideOrdinal);
-        }
-// ----------------------------------------------------------------------------
-
-        template<>
-        inline
-        moris::Matrix<moris::DDRMat>
-        Lagrange_Element< 3, 8 >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-		{
-        MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
-
-#ifdef DEBUG
-        if(this->get_vertex_pointers().size() > 8)
-        {
-         MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
-        }
-#endif
-
-        // get the vertex coordinates
-        moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-        // Get the nodes which need to be used to compute normal
-        moris::mtk::Cell_Info_Hex8 tConn;
-        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = tConn.get_node_map_outward_normal(aSideOrdinal);
-
-        // Get vector along these edges
-        moris::Matrix<moris::DDRMat> tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-        moris::Matrix<moris::DDRMat> tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-
-        // Take the cross product to get the normal
-        Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
-
-        // Normalize
-        Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
-
-        return tUnitOutwardNormal;
-		}
-// ----------------------------------------------------------------------------
-
-
-        template<>
-        inline
-        real
-        Lagrange_Element< 3, 8 >::compute_cell_measure() const
-        {
-            mtk::Cell_Info_Hex8 tCellInfo;
-            return tCellInfo.compute_cell_size(this);
-        }
-// ----------------------------------------------------------------------------
-
-        template<>
-        moris::real
-		Lagrange_Element< 3, 8 >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
-        {
-            mtk::Cell_Info_Hex8 tCellInfo;
-            return tCellInfo.compute_cell_side_size( this,aCellSideOrd);
-        }
-        /**
-         * returns the ijk position of a given basis
-         *
-         * @param[in]  aBasisNumber   element local number of basis
-         * @param[out] aIJK           proc local ijk position of this basis
-         *
-         * @return void
-         *
-         */
         template<>
         void
         Lagrange_Element< 3, 8 >::get_ijk_of_basis(

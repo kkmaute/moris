@@ -1435,7 +1435,7 @@ namespace xtk
         moris::mtk::Cell const* tBaseMasterCell = tMasterIpCell->get_base_cell();
 
         // get the connectivity information from the cell
-        moris::mtk::Cell_Info const * tCellInfo = tMasterIpCell->get_connectivity();
+        moris::mtk::Cell_Info const * tCellInfo = tMasterIpCell->get_cell_info();
 
         // adjacent side ordinal on master
         uint tAdjFacetOrd = tCellInfo->get_adjacent_side_ordinal(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex));

@@ -218,8 +218,8 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-                Cell_Info_Quad4 tQuad4;
-                Cell_STK tCell(&tQuad4, 1, 0, tElementVertices, tMesh);
+                std::shared_ptr<Cell_Info> tQuad4 = std::make_shared<Cell_Info_Quad4>();
+                Cell_STK tCell(tQuad4, 1, 0, tElementVertices, tMesh);
 
                 // Some checks on the cell
                 CHECK(tCell.get_id() == 1);
@@ -232,8 +232,9 @@ namespace moris
                 Integration_Order tIntegOrder = tCell.get_integration_order();
                 CHECK(tIntegOrder == Integration_Order::QUAD_2x2);
 
-                CHECK(tCell.compute_cell_measure_general() == Approx(1.53));
-                CHECK(tCell.compute_cell_measure_general() == tCell.compute_cell_measure_straight());
+                CHECK(tCell.get_cell_info()->compute_cell_size_general(&tCell) == Approx(1.53));
+                CHECK(tCell.get_cell_info()->compute_cell_size_general(&tCell) == tCell.get_cell_info()->compute_cell_size_straight(&tCell));
+
             }
         }
 
@@ -294,16 +295,16 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-                Cell_Info_Hex8 tHex8;
-                Cell_STK tCell(&tHex8, 1, 0, tElementVertices, tMesh);
+                std::shared_ptr<Cell_Info> tHex8 = std::shared_ptr<Cell_Info_Hex8>();
+                Cell_STK tCell(tHex8, 1, 0, tElementVertices, tMesh);
 
                 // Some checks on the cell
                 CHECK(tCell.get_id() == 1);
                 CHECK(tCell.get_index() == 0);
                 CHECK(tCell.get_owner() == (moris_id)par_rank());
                 CHECK(tCell.get_number_of_vertices() == 8);
-                CHECK(tCell.compute_cell_measure_general() == Approx(1.0));
-                CHECK(tCell.compute_cell_measure_straight() == Approx(1.0));
+                CHECK(tCell.get_cell_info()->compute_cell_size_general(&tCell) == Approx(1.0));
+                CHECK(tCell.get_cell_info()->compute_cell_size_straight(&tCell) == Approx(1.0));
             }
         }
 
@@ -356,8 +357,8 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-                Cell_Info_Quad4 tQuad4;
-                Cell_STK tCell(&tQuad4, 1, 0, tElementVertices, tMesh);
+                std::shared_ptr<Cell_Info> tQuad4 = std::make_shared<Cell_Info_Quad4>();
+                Cell_STK tCell(tQuad4, 1, 0, tElementVertices, tMesh);
 
                 // Some checks on the cell
                 CHECK(tCell.get_id() == 1);
@@ -377,21 +378,21 @@ namespace moris
                 CHECK(tCell.compute_cell_measure_deriv(0,1) == Approx(-0.5));
 
                 // checking other nodes
-                CHECK(tCell.compute_cell_measure_deriv(1,0) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv(1,1) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv(2,0) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv(2,1) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv(3,0) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv(3,1) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,0) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,1) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,0) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,1) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,0) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,1) == Approx(0.5));
 
-                CHECK(tCell.compute_cell_measure_deriv_general(0,0) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(0,1) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,0) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,1) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,0) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,1) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(3,0) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(3,1) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,0) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,1) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,0) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,1) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,0) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,1) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,0) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,1) == Approx(0.5));
             }
         }
 
@@ -443,8 +444,10 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-                Cell_Info_Tri3 tTri3;
-                Cell_STK tCell(&tTri3, 1, 0, tElementVertices, tMesh);
+               
+                std::shared_ptr<Cell_Info> tTri3 = std::make_shared<Cell_Info_Tri3>();
+
+                Cell_STK tCell(tTri3, 1, 0, tElementVertices, tMesh);
 
                 // Some checks on the cell
                 CHECK(tCell.get_id() == 1);
@@ -467,12 +470,12 @@ namespace moris
                 CHECK(tCell.compute_cell_measure_deriv(2,1) == Approx(0.5));
 
                 // using general calc
-                CHECK(tCell.compute_cell_measure_deriv_general(0,0) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(0,1) == Approx(-0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,0) == Approx(0.5));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,1) == Approx(0.0));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,0) == Approx(0.0));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,1) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,0) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,1) == Approx(-0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,0) == Approx(0.5));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,1) == Approx(0.0));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,0) == Approx(0.0));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,1) == Approx(0.5));
             }
         }
 
@@ -525,8 +528,9 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-                Cell_Info_Tet4 tTet4;
-                Cell_STK tCell(&tTet4, 1, 0, tElementVertices, tMesh);
+                std::shared_ptr<Cell_Info> tTet4 = std::make_shared<Cell_Info_Tet4>();
+
+                Cell_STK tCell(tTet4, 1, 0, tElementVertices, tMesh);
 
                 // Some checks on the cell
                 CHECK(tCell.get_id() == 1);
@@ -537,9 +541,9 @@ namespace moris
                 CHECK(tInterpOrder == Interpolation_Order::LINEAR);
 
                 // check the area of the cell
-                CHECK(tCell.compute_cell_measure_straight() == Approx(9.0));
+                CHECK(tCell.get_cell_info()->compute_cell_size_straight(&tCell) == Approx(9.0));
                 CHECK(tCell.compute_cell_measure()          == Approx(9.0));
-                CHECK(tCell.compute_cell_measure_general()  == Approx(9.0));
+                CHECK(tCell.get_cell_info()->compute_cell_size_general(&tCell)  == Approx(9.0));
 
                 // checking derivative in the 0 direction of nodes 0-3
                 CHECK(tCell.compute_cell_measure_deriv(0,0) == Approx(-3.0 ));
@@ -560,22 +564,22 @@ namespace moris
                 CHECK(tCell.compute_cell_measure_deriv(3,2) == Approx( 1.5 ));
 
                 // checking derivative in the 0 direction of nodes 0-3
-                CHECK(tCell.compute_cell_measure_deriv_general(0,0) == Approx(-3.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,0) == Approx( 3.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,0) == Approx( 0.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(3,0) == Approx( 0.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,0) == Approx(-3.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,0) == Approx( 3.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,0) == Approx( 0.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,0) == Approx( 0.0 ));
 
                 // checking derivative in the 1 direction of nodes 0-3
-                CHECK(tCell.compute_cell_measure_deriv_general(0,1) == Approx(-3.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,1) == Approx( 0.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,1) == Approx( 3.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(3,1) == Approx( 0.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,1) == Approx(-3.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,1) == Approx( 0.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,1) == Approx( 3.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,1) == Approx( 0.0 ));
 
                 // checking derivative in the 2 direction of nodes 0-3
-                CHECK(tCell.compute_cell_measure_deriv_general(0,2) == Approx(-1.5 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(1,2) == Approx( 0.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(2,2) == Approx( 0.0 ));
-                CHECK(tCell.compute_cell_measure_deriv_general(3,2) == Approx( 1.5 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,0,2) == Approx(-1.5 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,1,2) == Approx( 0.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,2,2) == Approx( 0.0 ));
+                CHECK(tCell.get_cell_info()->compute_cell_size_deriv_general(&tCell,3,2) == Approx( 1.5 ));
             }
         }
 

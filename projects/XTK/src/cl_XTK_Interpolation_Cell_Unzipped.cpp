@@ -16,7 +16,7 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*      
                                                          moris_id                  aCellId,
                                                          moris_index               aCellIndex,
                                                          moris_id                  aCellOwner,
-                                                         moris::mtk::Cell_Info* aConnectivity):
+                                                         std::shared_ptr<moris::mtk::Cell_Info> aConnectivity):
                 Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aConnectivity),
                 mBaseCell(aBaseCell),
                 mSubPhaseIndex(aSubphaseIndex),

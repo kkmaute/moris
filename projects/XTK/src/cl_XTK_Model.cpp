@@ -12,6 +12,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
+#include "cl_XTK_Mesh_Cleanup.hpp"
 //#include "cl_XTK_Contact_Sandbox.hpp"
 #include "cl_XTK_Multigrid.hpp"
 #include "fn_all_true.hpp"
@@ -1714,8 +1715,6 @@ namespace xtk
                 moris::mtk::Cell & tCell = mBackgroundMesh.get_mtk_cell(tCellInds(iC));
                 moris::real tBulkMeasure = tCell.compute_cell_measure();
 
-                std::cout<<"tBulkMeasure = "<<tBulkMeasure<<std::endl;
-
                 if(tBulkMeasure < tDegenerateTol)
                 {
                     tDegenerateCells.push_back(tCellInds(iC));
@@ -2289,20 +2288,25 @@ namespace xtk
         // Change XTK model decomposition state flag
         mDecomposed = true;
 
-        // this catches the missed interfaces due to coincidence
-        this->catch_all_unhandled_interfaces();
-
         // Sort the children meshes into groups
         this->sort_children_meshes_into_groups();
 
         // assign child element indices ( seperated to facilitate mesh cleanup)
-        this->assign_child_element_indices(false);
+        this->assign_child_element_indices(true);
+
+        // give each child cell its id (parallel consistent) and index (not parallel consistent)
+        this->assign_child_element_ids();
+
+        // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
+        this->create_child_element_mtk_cells();
+
+        // add vertices to child meshes
+        this->add_vertices_to_child_meshes();
 
         // Compute the child element phase using the geometry engine
         // a case where the phase may not be set is when we only do a
         // non-conformal decomposition
         this->set_element_phases();
-
 
         // identify local subphases in child mesh
         this->identify_local_subphase_clusters_in_child_meshes();
@@ -2312,26 +2316,15 @@ namespace xtk
         // this flag is needed for the cleanup cut mesh call
         this->construct_internal_double_sides_between_subphases();
 
-
         // cleanup the mesh
         if(mCleanupMesh)
         {
-            this->cleanup_cut_mesh();
+            Mesh_Cleanup tMeshCleanup(this,&mParameterList);
+            tMeshCleanup.perform();
         }
 
-        // Sort the children meshes into groups
-        this->sort_children_meshes_into_groups();
-
-        // do it again because we have removed cells
-        this->assign_child_element_indices(true);
-
-        // give each child cell its id (parallel consistent) and index (not parallel consistent)
-        this->assign_child_element_ids();
-
-        // Compute the child element phase using the geometry engine
-        // a case where the phase may not be set is when we only do a
-        // non-conformal decomposition
-        this->set_element_phases();
+        // this catches the missed interfaces due to coincidence
+        this->catch_all_unhandled_interfaces();
 
         // identify local subphases in child mesh
         this->identify_local_subphase_clusters_in_child_meshes();
@@ -2341,12 +2334,6 @@ namespace xtk
 
         // Associate nodes created during decomposition to their child meshes
         this->associate_nodes_created_during_decomp_to_child_meshes();
-
-        // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
-        this->create_child_element_mtk_cells();
-
-        // add vertices to child meshes
-        this->add_vertices_to_child_meshes();
 
         // set the glb to loc map for all cells
         this->setup_cell_glb_to_local_map();

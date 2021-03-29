@@ -15,9 +15,18 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp"  //MTK/src
-#include "cl_MTK_Cell_Info_Hex8.hpp"
 
 //------------------------------------------------------------------------------
+// Forward Declarations
+namespace moris
+{
+    namespace mtk
+    {
+        class Cell_Info;
+    }
+}
+//------------------------------------------------------------------------------
+
 namespace moris
 {
     namespace mtk
@@ -30,6 +39,13 @@ namespace moris
 
         class Cell
         {
+        private: // protected so the derived classes can set
+
+            std::shared_ptr<moris::mtk::Cell_Info>  mCellInfo;
+
+            moris_id               mCellId;
+            moris_id               mCellIndex;
+            moris_id               mCellOwner;
             //------------------------------------------------------------------------------
         public:
             //------------------------------------------------------------------------------
@@ -42,10 +58,26 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * Destructor. Must be virtual.
+             * trivial constructor
+             */
+            Cell( moris_id                                aCellId,
+                   moris_index                            aCellIndex,
+                   moris_id                               aCellOwner,
+                   std::shared_ptr<moris::mtk::Cell_Info> aCellInfo);
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Destructor
              */
             virtual ~Cell(){};
 
+            //------------------------------------------------------------------------------
+            mtk::Cell_Info  const *
+            get_cell_info() const;
+            //------------------------------------------------------------------------------
+            void
+            set_mtk_cell_info( std::shared_ptr<moris::mtk::Cell_Info> aCellInfo);
             //------------------------------------------------------------------------------
 
             /**
@@ -54,7 +86,15 @@ namespace moris
              * @return moris_id ID
              */
             virtual moris_id
-            get_id() const = 0;
+            get_id() const;
+
+            //------------------------------------------------------------------------------
+            /**
+             * set the cell id
+             */
+            virtual
+            void
+            set_id(moris_id aId);
 
             //------------------------------------------------------------------------------
 
@@ -64,7 +104,8 @@ namespace moris
              * @return moris_index ID
              */
             virtual moris_index
-            get_index() const = 0;
+            get_index() const;
+
 
             //------------------------------------------------------------------------------
 
@@ -73,7 +114,7 @@ namespace moris
              * ( this information is needed for STK )
              */
             virtual moris_id
-            get_owner() const = 0;
+            get_owner() const;
 
             //------------------------------------------------------------------------------
 
@@ -87,7 +128,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * fills a moris::cell with pointers to connected vertices
+             * @return Ptrs of vertices connected to this cell
              */
             virtual moris::Cell<Vertex *>
             get_vertex_pointers() const = 0;
@@ -95,10 +136,24 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * tells how many vertices are connected to this cell
+             *  @return number of vertices on this cell
              */
             virtual uint
             get_number_of_vertices() const;
+
+            //------------------------------------------------------------------------------
+            /**
+             *  @return number of facets on this cell
+             */
+            virtual uint
+            get_number_of_facets() const;
+
+            //------------------------------------------------------------------------------
+            // /**
+            //  *  @return number of edges on this cell
+            //  */
+            // virtual uint
+            // get_number_of_edges() const;
 
             //------------------------------------------------------------------------------
 
@@ -186,7 +241,7 @@ namespace moris
              * returns an enum that defines the geometry type of the element
              */
             virtual Geometry_Type
-            get_geometry_type() const = 0;
+            get_geometry_type() const;
 
             //------------------------------------------------------------------------------
 
@@ -228,7 +283,7 @@ namespace moris
              * returns the order of the element
              */
             virtual Interpolation_Order
-            get_interpolation_order() const = 0;
+            get_interpolation_order() const;
 
             //------------------------------------------------------------------------------
 
@@ -236,12 +291,8 @@ namespace moris
              * returns the integration order of the element
              */
             virtual Integration_Order
-            get_integration_order() const
-            {
-                MORIS_ERROR(false, "cl_MTK_Cell::get_integration_order - Not implemented for this child class");
-                return Integration_Order::UNDEFINED;
-            }
-
+            get_integration_order() const;
+            
             //------------------------------------------------------------------------------
             virtual moris::mtk::Cell const *
             get_base_cell() const

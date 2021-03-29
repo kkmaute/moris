@@ -67,7 +67,7 @@ namespace xtk
         else
         {
             // get the interpolation cell's connectivity information
-            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
+            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_cell_info();
 
             // local coordinate matrix
             Matrix<DDRMat> tXi;

@@ -44,7 +44,7 @@ public:
      * trivial constructor
      */
     Cell_Visualization() //: mCellInfo(nullptr)
-{};
+    {};
 
     //------------------------------------------------------------------------------
 

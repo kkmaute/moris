@@ -105,7 +105,6 @@ namespace moris
         moris::Matrix<moris::IndexMat>
         Cell_Info_Quad4::get_geometric_node_to_facet_map() const
         {
-            Cell_Info_Hex8 tHex8;
             return this->get_node_to_face_map();
         }
 

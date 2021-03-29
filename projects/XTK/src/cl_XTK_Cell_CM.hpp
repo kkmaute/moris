@@ -192,7 +192,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
     private:
-        moris::moris_id mElementId;
+        moris::moris_id    mElementId;
         moris::moris_index mElementIndex;
         moris::moris_index mElementOwner;
         moris::moris_index mCMElementIndex; /* Needed to access connectivity (verts) */

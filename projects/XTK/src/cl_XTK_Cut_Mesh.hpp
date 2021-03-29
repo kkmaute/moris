@@ -30,6 +30,7 @@ namespace xtk
 {
     // forward declaration
     class Model;
+    class Mesh_Cleanup;
 
     class Cut_Mesh
     {
@@ -504,6 +505,7 @@ namespace xtk
                                              Cell<moris::uint> const & aMeshesToDelete);
 
         friend Model;
+        friend Mesh_Cleanup;
 
     private:
         Model *mModel;
