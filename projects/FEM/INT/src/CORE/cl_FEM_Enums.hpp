@@ -81,6 +81,8 @@ namespace moris
 
                 COMPRESSIBLE_NS_BULK,
                 COMPRESSIBLE_NS_BOUNDARY,
+                COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE,
                 
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
@@ -158,7 +160,6 @@ namespace moris
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
-                STRUC_LIN_ISO_AXISYMMETRIC,
                 FLUID_INCOMPRESSIBLE,
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,
@@ -196,6 +197,7 @@ namespace moris
                 UNDEFINED,
                 PLANE_STRESS,
                 PLANE_STRAIN,
+                AXISYMMETRIC,
                 FULL,
                 HYDROSTATIC, // not implemented yet
                 DEVIATORIC,
@@ -223,6 +225,7 @@ namespace moris
             TIME_VELOCITY_GHOST,
             VELOCITY_DIRICHLET_NITSCHE,
             COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE,
+            COMPRESSIBLE_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
             TURBULENCE_DIRICHLET_NITSCHE,

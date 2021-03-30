@@ -5,11 +5,74 @@
  *      Author: kedo3694
  */
 #include "cl_MTK_Cell.hpp"
-
+#include "cl_MTK_Cell_Info.hpp"
+#include "cl_Matrix.hpp"
+#include "fn_trans.hpp"
+#include "fn_cross.hpp"
+#include "fn_norm.hpp"
 namespace moris
 {
     namespace mtk
     {
+        //------------------------------------------------------------------------------
+        Cell::Cell(moris_id                               aCellId,
+                   moris_index                            aCellIndex,
+                   moris_id                               aCellOwner,
+                   std::shared_ptr<moris::mtk::Cell_Info> aCellInfo)
+                    :mCellInfo(aCellInfo),
+                     mCellId(aCellId),
+                     mCellIndex(aCellIndex),
+                     mCellOwner(aCellOwner)
+        {
+
+        }
+
+
+        //------------------------------------------------------------------------------
+        Cell_Info const *
+        Cell::get_cell_info() const
+        {
+            MORIS_ASSERT(mCellInfo != nullptr,"Cell info not set");
+            return mCellInfo.get();
+        }
+        //------------------------------------------------------------------------------
+
+        std::shared_ptr<mtk::Cell_Info>
+        Cell::get_cell_info_sp() const
+        {
+            MORIS_ASSERT(mCellInfo != nullptr,"Cell info not set");
+            return mCellInfo;
+        }
+
+        //------------------------------------------------------------------------------
+        void
+        Cell::set_mtk_cell_info( std::shared_ptr<moris::mtk::Cell_Info> aCellInfo)
+        {
+            mCellInfo = aCellInfo;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris_id
+        Cell::get_id() const
+        {
+            return mCellId;
+        }
+        
+        void
+        Cell::set_id( const moris_id aId )
+        {
+           mCellId = aId;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris_index
+        Cell::get_index() const 
+        {
+            return mCellIndex;
+        }
+
         //------------------------------------------------------------------------------
 
         uint
@@ -19,13 +82,27 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
+        moris_id
+        Cell::get_owner() const
+        {
+            return mCellOwner;
+        }
+
+        //------------------------------------------------------------------------------
 
         uint
         Cell::get_number_of_vertices() const
         {
             return this->get_vertex_pointers().size();
         }
+        //------------------------------------------------------------------------------
 
+        uint
+        Cell::get_number_of_facets() const
+        {
+            return this->get_cell_info()->get_num_facets();
+        }
         //------------------------------------------------------------------------------
 
         Matrix< IdMat >
@@ -96,8 +173,16 @@ namespace moris
         moris::Cell<moris::mtk::Vertex const *>
         Cell::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
-            MORIS_ERROR(0,"get_vertices_on_side_ordinal has no default implementation");
-            return  moris::Cell<moris::mtk::Vertex const *>(0);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = this->get_cell_info()->get_node_to_facet_map(aSideOrdinal);
+
+            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
+            for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
+            {
+                tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
+            }
+            return tVerticesOnSide;
         }
 
         //------------------------------------------------------------------------------
@@ -105,8 +190,22 @@ namespace moris
         moris::Cell<moris::mtk::Vertex const *>
         Cell::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
-            MORIS_ERROR(0,"get_geometric_vertices_on_side_ordinal has no default implementation");
-            return  moris::Cell<moris::mtk::Vertex const *>(0);
+            MORIS_ASSERT(mCellInfo != nullptr, "Cell info null ptr");
+
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+
+            // get vertex ordinals
+            moris::Matrix<moris::IndexMat> tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map(aSideOrdinal);
+
+            // allocate cell of vertices
+            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tGeometricVertOrdsOnFacet.numel());
+
+            for(moris::uint i = 0; i < tGeometricVertOrdsOnFacet.numel(); i++)
+            {
+                tVerticesOnSide(i) = tVertices(tGeometricVertOrdsOnFacet(i));
+            }
+
+            return tVerticesOnSide;
         }
 
         //------------------------------------------------------------------------------
@@ -176,11 +275,39 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Geometry_Type
+        Cell::get_geometry_type() const
+        {
+            return this->get_cell_info()->get_cell_geometry();
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::Matrix<moris::DDRMat>
         Cell::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
         {
-            MORIS_ERROR(0,"compute_outward_side_normal has no default implementation");
-            return  moris::Matrix<moris::DDRMat>(0,0);
+            // get the vertex coordinates
+            moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
+
+            // Get vector along these edges
+            moris::Matrix<moris::DDRMat> tEdge0Vector(tVertexCoords.numel(),1);
+            moris::Matrix<moris::DDRMat> tEdge1Vector(tVertexCoords.numel(),1);
+
+            // Get the nodes which need to be used to compute normal
+            moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = this->get_cell_info()->get_node_map_outward_normal(aSideOrdinal);
+
+            // Get vector along these edges
+            tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+            tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+
+            // Take the cross product to get the normal
+            Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
+
+            // Normalize
+            Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
+
+
+            return tUnitOutwardNormal;
         }
 
         //------------------------------------------------------------------------------
@@ -188,8 +315,7 @@ namespace moris
         moris::real
         Cell::compute_cell_measure() const
         {
-            MORIS_ERROR(0,"Compute cell measure not implemented");
-            return 0;
+            return this->get_cell_info()->compute_cell_size(this);
         }
 
         //------------------------------------------------------------------------------
@@ -199,8 +325,7 @@ namespace moris
                 uint aLocalVertexID,
                 uint aDirection) const
         {
-            MORIS_ERROR(0,"Compute cell measure deriv not implemented");
-            return 0.0;
+          return this->get_cell_info()->compute_cell_size_deriv(this, aLocalVertexID, aDirection);
         }
 
         //------------------------------------------------------------------------------
@@ -208,10 +333,22 @@ namespace moris
         moris::real
         Cell::compute_cell_side_measure(moris_index const & aCellSideOrd) const
         {
-            MORIS_ERROR(0,"Compute cell side measure not implemented");
-            return 0;
+            return this->get_cell_info()->compute_cell_side_size(this,aCellSideOrd);
         }
 
+        //------------------------------------------------------------------------------
+        Interpolation_Order
+        Cell::get_interpolation_order() const
+        {
+             return this->get_cell_info()->get_cell_interpolation_order();
+        }
+        //------------------------------------------------------------------------------
+        mtk::Integration_Order
+        Cell::get_integration_order() const
+        {
+            return this->get_cell_info()->get_cell_integration_order();
+        }
+        //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         moris::real
@@ -220,8 +357,7 @@ namespace moris
                 uint                aLocalVertexID,
                 uint                aDirection ) const
         {
-            MORIS_ERROR(0,"Compute cell side measure deriv not implemented");
-            return 0.0;
+             return this->get_cell_info()->compute_cell_side_size_deriv(this, aCellSideOrd, aLocalVertexID, aDirection);
         }
 
         //------------------------------------------------------------------------------

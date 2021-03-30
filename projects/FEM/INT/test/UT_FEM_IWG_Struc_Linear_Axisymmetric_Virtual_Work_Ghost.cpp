@@ -86,7 +86,8 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterElastLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterElastLinIso->set_dof_type_list( tDofTypes );
     tCMMasterElastLinIso->set_property( tPropMasterYoungModulus, "YoungsModulus" );
     tCMMasterElastLinIso->set_property( tPropMasterPoissonRatio, "PoissonRatio" );
@@ -94,7 +95,8 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
     tCMMasterElastLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveElastLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMSlaveElastLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMSlaveElastLinIso->set_dof_type_list( tDofTypes );
     tCMSlaveElastLinIso->set_property( tPropSlaveYoungModulus, "YoungsModulus" );
     tCMSlaveElastLinIso->set_property( tPropSlavePoissonRatio, "PoissonRatio" );

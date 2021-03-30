@@ -81,7 +81,6 @@ set(HEADERS
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
-    CM/cl_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.hpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
     CM/cl_FEM_CM_Fluid_Turbulence.hpp
@@ -106,6 +105,7 @@ set(HEADERS
     SP/cl_FEM_SP_Incompressible_Flow.hpp
     SP/cl_FEM_SP_Viscous_Ghost.hpp
     SP/cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp
+    SP/cl_FEM_SP_Compressible_Dirichlet_Nitsche.hpp
     SP/cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp   
     SP/cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp  
     SP/cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp   
@@ -156,8 +156,6 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
-    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
@@ -168,6 +166,11 @@ set(HEADERS
     IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
+
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.hpp
+    IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp
+    IWG/fn_FEM_IWG_Compressible_NS.hpp
     
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
@@ -252,7 +255,6 @@ set(LIB_SOURCES
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
-    CM/cl_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
     CM/cl_FEM_CM_Fluid_Turbulence.cpp
@@ -279,6 +281,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Incompressible_Flow.cpp
     SP/cl_FEM_SP_Viscous_Ghost.cpp
     SP/cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.cpp
+    SP/cl_FEM_SP_Compressible_Dirichlet_Nitsche.cpp
     SP/cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp   
     SP/cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp  
     SP/cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp   
@@ -330,10 +333,6 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrix_Dof_Derivs.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
@@ -344,6 +343,15 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
+
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche_Flux_Matrices.cpp
+    IWG/fn_FEM_IWG_Compressible_NS_Dof_Check.cpp
+    IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices.cpp
+    IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices_Dof_Derivs.cpp
     
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp

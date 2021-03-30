@@ -1073,7 +1073,7 @@ namespace xtk
        
         // set the interpolation mesh cell info
         mtk::Cell_Info_Factory tFactory;
-        tEnrInterpMesh->mCellInfo = tFactory.create_cell_info( tFirstCell.get_geometry_type(), tFirstCell.get_interpolation_order());
+        tEnrInterpMesh->mCellInfo = tFactory.create_cell_info_sp( tFirstCell.get_geometry_type(), tFirstCell.get_interpolation_order());
 
         // allocate indices and ids
         moris_index tCellIndex = 0;

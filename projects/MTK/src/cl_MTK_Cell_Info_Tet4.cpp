@@ -243,7 +243,8 @@ namespace moris
             const Matrix<DDRMat> tNodeCoords20 = tVertices(2)->get_coords() - tNodeCoords0;
             const Matrix<DDRMat> tNodeCoords30 = tVertices(3)->get_coords() - tNodeCoords0;
 
-            return 1.0 / 6.0 * std::abs(dot(tNodeCoords10, cross(tNodeCoords20, tNodeCoords30)));
+            // return 1.0 / 6.0 * std::abs(dot(tNodeCoords10, cross(tNodeCoords20, tNodeCoords30)));
+            return 1.0 / 6.0 * dot(tNodeCoords10, cross(tNodeCoords20, tNodeCoords30));
         }
 
         // ----------------------------------------------------------------------------------

@@ -133,6 +133,9 @@ namespace moris
 
             // initialize flags for computing residuals and IQIs (default: on)
             mComputeResidualAndIQI.set_size(tNumMasterIGCells,1,1);
+
+//            real tVolume = this->compute_volume_new();
+//            std::cout << "tVolume = " << tVolume << std::endl;
         }
 
         //------------------------------------------------------------------------------

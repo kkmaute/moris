@@ -16,33 +16,13 @@ namespace moris
     namespace hmr
     {
 // ----------------------------------------------------------------------------
-
-        /**
-        * Returns the geometry type of this element
-        *
-        * @return mtk::Geometry_Type
-        */
         template<>
-        mtk::Geometry_Type
-        Lagrange_Element< 2, 9 >::get_geometry_type() const
+        void
+        Lagrange_Element< 2, 9 >::set_cell_info() 
         {
-            return mtk::Geometry_Type::QUAD;
+            std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = std::make_shared<moris::mtk::Cell_Info_Quad9 >();
+            this->set_mtk_cell_info(tCellInfo);
         }
-
-// ----------------------------------------------------------------------------
-
-        /**
-        * Returns the interpolation order of this element
-        *
-        * @return mtk::Interpolation_Order
-        */
-        template<>
-        mtk::Interpolation_Order
-        Lagrange_Element< 2, 9 >::get_interpolation_order() const
-        {
-            return mtk::Interpolation_Order::QUADRATIC;
-        }
-
 // ----------------------------------------------------------------------------
 
         /**
@@ -104,57 +84,6 @@ namespace moris
             {
                 aBasis( k ) = mNodes[ k ]->get_memory_index();
             }
-        }
-// ----------------------------------------------------------------------------
-
-        template<>
-        moris::Cell<moris::mtk::Vertex const *>
-        Lagrange_Element< 2, 9 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-        {
-            MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type quad");
-            moris::mtk::Cell_Info_Quad9 tConn;
-            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_node_to_facet_map(aSideOrdinal);
-            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
-            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(3);
-            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
-            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
-            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
-            return tVerticesOnSide;
-        }
-
-// ----------------------------------------------------------------------------
-        template<>
-        moris::Cell<moris::mtk::Vertex const *> Lagrange_Element< 2, 9 >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-        {
-            MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type quad");
-            moris::mtk::Cell_Info_Quad9 tConn;
-            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_geometric_node_to_facet_map(aSideOrdinal);
-            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
-            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(2);
-            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
-            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
-            return tVerticesOnSide;
-        }
-
-// ----------------------------------------------------------------------------
-
-        template<>
-        inline
-        real
-        Lagrange_Element< 2, 9 >::compute_cell_measure() const
-        {
-            mtk::Cell_Info_Quad4 tCellInfo;
-            return tCellInfo.compute_cell_size(this);
-        }
-
-// ----------------------------------------------------------------------------
-
-        template<>
-        moris::real
-        Lagrange_Element< 2, 9 >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
-        {
-            mtk::Cell_Info_Quad4 tCellInfo;
-            return tCellInfo.compute_cell_side_size( this, aCellSideOrd);
         }
 
 // ----------------------------------------------------------------------------

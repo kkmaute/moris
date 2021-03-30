@@ -78,6 +78,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Compressible_NS_Bulk.cpp
     UT_FEM_IWG_Compressible_NS_Bulk_Analytical.cpp
     UT_FEM_IWG_Compressible_NS_Boundary.cpp
+    UT_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
 
     UT_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     UT_FEM_IWG_Compressible_NS_Density_Bulk_Analytical.cpp

@@ -1085,8 +1085,8 @@ namespace moris
             tCMStrucLinIso1->set_dof_type_list( { tResDofTypes } );
             tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
             tCMStrucLinIso1->set_property( tPropNu1, "PoissonRatio" );
-            tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_local_properties();
 
             // define stabilization parameters
@@ -1373,16 +1373,16 @@ namespace moris
             tCMStrucLinIso1->set_dof_type_list( { tResDofTypes } );
             tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
             tCMStrucLinIso1->set_property( tPropNu1, "PoissonRatio" );
-            tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
             tCMStrucLinIso2->set_dof_type_list( { tResDofTypes } );
             tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
             tCMStrucLinIso2->set_property( tPropNu2, "PoissonRatio" );
-            tCMStrucLinIso2->set_space_dim( 3 );
             tCMStrucLinIso2->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso2->set_space_dim( 3 );
             tCMStrucLinIso2->set_local_properties();
 
             // define stabilization parameters
@@ -1713,8 +1713,8 @@ namespace moris
             tCMStrucLinIso1->set_dof_type_list( { tResDofTypes } );
             tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
             tCMStrucLinIso1->set_property( tPropNu1, "PoissonRatio" );
-            tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
@@ -1722,8 +1722,8 @@ namespace moris
             tCMStrucLinIso2->set_dof_type_list( { tResDofTypes } );
             tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
             tCMStrucLinIso2->set_property( tPropNu2, "PoissonRatio" );
-            tCMStrucLinIso2->set_space_dim( 3 );
             tCMStrucLinIso2->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso2->set_space_dim( 3 );
             tCMStrucLinIso2->set_local_properties();
 
             // define stabilization parameters

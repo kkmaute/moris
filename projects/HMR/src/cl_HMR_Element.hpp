@@ -593,30 +593,6 @@ namespace moris
                 MORIS_ERROR( false, "refine_basis() not available for this element.");
             }
 
-//------------------------------------------------------------------------------
-
-            virtual mtk::Geometry_Type get_geometry_type() const
-            {
-                MORIS_ERROR( false, "get_geometry_type() not available for this element.");
-                return mtk::Geometry_Type::UNDEFINED;
-            }
-
-//------------------------------------------------------------------------------
-
-            virtual mtk::Interpolation_Order get_interpolation_order() const
-            {
-                MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
-                return mtk::Interpolation_Order::UNDEFINED;
-            }
-
-//------------------------------------------------------------------------------
-
-            virtual mtk::Integration_Order get_integration_order() const
-            {
-                MORIS_ERROR( false, "Element::get_integration_order() not available for this element.");
-                return mtk::Integration_Order::UNDEFINED;
-            }
-
 //-------------------------------------------------------------------------------
         };
 

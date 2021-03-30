@@ -645,7 +645,7 @@ namespace moris
             // FIXME: solver should be received from solver warehouse
             uint tNumberOfCoefficients = aField->get_number_of_coefficients();
 
-            if ( tNumberOfCoefficients < 100000 )
+            if ( tNumberOfCoefficients*par_size() < 100000 )
             {
                 tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
             }

@@ -49,8 +49,8 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         }
 
         // Setup cell associated with element index 0
-        Cell_Info_Hex8 tConn;
-        Cell_STK tCell(&tConn,
+        std::shared_ptr<Cell_Info> tConn = std::make_shared<Cell_Info_Hex8>();
+        Cell_STK tCell(tConn,
                        1,
                        0,
                        tElementVertices,
@@ -196,8 +196,8 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
         }
 
         // Setup cell associated with element index 0
-        Cell_Info_Tet4 tTet4Con;
-        Cell_STK tCell(&tTet4Con, 1, 0, tElementVertices, tMesh1);
+        std::shared_ptr<Cell_Info> tTet4Con = std::make_shared<Cell_Info_Tet4>();
+        Cell_STK tCell(tTet4Con, 1, 0, tElementVertices, tMesh1);
 
         REQUIRE(tCell.get_id() == 1);
         REQUIRE(tCell.get_index() == 0);

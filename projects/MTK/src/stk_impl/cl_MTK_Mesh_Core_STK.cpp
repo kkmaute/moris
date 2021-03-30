@@ -1778,7 +1778,7 @@ namespace mtk
 
             // connectivity location
             moris_index tInfoIndex = mSTKMeshData->mCellInfo.size();
-            mSTKMeshData->mCellInfo.push_back(tFactory.create_cell_info(tBucketTopo));
+            mSTKMeshData->mCellInfo.push_back(tFactory.create_cell_info_sp(tBucketTopo));
 
             for(size_t iC = 0; iC < tCellBucket.size(); iC++)
             {

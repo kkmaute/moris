@@ -169,8 +169,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
         tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -481,8 +481,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
         tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -796,9 +796,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
         tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1123,9 +1123,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1460,9 +1460,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1797,9 +1797,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )

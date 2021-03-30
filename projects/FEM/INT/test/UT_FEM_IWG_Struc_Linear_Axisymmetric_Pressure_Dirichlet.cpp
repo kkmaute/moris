@@ -85,7 +85,8 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Pressure_Symmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
@@ -171,8 +172,8 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Pressure_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -410,7 +411,8 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Pressure_Unsymmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO_AXISYMMETRIC );
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
@@ -496,8 +498,8 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Pressure_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )

@@ -29,6 +29,7 @@ namespace moris
                 std::shared_ptr< Property > mPropCTE     = nullptr;
                 std::shared_ptr< Property > mPropTemp    = nullptr;
                 std::shared_ptr< Property > mPropTRef    = nullptr;
+                std::shared_ptr< Property > mPropRotAxis = nullptr;
 
             private:
 
@@ -45,6 +46,7 @@ namespace moris
                         CTE,
                         TEMP_PROP,
                         TEMP_REF,
+                        ROT_AXI,
                         MAX_ENUM
                 };
 
@@ -68,6 +70,10 @@ namespace moris
                 Model_Type mPlaneType  = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
 
                 Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
+
+                // number of normal stresses and strains in the tensors
+                uint mNumNormalStress;
+                uint mNumNormalStrain;
 
                 //--------------------------------------------------------------------------------------------------------------
             public:
@@ -152,6 +158,16 @@ namespace moris
                  * Model_Type::DEVIATORIC
                  */
                 void set_model_type( Model_Type aModelType );
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @return plane_type
+                 */
+                Model_Type
+                get_plane_type() const
+                {
+                    return mPlaneType;
+                }
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -347,6 +363,26 @@ namespace moris
                  * @param aNu Poisson ratio
                  */
                 void deviatoric_plane_strain(
+                        moris::real aEmod,
+                        moris::real aNu );
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * Full axisymmetric tensor
+                 * @param[ in ] aEmod Elastic modulus
+                 * @param[ in ] aNu   Poisson ratio
+                 */
+                void full_axisymmetric(
+                        moris::real aEmod,
+                        moris::real aNu );
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * Deviatoric axisymmetric tensor
+                 * @param aEmod Elastic modulus
+                 * @param aNu   Poisson ratio
+                 */
+                void deviatoric_axisymmetric(
                         moris::real aEmod,
                         moris::real aNu );
 

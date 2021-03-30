@@ -40,7 +40,7 @@ namespace moris
                 MORIS_ERROR( mIQITypeIndex != -1,
                         "IQI_Max_Stress::compute_QI - mIQITypeIndex not set, but is needed for principal, normal and shear stresses." );
 
-                MORIS_ERROR( mIQITypeIndex > 2,
+                MORIS_ERROR( mIQITypeIndex <= 2 && mIQITypeIndex >= 0,
                         "IQI_Max_Stress::compute_QI - mIQITypeIndex out of bounds, must be 0, 1, or 2 for the three spatial dimensions." );
             }
 

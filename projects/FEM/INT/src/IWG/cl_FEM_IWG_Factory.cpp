@@ -44,6 +44,7 @@
 //Compressible Fluid
 #include "cl_FEM_IWG_Compressible_NS_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Boundary.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp"
@@ -223,6 +224,12 @@ namespace moris
 
                 case IWG_Type::COMPRESSIBLE_NS_BOUNDARY :
                     return std::make_shared< IWG_Compressible_NS_Boundary >();
+
+                case IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Compressible_NS_Dirichlet_Nitsche >( 1 );
+
+                case IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Compressible_NS_Dirichlet_Nitsche >( -1 );
 
                 //------------------------------------------------------------------------------
 

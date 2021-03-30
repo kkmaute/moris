@@ -149,10 +149,10 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
         tIWG->set_normal( tNormal );
 
         // set space dim for CM
-        tCMMasterElastLinIso->set_space_dim( iSpaceDim );
         tCMMasterElastLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMSlaveElastLinIso->set_space_dim( iSpaceDim );
+        tCMMasterElastLinIso->set_space_dim( iSpaceDim );
         tCMSlaveElastLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMSlaveElastLinIso->set_space_dim( iSpaceDim );
 
         // set geometry inputs
         //------------------------------------------------------------------------------

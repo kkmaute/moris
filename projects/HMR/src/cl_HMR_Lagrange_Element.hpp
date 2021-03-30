@@ -56,7 +56,7 @@ namespace moris
                 Lagrange_Element(
                         Background_Element_Base * aElement,
                         const uint              & aActivationPattern ) : Element( aElement, aActivationPattern )
-            {
+                {
                     if( N == 2 )
                     {
                         mFacets.resize( 4, nullptr );
@@ -66,7 +66,10 @@ namespace moris
                         mFacets.resize( 6, nullptr );
                         mEdges.resize( 12, nullptr );
                     }
-            }
+
+                    this->set_cell_info();
+
+                }
 
                 //------------------------------------------------------------------------------
 
@@ -77,6 +80,11 @@ namespace moris
                 {
                     this->delete_basis_container();
                 }
+
+                //------------------------------------------------------------------------------
+                
+                void
+                set_cell_info();
 
                 //------------------------------------------------------------------------------
 
@@ -351,59 +359,9 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 /**
-                 * returns the mtk geometry type of this element
-                 */
-                mtk::Geometry_Type get_geometry_type() const ;
-
-                //------------------------------------------------------------------------------
-
-                /**
                  * returns a Mat with the node coords
                  */
                 Matrix< DDRMat > get_vertex_coords() const;
-
-                //------------------------------------------------------------------------------
-
-                /*!
-                 * Returns the vertices on a given side ordinal
-                 */
-                moris::Cell<moris::mtk::Vertex const *> get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
-
-                //------------------------------------------------------------------------------
-
-                /*!
-                 * Returns the corner or geometric vertices on a given side ordinal
-                 */
-                moris::Cell<moris::mtk::Vertex const *> get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
-
-                //------------------------------------------------------------------------------
-
-                /*!
-                 * Returns the outward normal on a side ordinal
-                 */
-                moris::Matrix<moris::DDRMat> compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
-
-                //------------------------------------------------------------------------------
-
-                /*!
-                 * Returns the outward normal on a side ordinal
-                 */
-                moris::real compute_cell_measure() const;
-
-                //------------------------------------------------------------------------------
-
-                /*!
-                 * Returns the outward normal on a side ordinal
-                 */
-                moris::real
-                compute_cell_side_measure(moris_index const & aCellSideOrd) const;
-
-
-                //------------------------------------------------------------------------------
-                /**
-                 * returns the interpolation order of this element
-                 */
-                mtk::Interpolation_Order get_interpolation_order() const;
 
                 //------------------------------------------------------------------------------
 
@@ -472,6 +430,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
         };
+        //------------------------------------------------------------------------------
+        template< uint N, uint D >
+        void
+        Lagrange_Element< N, D >::set_cell_info() 
+        {
+            MORIS_ERROR( false, "set_cell_info() not available for this element.");
+        }
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
@@ -546,65 +511,6 @@ namespace moris
             return aCoords;
         }
 
-        //------------------------------------------------------------------------------
-
-        template< uint N, uint D >
-        mtk::Geometry_Type Lagrange_Element< N, D >::get_geometry_type() const
-        {
-            MORIS_ERROR( false, "get_geometry_type() not available for this element.");
-            return mtk::Geometry_Type::UNDEFINED;
-        }
-
-        //------------------------------------------------------------------------------
-
-        template< uint N, uint D >
-        mtk::Interpolation_Order Lagrange_Element< N, D >::get_interpolation_order() const
-        {
-            MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
-            return mtk::Interpolation_Order::UNDEFINED;
-        }
-
-        //------------------------------------------------------------------------------
-        template< uint N, uint D >
-        moris::Cell<moris::mtk::Vertex const *>
-        Lagrange_Element< N, D >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-        {
-            MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
-            return moris::Cell<moris::mtk::Vertex const *>(0);
-        }
-        //------------------------------------------------------------------------------
-        template< uint N, uint D >
-        moris::Cell<moris::mtk::Vertex const *>
-        Lagrange_Element< N, D >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-        {
-            MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
-            return moris::Cell<moris::mtk::Vertex const *>(0);
-        }
-        //------------------------------------------------------------------------------
-
-        template< uint N, uint D >
-        moris::Matrix<moris::DDRMat>
-        Lagrange_Element< N, D >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-        {
-            MORIS_ERROR( false, "compute_outward_side_normal() not available for this element.");
-            return moris::Matrix<moris::DDRMat>(0,0);
-        }
-        //------------------------------------------------------------------------------
-        template< uint N, uint D >
-        moris::real
-        Lagrange_Element< N, D >::compute_cell_measure() const
-        {
-            MORIS_ERROR( false, "compute_cell_measure() not available for this element.");
-            return 0;
-        }
-        //------------------------------------------------------------------------------
-        template< uint N, uint D >
-        moris::real
-        Lagrange_Element< N, D >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
-        {
-            MORIS_ERROR( false, "compute_cell_side_measure() not available for this element.");
-            return 0;
-        }
 
     } /* namespace hmr */
 } /* namespace moris */

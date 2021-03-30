@@ -51,7 +51,7 @@ namespace xtk
                     moris::moris_index aElementIndex,
                     moris::moris_index aElementOwner,
                     moris::moris_index aCMElementIndex,
-                    xtk::Child_Mesh *aChildMeshPtr,
+                    xtk::Child_Mesh   *aChildMeshPtr,
                     xtk::Background_Mesh *aBackgroundMeshPtr);
         //------------------------------------------------------------------------------
 
@@ -63,39 +63,10 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         /**
-        * returns the domain wide id of the cell
-        *
-        * @return moris_id ID
-        */
-        moris_id
-        get_id() const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * returns the local index of the cell
-         *
-         * @return moris_index ID
-         */
-        moris_index
-        get_index() const;
-
-        //------------------------------------------------------------------------------
-
-        /**
          * tells how many vertices are connected to this cell
          */
         uint
         get_number_of_vertices() const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * returns the proc id of the owner of this cell
-         * ( this information is needed for STK )
-         */
-        moris_id
-        get_owner() const;
 
         //------------------------------------------------------------------------------
 
@@ -132,63 +103,6 @@ namespace xtk
         get_vertex_coords() const;
 
         //------------------------------------------------------------------------------
-
-        /**
-         * returns an enum that defines the geometry type of the element
-         */
-        mtk::Geometry_Type
-        get_geometry_type() const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * returns the order of the element
-         */
-        mtk::Interpolation_Order
-        get_interpolation_order() const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * returns error
-         */
-        mtk::Integration_Order
-        get_integration_order() const
-        {
-            MORIS_ERROR(false, "Cell_XTK_CM::get_integration_order() not implemented.");
-            return mtk::Integration_Order::UNDEFINED;
-        }
-
-        //------------------------------------------------------------------------------
-
-        moris::Cell<moris::mtk::Vertex const *>
-        get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
-        //------------------------------------------------------------------------------
-
-        moris::Matrix<moris::DDRMat>
-        compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
-
-        //------------------------------------------------------------------------------
-
-        moris::real
-        compute_cell_measure() const;
-
-        //------------------------------------------------------------------------------
-
-        moris::real
-        compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const;
-
-        //------------------------------------------------------------------------------
-
-        moris::real
-        compute_cell_side_measure(moris_index const &aSideOrdinal) const;
-
-        //------------------------------------------------------------------------------
-
-        moris::real
-        compute_cell_side_measure_deriv(moris_index const &aSideOrdinal, uint aLocalVertexID, uint aDirection) const;
-
-        //------------------------------------------------------------------------------
         /*!
          * @brief capacity of the cell
          */
@@ -197,7 +111,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
     private:
-        moris::moris_id mElementId;
+        moris::moris_id    mElementId;
         moris::moris_index mElementIndex;
         moris::moris_index mElementOwner;
         moris::moris_index mCMElementIndex; /* Needed to access connectivity (verts) */

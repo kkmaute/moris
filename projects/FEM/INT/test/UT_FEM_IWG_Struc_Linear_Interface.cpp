@@ -150,10 +150,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         tIWG->set_normal( tNormal );
 
         // set space dim for CM
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMSlaveStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
         tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMSlaveStrucLinIso->set_space_dim( iSpaceDim );
         tSPNitscheInterface->set_space_dim( iSpaceDim );
 
         // set geometry inputs

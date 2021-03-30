@@ -49,6 +49,7 @@ set(HEADERS
     cl_XTK_Interpolation_Vertex_Unzipped.hpp
     cl_XTK_Enriched_Integration_Mesh.hpp
     cl_XTK_Enriched_Interpolation_Mesh.hpp
+    cl_XTK_Mesh_Cleanup.hpp
     cl_XTK_Multigrid.hpp
     cl_XTK_Model.hpp
 #    cl_XTK_Node.hpp
@@ -107,6 +108,7 @@ cl_XTK_Enrichment.cpp
 cl_XTK_Field.cpp
 cl_XTK_Ghost_Stabilization.cpp
 cl_XTK_Hole_Seeder.cpp
+cl_XTK_Mesh_Cleanup.cpp
 cl_XTK_Model.cpp
 cl_XTK_Multigrid.cpp
 cl_XTK_Paramfile.cpp
