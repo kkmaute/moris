@@ -37,7 +37,11 @@ namespace moris
                     {{2.0}, {0.0}},
                     {{0.0}, {-0.4605823}},
                     {{-0.5}, {0.0}},
-                    {{0.0}, {-(9 + sqrt(17)) / 16}}};
+                    {{0.0}, {-(9 + sqrt(17)) / 16}},
+                    {{0.75, 0.0, 0.1875, 0.75}, {0.0, 0.0, 0.0, 0.0}},
+                    {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                    {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                    {{0.25, 0.0, -0.1875, -0.25}, {0.0, 0.0, 0.0, 0.0}}};
             Cell<Matrix<DDRMat>> tIntersectionSecondSensitivities = {
                     {{0.0}, {0.4605823}},
                     {{2.0}, {0.0}},
@@ -46,26 +50,38 @@ namespace moris
                     {{0.0}, {0.0}},
                     {{0.0}, {-(9 + sqrt(17)) / 16}},
                     {{-0.5}, {0.0}},
-                    {{0.0}, {-0.4605823}}};
+                    {{0.0}, {-0.4605823}},
+                    {{0.25, 0.0, -0.1875, 0.25}, {0.0, 0.0, 0.0, 0.0}},
+                    {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                    {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                    {{0.75, 0.0, 0.1875, -0.75}, {0.0, 0.0, 0.0, 0.0}}};
             Cell<Matrix<DDSMat>> tIntersectionFirstIDs = {
-                    {{2}},
-                    {{5}},
                     {{6}},
-                    {{5}},
-                    {{4}},
-                    {{5}},
-                    {{5}},
-                    {{8}}};
-            Cell<Matrix<DDSMat>> tIntersectionSecondIDs = {
-                    {{5}},
-                    {{4}},
-                    {{5}},
-                    {{2}},
-                    {{5}},
+                    {{9}},
+                    {{10}},
+                    {{9}},
                     {{8}},
+                    {{9}},
+                    {{9}},
+                    {{12}},
+                    {{0}, {1}, {2}, {3}},
+                    {{0}, {1}, {2}, {3}},
+                    {{0}, {1}, {2}, {3}},
+                    {{0}, {1}, {2}, {3}}};
+            Cell<Matrix<DDSMat>> tIntersectionSecondIDs = {
+                    {{9}},
+                    {{8}},
+                    {{9}},
                     {{6}},
-                    {{5}}};
-            for (uint tNodeIndex = 9; tNodeIndex < 17; tNodeIndex++)
+                    {{9}},
+                    {{12}},
+                    {{10}},
+                    {{9}},
+                    {{0}, {1}, {2}, {3}},
+                    {{0}, {1}, {2}, {3}},
+                    {{0}, {1}, {2}, {3}},
+                    {{0}, {1}, {2}, {3}}};
+            for (uint tNodeIndex = 9; tNodeIndex < 21; tNodeIndex++)
             {
                 check_equal(
                         aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(0),
@@ -92,7 +108,7 @@ namespace moris
                 mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
 
                 // Set up geometry
-                Matrix<DDRMat> tADVs(0, 0);
+                Matrix<DDRMat> tADVs = {{0.25, 0.0, 1.0, 0.0}};
 
                 // Circle
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
@@ -101,21 +117,29 @@ namespace moris
                 tCircleParameterList.set("discretization_mesh_index", 0);
 
                 // Plane 1
-                ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
-                tPlaneParameterList.set("type", "plane");
-                tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
+                ParameterList tPlane1ParameterList = prm::create_geometry_parameter_list();
+                tPlane1ParameterList.set("type", "plane");
+                tPlane1ParameterList.set("field_variable_indices", "all");
+                tPlane1ParameterList.set("adv_indices", "all");
+
+                // Plane 2
+                ParameterList tPlane2ParameterList = prm::create_geometry_parameter_list();
+                tPlane2ParameterList.set("type", "plane");
+                tPlane2ParameterList.set("constant_parameters", "1.0, 0.0, 1.0, 0.0");
 
                 // Create geometry engine
                 Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mADVs = tADVs;
                 tGeometryEngineParameters.mGeometries =
-                        create_geometries({tCircleParameterList, tPlaneParameterList}, tADVs);
+                        create_geometries({tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList}, tADVs);
                 Geometry_Engine tGeometryEngine(tMesh, tGeometryEngineParameters);
 
                 // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
                 tGeometryEngine.output_fields_on_mesh(tMesh, "intersection_test.exo");
 
                 // Solution for is_intersected() per geometry and per element
-                Cell<Cell<bool>> tIsElementIntersected = {{true, true, true, true}, {false, true, false, true}};
+                Cell<Cell<bool>> tIsElementIntersected =
+                        {{true, true, true, true}, {false, true, false, true}, {false, true, false, true}};
 
                 // Per geometry, per element, per edge
                 Cell<Cell<Cell<bool>>> tIsEdgeIntersected = {{
@@ -126,12 +150,16 @@ namespace moris
                         {false, false, false, false}, // Geometry 1, Element 0
                         {true, false, true, false},   // Geometry 1, Element 1
                         {false, false, false, false}, // Geometry 1, Element 2
-                        {true, false, true, false}}}; // Geometry 1, Element 3
+                        {true, false, true, false}},{ // Geometry 1, Element 3
+                        {false, false, false, false}, // Geometry 2, Element 0
+                        {true, true, true, false},    // Geometry 2, Element 1
+                        {false, false, false, false}, // Geometry 2, Element 2
+                        {true, true, true, false}}};  // Geometry 2, Element 3
 
                 // Intersection coordinates
                 real tFrac = 2.0 / (3.0 + sqrt(17.0));
                 Matrix<DDRMat> tIntersectionLocalCoordinates = {{
-                        -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5}};
+                        -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0}};
                 Cell<Matrix<DDRMat>> tIntersectionGlobalCoordinates = {
                         {{0.0, -0.5 - (tFrac / 2)}},
                         {{-1.0, 0.0}},
@@ -144,11 +172,17 @@ namespace moris
                         {{0.25, -1.0}},
                         {{0.25, 0.0}},
                         {{0.25, 0.0}},
-                        {{0.25, 1.0}}};
+                        {{0.25, 1.0}},
+                        {{1.0, -1.0}},
+                        {{1.0, -1.0}},
+                        {{1.0, 0.0}},
+                        {{1.0, 0.0}},
+                        {{1.0, 0.0}},
+                        {{1.0, 1.0}}};
 
                 // Check element intersections
                 uint tIntersectionCount = 0;
-                for (uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < 3; tGeometryIndex++)
                 {
                     for (uint tElementIndex = 0; tElementIndex < 4; tElementIndex++)
                     {
@@ -159,14 +193,18 @@ namespace moris
                         Matrix<DDRMat> tNodeCoordinates(4, 2);
                         for (uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++)
                         {
+                            // Node coordinates
+                            Matrix<DDRMat> tFirstNodeCoordinates = tMesh->get_node_coordinate(tNodeIndices(tNodeNumber));
+                            Matrix<DDRMat> tSecondNodeCoordinates = tMesh->get_node_coordinate(tNodeIndices((tNodeNumber + 1) % 4));
+
                             // Queue intersection
                             bool tIntersectionQueued = tGeometryEngine.queue_intersection(
                                     tNodeIndices(tNodeNumber),
                                     tNodeIndices((tNodeNumber + 1) % 4),
                                     {{}},
                                     {{}},
-                                    tMesh->get_node_coordinate(tNodeIndices(tNodeNumber)),
-                                    tMesh->get_node_coordinate(tNodeIndices((tNodeNumber + 1) % 4)),
+                                    tFirstNodeCoordinates,
+                                    tSecondNodeCoordinates,
                                     {{}},
                                     {});
                             REQUIRE(tIntersectionQueued == tIsEdgeIntersected(tGeometryIndex)(tElementIndex)(tNodeNumber));
@@ -178,26 +216,30 @@ namespace moris
                                 bool tFirstParentOnInterface = false;
                                 bool tSecondParentOnInterface = false;
 
-                                // TODO when XTK supports background nodes on the interface, uncomment this
-//                                if (tNodeIndices(tNodeNumber) == 3)
-//                                {
-//                                    tFirstParentOnInterface = true;
-//                                }
-//                                if (tNodeIndices((tNodeNumber + 1) % 4) == 3)
-//                                {
-//                                    tSecondParentOnInterface = true;
-//                                }
+                                // Parent nodes on interface
+                                if (tGeometryIndex == 2 and tFirstNodeCoordinates(0) == Approx(1.0))
+                                {
+                                    tFirstParentOnInterface = true;
+                                }
+                                if (tGeometryIndex == 2 and tSecondNodeCoordinates(0) == Approx(1.0))
+                                {
+                                    tSecondParentOnInterface = true;
+                                }
                                 CHECK(tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface);
                                 CHECK(tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface);
 
-                                // Check local coordinates
-                                CHECK(tGeometryEngine.get_queued_intersection_local_coordinate() ==
-                                        Approx(tIntersectionLocalCoordinates(tIntersectionCount)));
+                                // See if local coordinate is a number
+                                real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
+                                if (not isnan(tLocalCoordinate))
+                                {
+                                    // Check local coordinate
+                                    CHECK(tLocalCoordinate == Approx(tIntersectionLocalCoordinates(tIntersectionCount)));
 
-                                // Check global coordinates
-                                check_equal(
-                                        tGeometryEngine.get_queued_intersection_global_coordinates(),
-                                        tIntersectionGlobalCoordinates(tIntersectionCount));
+                                    // Check global coordinates
+                                    check_equal(
+                                            tGeometryEngine.get_queued_intersection_global_coordinates(),
+                                            tIntersectionGlobalCoordinates(tIntersectionCount));
+                                }
 
                                 // Admit intersection
                                 tGeometryEngine.admit_queued_intersection(9 + tIntersectionCount);
@@ -215,15 +257,15 @@ namespace moris
                                 tIsElementIntersected(tGeometryIndex)(tElementIndex));
                     }
 
-                    // FIXME
-                    if (tGeometryIndex == 0)
+                    // Advance geometry index
+                    if (tGeometryIndex < 2)
                     {
                         tGeometryEngine.advance_geometry_index();
                     }
                 }
 
                 // Check total number of intersections
-                CHECK(tIntersectionCount == 12);
+                CHECK(tIntersectionCount == 18);
 
                 // Test the new child nodes on the level set field (geometry 0)
                 CHECK(tGeometryEngine.get_field_value(0,  9, {{}}) == Approx(0.0));
@@ -238,6 +280,10 @@ namespace moris
                 CHECK(tGeometryEngine.get_field_value(0, 18, {{}}) == Approx(-0.25));
                 CHECK(tGeometryEngine.get_field_value(0, 19, {{}}) == Approx(-0.25));
                 CHECK(tGeometryEngine.get_field_value(0, 20, {{}}) == Approx(0.423278));
+                CHECK(tGeometryEngine.get_field_value(0, 21, {{}}) == Approx( (sqrt(41) - 3) / 4 ));
+                CHECK(tGeometryEngine.get_field_value(0, 23, {{}}) == Approx(0.5));
+                CHECK(tGeometryEngine.get_field_value(0, 24, {{}}) == Approx(0.5));
+                CHECK(tGeometryEngine.get_field_value(0, 26, {{}}) == Approx( (sqrt(41) - 3) / 4 ));
 
                 // Get the PDV host manager and set the number of total nodes
                 Pdv_Host_Manager* tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
@@ -246,21 +292,21 @@ namespace moris
                 Cell<Matrix<DDRMat>> tPdvValues(0);
                 Cell<Matrix<DDSMat>> tIsActive(0);
                 tPdvHostManager->get_ig_pdv_value(
-                        {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}},
+                        {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26}},
                         {PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE},
                         tPdvValues,
                         tIsActive);
 
                 // Background nodes
-                for (uint tNodeIndex = 0; tNodeIndex <= 8; tNodeIndex++)
+                for (uint tNodeIndex = 0; tNodeIndex < 9; tNodeIndex++)
                 {
                     // Check if not active
                     CHECK(tIsActive(0)(tNodeIndex) == false);
                     CHECK(tIsActive(1)(tNodeIndex) == false);
                 }
 
-                // Nodes on the circle interface (depends on ADVs, active)
-                for (uint tNodeIndex = 9; tNodeIndex <= 16; tNodeIndex++)
+                // Nodes on the circle and first plane interfaces (depend on ADVs, active)
+                for (uint tNodeIndex = 9; tNodeIndex < 21; tNodeIndex++)
                 {
                     // Check if active
                     CHECK(tIsActive(0)(tNodeIndex) == true);
@@ -272,7 +318,7 @@ namespace moris
                 }
 
                 // Nodes on the plane interface (inactive) TODO Subset are still on circle
-                for (uint tNodeIndex = 17; tNodeIndex <= 20; tNodeIndex++)
+                for (uint tNodeIndex = 21; tNodeIndex < 27; tNodeIndex++)
                 {
                     // Check if not active
                     CHECK(tIsActive(0)(tNodeIndex) == false);
