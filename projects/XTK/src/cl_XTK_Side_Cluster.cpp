@@ -214,6 +214,30 @@ namespace xtk
     
     //----------------------------------------------------------------
     
+    moris::real
+    Side_Cluster::compute_cluster_cell_measure_derivative(
+            const Matrix< DDRMat > & aPerturbedVertexCoords,
+            uint aDirection,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster) const
+    {
+        if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
+        {
+            return mAssociatedCellCluster->compute_cluster_cell_measure_derivative(
+                    aPerturbedVertexCoords,
+                    aDirection,
+                    aPrimaryOrVoid,
+                    aIsMaster);
+        }
+        else
+        {
+            MORIS_LOG( "mInterpolationCell->compute_cell_measure_derivative() is set to zero" );
+            return 0.0;
+        }
+    }
+
+    //----------------------------------------------------------------
+
     void
     Side_Cluster::print_vertex_map() const
     {

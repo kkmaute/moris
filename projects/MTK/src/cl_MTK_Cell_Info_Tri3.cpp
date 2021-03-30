@@ -243,15 +243,8 @@ namespace moris
             MORIS_ASSERT( aDirection < 2,"Cell_Info_Tri3::compute_cell_size_deriv directions can only be 0 or 1.\n");
             MORIS_ASSERT( aLocalVertexID < 3,"Cell_Info_Tri3::compute_cell_size_deriv vertex IDs must be 0, 1, or 2.\n");
 
-            // get sign
-            const Matrix<DDRMat> tNodeCoords10 = tVertices(1)->get_coords() - tVertices(0)->get_coords();
-            const Matrix<DDRMat> tNodeCoords20 = tVertices(2)->get_coords() - tVertices(0)->get_coords();
-
-            real tSign = tNodeCoords10(0) * tNodeCoords20(1) - tNodeCoords20(0) * tNodeCoords10(1);
-            tSign = tSign / std::abs( tSign );
-
             // computes the derivative of the area wrt to the single dof/direction.
-            moris::real tAreaDeriv = 0.5 * tSign * std::pow( -1.0, aDirection ) *
+            moris::real tAreaDeriv = 0.5 * std::pow( -1.0, aDirection ) *
                     ( tNodeCoordsA( tDirIndexMap( aDirection ) ) -
                             tNodeCoordsB( tDirIndexMap( aDirection ) ) );
 

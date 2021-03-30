@@ -43,7 +43,7 @@ public:
     moris::Matrix<moris::DDRMat>            get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const ;
     moris_index                             get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
     moris::real                             compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY, const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
-
+    moris::real                             compute_cluster_cell_measure_derivative( const Matrix< DDRMat > & aPerturbedVertexCoords, uint aDirection, const mtk::Primary_Void aPrimaryOrVoid, const mtk::Master_Slave aIsMaster) const;
 
     // memory
     size_t

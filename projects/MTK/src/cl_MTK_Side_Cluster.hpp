@@ -162,6 +162,21 @@ v                 * @return single integration cell side ordinal
 
                 // ----------------------------------------------------------------------------------
                 /*!
+                 * @param[in] aPerturbedVertexCoords coordinate of perturbed vertex
+                 * @param[in] aDirection spatial direction for perturbation
+                 * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
+                 * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+                 * @return Derivative of Cell Measure
+                 */
+                moris::real
+                compute_cluster_cell_measure_derivative(
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+
+                // ----------------------------------------------------------------------------------
+                /*!
                  * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
                  * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
                  * @return Cell Side Measure
@@ -171,6 +186,22 @@ v                 * @return single integration cell side ordinal
                 compute_cluster_cell_side_measure(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+                // ----------------------------------------------------------------------------------
+                /*!
+                 * @param[in] aPerturbedVertexCoords coordinate of perturbed vertex
+                 * @param[in] aDirection spatial direction for perturbation
+                 * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
+                 * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+                 * @return Derivative of Cell Side Measure
+                 */
+                virtual
+                moris::real
+                compute_cluster_cell_side_measure_derivative(
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const ;
 
                 // ----------------------------------------------------------------------------------
                 /*!
