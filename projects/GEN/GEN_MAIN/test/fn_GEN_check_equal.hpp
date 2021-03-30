@@ -25,6 +25,10 @@ namespace moris
                 for (uint tColumnIndex = 0; tColumnIndex < aMatrix1.n_cols(); tColumnIndex++)
                 {
                     CHECK(aMatrix1(tRowIndex, tColumnIndex) == Approx(aMatrix2(tRowIndex, tColumnIndex)));
+                    if (aMatrix1(tRowIndex, tColumnIndex) != Approx(aMatrix2(tRowIndex, tColumnIndex)))
+                    {
+                        std::cout << aMatrix1(tRowIndex, tColumnIndex) << " =/= " << aMatrix2(tRowIndex, tColumnIndex) << std::endl;
+                    }
                 }
             }
         }

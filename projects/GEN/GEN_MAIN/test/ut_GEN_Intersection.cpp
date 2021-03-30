@@ -2,7 +2,7 @@
 #include "math.h"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
@@ -27,6 +27,63 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void check_intersection_sensitivities(Pdv_Host_Manager* aPDVHostManager)
+        {
+            Cell<Matrix<DDRMat>> tIntersectionFirstSensitivities = {
+                    {{0.0}, {(9 + sqrt(17)) / 16}},
+                    {{0.0}, {0.0}},
+                    {{-0.5}, {0.0}},
+                    {{0.0}, {0.4605823}},
+                    {{2.0}, {0.0}},
+                    {{0.0}, {-0.4605823}},
+                    {{-0.5}, {0.0}},
+                    {{0.0}, {-(9 + sqrt(17)) / 16}}};
+            Cell<Matrix<DDRMat>> tIntersectionSecondSensitivities = {
+                    {{0.0}, {0.4605823}},
+                    {{2.0}, {0.0}},
+                    {{-0.5}, {0.0}},
+                    {{0.0}, {(9 + sqrt(17)) / 16}},
+                    {{0.0}, {0.0}},
+                    {{0.0}, {-(9 + sqrt(17)) / 16}},
+                    {{-0.5}, {0.0}},
+                    {{0.0}, {-0.4605823}}};
+            Cell<Matrix<DDSMat>> tIntersectionFirstIDs = {
+                    {{2}},
+                    {{5}},
+                    {{6}},
+                    {{5}},
+                    {{4}},
+                    {{5}},
+                    {{5}},
+                    {{8}}};
+            Cell<Matrix<DDSMat>> tIntersectionSecondIDs = {
+                    {{5}},
+                    {{4}},
+                    {{5}},
+                    {{2}},
+                    {{5}},
+                    {{8}},
+                    {{6}},
+                    {{5}}};
+            for (uint tNodeIndex = 9; tNodeIndex < 17; tNodeIndex++)
+            {
+                check_equal(
+                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(0),
+                        tIntersectionFirstSensitivities(tNodeIndex - 9));
+                check_equal(
+                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(1),
+                        tIntersectionSecondSensitivities(tNodeIndex - 9));
+                check_equal(
+                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(0),
+                        tIntersectionFirstIDs(tNodeIndex - 9));
+                check_equal(
+                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(1),
+                        tIntersectionSecondIDs(tNodeIndex - 9));
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         TEST_CASE("Linear Intersections", "[gen], [pdv], [intersection], [linear intersection]")
         {
             if (par_size() == 1)
@@ -43,7 +100,7 @@ namespace moris
                 tCircleParameterList.set("constant_parameters", "-0.25, 0.0, 0.7499999999");
                 tCircleParameterList.set("discretization_mesh_index", 0);
 
-                // Plane
+                // Plane 1
                 ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
                 tPlaneParameterList.set("type", "plane");
                 tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
@@ -222,7 +279,8 @@ namespace moris
                     CHECK(tIsActive(1)(tNodeIndex) == false);
                 }
 
-                // TODO check sensitivities
+                // Check sensitivities
+                check_intersection_sensitivities(tPdvHostManager);
 
                 //------------------------------------------------------------------------------------------------------
                 // Start second check
