@@ -3559,9 +3559,6 @@ namespace moris
                 // number of pdv to assemble
                 uint tNumPdvToAssemble = tClusterMeasure->dMEAdPDV().numel() - 1;
 
-                //print( tClusterMeasure->val(), "tClusterMeasure->val()" );
-                //print( tClusterMeasure->dMEAdPDV(), "tClusterMeasure->dMEAdPDV()" );
-
                 // set starting point for FD
                 uint tStartPoint = 0;
 
@@ -3665,9 +3662,6 @@ namespace moris
                         aPerturbation,
                         tClusterMeasure->val()( 0 ),
                         tClusterMeasure->val()( 0 ) );
-
-                //print( tClusterMeasure->val(), "tClusterMeasure->val()" );
-                //print(tClusterMeasure->dMEAdPDV(),"tClusterMeasure->dMEAdPDV()");
 
                 // get end pdv index
                 uint tEndPdvIndex = tClusterMeasure->dMEAdPDV().numel() - 1;
