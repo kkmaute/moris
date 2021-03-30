@@ -100,6 +100,36 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get measure type
+                 * @return fem::Measure_Type describing the cluster measure
+                 */
+                fem::Measure_Type & get_measure_type()
+                {
+                    return  mMeasureType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get primary type
+                 * @return mtk::Primary_Void describing the cluster measure
+                 */
+                mtk::Primary_Void & get_primary_type()
+                {
+                    return  mIsPrimary;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get master type
+                 * @return mtk::Master_Slave describing the cluster measure
+                 */
+                mtk::Master_Slave & get_master_type()
+                {
+                    return  mIsMaster;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get the stabilization parameter value
                  * @param[ out ] mMEAVal stabilization parameter value
                  */
