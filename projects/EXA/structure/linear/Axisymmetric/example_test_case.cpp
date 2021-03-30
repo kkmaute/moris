@@ -124,9 +124,6 @@ TEST_CASE("Axisymmetric_Problem_Linear",
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
 
-    // set interpolation order
-    gInterpolationOrder = 1;
-
     // check results
     switch ( par_size() )
     {
