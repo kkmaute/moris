@@ -110,6 +110,7 @@ namespace moris
         tParameterList.insert( "adaptive_refinement_level", 0 );
         tParameterList.insert( "use_refinement_interrelation", 0 );
         tParameterList.insert( "renumber_lagrange_nodes", 0 );
+        tParameterList.insert( "use_advanced_T_matrix_scheme", 0 );
 
         tParameterList.insert( "refinement_function_names", "" );
 
