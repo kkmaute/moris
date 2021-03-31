@@ -326,6 +326,13 @@ namespace moris
 
                 void create_pdv_ids();
 
+                /**
+                 * Function ONLY used for testing, allowing limited access to member variables.
+                 *
+                 * @param aPDVHostManager PDV host manager
+                 */
+                friend void check_intersection_sensitivities(Pdv_Host_Manager* aPDVHostManager);
+
             private:
 
                 void communicate_check_if_owned_pdv_exists();

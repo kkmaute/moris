@@ -146,6 +146,7 @@ namespace moris
                 , mIsocontourThreshold(aParameters.mIsocontourThreshold)
                 , mIsocontourTolerance(aParameters.mIsocontourTolerance)
                 , mIntersectionTolerance(aParameters.mIntersectionTolerance)
+                , mInitialPrimitiveADVs(aParameters.mADVs)
                 , mTimeOffset(aParameters.mTimeOffset)
         {
             // Tracer
