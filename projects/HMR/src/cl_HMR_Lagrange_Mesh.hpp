@@ -105,6 +105,11 @@ namespace moris
            {
                this->delete_edges();
            }
+
+           for( auto tLagrangeMesh : mLagrangeMeshForTMatrix )
+           {
+                delete tLagrangeMesh;
+           }
         }
 
 

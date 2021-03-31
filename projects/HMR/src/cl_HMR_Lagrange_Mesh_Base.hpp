@@ -99,6 +99,8 @@ namespace moris
             protected:
                 // ----------------------------------------------------------------------------
 
+                Cell< Lagrange_Mesh_Base * > mLagrangeMeshForTMatrix;
+
                 //! IDs for MTK
                 moris_id mMaxFacetDomainIndex = 0;
                 moris_id mMaxEdgeDomainIndex = 0;
