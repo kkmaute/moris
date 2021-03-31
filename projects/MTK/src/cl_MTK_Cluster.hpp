@@ -173,6 +173,18 @@ namespace moris
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
                 /*
+                 * Compute the derivative of measure (volume 3d or area 2d) of the cells in the void or primary phase
+                 * wrt a given vertex and space direction
+                 */
+                virtual
+                moris::real
+                compute_cluster_cell_measure_derivative(
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+
+                /*
                  * Compute the side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
                  * Only valid on side cluster type mtk clusters
                  */
@@ -181,6 +193,19 @@ namespace moris
                 compute_cluster_cell_side_measure(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
+                /*
+                 * Compute the derivative side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
+                 * wrt a given vertex and space direction
+                 * Only valid on side cluster type mtk clusters
+                 */
+                virtual
+                moris::real
+                compute_cluster_cell_side_measure_derivative(
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
 
                 // ---------------------------------------------
                 // EVERYTHING BELOW THIS LINE HAS A DEFAULT

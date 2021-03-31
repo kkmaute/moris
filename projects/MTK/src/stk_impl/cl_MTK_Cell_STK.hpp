@@ -35,9 +35,6 @@ namespace mtk
 
 class Cell_STK: public moris::mtk::Cell
 {
-    Cell_Info*           mCellInfo;
-    moris_id             mCellId;
-    moris_index          mCellInd;
     moris::Cell<Vertex*> mCellVertices;
     Mesh*                mSTKMeshData;
 
@@ -48,24 +45,25 @@ public:
     /**
      * trivial constructor
      */
-    Cell_STK():mCellInfo(nullptr){};
+    Cell_STK(){};
 
     //------------------------------------------------------------------------------
 
     /**
      *  constructor
      */
-    Cell_STK( moris::mtk::Cell_Info*    aCellConn,
+    Cell_STK( std::shared_ptr<moris::mtk::Cell_Info>    aCellConn,
               moris_id                     aCellId,
               moris_index                  aCellInd,
               const moris::Cell<Vertex*> & aCellVertices,
               Mesh* aStkImplementation):
-                  mCellInfo(aCellConn),
-                  mCellId(aCellId),
-                  mCellInd(aCellInd),
+              Cell(aCellId,aCellInd,aStkImplementation->get_entity_owner( aCellInd, EntityRank::ELEMENT), aCellConn),
                   mCellVertices(aCellVertices),
                   mSTKMeshData(aStkImplementation)
-    { };
+    {
+
+
+     };
     //------------------------------------------------------------------------------
 
     /**
@@ -75,31 +73,8 @@ public:
     {
     };
 
-    //------------------------------------------------------------------------------
 
-    /**
-     * returns the domain wide id of the cell
-     *
-     * @return luint ID
-     */
-    moris_id
-    get_id() const
-    {
-        return mCellId;
-    };
 
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns the domain wide id of the cell
-     *
-     * @return luint ID
-     */
-    moris_index
-    get_index() const
-    {
-        return mCellInd;
-    }
 
     //------------------------------------------------------------------------------
 
@@ -114,16 +89,6 @@ public:
 
     //------------------------------------------------------------------------------
 
-    /**
-     * returns the proc id of the owner of this cell
-     * ( this information is needed for STK )
-     */
-    moris_id
-    get_owner() const
-    {
-        return mSTKMeshData->get_entity_owner( mCellInd, EntityRank::ELEMENT);
-    }
-
     //------------------------------------------------------------------------------
 
     /**
@@ -133,37 +98,6 @@ public:
     get_vertex_pointers() const
     {
         return mCellVertices;
-    }
-
-    //------------------------------------------------------------------------------
-    /**
-     * returns a Matrix with IDs of connected vertices
-     */
-    Matrix< IdMat >
-    get_vertex_ids() const
-    {
-        size_t tNumVertices = this->get_number_of_vertices();
-        Matrix< IdMat > tVertexIds(1, tNumVertices);
-        for(size_t i = 0; i<tNumVertices; i++)
-        {
-            tVertexIds(i) = mCellVertices(i)->get_id();
-        }
-        return tVertexIds;
-    }
-
-    /**
-     * returns a Mat with indices of connected vertices
-     */
-    Matrix< IndexMat >
-    get_vertex_inds() const
-    {
-        size_t tNumVertices = this->get_number_of_vertices();
-        Matrix< IndexMat > tVertexInds(1, tNumVertices);
-        for(size_t i = 0; i<tNumVertices; i++)
-        {
-            tVertexInds(i) = mCellVertices(i)->get_index();
-        }
-        return tVertexInds;
     }
 
     //------------------------------------------------------------------------------
@@ -184,169 +118,6 @@ public:
         return tVertexCoords;
     }
 
-    moris::Cell<moris::mtk::Vertex const *>
-    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
-
-        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_node_to_facet_map(aSideOrdinal);
-
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
-        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
-        {
-            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
-        }
-
-        return tVerticesOnSide;
-    }
-
-    moris::Cell<moris::mtk::Vertex const *>
-    get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
-
-        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_geometric_node_to_facet_map(aSideOrdinal);
-
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
-        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
-        {
-            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
-        }
-
-        return tVerticesOnSide;
-    }
-
-
-    moris::Matrix<moris::DDRMat>
-    compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-    {
-        // get the vertex coordinates
-        moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-        // Get vector along these edges
-        moris::Matrix<moris::DDRMat> tEdge0Vector(tVertexCoords.numel(),1);
-        moris::Matrix<moris::DDRMat> tEdge1Vector(tVertexCoords.numel(),1);
-
-        // Get the nodes which need to be used to compute normal
-        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = mCellInfo->get_node_map_outward_normal(aSideOrdinal);
-
-        // Get vector along these edges
-        tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-        tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-
-        // Take the cross product to get the normal
-        Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
-
-        // Normalize
-        Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
-
-
-        return tUnitOutwardNormal;
-
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::real
-    compute_cell_measure() const
-    {
-       return mCellInfo->compute_cell_size(this);
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::real
-    compute_cell_measure_general() const
-    {
-       return mCellInfo->compute_cell_size_general(this);
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::real
-    compute_cell_measure_straight() const
-    {
-       return mCellInfo->compute_cell_size_straight(this);
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::real
-    compute_cell_measure_deriv(uint aVertexID, uint aDirection ) const
-    {
-       return mCellInfo->compute_cell_size_deriv(this, aVertexID, aDirection);
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::real
-    compute_cell_measure_deriv_general(uint aVertexID, uint aDirection ) const
-    {
-       return mCellInfo->compute_cell_size_deriv_general(this, aVertexID, aDirection);
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::real
-    compute_cell_side_measure(moris_index const & aCellSideOrd) const
-    {
-        return mCellInfo->compute_cell_side_size(this,aCellSideOrd);
-    }
-
-    //------------------------------------------------------------------------------
-
-        moris::real
-        compute_cell_side_measure_deriv(
-                moris_index const & aCellSideOrd,
-                uint aVertexID,
-                uint aDirection) const
-        {
-            return mCellInfo->compute_cell_side_size_deriv(this, aCellSideOrd, aVertexID, aDirection);
-        }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns an enum that defines the geometry type of the element
-     */
-    Geometry_Type
-    get_geometry_type() const
-    {
-        return mCellInfo->get_cell_geometry();
-    }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns the order of the element
-     */
-    Interpolation_Order
-    get_interpolation_order() const
-    {
-        return mCellInfo->get_cell_interpolation_order();
-    }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns the order of the element
-     */
-    Integration_Order
-    get_integration_order() const
-    {
-        return mCellInfo->get_cell_integration_order();
-    }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * get the cell info
-     */
-    mtk::Cell_Info const *
-    get_cell_info() const
-    {
-        return mCellInfo;
-    }
 
 };
 

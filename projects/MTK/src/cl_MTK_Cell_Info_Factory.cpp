@@ -120,5 +120,67 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
 
     return tConn;
 }
+
+
+std::shared_ptr<moris::mtk::Cell_Info>
+Cell_Info_Factory::create_cell_info_sp(enum Geometry_Type       aCellGeom,
+                                    enum Interpolation_Order aInterpOrder)
+{
+    std::shared_ptr<moris::mtk::Cell_Info> tConn = nullptr;
+    switch(aCellGeom)
+    {
+        case( Geometry_Type::HEX ):
+            {
+            switch(aInterpOrder)
+            {
+                case(Interpolation_Order::LINEAR):   { tConn = std::make_shared< Cell_Info_Hex8>();  break; }
+                case(Interpolation_Order::QUADRATIC):{ tConn = std::make_shared< Cell_Info_Hex27>(); break; }
+                case(Interpolation_Order::CUBIC):    { tConn = std::make_shared< Cell_Info_Hex64>(); break; }
+                default:{ MORIS_ERROR(0,"Invalid hex interpolation order"); break; }
+            }
+
+            break;
+            }
+        case( Geometry_Type::QUAD ):
+            {
+            switch(aInterpOrder)
+            {
+                case(Interpolation_Order::LINEAR):   {  tConn = std::make_shared< Cell_Info_Quad4>(); break; }
+                case(Interpolation_Order::QUADRATIC):{  tConn = std::make_shared< Cell_Info_Quad9>(); break; }
+                case(Interpolation_Order::CUBIC):    {  tConn = std::make_shared< Cell_Info_Quad16>(); break; }
+                //            case(Interpolation_Order::CUBIC):{  break; }
+                default:{MORIS_ERROR(0,"Invalid quad interpolation order"); break; }
+            }
+            break;
+            }
+        case( Geometry_Type::TET ):
+            {
+            switch(aInterpOrder)
+            {
+                case(Interpolation_Order::LINEAR):{  tConn = std::make_shared< Cell_Info_Tet4 >(); break; }
+                //            case(Interpolation_Order::QUADRATIC):{  break; }
+                //            case(Interpolation_Order::CUBIC):{  break; }
+                default:{ MORIS_ERROR(0,"Invalid tet interpolation order"); break; }
+            }
+            break;
+            }
+        case( Geometry_Type::TRI ):
+            {
+            switch(aInterpOrder)
+            {
+                case(Interpolation_Order::LINEAR):{  tConn = std::make_shared< Cell_Info_Tri3 >(); break; }
+                //            case(Interpolation_Order::QUADRATIC):{  break; }
+                //            case(Interpolation_Order::CUBIC):{  break; }
+                default:{ MORIS_ERROR(0,"Invalid tri interpolation order"); break; }
+            }
+            break;
+            }
+        default:{ MORIS_ERROR(0,"Invalid geometry type"); break; }
+    }
+
+    return tConn;
+}
+
+
 }
 }

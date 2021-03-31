@@ -41,23 +41,19 @@ namespace moris
 {
     // Input files
     std::string tPrefix = moris::get_base_moris_dir();
-    std::string tMeshFileName = tPrefix + "/projects/EXA/structure/linear/Beam_Temperature_Field/element_temperature3.e";
+    std::string tMeshFileName = tPrefix + "/projects/EXA/structure/linear/Beam_Temperature_Field/beam_geometry_quadratic.e";
     std::string tOutputFileName = "Beam_Temperature_Field_Problem.exo";
 
-    std::string tFieldRefPath = tPrefix + "/projects/EXA/structure/linear/Beam_Temperature_Field/element_temperature3.e";
+    std::string tFieldRefPath = tPrefix + "/projects/EXA/structure/linear/Beam_Temperature_Field/beam_temperature_quadratic.e";
     
     /* ------------------------------------------------------------------------ */
     // material parameters
 
     std::string tEmod = "1.0";
     std::string tPois = "0.3";
-    std::string tDens = "1.0";
-    std::string tBedding = std::to_string(1.0*1e-6);
-    std::string tCTE = "1.0";
-    // tCTE = std::to_string(22.0*1e-6);
+    std::string tBedding = std::to_string( 1.0*1e-8 );
+    std::string tCTE = "0.01";
     std::string tRefTemp = "0.0";
-    std::string tPropTemp = "1.0";
-    std::string tCond = "1.0";
 
     //------------------------------------------------------------------------------
     
@@ -122,14 +118,6 @@ namespace moris
         // init property counter
         uint tPropCounter = 0;
 
-        // properties of bars
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity");
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDens);
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
-        tPropCounter++;
-
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropYoungs");
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tEmod);
@@ -174,18 +162,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "field_dependencies",       "FIELD_1" );
         tPropCounter++;
 
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropTemp") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPropTemp);
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
-        tPropCounter++;
-
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity");
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tCond);
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
-        tPropCounter++;
-
         //------------------------------------------------------------------------------
         // init CM counter
         uint tCMCounter = 0;
@@ -202,14 +178,6 @@ namespace moris
                 "PropField,PropertyTemperature;"
                 "PropRefTemp,ReferenceTemperature");
         tCMCounter++;
-
-        // create parameter list for constitutive model - Inclusion
-//        tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-//        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion1") ;
-//        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-//        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-//        tParameterList( 1 )( tCMCounter ).set( "properties", "PropConductivity , Conductivity") ;
-//        tCMCounter++;
 
         //------------------------------------------------------------------------------
         // init SP counter
@@ -247,19 +215,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropDirichlet,Dirichlet");
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitsche,DirichletNitsche");
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "sideset_bc" ) ;
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "sideset_left" ) ;
         tIWGCounter++;
-
-        // create IWG - bulk diffusion
-//        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-//        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGBulkTemp") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-//        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
-//        tParameterList( 4 )( tIWGCounter ).set( "master_field_types",         "FIELD_1") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "block_main" );
-//        tIWGCounter++;
 
         //------------------------------------------------------------------------------
         // init IQI counter

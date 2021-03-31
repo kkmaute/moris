@@ -30,9 +30,6 @@ namespace vis
 
 class Cell_Visualization: public moris::mtk::Cell
 {
-//    Cell_Info*           mCellInfo;
-    moris_id             mCellId;
-    moris_index          mCellInd;
     moris::Cell< mtk::Vertex* > mCellVertices;
     const moris::mtk::Cell *   mIntegrationcell = nullptr;
 
@@ -44,7 +41,7 @@ public:
      * trivial constructor
      */
     Cell_Visualization() //: mCellInfo(nullptr)
-{};
+    {};
 
     //------------------------------------------------------------------------------
 
@@ -54,10 +51,13 @@ public:
     Cell_Visualization(       moris_id             aCellId,
                               moris_index          aCellInd,
                         const moris::Cell< mtk::Vertex* > aCellVertices,
-                        const moris::mtk::Cell *   aIntegrationCell ) : mCellId( aCellId ),
-                                                                        mCellInd( aCellInd ),
-                                                                        mCellVertices( aCellVertices ),
-                                                                        mIntegrationcell( aIntegrationCell )
+                        const moris::mtk::Cell *   aIntegrationCell ) :
+                        Cell(aCellId, 
+                             aCellInd, 
+                             aIntegrationCell->get_owner(), 
+                             aIntegrationCell->get_cell_info_sp() ),
+                        mCellVertices( aCellVertices ),
+                        mIntegrationcell( aIntegrationCell )
     { };
     //------------------------------------------------------------------------------
 
@@ -67,28 +67,6 @@ public:
     ~Cell_Visualization()
     {
     };
-
-    //------------------------------------------------------------------------------
-    /**
-     * returns the domain wide id of the cell
-     *
-     * @return luint ID
-     */
-    moris_id get_id() const
-    {
-        return mCellId;
-    };
-
-    //------------------------------------------------------------------------------
-    /**
-     * returns the domain wide id of the cell
-     *
-     * @return luint ID
-     */
-    moris_index get_index() const
-    {
-        return mCellInd;
-    }
 
     //------------------------------------------------------------------------------
     /**
@@ -186,47 +164,6 @@ public:
             tVertexCoords.set_row(i,mCellVertices(i)->get_coords() );
         }
         return tVertexCoords;
-    }
-
-    //------------------------------------------------------------------------------
-    moris::Cell< moris::mtk::Vertex const * > get_vertices_on_side_ordinal( moris::moris_index aSideOrdinal ) const
-    {
-        MORIS_ERROR( false, "get_vertices_on_side_ordinal(), not implemented for visualization mesh");
-        return moris::Cell< moris::mtk::Vertex const * >( 0 );
-    }
-
-    //------------------------------------------------------------------------------
-    moris::Matrix< moris::DDRMat > compute_outward_side_normal( moris::moris_index aSideOrdinal ) const
-    {
-        MORIS_ERROR( false, "compute_outward_side_normal(), not implemented for visualization mesh");
-        return moris::Matrix<moris::DDRMat>( 0, 0 );
-    }
-
-    //------------------------------------------------------------------------------
-    /**
-     * returns an enum that defines the geometry type of the element
-     */
-    mtk::Geometry_Type get_geometry_type() const
-    {
-        return  mIntegrationcell->get_geometry_type();
-    }
-
-    //------------------------------------------------------------------------------
-    /**
-     * returns the order of the element
-     */
-    mtk::Interpolation_Order get_interpolation_order() const
-    {
-        return  mIntegrationcell->get_interpolation_order();
-    }
-
-    //------------------------------------------------------------------------------
-    /**
-     * returns the integration order of the element
-     */
-    mtk::Integration_Order get_integration_order() const
-    {
-        return  mIntegrationcell->get_integration_order();
     }
 
 };

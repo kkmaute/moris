@@ -89,7 +89,7 @@ namespace xtk
         else if(mTrivial)
         {
             // get the interpolation cell's connectivity information
-            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
+            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_cell_info();
 
             // side ordinal on interpolation cell
             moris::uint tSideOrd = (uint) mIntegrationCellSideOrdinals(0);
@@ -126,7 +126,7 @@ namespace xtk
 
             //std::cout<<"XTK Ord = "<<tVertexOrdinal<<std::endl;
             // get the interpolation cell's connectivity information
-            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
+            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_cell_info();
 
             // get the local coordinates on the side ordinal
             Matrix<DDRMat> tXi  = tCellInfo->get_vertex_loc_coord(tVertexOrdinal);
@@ -220,6 +220,30 @@ namespace xtk
     
     //----------------------------------------------------------------
     
+    moris::real
+    Side_Cluster::compute_cluster_cell_measure_derivative(
+            const Matrix< DDRMat > & aPerturbedVertexCoords,
+            uint aDirection,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster) const
+    {
+        if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
+        {
+            return mAssociatedCellCluster->compute_cluster_cell_measure_derivative(
+                    aPerturbedVertexCoords,
+                    aDirection,
+                    aPrimaryOrVoid,
+                    aIsMaster);
+        }
+        else
+        {
+            MORIS_LOG( "mInterpolationCell->compute_cell_measure_derivative() is set to zero" );
+            return 0.0;
+        }
+    }
+
+    //----------------------------------------------------------------
+
     void
     Side_Cluster::print_vertex_map() const
     {

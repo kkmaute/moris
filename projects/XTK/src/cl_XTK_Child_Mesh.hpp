@@ -119,6 +119,12 @@ public:
      */
     moris::mtk::Cell_Info const *
     get_cell_info() const;
+
+        /*!
+     * Returns the connectivity pointer (i.e. a TET4 connectivity)
+     */
+    std::shared_ptr<moris::mtk::Cell_Info>
+    get_cell_info_sp() const;
     
     // ----------------------------------------------------------------------------------
  

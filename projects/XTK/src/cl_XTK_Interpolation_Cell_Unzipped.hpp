@@ -39,7 +39,7 @@ public:
                                 moris_id               aCellId,
                                 moris_index            aCellIndex,
                                 moris_id               aCellOwner,
-                                moris::mtk::Cell_Info* aConnectivity);
+                                std::shared_ptr<moris::mtk::Cell_Info> aConnectivity);
 
     //------------------------------------------------------------------------------
     // MTK Interpolation Cell Implementation

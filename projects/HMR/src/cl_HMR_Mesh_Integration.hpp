@@ -17,6 +17,7 @@
 #include "cl_HMR_Side_Cluster.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Side_Set.hpp"
+#include "cl_MTK_Cell_Info.hpp"
 namespace moris
 {
     namespace hmr

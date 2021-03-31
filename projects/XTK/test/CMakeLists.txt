@@ -31,6 +31,7 @@ xtk/UT_XTK_Performance.cpp
 	#xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
 	xtk/UT_XTK_Model_Mesh_Clusters.cpp
     xtk/UT_XTK_Phase_Table_Scratch.cpp
+    xtk/UT_XTK_Mesh_Cleanup.cpp
     xtk/UT_Snapping.cpp
 	)
 	

@@ -311,7 +311,7 @@ protected:
     moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> mBaseCelltoEnrichedCell;
 
     // a connecitivty pointer that all the enriched interpolation cells use
-    moris::mtk::Cell_Info* mCellInfo;
+    std::shared_ptr<moris::mtk::Cell_Info> mCellInfo;
 
     // Not owned vertex list
     Cell<moris_index> mNotOwnedVerts;

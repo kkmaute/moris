@@ -28,6 +28,12 @@ public:
     moris::mtk::Cell_Info*
     create_cell_info(enum Geometry_Type       aCellGeom,
                      enum Interpolation_Order aInterpOrder);
+
+    
+    std::shared_ptr<moris::mtk::Cell_Info>
+    create_cell_info_sp(enum Geometry_Type       aCellGeom,
+                        enum Interpolation_Order aInterpOrder);
+
 };
 }
 }

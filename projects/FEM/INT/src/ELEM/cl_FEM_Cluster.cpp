@@ -603,10 +603,6 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_measure_derivative - empty cluster.");
 
-            // get vertices indices for sensitivity
-            moris::Matrix< moris::IndexMat > tVerticesIndices;
-            this->get_vertex_indices_in_cluster_for_sensitivity( tVerticesIndices );
-
             // get the vertex pointers in cluster
             moris::Cell<moris::mtk::Vertex const *> tVertices =
                     mMeshCluster->get_vertices_in_cluster( aIsMaster );
@@ -615,78 +611,52 @@ namespace moris
             moris::Cell < enum PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
-            // get local assembly indices
-            Matrix< DDSMat > tGeoLocalAssembly;
-            if( mSet->get_geo_pdv_assembly_flag() )
-            {
-                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
-                        tVerticesIndices,
-                        tGeoPdvType,
-                        tGeoLocalAssembly );
-            }
-
             // get number of pdv on cluster
             uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
 
             // fill matrix with derivatives
             Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
 
-            // create container for the ig cells in cluster
-            moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
-
-            // get the primary ig cells in cluster
-            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            // if pdv defined on cluster
+            if( tNumPDV > 0 )
             {
-                tCells = &mMeshCluster->get_primary_cells_in_cluster();
-            }
-            // get the void ig cells in cluster
-            else
-            {
-                tCells = &mMeshCluster->get_void_cells_in_cluster();
-            }
-
-            // loop over the vertices in cluster
-            for( uint iNode = 0; iNode < tVertices.size(); iNode++ )
-            {
-                // get the node coordinates
-                Matrix< DDRMat > tPerturbedNodeCoords = tVertices( iNode )->get_coords();
-
-                // loop over the ig cells in cluster
-                for( auto iC = tCells->cbegin(); iC < tCells->cend(); iC++ )
+                // loop over the vertices in cluster
+                for( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
                 {
-                    // get the cell coordinates
-                    Matrix< DDRMat > tCellCoords = (*iC)->get_vertex_coords();
+                    // get local assembly indices
+                    Matrix< DDSMat > tGeoLocalAssembly;
+                    mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
+                            {{tVertices( iClusterNode )->get_index()}},
+                            tGeoPdvType,
+                            tGeoLocalAssembly );
 
-                    // get number of nodes in this cell
-                    uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
-
-                    // check if this cell in cluster is affected by the perturbed node
-                    bool tIsAffected = false;                     // flag true if cell is affected by perturbed node
-                    uint tLocalVertexID = UINT_MAX;
-
-                    // loop over the nodes of the cell
-                    for( uint jNode = 0; jNode < tNumNodesInCell; jNode++ )
+                    // if cluster node is not associated with pdv
+                    if( sum( tGeoLocalAssembly ) == -2 ||
+                            sum( tGeoLocalAssembly ) == -3 )
                     {
-                        // check if perturbed node affects this cell by using the distance between two nodes
-                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( jNode ) ) < 1e-12 );
-
-                        if( tIsAffected == true )
-                        {
-                            tLocalVertexID = jNode;
-                            break;
-                        }
+                        continue;
                     }
-                    
-                    if( tIsAffected == true )
+
+                    // get the node coordinates
+                    const Matrix< DDRMat > & tPerturbedNodeCoords =
+                            tVertices( iClusterNode )->get_coords();
+
+                    // loop over the space directions
+                    for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
                     {
-                        for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
+                        // get the pdv assembly index
+                        sint tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
+
+                        // if pdv assembly index is set
+                        if( tPDVAssemblyIndex != -1 )
                         {
-                            if( tGeoLocalAssembly( iNode, iSpace ) != -1 )
-                            {
-                                // add contribution from the cell to the cluster side measure
-                                tDerivatives( tGeoLocalAssembly( iNode, iSpace ) ) +=
-                                        (*iC)->compute_cell_measure_deriv( tLocalVertexID, iSpace );
-                            }
+                            // add contribution from the cell to the cluster measure
+                            tDerivatives( tPDVAssemblyIndex ) +=
+                                    mMeshCluster->compute_cluster_cell_measure_derivative(
+                                            tPerturbedNodeCoords,
+                                            iSpace,
+                                            aPrimaryOrVoid,
+                                            aIsMaster );
                         }
                     }
                 }
@@ -717,10 +687,6 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_side_measure_derivative - empty cluster.");
 
-            // get vertices indices for sensitivity
-            moris::Matrix< moris::IndexMat > tVerticesIndices;
-            this->get_vertex_indices_in_cluster_for_sensitivity( tVerticesIndices );
-
             // get the vertex pointers in cluster
             moris::Cell<moris::mtk::Vertex const *> tVertices =
                     mMeshCluster->get_vertices_in_cluster( aIsMaster );
@@ -729,75 +695,52 @@ namespace moris
             moris::Cell < enum PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
-            // get local assembly indices
-            Matrix< DDSMat > tGeoLocalAssembly;
-            if( mSet->get_geo_pdv_assembly_flag() )
-            {
-                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
-                        tVerticesIndices,
-                        tGeoPdvType,
-                        tGeoLocalAssembly );
-            }
-
             // get number of pdv on cluster
             uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
 
             // fill matrix with derivatives
             Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
 
-            //get the primary ig cells in cluster
-            moris::Cell<mtk::Cell const *> const & tCells =
-                    mMeshCluster->get_primary_cells_in_cluster();
-
-            // get the ig cell side ordinals
-            moris::Matrix<IndexMat> tSideOrds =
-                    mMeshCluster->get_cell_side_ordinals( aIsMaster );
-
-            // loop over the vertices in cluster
-            for( uint iNode = 0; iNode < tVertices.size(); iNode++ )
+            // if pdv defined on cluster
+            if( tNumPDV > 0 )
             {
-                // get the node coordinates
-                Matrix< DDRMat > tPerturbedNodeCoords = tVertices( iNode )->get_coords();
-
-                // loop over the ig cells in cluster
-                for( moris::uint iC = 0 ; iC < tCells.size(); iC++ )
+                // loop over the vertices in cluster
+                for( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
                 {
-                    // get the cell coordinates
-                    Matrix< DDRMat > tCellCoords =
-                            tCells( iC )->get_cell_physical_coords_on_side_ordinal(tSideOrds(iC));
+                    // get local assembly indices
+                    Matrix< DDSMat > tGeoLocalAssembly;
+                    mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
+                            {{tVertices( iClusterNode )->get_index()}},
+                            tGeoPdvType,
+                            tGeoLocalAssembly );
 
-                    // check if this cell in cluster is affected by the perturbed node
-                    uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
-
-                    // check if this cell in cluster is affected by the perturbed node
-                    bool tIsAffected = false;                     // flag true if cell is affected by perturbed node
-                    uint tLocalVertexID = UINT_MAX;
-
-                    // loop over the nodes of the cell
-                    for( uint jNode = 0; jNode < tNumNodesInCell; jNode++ )
+                    // if cluster node is not associated with pdv
+                    if( sum( tGeoLocalAssembly ) == -2 ||
+                            sum( tGeoLocalAssembly ) == -3 )
                     {
-                        // check if perturbed node affects this cell by using the distance between two nodes
-                        tIsAffected = tIsAffected || ( moris::norm( tPerturbedNodeCoords - tCellCoords.get_row( jNode ) ) < 1e-12 );
-
-                        if( tIsAffected == true )
-                        {
-                            tLocalVertexID = jNode;
-                            break;
-                        }
+                        continue;
                     }
-                    if( tIsAffected == true )
+
+                    // get the node coordinates
+                    const Matrix< DDRMat > & tPerturbedNodeCoords =
+                            tVertices( iClusterNode )->get_coords();
+
+                    // loop over the space directions
+                    for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
                     {
-                        for( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
+                        // get the pdv assembly index
+                        sint tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
+
+                        // if pdv assembly index is set
+                        if( tPDVAssemblyIndex != -1 )
                         {
-                            if( tGeoLocalAssembly( iNode, iSpace ) != -1 )
-                            {
-                                // add contribution from the cell to the cluster side measure
-                                tDerivatives( tGeoLocalAssembly( iNode, iSpace ) ) +=
-                                        tCells( iC )->compute_cell_side_measure_deriv(
-                                                tSideOrds( iC ),
-                                                tLocalVertexID,
-                                                iSpace );
-                            }
+                            // add contribution from the cell to the cluster side measure
+                            tDerivatives( tPDVAssemblyIndex ) +=
+                                    mMeshCluster->compute_cluster_cell_side_measure_derivative(
+                                            tPerturbedNodeCoords,
+                                            iSpace,
+                                            aPrimaryOrVoid,
+                                            aIsMaster );
                         }
                     }
                 }

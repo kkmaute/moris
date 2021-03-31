@@ -28,7 +28,6 @@ namespace xtk
 
     Enriched_Interpolation_Mesh::~Enriched_Interpolation_Mesh()
     {
-        delete mCellInfo;
 
         for(moris::uint i = 0; i < mInterpVertEnrichment.size(); i++)
         {
