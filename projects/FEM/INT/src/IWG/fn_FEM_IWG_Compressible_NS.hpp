@@ -143,6 +143,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        uint convert_index_pair_to_flat( const uint aI, const uint aJ, const uint aNumSpaceDims );
+
+        //------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */
 
