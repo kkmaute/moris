@@ -60,8 +60,12 @@ namespace moris
         void IWG_Compressible_NS_Bulk::reset_spec_eval_flags()
         {
             // reset eval flags
-            mVarVecEval = true;
-            mVarDofVecEval = true;
+            mSpaceDimEval = true;
+            mNumBasesEval = true;
+
+            mVarSetEval = true;
+            mTestFuncSetEval = true;
+
             mFluxAMatEval = true;
             mFluxADofMatEval = true;
             mFluxKMatEval = true;
@@ -238,7 +242,7 @@ namespace moris
 
             // assemble flux matrices
             this->assemble_variable_set();
-            this->assemble_variable_DOF_set();
+            this->assemble_test_function_set();
             this->eval_A_matrices();
             this->eval_A_DOF_matrices();
 
@@ -286,7 +290,7 @@ namespace moris
             mSet->get_jacobian()(
                     { tMasterRes1StartIndex, tMasterRes1StopIndex },
                     { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIFirstDofType->N_trans() * (
-                            trans( mdYdt ) * mADOF( 0 )( 0 ) +  mA( 0 )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdYdtDOF ) ); 
+                            trans( mdYdt ) * mADOF( 0 )( 0 ) +  mA( 0 )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdWdt ) ); 
 
             // add contribution to velocity residual dof type
 
@@ -301,14 +305,14 @@ namespace moris
             mSet->get_jacobian()(
                     { tMasterRes2StartIndex, tMasterRes2StopIndex },
                     { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIVelocity->N_trans() * (
-                            tADOFY +  mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdtDOF ) );                        
+                            tADOFY +  mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdWdt ) );                        
 
             // add contribution to temperature residual dof type
             mSet->get_jacobian()(
                     { tMasterRes3StartIndex, tMasterRes3StopIndex },
                     { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIThirdDofType->N_trans() * (
                             trans( mdYdt ) * mADOF( 0 )( tNumSpaceDims + 1 ) + 
-                            mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdtDOF ) );
+                            mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdWdt ) );
  
             // loop over A-Matrices
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
@@ -318,7 +322,7 @@ namespace moris
                         { tMasterRes1StartIndex, tMasterRes1StopIndex },
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIFirstDofType->N_trans() * (
                                 trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( 0 ) + 
-                                mA( iA )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdYdxDOF( iA - 1 ) ) ); 
+                                mA( iA )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdWdx( iA - 1 ) ) ); 
 
                 // add contribution to velocity residual dof type
 
@@ -334,14 +338,14 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterRes2StartIndex, tMasterRes2StopIndex },
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIVelocity->N_trans() * (
-                                tADOFY + mA( iA )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdxDOF( iA - 1 ) ) );                        
+                                tADOFY + mA( iA )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdWdx( iA - 1 ) ) );                        
 
                 // add contribution to temperature residual dof type
                 mSet->get_jacobian()(
                         { tMasterRes3StartIndex, tMasterRes3StopIndex },
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIThirdDofType->N_trans() * (
                                 trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( tNumSpaceDims + 1 ) + 
-                                mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdxDOF( iA - 1 ) ) );
+                                mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdWdx( iA - 1 ) ) );
             }
 
             // loop over DoF dependencies for K*Y,j term
@@ -475,7 +479,7 @@ namespace moris
         {
             // assemble flux matrices
             this->assemble_variable_set();
-            this->assemble_variable_DOF_set();
+            this->assemble_test_function_set();
             this->eval_A_matrices();
             this->eval_A_DOF_matrices();
 
@@ -507,7 +511,7 @@ namespace moris
             // ==================
             
             // add contribution of A0 matrix
-            aJM = mA( 0 ) * mdYdtDOF;
+            aJM = mA( 0 ) * mdWdt;
             
             // loop over rows for which the DoF derivatives are stored
             for ( uint iR = 0; iR < tNumSpaceDims + 2; iR++ )
@@ -519,7 +523,7 @@ namespace moris
             // add contribution of Ai matrices
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
             {
-                aJM += mA( iA ) * mdYdxDOF( iA - 1 );
+                aJM += mA( iA ) * mdWdx( iA - 1 );
 
                 // loop over rows for which the DoF derivatives are stored
                 for ( uint iR = 0; iR < tNumSpaceDims + 2; iR++ )
@@ -549,6 +553,53 @@ namespace moris
                 aJM( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
                         tCM->ddivfluxdu( tDofType, CM_Function_Type::WORK ) - tCM->ddivfluxdu( tDofType, CM_Function_Type::THERMAL ); 
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint IWG_Compressible_NS_Bulk::num_space_dims()
+        {
+            // check if number of spatial dimensions is known
+            if ( !mSpaceDimEval )
+            {
+                return mNumSpaceDims;
+            }
+
+            // set eval flag
+            mSpaceDimEval = false;
+            
+            // get CM
+            std::shared_ptr< Constitutive_Model > tCM = 
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get number of spatial dimensions from CM
+            mNumSpaceDims = tCM->get_num_space_dims();
+
+            // return
+            return mNumSpaceDims;
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint IWG_Compressible_NS_Bulk::num_bases()
+        {
+            // check if number of spatial dimensions is known
+            if ( !mNumBasesEval )
+            {
+                return mNumBasesPerField;
+            }
+
+            // set eval flag
+            mNumBasesEval = false;
+            
+            // get first FI
+            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get number of spatial dimensions from CM
+            mNumBasesPerField = tFI->get_number_of_space_time_bases();
+
+            // return
+            return mNumBasesPerField;
         }
 
         //------------------------------------------------------------------------------
