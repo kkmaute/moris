@@ -152,6 +152,8 @@ namespace moris
 
             bool mRefinementForLowLevelElements = false;
 
+            bool mAdvancedTMatrices = false;
+
             std::string mWriteBackgroundMesh = "";
             std::string mWriteOutputLagrangeMesh = "";
 
@@ -1077,6 +1079,13 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            bool use_advanced_t_matrices() const
+            {
+                return mAdvancedTMatrices;
+            }
+
+            //-------------------------------------------------------------------------------
+
             void set_multigrid( const bool aSwitch )
             {
                 mUseMultigrid = aSwitch;
@@ -1095,6 +1104,13 @@ namespace moris
             void set_refinement_for_low_level_elements( const bool aSwitch )
             {
                 mRefinementForLowLevelElements = aSwitch;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            void set_use_advanced_t_matrices( const bool aSwitch )
+            {
+                mAdvancedTMatrices = aSwitch;
             }
 
             //-------------------------------------------------------------------------------

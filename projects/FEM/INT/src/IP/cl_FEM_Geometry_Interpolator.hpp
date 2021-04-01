@@ -42,6 +42,9 @@ namespace moris
                 // pointer to space interpolator object
                 mtk::Space_Interpolator * mSpaceInterpolator = nullptr;
 
+                // pointer to space interpolation function object
+                mtk::Interpolation_Function_Base * mSpaceInterpolation = nullptr;
+
                 // pointer to time interpolation function object
                 mtk::Interpolation_Function_Base * mTimeInterpolation = nullptr;
 

@@ -12,6 +12,7 @@ namespace moris
 
         private:
             Matrix<DDSMat> mSharedADVIds;
+            uint mADVOffsetID;
             mtk::Mesh_Pair mMeshPair;
             sol::Dist_Vector* mOwnedNodalValues = nullptr;
             sol::Dist_Vector* mSharedNodalValues = nullptr;
