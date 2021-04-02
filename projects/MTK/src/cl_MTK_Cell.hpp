@@ -154,11 +154,11 @@ namespace moris
             get_number_of_facets() const;
 
             //------------------------------------------------------------------------------
-            // /**
-            //  *  @return number of edges on this cell
-            //  */
-            // virtual uint
-            // get_number_of_edges() const;
+            /**
+             *  @return number of edges on this cell
+             */
+            virtual uint
+            get_number_of_edges() const;
 
             //------------------------------------------------------------------------------
 

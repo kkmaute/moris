@@ -104,6 +104,12 @@ namespace moris
             return this->get_cell_info()->get_num_facets();
         }
         //------------------------------------------------------------------------------
+        uint
+        Cell::get_number_of_edges() const
+        {
+            return this->get_cell_info()->get_num_edges();
+        }
+        //------------------------------------------------------------------------------
 
         Matrix< IdMat >
         Cell::get_vertex_ids() const

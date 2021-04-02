@@ -71,6 +71,13 @@ namespace moris
              */
             virtual uint
             get_num_facets() const = 0;
+            // ---------------------------------------------------------------------------------
+
+            /*!
+             * @return number of edges attached to the cell
+             */
+            virtual uint
+            get_num_edges() const = 0;
 
             // ---------------------------------------------------------------------------------
 
