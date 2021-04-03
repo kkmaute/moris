@@ -3517,8 +3517,6 @@ namespace moris
                 moris::real                         aPerturbation,
                 fem::FDScheme_Type                  aFDSchemeType )
         {
-            MORIS_LOG( "IWG::add_cluster_measure_dRdp_FD_geometry - Not tested!" );
-
             // storage residual value
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -3619,8 +3617,6 @@ namespace moris
                 moris::real                         aPerturbation,
                 fem::FDScheme_Type                  aFDSchemeType )
         {
-            MORIS_LOG( "IWG::add_cluster_measure_dRdp_FD_geometry_double - Not tested!" );
-
             // storage residual value
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -3734,7 +3730,6 @@ namespace moris
             MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
         }
-
 
         //------------------------------------------------------------------------------
 
@@ -4171,5 +4166,4 @@ namespace moris
 
     }   // end fem namespace
 }   // end moris namespace
-
 
