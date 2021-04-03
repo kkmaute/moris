@@ -443,7 +443,7 @@ namespace moris
             tParameterlist( 0 )(0).set("AZ_solver"         , AZ_gmres );
             tParameterlist( 0 )(0).set("AZ_subdomain_solve", AZ_ilu   );
             tParameterlist( 0 )(0).set("AZ_graph_fill"     , 10       );
-            tParameterlist( 0 )(0).set("Use_ML_Prec"       ,  true    );
+            tParameterlist( 0 )(0).set("ml_prec_type"      , "SA"     );
 
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
@@ -710,7 +710,6 @@ namespace moris
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
             tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-
             //------------------------------------------------------------------------------
             // create the properties
             std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
@@ -911,7 +910,7 @@ namespace moris
 
             moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
 
-            tParameterlist( 0 ).resize( 1 );
+            tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
             tParameterlist( 0 )( 0 ).set("AZ_diagnostics", AZ_none);
             tParameterlist( 0 )( 0 ).set("AZ_output", AZ_none);
@@ -919,31 +918,49 @@ namespace moris
             tParameterlist( 0 )( 0 ).set("AZ_solver", AZ_gmres);
             tParameterlist( 0 )( 0 ).set("AZ_subdomain_solve", AZ_ilu);
             tParameterlist( 0 )( 0 ).set("AZ_graph_fill", 10);
-            tParameterlist( 0 )( 0 ).set("Use_ML_Prec", true);
+            tParameterlist( 0 )( 0 ).set("ml_prec_type", "SA");
 
-            tParameterlist( 1 ).resize( 1 );
+            tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
+            tParameterlist( 0 )( 1 ).set("ifpack_prec_type", "ILU");
+
+            tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+            tParameterlist( 1 ).resize( 3 );
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 1 )( 0 ).set("DLA_Linear_solver_algorithms", "0" );
+            tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 1 )( 1 ).set("DLA_Linear_solver_algorithms", "1" );
+            tParameterlist( 1 )( 2 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 1 )( 2 ).set("DLA_Linear_solver_algorithms", "2" );
 
-            tParameterlist( 2 ).resize( 2 );
+            tParameterlist( 2 ).resize( 3 );
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 2 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
+            tParameterlist( 2 )( 0 ).set("NLA_Linear_solver" , 0 );
             tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
+            tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", false );
+            tParameterlist( 2 )( 1 ).set("NLA_Linear_solver" , 1 );
+            tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 2 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
+            tParameterlist( 2 )( 2 ).set("NLA_combined_res_jac_assembly", false );
+            tParameterlist( 2 )( 2 ).set("NLA_Linear_solver" , 2 );
 
             tParameterlist( 3 ).resize( 3 );
             tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
             tParameterlist( 3 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "UX,UY");
+            tParameterlist( 3 )( 0 ).set("NLA_Nonlinear_solver_algorithms", "0");
             tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
             tParameterlist( 3 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 3 )( 1 ).set("NLA_DofTypes", "TEMP");
+            tParameterlist( 3 )( 1 ).set("NLA_Nonlinear_solver_algorithms", "1");
             tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
             tParameterlist( 3 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
             tParameterlist( 3 )( 2 ).set("NLA_Sub_Nonlinear_Solver", "1,0");
             tParameterlist( 3 )( 2 ).set("NLA_DofTypes", "UX,UY;TEMP");
-            tParameterlist( 3 )( 2 ).set("NLA_Nonlinear_solver_algorithms", "1");
+            tParameterlist( 3 )( 2 ).set("NLA_Nonlinear_solver_algorithms", "2");
 
             tParameterlist( 4 ).resize( 1 );
             tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
@@ -978,7 +995,7 @@ namespace moris
             //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
             //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
             //        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-            ////        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+            ////        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
             //
             //        dla::Linear_Solver tLinSolver;
             //        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1436,7 +1453,7 @@ namespace moris
     //        tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 10.0;
     //        tLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
     //
-    ////            tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+    ////            tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
     //
     //        dla::Linear_Solver tLinSolver;
     //
