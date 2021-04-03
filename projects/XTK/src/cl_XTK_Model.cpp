@@ -201,7 +201,6 @@ namespace xtk
         {
             mTriangulateAll = mParameterList.get<bool>("triangulate_all");
 
-
             if(mParameterList.get<bool>("cleanup_cut_mesh"))
             {
                 mCleanupMesh = true;
@@ -314,8 +313,6 @@ namespace xtk
         //         }
         //     }
 
-
-
         //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
         // }
 
@@ -346,7 +343,6 @@ namespace xtk
         MORIS_LOG_SPEC("My_IG_cells",tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT));
         MORIS_LOG_SPEC("My_IP_verts",tEnrInterpMesh.get_num_entities(EntityRank::NODE));
         MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -497,13 +493,11 @@ namespace xtk
             }
         }
 
-
         // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
         // i.e set element ids, indices for children elements
         this->finalize_decomp_in_xtk_mesh(tSetPhase);
 
         MORIS_LOG_SPEC("Num Intersected BG Cell",mCutMesh.get_num_child_meshes());
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -807,9 +801,9 @@ namespace xtk
                         Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,i));
                         tChildMesh.generate_connectivities(false,true,true);
                     }
+
                     // set the child cell topology as tet 4s
                     mCutMesh.set_child_element_topology(CellTopology::TRI3);
-
                 }
 
                 // For quad background meshes we have a 2 dimension parametric coordinate
@@ -1022,7 +1016,6 @@ namespace xtk
                     // this node is always on the geometry interface of current so mark this
                     mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
-
                     // figure out if the new node is on any other interface by looking at the parent nodes of the edge
                     Topology * tEdgeTopo = tDecompData.tNewNodeParentTopology(i);
 
@@ -1036,7 +1029,6 @@ namespace xtk
                     // determine if this vertex is on other interfaces
                     for(moris::uint j = 0; j < mGeometryEngine->get_active_geometry_index(); j++)
                     {
-
                         if(mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(0),j) and mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(1),j) )
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
@@ -1355,6 +1347,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::decompose_internal_reg_sub_quad4_make_requests(
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
@@ -1575,7 +1569,9 @@ namespace xtk
                 tDecompData.tParamCoordRelativeToParent,
                 mBackgroundMesh.get_all_node_coordinates_loc_inds());
     }
-    
+
+    // ----------------------------------------------------------------------------------
+
     void
     Model::catch_all_unhandled_interfaces()
     {
@@ -1642,14 +1638,13 @@ namespace xtk
                         {
                             tChildMesh.mark_facet_as_on_interface(iFacet,iG);
                         }
-
-                        
                     }
                 }
             }
-
-        }        
+        }
     }
+
+    // ----------------------------------------------------------------------------------
 
     bool
     Model::check_for_all_cell_vertices_on_interface()
@@ -1691,9 +1686,9 @@ namespace xtk
         }
 
         return tPassCheck;
-
     }
 
+    // ----------------------------------------------------------------------------------
 
     bool
     Model::check_for_degenerated_cells( )
@@ -1739,16 +1734,24 @@ namespace xtk
     {
         barrier();
         // asserts
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),      "Dimension mismatch in assign_node_requests_identifiers");
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(), "Dimension mismatch in assign_node_requests_identifiers");
-        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),"Dimension mismatch in assign_node_requests_identifiers");
+        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),
+                "Dimension mismatch in assign_node_requests_identifiers");
+        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(),
+                "Dimension mismatch in assign_node_requests_identifiers");
+        MORIS_ASSERT(aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),
+                "Dimension mismatch in assign_node_requests_identifiers");
 
         // owned requests and shared requests sorted by owning proc
         Cell<uint> tOwnedRequest;
         Cell<Cell<uint>> tNotOwnedRequests;
         Cell<uint> tProcRanks;
         std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
-        this->sort_new_node_requests_by_owned_and_not_owned(aDecompData,tOwnedRequest,tNotOwnedRequests,tProcRanks,tProcRankToDataIndex);
+        this->sort_new_node_requests_by_owned_and_not_owned(
+                aDecompData,
+                tOwnedRequest,
+                tNotOwnedRequests,
+                tProcRanks,
+                tProcRankToDataIndex);
 
         // allocate ids for nodes I own
         moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
@@ -1787,7 +1790,8 @@ namespace xtk
         // handle received information
         this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeId);
 
-        MORIS_ERROR(this->verify_successful_node_assignment(aDecompData),"Unsuccesssful node assignment detected.");
+        MORIS_ERROR(this->verify_successful_node_assignment(aDecompData),
+                "Unsuccesssful node assignment detected.");
 
         barrier();
     }
@@ -1975,7 +1979,12 @@ namespace xtk
         // iterate through owned requests and send
         for(moris::uint i = 0; i < aProcRanks.size(); i++)
         {
-            tRequests(i) = nonblocking_send(aOutwardRequests(i),aOutwardRequests(i).n_rows(),aOutwardRequests(i).n_cols(),aProcRanks(i),aMPITag);
+            tRequests(i) = nonblocking_send(
+                    aOutwardRequests(i),
+                    aOutwardRequests(i).n_rows(),
+                    aOutwardRequests(i).n_cols(),
+                    aProcRanks(i),
+                    aMPITag);
         }
     }
 
@@ -2069,18 +2078,15 @@ namespace xtk
 
                     if(tRequestExists && aRequestAnswers(i)(j))
                     {
-
                         moris_id tNodeId =aRequestAnswers(i)(j);
 
                         // meaning the owning processor expected this and gave an answer
                         if(tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId(tRequestIndex) == MORIS_INDEX_MAX)
                         {
-
                             // set the new node id
                             aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
 
                             aDecompData.mNumNewNodesWithIds++;
-
                         }
 
                         // The owner did not expect and did not return an answer
@@ -2123,7 +2129,6 @@ namespace xtk
             aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
             tNodeId++;
         }
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -2343,7 +2348,6 @@ namespace xtk
 
         // setup global to local subphase map
         this->setup_glob_to_loc_subphase_map();
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -2414,7 +2418,9 @@ namespace xtk
         this->inward_receive_requests(tMPITag, 1, tReceivedParentCellIds, tProcsReceivedFrom1);
         this->inward_receive_requests(tMPITag+1,1, tReceivedParentCellNumChildren, tProcsReceivedFrom2);
 
-        MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
+        MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),
+                "Size mismatch between procs received from child cell ids and number of child cells");
+
         Cell<Matrix<IndexMat>> tChildIdOffsets;
         this->prepare_child_cell_id_answers(tReceivedParentCellIds,tReceivedParentCellNumChildren,tChildIdOffsets);
 

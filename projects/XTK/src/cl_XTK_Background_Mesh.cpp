@@ -221,7 +221,8 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    const & aNewNodeIds,
+    Background_Mesh::batch_create_new_nodes(
+            Cell<moris_index>                    const & aNewNodeIds,
             Cell<moris_index>                    const & aNewNodeIndices,
             Cell<moris_index>                    const & aNewNodeOwningProc,
             Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
@@ -230,7 +231,11 @@ namespace xtk
         moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
 
         // Batch create the new copied nodes in the mesh external data
-        mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeOwningProc,aNewNodeCoordinates);
+        mExternalMeshData.batch_create_new_nodes_external_data(
+                aNewNodeIds,
+                aNewNodeIndices,
+                aNewNodeOwningProc,
+                aNewNodeCoordinates);
 
         moris::uint tNumNewNodes = aNewNodeIds.size();
 
@@ -250,7 +255,9 @@ namespace xtk
             mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
 
             // add to map
-            MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
+            MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),
+                    "Vertex already in map");
+
             mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
         }
     }
@@ -277,7 +284,11 @@ namespace xtk
         }
 
         // Batch create the new copied nodes in the mesh external data
-        mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tOwningProcs,tNewNodeCoords);
+        mExternalMeshData.batch_create_new_nodes_external_data(
+                aNewNodeIds,
+                aNewNodeIndices,
+                tOwningProcs,
+                tNewNodeCoords);
 
         moris::uint tNumNewNodes = aNewNodeIds.numel();
 
@@ -290,7 +301,8 @@ namespace xtk
         for(moris::uint i = 0; i <tNumNewNodes; i++)
         {
             // create vertex
-            mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK( aNewNodeIds(i),
+            mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK(
+                    aNewNodeIds(i),
                     aNewNodeIndices(i),
                     this);
 
