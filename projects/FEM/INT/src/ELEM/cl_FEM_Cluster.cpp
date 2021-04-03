@@ -1043,24 +1043,21 @@ namespace moris
             // number of elements in cluster
             uint tNumberofElements = mElements.size();
 
-            // allocate vector of relative volumes
-            Matrix<DDRMat> tRelativeVolume(tNumberofElements,1,0.0);
-
             // initialize cluster volume
             real tClusterVolume = 0.0;
 
             // compute volumes/areas of IG cells
-            Matrix<DDRMat> tElementVolumes = this->compute_element_volumes();
+            Matrix<DDRMat> tRelativeVolume = this->compute_element_volumes();
 
             // check for correct number of IG cells
-            MORIS_ERROR( tElementVolumes.numel() == mElements.size(),
+            MORIS_ERROR( tRelativeVolume.numel() == tNumberofElements,
                     "Cluster::compute_relative_volume - inconsistent number of IG cells.\n");
 
             // loop over the IG elements and drop zero elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            for ( uint iElem = 0; iElem < tNumberofElements; iElem++ )
             {
                 // if it smaller than zero; set it to zero
-                tElementVolumes(iElem) = std::max( tElementVolumes(iElem), 0.0 );
+                tRelativeVolume(iElem) = std::max( tRelativeVolume(iElem), 0.0 );
 
                 // add volume contribution for the IG element
                 tClusterVolume += tRelativeVolume(iElem);
