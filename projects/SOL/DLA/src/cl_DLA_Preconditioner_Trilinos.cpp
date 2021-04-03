@@ -20,6 +20,7 @@
 #include "Ifpack_Preconditioner.h"
 #include "Ifpack_ILUT.h"
 #include "Ifpack_ILU.h"
+#include "Ifpack_Amesos.h"
 #include "Ifpack_LocalFilter.h"
 
 #include "Ifpack_AdditiveSchwarz.h"
@@ -62,14 +63,13 @@ moris::sint Preconditioner_Trilinos::build_ifpack_preconditioner()
     // Create() accepts, please check the IFPACK documentation.
     std::string PrecType = mParameterList.get< std::string >( "ifpack_prec_type" );
 
-    int OverlapLevel = 1;
+    int OverlapLevel = mParameterList.get< moris::sint >( "overlap-level" ) ;
 
     mPreconditioner = rcp ( Factory.Create ( PrecType, tOperator, OverlapLevel ) );
 
-    // Specify parameters for ILU.  ILU is local to each MPI process.
+    // Specify local solver specific parameters
     if ( PrecType == "ILU" )
     {
-        tIfpackParameterlist.set ( "fact: drop tolerance"    , mParameterList.get< moris::real >( "fact: drop tolerance" ) );
         tIfpackParameterlist.set ( "fact: level-of-fill"     , mParameterList.get< moris::sint >( "fact: level-of-fill" ) );
         tIfpackParameterlist.set ( "fact: absolute threshold", mParameterList.get< moris::real >( "fact: absolute threshold" ) );
         tIfpackParameterlist.set ( "fact: relative threshold", mParameterList.get< moris::real >( "fact: relative threshold" ) );
@@ -77,11 +77,55 @@ moris::sint Preconditioner_Trilinos::build_ifpack_preconditioner()
     }
     else if ( PrecType == "ILUT" )
     {
-        tIfpackParameterlist.set ( "fact: drop tolerance"    , mParameterList.get< moris::real >( "fact: drop tolerance" ) );
         tIfpackParameterlist.set ( "fact: ilut level-of-fill", mParameterList.get< moris::real >( "fact: ilut level-of-fill" ) );
         tIfpackParameterlist.set ( "fact: absolute threshold", mParameterList.get< moris::real >( "fact: absolute threshold" ) );
         tIfpackParameterlist.set ( "fact: relative threshold", mParameterList.get< moris::real >( "fact: relative threshold" ) );
+        tIfpackParameterlist.set ( "fact: drop tolerance"    , mParameterList.get< moris::real >( "fact: drop tolerance" ) );
         tIfpackParameterlist.set ( "fact: relax value"       , mParameterList.get< moris::real >( "fact: relax value" )   );
+    }
+    else if ( PrecType == "IC" )
+    {
+        tIfpackParameterlist.set ( "fact: level-of-fill",      mParameterList.get< moris::sint >( "fact: level-of-fill" ) );
+        tIfpackParameterlist.set ( "fact: absolute threshold", mParameterList.get< moris::real >( "fact: absolute threshold" ) );
+        tIfpackParameterlist.set ( "fact: relative threshold", mParameterList.get< moris::real >( "fact: relative threshold" ) );
+        tIfpackParameterlist.set ( "fact: relax value"       , mParameterList.get< moris::real >( "fact: relax value" )   );
+    }
+    else if ( PrecType == "ICT" )
+    {
+        tIfpackParameterlist.set ( "fact: ict level-of-fill",  mParameterList.get< moris::real >( "fact: ict level-of-fill" ) );
+        tIfpackParameterlist.set ( "fact: absolute threshold", mParameterList.get< moris::real >( "fact: absolute threshold" ) );
+        tIfpackParameterlist.set ( "fact: relative threshold", mParameterList.get< moris::real >( "fact: relative threshold" ) );
+        tIfpackParameterlist.set ( "fact: drop tolerance"    , mParameterList.get< moris::real >( "fact: drop tolerance" ) );
+        tIfpackParameterlist.set ( "fact: relax value"       , mParameterList.get< moris::real >( "fact: relax value" ) );
+    }
+    else if ( PrecType == "Amesos" )
+    {
+        tIfpackParameterlist.set ( "amesos: solver type", mParameterList.get< std::string > ( "amesos: solver type" ) );
+    }
+    else if ( PrecType == "point relaxation" )
+    {
+        tIfpackParameterlist.set ( "relaxation: type"                  , mParameterList.get< std::string >( "relaxation: type" ) );
+        tIfpackParameterlist.set ( "relaxation: sweeps"                , mParameterList.get< moris::sint >( "relaxation: sweeps" ) );
+        tIfpackParameterlist.set ( "relaxation: damping factor"        , mParameterList.get< moris::real >( "relaxation: damping factor" ) );
+        tIfpackParameterlist.set ( "relaxation: zero starting solution", mParameterList.get< bool        >( "relaxation: zero starting solution" ) );
+
+        tIfpackParameterlist.set ( "relaxation: min diagonal value"    , mParameterList.get< std::string >( "relaxation: min diagonal value" ) );
+        tIfpackParameterlist.set ( "relaxation: backward mode"         , mParameterList.get< bool        >( "relaxation: backward mode" ) );
+        tIfpackParameterlist.set ( "relaxation: use l1"                , mParameterList.get< bool        >( "relaxation: use l1" ) );
+        tIfpackParameterlist.set ( "relaxation: l1 eta"                , mParameterList.get< moris::real >( "relaxation: l1 eta") );
+    }
+    else if ( PrecType == "block relaxation" )
+    {
+        tIfpackParameterlist.set ( "relaxation: type"                  , mParameterList.get< std::string >( "relaxation: type" ) );
+        tIfpackParameterlist.set ( "relaxation: sweeps"                , mParameterList.get< moris::sint >( "relaxation: sweeps" ) );
+        tIfpackParameterlist.set ( "relaxation: damping factor"        , mParameterList.get< moris::real >( "relaxation: damping factor" ) );
+        tIfpackParameterlist.set ( "relaxation: zero starting solution", mParameterList.get< bool        >( "relaxation: zero starting solution" ) );
+
+        tIfpackParameterlist.set ( "partitioner: type"                 , mParameterList.get< std::string >( "partitioner: type" ) );
+        tIfpackParameterlist.set ( "partitioner: overlap"              , mParameterList.get< moris::sint >( "partitioner: overlap" ) );
+        tIfpackParameterlist.set ( "partitioner: local parts"          , mParameterList.get< moris::sint >( "partitioner: local parts" ) );
+        tIfpackParameterlist.set ( "partitioner: root node"            , mParameterList.get< moris::sint >( "partitioner: root node" ) );
+        tIfpackParameterlist.set ( "partitioner: use symmetric graph"  , mParameterList.get< bool        >( "partitioner: use symmetric graph" ) );
     }
     else
     {
@@ -114,6 +158,8 @@ moris::sint Preconditioner_Trilinos::build_ifpack_preconditioner()
         MORIS_LOG_INFO( "SOL: Total time to build ifpack preconditioner is %5.3f seconds.",
                 ( double ) tElapsedTimeMax / 1000);
     }
+
+    std::cout << *mPreconditioner;
 
     return 0;
 }
