@@ -134,21 +134,25 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
     // Tell the solver what problem you want to solve.
     solver->setProblem (problem);
 
-    Belos::ReturnType result = solver->solve();
+    // Solve problem
+    Belos::ReturnType tSolverConvergence = solver->solve();
+
+    MORIS_LOG_SPEC( "IterativeSolverConverged", tSolverConvergence);
 
     // Ask the solver how many iterations the last solve() took.
     MORIS_LOG_SPEC( "LinearSolverIterations", solver->getNumIters() );
 
     // Get solution tolerance across all RHS
-    MORIS_LOG_SPEC( "LinearResidualNorm - All ", solver->achievedTol() );
+    MORIS_LOG_SPEC( "LinearResidualNorm_All_RHS", solver->achievedTol() );
 
     // compute exact residuals
     Matrix<DDRMat> tRelativeResidualNorm = aLinearSystem->compute_residual_of_linear_system();
 
     for ( uint i=0; i<tRelativeResidualNorm.numel(); i++) {
-        MORIS_LOG_SPEC( "LinearResidualNorm - RHS " + std::to_string(i), tRelativeResidualNorm(i) );
+        MORIS_LOG_SPEC( "LinearResidualNorm_RHS_" + std::to_string(i), tRelativeResidualNorm(i) );
     }
 
+    // return solver status
     return 0;
 }
 
