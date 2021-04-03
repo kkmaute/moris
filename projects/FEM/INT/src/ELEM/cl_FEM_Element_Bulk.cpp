@@ -785,8 +785,11 @@ namespace moris
                 tVolume += tIGGI->det_J() * mSet->get_integration_weights()( iGP );
             }
 
+            // get time step
+            real tTimeStep = tIGGI->get_time_step();
+
             // return the volume value
-            return tVolume;
+            return tVolume/tTimeStep;
         }
 
         //------------------------------------------------------------------------------
