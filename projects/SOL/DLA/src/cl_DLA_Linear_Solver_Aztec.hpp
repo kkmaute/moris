@@ -9,13 +9,8 @@
 
 #include "AztecOO.h"
 
-// ML
-#include "ml_include.h"
-#include "ml_epetra_utils.h"
-#include "ml_epetra_preconditioner.h"
-
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
-
+#include "cl_DLA_Preconditioner_Trilinos.hpp"
 
 #include "cl_Param_List.hpp"       //CON/src
 
@@ -27,32 +22,60 @@ namespace moris
         class Linear_Solver_Aztec : public Linear_Solver_Algorithm
         {
             private:
-                AztecOO *                             mAztecSolver = nullptr;
 
-                Teuchos::ParameterList                mlParams;
-                ML_Epetra::MultiLevelPreconditioner * mMlPrec;
+                Linear_Problem *         mLinearSystem =  nullptr;
 
-                Epetra_LinearProblem                  mEpetraProblem;
+                AztecOO *                mAztecSolver = nullptr;
 
-            protected:
-            public:
-                Linear_Solver_Aztec();
+                Preconditioner_Trilinos  mPreconditioner;
 
-                Linear_Solver_Aztec( const moris::ParameterList aParameterlist );
+                Epetra_LinearProblem     mEpetraProblem;
 
-                Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
+            private:
 
-                ~Linear_Solver_Aztec();
+                // -----------------------------------------------------------------------------------
 
-                void set_linear_problem( Linear_Problem * aLinearSystem );
+                void set_solver_internal_parameters();
+
+                // -----------------------------------------------------------------------------------
 
                 void set_solver_parameters();
 
+                // -----------------------------------------------------------------------------------
+
+                void build_external_preconditioner( const moris::sint & aIter = 1 );
+
+                // -----------------------------------------------------------------------------------
+
+            public:
+
+                // -----------------------------------------------------------------------------------
+
+                Linear_Solver_Aztec();
+
+                // -----------------------------------------------------------------------------------
+
+                Linear_Solver_Aztec( const moris::ParameterList aParameterlist );
+
+                // -----------------------------------------------------------------------------------
+
+                Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
+
+                // -----------------------------------------------------------------------------------
+
+                ~Linear_Solver_Aztec();
+
+                // -----------------------------------------------------------------------------------
+
                 moris::sint solve_linear_system( );
 
-                moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter );
+                // -----------------------------------------------------------------------------------
 
-                void set_solver_internal_parameters();
+                moris::sint solve_linear_system(
+                        Linear_Problem    * aLinearSystem,
+                        const moris::sint   aIter );
+
+                // -----------------------------------------------------------------------------------
         };
     }
 }
