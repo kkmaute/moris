@@ -68,7 +68,7 @@ namespace xtk
         moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index(tGhostName);
 
         // topology
-        enum CellTopology tFacetTopo = CellTopology::QUAD4;
+        enum CellTopology tFacetTopo = CellTopology::HEX8;
         if(mXTKModel->get_spatial_dim() == 2)
         {
             tFacetTopo = CellTopology::QUAD4;
@@ -1052,7 +1052,7 @@ namespace xtk
     {
         // enriched interpolation mesh
         Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
-        Enriched_Integration_Mesh   & tEnrIntegMesh = mXTKModel->get_enriched_integ_mesh();
+        Enriched_Integration_Mesh   & tEnrIntegMesh  = mXTKModel->get_enriched_integ_mesh();
 
         // all interpolation cells
         Cell<Interpolation_Cell_Unzipped*> & tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
@@ -1103,15 +1103,20 @@ namespace xtk
                 // if I am the one constructing this subphase then add it to ghost setup data
                 if(this->create_ghost(aGhostSetupData,(moris_index)i,tSubphaseToSubphase(i)(j),tTrivial))
                 {
-                    moris_index tFirstInterpCellIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(i);
-                    moris_index tSecondInterpCellIndex = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphaseToSubphase(i)(j));
+                    moris_index tFirstInterpCellIndex  =
+                            aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(i);
+
+                    moris_index tSecondInterpCellIndex =
+                            aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphaseToSubphase(i)(j));
 
                     Interpolation_Cell_Unzipped* tFirstInterpCell = tEnrIpCells(tFirstInterpCellIndex);
                     Interpolation_Cell_Unzipped* tSecondInterpCell = tEnrIpCells(tSecondInterpCellIndex);
 
                     //get the bulk phase
                     moris_index tBulkPhase = tFirstInterpCell->get_bulkphase_index();
-                    MORIS_ASSERT(tBulkPhase == tSecondInterpCell->get_bulkphase_index(),"Bulk phase between neighboring subphases does not match");
+
+                    MORIS_ASSERT(tBulkPhase == tSecondInterpCell->get_bulkphase_index(),
+                            "Bulk phase between neighboring subphases does not match");
 
                     // setup ip cell indices in ghost setup data
                     aGhostSetupData.mMasterSideIpCells(tBulkPhase).push_back(tFirstInterpCell->get_index());
@@ -1140,18 +1145,23 @@ namespace xtk
         MORIS_ASSERT(aGhostSetupData.mMasterSideIpCells.size() < tReserveSize,
                 "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mMasterSideIpCells too small, increase by %f\n",
                 aGhostSetupData.mMasterSideIpCells.size()/ tReserveSize);
+
         MORIS_ASSERT(aGhostSetupData.mSlaveSideIpCells.size() < tReserveSize,
                 "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mSlaveSideIpCells too small, increase by %f\n",
                 aGhostSetupData.mSlaveSideIpCells.size()/ tReserveSize);
+
         MORIS_ASSERT(aGhostSetupData.mMasterSideIgCellSideOrds.size() < tReserveSize,
                 "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mMasterSideIgCellSideOrds too small, increase by %f\n",
                 aGhostSetupData.mMasterSideIgCellSideOrds.size()/ tReserveSize);
+
         MORIS_ASSERT(aGhostSetupData.mSlaveSideIgCellSideOrds.size() < tReserveSize,
                 "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mSlaveSideIgCellSideOrds too small, increase by %f\n",
                 aGhostSetupData.mSlaveSideIgCellSideOrds.size()/ tReserveSize);
+
         MORIS_ASSERT(aGhostSetupData.mTrivialFlag.size() < tReserveSize,
                 "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTrivialFlag too small, increase by %f\n",
                 aGhostSetupData.mTrivialFlag.size()/ tReserveSize);
+
         MORIS_ASSERT(aGhostSetupData.mTransitionLocation.size() < tReserveSize,
                 "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTransitionLocation too small, increase by %f\n",
                 aGhostSetupData.mTransitionLocation.size()/ tReserveSize);
@@ -1167,32 +1177,54 @@ namespace xtk
         moris_id tCurrentId    = tEnrIntegMesh.allocate_entity_ids(tNonTrivialCount,EntityRank::ELEMENT);
         moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT);
 
+        // determine total number of ghost faces across all processors
+        Matrix<DDUMat> tLocalNumberOfGhostFacets(aGhostSetupData.mMasterSideIpCells.size(),1);
+
+        for(moris::uint i = 0; i < aGhostSetupData.mMasterSideIpCells.size(); i++)
+        {
+            tLocalNumberOfGhostFacets(i)=aGhostSetupData.mMasterSideIpCells(i).size();
+        }
+        Matrix<DDUMat> tTotalNumberOfGhostFacets = sum_all_matrix(tLocalNumberOfGhostFacets);
+
         // iterate through bulk phases
         for(moris::uint i = 0; i < aGhostSetupData.mMasterSideIpCells.size(); i++)
         {
             // allocate space in the integration mesh double side sets
-            tEnrIntegMesh.mDoubleSideSets(aGhostSetupData.mDblSideSetIndexInMesh(i)).resize(aGhostSetupData.mMasterSideIpCells(i).size());
-            MORIS_LOG_SPEC("Ghost Facets BP " + std::to_string(i), aGhostSetupData.mMasterSideIpCells(i).size() );
+            tEnrIntegMesh.mDoubleSideSets(aGhostSetupData.mDblSideSetIndexInMesh(i)).
+                    resize(aGhostSetupData.mMasterSideIpCells(i).size());
+
+            MORIS_LOG_SPEC("Total Ghost Facets for Bulk Phase " + std::to_string(i), tTotalNumberOfGhostFacets(i) );
 
             // iterate through double sides in this bulk phase
             for(moris::uint j = 0; j < aGhostSetupData.mMasterSideIpCells(i).size(); j++)
             {
                 // create a new side cluster for each of the pairs
-                std::shared_ptr<Side_Cluster> tSlaveSideCluster  = this->create_slave_side_cluster(aGhostSetupData,tEnrIpCells,i,j);
-                std::shared_ptr<Side_Cluster> tMasterSideCluster = this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
+                std::shared_ptr<Side_Cluster> tSlaveSideCluster  =
+                        this->create_slave_side_cluster(aGhostSetupData,tEnrIpCells,i,j);
+                std::shared_ptr<Side_Cluster> tMasterSideCluster =
+                        this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.
+                                get(),tCurrentIndex,tCurrentId);
 
                 // verify the subphase cluster
-                MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,"Bulk phase mismatch on slave side of double side set cluster");
-                MORIS_ASSERT(tMasterSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,"Bulk phase mismatch on master side of double side set cluster");
+                MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,
+                        "Bulk phase mismatch on slave side of double side set cluster");
+                MORIS_ASSERT(tMasterSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,
+                        "Bulk phase mismatch on master side of double side set cluster");
 
                 // add to side clusters the integration mesh
-                tEnrIntegMesh.mDoubleSideSetsMasterIndex(aGhostSetupData.mDblSideSetIndexInMesh(i)).push_back(tEnrIntegMesh.mDoubleSideSingleSideClusters.size());
+                tEnrIntegMesh.mDoubleSideSetsMasterIndex(aGhostSetupData.mDblSideSetIndexInMesh(i)).
+                        push_back(tEnrIntegMesh.mDoubleSideSingleSideClusters.size());
+
                 tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back(tMasterSideCluster);
-                tEnrIntegMesh.mDoubleSideSetsSlaveIndex(aGhostSetupData.mDblSideSetIndexInMesh(i)).push_back(tEnrIntegMesh.mDoubleSideSingleSideClusters.size());
+
+                tEnrIntegMesh.mDoubleSideSetsSlaveIndex(aGhostSetupData.mDblSideSetIndexInMesh(i)).
+                        push_back(tEnrIntegMesh.mDoubleSideSingleSideClusters.size());
+
                 tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back(tSlaveSideCluster);
 
                 // create double side cluster
-                mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tMasterSideCluster.get(),tSlaveSideCluster.get(),tMasterSideCluster->mVerticesInCluster);
+                mtk::Double_Side_Cluster* tDblSideCluster  =
+                        new mtk::Double_Side_Cluster(tMasterSideCluster.get(),tSlaveSideCluster.get(),tMasterSideCluster->mVerticesInCluster);
 
                 // add to integration mesh
                 tEnrIntegMesh.mDoubleSideClusters.push_back(tDblSideCluster);
@@ -1435,7 +1467,7 @@ namespace xtk
         moris::mtk::Cell const* tBaseMasterCell = tMasterIpCell->get_base_cell();
 
         // get the connectivity information from the cell
-        moris::mtk::Cell_Info const * tCellInfo = tMasterIpCell->get_connectivity();
+        std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = tMasterIpCell->get_cell_info_sp();
 
         // adjacent side ordinal on master
         uint tAdjFacetOrd = tCellInfo->get_adjacent_side_ordinal(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex));
