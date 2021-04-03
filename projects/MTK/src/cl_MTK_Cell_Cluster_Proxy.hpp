@@ -126,12 +126,52 @@ namespace moris
 
             //---------------------------------------------------------------------------------------
 
+            Matrix<DDRMat>
+            compute_cluster_ig_cell_measures(
+                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+            {
+                moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+                if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+                {
+                    tCells = &this->get_primary_cells_in_cluster();
+                }
+                else
+                {
+                    tCells = & this->get_void_cells_in_cluster();
+                }
+
+                Matrix<DDRMat> tMeasureVec(tCells->size(),1);
+
+                for(uint iC = 0; iC < tCells->size(); ++iC)
+                {
+                    tMeasureVec(iC) = (*tCells)(iC)->compute_cell_measure();
+                }
+
+                return tMeasureVec;
+            }
+
+            //---------------------------------------------------------------------------------------
+
             moris::real
-            compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+            compute_cluster_cell_side_measure(
+                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
             {
                 MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
                 return 0;
+            }
+
+            //---------------------------------------------------------------------------------------
+
+            Matrix<DDRMat>
+            compute_cluster_ig_cell_side_measures(
+                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+            {
+                MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
+                return {{0}};
             }
     };
 }

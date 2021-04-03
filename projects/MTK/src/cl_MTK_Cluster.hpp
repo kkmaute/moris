@@ -173,6 +173,15 @@ namespace moris
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
                 /*
+                 * Compute the measure of individual IG cells (volume 3d or area 2d) in the void or primary phase
+                 */
+                virtual
+                Matrix<DDRMat>
+                compute_cluster_ig_cell_measures(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
+                /*
                  * Compute the derivative of measure (volume 3d or area 2d) of the cells in the void or primary phase
                  * wrt a given vertex and space direction
                  */
@@ -191,6 +200,14 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_cell_side_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+                /*
+                 * Compute vector of individual side measures for each IG cell
+                 */
+                virtual
+                Matrix<DDRMat>
+                compute_cluster_ig_cell_side_measures(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
