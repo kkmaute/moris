@@ -1201,13 +1201,15 @@ namespace xtk
                 // create a new side cluster for each of the pairs
                 std::shared_ptr<Side_Cluster> tSlaveSideCluster  =
                         this->create_slave_side_cluster(aGhostSetupData,tEnrIpCells,i,j);
+
                 std::shared_ptr<Side_Cluster> tMasterSideCluster =
-                        this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.
-                                get(),tCurrentIndex,tCurrentId);
+                        this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,
+                                tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
 
                 // verify the subphase cluster
                 MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,
                         "Bulk phase mismatch on slave side of double side set cluster");
+
                 MORIS_ASSERT(tMasterSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,
                         "Bulk phase mismatch on master side of double side set cluster");
 
@@ -1223,8 +1225,10 @@ namespace xtk
                 tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back(tSlaveSideCluster);
 
                 // create double side cluster
-                mtk::Double_Side_Cluster* tDblSideCluster  =
-                        new mtk::Double_Side_Cluster(tMasterSideCluster.get(),tSlaveSideCluster.get(),tMasterSideCluster->mVerticesInCluster);
+                mtk::Double_Side_Cluster* tDblSideCluster = new mtk::Double_Side_Cluster(
+                        tMasterSideCluster.get(),
+                        tSlaveSideCluster.get(),
+                        tMasterSideCluster->mVerticesInCluster);
 
                 // add to integration mesh
                 tEnrIntegMesh.mDoubleSideClusters.push_back(tDblSideCluster);
@@ -1234,7 +1238,11 @@ namespace xtk
             }
 
             tEnrIntegMesh.commit_double_side_set(aGhostSetupData.mDblSideSetIndexInMesh(i));
-            tEnrIntegMesh.set_double_side_set_colors(aGhostSetupData.mDblSideSetIndexInMesh(i),{{(moris_index)i}},{{(moris_index)i}});
+
+            tEnrIntegMesh.set_double_side_set_colors(
+                    aGhostSetupData.mDblSideSetIndexInMesh(i),
+                    {{(moris_index)i}},
+                    {{(moris_index)i}});
         }
 
         tEnrIntegMesh.collect_all_sets();
@@ -1378,12 +1386,12 @@ namespace xtk
             Cell<Interpolation_Cell_Unzipped*>       & aEnrIpCells,
             uint                               const & aBulkIndex,
             uint                               const & aCellIndex,
-            Side_Cluster* aSlaveSideCluster,
-            moris_index & aCurrentIndex,
-            moris_index & aCurrentId)
+            Side_Cluster                             * aSlaveSideCluster,
+            moris_index                              & aCurrentIndex,
+            moris_index                              & aCurrentId)
     {
         // create the master side cluster
-        std::shared_ptr<Side_Cluster> tMasterSideCluster  = std::make_shared< Side_Cluster >();
+        std::shared_ptr<Side_Cluster> tMasterSideCluster = std::make_shared< Side_Cluster >();
 
         tMasterSideCluster->mInterpolationCell = aEnrIpCells(aGhostSetupData.mMasterSideIpCells(aBulkIndex)(aCellIndex));
 
@@ -1394,11 +1402,20 @@ namespace xtk
             tMasterSideCluster->mTrivial = false;
 
             // create new integration cell using the vertices on the slave facet and the adjacent vertices of the base interpolation cell
-            moris::mtk::Cell* tNewIgCell = this->create_non_trivial_master_ig_cell(aGhostSetupData,aBulkIndex,aCellIndex,tMasterSideCluster.get(),aSlaveSideCluster,aCurrentIndex,aCurrentId);
+            moris::mtk::Cell* tNewIgCell = this->create_non_trivial_master_ig_cell(
+                    aGhostSetupData,
+                    aBulkIndex,
+                    aCellIndex,
+                    tMasterSideCluster.get(),
+                    aSlaveSideCluster,
+                    aCurrentIndex,
+                    aCurrentId);
 
             // get the local coordinates from a table
             Cell<Matrix<DDRMat>> tLocCoords;
-            this->get_local_coords_on_transition_side(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex),
+
+            this->get_local_coords_on_transition_side(
+                    aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex),
                     aGhostSetupData.mTransitionLocation(aBulkIndex)(aCellIndex),
                     tLocCoords);
 
@@ -1417,9 +1434,10 @@ namespace xtk
             // finalize
             tMasterSideCluster->finalize_setup();
 
-            // verify  new cluster
+            // verify new cluster
             mtk::Mesh_Checker tCheck;
-            MORIS_ASSERT(tCheck.verify_side_cluster(tMasterSideCluster.get(),mtk::Master_Slave::MASTER),"Invalid Side Cluster Created Check the local coordinates");
+            MORIS_ASSERT(tCheck.verify_side_cluster(tMasterSideCluster.get(),mtk::Master_Slave::MASTER),
+                    "Invalid Side Cluster Created Check the local coordinates");
 
             // place the new ig cell in the background mesh
             mXTKModel->get_background_mesh().add_new_cell_to_mesh(tNewIgCell);
@@ -1430,13 +1448,15 @@ namespace xtk
             tMasterSideCluster->mTrivial = true;
 
             // add integration cell
-            tMasterSideCluster->mIntegrationCells = {aEnrIpCells(aGhostSetupData.mMasterSideIpCells(aBulkIndex)(aCellIndex))->get_base_cell()};
+            tMasterSideCluster->mIntegrationCells =
+            {aEnrIpCells(aGhostSetupData.mMasterSideIpCells(aBulkIndex)(aCellIndex))->get_base_cell()};
 
             // add side ordinal relative to the integration cell
             tMasterSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
 
             // add the vertices on the side ordinal
-            tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
+            tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->
+                    get_geometric_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
 
             // finalize
             tMasterSideCluster->finalize_setup();
@@ -1470,15 +1490,22 @@ namespace xtk
         std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = tMasterIpCell->get_cell_info_sp();
 
         // adjacent side ordinal on master
-        uint tAdjFacetOrd = tCellInfo->get_adjacent_side_ordinal(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex));
+        uint tAdjFacetOrd = tCellInfo->get_adjacent_side_ordinal(
+                aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex));
 
         // setup the vertices and local coordinates of the vertices relative to the cell
-        moris::Cell<moris::mtk::Vertex const *> tAdjVertices = tBaseMasterCell->get_geometric_vertices_on_side_ordinal(tAdjFacetOrd);
+        moris::Cell<moris::mtk::Vertex const *> tAdjVertices =
+                tBaseMasterCell->get_geometric_vertices_on_side_ordinal(tAdjFacetOrd);
 
         //properly order the vertices
         moris::Cell<moris::mtk::Vertex const *> tPermutedSlaveVertices;
         moris::Cell<moris::mtk::Vertex const *> tPermutedAdjVertices;
-        this->permute_slave_vertices(tSlaveVertices,tAdjVertices,tPermutedSlaveVertices,tPermutedAdjVertices);
+
+        this->permute_slave_vertices(
+                tSlaveVertices,
+                tAdjVertices,
+                tPermutedSlaveVertices,
+                tPermutedAdjVertices);
 
         // New cell vertices setup (non-const)
         moris::Cell<moris::mtk::Vertex *> tCellVertices (tPermutedAdjVertices.size() + tPermutedSlaveVertices.size());
@@ -1494,7 +1521,12 @@ namespace xtk
         }
 
         // create a new integration cell that does not have a child mesh association
-        moris::mtk::Cell* tIgCell = new Cell_XTK_No_CM(aCurrentId, aCurrentIndex, tMasterIpCell->get_owner(), tCellInfo, tCellVertices);
+        moris::mtk::Cell* tIgCell = new Cell_XTK_No_CM(
+                aCurrentId,
+                aCurrentIndex,
+                tMasterIpCell->get_owner(),
+                tCellInfo,
+                tCellVertices);
 
         // increment current id and index
         aCurrentId++;
