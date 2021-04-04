@@ -26,6 +26,10 @@ namespace moris
         private:
             arma::Mat<Type> mMatrix;
 
+#ifdef CHECK_MEMORY
+            uint mNumResizeCalls = 0;
+#endif
+
             void fill_with_NANs()
             {
 #ifdef MATRIX_FILL
@@ -133,6 +137,11 @@ namespace moris
                         sizeof(Type)*this->numel() > MORIS_MATRIX_RESIZE_CHECK_LIMIT * MORIS_MAX_MATRIX_SIZE ?
                         aNumRows*aNumCols > MORIS_MATRIX_RESIZE_FRACTION_LIMIT * this->numel() : true,
                         "Matrix::resize: resize to less than 1 percent of large matrix - reduce initial allocation.\n");
+
+                // check that number of resizes does not exceed limit
+                MORIS_CHECK_MEMORY( aNumRows * aNumCols != this->numel() ?
+                        mNumResizeCalls++ < MORIS_MATRIX_RESIZE_CALL_LIMIT :true,
+                        "Matrix::resize: number of resize calls exceeds limit.\n");
 
                 mMatrix.resize(aNumRows, aNumCols);
             }
