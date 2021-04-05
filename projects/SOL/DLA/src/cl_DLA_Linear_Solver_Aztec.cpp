@@ -13,23 +13,11 @@
 #include "AztecOO_ConditionNumber.h"
 
 #include "cl_SOL_Dist_Matrix.hpp"
-
-// Ifpack
-#include "Ifpack.h"
-#include "Ifpack_Preconditioner.h"
-
-//#include "Ifpack_CrsIct.h"
-#include "Ifpack_ILUT.h"
-#include "Ifpack_ILU.h"
-#include "Ifpack_LocalFilter.h"
-
-#include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
-// ML
-//#include "ml_include.h"
-//#include "ml_epetra_utils.h"
-//#include "ml_epetra_preconditioner.h"
+#include "cl_DLA_Linear_Problem.hpp"
+
+#include "fn_PRM_SOL_Parameters.hpp"
 
 // Teuchos
 #include "Teuchos_RCPDecl.hpp"
@@ -41,7 +29,7 @@
 using namespace moris;
 using namespace dla;
 
-Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
+Linear_Solver_Aztec::Linear_Solver_Aztec()
 {
     this->set_solver_parameters();
 }
@@ -49,18 +37,27 @@ Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 //----------------------------------------------------------------------------------------
 
 Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist )
-: Linear_Solver_Algorithm( aParameterlist ),
-  mMlPrec ( NULL )
+: Linear_Solver_Algorithm( aParameterlist )
 {
-    //    mParameterList = aParameterlist;
+
 }
 
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem )
-: mMlPrec ( NULL )
+Linear_Solver_Aztec::Linear_Solver_Aztec( Linear_Problem * aLinearSystem )
 {
-    this->set_linear_problem( aLinearSystem );
+    // store linear problem for building external preconditioner
+    mLinearSystem = aLinearSystem;
+
+    // Set matrix. solution vector and RHS
+    mEpetraProblem.SetOperator( mLinearSystem->get_matrix()->get_matrix() );
+
+    mEpetraProblem.SetRHS( static_cast<Vector_Epetra*>(
+            mLinearSystem->get_solver_RHS())->get_epetra_vector() );
+
+    mEpetraProblem.SetLHS( static_cast<Vector_Epetra*>(
+            mLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
+
     this->set_solver_parameters();
 }
 
@@ -68,184 +65,31 @@ Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem )
 
 Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
-    delete mMlPrec;
-    mMlPrec=nullptr;
-
     delete mAztecSolver;
     mAztecSolver=nullptr;
 }
 
 //----------------------------------------------------------------------------------------
 
-void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
+void Linear_Solver_Aztec::set_solver_parameters()
 {
-    // Set matrix. solution vector and RHS
-    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
-    mEpetraProblem.SetRHS( static_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector() );
-    mEpetraProblem.SetLHS( static_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
+    mParameterList = prm::create_linear_algorithm_parameter_list_aztec( );
 }
 
 //----------------------------------------------------------------------------------------
 
-void Linear_Solver_Aztec::set_solver_parameters()
+void Linear_Solver_Aztec::build_external_preconditioner( const sint & aIter )
 {
-    // ASSIGN DEFAULT PARAMETER VALUES
-    // AztecOO User Guide, SAND REPORT, SAND2004-3796, https://trilinos.org/oldsite/packages/aztecoo/AztecOOUserGuide.pdf
+    // Initialize preconditioner in first iteration
+    if ( aIter <= 1 )
+    {
+        mPreconditioner.initialize(
+                mParameterList,
+                mLinearSystem );
+    }
 
-    // Determine which solver is used
-    //options are: AZ_gmres, AZ_gmres_condnum, AZ_cg, AZ_cg_condnum, AZ_cgs, AZ_tfqmr, AZ_bicgstab
-    mParameterList.insert( "AZ_solver" ,  INT_MAX );
-
-    // Allowable Aztec solver iterations
-    mParameterList.insert( "AZ_max_iter", INT_MAX   );
-
-    // Allowable Aztec irelative residual
-    mParameterList.insert( "rel_residual" , 1e-08 );
-
-    // set Az_conv -convergence criteria
-    // options are AZ_r0, AZ_rhs, AZ_Anorm, AZ_noscaled, AZ_sol
-    mParameterList.insert( "AZ_conv" ,  INT_MAX );
-
-    // set Az_diagnostic parameters
-    // Set whether or not diagnostics for every linear iteration are printed or not. options are AZ_all, AZ_none
-    mParameterList.insert( "AZ_diagnostics" ,  INT_MAX );
-
-    // set AZ_output options
-    // options are AZ_all, AZ_none, AZ_warnings, AZ_last, AZ_summary
-    mParameterList.insert( "AZ_output" ,  INT_MAX );
-
-    // Determines the submatrices factored with the domain decomposition algorithms
-    // Option to specify with how many rows from other processors each processor’s local submatrix is augmented.
-    mParameterList.insert( "AZ_overlap" , INT_MAX );
-
-    // Determines how overlapping subdomain results are combined when different processors have computed different values for the same unknown.
-    // Options are AZ_standard, AZ_symmetric
-    mParameterList.insert( "AZ_type_overlap" , INT_MAX );
-
-    // Determines whether RCM reordering will be done in conjunction with domain decomposition incomplete factorizations.
-    // Option to enable (=1) or disable (=0) the Reverse Cuthill–McKee (RCM) algorithm to reorder system equations for smaller bandwidth
-    mParameterList.insert( "AZ_reorder" , INT_MAX );
-
-    // Use preconditioner from a previous Iterate() call
-    // Option are AZ_calc, AZ_recalc, AZ_reuse
-    mParameterList.insert( "AZ_pre_calc" , INT_MAX );
-
-    // Determines  whether  matrix  factorization  information will be kept after this solve
-    // for example for preconditioner_recalculation
-    mParameterList.insert( "AZ_keep_info" , INT_MAX );
-
-    //--------------------------GMRES specific solver parameters--------------------------------------------------------------------------
-    // Set AZ_kspace
-    // Krylov subspace size for restarted GMRES
-    // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption. For very difficult problems, set it equal to the maximum number of iterations.
-    mParameterList.insert( "AZ_kspace" ,INT_MAX );
-
-    // Set AZ_orthog
-    //AZ_classic or AZ_modified
-    mParameterList.insert( "AZ_orthog" , INT_MAX );
-
-    // Set AZ_rthresh
-    // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
-    mParameterList.insert( "AZ_rthresh" , -1.0 );
-
-    // Set AZ_athresh
-    //Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
-    mParameterList.insert( "AZ_athresh" , -1.0 );
-
-    //--------------------------Preconsitioner specific parameters--------------------------------------------------------------------------
-    // Determine which preconditioner is used
-    // Options are AZ_none, AZ_Jacobi, AZ_sym_GS, AZ_Neumann, AZ_ls, AZ_dom_decomp,
-    mParameterList.insert( "AZ_precond" ,  INT_MAX );
-
-    // Set preconditioner subdomain solve - direct solve or incomplete
-    // Options are AZ_lu, AZ_ilut, , AZ_rilu, AZ_bilu, AZ_icc
-    mParameterList.insert( "AZ_subdomain_solve" ,  INT_MAX );
-
-    // Set preconditioner polynomial order - polynomial preconditioning, Gauss-Seidel, Jacobi
-    mParameterList.insert( "AZ_poly_ord" ,  INT_MAX );
-
-    // Set drop tolerance - for LU, ILUT
-    mParameterList.insert( "AZ_drop" ,  -1.0 );
-
-    // Set level of graph fill in - for ilu(k), icc(k), bilu(k)
-    mParameterList.insert( "AZ_graph_fill" ,  INT_MAX );
-
-    // Set ilut fill
-    mParameterList.insert( "AZ_ilut_fill" ,  -1.0 );
-
-    // Set Damping or relaxation parameter used for RILU
-    mParameterList.insert( "AZ_omega" ,  -1.0 );
-
-    //==============================================================================================================
-    //                             ML Preconditioner settings
-    //==============================================================================================================
-
-    // Set Damping or relaxation parameter used for RILU
-    mParameterList.insert( "Use_ML_Prec" ,  false );
-
-    // Set Damping or relaxation parameter used for RILU
-    mParameterList.insert( "ML_reuse" ,  false );
-
-    mParameterList.insert( "ML output"                  ,  -1.0 );
-    mParameterList.insert( "print unused"               ,  -1.0 );
-    mParameterList.insert( "ML print initial list"      ,  -1.0 );
-    mParameterList.insert( "ML print final list"        ,  -1.0 );
-    mParameterList.insert( "eigen-analysis: type"       ,  -1.0 );
-    mParameterList.insert( "eigen-analysis: iterations" ,  -1.0 );
-
-    mParameterList.insert( "cycle applications"       ,  -1.0 );
-    mParameterList.insert( "max levels"               ,  -1.0 );
-    mParameterList.insert( "increasing or decreasing" ,  -1.0 );
-    mParameterList.insert( "prec type"                ,  -1.0 );
-
-    mParameterList.insert( "aggregation: type"                      ,  -1.0 );
-    mParameterList.insert( "aggregation: threshold"                 ,  -1.0 );
-    mParameterList.insert( "aggregation: damping factor"            ,  -1.0 );
-    mParameterList.insert( "aggregation: smoothing sweeps"          ,  -1.0 );
-    mParameterList.insert( "aggregation: use tentative restriction" ,  -1.0 );
-    mParameterList.insert( "aggregation: symmetrize"                ,  -1.0 );
-    mParameterList.insert( "aggregation: local aggregates"          ,  -1.0 );
-    mParameterList.insert( "aggregation: local aggregates"          ,  -1.0 );
-    mParameterList.insert( "aggregation: nodes per aggregate"       ,  -1.0 );
-
-    mParameterList.insert( "energy minimization: enable"  ,  -1.0 );
-    mParameterList.insert( "energy minimization: type"    ,  -1.0 );
-    mParameterList.insert( "energy minimization: droptol" ,  -1.0 );
-    mParameterList.insert( "energy minimization: cheap"   ,  -1.0 );
-
-    mParameterList.insert( "smoother: type"                      ,  -1.0 );
-    mParameterList.insert( "smoother: sweeps"                    ,  -1.0 );
-    mParameterList.insert( "smoother: damping factor"            ,  -1.0 );
-    mParameterList.insert( "smoother: pre or post"               ,  -1.0 );
-    mParameterList.insert( "smoother: Aztec as solver"           ,  -1.0 );
-    mParameterList.insert( "smoother: Aztec options"             ,  -1.0 );
-    mParameterList.insert( "smoother: Aztec params"              ,  -1.0 );
-    mParameterList.insert( "smoother: ifpack level-of-fill"      ,  -1.0 );
-    mParameterList.insert( "smoother: ifpack overlap"            ,  -1.0 );
-    mParameterList.insert( "smoother: ifpack absolute threshold" ,  -1.0 );
-    mParameterList.insert( "smoother: ifpack relative threshold" ,  -1.0 );
-
-    mParameterList.insert( "coarse: type"            ,  -1.0 );
-    mParameterList.insert( "coarse: max size"        ,  -1.0 );
-    mParameterList.insert( "coarse: pre or post"     ,  -1.0 );
-    mParameterList.insert( "coarse: sweeps"          ,  -1.0 );
-    mParameterList.insert( "coarse: damping factor"  ,  -1.0 );
-    mParameterList.insert( "coarse: Chebyshev alpha" ,  -1.0 );
-    mParameterList.insert( "coarse: max processes"   ,  -1.0 );
-
-    mParameterList.insert( "repartition: enable"      ,  -1.0 );
-    mParameterList.insert( "repartition: partitioner" ,  -1.0 );
-
-    mParameterList.insert( "analyze memory"               ,  -1.0 );
-    mParameterList.insert( "viz: enable"                  ,  -1.0 );
-    mParameterList.insert( "viz: output format"           ,  -1.0 );
-    mParameterList.insert( "viz: print starting solution" ,  -1.0 );
-
-    mParameterList.insert( "null space: type"                ,  -1.0 );
-    mParameterList.insert( "null space: dimension"           ,  -1.0 );
-    mParameterList.insert( "null space: vectors"             ,  -1.0 );
-    mParameterList.insert( "null space: vectors to compute"  ,  -1.0 );
-    mParameterList.insert( "null space: add default vectors" ,  -1.0 );
+    // build preconditioner
+    mPreconditioner.build( aIter );
 }
 
 // -----------------------------------------------------------------------------------
@@ -260,7 +104,8 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     // Check that problem has only one RHS
     Epetra_MultiVector * tLHS =mAztecSolver->GetLHS ();
 
-    MORIS_ERROR( tLHS->NumVectors() == 1, "AZTEC interface cannot be used for multiple RHS.\n");
+    MORIS_ERROR( tLHS->NumVectors() == 1,
+            "AZTEC interface cannot be used for multiple RHS.\n");
 
     moris::sint error = 0;
 
@@ -268,25 +113,20 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     this->set_solver_internal_parameters();
 
     moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
+
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
-    // ML Preconditioning
-    if ( mMlPrec != NULL  )
-    {
-        clock_t startPrecTime = clock();
-        {
-            mMlPrec->ComputePreconditioner();
+    // Build preconditioner based on input parameters
+    this->build_external_preconditioner();
 
-            mAztecSolver->SetPrecOperator ( mMlPrec );
-            //mIsPastFirstSolve = true;
-        }
-        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
+    // Set external preconditioner if exists
+    if ( mPreconditioner.exists() )
+    {
+        mAztecSolver->SetPrecOperator( mPreconditioner.get_operator().get() );
     }
 
     // Solve the linear system
     error = mAztecSolver->Iterate( tMaxIt, tRelRes );
-
-    //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 
     // Get linear solution info
     mSolNumIters       = mAztecSolver->NumIters();
@@ -296,6 +136,9 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
 
     // log linear solver iterations
     MORIS_LOG_SPEC( "LinearSolverIterations", mSolNumIters );
+
+    // compute exact residuals
+    MORIS_LOG_SPEC( "LinearResidualNorm", mSolTrueResidual );
 
     delete mAztecSolver;
     mAztecSolver = nullptr;
@@ -311,12 +154,19 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(
 {
     Tracer tTracer( "LinearSolver", "Aztec", "Solve" );
 
+    // check that linear problems are consistent
+    MORIS_ERROR( mLinearSystem ? mLinearSystem == aLinearSystem : true,
+            "Linear_Solver_Aztec::solve_linear_system - Aztec solver can operate only on one linear problem.\n");
+
+    // set linear system
+    mLinearSystem = aLinearSystem;
+
     // Set matrix in linear system
-    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
+    mEpetraProblem.SetOperator( mLinearSystem->get_matrix()->get_matrix() );
 
     // Get LHS and RHS vectors
-    sol::Dist_Vector* tRHS = aLinearSystem->get_solver_RHS() ;
-    sol::Dist_Vector* tLHS = aLinearSystem->get_free_solver_LHS() ;
+    sol::Dist_Vector* tRHS = mLinearSystem->get_solver_RHS() ;
+    sol::Dist_Vector* tLHS = mLinearSystem->get_free_solver_LHS() ;
 
     // Determine the number of RHS and LHS
     uint tNumRHS = tRHS->get_num_vectors();
@@ -332,31 +182,8 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(
     moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
-    // ML preconditioner
-    if ( mParameterList.get< bool >( "Use_ML_Prec" ) )
-    {
-        if ( mParameterList.get< bool >( "ML_reuse" ) == false )
-        {
-            delete mMlPrec;
-
-            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
-        }
-        else if ( mParameterList.get< bool >( "ML_reuse" ) == true && aIter == 1 )
-        {
-            delete mMlPrec;
-
-            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
-        }
-
-        clock_t startPrecTime = clock();
-
-        if ( aIter == 1 || mParameterList.get< bool >( "ML_reuse" ) == false )
-        {
-            mMlPrec->ComputePreconditioner();
-        }
-        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
-        std::cout<<"Time to build and assign ML preconditioner "<<mPreCondTime<<std::endl;
-    }
+    // initialize and build external preconditioner based on input parameters
+    this->build_external_preconditioner( aIter );
 
     // initialize error flag
     moris::sint error = 0;
@@ -387,10 +214,10 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(
                 mAztecSolver->SetAztecOption ( AZ_keep_info, 1 );
             }
 
-            // ML Preconditioning
-            if ( mMlPrec != NULL  )
+            // Set external preconditioner if exists
+            if ( mPreconditioner.exists() )
             {
-                mAztecSolver->SetPrecOperator ( mMlPrec );
+                mAztecSolver->SetPrecOperator( mPreconditioner.get_operator().get() );
             }
         }
         else
@@ -413,6 +240,16 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(
 
         const double * tStatus = mAztecSolver->GetAztecStatus();
         MORIS_LOG_SPEC("Condition Number of Operator: ", tStatus[AZ_condnum]);
+    }
+
+    // log linear solver iterations
+    MORIS_LOG_SPEC( "LinearSolverIterations", mSolNumIters );
+
+    // compute exact residuals
+    Matrix<DDRMat> tRelativeResidualNorm = mLinearSystem->compute_residual_of_linear_system();
+
+    for ( uint i=0; i<tRelativeResidualNorm.numel(); i++) {
+        MORIS_LOG_SPEC( "LinearResidualNorm", tRelativeResidualNorm(i) );
     }
 
     // Delete solver
@@ -563,13 +400,5 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     {
         mAztecSolver->SetAztecParam ( AZ_ilut_fill, mParameterList.get< moris::real >( "AZ_ilut_fill" ) );
     }
-
-    //==============================================================================================================
-    //                             ML Preconditioner settings
-    //==============================================================================================================
-
-    //ML_Epetra::SetDefaults ( mLinearSolverData->mMl->Defaults,mlParams );
-
-    //mlParams.set ( "ML output",mLinearSolverData->mMl->General.MlOutput );
 }
 

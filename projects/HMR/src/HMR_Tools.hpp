@@ -39,7 +39,7 @@ namespace moris
         {
             uint tMyRank = par_rank();
 
-            tString = " proc " + std::to_string( tMyRank );
+            tString = "proc " + std::to_string( tMyRank );
 
             if ( tMyRank < 10 )
             {

@@ -217,6 +217,29 @@ namespace xtk
             return mInterpolationCell->compute_cell_measure();
         }
     }
+
+    //----------------------------------------------------------------
+
+    Matrix<DDRMat>
+    Side_Cluster::compute_cluster_ig_cell_measures(
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster) const
+    {
+        if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
+        {
+            MORIS_ASSERT( mAssociatedCellCluster,
+                    "Side_Cluster::compute_cluster_ig_cell_measures - Associated cell cluster not set.\n");
+
+            return mAssociatedCellCluster->compute_cluster_ig_cell_measures(aPrimaryOrVoid,aIsMaster);
+        }
+        else
+        {
+            MORIS_ASSERT( mInterpolationCell,
+                    "Side_Cluster::compute_cluster_ig_cell_measures - Interpolation cell not set.\n");
+
+            return {{mInterpolationCell->compute_cell_measure()}};
+        }
+    }
     
     //----------------------------------------------------------------
     

@@ -23,6 +23,10 @@ namespace moris
              */
             std::vector< T > mCell;
 
+#ifdef CHECK_MEMORY
+            uint mNumResizeCalls = 0;
+#endif
+
         public:
 
             /**
@@ -350,6 +354,10 @@ namespace moris
                                 this->size() > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
                                 "Cell::shrink_to_fit: Shrink to less than 1 percent of large matrix - reduce initial allocation\n");
 
+                // check that number of resize + shrink_to_fit calls does not exceed limit
+                MORIS_CHECK_MEMORY( mNumResizeCalls++ < MORIS_CELL_RESIZE_CALL_LIMIT,
+                        "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n");
+
                 mCell.shrink_to_fit();
             }
 
@@ -479,6 +487,11 @@ namespace moris
                         sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
                                 aCount > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
                                 "Cell::resize: Resize to less than 1 percent of large matrix - reduce initial allocation");
+
+                // check that number of resize + shrink_to_fit calls does not exceed limit
+                MORIS_CHECK_MEMORY( aCount != this->size() ?
+                        mNumResizeCalls++ < MORIS_CELL_RESIZE_CALL_LIMIT : true,
+                        "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n");
 
                 mCell.resize( aCount, aValue );
             }

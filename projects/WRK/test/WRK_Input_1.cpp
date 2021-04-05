@@ -262,7 +262,7 @@ void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 0 )(0).set("AZ_solver"         , AZ_gmres );
     tParameterlist( 0 )(0).set("AZ_subdomain_solve", AZ_ilu   );
     tParameterlist( 0 )(0).set("AZ_graph_fill"     , 10       );
-    tParameterlist( 0 )(0).set("Use_ML_Prec"       ,  true    );
+    tParameterlist( 0 )(0).set("ml_prec_type"      , "SA"     );
 
     tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
     tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();

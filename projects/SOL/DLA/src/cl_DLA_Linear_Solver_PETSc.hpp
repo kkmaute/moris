@@ -47,8 +47,6 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
 
     ~Linear_Solver_PETSc();
 
-    void set_linear_problem( Linear_Problem * aLinearSystem );
-
     void set_solver_parameters();
 
     void set_solver_internal_parameters();

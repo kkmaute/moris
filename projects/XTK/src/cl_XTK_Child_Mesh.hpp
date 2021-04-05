@@ -412,10 +412,12 @@ public:
      * Returns the child element and face ordinal connected to a provided parent face
      */
     void
-    get_child_elements_connected_to_parent_facet(moris::moris_index         const & aParentFacetIndex,
-                                                moris::Matrix< moris::IdMat >    & aChildElemsIdsOnFacet,
-                                                moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFacet,
-                                                moris::Matrix< moris::IndexMat > & aChildElemOnFacetOrdinal) const;
+    get_child_elements_connected_to_parent_facet(
+            moris::moris_index         const & aParentFacetIndex,
+            moris::uint                      & aNumElemsOnFace,
+            moris::Matrix< moris::IdMat >    & aChildElemsIdsOnFacet,
+            moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFacet,
+            moris::Matrix< moris::IndexMat > & aChildElemOnFacetOrdinal) const;
 
     // ----------------------------------------------------------------------------------
  

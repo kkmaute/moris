@@ -58,6 +58,34 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        Matrix<DDRMat>
+        Side_Cluster::compute_cluster_ig_cell_measures(
+                const mtk::Primary_Void  aPrimaryOrVoid,
+                const mtk::Master_Slave  aIsMaster     ) const
+        {
+            moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            {
+                tCells = &this->get_primary_cells_in_cluster();
+            }
+            else
+            {
+                tCells = & this->get_void_cells_in_cluster();
+            }
+
+            Matrix<DDRMat> tMeasureVec(tCells->size(),1);
+
+            for(uint iC = 0; iC < tCells->size(); iC++)
+            {
+                tMeasureVec(iC) = (*tCells)(iC)->compute_cell_measure();
+            }
+
+            return tMeasureVec;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         moris::real
         Side_Cluster::compute_cluster_cell_measure_derivative(
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
@@ -65,10 +93,6 @@ namespace moris
                 const mtk::Primary_Void aPrimaryOrVoid,
                 const mtk::Master_Slave aIsMaster ) const
         {
-            std::cout<<"Side_Cluster::compute_cluster_cell_measure_derivative "<<std::endl;
-//            std::cout<<" master  "<<static_cast<uint>(aIsMaster)<<std::endl;
-//            std::cout<<" primary "<<static_cast<uint>(aPrimaryOrVoid)<<std::endl;
-
             moris::real tDerivative = 0.0;
 
             moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
@@ -153,6 +177,32 @@ namespace moris
 
             return tMeasure;
         }
+
+        // ----------------------------------------------------------------------------------
+
+        Matrix<DDRMat>
+        Side_Cluster::compute_cluster_ig_cell_side_measures(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster     ) const
+        {
+            MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
+                    "Side cluster only operates on primary cells.");
+
+            moris::Cell<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+
+            Matrix<DDRMat> tMeasureVec(tCells.size(),1);
+
+            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+
+            for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
+            {
+                tMeasureVec(iC) = tCells(iC)->compute_cell_side_measure(tSideOrds(iC));
+            }
+
+            return tMeasureVec;
+        }
+
+        // ----------------------------------------------------------------------------------
 
         moris::real
         Side_Cluster::compute_cluster_cell_side_measure_derivative(

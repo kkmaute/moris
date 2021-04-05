@@ -24,9 +24,9 @@ namespace xtk
         {
             this->cleanup_cut_mesh();
         }
-        // get the mesh quality data
-        Mesh_Quality_Data tMeshQualityData;
-        this->compute_mesh_quality(tMeshQualityData);
+        // // get the mesh quality data
+        // Mesh_Quality_Data tMeshQualityData;
+        // this->compute_mesh_quality(tMeshQualityData);
     }
 
     void

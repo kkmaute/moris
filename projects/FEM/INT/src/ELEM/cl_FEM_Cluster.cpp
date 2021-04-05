@@ -111,6 +111,10 @@ namespace moris
                     MORIS_ERROR( false, "Cluster::Cluster - No element type specified" );
             }
 
+            // determine IG cells to be ignored in residual computation
+            // FIXME: should be used to ignore cell at time of construction
+            this->determine_elements_for_residual_and_iqi_computation();
+
             // get cluster measure map from set
             mClusterMEAMap = mSet->get_cluster_measure_map();
 
@@ -130,12 +134,6 @@ namespace moris
                         std::get<2>( tClusterMEATuples( iCMEA ) ),
                         this );
             }
-
-            // initialize flags for computing residuals and IQIs (default: on)
-            mComputeResidualAndIQI.set_size(tNumMasterIGCells,1,1);
-
-//            real tVolume = this->compute_volume_new();
-//            std::cout << "tVolume = " << tVolume << std::endl;
         }
 
         //------------------------------------------------------------------------------
@@ -156,14 +154,17 @@ namespace moris
                     fem::Measure_Type::CELL_SIDE_MEASURE,
                     mtk::Primary_Void::PRIMARY,
                     mtk::Master_Slave::MASTER ) ] = 0;
+
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
                     mtk::Master_Slave::MASTER ) ] = 1;
+
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
                     mtk::Master_Slave::SLAVE ) ] = 2;
+
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_LENGTH_MEASURE,
                     mtk::Primary_Void::PRIMARY,
@@ -508,8 +509,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Cluster::compute_quantity_of_interest(
-                const uint                         aMeshIndex,
-                enum vis::Field_Type               aFieldType )
+                const uint             aMeshIndex,
+                enum vis::Field_Type   aFieldType )
         {
             // FIXME
             // cannot do it here cause vis mesh
@@ -531,9 +532,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         std::shared_ptr< Cluster_Measure > & Cluster::get_cluster_measure(
-                fem::Measure_Type aMeasureType,
-                mtk::Primary_Void aIsPrimary,
-                mtk::Master_Slave aIsMaster )
+                fem::Measure_Type   aMeasureType,
+                mtk::Primary_Void   aIsPrimary,
+                mtk::Master_Slave   aIsMaster )
         {
             // init cluster index
             uint tClusterMEAIndex = UINT_MAX;
@@ -596,8 +597,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         moris::Matrix< DDRMat > Cluster::compute_cluster_cell_measure_derivative(
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster )
+                const mtk::Primary_Void   aPrimaryOrVoid,
+                const mtk::Master_Slave   aIsMaster )
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
@@ -785,7 +786,8 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ERROR( false, "Undefined set type" );
+                    MORIS_ERROR( false,
+                            "Cluster::compute_cluster_cell_length_measure - Undefined element type" );
             }
 
             // compute element size
@@ -807,7 +809,8 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure - space dimension can only be 1, 2, or 3. ");
+                    MORIS_ERROR( false,
+                            "Cluster::compute_cluster_cell_length_measure - space dimension can only be 1, 2, or 3. ");
                     return 0.0;
             }
         }
@@ -854,7 +857,8 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ERROR( false, "Undefined set type" );
+                    MORIS_ERROR( false,
+                            "Cluster::compute_cluster_cell_length_measure_derivative - Undefined element type" );
             }
 
             // compute element size
@@ -878,7 +882,8 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure_derivative - space dimension can only be 1, 2, or 3. ");
+                    MORIS_ERROR( false,
+                            "Cluster::compute_cluster_cell_length_measure_derivative - space dimension can only be 1, 2, or 3. ");
                     return tDerivatives;
             }
         }
@@ -920,14 +925,15 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "Cluster::compute_ip_cell_length_measure - space dimension can only be 1, 2, or 3. ");
+                    MORIS_ERROR( false,
+                            "Cluster::compute_ip_cell_length_measure - space dimension can only be 1, 2, or 3. ");
                     return 0.0;
             }
         }
-        
+
         //------------------------------------------------------------------------------
 
-        real Cluster::compute_volume_new()
+        real Cluster::compute_volume()
         {
             // new way to compute cluster volume
 
@@ -955,22 +961,56 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ERROR( false, "Undefined set type" );
+                    MORIS_ERROR( false, "Cluster::compute_volume - Undefined element type" );
             }
 
             // check for zero or negative volume
-             MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN,
-                     "Cluster::compute_volume - volume of cluster is smaller / equal zero: %e\n",
-                     tClusterVolume);
+            MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN,
+                    "Cluster::compute_volume - volume of cluster is smaller / equal zero: %15.9e\n",
+                    tClusterVolume);
 
             return tClusterVolume;
         }
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            real Cluster::compute_volume()
-            {
-            // old way to compute cluster volume
+        Matrix<DDRMat> Cluster::compute_element_volumes()
+        {
+            // new way to compute cluster volume
+
+             const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
+             const mtk::Master_Slave tIsMaster      = mtk::Master_Slave::MASTER;
+
+             // switch on set type
+             fem::Element_Type tElementType = mSet->get_element_type();
+
+             switch( tElementType )
+             {
+                 case fem::Element_Type::BULK :
+                 case fem::Element_Type::TIME_SIDESET :
+                 case fem::Element_Type::TIME_BOUNDARY :
+                 {
+                     return mMeshCluster->compute_cluster_ig_cell_measures( tPrimaryOrVoid, tIsMaster );
+                     break;
+                 }
+                 case fem::Element_Type::SIDESET :
+                 case fem::Element_Type::DOUBLE_SIDESET :
+                 {
+                     return mMeshCluster->compute_cluster_ig_cell_side_measures( tPrimaryOrVoid, tIsMaster );
+                     break;
+                 }
+                 default:
+                     MORIS_ERROR( false, "Cluster::compute_element_volumes - Undefined element type" );
+             }
+
+             return {{0}};
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Cluster::compute_volume_in_fem()
+        {
+            //compute cluster volume by numerical integration in FEM
 
             // initialize cluster volume
             real tClusterVolume = 0;
@@ -983,14 +1023,14 @@ namespace moris
             }
 
             // check for zero or negative volume
-             MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN, 
-                     "Cluster::compute_volume - volume of cluster is smaller / equal zero: %e\n",
-                     tClusterVolume);
+            MORIS_ASSERT( tClusterVolume > MORIS_REAL_MIN,
+                    "Cluster::compute_volume - volume of cluster is smaller / equal zero: %15.9e\n",
+                    tClusterVolume);
 
-             // check for consistency between old and new way to compute cluster volume
-             MORIS_ASSERT( std::abs( tClusterVolume - this->compute_volume_new()) < 1e-8*tClusterVolume,
-                     "Cluster::compute_volume - inconsistent volume computation: %e vs %e\n",
-                     tClusterVolume,this->compute_volume_new());
+            // check for consistency between old and new way to compute cluster volume
+            MORIS_ASSERT( std::abs( tClusterVolume - this->compute_volume()) < std::max(1e-8*tClusterVolume, 10.0*MORIS_REAL_EPS),
+                    "Cluster::compute_volume - inconsistent volume computation: %15.9e vs %15.9e\n",
+                    tClusterVolume,this->compute_volume());
 
             // return cluster volume value
             return tClusterVolume;
@@ -1002,29 +1042,31 @@ namespace moris
         {
             // number of elements in cluster
             uint tNumberofElements = mElements.size();
-            
-            // allocate vector of relative volumes
-            Matrix<DDRMat> tRelativeVolume(tNumberofElements,1,0.0);
-            
+
             // initialize cluster volume
             real tClusterVolume = 0.0;
 
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            // compute volumes/areas of IG cells
+            Matrix<DDRMat> tRelativeVolume = this->compute_element_volumes();
+
+            // check for correct number of IG cells
+            MORIS_ERROR( tRelativeVolume.numel() == tNumberofElements,
+                    "Cluster::compute_relative_volume - inconsistent number of IG cells.\n");
+
+            // loop over the IG elements and drop zero elements
+            for ( uint iElem = 0; iElem < tNumberofElements; iElem++ )
             {
-                // compute and store volume of current element
                 // if it smaller than zero; set it to zero
-                tRelativeVolume(iElem) = std::max( mElements( iElem )->compute_volume(), 0.0 );
+                tRelativeVolume(iElem) = std::max( tRelativeVolume(iElem), 0.0 );
 
                 // add volume contribution for the IG element
                 tClusterVolume += tRelativeVolume(iElem);
             }
 
             // check for consistent cluster volume computation
-            // FIXME: commented out as cluster measures are missing
-            //            MORIS_ASSERT ( std::abs( tClusterVolume - this->compute_volume() ) < 1e-8*tClusterVolume,
-            //                    "Cluster::compute_relative_volume - inconsistent volume computation: %e vs %e\n",
-            //                    tClusterVolume,this->compute_volume());
+            MORIS_ASSERT ( std::abs( tClusterVolume - this->compute_volume() ) < std::max(1e-8*tClusterVolume, 10.0*MORIS_REAL_EPS),
+                    "Cluster::compute_relative_volume - inconsistent volume computation: %15.9e vs %15.9e\n",
+                    tClusterVolume,this->compute_volume());
 
             // compute relative volumes of each element in cluster; if total volume is close to zero
             // fill vector with negative one
@@ -1034,7 +1076,7 @@ namespace moris
 
                 // check that summation of volumes has been done correctly
                 MORIS_ASSERT( std::abs( 1.0 - sum(tRelativeVolume) ) < 10.*MORIS_REAL_EPS,
-                        "Cluster::compute_relative_volume - relative volumes do not sum up to one: %e.\n",
+                        "Cluster::compute_relative_volume - relative volumes do not sum up to one: %15.9e.\n",
                         sum(tRelativeVolume));
             }
             else
@@ -1050,11 +1092,14 @@ namespace moris
 
         void Cluster::determine_elements_for_residual_and_iqi_computation()
         {
-            // reset flags
-            mComputeResidualAndIQI.fill(1);
+            // number of elements in cluster
+            uint tNumberofElements = mElements.size();
+
+            // initialize flags for computing residuals and IQIs (default: on)
+            mComputeResidualAndIQI.set_size(tNumberofElements,1,1);
 
             // skip remainder if there is only one element
-            if ( mElements.size() == 1 )
+            if ( tNumberofElements == 1 )
             {
                 return;
             }
@@ -1080,7 +1125,7 @@ namespace moris
                     "drop tolerance is negative.\n");
 
             // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            for ( uint iElem = 0; iElem < tNumberofElements; iElem++ )
             {
                 // set flag to false (0) if element volume is smaller than threshold
                 if (tRelativeElementVolume(iElem) < tElementDropTolerance)
@@ -1093,8 +1138,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         real Cluster::compute_volume_drop_threshold(
-                 const Matrix<DDRMat> & tRelativeElementVolume,
-                 const real           & tVolumeError)
+                const Matrix<DDRMat> & tRelativeElementVolume,
+                const real           & tVolumeError)
         {
             // create copy of vector of relative element volumes
             Matrix<DDRMat> tSortedVolumes = tRelativeElementVolume;
