@@ -69,7 +69,12 @@ namespace moris
             mFluxAMatEval = true;
             mFluxADofMatEval = true;
             mFluxKMatEval = true;
+            mKijiEval = true;
             mFluxKDofMatEval = true;
+
+            mLYEval = true;
+            mLWEval = true;
+            mLDofYEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -115,36 +120,26 @@ namespace moris
             // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
             // std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
 
-            // compute the first residual (pressure or density)
-            mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes1StopIndex }, { 0, 0 } ) += aWStar * ( tFIFirstDofType->N_trans() * (
-                    mA( 0 )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) );
+            // get subview for complete residual
+            auto tRes = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
+
+            // A0 matrix contribution
+            tRes += aWStar * trans( this->W() ) * this->A( 0 ) * this->dYdt();
 
             // compute the second residual (velocity)
-            mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) += aWStar * ( tFIVelocity->N_trans() * (
-                    mA( 0 )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) +
+            mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) += aWStar * ( 
                     trans( tCM->testStrain() ) * this->MultipMat() * tCM->flux( CM_Function_Type::MECHANICAL ) ); 
 
             // compute the third residual (temperature)
             mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar * ( 
-                    tFIThirdDofType->N_trans() * (
-                        mA( 0 )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdt ) +
                     trans( tFIThirdDofType->dnNdxn( 1 ) ) * ( 
                         tCM->flux( CM_Function_Type::WORK ) - tCM->flux( CM_Function_Type::THERMAL ) ) ); 
 
             // loop over A-Matrices
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
             {
-                // compute the first residual (pressure or density)
-                mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes1StopIndex }, { 0, 0 } ) += aWStar * ( tFIFirstDofType->N_trans() * (
-                        mA( iA )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) );
-
-                // compute the second residual (velocity)
-                mSet->get_residual()( 0 )( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 0, 0 } ) += aWStar * ( tFIVelocity->N_trans() * (
-                        mA( iA )( { 1, tNumSpaceDims }, { 0, tNumSpaceDims + 1 } ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) ); 
-
-                // compute the third residual (temperature)
-                mSet->get_residual()( 0 )( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) += aWStar *  ( tFIThirdDofType->N_trans() * (
-                        mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) ); 
+                // compute residual
+                tRes += aWStar * trans( this->W() ) * this->A( iA ) * this->dYdx( iA - 1 );
             }
 
             // get the Stabilization Parameter
@@ -221,7 +216,6 @@ namespace moris
 // close_hdf5_file( tFileID );
 // std::cout << "Done \n" << std::flush;
 // }
-
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -321,7 +315,7 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterRes1StartIndex, tMasterRes1StopIndex },
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIFirstDofType->N_trans() * (
-                                trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( 0 ) + 
+                                trans( this->dYdx( iA - 1 ) ) * mADOF( iA )( 0 ) + 
                                 mA( iA )( { 0, 0 }, { 0, tNumSpaceDims + 1 } ) * mdWdx( iA - 1 ) ) ); 
 
                 // add contribution to velocity residual dof type
@@ -331,7 +325,7 @@ namespace moris
                 for (uint iDim = 0; iDim < tNumSpaceDims; iDim++)
                 {
                     tADOFY( { iDim, iDim }, { 0, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                            trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( iDim + 1 );
+                            trans( this->dYdx( iA - 1 ) ) * mADOF( iA )( iDim + 1 );
                 }
 
                 // // add contribution
@@ -344,7 +338,7 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterRes3StartIndex, tMasterRes3StopIndex },
                         { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += aWStar * ( tFIThirdDofType->N_trans() * (
-                                trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( tNumSpaceDims + 1 ) + 
+                                trans( this->dYdx( iA - 1 ) ) * mADOF( iA )( tNumSpaceDims + 1 ) + 
                                 mA( iA )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims + 1 } ) * mdWdx( iA - 1 ) ) );
             }
 
@@ -458,7 +452,7 @@ namespace moris
             // loop over Ai matrices and add contribution
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
             {
-                aRM += mA( iA ) * mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } );
+                aRM += this->A( iA ) * this->dYdx( iA - 1 );
             }
 
             // contribution from (Kij*Y,j),i
@@ -529,7 +523,7 @@ namespace moris
                 for ( uint iR = 0; iR < tNumSpaceDims + 2; iR++ )
                 {
                     aJM( { iR, iR }, { tMasterDep1StartIndex, tMasterDep3StopIndex } ) += 
-                            trans( mdYdx( { 0, tNumSpaceDims + 1 }, { iA - 1, iA - 1 } ) ) * mADOF( iA )( iR );
+                            trans( this->dYdx( iA - 1 ) ) * mADOF( iA )( iR );
                 }
             }
 

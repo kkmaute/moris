@@ -52,13 +52,19 @@ namespace moris
                 bool mFluxAMatEval = true;
                 bool mFluxADofMatEval = true;
                 bool mFluxKMatEval = true;
+                bool mKijiEval = true;
                 bool mFluxKDofMatEval = true;
+
+                // evaluation flags for L-operators
+                bool mLYEval = true;
+                bool mLWEval = true;
+                bool mLDofYEval = true;
 
                 // vectors and matrices containing field variables and their spatial derivatives
                 Matrix< DDRMat > mY;
                 Matrix< DDRMat > mdYdt;
-                Matrix< DDRMat > mdYdx;
-                Matrix< DDRMat > md2Ydx2;
+                moris::Cell< Matrix< DDRMat > > mdYdx;
+                moris::Cell< Matrix< DDRMat > > md2Ydx2;
 
                 // matrices containing test functions and their spatial derivatives
                 Matrix< DDRMat > mW;
@@ -72,7 +78,13 @@ namespace moris
                 
                 // cells of matrices containing the K flux matrices and their DoF derivatives
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
+                moris::Cell< Matrix< DDRMat > > mKiji;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mKDOF;   
+
+                // storage for L-operators
+                Matrix< DDRMat > mLY;
+                Matrix< DDRMat > mdLdDofY;
+                Matrix< DDRMat > mLW;
 
                 // multiplication matrices for condensed tensors
                 const Matrix< DDRMat > mMultipMat2D = { 
@@ -210,16 +222,19 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * get a matrix of spatial derivative of test functions W for all dof types
-                 * @param[ out ] dYdx              spatial derivatives of the state variables
+                 * @param[ in ]  aJ index of the first spatial dimension for derivative
+                 * @param[ out ] dYdx  spatial derivatives of the state variables
                  */
-                const Matrix< DDRMat > & dYdx();
+                const Matrix< DDRMat > & dYdx( const uint aJ );
 
                 //------------------------------------------------------------------------------
                 /**
                  * get a matrix of spatial derivative of test functions W for all dof types
-                 * @param[ out ] d2Ydx2              spatial derivatives of the state variables
+                 * @param[ in ]  aI index of the first spatial dimension for derivative
+                 * @param[ in ]  aJ index of the second spatial dimension for derivative
+                 * @param[ out ] d2Ydx2  spatial derivatives of the state variables
                  */
-                const Matrix< DDRMat > & d2Ydx2();
+                const Matrix< DDRMat > & d2Ydx2( const uint aI, const uint aJ );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -275,6 +290,39 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute the L-operator (Navier-Stokes-Operator) 
+                 * applied to the state variable vector Y
+                 * @param[ out ] mLY  L-operator applied to Y-vector
+                 */
+                const Matrix< DDRMat > & LY();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
+                 * applied to the state variable vector Y
+                 * @param[ out ] mdLdDofY  dof deriv of L-operator applied to Y-vector
+                 */
+                const Matrix< DDRMat > & dLdDofY( );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the L-operator (Navier-Stokes-Operator) 
+                 * applied to the test functions (matrix W)
+                 * @param[ out ] mLW  L-operator applied to W-matrix
+                 */
+                const Matrix< DDRMat > & LW();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
+                 * applied to the test functions (matrix W)
+                 * @param[ in ]  aVL       pre-multiplication vector applied from the left
+                 * @param[ out ] mdLdDofW  dof deriv of L-operator applied to W-matrix
+                 */
+                const Matrix< DDRMat > & dLdDofW( const Matrix< DDRMat > & aVL );
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the A flux matrices
                  */
                 void eval_A_matrices();     
@@ -287,12 +335,28 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get the A flux matrices
+                 * @param[ in ]  aK index
+                 * @param[ out ] mA K-matrix
+                 */
+                const Matrix< DDRMat > & A( const uint aK );   
+
+                //------------------------------------------------------------------------------
+                /**
                  * get the K flux matrices
                  * @param[ in ]  aI  first index
                  * @param[ in ]  aJ  second index
                  * @param[ out ] Kij K-matrix
                  */
-                const Matrix< DDRMat > & K( uint aI, uint aJ );     
+                const Matrix< DDRMat > & K( const uint aI, const uint aJ );      
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the spatial derivatives of the K flux matrices
+                 * @param[ in ]  aJ  index
+                 * @param[ out ] Kij_i spatial derivatives of the K flux matrices
+                 */
+                const Matrix< DDRMat > & Kiji ( const uint aJ );   
 
                 //------------------------------------------------------------------------------
                 // FIXME provided directly by the field interpolator?

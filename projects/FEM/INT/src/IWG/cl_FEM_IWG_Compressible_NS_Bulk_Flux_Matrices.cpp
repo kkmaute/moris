@@ -40,11 +40,15 @@ namespace moris
             // get number of state variable fields
             uint tNumStateVars = this->num_space_dims() + 2;
 
+            uint tNumSecondDerivs = 3 * this->num_space_dims() - 3;
+
             // initialize Y vectors
             mY.set_size( tNumStateVars, 1, 0.0 );
             mdYdt.set_size( tNumStateVars, 1, 0.0 );
-            mdYdx.set_size( tNumStateVars, this->num_space_dims(), 0.0 );
-            md2Ydx2.set_size( tNumStateVars, 3 * this->num_space_dims() - 3, 0.0 );
+            mdYdx.assign( this->num_space_dims(), mY );
+            //mdYdx.set_size( tNumStateVars, this->num_space_dims(), 0.0 );
+            md2Ydx2.assign( tNumSecondDerivs, mY );
+            //md2Ydx2.set_size( tNumStateVars, 3 * this->num_space_dims() - 3, 0.0 );
 
             // initialize counter for fill index
             uint iStateVar = 0;
@@ -58,11 +62,28 @@ namespace moris
                 // get number of fields in FI
                 uint tNumFields = tFI->get_number_of_fields(); 
 
+                // get end index for fields
+                uint tEndIndex = iStateVar + tNumFields - 1;
+
                 // put state variables into matrices
-                mY( { iStateVar, iStateVar + tNumFields - 1 } ) = tFI->val().matrix_data();
-                mdYdt( { iStateVar, iStateVar + tNumFields - 1 } ) = trans( tFI->gradt( 1 ) );
-                mdYdx( { iStateVar, iStateVar + tNumFields - 1 }, { 0, this->num_space_dims() - 1 } ) = trans( tFI->gradx( 1 ) );
-                md2Ydx2( { iStateVar, iStateVar + tNumFields - 1 }, { 0, 3 * this->num_space_dims() - 4 } ) = trans( tFI->gradx( 2 ) );
+                mY( { iStateVar, tEndIndex } ) = tFI->val().matrix_data();
+                mdYdt( { iStateVar, tEndIndex } ) = trans( tFI->gradt( 1 ) );
+                //mdYdx( { iStateVar, tEndIndex }, { 0, this->num_space_dims() - 1 } ) = trans( tFI->gradx( 1 ) );
+                //md2Ydx2( { iStateVar, tEndIndex }, { 0, 3 * this->num_space_dims() - 4 } ) = trans( tFI->gradx( 2 ) );
+
+                // fill dYdx 
+                for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+                {
+                    mdYdx( iDim )( { iStateVar, tEndIndex } ) = 
+                            trans( tFI->gradx( 1 )( { iDim, iDim }, { 0, tNumFields - 1 } ) );
+                }
+
+                // fill d2Ydx2
+                for ( uint iRow = 0; iRow < tNumSecondDerivs; iRow++ )
+                {
+                    md2Ydx2( iRow )( { iStateVar, tEndIndex } ) =
+                            trans( tFI->gradx( 2 )( { iRow, iRow }, { 0, tNumFields - 1 } ) );
+                }
 
                 // increment fill index
                 iStateVar += tNumFields;
@@ -105,36 +126,39 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dYdx()
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dYdx( const uint aSpatialDirection )
         {
             // check if the variable vectors have already been assembled
             if( !mVarSetEval )
             {      
-                return mdYdx;
+                return mdYdx( aSpatialDirection );
             }   
 
             // assemble variable set
             this->assemble_variable_set();
 
             // return dYdx
-            return mdYdx;
+            return mdYdx( aSpatialDirection );
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::d2Ydx2()
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::d2Ydx2( const uint aI, const uint aJ )
         {
+            // convert the two indices into one for condensed tensor
+            uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
+            
             // check if the variable vectors have already been assembled
             if( !mVarSetEval )
             {      
-                return md2Ydx2;
+                return md2Ydx2( tFlatIndex );
             }   
 
             // assemble variable set
             this->assemble_variable_set();
 
-            // return d2Ydx2
-            return md2Ydx2;
+            // return value
+            return md2Ydx2( tFlatIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -253,7 +277,6 @@ namespace moris
         
         const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::d2Wdx2( const uint aI, const uint aJ )
         {
-
             // convert the two indices into one for condensed tensor
             uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
             
@@ -271,6 +294,21 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::A( const uint aK )
+        {
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aK >= 0 ) and ( aK <= this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Bulk::A() - index out of bounds." );
+
+            // 
+            this->eval_A_matrices();
+
+            // return requested value
+            return mA( aK );
+        }
+
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Bulk::eval_A_matrices()
@@ -344,7 +382,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::K( uint aI, uint aJ )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::K( const uint aI, const uint aJ )
         {
             // check that indices are not out of bounds
             MORIS_ASSERT( ( aI >= 0 ) and ( aI < this->num_space_dims() ) and ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
@@ -368,7 +406,103 @@ namespace moris
 
             // return requested K matrix
             return mK( aI )( aJ );
-        }                    
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Kiji( const uint aJ )
+        {
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Bulk::Kiji() - index out of bounds." );
+
+            // check if Kiji matrices have already been evaluated
+            if ( !mKijiEval )
+            {
+                return mKiji( aJ );
+            }
+
+            // set the eval flag
+            mKijiEval = false;            
+
+            // get the viscosity
+            std::shared_ptr< Property > tPropDynamicViscosity = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropThermalConductivity = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // eval spatial derivatives of K matrices and store them
+            eval_dKijdxi( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mKiji );
+
+            // return requested Kiji matrix
+            return mKiji( aJ );
+        } 
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LY()
+        {
+            // check if LY already been evaluated
+            if ( !mLYEval )
+            {
+                return mLY;
+            }
+
+            // set the eval flag
+            mLYEval = false;  
+
+            // evaluate LY
+            mLY = this->A( 0 ) * this->dYdt();
+
+            // get subview for += operations
+            auto tLY = mLY( { 0, mLY.n_rows() - 1 }, { 0, mLY.n_cols() - 1 } );
+
+            // 
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                tLY += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dYdx( iDim ); 
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    tLY -= this->K( iDim, jDim ) * this->d2Ydx2( iDim, jDim );
+                }
+            }
+
+            // return value
+            return mLY;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LW()
+        {
+            // check if LY already been evaluated
+            if ( !mLWEval )
+            {
+                return mLW;
+            }
+
+            // set the eval flag
+            mLWEval = false;  
+
+            // evaluate LY
+            mLW = this->A( 0 ) * this->dWdt();
+
+            // get subview for += operations
+            auto tLW = mLW( { 0, mLW.n_rows() - 1 }, { 0, mLW.n_cols() - 1 } );
+
+            // 
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                tLW += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dWdx( iDim ); 
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    tLW -= this->K( iDim, jDim ) * this->d2Wdx2( iDim, jDim );
+                }
+            }
+
+            // return value
+            return mLW;
+        }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */
