@@ -246,7 +246,7 @@ namespace xtk
         moris::uint tNumNewNodes = aNewNodeIds.size();
 
         // allocate space in the local to global node map
-        mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
+        mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes);
 
         // allocate space in vertices
         mXtkMtkVertices.resize(tNumNewNodes+tNumExistingNodes);
@@ -301,7 +301,7 @@ namespace xtk
         moris::uint tNumNewNodes = aNewNodeIds.numel();
 
         // allocate space in the local to global node map
-        mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
+        mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes);
 
         // allocate space in vertices
         mXtkMtkVertices.resize(tNumNewNodes+tNumExistingNodes);
@@ -418,7 +418,7 @@ namespace xtk
     {
         if(aEntityRank == EntityRank::ELEMENT || aEntityRank == EntityRank::NODE)
         {
-            MORIS_ASSERT(aEntityIndex < mEntityLocaltoGlobalMap((uint)aEntityRank).numel(),
+            MORIS_ASSERT(aEntityIndex < mEntityLocaltoGlobalMap((uint)aEntityRank).size(),
                     "Entity Index out of bounds");
 
             return mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex);
@@ -1172,9 +1172,10 @@ namespace xtk
 
         mChildMtkCellMap[aCell->get_index()] = mChildMtkCells.size()-1;
 
-        mEntityLocaltoGlobalMap(3).resize(mEntityLocaltoGlobalMap(3).n_rows()+1,mEntityLocaltoGlobalMap(3).n_cols());
+        MORIS_ASSERT( (moris_index) mEntityLocaltoGlobalMap(3).size() == aCell->get_index(),
+                "index mismatch.");
 
-        mEntityLocaltoGlobalMap(3)(aCell->get_index()) = aCell->get_id();
+        mEntityLocaltoGlobalMap(3).push_back(aCell->get_id());
     }
 
     // ----------------------------------------------------------------------------------
@@ -1188,17 +1189,17 @@ namespace xtk
 
         if(aCellIndices.numel()> 0 )
         {
-            MORIS_ASSERT((moris_index)mEntityLocaltoGlobalMap(3).numel() == aCellIndices.min(),
+            MORIS_ASSERT((moris_index)mEntityLocaltoGlobalMap(3).size() == aCellIndices.min(),
                     "The minimum indices calling this function needs to correspond with the size of the number of elements already in the map");
         }
 #endif
         MORIS_ASSERT(aCellIndices.numel() == aCellIds.numel(),"Dimension mismatch between indices and ids");
         // number of cells
         moris::uint tNumCells    = aCellIndices.numel();
-        moris::uint tCurrentSize = mEntityLocaltoGlobalMap(3).numel();
+        moris::uint tCurrentSize = mEntityLocaltoGlobalMap(3).size();
 
         // allocate space
-        mEntityLocaltoGlobalMap(3).resize(tNumCells + tCurrentSize,1);
+        mEntityLocaltoGlobalMap(3).resize(tNumCells + tCurrentSize);
 
         // add to map
         for(moris::uint i = 0; i <tNumCells; i++)
@@ -1208,10 +1209,9 @@ namespace xtk
 
 #ifdef DEBUG
         // since I can't write these functions in one line, need to have ifdef
-        moris::Matrix<moris::IndexMat> tUniqueCellIds;
-        moris::unique(mEntityLocaltoGlobalMap(3),tUniqueCellIds);
+        moris::Cell<moris::moris_index> tUniqueCellIds = moris::unique_index(mEntityLocaltoGlobalMap(3));
 
-        MORIS_ASSERT(mEntityLocaltoGlobalMap(3).numel() == tUniqueCellIds.numel(),
+        MORIS_ASSERT(mEntityLocaltoGlobalMap(3).size() == tUniqueCellIds.size(),
                 "duplicate cell id detected" );
 #endif
     }
@@ -1365,7 +1365,7 @@ namespace xtk
 
         // setup nodes
         uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
-        mEntityLocaltoGlobalMap(0) = moris::Matrix< moris::IdMat >(tNumNodes,1);
+        mEntityLocaltoGlobalMap(0) = moris::Cell< moris::moris_index >(tNumNodes);
 
         for(moris::uint iN = 0; iN<tNumNodes; iN++ )
         {
@@ -1374,7 +1374,7 @@ namespace xtk
 
         // setup cells
         uint tNumCells = mMeshData->get_num_entities(EntityRank::ELEMENT);
-        mEntityLocaltoGlobalMap(3) = moris::Matrix< moris::IdMat >(tNumCells,1);
+        mEntityLocaltoGlobalMap(3) = moris::Cell< moris::moris_index >(tNumCells);
 
         for(moris::uint iC = 0; iC<tNumCells; iC++)
         {
