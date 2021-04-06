@@ -49,7 +49,8 @@ namespace moris
                 Field_Interpolator_Manager            * aMasterFIManager,
                 const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
                 const Matrix< DDRMat >                & aVL,
-                moris::Cell< Matrix< DDRMat > >       & aVLdAdY );
+                const uint                              aI,
+                Matrix< DDRMat >       & aVLdAdY );
 
         void eval_dAdY_VR( 
                 std::shared_ptr< Material_Model >       aMM,  
@@ -57,7 +58,8 @@ namespace moris
                 Field_Interpolator_Manager            * aMasterFIManager,
                 const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
                 const Matrix< DDRMat >                & aVR,
-                moris::Cell< Matrix< DDRMat > >       & adAdYVR );
+                const uint                              aI,
+                Matrix< DDRMat >                      & adAdYVR );
 
         //------------------------------------------------------------------------------
 
@@ -119,32 +121,38 @@ namespace moris
         //------------------------------------------------------------------------------
         
         void eval_VL_dKdY( 
-                std::shared_ptr< Property >                      aPropDynamicViscosity,  
-                std::shared_ptr< Property >                      aPropThermalConductivity,
-                Field_Interpolator_Manager                     * aMasterFIManager,
-                const Matrix< DDRMat >                         & aVL,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aVLdKdY );
+                std::shared_ptr< Property >   aPropDynamicViscosity,  
+                std::shared_ptr< Property >   aPropThermalConductivity,
+                Field_Interpolator_Manager  * aMasterFIManager,
+                const Matrix< DDRMat >      & aVL,
+                const uint                    aI,
+                const uint                    aJ,
+                Matrix< DDRMat >            & aVLdKdY );
 
         void eval_dKdY_VR( 
-                std::shared_ptr< Property >                      aPropDynamicViscosity,  
-                std::shared_ptr< Property >                      aPropThermalConductivity,
-                Field_Interpolator_Manager                     * aMasterFIManager,
-                const Matrix< DDRMat >                         & aVR,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > & adKdYVR );
+                std::shared_ptr< Property >   aPropDynamicViscosity,  
+                std::shared_ptr< Property >   aPropThermalConductivity,
+                Field_Interpolator_Manager  * aMasterFIManager,
+                const Matrix< DDRMat >      & aVR,
+                const uint                    aI,
+                const uint                    aJ,
+                Matrix< DDRMat >            & adKdYVR );
 
-        void eval_VL_d2KdxdY( 
-                std::shared_ptr< Property >                      aPropDynamicViscosity,  
-                std::shared_ptr< Property >                      aPropThermalConductivity,
-                Field_Interpolator_Manager                     * aMasterFIManager,
-                const Matrix< DDRMat >                         & aVL,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aVLd2KdxdY);
+        void eval_VL_dKijidY( 
+                std::shared_ptr< Property >       aPropDynamicViscosity,  
+                std::shared_ptr< Property >       aPropThermalConductivity,
+                Field_Interpolator_Manager      * aMasterFIManager,
+                const Matrix< DDRMat >          & aVR,
+                const uint                        aJ,
+                moris::Cell< Matrix< DDRMat > > & aVLdKijidY );
 
-        void eval_d2KdxdY_VR( 
-                std::shared_ptr< Property >                      aPropDynamicViscosity,  
-                std::shared_ptr< Property >                      aPropThermalConductivity,
-                Field_Interpolator_Manager                     * aMasterFIManager,
-                const Matrix< DDRMat >                         & aVR,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > & ad2KdxdYVR);
+        void eval_dKijidY_VR( 
+                std::shared_ptr< Property >       aPropDynamicViscosity,  
+                std::shared_ptr< Property >       aPropThermalConductivity,
+                Field_Interpolator_Manager      * aMasterFIManager,
+                const Matrix< DDRMat >          & aVR,
+                const uint                        aJ,
+                moris::Cell< Matrix< DDRMat > > & adKijidYVR );
 
         //------------------------------------------------------------------------------
 
