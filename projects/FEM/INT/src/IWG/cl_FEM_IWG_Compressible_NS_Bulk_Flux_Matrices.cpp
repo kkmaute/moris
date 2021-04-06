@@ -472,6 +472,77 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofY()
+        {
+            // check if LY already been evaluated
+            if ( !mLDofYEval )
+            {
+                return mdLdDofY;
+            }
+
+            // set the eval flag
+            mLDofYEval = false;  
+
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // initialize cell containing A-matrices pre-multiplied with the state variable vector
+            moris::Cell< Matrix< DDRMat > > tdAjdY_Yj( this->num_space_dims() + 1 );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijidY_Yj( this->num_space_dims() );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijdY_Yij( this->num_space_dims() );
+
+            // get dA0/dY * Y,t
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAjdY_Yj( 0 ) );
+
+            // compute A(0) term
+            mdLdDofY = tdAjdY_Yj( 0 ) * this->W();
+
+            // get subview of matrix for += operations
+            auto tdLdDofY = mdLdDofY( { 0, mdLdDofY.n_rows() - 1 }, { 0, mdLdDofY.n_cols() - 1 } );
+
+            // go over all Aj*Y,j and Kij,i*Y,j and Kij*Y,ij terms and add up
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                // get dAj/dY * Y,j
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAjdY_Yj( iDim + 1 ) );
+
+                // add contributions from A-matrices
+                tdLdDofY += tdAjdY_Yj( iDim + 1 )  * this->W();
+
+                // get dKij,i/dY * Y,j
+                eval_dKijidY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tdKijidY_Yj( iDim ) );
+
+                // add contributions from Kij,i-matrices
+                // tdLdDofY -= tdKijdY_Yij( iDim )( 0 ) * this->W();
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // add contributions from Kij,i-matrices
+                    tdLdDofY -= tdKijdY_Yij( iDim )( jDim + 1 ) * this->dWdx( jDim );
+
+                    // get dKij/dY * Y,ij
+                    eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->d2Ydx2( iDim, jDim ), iDim, jDim, tdKijdY_Yij( iDim )( jDim ) );
+                    
+                    // add contributions from K-matrices
+                    tdLdDofY -= tdKijdY_Yij( iDim )( jDim ) * this->W();
+                }
+            }
+
+            // return value
+            return mdLdDofY;
+        }
+
+        //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LW()
         {
             // check if LY already been evaluated
@@ -502,6 +573,68 @@ namespace moris
 
             // return value
             return mLW;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW(  const Matrix< DDRMat > & aVL  )
+        {
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // initialize cell containing A-matrices pre-multiplied with VL
+            moris::Cell< Matrix< DDRMat > > tVLdAjdY( this->num_space_dims() + 1 );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with VL
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijidY( this->num_space_dims() );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with VL
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijdY( this->num_space_dims() );
+
+            // get VL * dA0/dY
+            eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
+
+            // compute A(0) term
+            mdLdDofW = trans( this->dWdt() ) * tVLdAjdY( 0 ) * this->W();
+
+            // get subview of matrix for += operations
+            auto tdLdDofW = mdLdDofW( { 0, mdLdDofW.n_rows() - 1 }, { 0, mdLdDofW.n_cols() - 1 } );
+
+            // go over all VL*Aj and VL*Kij,i and VL*Kij terms and add up
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                // get VL * dAj/dY
+                eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
+
+                // add contributions from A-matrices
+                tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();
+
+                // get VL * dKij,i/dY
+                eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tVLdKijidY( iDim ) );
+
+                // add contributions from Kij,i-matrices
+                // tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( 0 ) * this->W();
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // add contributions from Kij,i-matrices
+                    tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( jDim + 1 ) * this->dWdx( jDim );
+
+                    // get VL * dKij/dY
+                    eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, jDim, tVLdKijdY( iDim )( jDim ) );
+
+                    // add contributions from K-matrices
+                    tdLdDofW -= trans( this->d2Wdx2( iDim, jDim ) ) * tVLdKijdY( iDim )( jDim ) * this->W();
+                }
+            }
+
+            // return value
+            return mdLdDofW;
         }
 
         //------------------------------------------------------------------------------

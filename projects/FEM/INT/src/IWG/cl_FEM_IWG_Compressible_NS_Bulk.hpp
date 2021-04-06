@@ -85,6 +85,7 @@ namespace moris
                 Matrix< DDRMat > mLY;
                 Matrix< DDRMat > mdLdDofY;
                 Matrix< DDRMat > mLW;
+                Matrix< DDRMat > mdLdDofW;
 
                 // multiplication matrices for condensed tensors
                 const Matrix< DDRMat > mMultipMat2D = { 
@@ -302,7 +303,7 @@ namespace moris
                  * applied to the state variable vector Y
                  * @param[ out ] mdLdDofY  dof deriv of L-operator applied to Y-vector
                  */
-                const Matrix< DDRMat > & dLdDofY( );
+                const Matrix< DDRMat > & dLdDofY();
 
                 //------------------------------------------------------------------------------
                 /**
