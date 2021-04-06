@@ -43,6 +43,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void eval_VL_dAdY( 
+                std::shared_ptr< Material_Model >       aMM,  
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
+                const Matrix< DDRMat >                & aVL,
+                moris::Cell< Matrix< DDRMat > >       & aVLdAdY );
+
+        void eval_dAdY_VR( 
+                std::shared_ptr< Material_Model >       aMM,  
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
+                const Matrix< DDRMat >                & aVR,
+                moris::Cell< Matrix< DDRMat > >       & adAdYVR );
+
+        //------------------------------------------------------------------------------
+
         void eval_A0_DOF( 
                 std::shared_ptr< Material_Model >       aMM,  
                 std::shared_ptr< Constitutive_Model >   aCM,
@@ -78,37 +96,13 @@ namespace moris
                 std::shared_ptr< Property >                      aPropDynamicViscosity,  
                 std::shared_ptr< Property >                      aPropThermalConductivity,
                 Field_Interpolator_Manager                     * aMasterFIManager,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aKMats );
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aK );
 
         void eval_dKijdxi( 
                 std::shared_ptr< Property >       aPropDynamicViscosity,  
                 std::shared_ptr< Property >       aPropThermalConductivity,
                 Field_Interpolator_Manager      * aMasterFIManager,
-                moris::Cell< Matrix< DDRMat > > & adKijdxi );
-
-        void eval_dKijdxiVj( 
-                std::shared_ptr< Property >   aPropDynamicViscosity,  
-                std::shared_ptr< Property >   aPropThermalConductivity,
-                Field_Interpolator_Manager  * aMasterFIManager,
-                const Matrix< DDRMat >      & aVj,
-                Matrix< DDRMat >            & adKijdxiVj );        
-
-        /* 
-         * Vij is a flattened tensor (i.e. a vector or matrix with ij as the rows)
-         */
-        void eval_KijVij( 
-                std::shared_ptr< Property >    aPropDynamicViscosity,  
-                std::shared_ptr< Property >    aPropThermalConductivity,
-                Field_Interpolator_Manager   * aMasterFIManager,
-                const Matrix< DDRMat >       & aVij,
-                Matrix< DDRMat >             & adKijVij );
-
-        void eval_dKijdDOFVji( 
-                std::shared_ptr< Property >       aPropDynamicViscosity,  
-                std::shared_ptr< Property >       aPropThermalConductivity,
-                Field_Interpolator_Manager      * aMasterFIManager,
-                const Matrix< DDRMat >          & aVij,
-                moris::Cell< Matrix< DDRMat > > & adKijdDOFVji );
+                moris::Cell< Matrix< DDRMat > > & adKijdxi );     
 
         void eval_KijYj( 
                 std::shared_ptr< Constitutive_Model >   aCM,
@@ -119,7 +113,38 @@ namespace moris
         void eval_KijYji( 
                 std::shared_ptr< Constitutive_Model >   aCM,
                 Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
                 Matrix< DDRMat >                      & aKijYji );
+
+        //------------------------------------------------------------------------------
+        
+        void eval_VL_dKdY( 
+                std::shared_ptr< Property >                      aPropDynamicViscosity,  
+                std::shared_ptr< Property >                      aPropThermalConductivity,
+                Field_Interpolator_Manager                     * aMasterFIManager,
+                const Matrix< DDRMat >                         & aVL,
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aVLdKdY );
+
+        void eval_dKdY_VR( 
+                std::shared_ptr< Property >                      aPropDynamicViscosity,  
+                std::shared_ptr< Property >                      aPropThermalConductivity,
+                Field_Interpolator_Manager                     * aMasterFIManager,
+                const Matrix< DDRMat >                         & aVR,
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > & adKdYVR );
+
+        void eval_VL_d2KdxdY( 
+                std::shared_ptr< Property >                      aPropDynamicViscosity,  
+                std::shared_ptr< Property >                      aPropThermalConductivity,
+                Field_Interpolator_Manager                     * aMasterFIManager,
+                const Matrix< DDRMat >                         & aVL,
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aVLd2KdxdY);
+
+        void eval_d2KdxdY_VR( 
+                std::shared_ptr< Property >                      aPropDynamicViscosity,  
+                std::shared_ptr< Property >                      aPropThermalConductivity,
+                Field_Interpolator_Manager                     * aMasterFIManager,
+                const Matrix< DDRMat >                         & aVR,
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > & ad2KdxdYVR);
 
         //------------------------------------------------------------------------------
 
@@ -133,13 +158,18 @@ namespace moris
         void eval_KijYjiDOF( 
                 std::shared_ptr< Constitutive_Model >   aCM,
                 Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
                 const moris::Cell< MSI::Dof_Type >    & aDofType,
-                Matrix< DDRMat >                      & aKijYji );
+                Matrix< DDRMat >                      & aKijYjiDOF );
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat > unfold_flat_tensor( const Matrix< DDRMat > & aFlattenedTensor );
+
+        //------------------------------------------------------------------------------
+
+        uint convert_index_pair_to_flat( const uint aI, const uint aJ, const uint aNumSpaceDims );
 
         //------------------------------------------------------------------------------
 

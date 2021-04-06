@@ -2339,8 +2339,8 @@ namespace xtk
         // cleanup the mesh
         if(mCleanupMesh)
         {
-            // Mesh_Cleanup tMeshCleanup(this,&mParameterList);
-            // tMeshCleanup.perform();
+            Mesh_Cleanup tMeshCleanup(this,&mParameterList);
+            tMeshCleanup.perform();
         }
 
         // this catches the missed interfaces due to coincidence
