@@ -1437,7 +1437,10 @@ namespace xtk
         // setup cells
         uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
         mEntityLocaltoGlobalMap(3) = Cell< moris_index >(tNumCells);
-
+        for(moris::uint iC = 0; iC<tNumCells; iC++)
+        {
+            mtk::Cell & tCell = this->get_mtk_cell((moris_index)iC);
+            MORIS_ASSERT(tCell.get_index() == (moris_index) iC,"Cell index mismatch");
             mEntityLocaltoGlobalMap(3)(tCell.get_index()) = tCell.get_id();
         }
 
