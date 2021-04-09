@@ -240,6 +240,16 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                /**
+                 * returns the number of parametric dimensions
+                 */
+                 uint get_number_of_param_dimensions() const
+                 {
+                     return mSpaceInterpolation->get_number_of_param_dimensions();
+                 }
+
+                //------------------------------------------------------------------------------
                 /**
                  * returns the number of bases for the space function
                  */
