@@ -38,6 +38,11 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
+            enum CellShape
+            compute_cell_shape(moris::mtk::Cell const *aCell) const;
+
+            //-----------------------------------------------------------------------------
+
             uint
             get_num_verts() const;
 

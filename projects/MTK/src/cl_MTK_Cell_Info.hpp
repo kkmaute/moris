@@ -13,6 +13,7 @@
 #include "linalg_typedefs.hpp"
 #include "assert.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 namespace moris
 {
     namespace mtk
@@ -48,6 +49,14 @@ namespace moris
              */
             virtual enum Integration_Order
             get_cell_integration_order() const = 0;
+
+            // ---------------------------------------------------------------------------------
+            /*!
+             * Returns the shape of the cell
+             * @return Cell shape
+             */
+            virtual enum CellShape
+            compute_cell_shape(moris::mtk::Cell const *aCell) const = 0;
 
             // ---------------------------------------------------------------------------------
 

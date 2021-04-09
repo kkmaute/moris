@@ -44,6 +44,38 @@ namespace moris
             return Integration_Order::QUAD_2x2;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Quad4::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            // getting vertices and storing them in a local matrix, since each node will be used a few times
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // error threshold
+            real tEpsilon = 1.0E-8;
+
+            // getting edge vectors
+            moris::Matrix< DDRMat > tEdge0 = tVertices( 1 )->get_coords() - tVertices( 0 )->get_coords();
+            moris::Matrix< DDRMat > tEdge1 = tVertices( 2 )->get_coords() - tVertices( 1 )->get_coords();
+            moris::Matrix< DDRMat > tEdge2 = tVertices( 3 )->get_coords() - tVertices( 2 )->get_coords();
+            moris::Matrix< DDRMat > tEdge3 = tVertices( 0 )->get_coords() - tVertices( 3 )->get_coords();
+
+            // If the edge vectors are not perpindicular
+            if ( std::abs( dot(tEdge1, tEdge0 ) ) > tEpsilon ||
+                 std::abs( dot(tEdge2, tEdge1 ) ) > tEpsilon ||
+                 std::abs( dot(tEdge3, tEdge2 ) ) > tEpsilon ||
+                 std::abs( dot(tEdge0, tEdge3 ) ) > tEpsilon )
+            {
+                return CellShape::STRAIGHT;
+            }
+            // since the edges are perpindicular, must be rectangular
+            else
+            {
+                return CellShape::RECTANGULAR;
+            }
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint
