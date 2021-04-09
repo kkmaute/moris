@@ -463,6 +463,19 @@ namespace moris
                 adwalldestructiondu +=
                         ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
                         tModViscosity / std::pow( tWallDistance, 2.0 );
+
+                // if wall distance depends on derivative dof type
+                if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_LOG( "compute_dwalldestructiondu - Wall distance depends on dof type - not tested yet" );
+
+                    // add contribution to dwalldestructiondu
+                    adwalldestructiondu -=
+                            2.0 * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
+                            std::pow( tModViscosity, 2.0 ) *
+                            tPropWallDistance->dPropdDOF( aDofTypes ) /
+                            std::pow( tWallDistance, 3.0 );
+                }
             }
             // if viscosity is negative
             else
@@ -474,6 +487,18 @@ namespace moris
                     adwalldestructiondu -=
                             mCw1 * tFIModViscosity->N() /
                             std::pow( tWallDistance, 2.0 );
+                }
+
+                // if wall distance depends on derivative dof type
+                if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_LOG( "compute_dwalldestructiondu - Wall distance depends on dof type - not tested yet" );
+
+                    // add contribution to dwalldestructiondu
+                    adwalldestructiondu +=
+                            2.0 * mCw1 * std::pow( tModViscosity, 2.0 ) *
+                            tPropWallDistance->dPropdDOF( aDofTypes ) /
+                            std::pow( tWallDistance, 3.0 );
                 }
             }
         }
@@ -998,6 +1023,17 @@ namespace moris
                         tFv2 * tFIViscosity->N() /
                         std::pow( mKappa * tWallDistance, 2.0 );
             }
+
+            // if wall distance depends on derivative dof type
+            if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+            {
+                MORIS_LOG( "compute_dsbardu - Wall distance depends on dof type - not tested!" );
+
+                // add contribution to dsbardu
+                adsbardu -=
+                        2.0 * tFv2 * tFIViscosity->val()( 0 ) * tPropWallDistance->dPropdDOF( aDofTypes ) /
+                        ( std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1233,16 +1269,26 @@ namespace moris
                 this->compute_dstildedu( aDofTypes, tdSTildedu );
 
                 // add contribution from dStildedu
-                adrdu -= tFIViscosity->val() * tdSTildedu;
+                adrdu -= tFIViscosity->val() * tdSTildedu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
 
                 // if dof type is viscosity
                 if( aDofTypes( 0 ) == mMasterDofViscosity )
                 {
                     // add contribution from viscosity
-                    adrdu += tSTilde * tDerFI->N();
+                    adrdu += tSTilde * tDerFI->N() / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
                 }
 
-                adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
+                // if wall distance depends on derivative dof type
+                if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_LOG( "compute_drdu - Wall distance depends on dof type - not tested!" );
+
+                    // add contribution from wall distance
+                    adrdu -= 2.0 * tFIViscosity->val() * tPropWallDistance->dPropdDOF( aDofTypes ) /
+                            ( tSTilde * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
+                }
+
+                //adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
             }
         }
 

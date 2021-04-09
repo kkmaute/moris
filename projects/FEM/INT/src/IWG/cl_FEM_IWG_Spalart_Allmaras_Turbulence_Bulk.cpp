@@ -464,6 +464,9 @@ namespace moris
             MORIS_ERROR( tWallDistance > 0.0,
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_wall_destruction_term - Negative or zero wall distance, exiting!");
 
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
+
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
@@ -522,6 +525,9 @@ namespace moris
             MORIS_ERROR( tWallDistance > 0.0,
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dwalldestructiondu - Negative or zero wall distance, exiting!");
 
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
+
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
@@ -549,10 +555,23 @@ namespace moris
                             std::pow( tWallDistance, 2.0 );
                 }
 
-                // add contribution to dwalldestructiondu
+                // add contribution from ft2 and fw to dwalldestructiondu
                 adwalldestructiondu +=
                         ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
                         std::pow( tModViscosity / tWallDistance, 2.0 );
+
+                // if wall distance depends on derivative dof type
+                if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_LOG( "compute_dwalldestructiondu - Wall distance depends on dof type - not tested yet" );
+
+                    // add contribution to dwalldestructiondu
+                    adwalldestructiondu -=
+                            2.0 * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
+                            std::pow( tModViscosity, 2.0 ) *
+                            tPropWallDistance->dPropdDOF( aDofTypes ) /
+                            std::pow( tWallDistance, 3.0 );
+                }
             }
             // if viscosity is negative
             else
@@ -564,6 +583,18 @@ namespace moris
                     adwalldestructiondu -=
                             2.0 * mCw1 * tModViscosity * tFIModViscosity->N() /
                             std::pow( tWallDistance, 2.0 );
+                }
+
+                // if wall distance depends on derivative dof type
+                if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_LOG( "compute_dwalldestructiondu - Wall distance depends on dof type - not tested yet" );
+
+                    // add contribution to dwalldestructiondu
+                    adwalldestructiondu +=
+                            2.0 * mCw1 * std::pow( tModViscosity, 2.0 ) *
+                            tPropWallDistance->dPropdDOF( aDofTypes ) /
+                            std::pow( tWallDistance, 3.0 );
                 }
             }
         }
@@ -1095,6 +1126,9 @@ namespace moris
             MORIS_ERROR( tWallDistance > 0.0,
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_sbar - Negative or zero wall distance, exiting!");
 
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
+
             // compute fv2
             real tFv2 = this->compute_fv2();
 
@@ -1130,6 +1164,9 @@ namespace moris
             MORIS_ERROR( tWallDistance > 0.0,
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dsbardu - Negative or zero wall distance, exiting!");
 
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
+
             // compute fv2
             real tFv2 = this->compute_fv2();
 
@@ -1146,9 +1183,19 @@ namespace moris
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution
-                adsbardu +=
-                        tFv2 * tFIViscosity->N() /
+                adsbardu += tFv2 * tFIViscosity->N() /
                         std::pow( mKappa * tWallDistance, 2.0 );
+            }
+
+            // if wall distance depends on derivative dof type
+            if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+            {
+                MORIS_LOG( "compute_dsbardu - Wall distance depends on dof type - not tested!" );
+
+                // add contribution to dsbardu
+                adsbardu -=
+                        2.0 * tFv2 * tFIViscosity->val()( 0 ) * tPropWallDistance->dPropdDOF( aDofTypes ) /
+                        ( std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
             }
         }
 
@@ -1325,6 +1372,9 @@ namespace moris
             MORIS_ERROR( tWallDistance > 0.0,
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_r - Negative or zero wall distance, exiting!");
 
+            // threshold wall distance
+            tWallDistance = std::max(tWallDistance,mEpsilon);
+
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
 
@@ -1372,6 +1422,9 @@ namespace moris
                 MORIS_ERROR( tWallDistance > 0.0,
                         "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_drdu - Negative or zero wall distance, exiting!");
 
+                // threshold wall distance
+                tWallDistance = std::max(tWallDistance,mEpsilon);
+
                 // compute stilde
                 real tSTilde = this->compute_stilde();
 
@@ -1380,16 +1433,26 @@ namespace moris
                 this->compute_dstildedu( aDofTypes, tdSTildedu );
 
                 // add contribution from dStildedu
-                adrdu -= tFIViscosity->val() * tdSTildedu;
+                adrdu -= tFIViscosity->val() * tdSTildedu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
 
                 // if dof type is viscosity
                 if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
                 {
                     // add contribution from viscosity
-                    adrdu += tSTilde * tDerFI->N();
+                    adrdu += tSTilde * tDerFI->N() / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
                 }
 
-                adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
+                // if wall distance depends on derivative dof type
+                if( tPropWallDistance->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_LOG( "compute_drdu - Wall distance depends on dof type - not tested!" );
+
+                    // add contribution from wall distance
+                    adrdu -= 2.0 * tFIViscosity->val() * tPropWallDistance->dPropdDOF( aDofTypes ) /
+                            ( tSTilde * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
+                }
+
+               // adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
             }
         }
 
