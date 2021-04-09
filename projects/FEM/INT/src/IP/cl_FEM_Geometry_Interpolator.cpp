@@ -44,8 +44,8 @@ namespace moris
             mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
 
             // number of space bases and dimensions
-            mNumSpaceParamDim = aInterpolationRule.create_space_interpolation_function()
-                                    ->get_number_of_param_dimensions();
+            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
+            mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
 
             // number of time bases and dimensions
             mNumTimeBases = mTimeInterpolation->get_number_of_bases();
