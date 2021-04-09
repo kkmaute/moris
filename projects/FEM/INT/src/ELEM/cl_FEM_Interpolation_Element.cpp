@@ -463,9 +463,6 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_jacobian();
         }
@@ -508,9 +505,6 @@ namespace moris
                 // set cluster for stabilization parameter
                 mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-                // determine elements to consider/ignore in residual and iqi computation
-                mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
                 // ask cluster to compute residual
                 mFemCluster( 0 )->compute_residual();
             }
@@ -522,9 +516,6 @@ namespace moris
 
                 // set cluster for stabilization parameter
                 mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-                // determine elements to consider/ignore in residual and iqi computation
-                mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
                 // ask cluster to compute jacobian
                 mFemCluster( 0 )->compute_dQIdu();
@@ -571,9 +562,6 @@ namespace moris
                 mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
             }
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute Jacobian and residual
             mFemCluster( 0 )->compute_jacobian_and_residual();
         }
@@ -612,9 +600,6 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dRdp();
@@ -666,9 +651,6 @@ namespace moris
             // initialize dQIdp
             mSet->initialize_mdQIdpMat();
             mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdp_explicit();
@@ -770,9 +752,6 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dRdp_and_dQIdp();
@@ -961,9 +940,6 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute dRdp
             mFemCluster( 0 )->compute_dRdp();
 
@@ -1111,9 +1087,6 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdu();
         }
@@ -1144,9 +1117,6 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute quantity of interest
             mFemCluster( 0 )->compute_QI();
@@ -1233,9 +1203,6 @@ namespace moris
             }
             else
             {
-                // determine elements to consider/ignore in residual and iqi computation
-                mFemCluster( aMeshIndex )->determine_elements_for_residual_and_iqi_computation();
-
                 // ask cluster to compute quantity of interest
                 mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );
             }

@@ -624,8 +624,8 @@ namespace moris
 //        //tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
 //        tLinSolver1->set_param("AZ_graph_fill") = 5;
 //
-//        tLinSolver1->set_param("Use_ML_Prec") = true;
-        //tLinSolver1->set_param("ML_reuse") = true;
+//        tLinSolver1->set_param("ml_prec_type") = "SA";
+        //tLinSolver1->set_param("prec_reuse") = true;
 
         /*!
          * Set linear solver to linear solver manager

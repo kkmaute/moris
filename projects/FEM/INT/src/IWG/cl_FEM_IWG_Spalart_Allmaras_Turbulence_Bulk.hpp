@@ -46,6 +46,9 @@ namespace moris
 
             private :
 
+                // internal threshold
+                const real mEpsilon = 1e-18;
+
                 // Spalart Allmaras model constants
                 real mCb1 = 0.1355;
                 real mCb2 = 0.6220;

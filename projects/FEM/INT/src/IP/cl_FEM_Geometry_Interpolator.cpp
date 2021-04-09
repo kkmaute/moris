@@ -44,8 +44,7 @@ namespace moris
             mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
 
             // number of space bases and dimensions
-            mNumSpaceParamDim = aInterpolationRule.create_space_interpolation_function()
-                                    ->get_number_of_param_dimensions();
+            mNumSpaceParamDim = mSpaceInterpolator->get_number_of_param_dimensions();
 
             // number of time bases and dimensions
             mNumTimeBases = mTimeInterpolation->get_number_of_bases();
@@ -86,8 +85,7 @@ namespace moris
             mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
 
             // number of space bases and dimensions
-            mNumSpaceParamDim = aInterpolationRule.create_space_interpolation_function()
-                                    ->get_number_of_param_dimensions();
+            mNumSpaceParamDim = mSpaceInterpolator->get_number_of_param_dimensions();
 
             // number of time bases and dimensions
             mNumTimeBases = mTimeInterpolation->get_number_of_bases();
@@ -104,14 +102,16 @@ namespace moris
 
         Geometry_Interpolator::~Geometry_Interpolator()
         {
-            if( mTimeInterpolation != NULL )
+            if( mTimeInterpolation )
             {
                 delete mTimeInterpolation;
+                mTimeInterpolation = nullptr;
             }
 
-            if( mSpaceInterpolator != nullptr )
+            if( mSpaceInterpolator )
             {
                 delete mSpaceInterpolator;
+                mSpaceInterpolator = nullptr;
             }
         }
 

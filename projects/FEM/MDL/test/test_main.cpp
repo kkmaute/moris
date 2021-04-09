@@ -9,15 +9,12 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-// ---------------------------------------------------------------------
-
 // MORIS header files.
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Logger.hpp" // MRS/IOS/src
+#include "cl_Communication_Manager.hpp"
+#include "cl_Logger.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
-
 
 int
 main(
@@ -37,7 +34,5 @@ main(
     // finalize moris global communication manager
     gMorisComm.finalize();
 
-
     return result;
-
 }

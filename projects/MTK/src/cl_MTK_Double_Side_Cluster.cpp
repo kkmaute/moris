@@ -541,7 +541,37 @@ namespace moris
                 const mtk::Master_Slave aIsMaster       ) const
         {
             moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+
             return tCluster.compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+        }
+
+        //----------------------------------------------------------------------------------
+
+        Matrix<DDRMat>
+        Double_Side_Cluster::compute_cluster_ig_cell_measures(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster       ) const
+        {
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+
+            return tCluster.compute_cluster_ig_cell_measures(aPrimaryOrVoid,aIsMaster);
+        }
+
+        //----------------------------------------------------------------------------------
+
+        moris::real
+        Double_Side_Cluster::compute_cluster_cell_measure_derivative(
+                const Matrix< DDRMat > & aPerturbedVertexCoords,
+                uint aDirection,
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster ) const
+        {
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            return tCluster.compute_cluster_cell_measure_derivative(
+                    aPerturbedVertexCoords,
+                    aDirection,
+                    aPrimaryOrVoid,
+                    aIsMaster );
         }
 
         //----------------------------------------------------------------------------------
@@ -552,9 +582,39 @@ namespace moris
                 const mtk::Master_Slave aIsMaster       ) const
         {
             moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+
             return tCluster.compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
         }
 
+        //----------------------------------------------------------------------------------
+
+        Matrix<DDRMat>
+        Double_Side_Cluster::compute_cluster_ig_cell_side_measures(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster       ) const
+        {
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+
+            return tCluster.compute_cluster_ig_cell_side_measures(aPrimaryOrVoid,aIsMaster);
+        }
+
+
+        //----------------------------------------------------------------
+
+        moris::real
+        Double_Side_Cluster::compute_cluster_cell_side_measure_derivative(
+                const Matrix< DDRMat > & aPerturbedVertexCoords,
+                uint aDirection,
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster ) const
+        {
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            return tCluster.compute_cluster_cell_side_measure_derivative(
+                    aPerturbedVertexCoords,
+                    aDirection,
+                    aPrimaryOrVoid,
+                    aIsMaster );
+        }
 
         //----------------------------------------------------------------------------------
 

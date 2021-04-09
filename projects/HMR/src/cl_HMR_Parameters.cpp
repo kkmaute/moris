@@ -255,6 +255,8 @@ namespace moris
             // get multigrid parameter
             this->set_number_aura( aParameterList.get< sint >("use_number_aura") == 1 );
 
+            this->set_use_advanced_t_matrices( aParameterList.get< sint >("use_advanced_T_matrix_scheme") == 1 );
+
             this->set_refinement_for_low_level_elements( aParameterList.get< bool >("use_refine_low_level_elements") );
 
             this->set_write_background_mesh( aParameterList.get< std::string >("write_background_mesh") );

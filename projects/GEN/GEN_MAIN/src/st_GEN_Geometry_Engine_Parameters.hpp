@@ -14,6 +14,7 @@ namespace moris
         struct Geometry_Engine_Parameters
         {
             /**
+             * @var mADVs ADVs which the created geometries are based on
              * @var mGeometries Geometries to be used
              * @var mProperties Properties to be used
              * @var mBulkPhases Bulk phases for creating a custom phase table
@@ -26,6 +27,7 @@ namespace moris
              * @var mOutputMeshFile File name for writing an exodus mesh
              * @var mTimeOffset Time offset for writing sequential meshes
              */
+            Matrix<DDRMat>                  mADVs = {{}};
             Cell<std::shared_ptr<Geometry>> mGeometries = {};
             Cell<std::shared_ptr<Property>> mProperties = {};
             Matrix<DDUMat>                  mBulkPhases = {{}};

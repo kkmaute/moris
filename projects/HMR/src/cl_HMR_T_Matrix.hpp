@@ -26,6 +26,7 @@ namespace moris
 
         class T_Matrix
         {
+            protected:
             //! ref to settings container
             const Parameters   * mParameters;
 
@@ -123,11 +124,11 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             // destructor
-            ~T_Matrix();
+            virtual ~T_Matrix();
 
 //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat > get_lagrange_matrix()
+            const Matrix< DDRMat > & get_lagrange_matrix()
             {
                 return mTMatrixLagrange;
             }
@@ -172,7 +173,7 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
-            void evaluate( const uint aBSplineMeshIndex,
+            virtual void evaluate( const uint aBSplineMeshIndex,
                            const bool aBool = true);
 
 //-------------------------------------------------------------------------------

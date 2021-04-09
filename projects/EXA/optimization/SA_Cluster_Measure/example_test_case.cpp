@@ -7,11 +7,10 @@
 #include "cl_Logger.hpp"                // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"  // MTK/src
 #include "cl_Communication_Tools.hpp"   // MRS/COM/src
+#include "HDF5_Tools.hpp"
 
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
-
-#include "HDF5_Tools.hpp"
 
 using namespace moris;
 
@@ -41,15 +40,11 @@ void check_results(
         std::string aHdf5FileName,
         uint        aTestCaseIndex)
 {
-    MORIS_LOG_INFO("");
-    MORIS_LOG_INFO("Checking Results - Test Case %d on %i processor.",aTestCaseIndex,par_size());
-    MORIS_LOG_INFO("");
-
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
     // define reference node IDs
-    Cell<uint> tReferenceNodeId  = {4,13,4,13};
+    Cell<uint> tReferenceNodeId  = { 5, 20 };
 
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-14;
@@ -73,23 +68,15 @@ void check_results(
         std::cout << "Time value: " << std::scientific << std::setprecision(15) << tExoIO.get_time_value() << std::endl;
 
         // solution of reference point at reference time step
-        std::cout << "Theta at reference point: " << std::scientific << std::setprecision(15) <<
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
                 tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 ) << std::endl;
-
-        // solution of reference point at reference time step
-        std::cout << "Phid at reference point: " << std::scientific << std::setprecision(15) <<
-                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 3, 0 ) << std::endl;
-
-        // solution of reference point at reference time step
-        std::cout << "Phi-design (Pdsg) at reference point: " << std::scientific << std::setprecision(15) <<
-                tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 ) << std::endl;
         return;
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell<uint> tReferenceNumDims  = {  2,   3,   2,   3};
-    Cell<uint> tReferenceNumNodes = { 82, 414, 130, 896};
-    Cell<uint> tReferenceNumElems = { 60, 632,  60, 392};
+    Cell<uint> tReferenceNumDims  = {  2,  3};
+    Cell<uint> tReferenceNumNodes = { 16, 58};
+    Cell<uint> tReferenceNumElems = {  8, 68};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -110,10 +97,8 @@ void check_results(
     // define reference coordinates for node aNodeId
     Cell<Matrix< DDRMat >> tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { {0.0},{0.0} } );
-    tReferenceCoordinate.push_back( { {0.0},{0.0},{0.0} } );
-    tReferenceCoordinate.push_back( { {0.0},{0.0} } );
-    tReferenceCoordinate.push_back( { {0.0},{0.0},{0.0} } );
+    tReferenceCoordinate.push_back( { {+1.000000000000000e+00},{+3.499989999999999e-01} } );
+    tReferenceCoordinate.push_back( { {+1.000000000000000e+00},{+3.499989999999999e-01},{+1.000000000000000e+00} } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId(aTestCaseIndex) );
@@ -137,8 +122,6 @@ void check_results(
     Cell<real> tReferenceTime;
     tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
-    tReferenceTime.push_back( 1.000000000000000e+00 );
-    tReferenceTime.push_back( 1.000000000000000e+00 );
 
     real tActualTime = tExoIO.get_time_value( );
 
@@ -149,53 +132,19 @@ void check_results(
 
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
-    // check Theta at node aNodeId in first time step (Theta is 3rd nodal field, first time step has index 0)
-    Cell<real> tReferenceTheta;
-    tReferenceTheta.push_back( 5.917299018173391e-01 );
-    tReferenceTheta.push_back( 7.194331939566802e-01 );
-    tReferenceTheta.push_back( 7.546884527350837e-01 );
-    tReferenceTheta.push_back( 8.907213245936323e-01 );
+    // check temperature at node aNodeId in first time step (Temperature is 3rd nodal field, first time step has index 0)
+    Cell<real> tReferenceTemperature;
+    tReferenceTemperature.push_back( 2.641125244043063e+00 );
+    tReferenceTemperature.push_back( 2.655482875127814e+00 );
 
-    real tActualTheta = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
+    real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
 
-    real tRelThetaDifference = std::abs( ( tActualTheta - tReferenceTheta(aTestCaseIndex) ) / ( tReferenceTheta(aTestCaseIndex)+tDeltaEps ));
+    real tRelTemperatureDifference = std::abs( ( tActualTemperature - tReferenceTemperature(aTestCaseIndex) ) / ( tReferenceTemperature(aTestCaseIndex)+tDeltaEps ));
 
-    MORIS_LOG_INFO("Check nodal Theta:    reference %12.5e, actual %12.5e, percent  error %12.5e.",
-            tReferenceTheta(aTestCaseIndex),tActualTheta,tRelThetaDifference*100.0);
+    MORIS_LOG_INFO("Check nodal Temperature:    reference %12.5e, actual %12.5e, percent  error %12.5e.",
+            tReferenceTemperature(aTestCaseIndex),tActualTemperature,tRelTemperatureDifference*100.0);
 
-    REQUIRE(  tRelThetaDifference < 1.0e-4);
-
-    // check Phid at node aNodeId in first time step (Phid is 4th nodal field, first time step has index 0)
-    Cell<real> tReferencePhid;
-    tReferencePhid.push_back( 3.872167974340177e-01 );
-    tReferencePhid.push_back( 3.587919624293681e-01 );
-    tReferencePhid.push_back( 1.970512578364834e-01 );
-    tReferencePhid.push_back( 1.324452669069744e-01 );
-
-    real tActualPhid = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 3, 0 );
-
-    real tRelPhidDifference = std::abs( ( tActualPhid - tReferencePhid(aTestCaseIndex) ) / ( tReferencePhid(aTestCaseIndex)+tDeltaEps ) );
-
-    MORIS_LOG_INFO("Check nodal Phid:    reference %12.5e, actual %12.5e, percent  error %12.5e.",
-            tReferencePhid(aTestCaseIndex),tActualPhid,tRelPhidDifference*100.0);
-
-    REQUIRE(  tRelPhidDifference < 1.0e-4);
-
-    // check Pdsg at node aNodeId in first time step (Pdsg is 4th nodal field, first time step has index 0)
-    Cell<real> tReferencePdsg;
-    tReferencePdsg.push_back( 4.710000000000001e-01 );
-    tReferencePdsg.push_back( 4.709999999999992e-01 );
-    tReferencePdsg.push_back( 2.862624741953035e-01 );
-    tReferencePdsg.push_back( 2.506857164624121e-01 );
-
-    real tActualPdsg = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 );
-
-    real tRelPdsgDifference = std::abs( ( tActualPdsg - tReferencePdsg(aTestCaseIndex) ) / ( tReferencePdsg(aTestCaseIndex)+tDeltaEps ) );
-
-    MORIS_LOG_INFO("Check nodal Pdsg:    reference %12.5e, actual %12.5e, percent  error %12.5e.",
-            tReferencePdsg(aTestCaseIndex),tActualPdsg,tRelPdsgDifference*100.0);
-
-    REQUIRE(  tRelPdsgDifference < 1.0e-4);
+    REQUIRE(  tRelTemperatureDifference < 1.0e-4);
 
     // Sweep HDF5 file
     hid_t tFileID = open_hdf5_file( aHdf5FileName );
@@ -233,7 +182,7 @@ void check_results(
                     tObjectiveFD(tADVIndex),
                     100*std::abs((tObjectiveAnalytical(tADVIndex)-tObjectiveFD(tADVIndex))/(tObjectiveFD(tADVIndex)+tDeltaEps)));
 
-            CHECK( std::abs( ( tObjectiveAnalytical( tADVIndex ) - tObjectiveFD( tADVIndex ) ) /
+            REQUIRE( std::abs( ( tObjectiveAnalytical( tADVIndex ) - tObjectiveFD( tADVIndex ) ) /
                     (tObjectiveFD(tADVIndex)+tDeltaEps) ) < tToleranceSensties );
 
             for (uint tConIndex = 0; tConIndex < tConstraintsAnalytical.n_rows();++tConIndex)
@@ -247,23 +196,26 @@ void check_results(
                         100*std::abs((tConstraintsAnalytical(tConIndex,tADVIndex)-tConstraintsFD(tConIndex,tADVIndex)) /
                                 (tConstraintsFD(tConIndex,tADVIndex)+tDeltaEps)));
 
-                CHECK( std::abs( ( tConstraintsAnalytical( tConIndex,tADVIndex ) - tConstraintsFD( tConIndex,tADVIndex ) ) /
+                REQUIRE( std::abs( ( tConstraintsAnalytical( tConIndex,tADVIndex ) - tConstraintsFD( tConIndex,tADVIndex ) ) /
                         (tConstraintsFD( tConIndex, tADVIndex )+tDeltaEps ) ) < tToleranceSensties );
             }
         }
     }
+
+    // close file
+    close_hdf5_file( tFileID );
 }
 
 //---------------------------------------------------------------
 
-TEST_CASE("HeatMethod_Linear",
-        "[moris],[example],[structure],[linear]")
+TEST_CASE("Cluster_Measure_2Mat_SA",
+        "[moris],[example],[optimization],[linear]")
 {
     // define command line call
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./HeatMethod.so";
+    char tString2[] = "./Cluster_Measure_2Mat_SA.so";
 
     char * argv[2] = {tString1,tString2};
 
@@ -271,7 +223,7 @@ TEST_CASE("HeatMethod_Linear",
     gInterpolationOrder = 1;
 
     MORIS_LOG_INFO("");
-    MORIS_LOG_INFO("Executing Heat Method - 2D: Interpolation order 1 - %i Processors.",par_size());
+    MORIS_LOG_INFO("Executing Cluster_Measure_2Mat_SA - 2D: Interpolation order 1 - %i Processors.",par_size());
     MORIS_LOG_INFO("");
 
     // set dimension: 2D
@@ -284,10 +236,10 @@ TEST_CASE("HeatMethod_Linear",
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // perform check for Test Case 0
-    check_results("HeatMethod_0.exo","SEN_HeatMethod_0.hdf5",gTestCaseIndex);
+    check_results("Cluster_Measure_2Mat_SA2.exo","Cluster_Measure_2Mat_SA2.hdf5",gTestCaseIndex);
 
     MORIS_LOG_INFO("");
-    MORIS_LOG_INFO("Executing Heat Method - 3D: Interpolation order 1 - %i Processors.",par_size());
+    MORIS_LOG_INFO("Executing Cluster_Measure_2Mat_SA - 3D: Interpolation order 1 - %i Processors.",par_size());
     MORIS_LOG_INFO("");
 
     // set dimension: 3D
@@ -300,54 +252,5 @@ TEST_CASE("HeatMethod_Linear",
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // perform check for Test Case 1
-    check_results("HeatMethod_1.exo","SEN_HeatMethod_1.hdf5",gTestCaseIndex);
-}
-
-//---------------------------------------------------------------
-
-TEST_CASE("HeatMethod_Quadratic",
-        "[moris],[example],[structure],[quadratic]")
-{
-    // define command line call
-    int argc = 2;
-
-    char tString1[] = "";
-    char tString2[] = "./HeatMethod.so";
-
-    char * argv[2] = {tString1,tString2};
-
-    // set interpolation order
-    gInterpolationOrder = 2;
-
-    MORIS_LOG_INFO("");
-    MORIS_LOG_INFO("Executing Heat Method - 2D: Interpolation order 2 - %i Processors.",par_size());
-    MORIS_LOG_INFO("");
-
-    // set dimension: 2D
-    gDim = 2;
-
-    // set test case index
-    gTestCaseIndex = 2;
-
-    // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // perform check for Test Case 2
-    check_results("HeatMethod_2.exo","SEN_HeatMethod_2.hdf5",gTestCaseIndex);
-
-    MORIS_LOG_INFO("");
-    MORIS_LOG_INFO("Executing Heat Method - 3D: Interpolation order 2 - %i Processors.",par_size());
-    MORIS_LOG_INFO("");
-
-    // set dimension: 3D
-    gDim = 3;
-
-    // set test case index
-    gTestCaseIndex = 3;
-
-    // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // perform check for Test Case 3
-    check_results("HeatMethod_3.exo","SEN_HeatMethod_3.hdf5",gTestCaseIndex);
+    check_results("Cluster_Measure_2Mat_SA3.exo","Cluster_Measure_2Mat_SA3.hdf5",gTestCaseIndex);
 }

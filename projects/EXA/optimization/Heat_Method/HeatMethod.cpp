@@ -64,7 +64,7 @@ namespace moris
     std::string tAdvIndicesForFD       = gDim == 3 ? "30,31,32,33,34" : "5,6,7,8,9";
 
     // Nitsche penalty
-    std::string tNitschePenalty        = "0.0";
+    std::string tNitschePenalty        = "100.0";
 
     /* ------------------------------------------------------------------------ */
 

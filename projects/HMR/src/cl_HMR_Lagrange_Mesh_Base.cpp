@@ -7,9 +7,11 @@
 #include "cl_HMR_Background_Facet.hpp"
 #include "cl_HMR_Facet.hpp"
 #include "cl_HMR_T_Matrix.hpp"
+#include "cl_HMR_T_Matrix_2.hpp"
 #include "HMR_Tools.hpp"
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Map.hpp"
+#include "cl_HMR_Factory.hpp"
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -28,15 +30,17 @@ namespace moris
         //   public:
         //------------------------------------------------------------------------------
 
-        Lagrange_Mesh_Base::Lagrange_Mesh_Base ( const Parameters                   * aParameters,
+        Lagrange_Mesh_Base::Lagrange_Mesh_Base (
+                Parameters const             * aParameters,
                 Background_Mesh_Base         * aBackgroundMesh,
                 Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
-                const uint                         & aOrder,
-                const uint                         & aActivationPattern ) : Mesh_Base( aParameters,
-                        aBackgroundMesh,
-                        aOrder,
-                        aActivationPattern ),
-                        mBSplineMeshes( aBSplineMeshes )
+                uint const                   & aOrder,
+                uint const                   & aActivationPattern )
+        : Mesh_Base( aParameters,
+                aBackgroundMesh,
+                aOrder,
+                aActivationPattern ),
+                mBSplineMeshes( aBSplineMeshes )
         {
             mNumBSplineMeshes = mBSplineMeshes.size();
 
@@ -427,7 +431,7 @@ namespace moris
             switch ( mParameters->get_number_of_dimensions() )
             {
                 case( 1 ):
-                        {
+                            {
                     for( auto tNode  : mAllBasisOnProc )
                     {
                         // get ij position of node
@@ -439,9 +443,9 @@ namespace moris
                     }
 
                     break;
-                        }
+                            }
                 case( 2 ):
-                        {
+                            {
                     for( auto tNode  : mAllBasisOnProc )
                     {
                         // get ij position of node
@@ -454,9 +458,9 @@ namespace moris
                     }
 
                     break;
-                        }
+                            }
                 case( 3 ):
-                        {
+                            {
                     // 3D case
                     for( auto tNode  : mAllBasisOnProc )
                     {
@@ -471,7 +475,7 @@ namespace moris
                     }
 
                     break;
-                        }
+                            }
                 default:
                 {
                     MORIS_ERROR( false, "Lagrange_Mesh: Invalid number of dimensions");
@@ -1346,7 +1350,7 @@ namespace moris
             switch ( mParameters->get_number_of_dimensions() )
             {
                 case( 2 ) :
-                        {
+                            {
                     // loop over all nodes
                     for( auto tNode : mAllBasisOnProc )
                     {
@@ -1365,9 +1369,9 @@ namespace moris
                         }
                     }
                     break;
-                        }
+                            }
                 case( 3 ) :
-                        {
+                            {
                     // loop over all nodes
                     for( auto tNode : mAllBasisOnProc )
                     {
@@ -1387,7 +1391,7 @@ namespace moris
                         }
                     }
                     break;
-                        }
+                            }
                 default :
                 {
                     MORIS_ERROR( false, "wrong number of dimensions\n");
@@ -2304,7 +2308,7 @@ namespace moris
 
                     // incrememet memory counter
                     tMemoryCount( p ) += tEdge->get_hmr_master()
-                                            ->get_background_element()->get_length_of_pedigree_path();
+                                                    ->get_background_element()->get_length_of_pedigree_path();
                 }
 
                 // create cell of matrices to send
@@ -2341,13 +2345,13 @@ namespace moris
 
                     // save index on master
                     tEdgeIndexListSend( p )( tElementCount( p ) )
-                                        = tEdge->get_index_on_master();
+                                                = tEdge->get_index_on_master();
 
                     // calculate path o
                     tEdge->get_hmr_master()->get_background_element()
-                                                           ->endcode_pedigree_path( tAncestorListSend( p )( tElementCount( p )++ ),
-                                                                   tPedigreeListSend( p ),
-                                                                   tMemoryCount( p ) );
+                                                                   ->endcode_pedigree_path( tAncestorListSend( p )( tElementCount( p )++ ),
+                                                                           tPedigreeListSend( p ),
+                                                                           tMemoryCount( p ) );
                 }
 
                 // step 4: communicate matrices
@@ -2572,7 +2576,7 @@ namespace moris
 
                             // get memory needed for pedigree path
                             tMemoryCounter += tFacet->get_hmr_master()->get_background_element()
-                                                                                      ->get_length_of_pedigree_path();
+                                                                                              ->get_length_of_pedigree_path();
                         }
                     }
 
@@ -2603,9 +2607,9 @@ namespace moris
 
                                 // calculate path of facet
                                 tFacet->get_hmr_master()->get_background_element()
-                                                                        ->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
-                                                                                tPedigreeListSend( p ),
-                                                                                tMemoryCounter );
+                                                                                ->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
+                                                                                        tPedigreeListSend( p ),
+                                                                                        tMemoryCounter );
                             }
                         }
                     }
@@ -2730,7 +2734,7 @@ namespace moris
             }
 
             mMaxEdgeDomainIndex = tEdgeOffset( tNumberOfProcs-1 )
-                                                + tEdgesOwnedPerProc( tNumberOfProcs-1 );
+                                                        + tEdgesOwnedPerProc( tNumberOfProcs-1 );
 
             moris_id tMyOffset = tEdgeOffset( tMyRank );
 
@@ -2788,8 +2792,8 @@ namespace moris
                             // get memory needed for pedigree path
 
                             tMemoryCounter += tEdge->get_hmr_master()
-                                                    ->get_background_element()
-                                                    ->get_length_of_pedigree_path();
+                                                            ->get_background_element()
+                                                            ->get_length_of_pedigree_path();
                         }
                     }
 
@@ -2820,10 +2824,10 @@ namespace moris
 
                                 // calculate path of facet
                                 tEdge->get_hmr_master()->get_background_element()
-                                                                       ->endcode_pedigree_path(
-                                                                               tAncestorListSend( p )( tElementCounter++ ),
-                                                                               tPedigreeListSend( p ),
-                                                                               tMemoryCounter );
+                                                                               ->endcode_pedigree_path(
+                                                                                       tAncestorListSend( p )( tElementCounter++ ),
+                                                                                       tPedigreeListSend( p ),
+                                                                                       tMemoryCounter );
                             }
                         }
                     }
@@ -3130,21 +3134,21 @@ namespace moris
                     switch( this->get_order() )
                     {
                         case( 1 ) :
-                                {
+                                    {
                             tCellType = 3;
                             break;
-                                }
+                                    }
                         case( 2 ) :
-                                {
+                                    {
                             tCellType = 21;
                             break;
-                                }
+                                    }
                         case( 3 ) :
-                                {
+                                    {
                             tCellType = 35;
 
                             break;
-                                }
+                                    }
                         default :
                         {
                             tCellType = 68;
@@ -3157,15 +3161,15 @@ namespace moris
                     switch( this->get_order() )
                     {
                         case( 1 ) :
-                                {
+                                    {
                             tCellType = 9;
                             break;
-                                }
+                                    }
                         case( 2 ) :
-                                {
+                                    {
                             tCellType = 28;
                             break;
-                                }
+                                    }
                         default :
                         {
                             tCellType = 70;
@@ -3371,21 +3375,21 @@ namespace moris
                 switch( this->get_order() )
                 {
                     case( 1 ) :
-                        {
+                            {
                         tCellType = 3;
                         break;
-                        }
+                            }
                     case( 2 ) :
-                        {
+                            {
                         tCellType = 21;
                         break;
-                        }
+                            }
                     case( 3 ) :
-                        {
+                            {
                         tCellType = 35;
 
                         break;
-                        }
+                            }
                     default :
                     {
                         tCellType = 68;
@@ -3644,15 +3648,41 @@ namespace moris
 
         void Lagrange_Mesh_Base::init_t_matrices()
         {
+            mLagrangeMeshForTMatrix.resize( mNumBSplineMeshes, nullptr );
+
             for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
             {
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
 
                 if( tMesh != nullptr )
                 {
-                    mTMatrix( Ik ) = new T_Matrix( mParameters,
-                            tMesh,
-                            this );
+                    uint tLagrangeOrder = this->get_order();
+                    uint tBSplineOrder = tMesh->get_order();
+
+                    if( tLagrangeOrder < tBSplineOrder and mParameters->use_advanced_t_matrices() )
+                    {
+                        // create factory object
+                        Factory tFactory;
+
+                        mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
+                                mParameters,
+                                mBackgroundMesh,
+                                mBSplineMeshes,
+                                this->get_activation_pattern(),
+                                tBSplineOrder );
+
+                        mTMatrix( Ik ) = new T_Matrix_2(
+                                mParameters,
+                                tMesh,
+                                mLagrangeMeshForTMatrix( Ik ),
+                                this );
+                    }
+                    else
+                    {
+                        mTMatrix( Ik ) = new T_Matrix( mParameters,
+                                tMesh,
+                                this );
+                    }
                 }
                 else
                 {
@@ -3675,6 +3705,17 @@ namespace moris
 
                 if( tMesh != nullptr )
                 {
+                    uint tLagrangeOrder = this->get_order();
+                    uint tBSplineOrder = tMesh->get_order();
+
+                    if( tLagrangeOrder < tBSplineOrder and mParameters->use_advanced_t_matrices() )
+                    {
+                        MORIS_ERROR( mLagrangeMeshForTMatrix( Ik ) != nullptr,
+                                "Lagrange_Mesh_Base::calculate_t_matrices(), Higher order Lagrange mesh for T-Matrices does not exist." );
+
+                        mLagrangeMeshForTMatrix( Ik )->update_mesh();
+                    }
+
                     mTMatrix( Ik )->evaluate( Ik, aBool );
                 }
                 else

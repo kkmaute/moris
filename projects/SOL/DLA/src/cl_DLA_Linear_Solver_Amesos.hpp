@@ -44,8 +44,6 @@ namespace moris
 
                 void set_solver_parameters();
 
-                void set_linear_problem( Linear_Problem * aLinearSystem ){};
-
                 //int SetSystemMatrix ( bool aUseTranspose );
 
                 moris::sint solve_linear_system();

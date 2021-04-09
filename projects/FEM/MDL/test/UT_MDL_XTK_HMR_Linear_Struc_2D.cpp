@@ -411,7 +411,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
         tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
         tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+        //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
 
         dla::Linear_Solver tLinSolver;
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -691,7 +691,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]") /
 //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
 //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
 //        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-//        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//        //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
 //
 //        dla::Linear_Solver tLinSolver;
 //        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1007,7 +1007,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
         tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
         tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+        //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
 
         dla::Linear_Solver tLinSolver;
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1264,7 +1264,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
         tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
         tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+        //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
 
         dla::Linear_Solver tLinSolver;
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1645,7 +1645,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
 //      tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
 //      tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-//      //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//      //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
 //
 //      dla::Linear_Solver tLinSolver;
 //      tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );

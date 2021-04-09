@@ -9,6 +9,8 @@
 
 #include "cl_MTK_Cluster.hpp"
 
+#include "fn_norm.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -56,6 +58,104 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        Matrix<DDRMat>
+        Side_Cluster::compute_cluster_ig_cell_measures(
+                const mtk::Primary_Void  aPrimaryOrVoid,
+                const mtk::Master_Slave  aIsMaster     ) const
+        {
+            moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            {
+                tCells = &this->get_primary_cells_in_cluster();
+            }
+            else
+            {
+                tCells = & this->get_void_cells_in_cluster();
+            }
+
+            Matrix<DDRMat> tMeasureVec(tCells->size(),1);
+
+            for(uint iC = 0; iC < tCells->size(); iC++)
+            {
+                tMeasureVec(iC) = (*tCells)(iC)->compute_cell_measure();
+            }
+
+            return tMeasureVec;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Side_Cluster::compute_cluster_cell_measure_derivative(
+                const Matrix< DDRMat > & aPerturbedVertexCoords,
+                uint aDirection,
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster ) const
+        {
+            moris::real tDerivative = 0.0;
+
+            moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            {
+                tCells = &this->get_primary_cells_in_cluster();
+            }
+            else
+            {
+                tCells = & this->get_void_cells_in_cluster();
+            }
+
+            // loop over the ig cells in cluster
+            for(auto iC = tCells->cbegin(); iC < tCells->cend(); iC++)
+            {
+                // get the cell coordinates
+                Matrix< DDRMat > tCellCoords =
+                        (*iC)->get_vertex_coords();;
+
+                // check if this cell in cluster is affected by the perturbed node
+                uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+
+                // FIXME could be done with node index
+                // check if this cell in cluster is affected by the perturbed node
+                // flag true if cell is affected by perturbed cluster node
+                bool tIsAffected = false;
+
+                // init cell local node index
+                uint tLocalVertexID = UINT_MAX;
+
+                // loop over the nodes of the cell
+                for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
+                {
+                    // check if perturbed cluster node affects this cell by using the distance between two nodes
+                    tIsAffected = tIsAffected || ( moris::norm( aPerturbedVertexCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
+
+                    // if the cell is affected by perturbed cluster node
+                    if( tIsAffected == true )
+                    {
+                        // get cell local node index
+                        tLocalVertexID = iCellNode;
+
+                        // break the loop as node correspondence was found
+                        break;
+                    }
+                }
+
+                // if the cell is affected by perturbed cluster node
+                if( tIsAffected == true )
+                {
+                    // add contribution from the cell to the cluster side measure
+                    tDerivative += (*iC)->compute_cell_measure_deriv(
+                            tLocalVertexID,
+                            aDirection );
+                }
+            }
+
+            return tDerivative;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         moris::real
         Side_Cluster::compute_cluster_cell_side_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
@@ -76,6 +176,94 @@ namespace moris
             }
 
             return tMeasure;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        Matrix<DDRMat>
+        Side_Cluster::compute_cluster_ig_cell_side_measures(
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster     ) const
+        {
+            MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
+                    "Side cluster only operates on primary cells.");
+
+            moris::Cell<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+
+            Matrix<DDRMat> tMeasureVec(tCells.size(),1);
+
+            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+
+            for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
+            {
+                tMeasureVec(iC) = tCells(iC)->compute_cell_side_measure(tSideOrds(iC));
+            }
+
+            return tMeasureVec;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::real
+        Side_Cluster::compute_cluster_cell_side_measure_derivative(
+                const Matrix< DDRMat > & aPerturbedVertexCoords,
+                uint aDirection,
+                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Master_Slave aIsMaster ) const
+        {
+            moris::real tDerivative = 0.0;
+
+            moris::Cell<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+
+            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+
+            // loop over the ig cells in cluster
+            for( moris::uint iC = 0 ; iC < tCells.size(); iC++ )
+            {
+                // get the cell coordinates
+                Matrix< DDRMat > tCellCoords =
+                        tCells( iC )->get_cell_physical_coords_on_side_ordinal(tSideOrds(iC));
+
+                // check if this cell in cluster is affected by the perturbed node
+                uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+
+                // FIXME could be done with node index
+                // check if this cell in cluster is affected by the perturbed node
+                // flag true if cell is affected by perturbed cluster node
+                bool tIsAffected = false;
+
+                // init cell local node index
+                uint tLocalVertexID = UINT_MAX;
+
+                // loop over the nodes of the cell
+                for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
+                {
+                    // check if perturbed cluster node affects this cell by using the distance between two nodes
+                    tIsAffected = tIsAffected || ( moris::norm( aPerturbedVertexCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
+
+                    // if the cell is affected by perturbed cluster node
+                    if( tIsAffected == true )
+                    {
+                        // get cell local node index
+                        tLocalVertexID = iCellNode;
+
+                        // break the loop as node correspondence was found
+                        break;
+                    }
+                }
+
+                // if the cell is affected by perturbed cluster node
+                if( tIsAffected == true )
+                {
+                    // add contribution from the cell to the cluster side measure
+                    tDerivative += tCells( iC )->compute_cell_side_measure_deriv(
+                                    tSideOrds( iC ),
+                                    tLocalVertexID,
+                                    aDirection );
+                }
+            }
+
+            return tDerivative;
         }
 
         // ----------------------------------------------------------------------------------

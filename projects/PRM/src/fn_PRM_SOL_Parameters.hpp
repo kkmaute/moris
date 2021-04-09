@@ -59,31 +59,115 @@ namespace moris
         void create_ifpack_precondtitioner_parameterlist( ParameterList & aParameterlist )
         {
             // ASSIGN DEFAULT PARAMETER VALUES
-            // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662, https://trilinos.github.io/pdfs/IfpackUserGuide.pdf
+            // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662,
+            //              https://trilinos.github.io/pdfs/IfpackUserGuide.pdf
+            //              https://docs.trilinos.org/dev/packages/ifpack/doc/html/index.html
 
             // set ifpack preconditioner type
-            // options are ILU, ILUT
+            // options are: point relaxation, block relaxation, ILU, ILUT, IC, ICT, Amesos, SPARSKIT, Krylov
             aParameterlist.insert( "ifpack_prec_type" , "" );
 
-            aParameterlist.insert( "fact: drop tolerance", 1e-9 );
+            // overlap between processors
+            aParameterlist.insert( "overlap-level", 1 );
 
+            // Smoother parameters
+
+            aParameterlist.insert( "relaxation: type"                   , "Jacobi" );
+
+            aParameterlist.insert( "relaxation: sweeps"                 , 1 );
+
+            aParameterlist.insert( "relaxation: damping factor"         , 1.0);
+
+            aParameterlist.insert( "relaxation: min diagonal value"     , 0.0);
+
+            aParameterlist.insert( "relaxation: zero starting solution" , true);
+
+            aParameterlist.insert( "relaxation: backward mode"          , false);
+
+            aParameterlist.insert( "relaxation: use l1"                 , false);
+
+            aParameterlist.insert( "relaxation: l1 eta"                 , 1.5);
+
+            // Partitioning parameters
+
+            aParameterlist.insert( "partitioner: type"               , "greedy");
+
+            aParameterlist.insert( "partitioner: overlap"            , 0);
+
+            aParameterlist.insert( "partitioner: local parts"        , 1);
+
+            aParameterlist.insert( "partitioner: print level"        , 0);
+
+            aParameterlist.insert( "partitioner: use symmetric graph", true);
+
+            // Direct solver parameters
+
+            // Exact solve via direct solver: "Amesos_Lapack", "Amesos_Klu", "Amesos_Umfpack",
+            //                                "Amesos_Superlu", "Amesos_Mumps", "Amesos_Dscpack", "Amesos_Pardiso"
+            aParameterlist.insert( "amesos: solver type", "Amesos_Klu" );
+
+            // Incomplete factorization parameters
+
+            // fill level for ILU and IC
             aParameterlist.insert( "fact: level-of-fill", 1 );
 
-            aParameterlist.insert( "fact: ilut level-of-fill", 1.0 );
+            aParameterlist.insert( "fact: ilut level-of-fill" , 1.0 );
 
+            aParameterlist.insert( "fact: ict level-of-fill"  , 1.0 );
+
+            // absolute threshold
             aParameterlist.insert( "fact: absolute threshold" , 0.0 );
 
-            aParameterlist.insert( "fact: relative threshold" ,  1.0 );
+            // relative threshold (needs to be larger than zero)
+            aParameterlist.insert( "fact: relative threshold" , 1.0 );
 
-            aParameterlist.insert( "fact: relax value" ,  0.0 );
+            aParameterlist.insert( "fact: relax value"        , 0.0 );
 
-            aParameterlist.insert( "schwarz: combine mode" ,  "Zero" );
+            aParameterlist.insert( "fact: drop tolerance"     , 1e-9 );
 
-            aParameterlist.insert( "schwarz: compute condest" ,  true );
+            // Schwarz parameters
+            aParameterlist.insert( "schwarz: combine mode"      , "Zero" );
 
-            aParameterlist.insert( "schwarz: filter singletons" ,  false );
+            aParameterlist.insert( "schwarz: compute condest"   , true );
 
-            aParameterlist.insert( "schwarz: reordering type" ,  "rcm" );
+            aParameterlist.insert( "schwarz: filter singletons" , false );
+
+            aParameterlist.insert( "schwarz: reordering type"   , "rcm" );
+
+            // Sparskit parameters
+            aParameterlist.insert( "fact: sparskit: lfil"    , 0.0 );
+
+            aParameterlist.insert( "fact: sparskit: tol"     , 0.0 );
+
+            aParameterlist.insert( "fact: sparskit: droptol" , 0.0 );
+
+            aParameterlist.insert( "fact: sparskit: permtol" , 0.0 );
+
+            aParameterlist.insert( "fact: sparskit: alph"    , 0.0 );
+
+            aParameterlist.insert( "fact: sparskit: mbloc"   , 0.0 );
+
+            aParameterlist.insert( "fact: sparskit: type"    , "" );
+
+            // Krylov parameters
+            aParameterlist.insert( "krylov: iterations"             , 0 );
+
+            aParameterlist.insert( "krylov: tolerance"              , 0.0 );
+
+            aParameterlist.insert( "krylov: solver"                 ,  0 );
+
+            aParameterlist.insert( "krylov: preconditioner"         ,  0 );
+
+            aParameterlist.insert( "krylov: number of sweeps"       ,  0 );
+
+            aParameterlist.insert( "krylov: block size"             ,  0 );
+
+            aParameterlist.insert( "krylov: damping parameter"      ,  0.0 );
+
+            aParameterlist.insert( "krylov: zero starting solution" ,  0 );
+
+            // Reuse of preconditioner
+             aParameterlist.insert( "prec_reuse" ,  false );
         }
 
         //------------------------------------------------------------------------------
@@ -92,12 +176,12 @@ namespace moris
         {
             // General Parameters
 
-            // options are SA
+            // Default parameter settings; options are SA, NSSA, DD, DD-ML
             aParameterlist.insert( "ml_prec_type" , "" );
 
             aParameterlist.insert( "PDE equations" , 1 );
-            aParameterlist.insert( "ML output" , 0 );
             aParameterlist.insert( "print unused" , 0 );
+            aParameterlist.insert( "ML output" , 0 );
             aParameterlist.insert( "ML print initial list" , -2 );
             aParameterlist.insert( "ML print final list" , -2 );
             aParameterlist.insert( "eigen-analysis: type" , "cg" );
@@ -161,6 +245,9 @@ namespace moris
             //aParameterlist.insert( "null space: vectors" , NULL );
             aParameterlist.insert( "null space: vectors to compute" , 2 );
             aParameterlist.insert( "null space: add default vectors" , true );
+
+            // Reuse of preconditioner
+            aParameterlist.insert( "prec_reuse" ,  false );
         }
 
         //------------------------------------------------------------------------------
@@ -222,7 +309,8 @@ namespace moris
             //--------------------------GMRES specific solver parameters--------------------------------------------------------------------------
             // Set AZ_kspace
             // Krylov subspace size for restarted GMRES
-            // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption. For very difficult problems, set it equal to the maximum number of iterations.
+            // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption.
+            // For very difficult problems, set it equal to the maximum number of iterations.
             tLinAlgorithmParameterList.insert( "AZ_kspace" ,INT_MAX );
 
             // Set AZ_orthog
@@ -230,11 +318,13 @@ namespace moris
             tLinAlgorithmParameterList.insert( "AZ_orthog" , INT_MAX );
 
             // Set AZ_rthresh
-            // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
+            // Parameter used to modify the relative magnitude of the diagonal entries of the
+            // matrix that is used to compute any of the incomplete factorization preconditioners
             tLinAlgorithmParameterList.insert( "AZ_rthresh" , -1.0 );
 
             // Set AZ_athresh
-            //Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute any of the incomplete factorization preconditioners
+            // Parameter used to modify the absolute magnitude of the diagonal entries of the
+            // matrix that is used to compute any of the incomplete factorization preconditioners
             tLinAlgorithmParameterList.insert( "AZ_athresh" , -1.0 );
 
             //--------------------------Preconsitioner specific parameters--------------------------------------------------------------------------
@@ -261,11 +351,11 @@ namespace moris
             // Set Damping or relaxation parameter used for RILU
             tLinAlgorithmParameterList.insert( "AZ_omega" ,  -1.0 );
 
-            // Set Damping or relaxation parameter used for RILU
-            tLinAlgorithmParameterList.insert( "Use_ML_Prec" ,  false );
+            // add parameters from ifpack preconditioner
+            create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
 
-            // Set Damping or relaxation parameter used for RILU
-            tLinAlgorithmParameterList.insert( "ML_reuse" ,  false );
+            // add parameters from ml preconditioner
+            create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -342,16 +432,24 @@ namespace moris
             tLinAlgorithmParameterList.insert( "Block Size", INT_MAX );
 
             // Allowable Belos solver iterations
-            tLinAlgorithmParameterList.insert( "Maximum Iterations" , INT_MAX );
+            tLinAlgorithmParameterList.insert( "Maximum Iterations", INT_MAX );
 
             // Allowable Belos solver iterations
-            tLinAlgorithmParameterList.insert( "Maximum Restarts" , INT_MAX );
+            tLinAlgorithmParameterList.insert( "Maximum Restarts", INT_MAX );
 
             // set convergence criteria
-            tLinAlgorithmParameterList.insert( "Convergence Tolerance" , 1e-08 );
+            tLinAlgorithmParameterList.insert( "Convergence Tolerance", 1e-08 );
 
+            // left or right preconditioner
+             tLinAlgorithmParameterList.insert( "Left-right Preconditioner", "left" );
+
+             // frequency of output
+              tLinAlgorithmParameterList.insert( "Output Frequency", -1 );
+
+            // add parameters from ifpack preconditioner
             create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
 
+            // add parameters from ml preconditioner
             create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
