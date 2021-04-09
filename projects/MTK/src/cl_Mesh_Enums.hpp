@@ -41,6 +41,16 @@ enum class CellTopology
     END_ENUM
 };
 
+enum class CellShape
+{
+    GENERAL,
+    RECTANGULAR, // rectangular quad or hex
+    STRAIGHT,    // straight edge or face
+    EMPTY,
+    INVALID,
+    END_ENUM
+};
+
 inline
 const std::string get_enum_str(enum CellTopology aCellTopoEnum)
 {
