@@ -101,6 +101,13 @@ namespace moris
             void
             set_id(moris_id aId);
 
+            /**
+             * set the cell id
+             */
+            virtual
+            void
+            set_index(moris_id aIndex);
+
             //------------------------------------------------------------------------------
 
             /**

@@ -68,13 +68,13 @@ namespace xtk
         moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index(tGhostName);
 
         // topology
-        enum CellTopology tFacetTopo = CellTopology::QUAD4;
+        enum CellTopology tFacetTopo = CellTopology::HEX8;
         if(mXTKModel->get_spatial_dim() == 2)
         {
             tFacetTopo = CellTopology::QUAD4;
         }
-
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
+        // tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_" + std::to_string(aBulkPhase), tFacetTopo);
 
         tEnrIgMesh.setup_color_to_set();
@@ -188,64 +188,6 @@ namespace xtk
                 }
             }
         }
-
-        //        // prepare data to request
-        //        Cell<Matrix<IndexMat>> tBaseEnrInterpCellId(tNonTrivialNotOwnedInterpCells.size());
-        //
-        //        for(moris::size_t iP = 0; iP<tNonTrivialNotOwnedInterpCells.size(); iP++)
-        //        {
-        //            tBaseEnrInterpCellId(iP).resize(1,tNonTrivialNotOwnedInterpCells(iP).size());
-        //
-        //            for(moris::size_t iC = 0; iC<tNonTrivialNotOwnedInterpCells(iP).size(); iC++)
-        //            {
-        //                tBaseEnrInterpCellId(iP)(iC) = tNonTrivialNotOwnedInterpCells(iP)(iC)->get_id();
-        //            }
-        //
-        //            if(tNonTrivialNotOwnedInterpCells(iP).size() == 0)
-        //            {
-        //                tBaseEnrInterpCellId(iP).resize(1,1);
-        //                tBaseEnrInterpCellId(iP)(0) = MORIS_INDEX_MAX;
-        //            }
-        //        }
-        //
-        //        // send requests
-        //        moris::uint tMPITag = 301;
-        //        for(moris::size_t iP = 0; iP<tProcRanks.size(); iP++)
-        //        {
-        //            mXTKModel->send_outward_requests(tMPITag, tProcRanks,tBaseEnrInterpCellId);
-        //        }
-        //
-        //        barrier();
-        //
-        //        // receive requests
-        //        Cell<Matrix<IndexMat>> tReceivedBaseEnrCellIds;
-        //        Cell<uint> tProcsReceivedFrom;
-        //        mXTKModel->inward_receive_requests(tMPITag, 1, tReceivedBaseEnrCellIds, tProcsReceivedFrom);
-        //
-        //        // prepare answers
-        //        Cell<Matrix<IndexMat>> tEnrCellIds;
-        //        this->prepare_ip_cell_id_answers(tReceivedBaseEnrCellIds,tNewNonTrivialOwnedInterpCellsIds,tEnrCellIds, tBaseEnrIdToIndexInNonTrivialOwned);
-        //
-        //        // return information
-        //        mXTKModel->return_request_answers(tMPITag+1, tEnrCellIds, tProcsReceivedFrom);
-        //
-        //        barrier();
-        //
-        //        // receive the answers
-        //        Cell<Matrix<IndexMat>> tReceivedEnrCellIds;
-        //        mXTKModel->inward_receive_request_answers(tMPITag+1,1,tProcRanks,tReceivedEnrCellIds);
-        //
-        //        // allocate space in interpolation cells of enriched interpolation mesh
-        //        tEnrIpMesh.mEnrichedInterpCells.resize(tNumNewInterpCellsNotOwned + tNumNewInterpCellsOwned + tEnrIpMesh.mEnrichedInterpCells.size());
-        //
-        //        // add interpolation cells for ghost to enriched interp mesh
-        //        this->create_not_owned_ghost_ip_cells(aGhostSetupData,tEnrIpMesh,tNonTrivialNotOwnedInterpCells,tReceivedEnrCellIds);
-        //
-        //        // create owned ghost ip cells
-        //        this->create_owned_ghost_ip_cells(aGhostSetupData,tEnrIpMesh,tNonTrivialOwnedInterpCells,tNewNonTrivialOwnedInterpCellsIds);
-        //
-        //        barrier();
-
     }
     // ----------------------------------------------------------------------------------
 
@@ -277,71 +219,6 @@ namespace xtk
                 }
             }
         }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Ghost_Stabilization::create_not_owned_ghost_ip_cells(
-            Ghost_Setup_Data                                & aGhostSetupData,
-            Enriched_Interpolation_Mesh                     & aEnrInterpMesh,
-            Cell<Cell<Interpolation_Cell_Unzipped *>> const & aNonTrivialNotOwnedInterpCells,
-            Cell<Matrix<IndexMat>>                    const & aReceivedEnrCellIds)
-    {
-        //        // iterate through received data
-        //        for(moris::uint i = 0; i < aNonTrivialNotOwnedInterpCells.size(); i++)
-        //        {
-        //            uint tNumReceivedReqs = aNonTrivialNotOwnedInterpCells(i).size();
-        //
-        //            // iterate through received requests
-        //            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
-        //            {
-        //                moris_index tReceivedEnrCellId = aReceivedEnrCellIds(i)(j);
-        //                moris_index tSubphase          = aNonTrivialNotOwnedInterpCells(i)(j)->get_subphase_index();
-        //                moris_index tGhostCellIpIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase);
-        //
-        //                MORIS_ASSERT(tGhostCellIpIndex != MORIS_INDEX_MAX,"Max index on not owned ghost ip cell. This could be a communication error.");
-        //
-        //                aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex) = new Interpolation_Cell_Unzipped(aNonTrivialNotOwnedInterpCells(i)(j)->get_base_cell(),
-        //                        aNonTrivialNotOwnedInterpCells(i)(j)->get_subphase_index(),
-        //                        aNonTrivialNotOwnedInterpCells(i)(j)->get_bulkphase_index(),
-        //                        aNonTrivialNotOwnedInterpCells(i)(j)->get_id(),
-        //                        tGhostCellIpIndex,
-        //                        tReceivedEnrCellId,
-        //                        aNonTrivialNotOwnedInterpCells(i)(j)->get_connectivity());
-        //
-        //                aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex)->set_vertices(aNonTrivialNotOwnedInterpCells(i)(j)->get_xtk_interpolation_vertices());
-        //
-        //            }
-        //        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Ghost_Stabilization::create_owned_ghost_ip_cells(
-            Ghost_Setup_Data                    & aGhostSetupData,
-            Enriched_Interpolation_Mesh         & aEnrInterpMesh,
-            Cell<Interpolation_Cell_Unzipped *> & aNonTrivialOwnedInterpCells,
-            Cell<moris_id>                      & aEnrCellIds)
-    {
-        //        // iterate through received data
-        //        for(moris::uint i = 0; i < aNonTrivialOwnedInterpCells.size(); i++)
-        //        {
-        //            moris_index tEnrCellId = aEnrCellIds(i);
-        //            moris_index tSubphase          = aNonTrivialOwnedInterpCells(i)->get_subphase_index();
-        //            moris_index tGhostCellIpIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase);
-        //
-        //            aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex) = new Interpolation_Cell_Unzipped(aNonTrivialOwnedInterpCells(i)->get_base_cell(),
-        //                    aNonTrivialOwnedInterpCells(i)->get_subphase_index(),
-        //                    aNonTrivialOwnedInterpCells(i)->get_bulkphase_index(),
-        //                    tEnrCellId,
-        //                    tGhostCellIpIndex,
-        //                    aNonTrivialOwnedInterpCells(i)->get_owner(),
-        //                    aNonTrivialOwnedInterpCells(i)->get_connectivity());
-        //
-        //            aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex)->set_vertices(aNonTrivialOwnedInterpCells(i)->get_xtk_interpolation_vertices());
-        //        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -1369,7 +1246,6 @@ namespace xtk
             this->get_local_coords_on_transition_side(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex),
                     aGhostSetupData.mTransitionLocation(aBulkIndex)(aCellIndex),
                     tLocCoords);
-
             // add integration cell
             tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell );
 
@@ -1381,13 +1257,11 @@ namespace xtk
 
             // add the local coordinates
             tMasterSideCluster->mVertexLocalCoords = tLocCoords;
-
             // finalize
             tMasterSideCluster->finalize_setup();
-
             // verify  new cluster
-            mtk::Mesh_Checker tCheck;
-            MORIS_ASSERT(tCheck.verify_side_cluster(tMasterSideCluster.get(),mtk::Master_Slave::MASTER),"Invalid Side Cluster Created Check the local coordinates");
+            // mtk::Mesh_Checker tCheck;
+            // MORIS_ASSERT(tCheck.verify_side_cluster(tMasterSideCluster.get(),mtk::Master_Slave::MASTER),"Invalid Side Cluster Created Check the local coordinates");
 
             // place the new ig cell in the background mesh
             mXTKModel->get_background_mesh().add_new_cell_to_mesh(tNewIgCell);
@@ -1396,16 +1270,12 @@ namespace xtk
         {
             // flag the master side as trivial
             tMasterSideCluster->mTrivial = true;
-
             // add integration cell
             tMasterSideCluster->mIntegrationCells = {aEnrIpCells(aGhostSetupData.mMasterSideIpCells(aBulkIndex)(aCellIndex))->get_base_cell()};
-
             // add side ordinal relative to the integration cell
             tMasterSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
-
             // add the vertices on the side ordinal
             tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
-
             // finalize
             tMasterSideCluster->finalize_setup();
         }

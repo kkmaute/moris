@@ -67,6 +67,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void
+        Cell::set_index( const moris_id aIndex )
+        {
+           mCellIndex = aIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris_index
         Cell::get_index() const 
         {

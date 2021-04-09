@@ -211,6 +211,19 @@ namespace xtk
             this->decompose(tSubdivisionMethods);
         }
 
+        if(mParameterList.get<bool>("cleanup_cut_mesh"))
+        {
+            mCleanupMesh = true;
+            
+            // cleanup the mesh
+            Mesh_Cleanup tMeshCleanup(this,&mParameterList);
+            tMeshCleanup.perform();
+        }
+
+         // at this point the cut mesh and background mesh is not going to change anymore
+         this->finalize_mesh_data();
+        
+
         if(mParameterList.get<bool>("enrich"))
         {
             enum EntityRank tBasisRank = get_entity_rank_from_str(mParameterList.get<std::string>("basis_rank"));
@@ -255,97 +268,100 @@ namespace xtk
         {
             this->construct_multigrid();
         }
-
-        // get meshes
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = this->get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = this->get_enriched_integ_mesh();
-
-        std::string tXTKMeshName = "XTKMesh";
-
-        // place the pair in mesh manager
-        mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
-
-        // if( mParameterList.get<bool>("contact_sandbox") )
-        // {
-        //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
-        //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
-
-        //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
-        //                                   tInterfaceSideSetName1,
-        //                                   tInterfaceSideSetName2,
-        //                                   mParameterList.get<real>("bb_epsilon"));
-
-        //     // generate vertex displacement fields
-        //     moris::real tInitialDisp = 0.0;
-        //     moris::real tPredictedDisplX = 0.03;
-        //     moris::real tPredictedDisplY = -0.03;
-        //     moris::real tPredictedDisplZ = -0.01;
-        //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
-        //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
-
-        //     // get the vertices in bulk phase 1 and displace them through the current time step
-        //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
-        //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
-
-        //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
-        //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
-
-        //     // iterate through child verts block
-        //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
-        //     {
-        //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
-        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-        //         if(this->get_spatial_dim() == 3)
-        //         {
-        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-        //         } 
-        //     }
-
-        //     // iterate through child verts block
-        //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
-        //     {
-        //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
-        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-        //         if(this->get_spatial_dim() == 3)
-        //         {
-        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-        //         }
-        //     }
-
-
-
-        //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
-        // }
-
-        if( mParameterList.get<bool>("print_enriched_ig_mesh") )
-        {
-            tEnrIntegMesh.print();
-        }
-
-        if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
-        {
-            Tracer tTracer( "XTK", "Overall", "Visualize" );
-            tEnrIntegMesh.write_mesh(&mParameterList);
-        }
         
-        // print the memory usage of XTK
-        if( mParameterList.get<bool>("print_memory") )
+        if(mEnriched)
         {
-            moris::Memory_Map tXTKMM = this->get_memory_usage();
-            tXTKMM.par_print("XTK Model");
-        }
+            // get meshes
+            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = this->get_enriched_interp_mesh();
+            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = this->get_enriched_integ_mesh();
 
-        // print 
-        MORIS_LOG_SPEC("All_IG_verts",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::NODE)));
-        MORIS_LOG_SPEC("All_IG_cells",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT)));
-        MORIS_LOG_SPEC("All_IP_verts",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::NODE)));
-        MORIS_LOG_SPEC("All_IP_cells",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT)));
-        MORIS_LOG_SPEC("My_IG_verts",tEnrIntegMesh.get_num_entities(EntityRank::NODE));
-        MORIS_LOG_SPEC("My_IG_cells",tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT));
-        MORIS_LOG_SPEC("My_IP_verts",tEnrInterpMesh.get_num_entities(EntityRank::NODE));
-        MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
+            std::string tXTKMeshName = "XTKMesh";
+
+            // place the pair in mesh manager
+            mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
+
+            // if( mParameterList.get<bool>("contact_sandbox") )
+            // {
+            //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
+            //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
+
+            //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
+            //                                   tInterfaceSideSetName1,
+            //                                   tInterfaceSideSetName2,
+            //                                   mParameterList.get<real>("bb_epsilon"));
+
+            //     // generate vertex displacement fields
+            //     moris::real tInitialDisp = 0.0;
+            //     moris::real tPredictedDisplX = 0.03;
+            //     moris::real tPredictedDisplY = -0.03;
+            //     moris::real tPredictedDisplZ = -0.01;
+            //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
+            //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
+
+            //     // get the vertices in bulk phase 1 and displace them through the current time step
+            //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
+            //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
+
+            //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
+            //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
+
+            //     // iterate through child verts block
+            //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
+            //     {
+            //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
+            //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+            //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+            //         if(this->get_spatial_dim() == 3)
+            //         {
+            //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+            //         } 
+            //     }
+
+            //     // iterate through child verts block
+            //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
+            //     {
+            //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
+            //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+            //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+            //         if(this->get_spatial_dim() == 3)
+            //         {
+            //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+            //         }
+            //     }
+
+
+
+            //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
+            // }
+
+            if( mParameterList.get<bool>("print_enriched_ig_mesh") )
+            {
+                tEnrIntegMesh.print();
+            }
+
+            if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
+            {
+                Tracer tTracer( "XTK", "Overall", "Visualize" );
+                tEnrIntegMesh.write_mesh(&mParameterList);
+            }
+            
+            // print the memory usage of XTK
+            if( mParameterList.get<bool>("print_memory") )
+            {
+                moris::Memory_Map tXTKMM = this->get_memory_usage();
+                tXTKMM.par_print("XTK Model");
+            }
+
+            // print 
+            MORIS_LOG_SPEC("All_IG_verts",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::NODE)));
+            MORIS_LOG_SPEC("All_IG_cells",sum_all(tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT)));
+            MORIS_LOG_SPEC("All_IP_verts",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::NODE)));
+            MORIS_LOG_SPEC("All_IP_cells",sum_all(tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT)));
+            MORIS_LOG_SPEC("My_IG_verts",tEnrIntegMesh.get_num_entities(EntityRank::NODE));
+            MORIS_LOG_SPEC("My_IG_cells",tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT));
+            MORIS_LOG_SPEC("My_IP_verts",tEnrInterpMesh.get_num_entities(EntityRank::NODE));
+            MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
+        }
 
     }
 
@@ -464,7 +480,6 @@ namespace xtk
         // This is usually only going to happen in test cases
         // Note: the Conformal subdivision methods dependent on node ids for subdivision routine, the node Ids are set regardless of the below boolean
         bool tNonConformingMeshFlag = false;
-        bool tSetPhase = true;
 
         if(aMethods.size() == 1)
         {
@@ -500,7 +515,7 @@ namespace xtk
 
         // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
         // i.e set element ids, indices for children elements
-        this->finalize_decomp_in_xtk_mesh(tSetPhase);
+        this->finalize_decomp();
 
         MORIS_LOG_SPEC("Num Intersected BG Cell",mCutMesh.get_num_child_meshes());
 
@@ -1700,7 +1715,7 @@ namespace xtk
     {
         Cell<moris_index> tDegenerateCells; 
 
-        moris::real tDegenerateTol = 1e-12;
+        moris::real tDegenerateTol = MORIS_REAL_MIN;
 
         // iterate through child meshes
         for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
@@ -1724,7 +1739,7 @@ namespace xtk
 
         if(tDegenerateCells.size() > 0)
         {
-            std::cout<<"Number of Degenerated Cells: "<<tDegenerateCells.size()<<std::endl;
+            MORIS_LOG_SPEC("Number of Degenerated Cells: " , tDegenerateCells.size());
             return false;
         }
 
@@ -2283,7 +2298,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
+    Model::finalize_decomp()
     {
         // Change XTK model decomposition state flag
         mDecomposed = true;
@@ -2291,7 +2306,7 @@ namespace xtk
         // Sort the children meshes into groups
         this->sort_children_meshes_into_groups();
 
-        // assign child element indices ( seperated to facilitate mesh cleanup)
+        // assign child element indices ( seperated to facilitate mesh cleanup )
         this->assign_child_element_indices(true);
 
         // give each child cell its id (parallel consistent) and index (not parallel consistent)
@@ -2314,26 +2329,61 @@ namespace xtk
         // constructs the subphase double side sets internal to a child mesh 
         // I do this here because it also figures out if the child mesh has inter child mesh interfaces
         // this flag is needed for the cleanup cut mesh call
-        this->construct_internal_double_sides_between_subphases();
+        // this->construct_internal_double_sides_between_subphases();
 
-        // cleanup the mesh
-        if(mCleanupMesh)
-        {
-            // Mesh_Cleanup tMeshCleanup(this,&mParameterList);
-            // tMeshCleanup.perform();
-        }
+        // // cleanup the mesh
+        // if(mCleanupMesh)
+        // {
+        //     std::cout<<"Mesh Cleanup"<<std::endl;
+        //     Mesh_Cleanup tMeshCleanup(this,&mParameterList);
+        //     tMeshCleanup.perform();
+        // }
 
-        // this catches the missed interfaces due to coincidence
-        this->catch_all_unhandled_interfaces();
+
+        // // identify local subphases in child mesh
+        // this->identify_local_subphase_clusters_in_child_meshes();
+
+        // // add child element to local to global map
+        // this->add_child_elements_to_local_to_global_map();
+
+        // // Associate nodes created during decomposition to their child meshes
+        // this->associate_nodes_created_during_decomp_to_child_meshes();
+
+        // // set the glb to loc map for all cells
+        // this->setup_cell_glb_to_local_map();
+
+        // // assign subphase ids
+        // this->assign_subphase_glob_ids();
+
+        // // setup global to local subphase map
+        // this->setup_glob_to_loc_subphase_map();
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::finalize_mesh_data()
+    {
+        std::cout<<"Finalzie Mesh Data Start"<<std::endl;
+        //
+        mBackgroundMesh.setup_local_to_global_maps();
+
+        //
+        this->sort_children_meshes_into_groups();
+
+        // set the element phases
+        this->set_element_phases();
 
         // identify local subphases in child mesh
         this->identify_local_subphase_clusters_in_child_meshes();
 
-        // add child element to local to global map
-        this->add_child_elements_to_local_to_global_map();
-
         // Associate nodes created during decomposition to their child meshes
         this->associate_nodes_created_during_decomp_to_child_meshes();
+
+        // constructs the subphase double side sets internal to a child mesh 
+        // I do this here because it also figures out if the child mesh has inter child mesh interfaces
+        // this flag is needed for the cleanup cut mesh call
+        this->construct_internal_double_sides_between_subphases();
 
         // set the glb to loc map for all cells
         this->setup_cell_glb_to_local_map();
@@ -2344,6 +2394,11 @@ namespace xtk
         // setup global to local subphase map
         this->setup_glob_to_loc_subphase_map();
 
+        // this catches the missed interfaces due to coincidence
+        this->catch_all_unhandled_interfaces(); 
+
+
+        mMeshDataFinalized = true;
     }
 
     // ----------------------------------------------------------------------------------
@@ -2955,9 +3010,13 @@ namespace xtk
     void
     Model::setup_cell_glb_to_local_map()
     {
+        std::cout<<"this->get_num_elements_total() = "<<this->get_num_elements_total()<<std::endl;
+        mCellGlbToLocalMap.clear();
         for(moris::uint i = 0; i < this->get_num_elements_total(); i++)
         {
             moris_id tId = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index((moris_index)i,EntityRank::ELEMENT);
+
+            std::cout<<"Id = "<<tId<<" | Index = "<<i<<std::endl;
             MORIS_ASSERT(mCellGlbToLocalMap.find(tId) == mCellGlbToLocalMap.end(),"Id already in map");
             mCellGlbToLocalMap[tId] = (moris_index) i;
         }
@@ -2991,6 +3050,8 @@ namespace xtk
 
         // tell the cut mesh how many subphases there are
         mCutMesh.set_num_subphases(tSubPhaseIndex);
+
+        std::cout<<"Num Subphases  = "<<tSubPhaseIndex<<std::endl;
 
         // tell the cut mesh to setup subphase to child mesh connectivity
         mCutMesh.setup_subphase_to_child_mesh_connectivity();
@@ -3028,13 +3089,14 @@ namespace xtk
 
         // Allocate global element ids starting at the maximum id in the background mesh (these need to be give to the children meshes)
         moris::moris_id tSubphaseIdOffset = mBackgroundMesh.allocate_entity_ids(tNumSubphases, EntityRank::ELEMENT);
+        std::cout<<"tSubphaseIdOffset = "<<tSubphaseIdOffset<<std::endl;
 
         // set subphase ids in the children meshes which I own
         Cell<Child_Mesh*> const & tOwnedChildMeshes = mCutMesh.get_owned_child_meshes();
         for(moris::size_t i = 0; i<tOwnedChildMeshes.size(); i++)
         {
             moris_id tCellId = mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tOwnedChildMeshes(i)->get_parent_element_index(),EntityRank::ELEMENT);
-
+            std::cout<<"tCellId = "<<tCellId<<std::endl;
             // iterate through subphase ids
             tOwnedChildMeshes(i)->set_subphase_id(0,tCellId);
             for(moris::uint j = 1; j <tOwnedChildMeshes(i)->get_num_subphase_bins(); j++)
@@ -3292,6 +3354,8 @@ namespace xtk
     void
     Model::setup_glob_to_loc_subphase_map()
     {
+
+        mGlobalToLocalSubphaseMap.clear();
         for(moris::uint i = 0; i < mCutMesh.get_num_subphases(); i++)
         {
             moris_id tSubphaseId = this->get_subphase_id((moris_id)i);
@@ -3300,42 +3364,6 @@ namespace xtk
         }
     }
     
-    // ----------------------------------------------------------------------------------
-    // Clean up cut mesh source code
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::cleanup_cut_mesh()
-    {   
-        Tracer tTracer( "XTK", "Decomp", "Cleanup Mesh" );
-        moris::uint tNumCutMeshes = mCutMesh.get_num_child_meshes();
-        moris::Cell<moris::uint> tChildMeshesToKeep;
-        moris::Cell<moris::uint> tChildMeshesToDelete;
-
-        for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
-        {
-            Child_Mesh & tCM = mCutMesh.get_child_mesh(iCM);
-            Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
-
-           if(tSubphasebinBulkPhase.size() > 1 or tCM.has_inter_child_mesh_interfaces())
-           {
-                tChildMeshesToKeep.push_back(iCM);
-           }
-           else
-           {
-                tChildMeshesToDelete.push_back(iCM);
-           }
-        }
-
-        mCutMesh.remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete);
-
-        mBackgroundMesh.setup_downward_inheritance(mCutMesh);
-
-        MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
-        MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
-
-    }
-
     // ----------------------------------------------------------------------------------
     // Unzipping Child Mesh Source code
     // ----------------------------------------------------------------------------------
@@ -3722,6 +3750,11 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
+        if(!mMeshDataFinalized)
+        {
+            this->finalize_mesh_data();
+        }
+
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
         // allocate some new enriched interpolation and integration meshes
@@ -3742,7 +3775,11 @@ namespace xtk
             Matrix<IndexMat> const & aMeshIndex)
     {
         Tracer tTracer( "XTK", "Enrichment");
-
+        
+        if(!mMeshDataFinalized)
+        {
+            this->finalize_mesh_data();
+        }
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
         // allocate some new enriched interpolation and integration meshes

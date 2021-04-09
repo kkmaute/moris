@@ -395,6 +395,7 @@ namespace xtk
             enum EntityRank aEntityRank,
             moris_index const & aMeshIndex ) const
     {
+
         if(aEntityRank == EntityRank::ELEMENT || aEntityRank == EntityRank::NODE)
         {
             MORIS_ASSERT(aEntityIndex < mEntityLocaltoGlobalMap((uint)aEntityRank).numel(),"Entity Index out of bounds");
@@ -766,6 +767,7 @@ namespace xtk
     void
     Background_Mesh::setup_downward_inheritance(Cut_Mesh & aCutMesh)
     {
+        std::cout<<"aCutMesh.get_num_child_meshes() = "<<aCutMesh.get_num_child_meshes()<<std::endl;
         // reset the downward inheritance 
         mElementDownwardInheritance = Downward_Inheritance<moris::moris_index, moris::moris_index>();
         
@@ -1131,12 +1133,8 @@ namespace xtk
                 "Element index already has an mtk cell associated with it");
 
         mChildMtkCellMap[aCell->get_index()] = mChildMtkCells.size()-1;
-
         mEntityLocaltoGlobalMap(3).resize(mEntityLocaltoGlobalMap(3).n_rows()+1,mEntityLocaltoGlobalMap(3).n_cols());
-
-
         mEntityLocaltoGlobalMap(3)(aCell->get_index()) = aCell->get_id();
-
 
     }
 
@@ -1161,6 +1159,7 @@ namespace xtk
 
         // allocate space
         mEntityLocaltoGlobalMap(3).resize(tNumCells + tCurrentSize,1);
+        // mEntityLocaltoGlobalMap(3).resize(2156750,1);
 
         // add to map
         for(moris::uint i = 0; i <tNumCells; i++)
@@ -1168,13 +1167,13 @@ namespace xtk
             mEntityLocaltoGlobalMap(3)(aCellIndices(i)) = aCellIds(i);
         }
 
-#ifdef DEBUG
-        // since I can't write these functions in one line, need to have ifdef
-        moris::Matrix<moris::IndexMat> tUniqueCellIds;
-        moris::unique(mEntityLocaltoGlobalMap(3),tUniqueCellIds);
+// #ifdef DEBUG
+//         // since I can't write these functions in one line, need to have ifdef
+//         moris::Matrix<moris::IndexMat> tUniqueCellIds;
+//         moris::unique(mEntityLocaltoGlobalMap(3),tUniqueCellIds);
 
-        MORIS_ASSERT(mEntityLocaltoGlobalMap(3).numel() == tUniqueCellIds.numel(), "duplicate cell id detected" );
-#endif
+//         MORIS_ASSERT(mEntityLocaltoGlobalMap(3).numel() == tUniqueCellIds.numel(), "duplicate cell id detected" );
+// #endif
     }
 
     // ----------------------------------------------------------------------------------
@@ -1272,8 +1271,66 @@ namespace xtk
         mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
         mCommunicationMap(tIndex) = aProcRank;
     }
-
     // ----------------------------------------------------------------------------------
+    void
+    Background_Mesh::remove_cells_from_mesh(Cell<moris_index> const & aCellsToRemove,
+                                            Cell<moris_index> & aOldIndexToNewCellIndex)
+    {
+        aOldIndexToNewCellIndex = Cell<moris_index>(this->get_num_entities(EntityRank::ELEMENT),MORIS_INDEX_MAX);
+
+        // fill the background cell with their original indices
+        for(moris::uint iCell = 0; iCell< mMeshData->get_num_entities(EntityRank::ELEMENT); iCell++)
+        {
+            aOldIndexToNewCellIndex(iCell) = iCell;
+        }
+
+        // iterate through the cells and remove
+        // delete the pointers
+        for(moris::uint iCell = 0; iCell< aCellsToRemove.size(); iCell++)
+        {
+            MORIS_ASSERT(!this->is_background_cell(aCellsToRemove(iCell)),"Cannot remove background cells");
+            
+            auto tIter = mChildMtkCellMap.find(aCellsToRemove(iCell));
+            MORIS_ASSERT(mChildMtkCellMap.find(aCellsToRemove(iCell)) != mChildMtkCellMap.end(),"Element index is not in the map");
+            moris::moris_index tIndex = tIter->second;
+            
+            delete mChildMtkCells(tIndex);
+
+            mChildMtkCells(tIndex) = nullptr;
+        }
+
+        // clear out the map
+        mChildMtkCellMap.clear();
+
+        // resize the member data and update the map
+        uint tCount = 0;
+        moris_index tIndex = mMeshData->get_num_elems();
+        for(moris::uint iCell = 0; iCell< mChildMtkCells.size(); iCell++)
+        {
+            if(mChildMtkCells(iCell) != nullptr)
+            {
+                mChildMtkCells(tCount) = mChildMtkCells(iCell);
+
+                MORIS_ASSERT(mChildMtkCellMap.find(mChildMtkCells(iCell)->get_index()) == mChildMtkCellMap.end(),
+                "Cell index already has an child mtk cell associated with it");
+
+                // update the output
+                aOldIndexToNewCellIndex(mChildMtkCells(iCell)->get_index()) = tIndex;
+
+                // change the cell index
+                mChildMtkCells(tCount)->set_index(tIndex);
+                tIndex++;
+
+                mChildMtkCellMap[mChildMtkCells(iCell)->get_index()] = tCount;
+                tCount++;
+            }
+        }
+
+        mChildMtkCells.resize(tCount);
+        this->setup_local_to_global_maps();
+    }
+    // ----------------------------------------------------------------------------------
+
 
     moris::Matrix< moris::DDRMat >
     Background_Mesh::get_all_node_coordinates_loc_inds_background_mesh() const
@@ -1325,22 +1382,27 @@ namespace xtk
         // this only creates node local to global maps and cell local to global maps
 
         // setup nodes
-        uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
+        uint tNumNodes = this->get_num_entities(EntityRank::NODE);
         mEntityLocaltoGlobalMap(0) = moris::Matrix< moris::IdMat >(tNumNodes,1);
 
         for(moris::uint iN = 0; iN<tNumNodes; iN++ )
         {
-            mEntityLocaltoGlobalMap(0)(iN) = mMeshData->get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE);
+            mtk::Vertex& tVertex = this->get_mtk_vertex((moris_index)iN);
+            MORIS_ASSERT(tVertex.get_index() == (moris_index) iN,"Vertex index mismatch");
+            mEntityLocaltoGlobalMap(0)(tVertex.get_index()) = tVertex.get_id();
         }
 
         // setup cells
-        uint tNumCells = mMeshData->get_num_entities(EntityRank::ELEMENT);
+        uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
         mEntityLocaltoGlobalMap(3) = moris::Matrix< moris::IdMat >(tNumCells,1);
 
         for(moris::uint iC = 0; iC<tNumCells; iC++)
         {
-            mEntityLocaltoGlobalMap(3)(iC) = mMeshData->get_glb_entity_id_from_entity_loc_index(iC,EntityRank::ELEMENT);
+            mtk::Cell & tCell = this->get_mtk_cell((moris_index)iC);
+            MORIS_ASSERT(tCell.get_index() == (moris_index) iC,"Cell index mismatch");
+            mEntityLocaltoGlobalMap(3)(tCell.get_index()) = tCell.get_id();
         }
+
     }
 
     //-------------------------------------------------------------------------------

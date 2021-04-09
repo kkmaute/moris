@@ -564,6 +564,7 @@ namespace xtk
             // XTK Model State Flags
             bool mDecomposed        = false; // Model has been decomposed
             bool mConvertedToTet10s = false; // Model has been converted from tet4's to tet10s
+            bool mMeshDataFinalized = false;
             bool mEnriched          = false; // Model has been enriched
             bool mUnzipped          = false; // Model has been unzipped
             bool mGhost             = false; // Model has setup ghost stabilization
@@ -875,14 +876,13 @@ namespace xtk
         private:
 
              /*
-              * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
-              * Tasks performed here:
-              *  - Assign all child elements global ids and processor local indices
-              *  - Store phase indices of non-intersected parent elements
-              *
+              * Perform all tasks needed to finalize the decomposition process. Assignes cells
               */
              void
-             finalize_decomp_in_xtk_mesh(bool aSetPhase);
+             finalize_decomp();
+
+             void
+             finalize_mesh_data();
 
              //------------------------------------------------------------------------------
 
@@ -1288,10 +1288,6 @@ namespace xtk
                       Cell<moris::moris_index> & aCellSubphaseIndices,
                       Cell<moris::moris_index> & aCellSubphaseBulkIndices);
                       
-              //------------------------------------------------------------------------------
-              void
-              cleanup_cut_mesh();
-
 
 
     };
