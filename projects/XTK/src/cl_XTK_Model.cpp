@@ -2364,7 +2364,6 @@ namespace xtk
     void
     Model::finalize_mesh_data()
     {
-        std::cout<<"Finalzie Mesh Data Start"<<std::endl;
         //
         mBackgroundMesh.setup_local_to_global_maps();
 
@@ -3010,13 +3009,11 @@ namespace xtk
     void
     Model::setup_cell_glb_to_local_map()
     {
-        std::cout<<"this->get_num_elements_total() = "<<this->get_num_elements_total()<<std::endl;
         mCellGlbToLocalMap.clear();
         for(moris::uint i = 0; i < this->get_num_elements_total(); i++)
         {
             moris_id tId = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index((moris_index)i,EntityRank::ELEMENT);
 
-            std::cout<<"Id = "<<tId<<" | Index = "<<i<<std::endl;
             MORIS_ASSERT(mCellGlbToLocalMap.find(tId) == mCellGlbToLocalMap.end(),"Id already in map");
             mCellGlbToLocalMap[tId] = (moris_index) i;
         }
@@ -3051,7 +3048,6 @@ namespace xtk
         // tell the cut mesh how many subphases there are
         mCutMesh.set_num_subphases(tSubPhaseIndex);
 
-        std::cout<<"Num Subphases  = "<<tSubPhaseIndex<<std::endl;
 
         // tell the cut mesh to setup subphase to child mesh connectivity
         mCutMesh.setup_subphase_to_child_mesh_connectivity();
@@ -3089,14 +3085,12 @@ namespace xtk
 
         // Allocate global element ids starting at the maximum id in the background mesh (these need to be give to the children meshes)
         moris::moris_id tSubphaseIdOffset = mBackgroundMesh.allocate_entity_ids(tNumSubphases, EntityRank::ELEMENT);
-        std::cout<<"tSubphaseIdOffset = "<<tSubphaseIdOffset<<std::endl;
 
         // set subphase ids in the children meshes which I own
         Cell<Child_Mesh*> const & tOwnedChildMeshes = mCutMesh.get_owned_child_meshes();
         for(moris::size_t i = 0; i<tOwnedChildMeshes.size(); i++)
         {
             moris_id tCellId = mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tOwnedChildMeshes(i)->get_parent_element_index(),EntityRank::ELEMENT);
-            std::cout<<"tCellId = "<<tCellId<<std::endl;
             // iterate through subphase ids
             tOwnedChildMeshes(i)->set_subphase_id(0,tCellId);
             for(moris::uint j = 1; j <tOwnedChildMeshes(i)->get_num_subphase_bins(); j++)
