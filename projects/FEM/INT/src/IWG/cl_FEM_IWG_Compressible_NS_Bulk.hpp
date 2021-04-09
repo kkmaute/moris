@@ -60,6 +60,21 @@ namespace moris
                 bool mLWEval = true;
                 bool mLDofYEval = true;
 
+                // evaluation flag for the variable mapping operator
+                bool mA0invEval = true;
+                
+                // evaluation flag for G-operator
+                bool mGEval = true;
+
+                // evaluation flags for M-operator and its inverse
+                bool mMEval = true;
+                bool mMinvEval = true;
+                bool mSqrtMinvEval = true;
+
+                // evaluation flag for GLS stabilization operator
+                bool mTauEval = true;
+
+
                 // vectors and matrices containing field variables and their spatial derivatives
                 Matrix< DDRMat > mY;
                 Matrix< DDRMat > mdYdt;
@@ -86,6 +101,21 @@ namespace moris
                 Matrix< DDRMat > mdLdDofY;
                 Matrix< DDRMat > mLW;
                 Matrix< DDRMat > mdLdDofW;
+
+                // storage for the variable mapping operator
+                Matrix< DDRMat > mA0inv;
+
+                // storage for G-operator
+                Matrix< DDRMat > mG;
+
+                // storage for M-operator and its inverse
+                Matrix< DDRMat > mM;
+                Matrix< DDRMat > mMinv;
+                Matrix< DDRMat > mSqrtMinv;
+
+                // storage for the GLS stabiliation operator
+                Matrix< DDRMat > mTau;
+                Matrix< DDRMat > mdTaudY;
 
                 // multiplication matrices for condensed tensors
                 const Matrix< DDRMat > mMultipMat2D = { 
@@ -358,6 +388,56 @@ namespace moris
                  * @param[ out ] Kij_i spatial derivatives of the K flux matrices
                  */
                 const Matrix< DDRMat > & Kiji ( const uint aJ );   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the operator mapping from the state variables to conservative variables Y/U
+                 * @param[ out ] mA0inv variale mapping operator mapping
+                 */
+                const Matrix< DDRMat > & A0inv();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the G operator G_ij = sum_d( dxi_d / dx_i * dxi_d / dx_j )
+                 * @param[ out ] mG G operator
+                 */
+                const Matrix< DDRMat > & G();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the M term for the stabiliztion operator
+                 * @param[ out ] mM M operator
+                 */
+                const Matrix< DDRMat > & M();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the inverse of the M term for the stabiliztion operator
+                 * @param[ out ] mMinv  inverse of the M operator
+                 */
+                const Matrix< DDRMat > & Minv();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the square root of the inverse of the M term for the stabiliztion operator
+                 * @param[ out ] mSqrtMinv  square root of the inverse of the M operator
+                 */
+                const Matrix< DDRMat > & SqrtMinv();
+                
+                //------------------------------------------------------------------------------
+                /**
+                 * get the stabilization operator
+                 * @param[ out ] mTau stabilization operator
+                 */
+                const Matrix< DDRMat > & Tau();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the deriv of the stabilization operator wrt to the state variables
+                 * @param[ in ]  aVR     a constant pre-multiplication vector acting on the right index of Tau
+                 * @param[ out ] dTaudY  deriv of the stabilization operator wrt.to the state variables
+                 */
+                const Matrix< DDRMat > & dTaudY( const Matrix< DDRMat > aVR );
 
                 //------------------------------------------------------------------------------
                 // FIXME provided directly by the field interpolator?

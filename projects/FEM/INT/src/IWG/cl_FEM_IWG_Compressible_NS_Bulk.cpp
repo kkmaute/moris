@@ -75,6 +75,12 @@ namespace moris
             mLYEval = true;
             mLWEval = true;
             mLDofYEval = true;
+
+            mA0invEval = true;
+            mGEval = true;
+            mMEval = true;
+            mMinvEval = true;
+            mTauEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -635,7 +641,7 @@ namespace moris
             {
                 return mMultipMat3D;
             }
-        }       
+        }  
 
         //------------------------------------------------------------------------------
 

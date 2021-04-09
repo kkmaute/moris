@@ -346,6 +346,7 @@ set(LIB_SOURCES
 
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Stabilization.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche_Flux_Matrices.cpp

@@ -43,6 +43,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void eval_dAdY( 
+                std::shared_ptr< Material_Model >       aMM,  
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
+                const uint                              aYind,
+                moris::Cell< Matrix< DDRMat > >       & adAdY );
+
         void eval_VL_dAdY( 
                 std::shared_ptr< Material_Model >       aMM,  
                 std::shared_ptr< Constitutive_Model >   aCM,
@@ -119,7 +127,14 @@ namespace moris
                 Matrix< DDRMat >                      & aKijYji );
 
         //------------------------------------------------------------------------------
-        
+
+        void eval_dKdY( 
+                std::shared_ptr< Property >   aPropDynamicViscosity,  
+                std::shared_ptr< Property >   aPropThermalConductivity,
+                Field_Interpolator_Manager  * aMasterFIManager,
+                const uint                    aYind,
+                moris::Cell< moris::Cell< Matrix< DDRMat > > >  & adKdY );
+
         void eval_VL_dKdY( 
                 std::shared_ptr< Property >   aPropDynamicViscosity,  
                 std::shared_ptr< Property >   aPropThermalConductivity,
