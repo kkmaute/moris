@@ -205,6 +205,382 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void eval_dAdY( 
+                std::shared_ptr< Material_Model >       aMM,  
+                std::shared_ptr< Constitutive_Model >   aCM,
+                Field_Interpolator_Manager            * aMasterFIManager,
+                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
+                const uint                              aYind,
+                moris::Cell< Matrix< DDRMat > >       & adAdY )
+        {
+            // check inputs
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+                    "fn_FEM_IWG_Compressible_NS::eval_dAdY - list of aResidualDofTypes not supported, see messages above." );
+
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            
+            // get number of Space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+            // size dAdY correctly
+            adAdY.resize( tNumSpaceDims + 1 );
+
+            // // get commonly used values
+            real tP   = aMM->pressure()( 0 );
+            real tT   = aMM->temperature()( 0 );
+            real tRho = aMM->density()( 0 );
+            real tR   = tP / tRho / tT;
+            //real tCv  = aMM->Cv()( 0 ); 
+            real tCp  = aMM->Cp()( 0 ); 
+            real tEint= aMM->Eint()( 0 );
+            real tU1  = tFIVelocity->val()( 0 );
+            real tU2  = tFIVelocity->val()( 1 );
+
+            // help values   
+            real tU1sq = tU1*tU1;
+            real tU2sq = tU2*tU2;
+            real tC1 = 1.0/(tR*tT);
+            real tC2 = tP/(tR*tT);
+            real tC3 = 1.0/(tR*tT*tT);
+            real tC4 = tP/(tR*tT*tT);
+
+            // assemble matrices based on number of spatial dimensions
+            switch ( tNumSpaceDims )
+            {
+                // for 2D
+                case 2 :
+                {
+                    // get the 1/2 * v^2 term
+                    real tQ = 0.5 * ( tU1sq * tU1sq + tU2sq * tU2sq );
+
+                    // assemble matrices for requested state variable derivative
+                    switch ( aYind )
+                    {
+                        // for PRESSURE
+                        case 0 :
+                        {
+                            adAdY( 0 ) = {
+                            	{ 0.0,     0.0,     0.0,                               -tC3 },
+                            	{ 0.0,     tC1,     0.0,                           -tC3*tU1 },
+                            	{ 0.0,     0.0,     tC1,                           -tC3*tU2 },
+                            	{ 0.0, tC1*tU1, tC1*tU2, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
+                             
+                            adAdY( 1 ) = {
+                            	{ 0.0,                                tC1,         0.0,                                 -tC3*tU1 },
+                            	{ 0.0,                        2.0*tC1*tU1,         0.0,                               -tC3*tU1sq },
+                            	{ 0.0,                            tC1*tU2,     tC1*tU1,                             -tC3*tU1*tU2 },
+                            	{ 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };                             
+                             
+                            adAdY( 2 ) = {
+                            	{ 0.0,         0.0,                                tC1,                                 -tC3*tU2 },
+                            	{ 0.0,     tC1*tU2,                            tC1*tU1,                             -tC3*tU1*tU2 },
+                            	{ 0.0,         0.0,                        2.0*tC1*tU2,                               -tC3*tU2sq },
+                            	{ 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+
+                            // break for PRESSURE case
+                            break;
+                        }
+
+                        // for VX
+                        case 1 :
+                        {
+                            adAdY( 0 ) = {
+                            	{     0.0, 0.0, 0.0,        0 },
+                            	{     tC1, 0.0, 0.0,     -tC4 },
+                            	{     0.0, 0.0, 0.0,        0 },
+                            	{ tC1*tU1, tC2, 0.0, -tC4*tU1 } };                            
+                             
+                            adAdY( 1 ) = {
+                            	{                                tC1,         0.0,     0.0,                                           -tC4 },
+                            	{                        2.0*tC1*tU1,     2.0*tC2,     0.0,                                   -2.0*tC4*tU1 },
+                            	{                            tC1*tU2,         0.0,     tC2,                                       -tC4*tU2 },
+                            	{ tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };                            
+                             
+                            adAdY( 2 ) = {
+                            	{         0.0,     0.0,     0.0,            0 },
+                            	{     tC1*tU2,     0.0,     tC2,     -tC4*tU2 },
+                            	{         0.0,     0.0,     0.0,            0 },
+                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };
+                            
+                            // break for VX case
+                            break;
+                        }
+
+                        // for VY
+                        case 2 :
+                        {
+                            adAdY( 0 ) = {
+                            	{     0.0, 0.0, 0.0,        0 },
+                            	{     0.0, 0.0, 0.0,        0 },
+                            	{     tC1, 0.0, 0.0,     -tC4 },
+                            	{ tC1*tU2, 0.0, tC2, -tC4*tU2 } };                           
+                             
+                            adAdY( 1 ) = {
+                            	{         0.0,     0.0,     0.0,            0 },
+                            	{         0.0,     0.0,     0.0,            0 },
+                            	{     tC1*tU1,     tC2,     0.0,     -tC4*tU1 },
+                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };                        
+                             
+                            adAdY( 2 ) = {
+                            	{                                tC1,     0.0,         0.0,                                           -tC4 },
+                            	{                            tC1*tU1,     tC2,         0.0,                                       -tC4*tU1 },
+                            	{                        2.0*tC1*tU2,     0.0,     2.0*tC2,                                   -2.0*tC4*tU2 },
+                            	{ tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
+                            
+                            // break for VY case
+                            break;
+                        }
+
+                        // for TEMP
+                        case 3 :
+                        {
+                            adAdY( 0 ) = {
+                            	{                               -tC3,      0.0,      0.0,                                  (2.0*tC4)/tT },
+                            	{                           -tC3*tU1,     -tC4,      0.0,                              (2.0*tC4*tU1)/tT },
+                            	{                           -tC3*tU2,      0.0,     -tC4,                              (2.0*tC4*tU2)/tT },
+                            	{ tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };                            	 
+                             
+                            adAdY( 1 ) = {
+                            	{                                   -tC3*tU1,                                           -tC4,          0.0,                                     (2.0*tC4*tU1)/tT },
+                            	{                                 -tC3*tU1sq,                                   -2.0*tC4*tU1,          0.0,                                   (2.0*tC4*tU1sq)/tT },
+                            	{                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
+                            	{ tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tU1*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                             
+                            adAdY( 2 ) = {
+                            	{                                   -tC3*tU2,          0.0,                                           -tC4,                                     (2.0*tC4*tU2)/tT },
+                            	{                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
+                            	{                                 -tC3*tU2sq,          0.0,                                   -2.0*tC4*tU2,                                   (2.0*tC4*tU2sq)/tT },
+                            	{ tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tU2*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+ 
+                            
+                            // break for TEMP case
+                            break;
+                        }
+                    
+                        default:
+                        {
+                            MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for Y derivative out of bounds." );
+                            break;
+                        }
+                    }
+
+                    // break for 2D case
+                    break;
+                }
+
+                // for 3D
+                case 3 :
+                {
+                    // get Z-velocity
+                    real tU3  = tFIVelocity->val()( 3 );  
+                    real tU3sq = tU3*tU3;
+
+                    // get the 1/2 * v^2 term
+                    real tQ = 0.5 * ( tU1sq * tU1sq + tU2sq * tU2sq + tU3sq * tU3sq );
+
+                    // assemble matrices for requested state variable derivative
+                    switch ( aYind )
+                    {
+                        // for PRESSURE
+                        case 0 :
+                        {
+                            adAdY( 0 ) = {
+                            	{ 0.0,     0.0,     0.0,     0.0,                               -tC3 },
+                            	{ 0.0,     tC1,     0.0,     0.0,                           -tC3*tU1 },
+                            	{ 0.0,     0.0,     tC1,     0.0,                           -tC3*tU2 },
+                            	{ 0.0,     0.0,     0.0,     tC1,                           -tC3*tU3 },
+                            	{ 0.0, tC1*tU1, tC1*tU2, tC1*tU3, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
+                             
+                            adAdY( 1 ) = {
+                            	{ 0.0,                                tC1,         0.0,         0.0,                                 -tC3*tU1 },
+                            	{ 0.0,                        2.0*tC1*tU1,         0.0,         0.0,                               -tC3*tU1sq },
+                            	{ 0.0,                            tC1*tU2,     tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
+                            	{ 0.0,                            tC1*tU3,         0.0,     tC1*tU1,                             -tC3*tU1*tU3 },
+                            	{ 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tC1*tU1*tU3, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                             
+                            adAdY( 2 ) = {
+                            	{ 0.0,         0.0,                                tC1,         0.0,                                 -tC3*tU2 },
+                            	{ 0.0,     tC1*tU2,                            tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
+                            	{ 0.0,         0.0,                        2.0*tC1*tU2,         0.0,                               -tC3*tU2sq },
+                            	{ 0.0,         0.0,                            tC1*tU3,     tC1*tU2,                             -tC3*tU2*tU3 },
+                            	{ 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC1*tU2*tU3, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                             
+                            adAdY( 3 ) = {
+                            	{ 0.0,         0.0,         0.0,                                tC1,                                 -tC3*tU3 },
+                            	{ 0.0,     tC1*tU3,         0.0,                            tC1*tU1,                             -tC3*tU1*tU3 },
+                            	{ 0.0,         0.0,     tC1*tU3,                            tC1*tU2,                             -tC3*tU2*tU3 },
+                            	{ 0.0,         0.0,         0.0,                        2.0*tC1*tU3,                               -tC3*tU3sq },
+                            	{ 0.0, tC1*tU1*tU3, tC1*tU2*tU3, tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tU3*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+
+                            // break for PRESSURE case
+                            break;
+                        }
+
+                        // for VX
+                        case 1 :
+                        {
+                            adAdY( 0 ) = {
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{ tC1*tU1, tC2, 0.0, 0.0, -tC4*tU1 } };
+                             
+                            adAdY( 1 ) = {
+                            	{                                tC1,         0.0,     0.0,     0.0,                                           -tC4 },
+                            	{                        2.0*tC1*tU1,     2.0*tC2,     0.0,     0.0,                                    2.0*tC4*tU1 },
+                            	{                            tC1*tU2,         0.0,     tC2,     0.0,                                       -tC4*tU2 },
+                            	{                            tC1*tU3,         0.0,     0.0,     tC2,                                       -tC4*tU3 },
+                            	{ tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
+                             
+                            adAdY( 2 ) = {
+                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
+                            	{     tC1*tU2,     0.0,     tC2, 0.0,     -tC4*tU2 },
+                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
+                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
+                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
+                             
+                            adAdY( 3 ) = {
+                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
+                            	{     tC1*tU3,     0.0, 0.0,     tC2,     -tC4*tU3 },
+                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
+                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
+                            	{ tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                            
+                            // break for VX case
+                            break;
+                        }
+
+                        // for VY
+                        case 2 :
+                        {
+                            adAdY( 0 ) = {
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{ tC1*tU2, 0.0, tC2, 0.0, -tC4*tU2 } };
+                             
+                            adAdY( 1 ) = {
+                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
+                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
+                            	{     tC1*tU1,     tC2,     0.0, 0.0,     -tC4*tU1 },
+                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
+                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
+                             
+                            adAdY( 2 ) = {
+                            	{                                tC1,     0.0,         0.0,     0.0,                                           -tC4 },
+                            	{                            tC1*tU1,     tC2,         0.0,     0.0,                                       -tC4*tU1 },
+                            	{                        2.0*tC1*tU2,     0.0,     2.0*tC2,     0.0,                                    2.0*tC4*tU2 },
+                            	{                            tC1*tU3,     0.0,         0.0,     tC2,                                       -tC4*tU3 },
+                            	{ tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
+                             
+                            adAdY( 3 ) = {
+                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
+                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
+                            	{     tC1*tU3, 0.0,     0.0,     tC2,     -tC4*tU3 },
+                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
+                            	{ tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                            
+                            // break for VY case
+                            break;
+                        }
+
+                        // for VZ
+                        case 3 :
+                        {
+                            adAdY( 0 ) = {
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
+                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                            	{ tC1*tU3, 0.0, 0.0, tC2, -tC4*tU3 } };
+                             
+                            adAdY( 1 ) = {
+                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
+                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
+                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
+                            	{     tC1*tU1,     tC2, 0.0,     0.0,     -tC4*tU1 },
+                            	{ tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                             
+                            adAdY( 2 ) = {
+                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
+                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
+                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
+                            	{     tC1*tU2, 0.0,     tC2,     0.0,     -tC4*tU2 },
+                            	{ tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                             
+                            adAdY( 3 ) = {
+                            	{                                tC1,     0.0,     0.0,         0.0,                                           -tC4 },
+                            	{                            tC1*tU1,     tC2,     0.0,         0.0,                                       -tC4*tU1 },
+                            	{                            tC1*tU2,     0.0,     tC2,         0.0,                                       -tC4*tU2 },
+                            	{                        2.0*tC1*tU3,     0.0,     0.0,     2.0*tC2,                                    2.0*tC4*tU3 },
+                            	{ tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tC2*tU1, tC2*tU2, 3.0*tC2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1) } };
+                            
+                            // break for VZ case
+                            break;
+                        }
+
+                        // for TEMP
+                        case 4 :
+                        {
+                            adAdY( 0 ) = {
+                            	{                               -tC3,      0.0,      0.0,      0.0,                                  (2.0*tC4)/tT },
+                            	{                           -tC3*tU1,     -tC4,      0.0,      0.0,                              (2.0*tC4*tU1)/tT },
+                            	{                           -tC3*tU2,      0.0,     -tC4,      0.0,                              (2.0*tC4*tU2)/tT },
+                            	{                           -tC3*tU3,      0.0,      0.0,     -tC4,                              (2.0*tC4*tU3)/tT },
+                            	{ tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, -tC4*tU3, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
+                             
+                             
+                            adAdY( 1 ) = {
+                            	{                                   -tC3*tU1,                                           -tC4,          0.0,          0.0,                                     (2.0*tC4*tU1)/tT },
+                            	{                                 -tC3*tU1sq,                                    2.0*tC4*tU1,          0.0,          0.0,                                   (2.0*tC4*tU1sq)/tT },
+                            	{                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
+                            	{                               -tC3*tU1*tU3,                                       -tC4*tU3,          0.0,     -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
+                            	{ tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tC4*tU1*tU3, -tU1*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                             
+                             
+                            adAdY( 2 ) = {
+                            	{                                   -tC3*tU2,          0.0,                                           -tC4,          0.0,                                     (2.0*tC4*tU2)/tT },
+                            	{                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
+                            	{                                 -tC3*tU2sq,          0.0,                                    2.0*tC4*tU2,          0.0,                                   (2.0*tC4*tU2sq)/tT },
+                            	{                               -tC3*tU2*tU3,          0.0,                                       -tC4*tU3,     -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
+                            	{ tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU2*tU3, -tU2*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                             
+                             
+                            adAdY( 3 ) = {
+                            	{                                   -tC3*tU3,          0.0,          0.0,                                           -tC4,                                     (2.0*tC4*tU3)/tT },
+                            	{                               -tC3*tU1*tU3,     -tC4*tU3,          0.0,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
+                            	{                               -tC3*tU2*tU3,          0.0,     -tC4*tU3,                                       -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
+                            	{                                 -tC3*tU3sq,          0.0,          0.0,                                    2.0*tC4*tU3,                                   (2.0*tC4*tU3sq)/tT },
+                            	{ tC1*tCp*tU3 - tC3*tU3*(tEint + tQ+1.0/tC1), -tC4*tU1*tU3, -tC4*tU2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1), -tU3*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                            
+                            // break for TEMP case
+                            break;
+                        }
+                    
+                        default:
+                        {
+                            MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for Y derivative out of bounds." );
+                            break;
+                        }
+                    }
+                    
+                    // break for 3D case
+                    break;
+                }
+            
+                default:
+                {
+                    MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY() - Number of space dimensions must be 2 or 3" );
+                    break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void eval_dAdY_VR( 
                 std::shared_ptr< Material_Model >       aMM,  
                 std::shared_ptr< Constitutive_Model >   aCM,
@@ -387,6 +763,200 @@ namespace moris
                 {
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR() - Number of space dimensions must be 2 or 3" );
                 };
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void eval_dKdY( 
+                std::shared_ptr< Property >   aPropDynamicViscosity,  
+                std::shared_ptr< Property >   aPropThermalConductivity,
+                Field_Interpolator_Manager  * aMasterFIManager,
+                const uint                    aYind,
+                moris::Cell< moris::Cell< Matrix< DDRMat > > >  & adKdY )
+        {
+            // get the velocity FI
+            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            
+            // get number of Space dimensions
+            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+            // get commonly used values
+            //real tKa   =  aPropThermalConductivity->val()( 0 );
+            real tMu =  aPropDynamicViscosity->val()( 0 );
+            real tLa = -2.0 * tMu / 3.0;
+            real tCh = tLa + 2.0 * tMu; 
+
+            // set size of cells
+            Matrix< DDRMat > tZeroMat( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+            adKdY.resize( tNumSpaceDims );
+            for( uint iDim = 0; iDim < tNumSpaceDims; iDim++ ) 
+            {
+                adKdY( iDim ).assign( tNumSpaceDims, tZeroMat );
+            }
+            
+            // assemble matrices based on number of spatial dimensions
+            switch ( tNumSpaceDims )
+            {
+                // for 2D
+                case 2 :
+                {
+                    // assemble matrices for requested state variable derivative
+                    switch ( aYind )
+                    {
+                        // for PRESSURE
+                        case 0 :
+                        {
+                            // do nothing, derivatives are zero
+
+                            // break for PRESSURE case
+                            break;
+                        }
+
+                        // for VX
+                        case 1 :
+                        {
+                            adKdY( 0 )( 0 )( 3, 1 ) = tCh;
+                            adKdY( 0 )( 1 )( 3, 2 ) = tLa;
+
+                            adKdY( 1 )( 0 )( 3, 2 ) = tMu;
+                            adKdY( 1 )( 1 )( 3, 1 ) = tMu;
+                            
+                            // break for VX case
+                            break;
+                        }
+
+                        // for VY
+                        case 2 :
+                        {
+                            adKdY( 0 )( 0 )( 3, 2 ) = tMu;
+                            adKdY( 0 )( 1 )( 3, 1 ) = tMu;
+
+                            adKdY( 1 )( 0 )( 3, 1 ) = tLa;
+                            adKdY( 1 )( 1 )( 3, 2 ) = tCh;
+                            
+                            // break for VY case
+                            break;
+                        }
+
+                        // for TEMP
+                        case 3 :
+                        {
+                            // do nothing, derivatives are zero
+                            
+                            // break for TEMP case
+                            break;
+                        }
+                    
+                        default:
+                        {
+                            MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY - index for Y derivative out of bounds." );
+                            break;
+                        }
+                    }
+
+                    // break for 2D case
+                    break;
+                }
+
+                // for 3D
+                case 3 :
+                {
+                    // assemble matrices for requested state variable derivative
+                    switch ( aYind )
+                    {
+                        // for PRESSURE
+                        case 0 :
+                        {
+                            // do nothing, derivatives are zero
+
+                            // break for PRESSURE case
+                            break;
+                        }
+
+                        // for VX
+                        case 1 :
+                        {
+                            adKdY( 0 )( 0 )( 4, 1 ) = tCh;
+                            adKdY( 0 )( 1 )( 4, 2 ) = tLa;
+                            adKdY( 0 )( 2 )( 4, 3 ) = tLa;
+
+                            adKdY( 1 )( 0 )( 4, 2 ) = tMu;
+                            adKdY( 1 )( 1 )( 4, 1 ) = tMu;
+                            //adKdY( 1 )( 2 )( 4, 3 ) = tMu;
+
+                            adKdY( 2 )( 0 )( 4, 3 ) = tMu;
+                            //adKdY( 2 )( 1 )( 4, 2 ) = tMu;
+                            adKdY( 2 )( 2 )( 4, 1 ) = tMu;
+                            
+                            // break for VX case
+                            break;
+                        }
+
+                        // for VY
+                        case 2 :
+                        {
+                            adKdY( 0 )( 0 )( 4, 2 ) = tMu;
+                            adKdY( 0 )( 1 )( 4, 1 ) = tMu;
+                            //adKdY( 0 )( 2 )( 4, 3 ) = tMu;
+
+                            adKdY( 1 )( 0 )( 4, 1 ) = tLa;
+                            adKdY( 1 )( 1 )( 4, 2 ) = tCh;
+                            adKdY( 1 )( 2 )( 4, 3 ) = tLa;
+
+                            //adKdY( 2 )( 0 )( 4, 1 ) = tMu;
+                            adKdY( 2 )( 1 )( 4, 3 ) = tMu;
+                            adKdY( 2 )( 2 )( 4, 2 ) = tMu;
+                            
+                            // break for VY case
+                            break;
+                        }
+
+                        // for VZ
+                        case 3 :
+                        {
+                            adKdY( 0 )( 0 )( 4, 3 ) = tMu;
+                            //adKdY( 0 )( 1 )( 4, 2 ) = tMu;
+                            adKdY( 0 )( 2 )( 4, 1 ) = tMu;
+
+                            //adKdY( 1 )( 0 )( 4, 1 ) = tMu;
+                            adKdY( 1 )( 1 )( 4, 3 ) = tMu;
+                            adKdY( 1 )( 2 )( 4, 2 ) = tMu;
+
+                            adKdY( 2 )( 0 )( 4, 1 ) = tLa;
+                            adKdY( 2 )( 1 )( 4, 2 ) = tLa;
+                            adKdY( 2 )( 2 )( 4, 3 ) = tCh;
+                            
+                            // break for VZ case
+                            break;
+                        }
+
+                        // for TEMP
+                        case 4 :
+                        {
+                            // do nothing, derivatives are zero
+                            
+                            // break for TEMP case
+                            break;
+                        }
+                    
+                        default:
+                        {
+                            MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY - index for Y derivative out of bounds." );
+                            break;
+                        }
+                    }
+                    
+                    // break for 3D case
+                    break;
+                }
+            
+                default:
+                {
+                    MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY() - Number of space dimensions must be 2 or 3" );
+                    break;
+                }
             }
         }
 
