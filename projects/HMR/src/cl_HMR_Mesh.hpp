@@ -489,6 +489,10 @@ namespace moris
             enum CellTopology get_blockset_topology( const  std::string & aSetName );
 
             //-------------------------------------------------------------------------------
+
+            enum CellShape get_blockset_shape( const  std::string & aSetName );
+
+            //-------------------------------------------------------------------------------
         private:
             //-------------------------------------------------------------------------------
 

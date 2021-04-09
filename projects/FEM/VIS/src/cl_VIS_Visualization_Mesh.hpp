@@ -365,6 +365,12 @@ public:
         return mListofBlocks(mSetNameToIndexMap[aSetName])->get_cell_topology();
     }
 
+    enum CellShape
+    get_blockset_shape(const std::string & aSetName)
+    {
+        return mListofBlocks(mSetNameToIndexMap[aSetName])->get_cell_shape();
+    }
+
 protected:
 
     void collect_all_sets()

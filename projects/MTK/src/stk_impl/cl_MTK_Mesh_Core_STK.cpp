@@ -863,6 +863,33 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
+    enum CellShape Mesh_Core_STK::get_blockset_shape(const std::string & aSetName )
+    {
+        // get the cells in the set
+        moris::Cell< Cell const * > tSetCells = this->get_set_cells( aSetName );
+
+        // init cell shape
+        CellShape tCellShape = CellShape::EMPTY;
+
+        // if cells exist
+        if ( tSetCells.size() > 0 )
+        {
+            // compute the cell shape of the first cell
+            tCellShape = tSetCells(0)->get_cell_info()->compute_cell_shape( tSetCells(0) );
+
+            // within debug, checking all cells to make sure that they are the same Cell Shape
+            for( uint iCell = 1; iCell < tSetCells.size(); iCell++ )
+            {
+                MORIS_ASSERT( tSetCells(iCell)->get_cell_info()->compute_cell_shape( tSetCells(0) ) == tCellShape,
+                        "Mesh_Core_STK::get_blockset_shape - cell shape is not consistent in the block");
+            }
+        }
+
+        return tCellShape;
+    }
+
+    // ----------------------------------------------------------------------------
+
     enum CellTopology
     Mesh_Core_STK::get_sideset_topology(const  std::string & aSetName)
     {
@@ -3348,6 +3375,16 @@ namespace mtk
                     tTopology = stk::topology::QUAD_4;
                 }
                 break;
+            case CellTopology::QUAD9:
+                if(tSpatialDim == 2)
+                {
+                    tTopology = stk::topology::QUAD_9_2D;
+                }
+                else if( tSpatialDim == 3 )
+                {
+                    tTopology = stk::topology::QUAD_9;
+                }
+                break;
             case CellTopology::TET4:
                 tTopology = stk::topology::TET_4;
                 break;
@@ -3356,6 +3393,9 @@ namespace mtk
                 break;
             case CellTopology::HEX8:
                 tTopology = stk::topology::HEX_8;
+                break;
+            case CellTopology::HEX27:
+                tTopology = stk::topology::HEX_27;
                 break;
             case CellTopology::PRISM6:
                 tTopology = stk::topology::WEDGE_6;

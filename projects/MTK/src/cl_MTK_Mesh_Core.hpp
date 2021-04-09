@@ -1038,6 +1038,16 @@ namespace moris
             enum CellTopology
             get_blockset_topology(const std::string & aSetName) = 0;
 
+            /**
+             * Gets the cell shape of a block set.
+             *
+             * @param aSetName Set name
+             * @return Cell shape type
+             */
+            virtual
+            enum CellShape
+            get_blockset_shape(const std::string & aSetName) = 0;
+
             // FIXME pure virtual
             /**
              * Gets the cell topology of a sideset.

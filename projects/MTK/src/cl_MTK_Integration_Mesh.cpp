@@ -225,13 +225,22 @@ namespace moris
             // Append block sets to list of all sets
             mListOfAllSets.append( mListofBlocks );
 
+            // iterate through all sets and register their index in the map
+            for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
+            {
+                mListOfAllSets( Ik )->set_set_index( Ik );
+
+                mSetNameToIndexMap[ mListOfAllSets( Ik )->get_set_name() ] = Ik;
+            }
+
             // add the cell topology to the set
             for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
             {
                 std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
                 
-                // set the blockset cell topology
-                mListOfAllSets( tCounter++ )->set_cell_topology( this->get_blockset_topology( tSetName ) );
+                // set the blockset cell topology and shape
+                mListOfAllSets( tCounter )->set_cell_topology( this->get_blockset_topology( tSetName ) );
+                mListOfAllSets( tCounter++ )->set_cell_shape( this->get_blockset_shape( tSetName ) );
             }
 
             // Append side sets to list of all sets
@@ -241,14 +250,6 @@ namespace moris
 
             // Append double side sets to list of all sets
             mListOfAllSets.append( mListofDoubleSideSets );
-
-            // iterate through all sets and register their index in the map
-            for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
-            {
-                mListOfAllSets( Ik )->set_set_index( Ik );
-
-                mSetNameToIndexMap[ mListOfAllSets( Ik )->get_set_name() ] = Ik;
-            }
 
             // setup color to set data
             this->setup_set_to_color();
