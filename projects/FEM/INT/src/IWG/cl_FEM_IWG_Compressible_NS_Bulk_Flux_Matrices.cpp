@@ -18,124 +18,295 @@ namespace moris
 {
     namespace fem
     {
+
+        //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Bulk::assemble_variable_set()
         {
             // check if the variable vectors have already been assembled
-            if( !mVarVecEval )
+            if( !mVarSetEval )
             {      
                 return;
-            }         
-            
+            }   
+
             // set the eval flag
-            mVarVecEval = false;
+            mVarSetEval = false;
 
             // check residual DoF types
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
-                    "IWG_Compressible_NS_Bulk::assemble_variable_set() - check for residual DoF types failed." );
+                    "IWG_Compressible_NS_Bulk::Y() - check for residual DoF types failed. See Error message above for more info." );
 
-            //FIXME: only density and pressure primitive variable sets supported in this function
+            // get number of state variable fields
+            uint tNumStateVars = this->num_space_dims() + 2;
 
-            // get different field interpolators
-            Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFIThirdVar =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 ) );
+            uint tNumSecondDerivs = 3 * this->num_space_dims() - 3;
 
-            // get number of space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+            // initialize Y vectors
+            mY.set_size( tNumStateVars, 1, 0.0 );
+            mdYdt.set_size( tNumStateVars, 1, 0.0 );
+            mdYdx.assign( this->num_space_dims(), mY );
+            //mdYdx.set_size( tNumStateVars, this->num_space_dims(), 0.0 );
+            md2Ydx2.assign( tNumSecondDerivs, mY );
+            //md2Ydx2.set_size( tNumStateVars, 3 * this->num_space_dims() - 3, 0.0 );
 
-            // assemble field var vector and matrix based on number of spatial dimensions
+            // initialize counter for fill index
+            uint iStateVar = 0;
+            
+            // go through residual dof types and assemble the state variable vector
+            for ( uint iResDofType = 0; iResDofType < mResidualDofType.size(); iResDofType++ )
+            {
+                // get field interpolator
+                Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( iResDofType ) );
 
-            // build vector of field variables
-            mY.set_size( tNumSpaceDims + 2, 1, 0.0 );
-            mY( 0 ) = tFIFirstVar->val()( 0 );
-            Matrix< DDRMat > tVelVec = tFIVelocity->val();
-            mY( { 1, tNumSpaceDims } ) = tVelVec.matrix_data();
-            mY( tNumSpaceDims + 1 ) = tFIThirdVar->val()( 0 );
+                // get number of fields in FI
+                uint tNumFields = tFI->get_number_of_fields(); 
 
-            // build vector of the time derivatives of the field variables
-            mdYdt.set_size( tNumSpaceDims + 2, 1, 0.0 );
-            mdYdt( 0 ) = tFIFirstVar->gradt( 1 )( 0 );
-            Matrix< DDRMat > tdVeldt = trans( tFIVelocity->gradt( 1 ) );
-            mdYdt( { 1, tNumSpaceDims } ) = tdVeldt.matrix_data();
-            mdYdt( tNumSpaceDims + 1 ) = tFIThirdVar->gradt( 1 )( 0 );
+                // get end index for fields
+                uint tEndIndex = iStateVar + tNumFields - 1;
 
-            // build matrix of spatial derivatives of field variables
-            mdYdx.set_size( tNumSpaceDims + 2, tNumSpaceDims, 0.0 );
-            Matrix< DDRMat > tGradP = trans( tFIFirstVar->gradx( 1 ) );
-            mdYdx( { 0, 0 }, { 0, tNumSpaceDims - 1 } ) = tGradP.matrix_data();
-            Matrix< DDRMat > tGradVel = trans( tFIVelocity->gradx( 1 ) );
-            mdYdx( { 1, tNumSpaceDims }, { 0, tNumSpaceDims - 1 } ) = tGradVel.matrix_data();
-            Matrix< DDRMat > tGradT = trans( tFIThirdVar->gradx( 1 ) );
-            mdYdx( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumSpaceDims - 1 } ) = tGradT.matrix_data();
+                // put state variables into matrices
+                mY( { iStateVar, tEndIndex } ) = tFI->val().matrix_data();
+                mdYdt( { iStateVar, tEndIndex } ) = trans( tFI->gradt( 1 ) );
+                //mdYdx( { iStateVar, tEndIndex }, { 0, this->num_space_dims() - 1 } ) = trans( tFI->gradx( 1 ) );
+                //md2Ydx2( { iStateVar, tEndIndex }, { 0, 3 * this->num_space_dims() - 4 } ) = trans( tFI->gradx( 2 ) );
+
+                // fill dYdx 
+                for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+                {
+                    mdYdx( iDim )( { iStateVar, tEndIndex } ) = 
+                            trans( tFI->gradx( 1 )( { iDim, iDim }, { 0, tNumFields - 1 } ) );
+                }
+
+                // fill d2Ydx2
+                for ( uint iRow = 0; iRow < tNumSecondDerivs; iRow++ )
+                {
+                    md2Ydx2( iRow )( { iStateVar, tEndIndex } ) =
+                            trans( tFI->gradx( 2 )( { iRow, iRow }, { 0, tNumFields - 1 } ) );
+                }
+
+                // increment fill index
+                iStateVar += tNumFields;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Y()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mVarSetEval )
+            {      
+                return mY;
+            }   
+
+            // assemble variable set
+            this->assemble_variable_set();
+
+            // return Y
+            return mY;
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Bulk::assemble_variable_DOF_set()
-        {  
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dYdt()
+        {
             // check if the variable vectors have already been assembled
-            if( !mVarDofVecEval )
+            if( !mVarSetEval )
+            {      
+                return mdYdt;
+            }   
+
+            // assemble variable set
+            this->assemble_variable_set();
+
+            // return dYdt
+            return mdYdt;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dYdx( const uint aSpatialDirection )
+        {
+            // check if the variable vectors have already been assembled
+            if( !mVarSetEval )
+            {      
+                return mdYdx( aSpatialDirection );
+            }   
+
+            // assemble variable set
+            this->assemble_variable_set();
+
+            // return dYdx
+            return mdYdx( aSpatialDirection );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::d2Ydx2( const uint aI, const uint aJ )
+        {
+            // convert the two indices into one for condensed tensor
+            uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
+            
+            // check if the variable vectors have already been assembled
+            if( !mVarSetEval )
+            {      
+                return md2Ydx2( tFlatIndex );
+            }   
+
+            // assemble variable set
+            this->assemble_variable_set();
+
+            // return value
+            return md2Ydx2( tFlatIndex );
+        }
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void IWG_Compressible_NS_Bulk::assemble_test_function_set()
+        {  
+            // check if the test funcitons have already been assembled
+            if( !mTestFuncSetEval )
             {
                 return;
             }    
             
             // set the eval flag
-            mVarDofVecEval = false;
+            mTestFuncSetEval = false;
 
             // check residual DoF types
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
-                    "IWG_Compressible_NS_Bulk::assemble_variable_DOF_set() - check for residual DoF types failed." );
+                    "IWG_Compressible_NS_Bulk::assemble_test_function_set() - check for residual DoF types failed." );
 
-            //FIXME: only density and pressure primitive variable sets supported so far
+            // get number of state variable fields
+            uint tNumStateVars = this->num_space_dims() + 2;
+            uint tNumSecondSpaceDerivs = 3 * this->num_space_dims() - 3;
+            
+            // initialize Y vectors
+            mW.set_size( tNumStateVars, tNumStateVars * this->num_bases(), 0.0 );
+            mdWdt.set_size( tNumStateVars, tNumStateVars * this->num_bases(), 0.0 );
+            mdWdx.assign( this->num_space_dims(), mW );
+            md2Wdx2.assign( tNumSecondSpaceDerivs, mW );    
 
-            // get different field interpolators
-            Field_Interpolator * tFIFirstVar = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFIThirdVar = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 ) );
-
-            // get number of space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();              
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-
-            // check Dof dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
-                    "IWG_Compressible_NS_Bulk::assemble_variable_DOF_set() - List of Dof Dependencies not supported. See error messages above." );
-
-            // assemble field var vector and matrix based on number of spatial dimensions
-
-            // initialize the cell and matrices 
-            mYDOF.set_size( tNumSpaceDims + 2, ( tNumSpaceDims + 2 ) * tNumBases, 0.0 );
-            mdYdtDOF.set_size( tNumSpaceDims + 2, ( tNumSpaceDims + 2 ) * tNumBases, 0.0 );
-            mdYdxDOF.assign( tNumSpaceDims, mYDOF );
-
-            // build vector of field variables
-            mYDOF( { 0, 0 }, { 0, tNumBases - 1 } ) = tFIFirstVar->N().matrix_data();
-            mYDOF( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = tFIVelocity->N().matrix_data();
-            mYDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = tFIThirdVar->N().matrix_data();
-
-            Matrix< DDRMat > tdNveldt;
-            this->compute_dnNdtn( tdNveldt );
-            mdYdtDOF( { 0, 0 }, { 0, tNumBases - 1 } ) = tFIFirstVar->dnNdtn( 1 ).matrix_data();
-            mdYdtDOF( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = tdNveldt.matrix_data();
-            mdYdtDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tFIThirdVar->dnNdtn( 1 ).matrix_data();
-
-            for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
+            // get representative values for the different basis function vectors
+            // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
+            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Matrix< DDRMat > tN = tFI->N()( { 0, 0 }, { 0, this->num_bases() - 1 } );
+            Matrix< DDRMat > tdNdt = tFI->dnNdtn( 1 )( { 0, 0 }, { 0, this->num_bases() - 1 } );
+            Matrix< DDRMat > tdNdx = tFI->dnNdxn( 1 );
+            Matrix< DDRMat > td2Ndx2 = tFI->dnNdxn( 2 );
+            
+            // go through residual dof types and assemble the state variable vector
+            for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
-                mdYdxDOF( iDim )( { 0, 0 }, { 0, tNumBases - 1 } ) = tFIFirstVar->dnNdxn( 1 )( { iDim, iDim },{ 0, tNumBases - 1 } );
-                mdYdxDOF( iDim )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tFIVelocity->dnNdxn( 1 )( { iDim, iDim },{ 0, tNumBases - 1 } );
-                mdYdxDOF( iDim )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tFIVelocity->dnNdxn( 1 )( { iDim, iDim },{ 0, tNumBases - 1 } );
-                if ( tNumSpaceDims == 3 )
+                // put test functions into matrices
+                mW( { iVar, iVar  }, { iVar * this->num_bases(), ( iVar + 1 ) * this->num_bases() - 1 } ) = 
+                        tN.matrix_data();
+                mdWdt( { iVar, iVar }, { iVar * this->num_bases(), ( iVar + 1 ) * this->num_bases() - 1 } ) = 
+                        tdNdt.matrix_data(); 
+
+                // fill dWdx 
+                for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
                 {
-                    mdYdxDOF( iDim )( { 3, 3 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = tFIVelocity->dnNdxn( 1 )( { iDim, iDim },{ 0, tNumBases - 1 } );
+                    mdWdx( iDim )( { iVar, iVar }, { iVar * this->num_bases(), ( iVar + 1 ) * this->num_bases() - 1 } ) = 
+                            tdNdx( { iDim, iDim }, { 0, this->num_bases() - 1 } );
                 }
-                mdYdxDOF( iDim )( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tFIThirdVar->dnNdxn( 1 )( { iDim, iDim },{ 0, tNumBases - 1 } );
-            } 
+
+                // fill d2Wdx2
+                for ( uint iRow = 0; iRow < tNumSecondSpaceDerivs; iRow++ )
+                {
+                    md2Wdx2( iRow )( { iVar, iVar }, { iVar * this->num_bases(), ( iVar + 1 ) * this->num_bases() - 1 } ) = 
+                            td2Ndx2( { iRow, iRow }, { 0, this->num_bases() - 1 } );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::W()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mTestFuncSetEval )
+            {      
+                return mW;
+            }   
+
+            // assemble variable set
+            this->assemble_test_function_set();
+
+            // return value
+            return mW;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dWdt()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mTestFuncSetEval )
+            {      
+                return mdWdt;
+            }   
+
+            // assemble variable set
+            this->assemble_test_function_set();
+
+            // return value
+            return mdWdt;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dWdx( const uint aSpatialDirection )
+        {
+            // check if the variable vectors have already been assembled
+            if( !mTestFuncSetEval )
+            {      
+                return mdWdx( aSpatialDirection );
+            }   
+
+            // assemble variable set
+            this->assemble_test_function_set();
+
+            // return value
+            return mdWdx( aSpatialDirection );
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::d2Wdx2( const uint aI, const uint aJ )
+        {
+            // convert the two indices into one for condensed tensor
+            uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
+            
+            // check if the variable vectors have already been assembled
+            if( !mTestFuncSetEval )
+            {      
+                return md2Wdx2( tFlatIndex );
+            }   
+
+            // assemble variable set
+            this->assemble_test_function_set();
+
+            // return value
+            return md2Wdx2( tFlatIndex );
+        }
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::A( const uint aK )
+        {
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aK >= 0 ) and ( aK <= this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Bulk::A() - index out of bounds." );
+
+            // 
+            this->eval_A_matrices();
+
+            // return requested value
+            return mA( aK );
         }
 
         //------------------------------------------------------------------------------
@@ -211,12 +382,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Bulk::eval_K_matrices()
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::K( const uint aI, const uint aJ )
         {
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aI >= 0 ) and ( aI < this->num_space_dims() ) and ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Bulk::K() - indices out of bounds." );
+
             // check if K matrices have already been evaluated
             if ( !mFluxKMatEval )
             {
-                return;
+                return mK( aI )( aJ );
             }
 
             // set the eval flag
@@ -228,7 +403,10 @@ namespace moris
 
             // eval K matrices and store them
             eval_K( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mK );
-        }                    
+
+            // return requested K matrix
+            return mK( aI )( aJ );
+        }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

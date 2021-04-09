@@ -28,6 +28,7 @@ namespace moris
                 : Field(aCoefficientIndices, aSharedADVIds, aMeshPair, aField)
                 , Field_Discrete_Integration(aMeshPair.get_interpolation_mesh()->get_num_nodes())
                 , mSharedADVIds(aSharedADVIds)
+                , mADVOffsetID(aADVOffsetID)
                 , mMeshPair(aMeshPair)
         {
             // Map to B-splines
@@ -46,7 +47,7 @@ namespace moris
                 if ((uint) par_rank() == tMesh->get_entity_owner(tCoefficientIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex))
                 {
                     // Calculate ADV ID using offset
-                    sint tADVId = aADVOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
+                    sint tADVId = mADVOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
                             tCoefficientIndex,
                             EntityRank::BSPLINE,
                             tDiscretizationMeshIndex);
@@ -129,7 +130,7 @@ namespace moris
         Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
             mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
-            return trans( tMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) );
+            return trans( tMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) ) + mADVOffsetID;
         }
 
         //--------------------------------------------------------------------------------------------------------------

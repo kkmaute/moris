@@ -509,7 +509,7 @@ namespace xtk
             Downward_Inheritance<moris::moris_index, moris::moris_index> mElementDownwardInheritance;
 
             // Local to Global Id Entity Matrix
-            moris::Cell<moris::Matrix<moris::IdMat>> mEntityLocaltoGlobalMap;
+            moris::Cell<moris::Cell<moris::moris_index>> mEntityLocaltoGlobalMap;
 
             // communication map
             moris::Matrix<IdMat> mCommunicationMap;

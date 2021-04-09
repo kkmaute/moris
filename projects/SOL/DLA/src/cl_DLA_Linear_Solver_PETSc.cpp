@@ -26,7 +26,8 @@ Linear_Solver_PETSc::Linear_Solver_PETSc()
     this->set_solver_parameters();
 }
 
-Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist ) : Linear_Solver_Algorithm( aParameterlist )
+Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist )
+: Linear_Solver_Algorithm( aParameterlist )
 {
 
 }
@@ -45,12 +46,6 @@ Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
     //KSPDestroy(&mPetscKSPProblem);
 //    PCDestroy(&mpc);
-}
-
-//----------------------------------------------------------------------------------------
-void Linear_Solver_PETSc::set_linear_problem( Linear_Problem * aLinearSystem )
-{
-    mLinearSystem = aLinearSystem;
 }
 
 //----------------------------------------------------------------------------------------

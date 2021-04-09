@@ -706,6 +706,9 @@ namespace moris
 
             // set the stabilization parameter in the stabilization parameter cell
             this->get_stabilization_parameters()( mStabilizationMap[ aStabilizationString ] ) = aStabilizationParameter;
+
+            // set active cluster measure on IQI flag on/off
+            mActiveCMEAFlag = mActiveCMEAFlag || ( aStabilizationParameter->get_cluster_measure_tuple_list().size() > 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -2243,8 +2246,8 @@ namespace moris
             // reset QI value
             mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
 
-            // add contribution of cluster measure to dQIdp
-            if( mStabilizationParam.size() > 0 )
+            // if active cluster measure on IQI
+            if( mActiveCMEAFlag )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dQIdp_FD_geometry(
@@ -2417,8 +2420,8 @@ namespace moris
             // reset QI value
             mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
 
-            // add contribution of cluster measure to dQIdp
-            if( mStabilizationParam.size() > 0 )
+            // if active cluster measure on IQI
+            if( mActiveCMEAFlag )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dQIdp_FD_geometry(

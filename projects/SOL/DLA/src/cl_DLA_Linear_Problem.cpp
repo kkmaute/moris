@@ -166,9 +166,9 @@ namespace moris
 
             // create vector for jacobian times sol vec
             sol::Dist_Vector * tMatTimesSolVec = tMatFactory.create_vector(
-                          mSolverInterface,
-                          mVectorRHS->get_map(),
-                          mSolverInterface->get_num_rhs() );
+                    mSolverInterface,
+                    mVectorRHS->get_map(),
+                    mSolverInterface->get_num_rhs() );
 
             // multiply jacobian with previous solution vector
             mMat->mat_vec_product( *mPointVectorLHS, *tMatTimesSolVec, false );
@@ -178,6 +178,47 @@ namespace moris
 
             delete tMatTimesSolVec;
         }
+
+        //----------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Linear_Problem::compute_residual_of_linear_system()
+        {
+            sol::Matrix_Vector_Factory tMatFactory( mTplType );
+
+            // get number of RHS
+            uint tNumberOfRHS = mSolverInterface->get_num_rhs();
+
+            // create vector for jacobian times sol vec
+            sol::Dist_Vector * tResVec = tMatFactory.create_vector(
+                    mSolverInterface,
+                    mVectorRHS->get_map(),
+                    tNumberOfRHS );
+
+            // multiply jacobian with previous solution vector
+            mMat->mat_vec_product( *mPointVectorLHS, *tResVec, false );
+
+            // add contribution to RHS
+            tResVec->vec_plus_vec( -1.0, *mPointVectorRHS, 1.0 );
+
+            // norm of residual and RHS
+            Cell<real> tResNorm = tResVec->vec_norm2();
+            Cell<real> tRhsNorm = mPointVectorRHS->vec_norm2();
+
+            // allocate vector for relative residuals
+            Matrix<DDRMat> tRelativeResidualNorm(tNumberOfRHS,1);
+
+            // compute and store relative norms
+            for ( uint tRhsIndex=0; tRhsIndex<tNumberOfRHS;++tRhsIndex )
+            {
+                tRelativeResidualNorm( tRhsIndex ) =
+                        tResNorm( tRhsIndex )/ std::max(tRhsNorm(tRhsIndex), MORIS_REAL_EPS);
+            }
+
+            // delete temporary vector
+            delete tResVec;
+
+            // return vector with relative residuals
+            return tRelativeResidualNorm;
+        }
     }
 }
-

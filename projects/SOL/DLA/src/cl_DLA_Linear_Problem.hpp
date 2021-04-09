@@ -67,6 +67,8 @@ namespace moris
 
             void compute_residual_for_adjoint_solve();
 
+            Matrix<DDRMat> compute_residual_of_linear_system();
+
             virtual moris::sint solve_linear_system() = 0;
 
             sol::Dist_Vector * get_free_solver_LHS() { return mPointVectorLHS; };

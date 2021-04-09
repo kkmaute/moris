@@ -1,0 +1,568 @@
+/*
+ * cl_FEM_IWG_Compressible_NS_Bulk_Stabilization.cpp
+ *
+ *  Created on: Apr 7, 2021
+ *      Author: wunsch
+ */
+
+#include "cl_FEM_Set.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Bulk.hpp"
+#include "fn_FEM_IWG_Compressible_NS.hpp"
+
+#include "fn_trans.hpp"
+#include "fn_norm.hpp"
+#include "fn_eye.hpp"
+#include "fn_inv.hpp"
+#include "fn_sqrtmat.hpp"
+#include "fn_sylvester.hpp"
+
+// debug - output to hdf5
+#include "paths.hpp"
+#include "HDF5_Tools.hpp"
+
+namespace moris
+{
+    namespace fem
+    {
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::A0inv()
+        {
+            // check if the operator has already been evaluated
+            if ( !mA0invEval )
+            {
+                return mA0inv;
+            }
+
+            // update eval flag
+            mA0invEval = false;
+
+            // get A0 for the given variable set and invert it
+            mA0inv = inv( this->A( 0 ) );
+
+            // return
+            return mA0inv;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::G()
+        {
+            // check if G has already been evaluated
+            if ( !mGEval )
+            {
+                return mG;
+            }
+
+            // update eval flag
+            mGEval = false;
+            
+            // get the space jacobian from IP geometry interpolator
+            const Matrix< DDRMat > & tInvSpaceJacobian =
+                    mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
+
+            // compute G based on number of spatial dimensions
+            if ( this->num_space_dims() == 2 )
+            {
+                // set size for mG
+                mG.set_size( 2, 2);
+
+                // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
+                mG( 0, 0 ) = std::pow( tInvSpaceJacobian( 0, 0 ), 2.0 ) + std::pow( tInvSpaceJacobian( 0, 1 ), 2.0 );
+                mG( 0, 1 ) = tInvSpaceJacobian( 0, 0 ) * tInvSpaceJacobian( 1, 0 ) + tInvSpaceJacobian( 0, 1 ) * tInvSpaceJacobian( 1, 1 );
+                mG( 1, 0 ) = mG( 0, 1 );
+                mG( 1, 1 ) = std::pow( tInvSpaceJacobian( 1, 0 ), 2.0 ) + std::pow( tInvSpaceJacobian( 1, 1 ), 2.0 );
+            }
+            else if ( this->num_space_dims() == 3 ) 
+            {
+                // set size for mG
+                mG.set_size( 3, 3);
+
+                // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
+                mG( 0, 0 ) = std::pow( tInvSpaceJacobian( 0, 0 ), 2.0 )
+                + std::pow( tInvSpaceJacobian( 0, 1 ), 2.0 )
+                + std::pow( tInvSpaceJacobian( 0, 2 ), 2.0 );
+                mG( 0, 1 ) = tInvSpaceJacobian( 0, 0 ) * tInvSpaceJacobian( 1, 0 )
+                                + tInvSpaceJacobian( 0, 1 ) * tInvSpaceJacobian( 1, 1 )
+                                + tInvSpaceJacobian( 0, 2 ) * tInvSpaceJacobian( 1, 2 );
+                mG( 0, 2 ) = tInvSpaceJacobian( 0, 0 ) * tInvSpaceJacobian( 2, 0 )
+                                + tInvSpaceJacobian( 0, 1 ) * tInvSpaceJacobian( 2, 1 )
+                                + tInvSpaceJacobian( 0, 2 ) * tInvSpaceJacobian( 2, 2 );
+                mG( 1, 0 ) = mG( 0, 1 );
+                mG( 1, 1 ) = std::pow( tInvSpaceJacobian( 1, 0 ), 2.0 )
+                                + std::pow( tInvSpaceJacobian( 1, 1 ), 2.0 )
+                                + std::pow( tInvSpaceJacobian( 1, 2 ), 2.0 );
+                mG( 1, 2 ) = tInvSpaceJacobian( 1, 0 ) * tInvSpaceJacobian( 2, 0 )
+                                + tInvSpaceJacobian( 1, 1 ) * tInvSpaceJacobian( 2, 1 )
+                                + tInvSpaceJacobian( 1, 2 ) * tInvSpaceJacobian( 2, 2 );
+                mG( 2, 0 ) = mG( 0, 2 );
+                mG( 2, 1 ) = mG( 1, 2 );
+                mG( 2, 2 ) = std::pow( tInvSpaceJacobian( 2, 0 ), 2.0 )
+                                + std::pow( tInvSpaceJacobian( 2, 1 ), 2.0 )
+                                + std::pow( tInvSpaceJacobian( 2, 2 ), 2.0 );
+            } 
+            else
+            {
+                MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::G() - Number of spatial dimensions must be 2 or 3." );
+            }
+
+            // return mG
+            return mG;  
+        }  
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::M()
+        {
+            // check if the operator has already been evaluated
+            if ( !mMEval )
+            {
+                return mM;
+            }
+
+            // update eval flag
+            mMEval = false;
+
+            // compute M ....
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // FIXME: C-operator for body forces and heat load ignored for right now
+
+            // get the time jacobian from IP geometry interpolator
+            uint tdTaudt =
+                    mMasterFIManager->get_IP_geometry_interpolator()->inverse_time_jacobian()( 0 );
+
+            // get identity matrix of correct size
+            Matrix< DDRMat > tIdentity;
+            eye( tNumStateVars, tNumStateVars, tIdentity );
+
+            // initialize M
+            mM = tdTaudt * tdTaudt * tIdentity;
+
+            // get subview of mM for += operatorions
+            auto tM = mM( { 0, tNumStateVars + 1 }, { 0, tNumStateVars + 1 } );
+
+            // add loop over A and K terms
+            for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+            {
+                for ( uint kDim = 0; kDim < this->num_space_dims(); kDim++ )
+                {
+                    // add contribution from the A-terms
+                    tM += this->G()( jDim, kDim ) * this->A( jDim + 1 ) * this->A0inv() * this->A( kDim + 1 ) * this->A0inv();
+
+                    for ( uint lDim = 0; lDim < this->num_space_dims(); lDim++ )
+                    {
+                        for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
+                        {
+                            // add contribution from the K-terms
+                            tM += this->G()( jDim, kDim ) * this->K( jDim, kDim ) * this->A0inv() *
+                                    this->G()( lDim, mDim ) * this->K( lDim, mDim ) * this->A0inv(); 
+                        }
+                    }
+                }
+            }
+            
+            // return value
+            return mM;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Minv()
+        {
+            // check if the operator has already been evaluated
+            if ( !mMinvEval )
+            {
+                return mMinv;
+            }
+
+            // update eval flag
+            mMinvEval = false;
+
+            // get A0 for the given variable set and invert it
+            mMinv = inv( this->M() );
+
+            // return
+            return mMinv;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::SqrtMinv()
+        {
+            // check if the operator has already been evaluated
+            if ( !mSqrtMinvEval )
+            {
+                return mSqrtMinv;
+            }
+
+            // update eval flag
+            mSqrtMinvEval = false;
+
+            // get the squareroot of the inverse of M
+            moris::sqrtmat( this->Minv(), mSqrtMinv );
+
+            // return
+            return mSqrtMinv;
+        }        
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Tau()
+        {
+            // check if Tau has already been evaluated
+            if ( !mTauEval )
+            {
+                return mTau;
+            }
+
+            // update eval flag
+            mTauEval = false;
+
+            // compute Tau
+            mTau = this->A0inv() * this->SqrtMinv();
+
+            // return
+            return mTau;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dTaudY( const Matrix< DDRMat > aVR )
+        {
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            
+            // -------------------------------------------------
+            // STEP 1: get the state variable derivatives of M
+
+            // initialize cell for storage
+            Matrix< DDRMat > tZeroMatrix( tNumStateVars, tNumStateVars, 0.0 );
+            moris::Cell< Matrix< DDRMat > > tdMdY( tNumStateVars, tZeroMatrix );
+
+            // for each state variable compute the derivative
+            for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
+            {
+                // get subview for += operations
+                auto tdMdVar = tdMdY( iVar )( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
+
+                // get the variable derivs for the A and K matrices
+                moris::Cell< Matrix< DDRMat > > tdAdY;
+                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, iVar, tdAdY );
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
+                eval_dKdY( tPropMu, tPropKappa, mMasterFIManager, iVar, tdKdY );
+
+                // loops for addition over indices j,k,l,m
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    for ( uint kDim = 0; kDim < this->num_space_dims(); kDim++ )
+                    {
+                        // add contribution from the A-terms
+                        tdMdVar += this->G()( jDim, kDim ) * (
+                                tdAdY( jDim + 1 ) * this->A0inv() * this->A( kDim + 1 ) * this->A0inv() + 
+                                this->A( jDim + 1 ) * this->A0inv() * tdAdY( kDim + 1 ) * this->A0inv() );
+
+                        for ( uint lDim = 0; lDim < this->num_space_dims(); lDim++ )
+                        {
+                            for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
+                            {
+                                // add contribution from the K-terms
+                                tdMdVar += this->G()( jDim, kDim ) * this->G()( lDim, mDim ) * (
+                                        tdKdY( jDim )( kDim ) * this->A0inv() * this->K( lDim, mDim ) * this->A0inv() + 
+                                        this->K( jDim, kDim ) * this->A0inv() * tdKdY( lDim )( mDim ) * this->A0inv() ); 
+                            }
+                        }
+                    }
+                }
+            }
+
+            // -------------------------------------------------
+            // STEP 2: get the state variable derivatives of the inverse of M
+
+            // initialize
+            moris::Cell< Matrix< DDRMat > > tdMinvdY( tNumStateVars );
+            
+            // for each state variable compute the derivative
+            for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
+            {
+                // compute the state var deriv
+                tdMinvdY( iVar ) = -1.0 * this->Minv() * tdMdY( iVar ) * this->Minv();
+            }
+
+            // -------------------------------------------------
+            // STEP 3: get the square root of the state variable derivatives 
+            //         of the inverse of M using the Sylvester equation
+
+            // initialize
+            moris::Cell< Matrix< DDRMat > > tdSqrtMinvdY( tNumStateVars );
+            
+            // for each state variable compute the derivative
+            for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
+            {
+                // solve Sylvester equation and store solutions for each variable derivative
+                sylvester( this->SqrtMinv(), this->SqrtMinv(), tdMinvdY( iVar ), tdSqrtMinvdY( iVar ) );
+            }
+
+            // -------------------------------------------------
+            // STEP 4: post-multiplication with the input vector
+
+            // initialize
+            mdTaudY.set_size( tNumStateVars, tNumStateVars, 0.0 );
+
+            // for each state variable compute the derivative
+            for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
+            {
+                // perform multiplication and put everything in
+                mdTaudY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = this->A0inv() * tdSqrtMinvdY( iVar ) * aVR;
+            }
+
+            // -------------------------------------------------
+            // return value
+            return mdTaudY;
+        }
+
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Kiji( const uint aJ )
+        {
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Bulk::Kiji() - index out of bounds." );
+
+            // check if Kiji matrices have already been evaluated
+            if ( !mKijiEval )
+            {
+                return mKiji( aJ );
+            }
+
+            // set the eval flag
+            mKijiEval = false;            
+
+            // get the viscosity
+            std::shared_ptr< Property > tPropDynamicViscosity = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropThermalConductivity = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // eval spatial derivatives of K matrices and store them
+            eval_dKijdxi( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mKiji );
+
+            // return requested Kiji matrix
+            return mKiji( aJ );
+        } 
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LY()
+        {
+            // check if LY already been evaluated
+            if ( !mLYEval )
+            {
+                return mLY;
+            }
+
+            // set the eval flag
+            mLYEval = false;  
+
+            // evaluate LY
+            mLY = this->A( 0 ) * this->dYdt();
+
+            // get subview for += operations
+            auto tLY = mLY( { 0, mLY.n_rows() - 1 }, { 0, mLY.n_cols() - 1 } );
+
+            // 
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                tLY += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dYdx( iDim ); 
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    tLY -= this->K( iDim, jDim ) * this->d2Ydx2( iDim, jDim );
+                }
+            }
+
+            // return value
+            return mLY;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofY()
+        {
+            // check if LY already been evaluated
+            if ( !mLDofYEval )
+            {
+                return mdLdDofY;
+            }
+
+            // set the eval flag
+            mLDofYEval = false;  
+
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // initialize cell containing A-matrices pre-multiplied with the state variable vector
+            moris::Cell< Matrix< DDRMat > > tdAjdY_Yj( this->num_space_dims() + 1 );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijidY_Yj( this->num_space_dims() );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijdY_Yij( this->num_space_dims() );
+
+            // get dA0/dY * Y,t
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAjdY_Yj( 0 ) );
+
+            // compute A(0) term
+            mdLdDofY = tdAjdY_Yj( 0 ) * this->W();
+
+            // get subview of matrix for += operations
+            auto tdLdDofY = mdLdDofY( { 0, mdLdDofY.n_rows() - 1 }, { 0, mdLdDofY.n_cols() - 1 } );
+
+            // go over all Aj*Y,j and Kij,i*Y,j and Kij*Y,ij terms and add up
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                // get dAj/dY * Y,j
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAjdY_Yj( iDim + 1 ) );
+
+                // add contributions from A-matrices
+                tdLdDofY += tdAjdY_Yj( iDim + 1 )  * this->W();
+
+                // get dKij,i/dY * Y,j
+                eval_dKijidY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tdKijidY_Yj( iDim ) );
+
+                // add contributions from Kij,i-matrices
+                // tdLdDofY -= tdKijdY_Yij( iDim )( 0 ) * this->W();
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // add contributions from Kij,i-matrices
+                    tdLdDofY -= tdKijdY_Yij( iDim )( jDim + 1 ) * this->dWdx( jDim );
+
+                    // get dKij/dY * Y,ij
+                    eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->d2Ydx2( iDim, jDim ), iDim, jDim, tdKijdY_Yij( iDim )( jDim ) );
+                    
+                    // add contributions from K-matrices
+                    tdLdDofY -= tdKijdY_Yij( iDim )( jDim ) * this->W();
+                }
+            }
+
+            // return value
+            return mdLdDofY;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LW()
+        {
+            // check if LY already been evaluated
+            if ( !mLWEval )
+            {
+                return mLW;
+            }
+
+            // set the eval flag
+            mLWEval = false;  
+
+            // evaluate LY
+            mLW = this->A( 0 ) * this->dWdt();
+
+            // get subview for += operations
+            auto tLW = mLW( { 0, mLW.n_rows() - 1 }, { 0, mLW.n_cols() - 1 } );
+
+            // 
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                tLW += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dWdx( iDim ); 
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    tLW -= this->K( iDim, jDim ) * this->d2Wdx2( iDim, jDim );
+                }
+            }
+
+            // return value
+            return mLW;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW(  const Matrix< DDRMat > & aVL  )
+        {
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // initialize cell containing A-matrices pre-multiplied with VL
+            moris::Cell< Matrix< DDRMat > > tVLdAjdY( this->num_space_dims() + 1 );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with VL
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijidY( this->num_space_dims() );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with VL
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijdY( this->num_space_dims() );
+
+            // get VL * dA0/dY
+            eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
+
+            // compute A(0) term
+            mdLdDofW = trans( this->dWdt() ) * tVLdAjdY( 0 ) * this->W();
+
+            // get subview of matrix for += operations
+            auto tdLdDofW = mdLdDofW( { 0, mdLdDofW.n_rows() - 1 }, { 0, mdLdDofW.n_cols() - 1 } );
+
+            // go over all VL*Aj and VL*Kij,i and VL*Kij terms and add up
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                // get VL * dAj/dY
+                eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
+
+                // add contributions from A-matrices
+                tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();
+
+                // get VL * dKij,i/dY
+                eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tVLdKijidY( iDim ) );
+
+                // add contributions from Kij,i-matrices
+                // tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( 0 ) * this->W();
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // add contributions from Kij,i-matrices
+                    tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( jDim + 1 ) * this->dWdx( jDim );
+
+                    // get VL * dKij/dY
+                    eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, jDim, tVLdKijdY( iDim )( jDim ) );
+
+                    // add contributions from K-matrices
+                    tdLdDofW -= trans( this->d2Wdx2( iDim, jDim ) ) * tVLdKijdY( iDim )( jDim ) * this->W();
+                }
+            }
+
+            // return value
+            return mdLdDofW;
+        }
+
+        //------------------------------------------------------------------------------
+
+    } /* namespace fem */
+} /* namespace moris */

@@ -520,16 +520,39 @@ namespace xtk
         return mChildrenMeshes(aChildMeshIndex)->get_parent_element_index();
     }
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Mesh::get_child_elements_connected_to_parent_facet(
-            moris::moris_index const & aChildMeshIndex,
-            moris::moris_index const & aParentFaceIndex,
-            moris::Matrix< moris::IdMat > & aChildrenElementId,
+            moris::moris_index const         & aChildMeshIndex,
+            moris::moris_index const         & aParentFaceIndex,
+            moris::Matrix< moris::IdMat >    & aChildrenElementId,
             moris::Matrix< moris::IndexMat > & aChildrenElementCMInd,
             moris::Matrix< moris::IndexMat > & aFaceOrdinal) const
     {
-        mChildrenMeshes(aChildMeshIndex)->get_child_elements_connected_to_parent_facet(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
+        // estimate maximum number of elements on face
+         const uint tMaxElemOnFace = 100;
+
+        // matrices used throughout routine
+        aChildrenElementId.set_size(1,tMaxElemOnFace);
+        aChildrenElementCMInd.set_size(1,tMaxElemOnFace);
+        aFaceOrdinal.set_size(1,tMaxElemOnFace);
+
+        // define variable for actual number of child elements on face
+        uint tNumberOfChildElemsOnFace;
+
+        mChildrenMeshes(aChildMeshIndex)->get_child_elements_connected_to_parent_facet(
+                aParentFaceIndex,
+                tNumberOfChildElemsOnFace,
+                aChildrenElementId,
+                aChildrenElementCMInd,
+                aFaceOrdinal);
+
+        // resize matrices matrices used throughout routine
+        aChildrenElementId.resize(0,tNumberOfChildElemsOnFace);
+        aChildrenElementCMInd.resize(0,tNumberOfChildElemsOnFace);
+        aFaceOrdinal.resize(0,tNumberOfChildElemsOnFace);
     }
+
     // ----------------------------------------------------------------------------------
     void
     Cut_Mesh::pack_cut_mesh_by_phase(

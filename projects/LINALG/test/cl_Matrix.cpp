@@ -8,16 +8,17 @@
 #include <armadillo>
 
 #include <catch.hpp>
-#include "fn_equal_to.hpp" //ALG
+#include "fn_equal_to.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "op_times.hpp"
-#include "fn_inv.hpp" //ALG
-#include "fn_norm.hpp" //ALG
+#include "fn_inv.hpp"
+#include "fn_norm.hpp"
 #include "fn_linsolve.hpp"
 #include "fn_trans.hpp"
+#include "fn_sum.hpp"
 
 namespace moris
 {
@@ -421,16 +422,16 @@ namespace moris
 
         tTimeStamp = std::clock();
 
-         tResultMatMoris = tMorisMat;
+        tResultMatMoris = tMorisMat;
 
-         for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
-         {
-             tResultMatMoris = iCounter/tNumRepetitions * tResultMatMoris + tMorisMat;
-         }
+        for( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
+        {
+            tResultMatMoris = iCounter/tNumRepetitions * tResultMatMoris + tMorisMat;
+        }
 
-         real tTimeForSummationNoTransMoris = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-         MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
-                 tNumRepetitions, minDim, minDim, ( double ) tTimeForSummationNoTransMoris, norm(tResultMatMoris) );
+        real tTimeForSummationNoTransMoris = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
+                tNumRepetitions, minDim, minDim, ( double ) tTimeForSummationNoTransMoris, norm(tResultMatMoris) );
 
         tTimeStamp = std::clock();
 
@@ -551,5 +552,169 @@ namespace moris
             }
         }
 #endif
+    }
+
+    TEST_CASE(
+            "moris::resize",
+            "[linalgebra],[resize]" )
+    {
+        srand (time(NULL));
+
+        const uint tMaxNumRow = rand() % 40 + 10;  // was: 100000
+
+        MORIS_LOG_INFO( "Number of real numbers: %d\n.", tMaxNumRow);
+
+        for (uint iStart=0;iStart<5;++iStart)
+        {
+            real tMem = sizeof(real)*(iStart+1)*tMaxNumRow/1024.0/1024.0;
+
+            MORIS_LOG_INFO( "-------------------------------------\n");
+
+            MORIS_LOG_INFO( "Final matrix size: %f MB\n", tMem);
+
+            //-------------------------------------------------------------------------------
+            // using resize
+
+            Matrix< DDRMat > A( 1, 1, 0.0 );
+
+            std::clock_t tTimeStamp = std::clock();
+
+            real tsum=0;
+
+            for (uint iR=0;iR<tMaxNumRow;++iR)
+            {
+                A.resize(iStart*tMaxNumRow+iR+1,1);
+
+                A(iStart*tMaxNumRow+iR)=std::rand();
+
+                tsum += sum(A({iStart*tMaxNumRow,iStart*tMaxNumRow+iR}));
+            }
+
+            moris::real tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+            MORIS_LOG_INFO( "Using matrix resize              : %f seconds (result: %e)\n.", ( double ) tTime, tsum);
+
+            //-------------------------------------------------------------------------------
+            // using set_size and explicit copy
+
+            tsum = 0;
+
+            A.set_size(iStart*tMaxNumRow+1,1,0);
+
+            Matrix< DDRMat > B;
+
+            tTimeStamp = std::clock();
+
+            for (uint iR=0;iR<tMaxNumRow;++iR)
+            {
+                B.set_size(iStart*tMaxNumRow+iR+1,1,0.0);
+
+                uint tII = iR > 1 ? iR-1 : 0;
+
+                B({0,iStart*tMaxNumRow+tII})=A({0,iStart*tMaxNumRow+tII});
+
+                A=B;
+
+                A(iStart*tMaxNumRow+iR)=std::rand();
+
+                tsum += sum(A({iStart*tMaxNumRow,iStart*tMaxNumRow+iR}));
+            }
+
+            tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+            MORIS_LOG_INFO( "Using matrix set_size and copy   : %f seconds (result: %e)\n.", ( double ) tTime, tsum);
+
+            //-------------------------------------------------------------------------------
+            // using new matrix and explicit copy
+
+            tsum = 0;
+
+            A.set_size(iStart*tMaxNumRow+1,1,0);
+
+            tTimeStamp = std::clock();
+
+            for (uint iR=0;iR<tMaxNumRow;++iR)
+            {
+                Matrix< DDRMat > B(iStart*tMaxNumRow+iR+1,1,0.0);
+
+                uint tII = iR > 1 ? iR-1 : 0;
+
+                B({0,iStart*tMaxNumRow+tII})=A({0,iStart*tMaxNumRow+tII});
+
+                A=B;
+
+                A(iStart*tMaxNumRow+iR)=std::rand();
+
+                tsum += sum(A({iStart*tMaxNumRow,iStart*tMaxNumRow+iR}));
+            }
+
+            tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+            MORIS_LOG_INFO( "Using matrix constructor and copy: %f seconds (result: %e)\n.", ( double ) tTime, tsum);
+
+            //-------------------------------------------------------------------------------
+            // using fixed size array
+
+            tsum = 0;
+
+            A.set_size((iStart+1)*tMaxNumRow,1,0.0);
+
+            tTimeStamp = std::clock();
+
+            for (uint iR=0;iR<tMaxNumRow;++iR)
+            {
+                A(iStart*tMaxNumRow+iR)=std::rand();
+
+                tsum += sum(A({iStart*tMaxNumRow,iStart*tMaxNumRow+iR}));
+            }
+
+            tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+            MORIS_LOG_INFO( "Using matrix with fixed size     : %f seconds (result: %e)\n.", ( double ) tTime, tsum);
+
+            //-------------------------------------------------------------------------------
+            // using cell and resize
+            tsum = 0;
+
+            Cell<real> C(iStart*tMaxNumRow+1,1);
+
+            tTimeStamp = std::clock();
+
+            for (uint iR=0;iR<tMaxNumRow;++iR)
+            {
+                C.resize(iStart*tMaxNumRow+iR+1);
+
+                C(iStart*tMaxNumRow+iR)=std::rand();
+
+                arma::mat tMat(C.memptr()+iStart*tMaxNumRow,iR,1,false);
+
+                tsum += sum(tMat);
+            }
+
+            tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+            MORIS_LOG_INFO( "Using cell resize                : %f seconds (result: %e)\n.", ( double ) tTime, tsum);
+
+            //-------------------------------------------------------------------------------
+            // using cell and pushback
+            tsum = 0;
+
+            Cell<real> D(iStart*tMaxNumRow+1,1);
+
+            tTimeStamp = std::clock();
+
+            for (uint iR=0;iR<tMaxNumRow;++iR)
+            {
+                D.push_back(std::rand());
+
+                arma::mat tMat(D.memptr()+iStart*tMaxNumRow,iR,1,false);
+
+                tsum += sum(tMat);
+            }
+
+            tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+            MORIS_LOG_INFO( "Using cell push_back             : %f seconds (result: %e)\n.", ( double ) tTime, tsum);
+        }
     }
 }

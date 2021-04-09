@@ -12,6 +12,7 @@
 #include "cl_MTK_Cell.hpp"
 
 #include "cl_MTK_Cluster.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -184,12 +185,124 @@ namespace moris
                     return tVolume;
                 }
 
+                virtual
+                Matrix<DDRMat>
+                compute_cluster_ig_cell_measures(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                {
+                    moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+                    if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+                    {
+                        tCells = &this->get_primary_cells_in_cluster();
+                    }
+                    else
+                    {
+                        tCells = & this->get_void_cells_in_cluster();
+                    }
+
+                    Matrix<DDRMat> tMeasureVec(tCells->size(),1);
+
+                    for(uint iC = 0; iC < tCells->size(); iC++)
+                    {
+                        tMeasureVec(iC) = (*tCells)(iC)->compute_cell_measure();
+                    }
+
+                    return tMeasureVec;
+                }
+
+                virtual
+                moris::real
+                compute_cluster_cell_measure_derivative(
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+                {
+                    moris::real tDerivative = 0.0;
+
+                    moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
+
+                    if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+                    {
+                        tCells = &this->get_primary_cells_in_cluster();
+                    }
+                    else
+                    {
+                        tCells = & this->get_void_cells_in_cluster();
+                    }
+
+                    // loop over the ig cells in cluster
+                    for( auto iC = tCells->cbegin(); iC < tCells->cend(); iC++ )
+                    {
+                        // get the cell coordinates
+                        Matrix< DDRMat > tCellCoords = (*iC)->get_vertex_coords();
+
+                        // get number of nodes in this cell
+                        uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+
+                        // FIXME could be done with node index
+                        // check if this cell in cluster is affected by the perturbed node
+                        // flag true if cell is affected by perturbed cluster node
+                        bool tIsAffected = false;
+
+                        // init cell local node index
+                        uint tLocalVertexID = UINT_MAX;
+
+                        // loop over the nodes of the cell
+                        for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
+                        {
+                            // check if perturbed cluster node affects this cell by using the distance between two nodes
+                            tIsAffected = tIsAffected || ( moris::norm( aPerturbedVertexCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
+
+                            // if the cell is affected by perturbed cluster node
+                            if( tIsAffected == true )
+                            {
+                                // get cell local node index
+                                tLocalVertexID = iCellNode;
+
+                                // break the loop as node correspondence was found
+                                break;
+                            }
+                        }
+
+                        // if the cell is affected by perturbed cluster node
+                        if( tIsAffected == true )
+                        {
+                            // add contribution from the cell to the cluster measure
+                            tDerivative += (*iC)->compute_cell_measure_deriv( tLocalVertexID, aDirection );
+                        }
+                    }
+                    return tDerivative;
+                }
+
                 moris::real
                 compute_cluster_cell_side_measure(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
                 {
                     MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
+                    return 0;
+                }
+
+                Matrix<DDRMat>
+                compute_cluster_ig_cell_side_measures(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                {
+                    MORIS_ERROR(0,"compute_cluster_ig_cell_side_measures only valid on side clusters");
+                    return {{0}};
+                }
+
+                moris::real
+                compute_cluster_cell_side_measure_derivative(
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid,
+                        const mtk::Master_Slave aIsMaster ) const
+                {
+                    MORIS_ERROR(0,"compute_cluster_cell_side_measure_derivative only valid on side clusters");
                     return 0;
                 }
 

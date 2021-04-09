@@ -369,6 +369,21 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get number of space dimensions
+                 * @param[ in ] NumSpaceDim number of spatial dimensions
+                 */
+                uint get_num_space_dims()
+                {
+                    // check that space dimension is 1, 2, 3
+                    MORIS_ASSERT( mSpaceDim > 0,
+                            "Constitutive_Model::get_num_space_dims() - number of spatial dimensions has not been set." );
+
+                    // return number of space dimensions
+                    return mSpaceDim;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * reset evaluation flags
                  */
                 void reset_eval_flags();
