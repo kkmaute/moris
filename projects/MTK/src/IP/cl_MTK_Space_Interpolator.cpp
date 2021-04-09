@@ -129,6 +129,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Space_Interpolator::set_cell_shape( enum CellShape aCellShape )
+        {
+            mCellShape = aCellShape;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::set_space_coeff( const Matrix< DDRMat > & aXHat )
         {
             //check the space coefficients input size
@@ -433,7 +440,7 @@ namespace moris
 
         void Space_Interpolator::eval_inverse_space_jacobian()
         {
-            if (mRectangular)
+            if ( mCellShape == CellShape::RECTANGULAR )
             {
                 // Rectangular check only works for Quad or Hex elements
                 MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
@@ -623,7 +630,7 @@ namespace moris
                 const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
 
                 // filter between
-                if (mRectangular)
+                if ( mCellShape == CellShape::RECTANGULAR )
                 {
                     // Rectangular check only works for Quad or Hex elements
                     MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
@@ -656,7 +663,7 @@ namespace moris
                 const Matrix< DDRMat > & tSpaceJtDeriv = this->space_jacobian_deriv(aLocalVertexID, aDirection);
 
                 // filter between
-                if (mRectangular)
+                if ( mCellShape == CellShape::RECTANGULAR )
                 {
                     // Rectangular check only works for Quad or Hex elements
                     MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or

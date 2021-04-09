@@ -16,7 +16,8 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"                  //MTK/src
-#include "cl_MTK_Enums.hpp"                  //MTK/src
+#include "cl_MTK_Enums.hpp"                 //MTK/src
+#include "cl_Mesh_Enums.hpp"                //MTK/src
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"          //FEM/MSI/src
 #include "cl_MSI_Model_Solver_Interface.hpp"//FEM/MSI/src
@@ -92,6 +93,9 @@ namespace moris
 
                 // flag to indicate that geometry interpolators are owned
                 bool mGeometryInterpolatorOwned = false;
+
+                // cell shape used for interpolation
+                CellShape mCellShape = CellShape::GENERAL;
 
                 //------------------------------------------------------------------------------
             public:
@@ -279,6 +283,13 @@ namespace moris
                 void set_coeff_for_type(
                         enum mtk::Field_Type   aFieldType,
                         Matrix< DDRMat >     & aCoeff );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * sets the cell shape used for interpolation
+                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
+                 */
+                void set_cell_shape( enum CellShape aCellShape );
 
                 //------------------------------------------------------------------------------
         };

@@ -145,6 +145,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Geometry_Interpolator::set_cell_shape( enum CellShape aCellShape )
+        {
+            mSpaceInterpolator->set_cell_shape( aCellShape );
+        }
+
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_coeff(
                 const Matrix< DDRMat > & aXHat,
                 const Matrix< DDRMat > & aTHat )

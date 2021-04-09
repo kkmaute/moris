@@ -288,6 +288,9 @@ namespace moris
                 false,
                 false );
 
+            // assign the cell shape to the geometry interpolator
+            mIPGeometryInterpolator->set_cell_shape( mCellShape );
+
             // create a geometry interpolator for IG cells
             // IG interpolation requires knowledge about  the IP Element in 
             // order to have an appropriate mapping for integration points, 
@@ -297,6 +300,9 @@ namespace moris
                 tIPGeometryInterpolationRule, 
                 tIsSide,
                 tIsTimeSide );
+
+            // assign the cell shape to the geometry interpolator
+            mIGGeometryInterpolator->set_cell_shape( mCellShape );
 
             // set flag that Field_Interpolator_Manager owns pointers to GeometryInterpolators
             mGeometryInterpolatorOwned = true;
@@ -461,6 +467,13 @@ namespace moris
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aFieldType )->set_coeff( aCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator_Manager::set_cell_shape( enum CellShape aCellShape )
+        {
+            mCellShape = aCellShape;
         }
 
         //------------------------------------------------------------------------------
