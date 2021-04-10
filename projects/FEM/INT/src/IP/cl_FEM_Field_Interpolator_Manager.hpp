@@ -257,8 +257,8 @@ namespace moris
                  * @param[ in ] aCoeff   coefficients to be set
                  */
                 void set_coeff_for_type(
-                        enum MSI::Dof_Type   aDofType,
-                        Matrix< DDRMat >   & aCoeff );
+                        enum MSI::Dof_Type       aDofType,
+                        const Matrix< DDRMat > & aCoeff );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -267,8 +267,8 @@ namespace moris
                  * @param[ in ] aCoeff   coefficients to be set
                  */
                 void set_coeff_for_type(
-                        enum PDV_Type      aDvType,
-                        Matrix< DDRMat > & aCoeff );
+                        enum PDV_Type            aDvType,
+                        const Matrix< DDRMat > & aCoeff );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -277,8 +277,8 @@ namespace moris
                  * @param[ in ] aCoeff     coefficients to be set
                  */
                 void set_coeff_for_type(
-                        enum mtk::Field_Type   aFieldType,
-                        Matrix< DDRMat >     & aCoeff );
+                        enum mtk::Field_Type     aFieldType,
+                        const Matrix< DDRMat > & aCoeff );
 
                 //------------------------------------------------------------------------------
         };

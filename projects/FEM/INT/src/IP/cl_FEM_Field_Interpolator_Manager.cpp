@@ -436,8 +436,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_coeff_for_type(
-                enum MSI::Dof_Type   aDofType,
-                Matrix< DDRMat >   & aCoeff )
+                enum MSI::Dof_Type       aDofType,
+                const Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aDofType )->set_coeff( aCoeff );
@@ -446,8 +446,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_coeff_for_type(
-                enum PDV_Type      aDvType,
-                Matrix< DDRMat > & aCoeff )
+                enum PDV_Type            aDvType,
+                const Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aDvType )->set_coeff( aCoeff );
@@ -456,8 +456,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_coeff_for_type(
-                enum mtk::Field_Type   aFieldType,
-                Matrix< DDRMat >     & aCoeff )
+                enum mtk::Field_Type     aFieldType,
+                const Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aFieldType )->set_coeff( aCoeff );
