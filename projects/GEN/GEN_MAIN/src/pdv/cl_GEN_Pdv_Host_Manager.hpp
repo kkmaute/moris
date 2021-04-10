@@ -269,6 +269,15 @@ namespace moris
                 void set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode);
 
                 /**
+                 * Gets an intersection node from the PDV host manager, used so the geometry engine can create new
+                 * intersection nodes.
+                 *
+                 * @param aNodeIndex Node index
+                 * @return Intersection node already been set
+                 */
+                std::shared_ptr<Intersection_Node> get_intersection_node(uint aNodeIndex);
+
+                /**
                  * Updates an intersection node with a node ID and node owner.
                  * 
                  * @param aNodeIndex Node index
@@ -325,13 +334,6 @@ namespace moris
                 void create_dv_type_map();
 
                 void create_pdv_ids();
-
-                /**
-                 * Function ONLY used for testing, allowing limited access to member variables.
-                 *
-                 * @param aPDVHostManager PDV host manager
-                 */
-                friend void check_intersection_sensitivities(Pdv_Host_Manager* aPDVHostManager);
 
             private:
 

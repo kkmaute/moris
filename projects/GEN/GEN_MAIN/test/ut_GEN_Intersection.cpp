@@ -27,87 +27,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void check_intersection_sensitivities(Pdv_Host_Manager* aPDVHostManager)
-        {
-            Cell<Matrix<DDRMat>> tIntersectionFirstSensitivities = {
-                    {{0.0}, {(9 + sqrt(17)) / 16}},
-                    {{0.0}, {0.0}},
-                    {{-0.5}, {0.0}},
-                    {{0.0}, {0.4605823}},
-                    {{2.0}, {0.0}},
-                    {{0.0}, {-0.4605823}},
-                    {{-0.5}, {0.0}},
-                    {{0.0}, {-(9 + sqrt(17)) / 16}},
-                    {{0.75, 0.0, 0.1875, 0.75}, {0.0, 0.0, 0.0, 0.0}},
-                    {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                    {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                    {{0.25, 0.0, -0.1875, -0.25}, {0.0, 0.0, 0.0, 0.0}},
-                    {{}},
-                    {{}}};
-            Cell<Matrix<DDRMat>> tIntersectionSecondSensitivities = {
-                    {{0.0}, {0.4605823}},
-                    {{2.0}, {0.0}},
-                    {{-0.5}, {0.0}},
-                    {{0.0}, {(9 + sqrt(17)) / 16}},
-                    {{0.0}, {0.0}},
-                    {{0.0}, {-(9 + sqrt(17)) / 16}},
-                    {{-0.5}, {0.0}},
-                    {{0.0}, {-0.4605823}},
-                    {{0.25, 0.0, -0.1875, 0.25}, {0.0, 0.0, 0.0, 0.0}},
-                    {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                    {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                    {{0.75, 0.0, 0.1875, -0.75}, {0.0, 0.0, 0.0, 0.0}},
-                    {{}},
-                    {{}}};
-            Cell<Matrix<DDSMat>> tIntersectionFirstIDs = {
-                    {{6}},
-                    {{9}},
-                    {{10}},
-                    {{9}},
-                    {{8}},
-                    {{9}},
-                    {{9}},
-                    {{12}},
-                    {{0}, {1}, {2}, {3}},
-                    {{0}, {1}, {2}, {3}},
-                    {{0}, {1}, {2}, {3}},
-                    {{0}, {1}, {2}, {3}},
-                    {{}},
-                    {{}}};
-            Cell<Matrix<DDSMat>> tIntersectionSecondIDs = {
-                    {{9}},
-                    {{8}},
-                    {{9}},
-                    {{6}},
-                    {{9}},
-                    {{12}},
-                    {{10}},
-                    {{9}},
-                    {{0}, {1}, {2}, {3}},
-                    {{0}, {1}, {2}, {3}},
-                    {{0}, {1}, {2}, {3}},
-                    {{0}, {1}, {2}, {3}},
-                    {{}},
-                    {{}}};
-            for (uint tNodeIndex = 9; tNodeIndex < 21; tNodeIndex++)
-            {
-                check_equal(
-                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(0),
-                        tIntersectionFirstSensitivities(tNodeIndex - 9));
-                check_equal(
-                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(1),
-                        tIntersectionSecondSensitivities(tNodeIndex - 9));
-                check_equal(
-                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(0),
-                        tIntersectionFirstIDs(tNodeIndex - 9));
-                check_equal(
-                        aPDVHostManager->mIntersectionNodes(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(1),
-                        tIntersectionSecondIDs(tNodeIndex - 9));
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         TEST_CASE("Linear Intersections", "[gen], [pdv], [intersection], [linear intersection]")
         {
             if (par_size() == 1)
@@ -347,12 +266,12 @@ namespace moris
                 CHECK(tGeometryEngine.get_field_value(0, 28, {{}}) == Approx( (sqrt(41) - 3) / 4 ));
 
                 // Get the PDV host manager and set the number of total nodes
-                Pdv_Host_Manager* tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
+                Pdv_Host_Manager* tPDVHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
 
                 // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
                 Cell<Matrix<DDRMat>> tPdvValues(0);
                 Cell<Matrix<DDSMat>> tIsActive(0);
-                tPdvHostManager->get_ig_pdv_value(
+                tPDVHostManager->get_ig_pdv_value(
                         {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28}},
                         {PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE},
                         tPdvValues,
@@ -387,7 +306,82 @@ namespace moris
                 }
 
                 // Check sensitivities
-                check_intersection_sensitivities(tPdvHostManager);
+                Cell<Matrix<DDRMat>> tIntersectionFirstSensitivities = {
+                        {{0.0}, {(9 + sqrt(17)) / 16}},
+                        {{0.0}, {0.0}},
+                        {{-0.5}, {0.0}},
+                        {{0.0}, {0.4605823}},
+                        {{2.0}, {0.0}},
+                        {{0.0}, {-0.4605823}},
+                        {{-0.5}, {0.0}},
+                        {{0.0}, {-(9 + sqrt(17)) / 16}},
+                        {{0.75, 0.0, 0.1875, 0.75}, {0.0, 0.0, 0.0, 0.0}},
+                        {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                        {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                        {{0.25, 0.0, -0.1875, -0.25}, {0.0, 0.0, 0.0, 0.0}},
+                        {{}},
+                        {{}}};
+                Cell<Matrix<DDRMat>> tIntersectionSecondSensitivities = {
+                        {{0.0}, {0.4605823}},
+                        {{2.0}, {0.0}},
+                        {{-0.5}, {0.0}},
+                        {{0.0}, {(9 + sqrt(17)) / 16}},
+                        {{0.0}, {0.0}},
+                        {{0.0}, {-(9 + sqrt(17)) / 16}},
+                        {{-0.5}, {0.0}},
+                        {{0.0}, {-0.4605823}},
+                        {{0.25, 0.0, -0.1875, 0.25}, {0.0, 0.0, 0.0, 0.0}},
+                        {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                        {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
+                        {{0.75, 0.0, 0.1875, -0.75}, {0.0, 0.0, 0.0, 0.0}},
+                        {{}},
+                        {{}}};
+                Cell<Matrix<DDSMat>> tIntersectionFirstIDs = {
+                        {{6}},
+                        {{9}},
+                        {{10}},
+                        {{9}},
+                        {{8}},
+                        {{9}},
+                        {{9}},
+                        {{12}},
+                        {{0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}},
+                        {{}},
+                        {{}}};
+                Cell<Matrix<DDSMat>> tIntersectionSecondIDs = {
+                        {{9}},
+                        {{8}},
+                        {{9}},
+                        {{6}},
+                        {{9}},
+                        {{12}},
+                        {{10}},
+                        {{9}},
+                        {{0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}},
+                        {{}},
+                        {{}}};
+
+                for (uint tNodeIndex = 9; tNodeIndex < 21; tNodeIndex++)
+                {
+                    check_equal(
+                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(0),
+                            tIntersectionFirstSensitivities(tNodeIndex - 9));
+                    check_equal(
+                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(1),
+                            tIntersectionSecondSensitivities(tNodeIndex - 9));
+                    check_equal(
+                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(0),
+                            tIntersectionFirstIDs(tNodeIndex - 9));
+                    check_equal(
+                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(1),
+                            tIntersectionSecondIDs(tNodeIndex - 9));
+                }
 
                 //------------------------------------------------------------------------------------------------------
                 // Start second check
