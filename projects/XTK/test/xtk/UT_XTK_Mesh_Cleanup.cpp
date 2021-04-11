@@ -66,32 +66,24 @@ TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // plane 1
-        moris::real tShiftX1 = 1.0;
-        moris::real tShiftY1 = 1.0;
         moris::real tPlaneXCenter1 = 0.501*tXDomainDim ;
         moris::real tPlaneYCenter1 = 0.501*tYDomainDim;
         moris::real tPlaneXNormal1 = 0.0;
         moris::real tPlaneYNormal1 = 1.0;
 
         // plane 2
-        moris::real tShiftX2 = 0.0;
-        moris::real tShiftY2 = 0.0;
         moris::real tPlaneXCenter2 = 0.25*tXDomainDim + 0.01;
         moris::real tPlaneYCenter2 = 0.50*tYDomainDim + 0.00;
         moris::real tPlaneXNormal2 = 1.0;
         moris::real tPlaneYNormal2 = 0.0;
 
         // plane 3
-        moris::real tShiftX3 = 0.0;
-        moris::real tShiftY3 = 0.0;
         moris::real tPlaneXCenter3 = 0.75*tXDomainDim + 0.01;
         moris::real tPlaneYCenter3 = 0.50*tYDomainDim + 0.00;
         moris::real tPlaneXNormal3 = 1.0;
         moris::real tPlaneYNormal3 = 0.0;
 
         // plane 4
-        moris::real tShiftX4 = 1.0;
-        moris::real tShiftY4 = 0.0;
         moris::real tPlaneXCenter4 = 0.50*tXDomainDim + 0.5*hy;
         moris::real tPlaneYCenter4 = 0.50*tYDomainDim + 0.5*hy;
         moris::real tPlaneXNormal4 = 1.0;
