@@ -33,12 +33,6 @@ TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
     {
  
         bool tIs3D     = false;
-        //Intersecting plane test parameters
-        real tPlaneAngle = 90; // CCW, degrees
-        real tIntersectionLocalCoordinate = -0.5; // (-1, 1), where the top middle vertical edge is intersected
-        //bool tSnapFromRight = true;
-        //bool tSnapBoth = false;
-        bool tBilinear = false;
 
         // HMR parameters
         real tXDomainDim = 2.0;
@@ -60,9 +54,7 @@ TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
         int tRefineBuffer      = 1;
 
         // element size
-        moris::real hx = tXDomainDim/ (real)tNumElemsX;
         moris::real hy = tYDomainDim/ (real)tNumElemsY;
-        moris::real tOffset = 0.000000; // percent 
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // plane 1
