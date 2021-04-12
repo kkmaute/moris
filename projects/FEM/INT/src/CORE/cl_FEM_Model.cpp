@@ -849,7 +849,7 @@ namespace moris
                         aDvTypeMap );
                 mProperties( iProp )->set_dv_type_list( tDvTypes );
 
-                // set dof dependencies
+                // set field dependencies
                 moris::Cell< moris::Cell< mtk::Field_Type > > tFieldTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "field_dependencies" ),
@@ -948,12 +948,17 @@ namespace moris
                 moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
                         mtk::get_field_type_map();
 
-                // set field type
-                mtk::Field_Type tFieldType = tFieldTypeMap.find( tFieldParameter.get< std::string >( "field_type" ) );
-                tField->set_field_type( tFieldType );
+                moris::Cell< mtk::Field_Type > tFieldTypes;
+                string_to_cell(
+                        tFieldParameter.get< std::string >( "field_type" ),
+                        tFieldTypes,
+                        tFieldTypeMap );
 
-                mFieldTypeMap.resize( std::max( static_cast< uint >(tFieldType) + 1, ( uint )mFieldTypeMap.size() ), -1 );
-                mFieldTypeMap( static_cast< uint >(tFieldType) ) = iFields;
+                // set field type
+                tField->set_field_type( tFieldTypes );
+
+                mFieldTypeMap.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, ( uint )mFieldTypeMap.size() ), -1 );
+                mFieldTypeMap( static_cast< uint >(tFieldTypes( 0 )) ) = iFields;
 
                 MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
                         (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),

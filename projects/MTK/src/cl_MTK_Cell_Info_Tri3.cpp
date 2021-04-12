@@ -71,6 +71,14 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
+        Cell_Info_Tri3::get_num_edges() const
+        {
+            return 3;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
         Cell_Info_Tri3::get_num_verts_per_facet() const
         {
             return 2;
@@ -220,9 +228,9 @@ namespace moris
             const Matrix<DDRMat> tNodeCoords10 = tVertices(1)->get_coords() - tNodeCoords0;
             const Matrix<DDRMat> tNodeCoords20 = tVertices(2)->get_coords() - tNodeCoords0;
 
-            real tArea = 0.5 * std::abs(tNodeCoords10(0) * tNodeCoords20(1) - tNodeCoords20(0) * tNodeCoords10(1));
+            real tArea = 0.5 *std::abs(tNodeCoords10(0) * tNodeCoords20(1) - tNodeCoords20(0) * tNodeCoords10(1));
 
-            return tArea;
+            return tArea; 
         }
 
         // ----------------------------------------------------------------------------------
