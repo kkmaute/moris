@@ -225,6 +225,14 @@ namespace moris
             // Append block sets to list of all sets
             mListOfAllSets.append( mListofBlocks );
 
+            // Append side sets to list of all sets
+            mListOfAllSets.append( mListofSideSets );
+
+            //FIXME implement cell topology for side set
+
+            // Append double side sets to list of all sets
+            mListOfAllSets.append( mListofDoubleSideSets );
+
             // iterate through all sets and register their index in the map
             for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
             {
@@ -237,19 +245,29 @@ namespace moris
             for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
             {
                 std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
-                
+
                 // set the blockset cell topology and shape
                 mListOfAllSets( tCounter )->set_cell_topology( this->get_blockset_topology( tSetName ) );
                 mListOfAllSets( tCounter++ )->set_cell_shape( this->get_blockset_shape( tSetName ) );
             }
 
-            // Append side sets to list of all sets
-            mListOfAllSets.append( mListofSideSets );
+            // add the cell topology to the set
+            for( uint Ik = 0; Ik < mListofSideSets.size(); Ik++ )
+            {
+                std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
-            //FIXME implement cell topology for side set
+                // set the sideset cell topology and shape
+                mListOfAllSets( tCounter++ )->set_cell_shape( CellShape::STRAIGHT );
+            }
 
-            // Append double side sets to list of all sets
-            mListOfAllSets.append( mListofDoubleSideSets );
+            // add the cell topology to the set
+            for( uint Ik = 0; Ik < mListofDoubleSideSets.size(); Ik++ )
+            {
+                std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+                // set the sideset cell topology and shape
+                mListOfAllSets( tCounter++ )->set_cell_shape( CellShape::STRAIGHT );
+            }
 
             // setup color to set data
             this->setup_set_to_color();
