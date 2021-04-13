@@ -11,16 +11,18 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-                uint                        aFirstParentNodeIndex,
-                uint                        aSecondParentNodeIndex,
-                const Matrix<DDRMat>&       aFirstParentNodeLocalCoordinates,
-                const Matrix<DDRMat>&       aSecondParentNodeLocalCoordinates,
-                const Matrix<DDUMat>&       aAncestorNodeIndices,
-                const Cell<Matrix<DDRMat>>& aAncestorNodeCoordinates,
-                std::shared_ptr<Geometry>   aInterfaceGeometry,
-                real                        aIsocontourThreshold,
-                real                        aIsocontourTolerance,
-                real                        aIntersectionTolerance)
+                std::shared_ptr<Intersection_Node> aFirstParentNode,
+                std::shared_ptr<Intersection_Node> aSecondParentNode,
+                uint                               aFirstParentNodeIndex,
+                uint                               aSecondParentNodeIndex,
+                const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
+                const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
+                const Matrix<DDUMat>&              aAncestorNodeIndices,
+                const Cell<Matrix<DDRMat>>&        aAncestorNodeCoordinates,
+                std::shared_ptr<Geometry>          aInterfaceGeometry,
+                real                               aIsocontourThreshold,
+                real                               aIsocontourTolerance,
+                real                               aIntersectionTolerance)
                 : Intersection_Node(
                         get_local_coordinate(
                                 aFirstParentNodeLocalCoordinates,
@@ -29,6 +31,8 @@ namespace moris
                                 aAncestorNodeCoordinates,
                                 aInterfaceGeometry,
                                 aIsocontourThreshold),
+                        aFirstParentNode,
+                        aSecondParentNode,
                         aFirstParentNodeIndex,
                         aSecondParentNodeIndex,
                         aFirstParentNodeLocalCoordinates,

@@ -24,6 +24,10 @@ namespace moris
             /**
              * Constructor
              *
+             * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
+             * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
+             * @param aFirstParentNodeIndex Index of the first parent of this node
+             * @param aSecondParentNodeIndex Index of the second parent of this node
              * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
              * the given ancestors
              * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
@@ -36,16 +40,18 @@ namespace moris
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Bilinear(
-                    uint                      aFirstNodeIndex,
-                    uint                      aSecondNodeIndex,
-                    const Matrix<DDRMat>&       aFirstParentNodeLocalCoordinates,
-                    const Matrix<DDRMat>&       aSecondParentNodeLocalCoordinates,
-                    const Matrix<DDUMat>&       aAncestorNodeIndices,
-                    const Cell<Matrix<DDRMat>>& aAncestorNodeCoordinates,
-                    std::shared_ptr<Geometry>   aInterfaceGeometry,
-                    real                        aIsocontourThreshold = 0.0,
-                    real                        aIsocontourTolerance = 0.0,
-                    real                        aIntersectionTolerance = 0.0);
+                    std::shared_ptr<Intersection_Node> aFirstParentNode,
+                    std::shared_ptr<Intersection_Node> aSecondParentNode,
+                    uint                               aFirstParentNodeIndex,
+                    uint                               aSecondParentNodeIndex,
+                    const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
+                    const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
+                    const Matrix<DDUMat>&              aAncestorNodeIndices,
+                    const Cell<Matrix<DDRMat>>&        aAncestorNodeCoordinates,
+                    std::shared_ptr<Geometry>          aInterfaceGeometry,
+                    real                               aIsocontourThreshold = 0.0,
+                    real                               aIsocontourTolerance = 0.0,
+                    real                               aIntersectionTolerance = 0.0);
 
         private:
 

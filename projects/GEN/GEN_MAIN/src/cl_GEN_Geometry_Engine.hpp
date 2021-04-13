@@ -88,7 +88,7 @@ namespace moris
             real mTimeOffset;
 
             // PDVs
-            Pdv_Host_Manager mPdvHostManager;
+            Pdv_Host_Manager mPDVHostManager;
             std::shared_ptr<Intersection_Node> mQueuedIntersectionNode;
 
             // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)

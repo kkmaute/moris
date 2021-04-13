@@ -10,18 +10,20 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node::Intersection_Node(
-                real                       aLocalCoordinate,
-                real                       aFirstParentNodeIndex,
-                real                       aSecondParentNodeIndex,
-                const Matrix<DDRMat>&      aFirstParentNodeLocalCoordinates,
-                const Matrix<DDRMat>&      aSecondParentNodeLocalCoordinates,
-                Matrix<DDUMat>             aAncestorNodeIndices,
-                Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
-                const xtk::Basis_Function& aAncestorBasisFunction,
-                std::shared_ptr<Geometry>  aInterfaceGeometry,
-                real                       aIsocontourThreshold,
-                real                       aIsocontourTolerance,
-                real                       aIntersectionTolerance)
+                real                               aLocalCoordinate,
+                std::shared_ptr<Intersection_Node> aFirstParentNode,
+                std::shared_ptr<Intersection_Node> aSecondParentNode,
+                real                               aFirstParentNodeIndex,
+                real                               aSecondParentNodeIndex,
+                const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
+                const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
+                Matrix<DDUMat>                     aAncestorNodeIndices,
+                Cell<Matrix<DDRMat>>               aAncestorNodeCoordinates,
+                const xtk::Basis_Function&         aAncestorBasisFunction,
+                std::shared_ptr<Geometry>          aInterfaceGeometry,
+                real                               aIsocontourThreshold,
+                real                               aIsocontourTolerance,
+                real                               aIntersectionTolerance)
                 : Child_Node(
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
@@ -30,7 +32,9 @@ namespace moris
                   mLocalCoordinate(aLocalCoordinate),
                   mIsIntersected(false),
                   mInterfaceGeometry(aInterfaceGeometry),
-                  mIsocontourThreshold(aIsocontourThreshold)
+                  mIsocontourThreshold(aIsocontourThreshold),
+                  mFirstParentNode(aFirstParentNode),
+                  mSecondParentNode(aSecondParentNode)
         {
             // Parent basis
             Matrix<DDRMat> tFirstParentBasisValues;

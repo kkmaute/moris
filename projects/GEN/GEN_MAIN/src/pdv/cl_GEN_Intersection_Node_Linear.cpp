@@ -12,14 +12,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node_Linear::Intersection_Node_Linear(
-                uint                      aFirstNodeIndex,
-                uint                      aSecondNodeIndex,
-                const Matrix<DDRMat>&     aFirstNodeCoordinates,
-                const Matrix<DDRMat>&     aSecondNodeCoordinates,
-                std::shared_ptr<Geometry> aInterfaceGeometry,
-                real                      aIsocontourThreshold,
-                real                      aIsocontourTolerance,
-                real                      aIntersectionTolerance)
+                std::shared_ptr<Intersection_Node> aFirstNode,
+                std::shared_ptr<Intersection_Node> aSecondNode,
+                uint                               aFirstNodeIndex,
+                uint                               aSecondNodeIndex,
+                const Matrix<DDRMat>&              aFirstNodeCoordinates,
+                const Matrix<DDRMat>&              aSecondNodeCoordinates,
+                std::shared_ptr<Geometry>          aInterfaceGeometry,
+                real                               aIsocontourThreshold,
+                real                               aIsocontourTolerance,
+                real                               aIntersectionTolerance)
                 : Intersection_Node(
                         get_local_coordinate(
                                 aFirstNodeIndex,
@@ -28,6 +30,8 @@ namespace moris
                                 aSecondNodeCoordinates,
                                 aInterfaceGeometry,
                                 aIsocontourThreshold),
+                        aFirstNode,
+                        aSecondNode,
                         aFirstNodeIndex,
                         aSecondNodeIndex,
                         {{-1}},

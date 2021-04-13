@@ -513,7 +513,7 @@ namespace moris
 
         std::shared_ptr<Intersection_Node> Pdv_Host_Manager::get_intersection_node(uint aNodeIndex)
         {
-            MORIS_ASSERT(mIntersectionNodes(aNodeIndex), "Intersection node does not exist.");
+            MORIS_ASSERT(aNodeIndex < mIntersectionNodes.size(), "Node does not exist in PDV host manager.");
             return mIntersectionNodes(aNodeIndex);
         }
 

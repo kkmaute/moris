@@ -353,7 +353,7 @@ namespace moris
 
                     // Create intersection node
                     std::shared_ptr<Intersection_Node> tIntersectionNode = std::make_shared<Intersection_Node_Linear>(
-                            0, 0, tFirstParentCoordinates, tSecondParentCoordinates, tCircle, 0.0, 0.0);
+                            nullptr, nullptr, 0, 0, tFirstParentCoordinates, tSecondParentCoordinates, tCircle, 0.0, 0.0);
 
                     // Add intersection node to PDV host manager
                     tPDVHostManager.set_intersection_node(tNodeIndex, tIntersectionNode);

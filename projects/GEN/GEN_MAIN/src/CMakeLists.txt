@@ -54,7 +54,6 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_Multigeometry.cpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 	field/geometry/fn_GEN_create_geometries.cpp
-	field/geometry/cl_GEN_Child_Node.cpp
 
 	field/property/cl_GEN_Property.cpp
 	field/property/cl_GEN_Constant_Property.cpp
@@ -68,6 +67,7 @@ set(LIB_SOURCES
 	pdv/cl_GEN_Pdv.cpp
 	pdv/cl_GEN_Pdv_Value.cpp
 	pdv/cl_GEN_Pdv_Property.cpp
+	pdv/cl_GEN_Child_Node.cpp
 	pdv/cl_GEN_Intersection_Node.cpp
 	pdv/cl_GEN_Intersection_Node_Linear.cpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.cpp

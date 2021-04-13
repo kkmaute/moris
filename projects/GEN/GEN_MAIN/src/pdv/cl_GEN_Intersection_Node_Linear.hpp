@@ -17,6 +17,8 @@ namespace moris
             /**
              * Constructor
              *
+             * @param aFirstNode First parent node if it is also an intersection node, otherwise nullptr
+             * @param aSecondNode Second parent node if it is also an intersection node, otherwise nullptr
              * @param aFirstNodeIndex Index of the first parent of this node
              * @param aSecondNodeIndex Index of the second parent of this node
              * @param aFirstNodeCoordinates Coordinates of the first parent of this node
@@ -27,14 +29,16 @@ namespace moris
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Linear(
-                    uint                      aFirstNodeIndex,
-                    uint                      aSecondNodeIndex,
-                    const Matrix<DDRMat>&     aFirstNodeCoordinates,
-                    const Matrix<DDRMat>&     aSecondNodeCoordinates,
-                    std::shared_ptr<Geometry> aInterfaceGeometry,
-                    real                      aIsocontourThreshold = 0.0,
-                    real                      aIsocontourTolerance = 0.0,
-                    real                      aIntersectionTolerance = 0.0);
+                    std::shared_ptr<Intersection_Node> aFirstNode,
+                    std::shared_ptr<Intersection_Node> aSecondNode,
+                    uint                               aFirstNodeIndex,
+                    uint                               aSecondNodeIndex,
+                    const Matrix<DDRMat>&              aFirstNodeCoordinates,
+                    const Matrix<DDRMat>&              aSecondNodeCoordinates,
+                    std::shared_ptr<Geometry>          aInterfaceGeometry,
+                    real                               aIsocontourThreshold = 0.0,
+                    real                               aIsocontourTolerance = 0.0,
+                    real                               aIntersectionTolerance = 0.0);
 
         private:
 

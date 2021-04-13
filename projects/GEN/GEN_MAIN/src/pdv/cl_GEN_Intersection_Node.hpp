@@ -19,10 +19,11 @@ namespace moris
             real mIsocontourThreshold;
 
         private:
+            std::shared_ptr<Intersection_Node> mFirstParentNode;
+            std::shared_ptr<Intersection_Node> mSecondParentNode;
             bool mFirstParentOnInterface;
             bool mSecondParentOnInterface;
             Matrix<DDRMat> mGlobalCoordinates;
-            Cell<std::shared_ptr<Intersection_Node>> mNodeDependencies; // TODO
 
             moris_id mPDVStartingID;
             bool mPDVStartingIDSet = false;
@@ -36,6 +37,8 @@ namespace moris
              * Constructor
              *
              * @param aLocalCoordinate Local coordinate inside of parent edge
+             * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
+             * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
              * @param aFirstParentNodeIndex Index of the first parent of this node
              * @param aSecondParentNodeIndex Index of the second parent of this node
              * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent of this node
@@ -49,18 +52,20 @@ namespace moris
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node(
-                    real                       aLocalCoordinate,
-                    real                       aFirstParentNodeIndex,
-                    real                       aSecondParentNodeIndex,
-                    const Matrix<DDRMat>&      aFirstParentNodeLocalCoordinates,
-                    const Matrix<DDRMat>&      aSecondParentNodeLocalCoordinates,
-                    Matrix<DDUMat>             aAncestorNodeIndices,
-                    Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
-                    const xtk::Basis_Function& aAncestorBasisFunction,
-                    std::shared_ptr<Geometry>  aInterfaceGeometry,
-                    real                       aIsocontourThreshold,
-                    real                       aIsocontourTolerance,
-                    real                       aIntersectionTolerance);
+                    real                               aLocalCoordinate,
+                    std::shared_ptr<Intersection_Node> aFirstParentNode,
+                    std::shared_ptr<Intersection_Node> aSecondParentNode,
+                    real                               aFirstParentNodeIndex,
+                    real                               aSecondParentNodeIndex,
+                    const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
+                    const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
+                    Matrix<DDUMat>                     aAncestorNodeIndices,
+                    Cell<Matrix<DDRMat>>               aAncestorNodeCoordinates,
+                    const xtk::Basis_Function&         aAncestorBasisFunction,
+                    std::shared_ptr<Geometry>          aInterfaceGeometry,
+                    real                               aIsocontourThreshold,
+                    real                               aIsocontourTolerance,
+                    real                               aIntersectionTolerance);
 
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

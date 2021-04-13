@@ -122,7 +122,7 @@ namespace moris
             {
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
             }
-            mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
+            mPDVHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
 
             // Initialize PDV type list
             this->initialize_pdv_type_list();
@@ -235,28 +235,28 @@ namespace moris
 
         void Geometry_Engine::communicate_requested_IQIs()
         {
-            mPdvHostManager.set_requested_IQIs(mRequestedIQIs);
+            mPDVHostManager.set_requested_IQIs(mRequestedIQIs);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::communicate_requested_IQIs(Cell<std::string> aIQINames)
         {
-            mPdvHostManager.set_requested_IQIs(aIQINames);
+            mPDVHostManager.set_requested_IQIs(aIQINames);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Geometry_Engine::get_dcriteria_dadv()
         {
-            return mPdvHostManager.compute_diqi_dadv(mFullADVIds);
+            return mPDVHostManager.compute_diqi_dadv(mFullADVIds);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         MSI::Design_Variable_Interface* Geometry_Engine::get_design_variable_interface()
         {
-            return &mPdvHostManager;
+            return &mPDVHostManager;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -353,6 +353,8 @@ namespace moris
                         case Intersection_Interpolation::LINEAR:
                         {
                             mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
+                                    mPDVHostManager.get_intersection_node(aFirstNodeIndex),
+                                    mPDVHostManager.get_intersection_node(aSecondNodeIndex),
                                     aFirstNodeIndex,
                                     aSecondNodeIndex,
                                     aFirstNodeGlobalCoordinates,
@@ -368,6 +370,8 @@ namespace moris
                             if (mNumSpatialDimensions == 2)
                             {
                                 mQueuedIntersectionNode = std::make_shared<Intersection_Node_Bilinear>(
+                                        mPDVHostManager.get_intersection_node(aFirstNodeIndex),
+                                        mPDVHostManager.get_intersection_node(aSecondNodeIndex),
                                         aFirstNodeIndex,
                                         aSecondNodeIndex,
                                         aFirstNodeLocalCoordinates,
@@ -400,6 +404,8 @@ namespace moris
                         mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates))
                     {
                         mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
+                                mPDVHostManager.get_intersection_node(aFirstNodeIndex),
+                                mPDVHostManager.get_intersection_node(aSecondNodeIndex),
                                 aFirstNodeIndex,
                                 aSecondNodeIndex,
                                 aFirstNodeGlobalCoordinates,
@@ -459,11 +465,11 @@ namespace moris
             // Assign as PDV host
             if (mGeometries(mActiveGeometryIndex)->depends_on_advs())
             {
-                mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
+                mPDVHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
             }
             else
             {
-                mPdvHostManager.set_intersection_node(aNodeIndex, nullptr);
+                mPDVHostManager.set_intersection_node(aNodeIndex, nullptr);
             }
 
             // Assign as child node
@@ -484,7 +490,7 @@ namespace moris
                 const moris_index & aNodeId,
                 const moris_index & aNodeOwner )
         {
-            mPdvHostManager.update_intersection_node(aNodeIndex, aNodeId, aNodeOwner);
+            mPDVHostManager.update_intersection_node(aNodeIndex, aNodeId, aNodeOwner);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -537,7 +543,7 @@ namespace moris
             // Set max node index
             if (aNewNodeIndices.size() > 0)
             {
-                mPdvHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
+                mPDVHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
             }
         }
 
@@ -747,7 +753,7 @@ namespace moris
 
             // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
-            mPdvHostManager.set_communication_table( tCommTable );
+            mPDVHostManager.set_communication_table( tCommTable );
 
             // Get and save global to local vertex maps from IP and IG meshes
             std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
@@ -755,7 +761,7 @@ namespace moris
             std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
                     tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
 
-            mPdvHostManager.set_vertex_global_to_local_maps(
+            mPDVHostManager.set_vertex_global_to_local_maps(
                     tIPVertexGlobaToLocalMap,
                     tIGVertexGlobaToLocalMap);
 
@@ -795,7 +801,7 @@ namespace moris
             }
 
             // Create PDV IDs
-            mPdvHostManager.create_pdv_ids();
+            mPDVHostManager.create_pdv_ids();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -831,10 +837,10 @@ namespace moris
              tTemporaryPdvTypeList.shrink_to_fit();
 
             // Communicate dof types so that all processors have the same unique list
-             mPdvHostManager.communicate_dof_types( tTemporaryPdvTypeList );
+             mPDVHostManager.communicate_dof_types( tTemporaryPdvTypeList );
 
             // Create a map
-             mPdvHostManager.create_dv_type_map();
+             mPDVHostManager.create_dv_type_map();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -940,14 +946,14 @@ namespace moris
                         tSharedADVIds(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tADVId;
                     }
 
-                    // Update offset based on maximum ID TODO check the info being provided here
+                    // Update offset based on maximum ID
                     tAllOffsetIDs(tFieldIndex) = tOffsetID;
                     tOffsetID += tMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
                 }
             }
 
             // Set owned ADV IDs
-            mPdvHostManager.set_owned_adv_ids(tOwnedADVIds);
+            mPDVHostManager.set_owned_adv_ids(tOwnedADVIds);
 
             //----------------------------------------//
             // Create owned ADV vector                //
@@ -1138,8 +1144,8 @@ namespace moris
             mNumSpatialDimensions = aMesh->get_spatial_dim();
 
             // Reset PDV host manager
-            mPdvHostManager.reset();
-            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
+            mPDVHostManager.reset();
+            mPDVHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
             // Allocate proximity data
             this->setup_initial_geometric_proximities(aMesh);
@@ -1410,7 +1416,7 @@ namespace moris
             }
 
             // Create hosts of nodes of non-unzipped interpolation nodes
-            mPdvHostManager.create_interpolation_pdv_hosts(
+            mPDVHostManager.create_interpolation_pdv_hosts(
                     tNodeIndicesPerSet,
                     tNodeIdsPerSet,
                     tNodeOwnersPerSet,
@@ -1459,8 +1465,8 @@ namespace moris
             }
 
             // Set PDV types
-            mPdvHostManager.set_integration_pdv_types(tPdvTypes);
-            mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
+            mPDVHostManager.set_integration_pdv_types(tPdvTypes);
+            mPDVHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1501,7 +1507,7 @@ namespace moris
                         moris_index tVertIndex = tVertices(iVert)->get_index();
 
                         // ask pdv host manager to assign to vertex a pdv type and a property
-                        mPdvHostManager.create_interpolation_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
+                        mPDVHostManager.create_interpolation_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
                     }
                 }
             }
