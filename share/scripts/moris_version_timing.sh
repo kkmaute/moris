@@ -9,6 +9,9 @@ export MORISROOT=$HOME/codes/morisGit
 # build directory
 here=$MORISROOT/build_opt
 
+# file with list of examples 
+exalist=$MORISROOT/share/scripts/TimingExampleList
+
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
 gitlist=$HOME/bin/CheckGitList
@@ -27,56 +30,58 @@ id=0
 
 cd $here
 
-for vers in $vlist;do
+if [ ! "$1" = "skip" ];then
 
-    id=`expr $id + 1`
-    
-    tmpdate=`git log | awk -v gh=$vers  'BEGIN{n=0} 
-    { 
-        if( match($0,gh) > 0){n=1}
-        if ( match($0,"Date") > 0 && n==1 )
-        {
-           split($0,a," ")
-           n=0
-           print a[2]" "a[3]" "a[4]" "a[5]" "a[6]
-        }
-    }'`
-    
-    date=`date -d "$tmpdate" +%m-%d-%Y`
+    for vers in $vlist;do
 
-    echo " ==============================================="
+        id=`expr $id + 1`
+        
+        tmpdate=`git log | awk -v gh=$vers  'BEGIN{n=0} 
+        { 
+            if( match($0,gh) > 0){n=1}
+            if ( match($0,"Date") > 0 && n==1 )
+            {
+               split($0,a," ")
+               n=0
+               print a[2]" "a[3]" "a[4]" "a[5]" "a[6]
+            }
+        }'`
+        
+        date=`date -d "$tmpdate" +%m-%d-%Y`
 
-    echo " processing $id ( $vers / $date )"
+        echo " ==============================================="
 
-    echo " ==============================================="
-    
-    make clean >& /dev/null
+        echo " processing $id ( $vers / $date )"
 
-    git checkout master
-    
-    git pull
-    
-    git checkout $vers
-    
-    make -j 4 >& compile.$date
-    
-    ctest -V >& ctest.$date
-    
-    #cd $boxdir
-    
-    #moris.sh opt 1 box >& log.$date
- 
-    #cd bspdir
-    
-    #moris.sh opt 1 Bsphere >& log.$date
-   
-    #cd $here 
-    
-    make clean >& /dev/null
- 
-done  
+        echo " ==============================================="
+        
+        make clean >& /dev/null
 
-exalist=`cat ~/bin/CheckExaList`
+        git checkout master
+        
+        git pull
+        
+        git checkout $vers
+        
+        make -j 4 >& compile.$date
+        
+        ctest -V >& ctest.$date
+        
+        #cd $boxdir
+        
+        #moris.sh opt 1 box >& log.$date
+     
+        #cd bspdir
+        
+        #moris.sh opt 1 Bsphere >& log.$date
+       
+        #cd $here 
+        
+    done
+
+fi  
+
+exalist=`cat $exalist`
 
 for exa in $exalist; do
 
