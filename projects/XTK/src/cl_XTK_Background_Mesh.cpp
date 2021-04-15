@@ -495,13 +495,16 @@ namespace xtk
     Background_Mesh::get_all_node_coordinates_loc_inds() const
     {
         // Get counts inside of STK and in External Data (both happen in this function call)
-        moris::size_t tNumNodes = this->get_num_entities(EntityRank::NODE);
+        moris::size_t tNumNodes   = this->get_num_entities(EntityRank::NODE);
         moris::size_t tNumBGNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
 
         moris::Matrix< moris::DDRMat > tAllNodeCoordinates = this->get_all_node_coordinates_loc_inds_background_mesh();
+
         tAllNodeCoordinates.resize(tNumNodes,mMeshData->get_spatial_dim());
+
         // Get node coordinates from external entities
         mExternalMeshData.get_all_node_coordinates_loc_inds_external_data(tNumBGNodes,tAllNodeCoordinates);
+
         return tAllNodeCoordinates;
     }
 
@@ -531,9 +534,9 @@ namespace xtk
             {
                 moris::Matrix< moris::DDRMat > const & tNodeCoords =
                         mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
+
                 tSelectedNodesCoords.set_row(n,tNodeCoords);
             }
-
             else
             {
                 Matrix<DDRMat> tNodeCoord = mMeshData->get_node_coordinate((moris_index)aNodeIndices(n));
