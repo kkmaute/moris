@@ -289,7 +289,7 @@ namespace moris
                 false );
 
             // assign the cell shape to the geometry interpolator
-            mIPGeometryInterpolator->set_cell_shape( mCellShape );
+            mIPGeometryInterpolator->set_cell_shape( mIPCellShape );
 
             // create a geometry interpolator for IG cells
             // IG interpolation requires knowledge about  the IP Element in 
@@ -302,7 +302,7 @@ namespace moris
                 tIsTimeSide );
 
             // assign the cell shape to the geometry interpolator
-            mIGGeometryInterpolator->set_cell_shape( mCellShape );
+            mIGGeometryInterpolator->set_cell_shape( mIGCellShape );
 
             // set flag that Field_Interpolator_Manager owns pointers to GeometryInterpolators
             mGeometryInterpolatorOwned = true;
@@ -471,9 +471,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field_Interpolator_Manager::set_cell_shape( enum CellShape aCellShape )
+        void Field_Interpolator_Manager::set_IG_cell_shape( enum CellShape aCellShape )
         {
-            mCellShape = aCellShape;
+            mIGCellShape = aCellShape;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator_Manager::set_IP_cell_shape( enum CellShape aCellShape )
+        {
+            mIPCellShape = aCellShape;
         }
 
         //------------------------------------------------------------------------------

@@ -496,6 +496,113 @@ namespace moris
             }
         }
 
+        TEST_CASE("MTK Cell Shape Quad4 Parallel", "[MTK],[Cell_Shape],[Shape_Quad4_Parallel]")
+        {
+            if (par_size() <= 1)
+            {
+                //create a 2D MORIS mesh of quad4's using MTK database
+                //------------------------------------------------------------------------------
+                uint tNumDim = 2; // specify number of spatial dimensions
+
+                // Node coordinate matrix
+                Matrix<DDRMat> tCoords = {{0.0, 0.0},
+                        {1.0, 0.5},
+                        {1.0, 1.5},
+                        {0.0, 1.0}};
+
+                Matrix<IndexMat> tNodeIndices = {{0, 1, 2, 3}};
+                Matrix<IndexMat> tNodeIds = {{1, 2, 3, 4}};
+
+                // specify element connectivity of quad for mesh
+                Matrix<IdMat> tElementConnQuad = {{1, 2, 3, 4}};
+
+                // specify the local to global element map for quads
+                Matrix<IdMat> tElemLocalToGlobalQuad = {{1}};
+
+                //------------------------------------------------------------------------------
+                // create MORIS mesh using MTK database
+                MtkMeshData aMeshData;
+                aMeshData.CreateAllEdgesAndFaces = true;
+                aMeshData.SpatialDim = &tNumDim;
+                aMeshData.ElemConn(0) = &tElementConnQuad;
+                aMeshData.CellTopology(0) = CellTopology::QUAD4;
+                aMeshData.NodeCoords = &tCoords;
+                aMeshData.LocaltoGlobalElemMap(0) = &tElemLocalToGlobalQuad;
+
+                Mesh *tMesh = create_interpolation_mesh(MeshType::STK, aMeshData);
+                // Dump to file
+                //std::string tFileOutput = "./mtk_quad4_cell_shape_ut.exo";
+                //tMesh->create_output_mesh(tFileOutput);
+
+                CHECK(tMesh->get_num_elems() == 1);
+
+                // get the cell
+                Cell & tCell = tMesh->get_mtk_cell(0);
+
+                // Some checks on the cell
+                CHECK(tCell.get_id() == 1);
+                CHECK(tCell.get_index() == 0);
+                CHECK(tCell.get_owner() == (moris_id)par_rank());
+                CHECK(tCell.get_number_of_vertices() == 4);
+
+                CHECK(tCell.get_cell_info()->compute_cell_shape(&tCell) == CellShape::PARALLEL);
+            }
+        }
+
+        TEST_CASE("MTK Cell Shape Quad4 Parallel2", "[MTK],[Cell_Shape],[Shape_Quad4_Parallel2]")
+        {
+            if (par_size() <= 1)
+            {
+                //create a 2D MORIS mesh of quad4's using MTK database
+                //------------------------------------------------------------------------------
+                uint tNumDim = 2; // specify number of spatial dimensions
+
+                // Node coordinate matrix
+                Matrix<DDRMat> tCoords = {
+                        {1.0, 0.5},
+                        {1.0, 1.5},
+                        {0.0, 1.0},
+                        {0.0, 0.0}};
+
+                Matrix<IndexMat> tNodeIndices = {{0, 1, 2, 3}};
+                Matrix<IndexMat> tNodeIds = {{1, 2, 3, 4}};
+
+                // specify element connectivity of quad for mesh
+                Matrix<IdMat> tElementConnQuad = {{1, 2, 3, 4}};
+
+                // specify the local to global element map for quads
+                Matrix<IdMat> tElemLocalToGlobalQuad = {{1}};
+
+                //------------------------------------------------------------------------------
+                // create MORIS mesh using MTK database
+                MtkMeshData aMeshData;
+                aMeshData.CreateAllEdgesAndFaces = true;
+                aMeshData.SpatialDim = &tNumDim;
+                aMeshData.ElemConn(0) = &tElementConnQuad;
+                aMeshData.CellTopology(0) = CellTopology::QUAD4;
+                aMeshData.NodeCoords = &tCoords;
+                aMeshData.LocaltoGlobalElemMap(0) = &tElemLocalToGlobalQuad;
+
+                Mesh *tMesh = create_interpolation_mesh(MeshType::STK, aMeshData);
+                // Dump to file
+                //std::string tFileOutput = "./mtk_quad4_cell_shape_ut.exo";
+                //tMesh->create_output_mesh(tFileOutput);
+
+                CHECK(tMesh->get_num_elems() == 1);
+
+                // get the cell
+                Cell & tCell = tMesh->get_mtk_cell(0);
+
+                // Some checks on the cell
+                CHECK(tCell.get_id() == 1);
+                CHECK(tCell.get_index() == 0);
+                CHECK(tCell.get_owner() == (moris_id)par_rank());
+                CHECK(tCell.get_number_of_vertices() == 4);
+
+                CHECK(tCell.get_cell_info()->compute_cell_shape(&tCell) == CellShape::PARALLEL);
+            }
+        }
+
         TEST_CASE("MTK Cell Shape Quad4 Straight", "[MTK],[Cell_Shape],[Shape_Quad4_Straight]")
         {
             if (par_size() <= 1)

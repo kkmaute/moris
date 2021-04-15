@@ -95,7 +95,8 @@ namespace moris
                 bool mGeometryInterpolatorOwned = false;
 
                 // cell shape used for interpolation
-                CellShape mCellShape = CellShape::GENERAL;
+                CellShape mIGCellShape = CellShape::GENERAL;
+                CellShape mIPCellShape = CellShape::GENERAL;
 
                 //------------------------------------------------------------------------------
             public:
@@ -289,7 +290,14 @@ namespace moris
                  * sets the cell shape used for interpolation
                  * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
                  */
-                void set_cell_shape( enum CellShape aCellShape );
+                void set_IG_cell_shape( enum CellShape aCellShape );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * sets the cell shape used for interpolation
+                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
+                 */
+                void set_IP_cell_shape( enum CellShape aCellShape );
 
                 //------------------------------------------------------------------------------
         };

@@ -43,9 +43,12 @@ enum class CellTopology
 
 enum class CellShape
 {
+    // the following cell shapes increase specificity towards the top.
+    // ie. Rectangular will also be parallel and straight. but a parallel cell shape will not be rectangular/
+    RECTANGULAR, // rectangular and aligned with global csys quad or hex
+    PARALLEL,    // Parallelogram
+    STRAIGHT,    // all straight edges or planar faces faces
     GENERAL,
-    RECTANGULAR, // rectangular quad or hex
-    STRAIGHT,    // straight edge or face
     EMPTY,
     INVALID,
     END_ENUM

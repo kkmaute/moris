@@ -1094,7 +1094,8 @@ namespace moris
                     this );
 
             // assign cell shape to the field interpolator manager
-            mMasterFIManager->set_cell_shape( mMeshSet->get_cell_shape() );
+            mMasterFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mMasterFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
             // create the geometry interpolators on the master FI manager
             mMasterFIManager->create_geometry_interpolators();
@@ -1111,7 +1112,8 @@ namespace moris
                     mtk::Master_Slave::SLAVE );
 
             // assign cell shape to the field interpolator manager
-            mSlaveFIManager->set_cell_shape( mMeshSet->get_cell_shape() );
+            mSlaveFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mSlaveFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
             // create the geometry interpolators on the slave FI manager
             mSlaveFIManager->create_geometry_interpolators();
@@ -1130,7 +1132,8 @@ namespace moris
                         this );
 
                 // assign cell shape to the field interpolator manager
-                mMasterPreviousFIManager->set_cell_shape( mMeshSet->get_cell_shape() );
+                mMasterPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+                mMasterPreviousFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
                 // create the geometry interpolators on the master FI manager
                 mMasterPreviousFIManager->create_geometry_interpolators();

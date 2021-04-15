@@ -490,7 +490,11 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            enum CellShape get_blockset_shape( const  std::string & aSetName );
+            enum CellShape get_IG_blockset_shape( const  std::string & aSetName );
+
+            //-------------------------------------------------------------------------------
+
+            enum CellShape get_IP_blockset_shape( const  std::string & aSetName );
 
             //-------------------------------------------------------------------------------
         private:

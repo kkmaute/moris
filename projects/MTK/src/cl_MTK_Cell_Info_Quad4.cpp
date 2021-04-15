@@ -61,18 +61,30 @@ namespace moris
             moris::Matrix< DDRMat > tEdge2 = tVertices( 3 )->get_coords() - tVertices( 2 )->get_coords();
             moris::Matrix< DDRMat > tEdge3 = tVertices( 0 )->get_coords() - tVertices( 3 )->get_coords();
 
-            // If the edge vectors are not perpindicular
-            if ( std::abs( dot(tEdge1, tEdge0 ) ) > tEpsilon ||
-                 std::abs( dot(tEdge2, tEdge1 ) ) > tEpsilon ||
-                 std::abs( dot(tEdge3, tEdge2 ) ) > tEpsilon ||
-                 std::abs( dot(tEdge0, tEdge3 ) ) > tEpsilon )
+            // cross products of opposite edges
+            real tCross02 = tEdge0(0)*tEdge2(1)-tEdge0(1)*tEdge2(0);
+            real tCross13 = tEdge1(0)*tEdge3(1)-tEdge1(1)*tEdge3(0);
+
+            // check if opposite edges are parallel
+            if ( std::abs( tCross02 ) > tEpsilon ||
+                 std::abs( tCross13 ) > tEpsilon )
             {
                 return CellShape::STRAIGHT;
             }
-            // since the edges are perpindicular, must be rectangular
+
+            // parallelogram cell
             else
             {
-                return CellShape::RECTANGULAR;
+                // if edge 1 is parallel to the x axis and perpindicular to the adjacent edge
+                if( std::abs( tEdge0(1) )          < tEpsilon &&
+                    std::abs(dot( tEdge0,tEdge1 )) < tEpsilon )
+                {
+                    return CellShape::RECTANGULAR;
+                }
+                else
+                {
+                    return CellShape::PARALLEL;
+                }
             }
         }
 

@@ -2089,7 +2089,14 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        enum CellShape Mesh::get_blockset_shape( const  std::string & aSetName )
+        enum CellShape Mesh::get_IG_blockset_shape( const  std::string & aSetName )
+        {
+            return CellShape::RECTANGULAR;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        enum CellShape Mesh::get_IP_blockset_shape( const  std::string & aSetName )
         {
             return CellShape::RECTANGULAR;
         }

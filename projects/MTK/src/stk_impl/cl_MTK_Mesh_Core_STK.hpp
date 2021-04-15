@@ -356,7 +356,13 @@ public:
      * Shape of cells in block set
      */
     enum CellShape
-    get_blockset_shape(const  std::string & aSetName);
+    get_IG_blockset_shape(const  std::string & aSetName);
+
+    /*
+     * Shape of cells in block set
+     */
+    enum CellShape
+    get_IP_blockset_shape(const  std::string & aSetName);
 
     /*
      * Topology of sides in side set

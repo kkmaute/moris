@@ -366,9 +366,15 @@ public:
     }
 
     enum CellShape
-    get_blockset_shape(const std::string & aSetName)
+    get_IG_blockset_shape(const std::string & aSetName)
     {
-        return mListofBlocks(mSetNameToIndexMap[aSetName])->get_cell_shape();
+        return mListofBlocks(mSetNameToIndexMap[aSetName])->get_IG_cell_shape();
+    }
+
+    enum CellShape
+    get_IP_blockset_shape(const std::string & aSetName)
+    {
+        return mListofBlocks(mSetNameToIndexMap[aSetName])->get_IP_cell_shape();
     }
 
 protected:
