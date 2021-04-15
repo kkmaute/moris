@@ -12,6 +12,7 @@
 #include "typedefs.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "IP/cl_MTK_Interpolation_Rule.hpp"
 //LINALG/src
 #include "linalg_typedefs.hpp"
@@ -56,12 +57,12 @@ namespace moris
                 // element geometry type
                 Geometry_Type mGeometryType;
 
+                // element shape
+                CellShape mCellShape = CellShape::GENERAL;
+
                 // interpolation cell geometry type
                 Geometry_Type mIPMappingGeometryType;
                 uint mIPMappingNumSpaceParamDim;
-
-                // element shape
-                bool mRectangular = false;
 
                 // boolean true if side interpolation
                 bool mSpaceSideset = false;
@@ -240,6 +241,16 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                /**
+                 * returns the number of parametric dimensions
+                 */
+                 uint get_number_of_param_dimensions() const
+                 {
+                     return mSpaceInterpolation->get_number_of_param_dimensions();
+                 }
+
+                //------------------------------------------------------------------------------
                 /**
                  * returns the number of bases for the space function
                  */
@@ -259,6 +270,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * sets the cell shape used for interpolation
+                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
+                 */
+                void set_cell_shape( enum CellShape aCellShape );
+
+                //------------------------------------------------------------------------------
+                /**
                  * returns the boolean map flag
                  */
                 bool get_map_flag()
@@ -274,16 +292,6 @@ namespace moris
                 Matrix< DDRMat > get_initialized_mapped_point()
                 {
                     return mMappedPoint;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set the geometry shape for specialization
-                 * @param[ in ] boolean rectangular
-                 */
-                void set_rectangular( bool & aRectangular )
-                {
-                    mRectangular = aRectangular;
                 }
 
                 //------------------------------------------------------------------------------

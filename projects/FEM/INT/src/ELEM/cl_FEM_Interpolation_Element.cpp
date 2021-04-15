@@ -252,7 +252,7 @@ namespace moris
 
             // field field interpolators------------------------------------------
 
-            // get master dv type list from set
+            // get master field type list from set
             const Cell< Cell< mtk::Field_Type > > & tMasterFieldTypeList =
                     mSet->get_field_type_list( mtk::Master_Slave::MASTER );
 
@@ -262,7 +262,7 @@ namespace moris
             // loop on the master field types
             for( uint iFi = 0; iFi < tMasterNumFieldTypes; iFi++ )
             {
-                // get the dv type group
+                // get the field type group
                 const moris::Cell< mtk::Field_Type > & tFieldTypeGroup = tMasterFieldTypeList( iFi );
 
                 Matrix< IndexMat > tIPCellIndices = mMasterInterpolationCell->get_vertex_inds();
@@ -284,7 +284,7 @@ namespace moris
             const Cell< Cell< mtk::Field_Type > > & tSlaveFieldTypeList =
                     mSet->get_field_type_list( mtk::Master_Slave::SLAVE );
 
-            // get number of slave dv types
+            // get number of slave field types
             uint tSlaveNumFieldTypes = tSlaveFieldTypeList.size();
 
             // loop on the slave field types
@@ -463,9 +463,6 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_jacobian();
         }
@@ -508,9 +505,6 @@ namespace moris
                 // set cluster for stabilization parameter
                 mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-                // determine elements to consider/ignore in residual and iqi computation
-                mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
                 // ask cluster to compute residual
                 mFemCluster( 0 )->compute_residual();
             }
@@ -522,9 +516,6 @@ namespace moris
 
                 // set cluster for stabilization parameter
                 mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-                // determine elements to consider/ignore in residual and iqi computation
-                mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
                 // ask cluster to compute jacobian
                 mFemCluster( 0 )->compute_dQIdu();
@@ -571,9 +562,6 @@ namespace moris
                 mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
             }
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute Jacobian and residual
             mFemCluster( 0 )->compute_jacobian_and_residual();
         }
@@ -612,9 +600,6 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dRdp();
@@ -666,9 +651,6 @@ namespace moris
             // initialize dQIdp
             mSet->initialize_mdQIdpMat();
             mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdp_explicit();
@@ -770,9 +752,6 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dRdp_and_dQIdp();
@@ -961,9 +940,6 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute dRdp
             mFemCluster( 0 )->compute_dRdp();
 
@@ -1111,9 +1087,6 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
-
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdu();
         }
@@ -1144,9 +1117,6 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-            // determine elements to consider/ignore in residual and iqi computation
-            mFemCluster( 0 )->determine_elements_for_residual_and_iqi_computation();
 
             // ask cluster to compute quantity of interest
             mFemCluster( 0 )->compute_QI();
@@ -1233,9 +1203,6 @@ namespace moris
             }
             else
             {
-                // determine elements to consider/ignore in residual and iqi computation
-                mFemCluster( aMeshIndex )->determine_elements_for_residual_and_iqi_computation();
-
                 // ask cluster to compute quantity of interest
                 mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );
             }
@@ -1315,13 +1282,13 @@ namespace moris
                         tIQI( iIQI )->reset_eval_flags();
 
                         // compute quantity of interest at evaluation point
-                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                        Matrix< DDRMat > tQINodal;
                         tIQI( iIQI )->compute_QI( tQINodal );
 
                         moris_index tGlobalIndex =
                                 mSet->get_requested_field_IQIs_global_indices()( iIQI );
 
-                        aFields( tGlobalIndex )->set_field_value( tVertexIndices( iVertex ), tQINodal( 0 ) );
+                        aFields( tGlobalIndex )->set_field_value( tVertexIndices( iVertex ), tQINodal );
                     }
                 }
             }

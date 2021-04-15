@@ -328,6 +328,7 @@ namespace moris
                                                          tMeshSet->get_spatial_dim() );
 
             mListofBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );
+            mListofBlocks( Ij )->set_IG_cell_shape( tMeshSet->get_IG_cell_shape() );
         }
     }
 

@@ -52,8 +52,6 @@ namespace dla
 
         virtual ~Linear_Solver_Algorithm(){};
 
-        virtual void set_linear_problem( Linear_Problem * aLinearSystem ) = 0;
-
         virtual moris::sint solve_linear_system() = 0;
 
         virtual moris::sint solve_linear_system(       Linear_Problem * aLinearSystem,

@@ -425,43 +425,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > unfold_flat_tensor( const Matrix< DDRMat > & aFlattenedTensor )
-        {
-            // get length of the flattened tensor
-            uint tLength = aFlattenedTensor.length();
-
-            switch ( tLength )
-            {
-                // 2D: convert 3x1 flattened tensor back to 2x2 matrix
-                case 3 :
-                {
-                    return {
-                            { aFlattenedTensor( 0 ), aFlattenedTensor( 2 ) },
-                            { aFlattenedTensor( 2 ), aFlattenedTensor( 1 ) } };
-                    break;
-                }
- 
-                // 3D: convert 6x1 flattened tensor back to 3x3 matrix
-                case 6 :
-                {
-                    return {
-                            { aFlattenedTensor( 0 ), aFlattenedTensor( 5 ), aFlattenedTensor( 4 ) },
-                            { aFlattenedTensor( 5 ), aFlattenedTensor( 1 ), aFlattenedTensor( 3 ) },
-                            { aFlattenedTensor( 4 ), aFlattenedTensor( 3 ), aFlattenedTensor( 2 ) } };
-                    break;
-                }
-                
-                default:
-                {
-                    MORIS_ERROR( false, 
-                            "fn_FEM_IWG_Compressible_NS::unfold_flat_tensor - aFlattenedTensor must be a vector of length 3 (2D) or 6 (3D)." );
-                    return { { 0.0 } };
-                    break;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
     } /* namespace fem */
 } /* namespace moris */

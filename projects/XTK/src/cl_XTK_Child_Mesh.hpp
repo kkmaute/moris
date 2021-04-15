@@ -412,10 +412,12 @@ public:
      * Returns the child element and face ordinal connected to a provided parent face
      */
     void
-    get_child_elements_connected_to_parent_facet(moris::moris_index         const & aParentFacetIndex,
-                                                moris::Matrix< moris::IdMat >    & aChildElemsIdsOnFacet,
-                                                moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFacet,
-                                                moris::Matrix< moris::IndexMat > & aChildElemOnFacetOrdinal) const;
+    get_child_elements_connected_to_parent_facet(
+            moris::moris_index         const & aParentFacetIndex,
+            moris::uint                      & aNumElemsOnFace,
+            moris::Matrix< moris::IdMat >    & aChildElemsIdsOnFacet,
+            moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFacet,
+            moris::Matrix< moris::IndexMat > & aChildElemOnFacetOrdinal) const;
 
     // ----------------------------------------------------------------------------------
  
@@ -840,6 +842,11 @@ public:
     get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const;
 
     // --------------------------------------------------------------
+
+    void
+    reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex);
+
+    // --------------------------------------------------------------
     // Functions IO
     // --------------------------------------------------------------
 
@@ -888,7 +895,7 @@ private:
     // Element To Node and Ancestry Information (This is the only data that is set with templates.
     // all other is generated with an algorithm)
     // All node connectivity is indexed by proc local indexs
-    enum CellTopology                         mElementTopology;
+    enum CellTopology                      mElementTopology;
     std::shared_ptr<moris::mtk::Cell_Info> mConnectivity;
 
     moris::size_t                    mNumElem;

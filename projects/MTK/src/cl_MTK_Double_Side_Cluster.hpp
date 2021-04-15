@@ -382,7 +382,15 @@ namespace moris
                 //----------------------------------------------------------------
 
                 moris::real
-                compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                compute_cluster_cell_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+                //----------------------------------------------------------------
+
+                Matrix<DDRMat>
+                compute_cluster_ig_cell_measures(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
                 //----------------------------------------------------------------
@@ -397,7 +405,15 @@ namespace moris
                 //----------------------------------------------------------------
 
                 moris::real
-                compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                compute_cluster_cell_side_measure(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+                // ----------------------------------------------------------------------------------
+
+                Matrix<DDRMat>
+                compute_cluster_ig_cell_side_measures(
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
                 //----------------------------------------------------------------

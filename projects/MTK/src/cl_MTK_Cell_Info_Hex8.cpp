@@ -10,6 +10,7 @@
 #include "cl_MTK_Vertex.hpp"
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -38,6 +39,60 @@ namespace moris
             return Integration_Order::HEX_2x2x2;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Hex8::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            // getting vertices and storing them in a local matrix, since each node will be used a few times
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // init cell shape
+            CellShape tCellShape = CellShape::RECTANGULAR;
+
+            // error threshold
+            real tEpsilon = 1.0E-8;
+
+            // looping through each face
+            for ( uint iFace = 0; iFace < 6; iFace++)
+            {
+                // getting nodes on the face
+                moris::Matrix<moris::IndexMat> tFaceNodes = this->get_node_to_face_map( iFace );
+
+                moris::Matrix< DDRMat > tEdge0 = tVertices( tFaceNodes( 1 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge1 = tVertices( tFaceNodes( 2 ) )->get_coords() - tVertices( tFaceNodes( 1 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge2 = tVertices( tFaceNodes( 3 ) )->get_coords() - tVertices( tFaceNodes( 2 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge3 = tVertices( tFaceNodes( 0 ) )->get_coords() - tVertices( tFaceNodes( 3 ) )->get_coords();
+
+                // are the edges perpindicular to the adjacent edge?
+                if ( std::abs( dot(tEdge1, tEdge0 ) ) > tEpsilon || 
+                     std::abs( dot(tEdge2, tEdge1 ) ) > tEpsilon ||
+                     std::abs( dot(tEdge3, tEdge2 ) ) > tEpsilon ||
+                     std::abs( dot(tEdge0, tEdge3 ) ) > tEpsilon )
+                {
+                    // cross products at opposite corners
+                    moris::Matrix< DDRMat > tCross0 = cross( tEdge1, tEdge0 );
+                    moris::Matrix< DDRMat > tCross1 = cross( tEdge3, tEdge2 );
+
+                    // if the the cross products at the corners are not parallel
+                    if ( norm( cross( tCross0, tCross1 )) > tEpsilon )
+                    {
+                        // no need to check other faces if this is true
+                        tCellShape = CellShape::GENERAL;
+                        break;
+                    }
+
+                    // setting cell shape to straight if the face is planar
+                    else
+                    {
+                        tCellShape = CellShape::STRAIGHT;
+                    }
+                }
+            }
+
+            return tCellShape;
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint
@@ -52,6 +107,14 @@ namespace moris
         Cell_Info_Hex8::get_num_facets() const
         {
             return 6;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        Cell_Info_Hex8::get_num_edges() const
+        {
+            return 12;
         }
 
         // ----------------------------------------------------------------------------------

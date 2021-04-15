@@ -34,7 +34,7 @@ namespace moris
         {
             private:
 
-                enum mtk::Field_Type mFieldType = mtk::Field_Type::UNDEFINED;
+                Cell< enum mtk::Field_Type > mFieldType;
 
                 std::string          mIQIName;
 
@@ -56,7 +56,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void set_field_type( const mtk::Field_Type & aType );
+                void set_field_type( const moris::Cell< mtk::Field_Type > & aType );
 
                 //-----------------------------------------------------------------------------
 
@@ -97,9 +97,9 @@ namespace moris
                 //FIXME replace this
                 void set_field_value(
                         const moris_index tIndex,
-                        const real & aValue )
+                        const moris::Matrix< DDRMat > & aValue )
                 {
-                    mNodalValues( tIndex ) = aValue;
+                    mNodalValues.set_row( tIndex, aValue );
                 }
 
                 //-----------------------------------------------------------------------------

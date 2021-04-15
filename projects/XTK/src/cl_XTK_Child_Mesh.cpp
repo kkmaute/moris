@@ -893,6 +893,7 @@ namespace xtk
     void
     Child_Mesh::get_child_elements_connected_to_parent_facet(
             moris::moris_index         const & aParentFaceIndex,
+            moris::uint                      & aNumElemsOnFace,
             moris::Matrix< moris::IdMat >    & aChildElemsIdsOnFacet,
             moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFacet,
             moris::Matrix< moris::IndexMat > & aChildElemOnFacetOrdinal) const
@@ -904,7 +905,7 @@ namespace xtk
         moris::size_t tNumElemsOnFace = 0;
         moris::Matrix< moris::IndexMat > tLocFacesOnParentFace(1,tNumFacets);
 
-        moris::Matrix< moris::IndexMat > const & tFacetParentInds = this->get_facet_parent_inds();
+        moris::Matrix< moris::IndexMat > const & tFacetParentInds  = this->get_facet_parent_inds();
         moris::Matrix< moris::DDSTMat  > const & tFacetParentRanks = this->get_facet_parent_ranks();
         moris::Matrix< moris::IndexMat > const & tFacetToElement   = this->get_facet_to_element();
 
@@ -919,30 +920,31 @@ namespace xtk
             }
         }
 
-        // Iterate through face to element connectivities of faces connected to the parent face
-        aChildElemsIdsOnFacet    = moris::Matrix< moris::IdMat >(1,tNumElemsOnFace*2);
-        aChildElemsCMIndOnFacet  = moris::Matrix< moris::IndexMat >(1,tNumElemsOnFace*2);
-        aChildElemOnFacetOrdinal = moris::Matrix< moris::IndexMat >(1,tNumElemsOnFace*2);
-        moris::size_t tCount = 0;
+        // Check that arrays are sufficiently large
+        MORIS_ERROR( aChildElemsCMIndOnFacet.numel() > 2*tNumElemsOnFace,
+                "Child_Mesh::get_child_elements_connected_to_parent_facet - output vectors are not sufficiently large.\n" );
+
+        // initialize counter
+        aNumElemsOnFace = 0;
 
         for(moris::size_t i = 0; i<tNumElemsOnFace; i++)
         {
             moris::size_t tFacetInd = tLocFacesOnParentFace(0,i);
+
             for(moris::size_t j = 0; j<tFacetToElement.n_cols(); j++)
             {
                 if(tFacetToElement(tFacetInd,j) != std::numeric_limits<moris::moris_index>::max())
                 {
-                    aChildElemsCMIndOnFacet(0,tCount)  = tFacetToElement(tFacetInd,j);
-                    aChildElemsIdsOnFacet(0,tCount)    = mChildElementIds(0,tFacetToElement(tFacetInd,j));
-                    aChildElemOnFacetOrdinal(0,tCount) = this->get_face_ordinal_from_element_and_face_index(tFacetToElement(tFacetInd,j),tFacetInd);
-                    tCount++;
+                    aChildElemsCMIndOnFacet(0,aNumElemsOnFace)  = tFacetToElement(tFacetInd,j);
+                    aChildElemsIdsOnFacet(0,aNumElemsOnFace)    = mChildElementIds(0,tFacetToElement(tFacetInd,j));
+
+                    aChildElemOnFacetOrdinal(0,aNumElemsOnFace) =
+                            this->get_face_ordinal_from_element_and_face_index(tFacetToElement(tFacetInd,j),tFacetInd);
+
+                    aNumElemsOnFace++;
                 }
             }
         }
-
-        aChildElemsCMIndOnFacet.resize(1,tCount);
-        aChildElemsIdsOnFacet.resize(1,tCount);
-        aChildElemOnFacetOrdinal.resize(1,tCount);
     }
 
     // ---------------------------------------------------------------------------------
@@ -1962,16 +1964,28 @@ namespace xtk
             moris_index         aFacetIndex,
             Cell<moris_index> & aSubPhaseCMIndex) const
     {
+        // estimate maximum number of elements on face
+         const uint tMaxElemOnFace = 100;
+
         // get child cells on facet
-        Matrix<IndexMat> tChildElemsIdsOnFace;
-        Matrix<IndexMat> tChildElemsCMIndOnFace;
-        Matrix<IndexMat> tChildElemOnFaceOrdinal;
-        this->get_child_elements_connected_to_parent_facet(aFacetIndex, tChildElemsIdsOnFace, tChildElemsCMIndOnFace, tChildElemOnFaceOrdinal);
+        Matrix<IndexMat> tChildElemsIdsOnFace(1,tMaxElemOnFace);
+        Matrix<IndexMat> tChildElemsCMIndOnFace(1,tMaxElemOnFace);
+        Matrix<IndexMat> tChildElemOnFaceOrdinal(1,tMaxElemOnFace);
+
+        // define varialbe for actual number of child elements on face
+        uint tNumberOfChildElemsOnFace;
+
+        this->get_child_elements_connected_to_parent_facet(
+                aFacetIndex,
+                tNumberOfChildElemsOnFace,
+                tChildElemsIdsOnFace,
+                tChildElemsCMIndOnFace,
+                tChildElemOnFaceOrdinal);
 
         // get the subphases of cells
         moris::Matrix< moris::IndexMat > const & tElementSubphase = this->get_elemental_subphase_bin_membership();
 
-        for(moris::uint i = 0; i < tChildElemsCMIndOnFace.numel(); i++)
+        for(moris::uint i = 0; i < tNumberOfChildElemsOnFace; i++)
         {
             // get the subphase membership of cell on facet
             aSubPhaseCMIndex.push_back(tElementSubphase(tChildElemsCMIndOnFace(i)));
@@ -2200,6 +2214,20 @@ namespace xtk
         MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisEnrichmentLevel.size(), "Subphase group index out of bounds");
 
         return mSubphaseBasisEnrichmentLevel(aSubphaseBin);
+    }
+    
+    // ---------------------------------------------------------------------------------
+
+    void
+    Child_Mesh::reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex)
+    {
+        for(moris::uint iC = 0; iC < mChildElementInds.numel(); iC++)
+        {
+            moris_index tOldIndex = mChildElementInds(iC);
+            moris_index tNewIndex = aOldIndexToNewCellIndex(tOldIndex);
+            MORIS_ASSERT(tNewIndex != MORIS_INDEX_MAX,"Trying to reindex with a max value. Was this cell deleted?");
+            mChildElementInds(iC) = tNewIndex;
+        }
     }
 
     // ---------------------------------------------------------------------------------

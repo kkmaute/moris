@@ -42,9 +42,6 @@ namespace moris
                 // pointer to space interpolator object
                 mtk::Space_Interpolator * mSpaceInterpolator = nullptr;
 
-                // pointer to space interpolation function object
-                mtk::Interpolation_Function_Base * mSpaceInterpolation = nullptr;
-
                 // pointer to time interpolation function object
                 mtk::Interpolation_Function_Base * mTimeInterpolation = nullptr;
 
@@ -265,6 +262,13 @@ namespace moris
                 {
                     return mSpaceInterpolator->get_space_geometry_type();
                 }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * sets the cell shape used for interpolation
+                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
+                 */
+                void set_cell_shape( enum CellShape aCellShape );
 
                 //------------------------------------------------------------------------------
                 /**

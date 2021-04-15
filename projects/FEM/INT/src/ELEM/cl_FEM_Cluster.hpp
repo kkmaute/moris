@@ -348,12 +348,24 @@ namespace moris
                 moris::real compute_ip_cell_length_measure(
                         const mtk::Master_Slave aIsMaster ) const;
                         
+
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the cluster volume
+                 * compute the cluster volume by calling MTK cell function
                  */
                 real compute_volume();
-                real compute_volume_new();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the IG cells volumes by calling MTK cell function
+                 */
+                Matrix<DDRMat> compute_element_volumes();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the cluster volume by numerical integrating IG elements in FEM
+                 */
+                real compute_volume_in_fem();
 
                 //------------------------------------------------------------------------------
                 /**

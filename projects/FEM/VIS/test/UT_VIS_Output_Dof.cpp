@@ -368,7 +368,7 @@ namespace moris
                 tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
                 tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
                 tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-                //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+                //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
 
                 dla::Linear_Solver tLinSolver;
                 tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );

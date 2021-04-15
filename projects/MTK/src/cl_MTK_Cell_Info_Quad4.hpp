@@ -33,6 +33,11 @@ namespace moris
             enum Integration_Order
             get_cell_integration_order() const;
 
+            //-----------------------------------------------------------------------------
+
+            enum CellShape
+            compute_cell_shape(moris::mtk::Cell const *aCell) const;
+
             // ----------------------------------------------------------------------------------
 
             uint
@@ -42,6 +47,11 @@ namespace moris
 
             uint
             get_num_facets() const;
+
+            // ----------------------------------------------------------------------------------
+
+            uint
+            get_num_edges() const;
 
             // ----------------------------------------------------------------------------------
 
@@ -121,7 +131,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
-            /**
+            /**compute_cell_side_size
              * Computes the cell size if this isn't a rectangular cell
              * @param[in] aCell          MTK cell to compute size of.
              * 

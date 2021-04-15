@@ -520,16 +520,39 @@ namespace xtk
         return mChildrenMeshes(aChildMeshIndex)->get_parent_element_index();
     }
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Mesh::get_child_elements_connected_to_parent_facet(
-            moris::moris_index const & aChildMeshIndex,
-            moris::moris_index const & aParentFaceIndex,
-            moris::Matrix< moris::IdMat > & aChildrenElementId,
+            moris::moris_index const         & aChildMeshIndex,
+            moris::moris_index const         & aParentFaceIndex,
+            moris::Matrix< moris::IdMat >    & aChildrenElementId,
             moris::Matrix< moris::IndexMat > & aChildrenElementCMInd,
             moris::Matrix< moris::IndexMat > & aFaceOrdinal) const
     {
-        mChildrenMeshes(aChildMeshIndex)->get_child_elements_connected_to_parent_facet(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
+        // estimate maximum number of elements on face
+         const uint tMaxElemOnFace = 100;
+
+        // matrices used throughout routine
+        aChildrenElementId.set_size(1,tMaxElemOnFace);
+        aChildrenElementCMInd.set_size(1,tMaxElemOnFace);
+        aFaceOrdinal.set_size(1,tMaxElemOnFace);
+
+        // define variable for actual number of child elements on face
+        uint tNumberOfChildElemsOnFace;
+
+        mChildrenMeshes(aChildMeshIndex)->get_child_elements_connected_to_parent_facet(
+                aParentFaceIndex,
+                tNumberOfChildElemsOnFace,
+                aChildrenElementId,
+                aChildrenElementCMInd,
+                aFaceOrdinal);
+
+        // resize matrices matrices used throughout routine
+        aChildrenElementId.resize(0,tNumberOfChildElemsOnFace);
+        aChildrenElementCMInd.resize(0,tNumberOfChildElemsOnFace);
+        aFaceOrdinal.resize(0,tNumberOfChildElemsOnFace);
     }
+
     // ----------------------------------------------------------------------------------
     void
     Cut_Mesh::pack_cut_mesh_by_phase(
@@ -869,8 +892,18 @@ namespace xtk
 
     void
     Cut_Mesh::remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
-                                                   Cell<moris::uint> const & aMeshesToDelete)
+                                                   Cell<moris::uint> const & aMeshesToDelete,
+                                                   Cell<moris_index> & aCellsToRemoveFromMesh) 
     {
+        uint tNumCells = 0;
+        // count the cells to delete
+        for(moris::uint iCM = 0; iCM < aMeshesToDelete.size(); iCM++)
+        {
+            tNumCells = tNumCells+mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(EntityRank::ELEMENT);
+        }
+
+        aCellsToRemoveFromMesh.reserve(tNumCells);
+
         Cell<Child_Mesh*> tCMToKeep(aMeshesToKeep.size());
 
         // collect a temporary list then populate member data
@@ -882,6 +915,13 @@ namespace xtk
         // delete the others
         for(moris::uint iCM = 0; iCM < aMeshesToDelete.size(); iCM++)
         {
+
+            Matrix<IndexMat> const & tCellInds = mChildrenMeshes(aMeshesToDelete(iCM))->get_element_inds();
+            for(moris::uint iCell = 0; iCell<mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(EntityRank::ELEMENT);iCell++)
+            {
+                aCellsToRemoveFromMesh.push_back(tCellInds(iCell));
+            }
+
             delete mChildrenMeshes(aMeshesToDelete(iCM));
         }
 
@@ -897,6 +937,18 @@ namespace xtk
         mConsistentCounts = false;
         this->get_entity_counts();
 
+
+        this->setup_subphase_to_child_mesh_connectivity();
+
+    }
+
+    void
+    Cut_Mesh::reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex)
+    {
+        for(moris::uint i = 0; i < this->get_num_child_meshes(); i++)
+        {
+            mChildrenMeshes(i)->reindex_cells(aOldIndexToNewCellIndex);
+        }
     }
 
     // ----------------------------------------------------------------------------------

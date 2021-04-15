@@ -867,6 +867,81 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+ 
+    enum CellShape
+    Enriched_Integration_Mesh::get_IG_blockset_shape( const  std::string & aSetName )
+    {
+        // get the clusters in the set
+        moris::Cell<mtk::Cluster const *> tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+
+        // init cell shape
+        CellShape tCellShape = CellShape::EMPTY;
+
+        // if the set isn't empty exist
+        if ( tSetClusters.size() > 0 )
+        {
+            // get the cells in the first cluster
+            moris::Cell<moris::mtk::Cell const *> tClusterCells = tSetClusters(0)->get_primary_cells_in_cluster();
+
+            // compute the cell shape of the first cell
+            tCellShape = tClusterCells(0)->get_cell_info()->compute_cell_shape( tClusterCells(0) );
+        }
+
+        // within debug, checking all cells to make sure that they are the same Cell Shape
+        // if cells exist
+
+        // looping through the clusters
+        for( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
+        {
+            // get cell of cells in the cluster
+            moris::Cell<moris::mtk::Cell const *> tClusterCellsCheck = tSetClusters(iCluster)->get_primary_cells_in_cluster();
+
+            // looping through the cells in the cluster
+            for( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
+            {
+                MORIS_ASSERT( tClusterCellsCheck(iCheckCell)->get_cell_info()->compute_cell_shape( tClusterCellsCheck(iCheckCell) ) == tCellShape,
+                        "Mesh_Core_STK::get_IG_blockset_shape - cell shape is not consistent in the block");
+            }
+        }
+
+        return tCellShape;
+    }
+
+    //------------------------------------------------------------------------------
+
+    enum CellShape
+    Enriched_Integration_Mesh::get_IP_blockset_shape( const  std::string & aSetName )
+    {
+        // get the clusters in the set
+        moris::Cell<mtk::Cluster const *> tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+
+        // init cell shape
+        CellShape tCellShape = CellShape::EMPTY;
+
+        // if the set isn't empty exist
+        if ( tSetClusters.size() > 0 )
+        {
+            // get the cells in the first cluster
+            mtk::Cell const & tClusterCell = tSetClusters(0)->get_interpolation_cell();
+
+            // compute the cell shape of the first cell
+            tCellShape = tClusterCell.get_cell_info()->compute_cell_shape( &tClusterCell );
+        }
+
+        // within debug, checking all cells to make sure that they are the same Cell Shape
+        // if cells exist
+        // looping through the clusters
+        for( uint iCluster = 1; iCluster < tSetClusters.size(); iCluster++ )
+        {
+            MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_info()->compute_cell_shape(
+                    &tSetClusters( iCluster )->get_interpolation_cell() ) == tCellShape,
+                    "Enriched_Integration_Mesh::get_IP_blockset_shape - cell shape is not consistent in the block");
+        }
+
+        return tCellShape;
+    }
+
+    //------------------------------------------------------------------------------
 
     Matrix<IdMat>
     Enriched_Integration_Mesh::convert_indices_to_ids(
@@ -1346,7 +1421,7 @@ namespace xtk
         if(aCollectSets)
         {
             this->setup_color_to_set();
-            this->collect_all_sets();
+            this->collect_all_sets( false );
         }
 
         return tSideSetIndex(0);
@@ -1396,7 +1471,7 @@ namespace xtk
         this->commit_block_set(tBlockSetIndex(0));
         this->set_block_set_colors(tBlockSetIndex(0),this->get_side_set_colors(aSideSetIndex));
         this->setup_color_to_set();
-        this->collect_all_sets();
+        this->collect_all_sets( false );
 
         return tBlockSetIndex(0);
     }
@@ -1776,7 +1851,7 @@ namespace xtk
             moris::Cell<std::string> tChildNoChildSetNames = this->split_set_name_by_child_no_child(tSideSetNames(iSS));
 
             // split child and no child sets by phases
-            moris::Cell<std::string> tPhaseChildSideSetNames = this->split_set_name_by_bulk_phase(tChildNoChildSetNames(0));
+            moris::Cell<std::string> tPhaseChildSideSetNames   = this->split_set_name_by_bulk_phase(tChildNoChildSetNames(0));
             moris::Cell<std::string> tPhaseNoChildSideSetNames = this->split_set_name_by_bulk_phase(tChildNoChildSetNames(1));
 
             // add side set names to member data
@@ -1793,7 +1868,19 @@ namespace xtk
             // get the cells in this side set and their side ordinals
             moris::Cell< mtk::Cell const * > tCellsInSideSet;
             Matrix< IndexMat >               tCellOrdsInSideSet;
-            tBackgroundMesh.get_mesh_data().get_sideset_cells_and_ords(tSideSetNames(iSS),tCellsInSideSet,tCellOrdsInSideSet);
+
+            tBackgroundMesh.get_mesh_data().get_sideset_cells_and_ords(
+                    tSideSetNames(iSS),
+                    tCellsInSideSet,
+                    tCellOrdsInSideSet);
+
+            // estimate maximum number of elements on face
+             const uint tMaxElemOnFace = 100;
+
+            // allocate fixed size arrays
+            Matrix< IdMat >    tChildCellIdsOnFace(1,tMaxElemOnFace);
+            Matrix< IndexMat > tChildCellsCMIndOnFace(1,tMaxElemOnFace);
+            Matrix< IndexMat > tChildCellsOnFaceOrdinal(1,tMaxElemOnFace);
 
             // iterate through cells in side set
             for(moris::uint iC = 0; iC<tCellsInSideSet.size(); iC++)
@@ -1803,7 +1890,6 @@ namespace xtk
 
                 if(tBaseCell->get_owner() == tParRank)
                 {
-
                     // ask background mesh if the base cell has children (the opposite answer to this question is the trivial flag)
                     bool tTrivial = !tBackgroundMesh.entity_has_children(tBaseCell->get_index(),EntityRank::ELEMENT);
 
@@ -1822,11 +1908,16 @@ namespace xtk
 
                         MORIS_ASSERT(tEnrichedCellsOfBaseCell.size() == tChildMesh->get_num_subphase_bins(),"Number of enriched interpolation cells and subphase bins does not match");
 
+                        // define variable for actual number of child elements on face
+                        uint tNumberOfChildElemsOnFace;
+
                         // get child element indices and side ordinals on face
-                        Matrix<IdMat>    tChildCellIdsOnFace;
-                        Matrix<IndexMat> tChildCellsCMIndOnFace;
-                        Matrix<IndexMat> tChildCellsOnFaceOrdinal;
-                        tChildMesh->get_child_elements_connected_to_parent_facet(tSideIndex, tChildCellIdsOnFace, tChildCellsCMIndOnFace, tChildCellsOnFaceOrdinal);
+                        tChildMesh->get_child_elements_connected_to_parent_facet(
+                                tSideIndex,
+                                tNumberOfChildElemsOnFace,
+                                tChildCellIdsOnFace,
+                                tChildCellsCMIndOnFace,
+                                tChildCellsOnFaceOrdinal);
 
                         // child cell indices
                         Matrix<IndexMat> const & tChildCellInds = tChildMesh->get_element_inds();
@@ -1849,20 +1940,20 @@ namespace xtk
                             tSideClustersForCM(iSP) = std::make_shared< Side_Cluster >();
                             tSideClustersForCM(iSP)->mInterpolationCell = tEnrichedCellsOfBaseCell(iSP);
                             tSideClustersForCM(iSP)->mTrivial = false;
-                            tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals = Matrix<IndexMat>(1,tChildCellIdsOnFace.numel());
+                            tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals = Matrix<IndexMat>(1,tNumberOfChildElemsOnFace);
                             tSideClustersForCM(iSP)->mChildMesh = tChildMesh;
                             tSideClustersForCM(iSP)->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(iSP));
                         }
 
-                    
-
                         // iterate through child cells on face
-                        for(moris::uint iF = 0; iF < tChildCellsCMIndOnFace.numel(); iF++)
+                        for(moris::uint iF = 0; iF < tNumberOfChildElemsOnFace; iF++)
                         {
                             moris_index tSubphaseGroup      = tChildMesh->get_element_subphase_index(tChildCellsCMIndOnFace(iF));
                             moris_index tCMCellIndex        = tChildCellsCMIndOnFace(iF);
                             moris_index tIndexInSideCluster = tSideClustersForCM(tSubphaseGroup)->mIntegrationCells.size();
-                            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tChildCells(tCMCellIndex)->get_vertices_on_side_ordinal(tChildCellsOnFaceOrdinal(iF));
+
+                            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide =
+                                    tChildCells(tCMCellIndex)->get_vertices_on_side_ordinal(tChildCellsOnFaceOrdinal(iF));
 
                             for(moris::uint iVoS = 0; iVoS < tVerticesOnSide.size(); iVoS++)
                             {
@@ -1874,7 +1965,6 @@ namespace xtk
                                 }
                             }
 
-
                             // add information to side cluster
                             tSideClustersForCM(tSubphaseGroup)->mIntegrationCellSideOrdinals(tIndexInSideCluster) = tChildCellsOnFaceOrdinal(iF);
                             tSideClustersForCM(tSubphaseGroup)->mIntegrationCells.push_back(tChildCells(tCMCellIndex));
@@ -1884,14 +1974,12 @@ namespace xtk
                         // iterate through, get rid of extra space in side ordinals and add to side set clusters data
                         for(moris::uint  iSP = 0; iSP < tChildMesh->get_num_subphase_bins(); iSP++)
                         {
-
                             // add vertices to cluster
                             tSideClustersForCM(iSP)->mVerticesInCluster = tVerticesInCluster(iSP);
 
                             // only add this side cluster to the set if it has at least one integration cell in it
                             if(tSideClustersForCM(iSP)->mIntegrationCells.size() > 0 )
                             {
-
                                 tSideClustersForCM(iSP)->mIntegrationCellSideOrdinals.resize(1,tSideClustersForCM(iSP)->mIntegrationCells.size());
 
                                 // bulk phase of this cluster
@@ -1905,14 +1993,12 @@ namespace xtk
                                 // add
                                 mSideSets(tSideSetOrd).push_back(tSideClustersForCM(iSP));
                             }
-
-
                         }
                     }
-
                     else
                     {
-                        MORIS_ASSERT(tEnrichedCellsOfBaseCell.size() == 1,"For the trivial case, a base cell should have 1 enriched interpolation cell associated with it");
+                        MORIS_ASSERT(tEnrichedCellsOfBaseCell.size() == 1,
+                                "For the trivial case, a base cell should have 1 enriched interpolation cell associated with it");
 
                         // phase of cell
                         moris_index tBulkPhase = tEnrichedCellsOfBaseCell(0)->get_bulkphase_index();
@@ -1954,7 +2040,6 @@ namespace xtk
         {
             this->commit_side_set(Ik);
         }
-
     }
 
     //------------------------------------------------------------------------------

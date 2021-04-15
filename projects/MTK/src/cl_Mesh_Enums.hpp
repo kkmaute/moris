@@ -41,6 +41,19 @@ enum class CellTopology
     END_ENUM
 };
 
+enum class CellShape
+{
+    // the following cell shapes increase specificity towards the top.
+    // ie. Rectangular will also be parallel and straight. but a parallel cell shape will not be rectangular/
+    RECTANGULAR, // rectangular and aligned with global csys quad or hex
+    PARALLEL,    // Parallelogram
+    STRAIGHT,    // all straight edges or planar faces faces
+    GENERAL,
+    EMPTY,
+    INVALID,
+    END_ENUM
+};
+
 inline
 const std::string get_enum_str(enum CellTopology aCellTopoEnum)
 {

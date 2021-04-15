@@ -86,36 +86,38 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
     // set linear system
     mLinearSystem = aLinearSystem;
 
-    // set preconditioner
-    RCP<Belos::EpetraPrecOp> belosPrec;
+    // initialize, build and set preconditioner
+    Preconditioner_Trilinos tPreconditioner( mParameterList, mLinearSystem );
 
-    if( !mParameterList.get< std::string >( "ifpack_prec_type" ).empty() )
-    {
-        Preconditioner_Trilinos tPreconditioiner( mParameterList, mLinearSystem );
-        tPreconditioiner.build_ifpack_preconditioner();
-        belosPrec = rcp ( new Belos::EpetraPrecOp ( tPreconditioiner.get_ifpack_prec() ) );
-    }
-    else if( !mParameterList.get< std::string >( "ml_prec_type" ).empty() )
-    {
-        Preconditioner_Trilinos tPreconditioiner( mParameterList, mLinearSystem );
-        tPreconditioiner.build_ml_preconditioner();
-        belosPrec = rcp ( new Belos::EpetraPrecOp ( tPreconditioiner.get_ml_prec() ) );
-    }
-    else
-    {
-        MORIS_ERROR( false,
-                "Linear_Solver_Belos::solve_linear_system - no preconditioner specified");
-    }
+    tPreconditioner.build();
+
+    MORIS_ERROR( tPreconditioner.exists(),
+            "Linear_Solver_Belos::solve_linear_system - No preconditioner has been defined.\n");
+
+    RCP<Belos::EpetraPrecOp>  belosPrec =
+            rcp ( new Belos::EpetraPrecOp ( tPreconditioner.get_operator() ) );
+
+    // get operator, solution and Rhs vectors
+    RCP<Epetra_CrsMatrix>   A =
+            rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() ), false );
+    RCP<Epetra_MultiVector> X =
+            rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector(), false );
+    RCP<Epetra_MultiVector> B =
+            rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector(), false );
 
     // create linear problem
     RCP<Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> > problem =
-            rcp (new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator>(
-                    rcp( dynamic_cast< Epetra_CrsMatrix* > ( aLinearSystem->get_matrix()->get_matrix() ), false ),
-                    rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector(), false ),
-                    rcp( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector(), false ) ) );
+            rcp (new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator>(A, X, B) );
 
-    // set preconditioner (hard-coded to left preconditioner)
-    problem->setLeftPrec( belosPrec );
+    // set either left or right preconditioner
+    if( mParameterList.get< std::string >( "Left-right Preconditioner" ) == "left" )
+    {
+        problem->setLeftPrec( belosPrec );
+    }
+    else
+    {
+        problem->setRightPrec( belosPrec );
+    }
 
     // check problem set
     MORIS_ERROR( problem->setProblem(),
@@ -132,12 +134,25 @@ moris::sint Linear_Solver_Belos::solve_linear_system(
     // Tell the solver what problem you want to solve.
     solver->setProblem (problem);
 
-    //Belos::ReturnType result = solver->solve();
-    solver->solve();
+    // Solve problem
+    Belos::ReturnType tSolverConvergence = solver->solve();
+
+    MORIS_LOG_SPEC( "IterativeSolverConverged", tSolverConvergence);
 
     // Ask the solver how many iterations the last solve() took.
     MORIS_LOG_SPEC( "LinearSolverIterations", solver->getNumIters() );
 
+    // Get solution tolerance across all RHS
+    MORIS_LOG_SPEC( "LinearResidualNorm_All_RHS", solver->achievedTol() );
+
+    // compute exact residuals
+    Matrix<DDRMat> tRelativeResidualNorm = aLinearSystem->compute_residual_of_linear_system();
+
+    for ( uint i=0; i<tRelativeResidualNorm.numel(); i++) {
+        MORIS_LOG_SPEC( "LinearResidualNorm_RHS_" + std::to_string(i), tRelativeResidualNorm(i) );
+    }
+
+    // return solver status
     return 0;
 }
 
@@ -170,5 +185,10 @@ void Linear_Solver_Belos::set_solver_internal_parameters()
     if (mParameterList.get< moris::real >( "Convergence Tolerance" ) != 1e-08)
     {
         mMyPl->set ( "Convergence Tolerance", mParameterList.get< moris::real >( "Convergence Tolerance" ) );
+    }
+
+    if (mParameterList.get< moris::sint >( "Output Frequency" ) != -1 )
+    {
+        mMyPl->set("Output Frequency", mParameterList.get< moris::real >( "Output Frequency" ) );
     }
 }

@@ -44,6 +44,14 @@ namespace moris
             return Integration_Order::TRI_7;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Tri3::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            return CellShape::STRAIGHT;
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint
@@ -56,6 +64,14 @@ namespace moris
 
         uint
         Cell_Info_Tri3::get_num_facets() const
+        {
+            return 3;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        Cell_Info_Tri3::get_num_edges() const
         {
             return 3;
         }
@@ -212,9 +228,9 @@ namespace moris
             const Matrix<DDRMat> tNodeCoords10 = tVertices(1)->get_coords() - tNodeCoords0;
             const Matrix<DDRMat> tNodeCoords20 = tVertices(2)->get_coords() - tNodeCoords0;
 
-            real tArea = 0.5 * std::abs(tNodeCoords10(0) * tNodeCoords20(1) - tNodeCoords20(0) * tNodeCoords10(1));
+            real tArea = 0.5 *std::abs(tNodeCoords10(0) * tNodeCoords20(1) - tNodeCoords20(0) * tNodeCoords10(1));
 
-            return tArea;
+            return tArea; 
         }
 
         // ----------------------------------------------------------------------------------
