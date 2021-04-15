@@ -600,12 +600,9 @@ namespace moris
 
         size_t Geometry_Engine::get_node_phase_index_wrt_a_geometry(
                 uint                   aNodeIndex,
-                const Matrix<DDRMat> & aCoordinates,
                 uint                   aGeometryIndex)
         {
-
             moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity(aGeometryIndex);
-
 
             size_t tPhaseOnOff = 0;
 
