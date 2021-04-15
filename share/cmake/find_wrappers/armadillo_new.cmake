@@ -20,13 +20,13 @@ if(NOT ARMADILLO_FOUND_ONCE)
     ##    CACHE PATH "Armadillo library directories." )
     ##set(MORIS_ARMADILLO_LIBRARIES ${ARMADILLO_LIBRARIES}
     ##    CACHE FILEPATH "Armadillo libraries." )
-    #set(MORIS_ARMADILLO_LIBRARIES "${ARMADILLO_LIBRARY_DIRS}/libarmadillo.a"
+    #set(MORIS_ARMADILLO_LIBRARIES "${ARMADILLO_LIBRARY_DIRS}/libarmadillo.so"
     #    CACHE FILEPATH "Armadillo libraries." )
     #set(MORIS_ARMADILLO_DEFINITIONS "-DMORIS_USE_ARMA"
     #	CACHE INTERNAL "Moris preprocessor definitions for Armadillo.")
     set(MORIS_ARMADILLO_INCLUDE_DIRS ${ARMADILLO_INCLUDE_DIRS})
     set(MORIS_ARMADILLO_DEFINITIONS "-DMORIS_USE_ARMA")
-    set(MORIS_ARMADILLO_LIBRARIES "${ARMADILLO_LIBRARY_DIRS}/libarmadillo.a")
+    set(MORIS_ARMADILLO_LIBRARIES "${ARMADILLO_LIBRARY_DIRS}/libarmadillo.so")
     
     mark_as_advanced(Armadillo_DIR
         MORIS_ARMADILLO_INCLUDE_DIRS

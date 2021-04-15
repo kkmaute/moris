@@ -64,8 +64,13 @@ endforeach()
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-	string(APPEND GEN_CORE_CONFIG_MORIS_DEPENDENCIES
-		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+	# string(APPEND GEN_CORE_CONFIG_MORIS_DEPENDENCIES
+	# 	"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+
+        string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
+
 endforeach()
 
 # Properties to be coppied into config file

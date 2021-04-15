@@ -40,6 +40,7 @@ cl_MTK_Mesh_Manager.hpp
 cl_MTK_Mesh_Checker.hpp
 cl_MTK_Mesh_Tools.hpp
 cl_MTK_Mesh.hpp
+cl_MTK_Mesh_Pair.hpp
 cl_MTK_Node_Sets_Info.hpp
 cl_MTK_Periodic_Boundary_Condition_Helper.hpp
 cl_MTK_Scalar_Field_Info.hpp
@@ -229,8 +230,16 @@ endforeach()
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-	string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
-		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+    string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} QUIET HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
+endforeach()
+
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+
+    string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} REQUIRED HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Properties to be coppied into config file
