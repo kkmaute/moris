@@ -76,7 +76,7 @@ namespace moris
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
-                            { 0, 0 } ) += aWStar * ( tSP->dSPdMasterDOF( tDofType ) );
+                            { 0, 0 } ) += aWStar * trans( tSP->dSPdMasterDOF( tDofType ) );
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace moris
             if ( tSP != nullptr && tSP->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu = tSP->dSPdMasterDOF( aDofType );
+                adQIdu = trans( tSP->dSPdMasterDOF( aDofType ) );
             }
         }
 
