@@ -155,6 +155,7 @@ namespace xtk
             void
             initialize( moris::mtk::Interpolation_Mesh* aMesh );
 
+
             //--------------------------------------------------------------------------------
             // Operations
             //--------------------------------------------------------------------------------
@@ -174,8 +175,8 @@ namespace xtk
 
             //--------------------------------------------------------------------------------
             /*!
-             * Remove child meshes that have an intersection but all cells are in the same bulk phase
-             */
+            * Remove child meshes that have an intersection but all cells are in the same bulk phase
+            */
             void
             set_cleanup_cut_mesh_flag( bool aCleanupMesh );
 
@@ -220,8 +221,8 @@ namespace xtk
 
             //--------------------------------------------------------------------------------
             /*!
-             * @brief get the memory usage of XTK
-             */
+            * @brief get the memory usage of XTK
+            */
             moris::Memory_Map
             get_memory_usage();
 
@@ -244,7 +245,7 @@ namespace xtk
             unzip_interface();
 
             // ----------------------------------------------------------------------------------
-
+ 
             /*!
              * Perform generalized heaviside  enrichment.
              */
@@ -254,7 +255,7 @@ namespace xtk
                     moris_index      const & aMeshIndex = 0);
 
             // ----------------------------------------------------------------------------------
-
+ 
             /*!
              * @brief Perform basis enrichment
              * @param[in] aBasisRank Entity rank of basis functions
@@ -458,7 +459,7 @@ namespace xtk
             moris::Cell<moris::Cell<moris::mtk::Cell*>> const &
             get_element_to_element(){ return mElementToElement; };
 
-            /*!
+             /*!
              * @returns element to element my side ordinals
              */
             moris::Cell<moris::Cell<moris_index>> const &
@@ -563,6 +564,7 @@ namespace xtk
             // XTK Model State Flags
             bool mDecomposed        = false; // Model has been decomposed
             bool mConvertedToTet10s = false; // Model has been converted from tet4's to tet10s
+            bool mMeshDataFinalized = false;
             bool mEnriched          = false; // Model has been enriched
             bool mUnzipped          = false; // Model has been unzipped
             bool mGhost             = false; // Model has setup ghost stabilization
@@ -615,6 +617,7 @@ namespace xtk
             // Functions that take parameter inputs and setup XTK inputs
             bool
             has_parameter_list();
+
 
             //------------------------------------------------------------------------------
 
@@ -713,6 +716,7 @@ namespace xtk
             void
             catch_all_unhandled_interfaces( );
 
+
             //------------------------------------------------------------------------------
             bool
             check_for_degenerated_cells();
@@ -767,530 +771,525 @@ namespace xtk
                     std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
                     Cell<Matrix<IndexMat>>                & aSentRequests);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            /*!
-             * Verifies that the nodes in a decomposition have all been assigned node ids
-             */
-            bool
-            verify_successful_node_assignment(Decomposition_Data & aDecompData);
+             /*!
+              * Verifies that the nodes in a decomposition have all been assigned node ids
+              */
+             bool
+             verify_successful_node_assignment(Decomposition_Data & aDecompData);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
         protected:
-            void
-            send_outward_requests(
-                    moris_index      const & aMPITag,
-                    Cell<uint>       const & aProcRanks,
-                    Cell<Matrix<IndexMat>> & aOutwardRequests);
+             void
+             send_outward_requests(
+                     moris_index            const & aMPITag,
+                     Cell<uint>             const & aProcRanks,
+                     Cell<Matrix<IndexMat>> & aOutwardRequests);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            inward_receive_requests(
-                    moris_index            const & aMPITag,
-                    moris::uint                    aNumRows,
-                    Cell<Matrix<IndexMat>> &       aReceivedData,
-                    Cell<uint>             &       aProcRanksReceivedFrom);
+             void
+             inward_receive_requests(
+                     moris_index            const & aMPITag,
+                     moris::uint                    aNumRows,
+                     Cell<Matrix<IndexMat>> &       aReceivedData,
+                     Cell<uint>             &       aProcRanksReceivedFrom);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            prepare_request_answers(
-                    Decomposition_Data           & aDecompData,
-                    Cell<Matrix<IndexMat>> const & aReceiveData,
-                    Cell<Matrix<IndexMat>>       & aReceivedRequestAnswers);
+             void
+             prepare_request_answers(
+                     Decomposition_Data           & aDecompData,
+                     Cell<Matrix<IndexMat>> const & aReceiveData,
+                     Cell<Matrix<IndexMat>>       & aReceivedRequestAnswers);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            return_request_answers(
-                    moris_index            const & aMPITag,
-                    Cell<Matrix<IndexMat>> const & aRequestAnswers,
-                    Cell<uint>             const & aProcRanks);
+             void
+             return_request_answers(
+                     moris_index            const & aMPITag,
+                     Cell<Matrix<IndexMat>> const & aRequestAnswers,
+                     Cell<uint>             const & aProcRanks);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            inward_receive_request_answers(
-                    moris_index            const & aMPITag,
-                    moris::uint            const & aNumRows,
-                    Cell<uint>             const & aProcRanks,
-                    Cell<Matrix<IndexMat>> &       aReceivedData);
+             void
+             inward_receive_request_answers(
+                     moris_index            const & aMPITag,
+                     moris::uint            const & aNumRows,
+                     Cell<uint>             const & aProcRanks,
+                     Cell<Matrix<IndexMat>> &       aReceivedData);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            handle_received_request_answers(
-                    Decomposition_Data           & aDecompData,
-                    Cell<Matrix<IndexMat>> const & aRequests,
-                    Cell<Matrix<IndexMat>> const & aRequestAnswers,
-                    moris::moris_id              & aNodeId);
+             void
+             handle_received_request_answers(
+                     Decomposition_Data           & aDecompData,
+                     Cell<Matrix<IndexMat>> const & aRequests,
+                     Cell<Matrix<IndexMat>> const & aRequestAnswers,
+                     moris::moris_id              & aNodeId);
 
-            //------------------------------------------------------------------------------
-            // moris real versions of above
-            void
-            send_outward_requests_reals(
-                    moris_index const    & aMPITag,
-                    Cell<uint>  const    & aProcRanks,
-                    Cell<Matrix<DDRMat>> & aOutwardRequests);
+             //------------------------------------------------------------------------------
+             // moris real versions of above
+             void
+             send_outward_requests_reals(
+                     moris_index const    & aMPITag,
+                     Cell<uint>  const    & aProcRanks,
+                     Cell<Matrix<DDRMat>> & aOutwardRequests);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            inward_receive_requests_reals(
-                    moris_index const &    aMPITag,
-                    moris::uint            aNumRows,
-                    Cell<Matrix<DDRMat>> & aReceivedData,
-                    Cell<uint>           & aProcRanksReceivedFrom);
+             void
+             inward_receive_requests_reals(
+                     moris_index const &    aMPITag,
+                     moris::uint            aNumRows,
+                     Cell<Matrix<DDRMat>> & aReceivedData,
+                     Cell<uint>           & aProcRanksReceivedFrom);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            return_request_answers_reals(
-                    moris_index const & aMPITag,
-                    Cell<Matrix<DDRMat>> const & aRequestAnswers,
-                    Cell<uint>              const & aProcRanks);
+             void
+             return_request_answers_reals(
+                     moris_index const & aMPITag,
+                     Cell<Matrix<DDRMat>> const & aRequestAnswers,
+                     Cell<uint>              const & aProcRanks);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            inward_receive_request_answers_reals(
-                    moris_index          const & aMPITag,
-                    moris::uint          const & aNumRows,
-                    Cell<uint>           const & aProcRanks,
-                    Cell<Matrix<DDRMat>>       & aReceivedData);
+             void
+             inward_receive_request_answers_reals(
+                     moris_index          const & aMPITag,
+                     moris::uint          const & aNumRows,
+                     Cell<uint>           const & aProcRanks,
+                     Cell<Matrix<DDRMat>>       & aReceivedData);
 
-            //------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
-            void
-            add_timing_data(
-                    real        const & aTime,
-                    std::string const & aLabel,
-                    std::string const & aCategory);
+             void
+             add_timing_data(
+                     real        const & aTime,
+                     std::string const & aLabel,
+                     std::string const & aCategory);
 
         private:
 
-            /*
-             * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
-             * Tasks performed here:
-             *  - Assign all child elements global ids and processor local indices
-             *  - Store phase indices of non-intersected parent elements
-             *
-             */
-            void
-            finalize_decomp_in_xtk_mesh(bool aSetPhase);
+             /*
+              * Perform all tasks needed to finalize the decomposition process. Assignes cells
+              */
+             void
+             finalize_decomp();
 
-            //------------------------------------------------------------------------------
+             void
+             finalize_mesh_data();
+
+             //------------------------------------------------------------------------------
 
             /*!
-             * assign child element indices
-             */
+            * assign child element indices
+            */
             void
             assign_child_element_indices(bool aUpdateAvailable );
 
-            /*!
-             * assign child element global ids
-             */
-            void
-            assign_child_element_ids();
-
-            //------------------------------------------------------------------------------
-
-            void
-            prepare_child_element_identifier_requests(
-                    Cell<Cell<moris_id>>                  & aNotOwnedChildMeshesToProcs,
-                    Cell<moris::Matrix<IdMat>>            & aOwnedParentCellId,
-                    Cell<moris::Matrix<IdMat>>            & aNumOwnedCellIdsOffsets,
-                    Cell<uint >                           & aProcRanks,
-                    std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
-
-            //------------------------------------------------------------------------------
-
-            void
-            prepare_child_cell_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
-                    Cell<Matrix<IndexMat>> & aReceivedParentCellNumChildren,
-                    Cell<Matrix<IndexMat>> & aChildCellIdOffset);
-
-            //------------------------------------------------------------------------------
-
-            void
-            handle_received_child_cell_id_request_answers(
-                    Cell<Cell<moris_index>> const & aChildMeshesInInNotOwned,
-                    Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Add children elements to local to global map
-             */
-            void
-            add_child_elements_to_local_to_global_map();
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Constructs the mtk cell interface for all child elements created during the
-             * decomposition process
-             */
-            void
-            create_child_element_mtk_cells();
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Add the vertex pointer to child meshes
-             */
-            void
-            add_vertices_to_child_meshes();
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * setup cell id to index map
-             */
-            void
-            setup_cell_glb_to_local_map();
-
-            //------------------------------------------------------------------------------
-
-            /*
-             *
-             * Identifies local sub-phase clusters within a single child mesh.
-             * The sub-phase data (result of floodfill) is stored as a member
-             * variable in each child mesh as sub-phase bins
-             */
-            void
-            identify_local_subphase_clusters_in_child_meshes();
-
-            //------------------------------------------------------------------------------
-            /*
-             * Creates double side set data for interfaces internal to the child mesh
-             */
-            void
-            construct_internal_double_sides_between_subphases();
-
-            //------------------------------------------------------------------------------
-
-            void
-            prepare_subphase_identifier_requests(
-                    Cell<Cell<moris_id>>       & aNotOwnedSubphasesToProcs,
-                    Cell<Cell<moris_id>>       & aSubphaseCMIndices,
-                    Cell<moris::Matrix<IdMat>> & aParentCellIds,
-                    Cell<moris::Matrix<IdMat>> & aChildCellIds,
-                    Cell<moris::Matrix<IdMat>> & aNumChildCellsInSubphase,
-                    Cell<uint>                 & aProcRanks,
-                    std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
-
-            //------------------------------------------------------------------------------
-
-            void
-            prepare_subphase_id_answers(
-                    Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
-                    Cell<Matrix<IndexMat>> & aFirstChildCellIds,
-                    Cell<Matrix<IndexMat>> & aReceivedNumChildCellsInSubphase,
-                    Cell<Matrix<IndexMat>> & aSubphaseIds);
+             /*!
+              * assign child element global ids
+              */
+             void
+             assign_child_element_ids();
+
+             //------------------------------------------------------------------------------
+
+             void
+             prepare_child_element_identifier_requests(
+                     Cell<Cell<moris_id>>                  & aNotOwnedChildMeshesToProcs,
+                     Cell<moris::Matrix<IdMat>>            & aOwnedParentCellId,
+                     Cell<moris::Matrix<IdMat>>            & aNumOwnedCellIdsOffsets,
+                     Cell<uint >                           & aProcRanks,
+                     std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
+
+             //------------------------------------------------------------------------------
+
+             void
+             prepare_child_cell_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+                     Cell<Matrix<IndexMat>> & aReceivedParentCellNumChildren,
+                     Cell<Matrix<IndexMat>> & aChildCellIdOffset);
+
+             //------------------------------------------------------------------------------
+
+             void
+             handle_received_child_cell_id_request_answers(
+                     Cell<Cell<moris_index>> const & aChildMeshesInInNotOwned,
+                     Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset);
+
+             //------------------------------------------------------------------------------
+
+             /*!
+              * Add children elements to local to global map
+              */
+              void
+              add_child_elements_to_local_to_global_map();
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Constructs the mtk cell interface for all child elements created during the
+               * decomposition process
+               */
+              void
+              create_child_element_mtk_cells();
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Add the vertex pointer to child meshes
+               */
+              void
+              add_vertices_to_child_meshes();
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * setup cell id to index map
+               */
+              void
+              setup_cell_glb_to_local_map();
+
+              //------------------------------------------------------------------------------
+
+              /*
+               *
+               * Identifies local sub-phase clusters within a single child mesh.
+               * The sub-phase data (result of floodfill) is stored as a member
+               * variable in each child mesh as sub-phase bins
+               */
+              void
+              identify_local_subphase_clusters_in_child_meshes();
+
+              //------------------------------------------------------------------------------
+              /*
+               * Creates double side set data for interfaces internal to the child mesh
+               */ 
+              void
+              construct_internal_double_sides_between_subphases();
+
+              //------------------------------------------------------------------------------
+
+              void
+              prepare_subphase_identifier_requests(
+                      Cell<Cell<moris_id>>       & aNotOwnedSubphasesToProcs,
+                      Cell<Cell<moris_id>>       & aSubphaseCMIndices,
+                      Cell<moris::Matrix<IdMat>> & aParentCellIds,
+                      Cell<moris::Matrix<IdMat>> & aChildCellIds,
+                      Cell<moris::Matrix<IdMat>> & aNumChildCellsInSubphase,
+                      Cell<uint>                 & aProcRanks,
+                      std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
+
+              //------------------------------------------------------------------------------
+
+              void
+              prepare_subphase_id_answers(
+                      Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+                      Cell<Matrix<IndexMat>> & aFirstChildCellIds,
+                      Cell<Matrix<IndexMat>> & aReceivedNumChildCellsInSubphase,
+                      Cell<Matrix<IndexMat>> & aSubphaseIds);
 
-            void
-            handle_received_subphase_id_request_answers(
-                    Cell<Cell<moris_index>>    const & aChildMeshesInNotOwned,
-                    Cell<Cell<moris_index>>    const & aCMSubphaseIndices,
-                    Cell<Matrix<IndexMat>>     const & aReceivedSubphaseIds);
+              void
+              handle_received_subphase_id_request_answers( 
+                      Cell<Cell<moris_index>>    const & aChildMeshesInNotOwned,
+                      Cell<Cell<moris_index>>    const & aCMSubphaseIndices,
+                      Cell<Matrix<IndexMat>>     const & aReceivedSubphaseIds);
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            void
-            assign_subphase_glob_ids();
+              void
+              assign_subphase_glob_ids();
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            void
-            setup_glob_to_loc_subphase_map();
+              void
+              setup_glob_to_loc_subphase_map();
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            void
-            unzip_child_mesh_internal();
+              void
+              unzip_child_mesh_internal();
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            /**
-             * Take the interface faces and create collapsed prisms
-             */
-            void
-            unzip_interface_internal();
+              /**
+               * Take the interface faces and create collapsed prisms
+               */
+              void
+              unzip_interface_internal();
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            void
-            unzip_interface_internal_assign_node_identifiers(
-                    moris::uint aNumNodes,
-                    moris::Matrix<moris::IdMat> & aUnzippedNodeIndices,
-                    moris::Matrix<moris::IdMat> & aUnzippedNodeIds);
+              void
+              unzip_interface_internal_assign_node_identifiers(
+                      moris::uint aNumNodes,
+                      moris::Matrix<moris::IdMat> & aUnzippedNodeIndices,
+                      moris::Matrix<moris::IdMat> & aUnzippedNodeIds);
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            void
-            unzip_interface_internal_modify_child_mesh(
-                    moris::uint                         aGeometryIndex,
-                    moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
-                    moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
-                    moris::Matrix<moris::IdMat> const & aUnzippedNodeIds);
+              void
+              unzip_interface_internal_modify_child_mesh(
+                      moris::uint                         aGeometryIndex,
+                      moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
+                      moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
+                      moris::Matrix<moris::IdMat> const & aUnzippedNodeIds);
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            moris::Matrix< moris::IndexMat >
-            unzip_interface_internal_assign_which_element_uses_unzipped_nodes(
-                    moris::moris_index                       aGeometryIndex,
-                    moris::Matrix< moris::IndexMat > const & aInterfaceElementPairs );
-
-            //------------------------------------------------------------------------------
-
-            moris::Cell<moris::Cell< moris::moris_index >>
-            unzip_interface_internal_collect_child_mesh_to_interface_node(
-                    moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
-                    moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
-                    moris::Matrix<moris::IdMat> const & aUnzippedNodeIds);
-
-            void
-            unzip_interface_construct_interface_elements(
-                    moris::uint aGeometryIndex,
-                    moris::Matrix< moris::IndexMat > const & aElementPairs,
-                    moris::Matrix< moris::IndexMat > const & aSideOrdinalPairs);
-
-            //------------------------------------------------------------------------------
-
-            void
-            unzip_interface_assign_element_identifiers();
-            //------------------------------------------------------------------------------
-            // Enrichment computation functions
-            //------------------------------------------------------------------------------
+              moris::Matrix< moris::IndexMat >
+              unzip_interface_internal_assign_which_element_uses_unzipped_nodes(
+                      moris::moris_index                       aGeometryIndex,
+                      moris::Matrix< moris::IndexMat > const & aInterfaceElementPairs );
+
+              //------------------------------------------------------------------------------
+
+              moris::Cell<moris::Cell< moris::moris_index >>
+              unzip_interface_internal_collect_child_mesh_to_interface_node(
+                      moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
+                      moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
+                      moris::Matrix<moris::IdMat> const & aUnzippedNodeIds);
+
+              void
+              unzip_interface_construct_interface_elements(
+                      moris::uint aGeometryIndex,
+                      moris::Matrix< moris::IndexMat > const & aElementPairs,
+                      moris::Matrix< moris::IndexMat > const & aSideOrdinalPairs);
+
+              //------------------------------------------------------------------------------
+
+              void
+              unzip_interface_assign_element_identifiers();
+              //------------------------------------------------------------------------------
+              // Enrichment computation functions
+              //------------------------------------------------------------------------------
 
-            void
-            perform_basis_enrichment_internal(
-                    enum EntityRank   const & aBasisRank,
-                    Matrix<IndexMat> const & aMeshIndex);
+              void
+              perform_basis_enrichment_internal(
+                      enum EntityRank   const & aBasisRank,
+                      Matrix<IndexMat> const & aMeshIndex);
 
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
-            /*!
-             * Links the vertex enrichment to the mtk implementation of the vertex
-             */
-            void
-            link_vertex_enrichment_to_vertex_interpolation();
-
-            //------------------------------------------------------------------------------
+              /*!
+               * Links the vertex enrichment to the mtk implementation of the vertex
+               */
+              void
+              link_vertex_enrichment_to_vertex_interpolation();
+
+              //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
-            // internal ghost functions
-            //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
+              // internal ghost functions
+              //------------------------------------------------------------------------------
 
-            /*
-             * Constructs child mesh groups (owned, owned shared, not owned shared)
-             */
-            void
-            sort_children_meshes_into_groups();
-
-            //------------------------------------------------------------------------------
+              /*
+               * Constructs child mesh groups (owned, owned shared, not owned shared)
+               */
+              void
+              sort_children_meshes_into_groups();
+
+              //------------------------------------------------------------------------------
 
-            /*
-             * For nodes that are created during the decomposition process, tell
-             * the XTK mesh about where they live in child meshes.
-             */
-            void
-            associate_nodes_created_during_decomp_to_child_meshes();
-
-            //------------------------------------------------------------------------------
-
-            /*
-             * Set element phase index
-             */
-            void
-            set_element_phases();
-
-            //------------------------------------------------------------------------------
-
-            /*
-             * Tells the XTK mesh about where it's children live in the cut mesh
-             */
-            void
-            set_downward_inheritance();
-
-            //------------------------------------------------------------------------------
-            /*
-             * This algorithm sets up the active child mesh indices and registers new pairs in the downward inheritance
-             */
-
-            void
-            run_first_cut_routine(
-                    moris::uint                        aGeomIndex,
-                    moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
-                    moris::Matrix< moris::IndexMat > & aNewPairBool);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Constructs the output mesh using provided Output_Options
-             */
-            moris::mtk::Integration_Mesh*
-            construct_output_mesh( Output_Options const & aOutputOptions );
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Setup interface single sided side sets
-             */
-            void
-            setup_interface_single_side_sets(
-                    Output_Options                   const  & aOutputOptions,
-                    Cell<moris::Matrix<moris::IdMat>>       & aCellIdsAndSideOrds,
-                    Cell<std::string>                       & aInterfaceSetNames);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Takes the whole node local to global map and removes the nodes
-             * which are not part of the phase being output
-             */
-            moris::Matrix<moris::IndexMat>
-            get_node_map_restricted_to_output_phases(
-                    Output_Options const &           aOutputOptions,
-                    moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
-
-            //------------------------------------------------------------------------------
-
-            moris::Cell<std::string>
-            assign_geometry_data_names();
-
-            //------------------------------------------------------------------------------
-
-
-            moris::Cell < enum moris::EntityRank >
-            assign_geometry_data_field_ranks();
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Sets up background node sets for mesh output. Propogates the node set from
-             * the background mesh to the output mesh
-             */
-            moris::Cell<moris::mtk::MtkNodeSetInfo>
-            propogate_background_node_sets(
-                    moris::Cell<moris::Matrix<IndexMat>>       & aNodeSetData,
-                    Output_Options                       const & aOutputOptions);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Sets up background side sets for mesh output. Propogates the side set from
-             * the background mesh to the output mesh
-             */
-            moris::Cell<moris::mtk::MtkSideSetInfo>
-            propogate_background_side_sets(
-                    moris::Cell<moris::Matrix<IndexMat>>       & aSideSetData,
-                    Output_Options                       const & aOutputOptions);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Add a single side set from the background mesh
-             */
-            void
-            propogate_background_side_set(
-                    std::string             const &             aSideSetName,
-                    moris::moris_index                          aNoChildIndex,
-                    moris::moris_index                          aChildIndex,
-                    moris::Cell<moris::Matrix<IndexMat>>      & aElementIdsAndSideOrd,
-                    moris::Cell<moris::mtk::MtkSideSetInfo>   & aSideSetData,
-                    Output_Options          const             & aOutputOptions,
-                    bool                                        aOutputIndices);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * This function checks for the side sets which appear in a mesh that comes
-             * from a SEACAS generated string. For example:
-             * "generated:1x1x1|sideset:xXyYzZ"
-             */
-            moris::Cell<std::string>
-            check_for_and_remove_internal_seacas_side_sets(moris::Cell<std::string> & aSideSetNames);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Combine interface and non-interface blocks
-             */
-            Cell<moris::Matrix<moris::IdMat>>
-            combine_interface_and_non_interface_blocks(
-                    Cell<moris::Matrix<moris::IdMat>> & tChildElementsByPhase,
-                    Cell<moris::Matrix<moris::IdMat>> & tNoChildElementsByPhase);
-
-            //------------------------------------------------------------------------------
-
-            /*
-             * Returns the number of phases to output given the output options
-             */
-            uint
-            get_num_phases_to_output(Output_Options const & aOutputOptions);
-
-            //------------------------------------------------------------------------------
-
-            /*!
-             * Setup clustering data
-             */
-            void
-            setup_cell_clusters_for_output(
-                    moris::mtk::Cell_Cluster_Input       & aCellClusterInput,
-                    Output_Options                 const & aOutputOptions,
-                    moris::Cell<Matrix<IdMat>>           & tCellIds);
-
-            //------------------------------------------------------------------------------
-
-            void
-            setup_interface_side_cluster(
-                    std::string                            aInterfaceSideLabelBase,
-                    moris::mtk::Side_Cluster_Input       & aCellClusterInput,
-                    Output_Options                 const & aOutputOptions,
-                    moris::Cell<Matrix<IdMat>>           & tCellIdsandSideOrds,
-                    moris::Cell<Matrix<DDRMat>>          & tParametricCoordinates);
-
-            //------------------------------------------------------------------------------
-
-            bool
-            output_node(
-                    moris::moris_index     aNodeIndex,
-                    Output_Options const & aOutputOptions);
-
-            //------------------------------------------------------------------------------
-
-            /*
-             * Prints the method of decomposition, type of background mesh,
-             */
-            void
-            print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods);
-
-            //------------------------------------------------------------------------------
-
-            moris::size_t
-            determine_element_phase_index(
-                    moris::size_t aRowIndex,
-                    moris::Matrix< moris::IndexMat > const & aElementToNodeIndex);
-
-            //------------------------------------------------------------------------------
-
-            void
-            collect_subphases_attached_to_facet_on_cell(
-                    moris::moris_index         aCellIndex,
-                    moris::moris_index         aFacetIndex,
-                    Cell<moris::moris_index> & aCellSubphaseIndices,
-                    Cell<moris::moris_index> & aCellSubphaseBulkIndices);
-
-            //------------------------------------------------------------------------------
-
-            void
-            cleanup_cut_mesh();
-
-            //------------------------------------------------------------------------------
+              /*
+               * For nodes that are created during the decomposition process, tell
+               * the XTK mesh about where they live in child meshes.
+               */
+              void
+              associate_nodes_created_during_decomp_to_child_meshes();
+
+              //------------------------------------------------------------------------------
+
+              /*
+               * Set element phase index
+               */
+              void
+              set_element_phases();
+
+              //------------------------------------------------------------------------------
+
+              /*
+               * Tells the XTK mesh about where it's children live in the cut mesh
+               */
+              void
+              set_downward_inheritance();
+
+              //------------------------------------------------------------------------------
+              /*
+               * This algorithm sets up the active child mesh indices and registers new pairs in the downward inheritance
+               */
+
+              void
+              run_first_cut_routine(
+                      moris::uint                        aGeomIndex,
+                      moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                      moris::Matrix< moris::IndexMat > & aNewPairBool);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Constructs the output mesh using provided Output_Options
+               */
+              moris::mtk::Integration_Mesh*
+              construct_output_mesh( Output_Options const & aOutputOptions );
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Setup interface single sided side sets
+               */
+              void
+              setup_interface_single_side_sets(
+                      Output_Options                   const  & aOutputOptions,
+                      Cell<moris::Matrix<moris::IdMat>>       & aCellIdsAndSideOrds,
+                      Cell<std::string>                       & aInterfaceSetNames);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Takes the whole node local to global map and removes the nodes
+               * which are not part of the phase being output
+               */
+              moris::Matrix<moris::IndexMat>
+              get_node_map_restricted_to_output_phases(
+                      Output_Options const &           aOutputOptions,
+                      moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
+
+              //------------------------------------------------------------------------------
+
+              moris::Cell<std::string>
+              assign_geometry_data_names();
+
+              //------------------------------------------------------------------------------
+
+
+              moris::Cell < enum moris::EntityRank >
+              assign_geometry_data_field_ranks();
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Sets up background node sets for mesh output. Propogates the node set from
+               * the background mesh to the output mesh
+               */
+              moris::Cell<moris::mtk::MtkNodeSetInfo>
+              propogate_background_node_sets(
+                      moris::Cell<moris::Matrix<IndexMat>>       & aNodeSetData,
+                      Output_Options                       const & aOutputOptions);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Sets up background side sets for mesh output. Propogates the side set from
+               * the background mesh to the output mesh
+               */
+              moris::Cell<moris::mtk::MtkSideSetInfo>
+              propogate_background_side_sets(
+                      moris::Cell<moris::Matrix<IndexMat>>       & aSideSetData,
+                      Output_Options                       const & aOutputOptions);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Add a single side set from the background mesh
+               */
+              void
+              propogate_background_side_set(
+                      std::string             const &             aSideSetName,
+                      moris::moris_index                          aNoChildIndex,
+                      moris::moris_index                          aChildIndex,
+                      moris::Cell<moris::Matrix<IndexMat>>      & aElementIdsAndSideOrd,
+                      moris::Cell<moris::mtk::MtkSideSetInfo>   & aSideSetData,
+                      Output_Options          const             & aOutputOptions,
+                      bool                                        aOutputIndices);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * This function checks for the side sets which appear in a mesh that comes
+               * from a SEACAS generated string. For example:
+               * "generated:1x1x1|sideset:xXyYzZ"
+               */
+              moris::Cell<std::string>
+              check_for_and_remove_internal_seacas_side_sets(moris::Cell<std::string> & aSideSetNames);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Combine interface and non-interface blocks
+               */
+              Cell<moris::Matrix<moris::IdMat>>
+              combine_interface_and_non_interface_blocks(
+                      Cell<moris::Matrix<moris::IdMat>> & tChildElementsByPhase,
+                      Cell<moris::Matrix<moris::IdMat>> & tNoChildElementsByPhase);
+
+              //------------------------------------------------------------------------------
+
+              /*
+               * Returns the number of phases to output given the output options
+               */
+              uint
+              get_num_phases_to_output(Output_Options const & aOutputOptions);
+
+              //------------------------------------------------------------------------------
+
+              /*!
+               * Setup clustering data
+               */
+              void
+              setup_cell_clusters_for_output(
+                      moris::mtk::Cell_Cluster_Input       & aCellClusterInput,
+                      Output_Options                 const & aOutputOptions,
+                      moris::Cell<Matrix<IdMat>>           & tCellIds);
+
+              //------------------------------------------------------------------------------
+
+              void
+              setup_interface_side_cluster(
+                      std::string                            aInterfaceSideLabelBase,
+                      moris::mtk::Side_Cluster_Input       & aCellClusterInput,
+                      Output_Options                 const & aOutputOptions,
+                      moris::Cell<Matrix<IdMat>>           & tCellIdsandSideOrds,
+                      moris::Cell<Matrix<DDRMat>>          & tParametricCoordinates);
+
+              //------------------------------------------------------------------------------
+
+              bool
+              output_node(
+                      moris::moris_index     aNodeIndex,
+                      Output_Options const & aOutputOptions);
+
+              //------------------------------------------------------------------------------
+
+              /*
+               * Prints the method of decomposition, type of background mesh,
+               */
+              void
+              print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods);
+
+              //------------------------------------------------------------------------------
+
+              moris::size_t
+              determine_element_phase_index(
+                      moris::size_t aRowIndex,
+                      moris::Matrix< moris::IndexMat > const & aElementToNodeIndex);
+
+              //------------------------------------------------------------------------------
+
+              void
+              collect_subphases_attached_to_facet_on_cell(
+                      moris::moris_index         aCellIndex,
+                      moris::moris_index         aFacetIndex,
+                      Cell<moris::moris_index> & aCellSubphaseIndices,
+                      Cell<moris::moris_index> & aCellSubphaseBulkIndices);
+                      
+
+
     };
 }
 

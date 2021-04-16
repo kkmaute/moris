@@ -41,6 +41,14 @@ namespace moris
             return Integration_Order::TET_11;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Tet4::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            return CellShape::STRAIGHT;
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint
@@ -55,6 +63,14 @@ namespace moris
         Cell_Info_Tet4::get_num_facets() const
         {
             return 4;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        Cell_Info_Tet4::get_num_edges() const
+        {
+            return 6;
         }
 
         // ----------------------------------------------------------------------------------

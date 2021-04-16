@@ -101,6 +101,13 @@ namespace moris
             void
             set_id(moris_id aId);
 
+            /**
+             * set the cell id
+             */
+            virtual
+            void
+            set_index(moris_id aIndex);
+
             //------------------------------------------------------------------------------
 
             /**
@@ -154,11 +161,11 @@ namespace moris
             get_number_of_facets() const;
 
             //------------------------------------------------------------------------------
-            // /**
-            //  *  @return number of edges on this cell
-            //  */
-            // virtual uint
-            // get_number_of_edges() const;
+            /**
+             *  @return number of edges on this cell
+             */
+            virtual uint
+            get_number_of_edges() const;
 
             //------------------------------------------------------------------------------
 

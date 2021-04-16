@@ -29,7 +29,7 @@ namespace moris
 
         Field_Interpolator::Field_Interpolator(
                 const uint                         & aNumberOfFields,
-                const mtk::Interpolation_Rule           & aFieldInterpolationRule,
+                const mtk::Interpolation_Rule      & aFieldInterpolationRule,
                 Geometry_Interpolator              * aGeometryInterpolator,
                 const moris::Cell< MSI::Dof_Type >   aDofType )
         : mNumberOfFields( aNumberOfFields ),
@@ -308,13 +308,15 @@ namespace moris
             // check that mXi and mTau are set
             MORIS_ASSERT( mXi.numel()  > 0,
                     "Field_Interpolator::eval_NBuild - mXi  is not set." );
+
             MORIS_ASSERT( mTau.numel() > 0,
                     "Field_Interpolator::eval_NBuild - mTau is not set." );
 
             //evaluate space and time SF at Xi, Tau
             Matrix < DDRMat > tNSpace;
             Matrix < DDRMat > tNTime;
-            mSpaceInterpolation->eval_N( mXi, tNSpace );
+
+            mSpaceInterpolation->eval_N( mXi,  tNSpace );
             mTimeInterpolation ->eval_N( mTau, tNTime );
 
             //evaluate space time SF by multiplying space and time SF and create row vector
@@ -447,7 +449,7 @@ namespace moris
             const Matrix< DDRMat > & tInvJGeot = mGeometryInterpolator->inverse_space_jacobian();
 
             // compute first derivative of the space shape function wrt x
-            Matrix< DDRMat > tdNSpacedX = tInvJGeot * tdNSpacedXi;
+            auto tdNSpacedX = tInvJGeot * tdNSpacedXi;
 
             // evaluate NTime for the time interpolation
             Matrix < DDRMat > tNTime;
@@ -483,7 +485,7 @@ namespace moris
                     mGeometryInterpolator->d2NdXi2() );
 
             // compute first derivative of the field shape function wrt x
-            Matrix< DDRMat > tdNFielddx = this->dnNdxn( 1 );
+            const Matrix< DDRMat > & tdNFielddx = this->dnNdxn( 1 );
 
             // evaluate d2Ndxi2 for the field space interpolation
             Matrix< DDRMat > td2NSpacedxi2;
@@ -534,8 +536,8 @@ namespace moris
                     mGeometryInterpolator->d3NdXi3() );
 
             // get the derivatives of the space time SF wrt x
-            Matrix< DDRMat > tdNFielddx   = this->dnNdxn( 1 );
-            Matrix< DDRMat > td2NFielddx2 = this->dnNdxn( 2 );
+            const Matrix< DDRMat > & tdNFielddx   = this->dnNdxn( 1 );
+            const Matrix< DDRMat > & td2NFielddx2 = this->dnNdxn( 2 );
 
             // evaluate N for the field time interpolation
             Matrix< DDRMat > tNTime;
@@ -624,7 +626,7 @@ namespace moris
             const Matrix< DDRMat > & tInvJGeot = mGeometryInterpolator->inverse_time_jacobian();
 
             // evaluate dNTimedt
-            Matrix< DDRMat > tdNTimedt = tInvJGeot * tdNTimedtau;
+            const Matrix< DDRMat > tdNTimedt = tInvJGeot * tdNTimedtau;
 
             // evaluate N for the field space interpolation
             Matrix < DDRMat > tNSpace;

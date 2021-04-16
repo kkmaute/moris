@@ -46,6 +46,8 @@ namespace xtk
         void
         perform();
 
+
+        // metric computations
         void
         compute_mesh_quality(Mesh_Quality_Data & aMeshQuality);
 
@@ -63,6 +65,9 @@ namespace xtk
 
         void
         cleanup_cut_mesh();
+
+        void
+        finalize_cleanup();
 
     };
 }

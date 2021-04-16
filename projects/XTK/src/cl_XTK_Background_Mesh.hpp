@@ -487,6 +487,14 @@ namespace xtk
             void
             add_proc_to_comm_table(moris_index aProcRank);
 
+            void
+            remove_cells_from_mesh(Cell<moris_index> const & aCellsToRemove,
+                                   Cell<moris_index>       & aOldIndexToNewCellIndex);
+            /*!
+             * Sets up the entity local to global maps
+             */
+            void
+            setup_local_to_global_maps();
 
         private:
             // Background mesh data
@@ -507,11 +515,11 @@ namespace xtk
             moris::Matrix<IdMat> mCommunicationMap;
 
             // Elements constructed by the decomposition process mtk Cells
-            std::map < moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
+            std::unordered_map< moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
             moris::Cell<moris::mtk::Cell*> mChildMtkCells;
 
             // Vertex constructed by the decomposition process
-            std::unordered_map< moris_id, moris_index> mVertexGlbToLocalMap;
+            std::unordered_map< moris_id, moris_index> mVertexGlbToLocalMap; 
             moris::Cell<moris::mtk::Vertex_XTK> mXtkMtkVertices;
 
             // Associate external node indices to the child meshes they belong to
@@ -544,11 +552,6 @@ namespace xtk
             void
             initialize_background_mesh_vertices();
 
-            /*!
-             * Sets up the entity local to global maps
-             */
-            void
-            setup_local_to_global_maps();
 
             void
             setup_comm_map();
