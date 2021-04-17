@@ -40,13 +40,6 @@ namespace moris
                     Matrix<DDRMat>             aLocalCoordinatesInAncestor);
 
             /**
-             * Gets the number of ancestor nodes of this child node.
-             *
-             * @return Number of ancestors
-             */
-            uint get_num_ancestors();
-
-            /**
              * Get the field value on the child node based on values from its ancestors.
              *
              * @param aField Field pointer, referenced during call from field class

@@ -26,13 +26,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Child_Node::get_num_ancestors()
-        {
-            return mAncestorNodeIndices.length();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         real Child_Node::interpolate_field_value(Field* aField)
         {
             // Get field values from ancestors

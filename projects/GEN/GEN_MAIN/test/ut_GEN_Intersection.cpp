@@ -306,81 +306,45 @@ namespace moris
                 }
 
                 // Check sensitivities
-                Cell<Matrix<DDRMat>> tIntersectionFirstSensitivities = {
-                        {{0.0}, {(9 + sqrt(17)) / 16}},
-                        {{0.0}, {0.0}},
-                        {{-0.5}, {0.0}},
-                        {{0.0}, {0.4605823}},
-                        {{2.0}, {0.0}},
-                        {{0.0}, {-0.4605823}},
-                        {{-0.5}, {0.0}},
-                        {{0.0}, {-(9 + sqrt(17)) / 16}},
-                        {{0.75, 0.0, 0.1875, 0.75}, {0.0, 0.0, 0.0, 0.0}},
-                        {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                        {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                        {{0.25, 0.0, -0.1875, -0.25}, {0.0, 0.0, 0.0, 0.0}},
+                Cell<Matrix<DDRMat>> tIntersectionSensitivities = {
+                        {{0.0, (9 + sqrt(17)) / 16}, {0.0, 0.4605823}},
+                        {{0.0, 0.0}, {2.0, 0.0}},
+                        {{-0.5, 0.0}, {-0.5, 0.0}},
+                        {{0.0, 0.4605823}, {0.0, (9 + sqrt(17)) / 16}},
+                        {{2.0, 0.0}, {0.0, 0.0}},
+                        {{0.0, -0.4605823}, {0.0, -(9 + sqrt(17)) / 16}},
+                        {{-0.5, 0.0}, {-0.5, 0.0}},
+                        {{0.0, -(9 + sqrt(17)) / 16}, {0.0, -0.4605823}},
+                        {{0.75, 0.0}, {0.0, 0.0}, {0.1875, 0.0}, {0.75, 0.0}, {0.25, 0.0}, {0.0, 0.0}, {-0.1875, 0.0}, {0.25, 0.0}},
+                        {{0.25, 0.0}, {0.0, 0.0}, {-0.1875, 0.0}, {0.0, 0.0}, {0.75, 0.0}, {0.0, 0.0}, {0.1875, 0.0}, {0.0, 0.0}},
+                        {{0.75, 0.0}, {0.0, 0.0}, {0.1875, 0.0}, {0.0, 0.0}, {0.25, 0.0}, {0.0, 0.0}, {-0.1875, 0.0}, {0.0, 0.0}},
+                        {{0.25, 0.0}, {0.0, 0.0}, {-0.1875, 0.0}, {-0.25, 0.0}, {0.75, 0.0}, {0.0, 0.0}, {0.1875, 0.0}, {-0.75, 0.0}},
                         {{}},
                         {{}}};
-                Cell<Matrix<DDRMat>> tIntersectionSecondSensitivities = {
-                        {{0.0}, {0.4605823}},
-                        {{2.0}, {0.0}},
-                        {{-0.5}, {0.0}},
-                        {{0.0}, {(9 + sqrt(17)) / 16}},
-                        {{0.0}, {0.0}},
-                        {{0.0}, {-(9 + sqrt(17)) / 16}},
-                        {{-0.5}, {0.0}},
-                        {{0.0}, {-0.4605823}},
-                        {{0.25, 0.0, -0.1875, 0.25}, {0.0, 0.0, 0.0, 0.0}},
-                        {{0.75, 0.0, 0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                        {{0.25, 0.0, -0.1875, 0.0}, {0.0, 0.0, 0.0, 0.0}},
-                        {{0.75, 0.0, 0.1875, -0.75}, {0.0, 0.0, 0.0, 0.0}},
-                        {{}},
-                        {{}}};
-                Cell<Matrix<DDSMat>> tIntersectionFirstIDs = {
-                        {{6}},
-                        {{9}},
-                        {{10}},
-                        {{9}},
-                        {{8}},
-                        {{9}},
-                        {{9}},
-                        {{12}},
-                        {{0}, {1}, {2}, {3}},
-                        {{0}, {1}, {2}, {3}},
-                        {{0}, {1}, {2}, {3}},
-                        {{0}, {1}, {2}, {3}},
-                        {{}},
-                        {{}}};
-                Cell<Matrix<DDSMat>> tIntersectionSecondIDs = {
-                        {{9}},
-                        {{8}},
-                        {{9}},
-                        {{6}},
-                        {{9}},
-                        {{12}},
-                        {{10}},
-                        {{9}},
-                        {{0}, {1}, {2}, {3}},
-                        {{0}, {1}, {2}, {3}},
-                        {{0}, {1}, {2}, {3}},
-                        {{0}, {1}, {2}, {3}},
+                Cell<Matrix<DDSMat>> tIntersectionIDs = {
+                        {{6}, {9}},
+                        {{9}, {8}},
+                        {{10}, {9}},
+                        {{9}, {6}},
+                        {{8}, {9}},
+                        {{9}, {12}},
+                        {{9}, {10}},
+                        {{12}, {9}},
+                        {{0}, {1}, {2}, {3}, {0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}, {0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}, {0}, {1}, {2}, {3}},
+                        {{0}, {1}, {2}, {3}, {0}, {1}, {2}, {3}},
                         {{}},
                         {{}}};
 
                 for (uint tNodeIndex = 9; tNodeIndex < 21; tNodeIndex++)
                 {
                     check_equal(
-                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(0),
-                            tIntersectionFirstSensitivities(tNodeIndex - 9));
+                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_dcoordinate_dadv(),
+                            tIntersectionSensitivities(tNodeIndex - 9));
                     check_equal(
-                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_dcoordinate_dadv_from_ancestor(1),
-                            tIntersectionSecondSensitivities(tNodeIndex - 9));
-                    check_equal(
-                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(0),
-                            tIntersectionFirstIDs(tNodeIndex - 9));
-                    check_equal(
-                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_ancestor_coordinate_determining_adv_ids(1),
-                            tIntersectionSecondIDs(tNodeIndex - 9));
+                            tPDVHostManager->get_intersection_node(tNodeIndex)->get_coordinate_determining_adv_ids(),
+                            tIntersectionIDs(tNodeIndex - 9));
                 }
 
                 //------------------------------------------------------------------------------------------------------

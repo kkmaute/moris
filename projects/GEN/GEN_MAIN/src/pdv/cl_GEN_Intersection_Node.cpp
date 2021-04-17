@@ -64,7 +64,7 @@ namespace moris
                     0.5 * tParentLength * std::abs(1 - aLocalCoordinate) < aIntersectionTolerance;
             
 
-            if(mFirstParentOnInterface || mSecondParentOnInterface)
+            if (mFirstParentOnInterface or mSecondParentOnInterface)
             {
                 mIsIntersected = true;
             }
@@ -77,33 +77,68 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Intersection_Node::get_dcoordinate_dadv_from_ancestor(uint aAncestorIndex)
+        Matrix<DDRMat> Intersection_Node::get_dcoordinate_dadv()
         {
-            MORIS_ASSERT(aAncestorIndex < this->get_num_ancestors(),
-                    "Ancestor index for intersection sensitivities out of bounds for the number of ancestors.");
-
             // Locked interface geometry
             std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
-            // Get geometry field sensitivity with respect to ADVs
-            const Matrix<DDRMat>& tFieldSensitivities = tLockedInterfaceGeometry->get_field_sensitivities(
-                    mAncestorNodeIndices(aAncestorIndex),
-                    mAncestorNodeCoordinates(aAncestorIndex));
+            // Get sensitivity values from other ancestors
+            Matrix<DDRMat> tAncestorSensitivities;
+            for (uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
+            {
+                // Get geometry field sensitivity with respect to ADVs
+                const Matrix<DDRMat>& tFieldSensitivities = tLockedInterfaceGeometry->get_field_sensitivities(
+                        mAncestorNodeIndices(tAncestorNode),
+                        mAncestorNodeCoordinates(tAncestorNode));
 
-            // Compute full sensitivity of global coordinates with respect to ADVs
-            return 0.5 * this->get_dcoordinate_dfield_from_ancestor(aAncestorIndex) *
-                    trans(mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0)) * tFieldSensitivities;
+                // Ancestor sensitivities
+                tAncestorSensitivities = 0.5 * this->get_dcoordinate_dfield_from_ancestor(tAncestorNode) *
+                        trans( trans(mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0)) * tFieldSensitivities );
+
+                // Join sensitivities
+                uint tJoinedSensitivityLength = mCoordinateSensitivities.n_rows();
+                mCoordinateSensitivities.resize(
+                        tJoinedSensitivityLength + tAncestorSensitivities.n_rows(),
+                        tAncestorSensitivities.n_cols());
+                for (uint tAncestorSensitivity = 0; tAncestorSensitivity < tAncestorSensitivities.n_rows(); tAncestorSensitivity++)
+                {
+                    for (uint tCoordinateIndex = 0; tCoordinateIndex < tAncestorSensitivities.n_cols(); tCoordinateIndex++)
+                    {
+                        mCoordinateSensitivities(tJoinedSensitivityLength + tAncestorSensitivity, tCoordinateIndex) =
+                                tAncestorSensitivities(tAncestorSensitivity, tCoordinateIndex);
+                    }
+                }
+            }
+
+            return mCoordinateSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Intersection_Node::get_ancestor_coordinate_determining_adv_ids(uint aAncestorIndex)
+        Matrix<DDSMat> Intersection_Node::get_coordinate_determining_adv_ids()
         {
-            MORIS_ASSERT(aAncestorIndex < this->get_num_ancestors(),
-                    "Ancestor index for intersection determining ADV IDs out of bounds for the number of ancestors.");
+            // Locked interface geometry
+            std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
-            return mInterfaceGeometry.lock()->get_determining_adv_ids(
-                    mAncestorNodeIndices(aAncestorIndex), mAncestorNodeCoordinates(aAncestorIndex));
+            // Get sensitivity values from other ancestors
+            for (uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
+            {
+                // Get geometry field sensitivity with respect to ADVs
+                const Matrix<DDSMat>& tAncestorADVIDs = tLockedInterfaceGeometry->get_determining_adv_ids(
+                        mAncestorNodeIndices(tAncestorNode),
+                        mAncestorNodeCoordinates(tAncestorNode));
+
+                // Join sensitivities
+                uint tJoinedSensitivityLength = mCoordinateDeterminingADVIDs.n_rows();
+                mCoordinateDeterminingADVIDs.resize(tJoinedSensitivityLength + tAncestorADVIDs.n_rows(), 1);
+                for (uint tAncestorSensitivity = 0; tAncestorSensitivity < tAncestorADVIDs.n_rows(); tAncestorSensitivity++)
+                {
+                    mCoordinateDeterminingADVIDs(tJoinedSensitivityLength + tAncestorSensitivity) =
+                            tAncestorADVIDs(tAncestorSensitivity);
+                }
+            }
+
+            return mCoordinateDeterminingADVIDs;
         }
 
         //--------------------------------------------------------------------------------------------------------------

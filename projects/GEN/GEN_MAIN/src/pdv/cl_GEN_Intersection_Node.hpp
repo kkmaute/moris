@@ -24,6 +24,8 @@ namespace moris
             bool mFirstParentOnInterface;
             bool mSecondParentOnInterface;
             Matrix<DDRMat> mGlobalCoordinates;
+            Matrix<DDRMat> mCoordinateSensitivities;
+            Matrix<DDSMat> mCoordinateDeterminingADVIDs;
 
             moris_id mPDVStartingID;
             bool mPDVStartingIDSet = false;
@@ -73,14 +75,14 @@ namespace moris
              *
              * @return Sensitivities
              */
-            Matrix<DDRMat> get_dcoordinate_dadv_from_ancestor(uint aAncestorIndex);
+            Matrix<DDRMat> get_dcoordinate_dadv();
 
             /**
              * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
              *
              * @return ADV IDs
              */
-            Matrix<DDSMat> get_ancestor_coordinate_determining_adv_ids(uint aAncestorIndex);
+            Matrix<DDSMat> get_coordinate_determining_adv_ids();
 
             /**
              * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
