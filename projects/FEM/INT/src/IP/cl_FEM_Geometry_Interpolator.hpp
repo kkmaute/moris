@@ -146,6 +146,7 @@ namespace moris
                  */
                 Geometry_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
+                        const CellShape               & aInterpolationShape = CellShape::GENERAL,
                         const bool                      aSpaceSideset = false,
                         const bool                      aTimeSideset  = false );
 
@@ -159,6 +160,7 @@ namespace moris
                 Geometry_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
                         const mtk::Interpolation_Rule & aIPMapInterpolationRule,
+                        const CellShape               & aInterpolationShape = CellShape::GENERAL,
                         const bool                      aSpaceSideset = false,
                         const bool                      aTimeSideset  = false );
 
@@ -262,13 +264,6 @@ namespace moris
                 {
                     return mSpaceInterpolator->get_space_geometry_type();
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * sets the cell shape used for interpolation
-                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
-                 */
-                void set_cell_shape( enum CellShape aCellShape );
 
                 //------------------------------------------------------------------------------
                 /**
