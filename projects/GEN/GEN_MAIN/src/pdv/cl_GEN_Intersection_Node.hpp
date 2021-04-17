@@ -187,6 +187,20 @@ namespace moris
              */
             virtual real get_dcoordinate_dfield_from_ancestor(uint aAncestorIndex) = 0;
 
+            /**
+             * Function for appending to the coordinate sensitivities member variable, eliminating duplicate code
+             *
+             * @param aSensitivitiesToAdd Sensitivities to add
+             */
+            void join_coordinate_sensitivities(const Matrix<DDRMat>& aSensitivitiesToAdd);
+
+            /**
+             * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
+             *
+             * @param aIDsToAdd IDs to add
+             */
+            void join_adv_ids(const Matrix<DDSMat>& aIDsToAdd);
+
         };
     }
 }
