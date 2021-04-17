@@ -44,6 +44,14 @@ namespace moris
             return Integration_Order::TRI_7;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Tri3::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            return CellShape::STRAIGHT;
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint

@@ -78,7 +78,7 @@ namespace xtk
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_" + std::to_string(aBulkPhase), tFacetTopo);
 
         tEnrIgMesh.setup_color_to_set();
-        tEnrIgMesh.collect_all_sets();
+        tEnrIgMesh.collect_all_sets( false );
     }
 
     // ----------------------------------------------------------------------------------

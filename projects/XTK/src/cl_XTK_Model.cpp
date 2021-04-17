@@ -5618,18 +5618,13 @@ namespace xtk
 
             for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
-                Matrix<DDRMat> tCoord= mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
-
                 if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
                 {
-                    moris::uint tNodeIndex = (moris::uint)aElementToNodeIndex(aRowIndex, j);
-                    Matrix<DDRMat> tNodeCoord = mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
-                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry(tNodeIndex,tNodeCoord,i);
-                    tFoundNonInterfaceNode = true;
+                    moris::uint tNodeIndex    = (moris::uint)aElementToNodeIndex(aRowIndex, j);
+                    moris_index tPhaseIndex   = mGeometryEngine->get_node_phase_index_wrt_a_geometry(tNodeIndex,i);
+                    tFoundNonInterfaceNode    = true;
                     tPhaseVotes(tPhaseIndex)++;
                 }
-
-
             }
 
             // take the phase with the maximum number of votes
@@ -5792,7 +5787,6 @@ namespace xtk
         return tXTKModelMM;
     }
 
-
     //------------------------------------------------------------------------------
 
     void
@@ -5936,5 +5930,4 @@ namespace xtk
         mTimingData.push_back(aTime);
         mTimingLabels.push_back(aLabel);
     }
-
 }

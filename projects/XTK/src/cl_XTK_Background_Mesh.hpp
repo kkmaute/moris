@@ -515,7 +515,7 @@ namespace xtk
             moris::Matrix<IdMat> mCommunicationMap;
 
             // Elements constructed by the decomposition process mtk Cells
-            std::map < moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
+            std::unordered_map< moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
             moris::Cell<moris::mtk::Cell*> mChildMtkCells;
 
             // Vertex constructed by the decomposition process

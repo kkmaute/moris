@@ -23,7 +23,7 @@ namespace moris
             uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
 
             // set size of node values
-            mNodalValues.set_size( tNumberOfVertices, 1, MORIS_REAL_MIN );
+            mNodalValues.set_size( tNumberOfVertices, 0, MORIS_REAL_MIN );
 
             mUpdateNodalValues = false;
         }
@@ -36,9 +36,11 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Field::set_field_type( const mtk::Field_Type & aType )
+        void Field::set_field_type( const moris::Cell< mtk::Field_Type > & aType )
         {
             mFieldType = aType;
+
+            mNodalValues.set_size( mNodalValues.n_rows(), mFieldType.size(), MORIS_REAL_MIN );
         }
 
         //-----------------------------------------------------------------------------
@@ -65,8 +67,16 @@ namespace moris
                 Cell< mtk::Field_Type > const & aFieldTypes)
         {
             // FIXME translate field types into index. implement map
-            moris::Matrix< IndexMat > tFieldIndex;
-            tFieldIndex.set_size( 1, 1, 0 );
+            uint tNumFields = mFieldType.size();
+
+            MORIS_ASSERT( tNumFields != 0, "Field::get_nodal_values(), No field types set for this field" );
+
+            //FIXME this can be saved as a member variable or done in a smarter way
+            moris::Matrix< IndexMat > tFieldIndex( tNumFields, 1 );
+            for( uint Ik = 0; Ik<tNumFields; Ik++ )
+            {
+                tFieldIndex( Ik ) = Ik;
+            }
 
             this->get_nodal_value(
                     aNodeIndex,

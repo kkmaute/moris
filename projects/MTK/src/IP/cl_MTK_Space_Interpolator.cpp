@@ -13,10 +13,12 @@ namespace moris
     namespace mtk
     {
         // smallest acceptable value for DetJ
+        // note: should be consistent with Geometry_Interpolator::sDetJLowerLimit
         const real Space_Interpolator::sDetJLowerLimit = -1.0e-6;
 
         // smallest acceptable value for DetJ used in building inverse of Jacobian
-        const real Space_Interpolator::sDetJInvJacLowerLimit = 1.0e-12;
+        // note: should be consistent with Geometry_Interpolator::sDetJInvJacLowerLimit
+        const real Space_Interpolator::sDetJInvJacLowerLimit = 1.0e-24;
 
         //------------------------------------------------------------------------------
 
@@ -125,6 +127,13 @@ namespace moris
         {
             mSpaceJacDerivEval  = true;
             mSpaceDetJDerivEval = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Space_Interpolator::set_cell_shape( enum CellShape aCellShape )
+        {
+            mCellShape = aCellShape;
         }
 
         //------------------------------------------------------------------------------
@@ -362,6 +371,8 @@ namespace moris
             return mSpaceJac;
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_space_jacobian()
         {
             // check that mXHat is set
@@ -374,7 +385,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Space_Interpolator::space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        const Matrix< DDRMat > & Space_Interpolator::space_jacobian_deriv(
+                const uint & aLocalVertexID,
+                const uint & aDirection)
         {
             // if space Jacobian needs to be evaluated
             if( mSpaceJacDerivEval )
@@ -390,14 +403,21 @@ namespace moris
             return mSpaceJacDeriv;
         }
 
-        void Space_Interpolator::eval_space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        //------------------------------------------------------------------------------
+
+        void Space_Interpolator::eval_space_jacobian_deriv(
+                const uint & aLocalVertexID,
+                const uint & aDirection)
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel() > 0, "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0,
+                    "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
 
             // check inputs wrt to xHat
-            MORIS_ASSERT( aDirection < mXHat.n_cols(), "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
-            MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(), "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
+            MORIS_ASSERT( aDirection < mXHat.n_cols(),
+                    "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
+            MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(),
+                    "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
             
             // get derivative of space coefficient. Note that only one element of this matrix will have a value
             Matrix< DDRMat > tXHatDeriv = mXHat;
@@ -431,13 +451,15 @@ namespace moris
             return mInvSpaceJac;
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_inverse_space_jacobian()
         {
-            if (mRectangular)
+            if ( mCellShape == CellShape::RECTANGULAR )
             {
                 // Rectangular check only works for Quad or Hex elements
                 MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
-                        mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
+                        mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J - %s"
                         "Rectangular calcs only applicable for QUAD or HEX");
 
                 // compute the rectangular inv Jacobian
@@ -448,8 +470,9 @@ namespace moris
                 // compute the standard inv Jacobian
                 (this->*mInvSpaceJacFunc)();
             }
-
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_1d()
         {
@@ -467,6 +490,8 @@ namespace moris
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
                     "Inconsistent space Jacobian (1D)\n");
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_2d()
         {
@@ -492,6 +517,8 @@ namespace moris
                     "Inconsistent space Jacobian (2D)");
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_inverse_space_jacobian_2d_tri()
         {
             // get the space Jacobian
@@ -514,9 +541,10 @@ namespace moris
             mInvSpaceJac(1, 1) = ( tSpacJac(0, 0) - tSpacJac(2, 0) ) * tInvDet;
             mInvSpaceJac(1, 2) = ( tSpacJac(1, 0) - tSpacJac(0, 0) ) * tInvDet;
 
-
             // no generic checks available for this calculation;
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_2d_rect()
         {
@@ -537,6 +565,8 @@ namespace moris
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
                     "Inconsistent space Jacobian (2D)");
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_3d()
         {
@@ -567,6 +597,8 @@ namespace moris
                     "Inconsistent space Jacobian (3D)");
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_inverse_space_jacobian_3d_rect()
         {
             // get the space Jacobian
@@ -578,10 +610,26 @@ namespace moris
             // compute inverse
             mInvSpaceJac.set_size(3,3,0.0);
 
-            // reciprocals
-            mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
-            mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
-            mInvSpaceJac(2, 2) = 1.0 / tSpacJac(2, 2);
+            // reciprocals. noting it may be inverted diagonal for some STK meshes
+            if ( std::abs(tSpacJac(0,0)) > 1.0e-8 )
+            {
+                mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
+                mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
+                mInvSpaceJac(2, 2) = 1.0 / tSpacJac(2, 2);
+            }
+
+            /*
+             * inverted diagonal jacobian, eg.,
+             * Jac = [ 0, 0, 1
+             *         0, 1, 0
+             *         1, 0, 0]
+             */
+            else
+            {
+                mInvSpaceJac(0, 2) = 1.0 / tSpacJac(2, 0);
+                mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
+                mInvSpaceJac(2, 0) = 1.0 / tSpacJac(0, 2);
+            }
 
             // check results against generic inverse operator
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
@@ -623,11 +671,11 @@ namespace moris
                 const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
 
                 // filter between
-                if (mRectangular)
+                if ( mCellShape == CellShape::RECTANGULAR )
                 {
                     // Rectangular check only works for Quad or Hex elements
                     MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
-                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
+                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J - %s"
                                     "Rectangular calcs only applicable for QUAD or HEX");
 
                     mSpaceDetJ = ( this->*mSpaceDetJRectFunc )( tSpaceJt );
@@ -647,7 +695,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const real & Space_Interpolator::space_det_J_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        const real & Space_Interpolator::space_det_J_deriv(
+                const uint & aLocalVertexID,
+                const uint & aDirection)
         {
             // if determinant of space Jacobian derivative needs to be evaluated
             if( mSpaceDetJDerivEval )
@@ -656,11 +706,11 @@ namespace moris
                 const Matrix< DDRMat > & tSpaceJtDeriv = this->space_jacobian_deriv(aLocalVertexID, aDirection);
 
                 // filter between
-                if (mRectangular)
+                if ( mCellShape == CellShape::RECTANGULAR )
                 {
                     // Rectangular check only works for Quad or Hex elements
                     MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
-                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
+                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J - %s"
                                     "Rectangular calcs only applicable for QUAD or HEX");
 
                     mSpaceDetJDeriv = ( this->*mSpaceDetJDerivRectFunc )( tSpaceJtDeriv );
@@ -872,7 +922,25 @@ namespace moris
         real Space_Interpolator::eval_space_detJ_bulk_hex_rect(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            real tDetJ = aSpaceJt(0,0)*aSpaceJt(1,1)*aSpaceJt(2,2);
+            // init tDet J
+            real tDetJ;
+
+            // have to account for some jacobians being inverted diagonal from STK meshes
+            if( aSpaceJt(0,0) > 1.0e-8 )
+            {
+                tDetJ = aSpaceJt(1,1)*aSpaceJt(0,0)*aSpaceJt(2,2);
+            }
+
+            /*
+             * inverted diagonal jacobian, eg.,
+             * Jac = [ 0, 0, 1
+             *         0, 1, 0
+             *         1, 0, 0]
+             */
+            else
+            {
+                tDetJ = -aSpaceJt(1,1)*aSpaceJt(0,2)*aSpaceJt(2,0);
+            }
 
             MORIS_ASSERT( tDetJ > sDetJLowerLimit,
                     "Space determinant (bulk 3D) close to zero or negative: %e\n", tDetJ);

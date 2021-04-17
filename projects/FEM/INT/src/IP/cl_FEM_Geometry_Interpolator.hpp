@@ -265,6 +265,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * sets the cell shape used for interpolation
+                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
+                 */
+                void set_cell_shape( enum CellShape aCellShape );
+
+                //------------------------------------------------------------------------------
+                /**
                  * set the space and time coefficients of the geometry field xHat, tHat
                  * @param[ in ] space coefficients
                  * @param[ in ] time coefficients

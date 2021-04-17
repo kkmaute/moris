@@ -214,7 +214,7 @@ namespace moris
 
 
         void 
-        Integration_Mesh::collect_all_sets()
+        Integration_Mesh::collect_all_sets( bool aSetShape )
         {
             // reset
             mListOfAllSets.clear();
@@ -224,15 +224,6 @@ namespace moris
 
             // Append block sets to list of all sets
             mListOfAllSets.append( mListofBlocks );
-
-            // add the cell topology to the set
-            for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
-            {
-                std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
-                
-                // set the blockset cell topology
-                mListOfAllSets( tCounter++ )->set_cell_topology( this->get_blockset_topology( tSetName ) );
-            }
 
             // Append side sets to list of all sets
             mListOfAllSets.append( mListofSideSets );
@@ -248,6 +239,44 @@ namespace moris
                 mListOfAllSets( Ik )->set_set_index( Ik );
 
                 mSetNameToIndexMap[ mListOfAllSets( Ik )->get_set_name() ] = Ik;
+            }
+
+            // add the cell topology to the set
+            for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
+            {
+                std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+                // set the blockset cell topology and shape
+                mListOfAllSets( tCounter )->set_cell_topology( this->get_blockset_topology( tSetName ) );
+                if ( aSetShape == true )
+                {
+                    mListOfAllSets( tCounter )->set_IG_cell_shape( this->get_IG_blockset_shape( tSetName ) );
+                    mListOfAllSets( tCounter )->set_IP_cell_shape( this->get_IP_blockset_shape( tSetName ) );
+                }
+                tCounter++;
+            }
+
+            if ( aSetShape == true )
+            {
+                // add the cell topology to the set
+                for( uint Ik = 0; Ik < mListofSideSets.size(); Ik++ )
+                {
+                    std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+                    // set the sideset cell topology and shape
+                    mListOfAllSets( tCounter   )->set_IG_cell_shape( CellShape::STRAIGHT );
+                    mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
+                }
+
+                // add the cell topology to the set
+                for( uint Ik = 0; Ik < mListofDoubleSideSets.size(); Ik++ )
+                {
+                    std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+                    // set the sideset cell topology and shape
+                    mListOfAllSets( tCounter   )->set_IG_cell_shape( CellShape::STRAIGHT );
+                    mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
+                }
             }
 
             // setup color to set data

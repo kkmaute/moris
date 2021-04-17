@@ -54,6 +54,8 @@ public:
     moris_id                  get_max_entity_id( enum EntityRank aEntityRank,const moris_index aIndex =0 ) const;
     void                      get_adof_map( const uint aBSplineIndex, map< moris_id, moris_index > & aAdofMap ) const;
     enum CellTopology         get_blockset_topology( const  std::string & aSetName );
+    enum CellShape            get_IG_blockset_shape( const  std::string & aSetName );
+    enum CellShape            get_IP_blockset_shape( const  std::string & aSetName );
     uint                      get_node_owner(moris_index aNodeIndex) const;
     uint                      get_element_owner(moris_index aElementIndex) const;
 

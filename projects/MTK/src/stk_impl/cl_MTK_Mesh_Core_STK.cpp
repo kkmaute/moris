@@ -863,6 +863,78 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
+    enum CellShape Mesh_Core_STK::get_IG_blockset_shape( const std::string & aSetName )
+    {
+        // get the clusters in the set
+        moris::Cell<Cluster const *> tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+
+        // init cell shape
+        CellShape tCellShape = CellShape::EMPTY;
+
+        // if the set isn't empty exist
+        if ( tSetClusters.size() > 0 )
+        {
+            // get the cells in the first cluster
+            moris::Cell<moris::mtk::Cell const *> tClusterCells = tSetClusters(0)->get_primary_cells_in_cluster();
+
+            // compute the cell shape of the first cell
+            tCellShape = tClusterCells(0)->get_cell_info()->compute_cell_shape( tClusterCells(0) );
+        }
+
+        // within debug, checking all cells to make sure that they are the same Cell Shape
+        // if cells exist
+        // looping through the clusters
+        for( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
+        {
+            // get cell of cells in the cluster
+            moris::Cell<moris::mtk::Cell const *> tClusterCellsCheck = tSetClusters(iCluster)->get_primary_cells_in_cluster();
+
+            // looping through the cells in the cluster
+            for( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
+            {
+                MORIS_ASSERT( tClusterCellsCheck(iCheckCell)->get_cell_info()->compute_cell_shape( tClusterCellsCheck(iCheckCell) ) == tCellShape,
+                        "Mesh_Core_STK::get_IG_blockset_shape - cell shape is not consistent in the block");
+            }
+        }
+
+        return tCellShape;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    enum CellShape Mesh_Core_STK::get_IP_blockset_shape(const std::string & aSetName )
+    {
+        // get the clusters in the set
+        moris::Cell<Cluster const *> tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+
+        // init cell shape
+        CellShape tCellShape = CellShape::EMPTY;
+
+        // if the set isn't empty exist
+        if ( tSetClusters.size() > 0 )
+        {
+            // get the cells in the first cluster
+            Cell const & tClusterCell = tSetClusters(0)->get_interpolation_cell();
+
+            // compute the cell shape of the first cell
+            tCellShape = tClusterCell.get_cell_info()->compute_cell_shape( &tClusterCell );
+        }
+
+        // within debug, checking all cells to make sure that they are the same Cell Shape
+        // if cells exist
+        // looping through the clusters
+        for( uint iCluster = 1; iCluster < tSetClusters.size(); iCluster++ )
+        {
+            MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_info()->compute_cell_shape(
+                    &tSetClusters( iCluster )->get_interpolation_cell() ) == tCellShape,
+                    "Mesh_Core_STK::get_IP_blockset_shape - cell shape is not consistent in the block");
+        }
+
+        return tCellShape;
+    }
+
+    // ----------------------------------------------------------------------------
+
     enum CellTopology
     Mesh_Core_STK::get_sideset_topology(const  std::string & aSetName)
     {
@@ -3348,6 +3420,16 @@ namespace mtk
                     tTopology = stk::topology::QUAD_4;
                 }
                 break;
+            case CellTopology::QUAD9:
+                if(tSpatialDim == 2)
+                {
+                    tTopology = stk::topology::QUAD_9_2D;
+                }
+                else if( tSpatialDim == 3 )
+                {
+                    tTopology = stk::topology::QUAD_9;
+                }
+                break;
             case CellTopology::TET4:
                 tTopology = stk::topology::TET_4;
                 break;
@@ -3356,6 +3438,9 @@ namespace mtk
                 break;
             case CellTopology::HEX8:
                 tTopology = stk::topology::HEX_8;
+                break;
+            case CellTopology::HEX27:
+                tTopology = stk::topology::HEX_27;
                 break;
             case CellTopology::PRISM6:
                 tTopology = stk::topology::WEDGE_6;
