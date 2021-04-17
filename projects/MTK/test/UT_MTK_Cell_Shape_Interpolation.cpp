@@ -85,7 +85,6 @@ namespace moris
                 Matrix<DDRMat> tInvJac = tSpaceInterpolator.inverse_space_jacobian();
 
                 // setting rectangular flag
-                bool tRectangular = true;
                 tSpaceInterpolator.set_cell_shape( CellShape::RECTANGULAR );
                 tSpaceInterpolator.reset_eval_flags();
 
@@ -144,7 +143,6 @@ namespace moris
                 Matrix<DDRMat> tInvJac = tSpaceInterpolator.inverse_space_jacobian();
 
                 // setting rectangular flag
-                bool tRectangular = true;
                 tSpaceInterpolator.set_cell_shape( CellShape::RECTANGULAR );
                 tSpaceInterpolator.reset_eval_flags();
 
