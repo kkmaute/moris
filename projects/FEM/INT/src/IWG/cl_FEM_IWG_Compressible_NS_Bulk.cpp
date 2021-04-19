@@ -126,6 +126,41 @@ namespace moris
             // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
             // std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
 
+// Output operators
+if ( tNumSpaceDims == 2 ) {
+
+// pre-multiplication vector for testing
+Matrix< DDRMat > tVL =  {{ 1.82, 4.75, -3.89, 0.69 }};
+
+// debug - write matrices to .hdf5 file
+std::string tMorisRoot = moris::get_base_moris_dir();
+std::string tHdf5FilePath = tMorisRoot + "/tmp/L_Operators.hdf5";
+std::cout << "Outputting flux matrices to: " << tHdf5FilePath << " ... " << std::flush;
+hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+herr_t tStatus = 0;
+// state variable vectors
+save_matrix_to_hdf5_file( tFileID, "Y", this->Y(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dYdt", this->dYdt(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dYdx", this->dYdx(0), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dYdy", this->dYdx(1), tStatus );
+// Test Function Matrices
+save_matrix_to_hdf5_file( tFileID, "W", this->W(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dWdt", this->dWdt(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dWdx", this->dWdx(0), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dWdy", this->dWdx(1), tStatus );
+// L-operators
+save_matrix_to_hdf5_file( tFileID, "LY", this->LY(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "LW", this->LW(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dLdDofY", this->dLdDofY(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dLdDofW", this->dLdDofW( tVL ), tStatus );
+// tau-matrix
+save_matrix_to_hdf5_file( tFileID, "Tau", this->Tau( ), tStatus );
+save_matrix_to_hdf5_file( tFileID, "dTaudY", this->dTaudY( trans( tVL ) ), tStatus );
+
+close_hdf5_file( tFileID );
+std::cout << "Done \n" << std::flush;
+}
+
             // get subview for complete residual
             auto tRes = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
 
@@ -471,6 +506,9 @@ namespace moris
             aRM( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, 0 } ) -= 
                     tCM->divflux( CM_Function_Type::WORK ) - tCM->divflux( CM_Function_Type::THERMAL );
 
+// debug
+aRM = this->LY();
+
         }
 
         //------------------------------------------------------------------------------
@@ -553,6 +591,10 @@ namespace moris
                 aJM( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
                         tCM->ddivfluxdu( tDofType, CM_Function_Type::WORK ) - tCM->ddivfluxdu( tDofType, CM_Function_Type::THERMAL ); 
             }
+
+// debug
+aJM = this->LW() + this->dLdDofY();
+
         }
 
         //------------------------------------------------------------------------------

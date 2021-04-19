@@ -18,6 +18,7 @@
 #include "fn_sylvester.hpp"
 
 // debug - output to hdf5
+#include "fn_max.hpp"
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
 
@@ -506,7 +507,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW(  const Matrix< DDRMat > & aVL  )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW( const Matrix< DDRMat > & aVL )
         {
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
@@ -529,6 +530,89 @@ namespace moris
                 tVLdKijdY( iDim ).resize( this->num_space_dims() );
             }
 
+// debug
+MORIS_ERROR( this->num_space_dims() == 2, "Debugging - stop here if not 2D" );
+
+Matrix< DDRMat > tTest2x3 = {{11,12,13},{21,22,23}};
+Matrix< DDRMat > tEmpty = 0.0 * mdLdDofY;
+Matrix< DDRMat > VL_dA0dY = tEmpty;
+Matrix< DDRMat > VL_dA0dDof = tEmpty;
+Matrix< DDRMat > VL_dA1dY = tEmpty;
+Matrix< DDRMat > VL_dA1dDof = tEmpty;
+Matrix< DDRMat > VL_dA2dY = tEmpty;
+Matrix< DDRMat > VL_dA2dDof = tEmpty;
+Matrix< DDRMat > VL_dK11dY = tEmpty;
+Matrix< DDRMat > VL_dK11dDof = tEmpty;
+Matrix< DDRMat > VL_dK12dY = tEmpty;
+Matrix< DDRMat > VL_dK12dDof = tEmpty;
+Matrix< DDRMat > VL_dK21dY = tEmpty;
+Matrix< DDRMat > VL_dK21dDof = tEmpty;
+Matrix< DDRMat > VL_dK22dY = tEmpty;
+Matrix< DDRMat > VL_dK22dDof = tEmpty;
+Matrix< DDRMat > VL_dKi1_idDof = tEmpty;
+Matrix< DDRMat > VL_dKi2_idDof = tEmpty;
+
+eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, VL_dA0dY );
+VL_dA0dDof = VL_dA0dY * this->W();
+eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 1, VL_dA1dY );
+VL_dA1dDof = VL_dA1dY * this->W();
+eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 2, VL_dA2dY );
+VL_dA2dDof = VL_dA2dY * this->W();
+eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, 0, 0, VL_dK11dY );
+VL_dK11dDof = VL_dK11dY * this->W();
+eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, 0, 1, VL_dK12dY );
+VL_dK12dDof = VL_dK12dY * this->W();
+eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, 1, 0, VL_dK21dY );
+VL_dK21dDof = VL_dK21dY * this->W();
+eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, 1, 1, VL_dK22dY );
+VL_dK22dDof = VL_dK22dY * this->W();
+eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, aVL, 0, tVLdKijidY( 0 ) );
+VL_dKi1_idDof = tVLdKijidY( 0 )( 1 ) * this->dWdx( 0 ) + tVLdKijidY( 0 )( 2 ) * this->dWdx( 1 );
+eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, aVL, 1, tVLdKijidY( 1 ) );
+VL_dKi2_idDof = tVLdKijidY( 1 )( 1 ) * this->dWdx( 0 ) + tVLdKijidY( 1 )( 2 ) * this->dWdx( 1 );
+
+// debug - write matrices to .hdf5 file
+std::string tMorisRoot = moris::get_base_moris_dir();
+std::string tHdf5FilePath = tMorisRoot + "tmp/dLdDof_W.hdf5";
+std::cout << "Outputting flux matrices to: " << tHdf5FilePath << " ... " << std::flush;
+hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+herr_t tStatus = 0;
+
+save_matrix_to_hdf5_file( tFileID, "Test2x3", tTest2x3, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL", aVL, tStatus );
+
+save_matrix_to_hdf5_file( tFileID, "Y", this->Y(), tStatus );
+save_matrix_to_hdf5_file( tFileID, "W", this->W(), tStatus );
+
+save_matrix_to_hdf5_file( tFileID, "VL_dA0dDof", VL_dA0dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dA0dY"  , VL_dA0dY  , tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dA1dDof", VL_dA1dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dA1dY"  , VL_dA1dY  , tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dA2dDof", VL_dA2dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dA2dY"  , VL_dA2dY  , tStatus );
+
+save_matrix_to_hdf5_file( tFileID, "VL_dK11dDof", VL_dK11dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK11dY"  , VL_dK11dY  , tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK12dDof", VL_dK12dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK12dY"  , VL_dK12dY  , tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK21dDof", VL_dK21dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK21dY"  , VL_dK21dY  , tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK22dDof", VL_dK22dDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dK22dY"  , VL_dK22dY  , tStatus );
+
+save_matrix_to_hdf5_file( tFileID, "VL_dKi1_idDof", VL_dKi1_idDof, tStatus );
+save_matrix_to_hdf5_file( tFileID, "VL_dKi2_idDof", VL_dKi2_idDof, tStatus );
+
+Matrix< DDRMat > tRefdLdDofW =   trans( this->dWdt( )     ) * VL_dA0dDof 
+                               + trans( this->dWdx(0)     ) * VL_dA1dDof
+                               + trans( this->dWdx(1)     ) * VL_dA2dDof 
+                               - trans( this->d2Wdx2(0,0) ) * VL_dK11dDof 
+                               - trans( this->d2Wdx2(0,1) ) * VL_dK12dDof 
+                               - trans( this->d2Wdx2(1,0) ) * VL_dK21dDof 
+                               - trans( this->d2Wdx2(1,1) ) * VL_dK22dDof 
+                               - trans( this->dWdx(0)     ) * VL_dKi1_idDof
+                               - trans( this->dWdx(1)     ) * VL_dKi2_idDof;
+
             // get VL * dA0/dY
             eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
 
@@ -548,7 +632,7 @@ namespace moris
                 tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();
 
                 // get VL * dKij,i/dY
-                eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tVLdKijidY( iDim ) );
+                eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, tVLdKijidY( iDim ) );
 
                 // add contributions from Kij,i-matrices
                 // tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( 0 ) * this->W();
@@ -565,6 +649,19 @@ namespace moris
                     tdLdDofW -= trans( this->d2Wdx2( iDim, jDim ) ) * tVLdKijdY( iDim )( jDim ) * this->W();
                 }
             }
+
+save_matrix_to_hdf5_file( tFileID, "dLdDofW", mdLdDofW, tStatus );
+save_matrix_to_hdf5_file( tFileID, "dLdDofW_ref", tRefdLdDofW, tStatus );
+Matrix< DDRMat > tDifference = abs( mdLdDofW - tRefdLdDofW );
+real tMaxDiff = tDifference.max();
+real tMinDiff = std::abs( tDifference.min() );
+
+//print( mdLdDofW - tRefdLdDofW, "Delta: dL/dDof * W" );
+//print( tDifference, "Delta: VL * dL/dDof * W" );
+std::cout << "Maximum descrepency between two ways of computing VL * dL/dDof * W is: " << tMaxDiff << " or " << tMinDiff << " \n" << std::flush;
+
+close_hdf5_file( tFileID );
+std::cout << "Done \n" << std::flush;
 
             // return value
             return mdLdDofW;
