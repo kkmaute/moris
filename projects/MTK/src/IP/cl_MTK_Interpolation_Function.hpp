@@ -11,7 +11,7 @@
 #include "assert.hpp"
 
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Base.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Base.hpp" //MTK/src
 #include "cl_Matrix.hpp"   //LINALG/src
 
 namespace moris

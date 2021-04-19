@@ -4,6 +4,22 @@
 # Set version
 set(${MTK}_VERSION ${MORIS_VERSION})
 
+# List header dependencies                                                                                                                                                                                                                                                     
+set(MTK_INCLUDES
+    "IP"
+    "IG")
+
+set(MTK_INTERNAL_INCLUDES)
+
+# Include depedency directories
+foreach(MTK_INCLUDES ${MTK_INCLUDES})
+    list(APPEND MTK_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${MTK_INCLUDES}")
+	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDES})
+endforeach()
+
+# create global list for .../MTK/src/ includes
+set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
+
 # List header files
 set(HEADERS
 cl_Mesh_Enums.hpp
@@ -194,7 +210,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Create library
 add_library(${MTK}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${MTK}-lib PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${MTK_INTERNAL_INCLUDES};>"
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/stk_impl>
 	$<INSTALL_INTERFACE:${${MTK}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${MTK}-lib PUBLIC ${LIB_DEPENDENCIES})

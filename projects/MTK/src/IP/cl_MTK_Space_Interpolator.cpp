@@ -6,7 +6,7 @@
 #include "op_div.hpp"
 #include "fn_linsolve.hpp"
 
-#include "IP/cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
 
 namespace moris
 {
