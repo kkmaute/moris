@@ -63,8 +63,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
 
             // fill random coefficients for slave FI
@@ -265,7 +265,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -404,8 +404,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
 
             // fill random coefficients for slave FI
@@ -606,7 +606,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -745,8 +745,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -934,7 +934,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
 
             // fill random coefficients for slave FI
@@ -945,7 +945,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -1084,8 +1084,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1274,7 +1274,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
 
             // fill random coefficients for slave FI
@@ -1286,7 +1286,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
 
             // set size and fill the set residual assembly map

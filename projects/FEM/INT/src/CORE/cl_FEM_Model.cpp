@@ -1350,8 +1350,8 @@ namespace moris
                 uint tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
 
                 // get the treated IWG residual dof type
-                moris::Cell< moris::MSI::Dof_Type > tResDofTypes;
-                string_to_cell(
+                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tResDofTypes;
+                string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( "dof_residual" ),
                         tResDofTypes,
                         aMSIDofTypeMap );
@@ -1378,7 +1378,7 @@ namespace moris
                 // set bulk type
                 mIWGs( iIWG )->set_bulk_type( tIWGBulkType );
 
-                // init string for master or slave
+                // initialize string for master or slave
                 std::string tIsMasterString = "master";
                 mtk::Master_Slave tIsMaster = mtk::Master_Slave::MASTER;
 
@@ -2574,8 +2574,8 @@ namespace moris
                 mIWGs( iIWG )->set_interpolation_order( tGhostOrder );
 
                 // set residual dof type
-                moris::Cell< moris::MSI::Dof_Type > tResDofTypes;
-                string_to_cell(
+                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tResDofTypes;
+                string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( "dof_residual" ),
                         tResDofTypes,
                         aMSIDofTypeMap );

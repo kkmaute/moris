@@ -173,7 +173,7 @@ namespace moris
             fem::IWG_Factory tIWGFactory;
 
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+            tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
             tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion", mtk::Master_Slave::MASTER );
             tIWG->set_stabilization_parameter( tSPGGLSParam, "GGLSParam");

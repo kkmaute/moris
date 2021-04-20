@@ -137,7 +137,7 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
@@ -421,7 +421,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
@@ -581,7 +581,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    fem::IWG_Factory tIWGFactory;
 //
 //    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-//    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+//    tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
 //    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
 //    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
 //    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
