@@ -40,17 +40,17 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator for current time step
             Field_Interpolator * tFICurrent =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get residual dof type field interpolator for previous time step
             Field_Interpolator * tFIPrevious =
-                    mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get current weight property
             const std::shared_ptr< Property > & tPropWeightCurrent =
@@ -103,13 +103,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator for current time step
             Field_Interpolator * tFICurrent =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get current weight property
             const std::shared_ptr< Property > & tPropWeightCurrent =
@@ -130,7 +130,7 @@ namespace moris
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if residual dof type
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to Jacobian
                     mSet->get_jacobian()(
@@ -180,17 +180,17 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator for current time step
             Field_Interpolator * tFICurrent =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get residual dof type field interpolator for previous time step
             Field_Interpolator * tFIPrevious =
-                    mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get previous weight property
             const std::shared_ptr< Property > & tPropWeightPrevious =
@@ -215,7 +215,7 @@ namespace moris
                     uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                     // if residual dof type
-                    if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // add contribution to Jacobian
                         mSet->get_jacobian()(

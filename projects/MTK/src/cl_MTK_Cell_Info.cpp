@@ -5,10 +5,10 @@
 #include "assert.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell.hpp"
-#include "IP/cl_MTK_Space_Interpolator.hpp"
-#include "IG/cl_MTK_Integration_Rule.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
-#include "IP/cl_MTK_Interpolation_Function.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
+#include "cl_MTK_Integrator.hpp"
+#include "cl_MTK_Interpolation_Function.hpp"
 #include "fn_trans.hpp"
 
 namespace moris

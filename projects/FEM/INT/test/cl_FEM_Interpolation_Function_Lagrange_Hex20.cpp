@@ -13,7 +13,7 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
-#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Rule.hpp" //MTK/src
 #include "fn_FEM_Check.hpp"
 
 using namespace moris;

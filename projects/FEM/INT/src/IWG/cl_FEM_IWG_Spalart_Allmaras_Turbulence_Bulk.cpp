@@ -38,13 +38,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the velocity FI
             // FIXME protect dof type
@@ -98,13 +98,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the velocity FI
             // FIXME protect dof type
@@ -141,7 +141,7 @@ namespace moris
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if residual dof type (here viscosity)
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute dModVelocitydModViscosity
                     Matrix< DDRMat > tModVelocityDer = - mCb2 * tFIViscosity->dnNdxn( 1 ) / mSigma;
@@ -241,7 +241,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the velocity FI
             // FIXME protect dof type
@@ -278,7 +278,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the velocity FI
             // FIXME protect dof type
@@ -297,7 +297,7 @@ namespace moris
             this->compute_ddivfluxdu( aDofTypes, tddivfluxdu );
 
             // if dof type is residual df type (here viscosity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 aJ +=
                         tFIViscosity->dnNdtn( 1 ) +
@@ -332,7 +332,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
@@ -380,7 +380,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
@@ -403,7 +403,7 @@ namespace moris
                 this->compute_dstildedu( aDofTypes, tdstildedu );
 
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to dproductiondu
                     adproductiondu +=
@@ -426,7 +426,7 @@ namespace moris
                 this->compute_dsdu( aDofTypes, tdsdu );
 
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to dproductiondu
                     adproductiondu +=
@@ -448,7 +448,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance property
             std::shared_ptr< Property > tPropWallDistance =
@@ -509,7 +509,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance property
             std::shared_ptr< Property > tPropWallDistance =
@@ -546,7 +546,7 @@ namespace moris
                 this->compute_dft2du( aDofTypes, tdft2du );
 
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to dwalldestructiondu
                     adwalldestructiondu +=
@@ -577,7 +577,7 @@ namespace moris
             else
             {
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to dwalldestructiondu
                     adwalldestructiondu -=
@@ -608,7 +608,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance property
             std::shared_ptr< Property > tPropKinViscosity =
@@ -657,7 +657,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the fluid  kinematic viscosity property
             std::shared_ptr< Property > tPropKinViscosity =
@@ -670,7 +670,7 @@ namespace moris
             if( tModViscosity >= 0.0 )
             {
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to ddiffusiondu
                     addiffusiondu += tFIModViscosity->N() / mSigma;
@@ -694,7 +694,7 @@ namespace moris
                 this->compute_dfndu( aDofTypes, tdfndu );
 
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to ddiffusiondu
                     addiffusiondu += tFn * tFIModViscosity->N() / mSigma;
@@ -718,7 +718,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute diffusion coefficient
             // FIXME Assumed that the tDiffusionCoeff does not depend on x!
@@ -740,7 +740,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the viscosity property
             std::shared_ptr< Property > tPropViscosity =
@@ -761,7 +761,7 @@ namespace moris
             uint tNumBases = tFIViscosity->get_number_of_space_time_bases();
 
             // if derivative wrt to residual dof type (here viscosity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 // get second order shape function derivatives
                 Matrix< DDRMat > td2Ndx2( 1, tNumBases, 0.0 );
@@ -961,7 +961,7 @@ namespace moris
         {
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the density and gravity properties
             std::shared_ptr< Property > tPropViscosity =
@@ -986,7 +986,7 @@ namespace moris
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the density and gravity properties
             std::shared_ptr< Property > tPropViscosity =
@@ -996,7 +996,7 @@ namespace moris
             real tChi = tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
 
             // if residual dof type (here viscosity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 adchidu += tDerFI->N() / tPropViscosity->val()( 0 );
             }
@@ -1113,7 +1113,7 @@ namespace moris
         {
             // get the viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance property
             std::shared_ptr< Property > tPropWallDistance =
@@ -1151,7 +1151,7 @@ namespace moris
 
             // get the viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance properties
             std::shared_ptr< Property > tPropWallDistance =
@@ -1180,7 +1180,7 @@ namespace moris
                     std::pow( mKappa * tWallDistance, 2.0 );
 
             // if dof type is residual dof type
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 // add contribution
                 adsbardu += tFv2 * tFIViscosity->N() /
@@ -1359,7 +1359,7 @@ namespace moris
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance property
             std::shared_ptr< Property > tPropWallDistance =
@@ -1409,7 +1409,7 @@ namespace moris
             {
                 // get the residual dof FI (here viscosity)
                 Field_Interpolator * tFIViscosity =
-                        mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                        mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
                 // get the wall distance property
                 std::shared_ptr< Property > tPropWallDistance =
@@ -1436,7 +1436,7 @@ namespace moris
                 adrdu -= tFIViscosity->val() * tdSTildedu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
 
                 // if dof type is viscosity
-                if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+                if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution from viscosity
                     adrdu += tSTilde * tDerFI->N() / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );

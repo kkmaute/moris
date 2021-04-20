@@ -50,7 +50,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -100,7 +100,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                            mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType ) ) * tM * tJump );
+                            mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -117,7 +117,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -182,7 +182,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType ) ) * tM * tFIDispl->N() );
+                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tFIDispl->N() );
                 }
 
                 // if imposed displacement property depends on dof type
@@ -191,7 +191,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType ) ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if elasticity CM depends on dof type
@@ -200,7 +200,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType ) );
+                                    mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ) ) );
                 }
             }
 

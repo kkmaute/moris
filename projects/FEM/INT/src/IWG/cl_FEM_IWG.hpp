@@ -57,7 +57,7 @@ namespace moris
                 Matrix< DDRMat > mNormal;
 
                 // residual dof type
-                moris::Cell< MSI::Dof_Type > mResidualDofType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mResidualDofType;
 
                 // master and slave dof type lists
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -401,7 +401,7 @@ namespace moris
                  * set residual dof type
                  * @param[ in ] aResidualdofType a cell of residual dof types
                  */
-                void set_residual_dof_type( const moris::Cell< MSI::Dof_Type > & aResidualDofType )
+                void set_residual_dof_type( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofType )
                 {
                     mResidualDofType = aResidualDofType;
                 }
@@ -411,7 +411,7 @@ namespace moris
                  * return a dof type for the residual
                  * @param[ out ] aResidualdofType a cell of residual dof types
                  */
-                const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
+                const moris::Cell< moris::Cell < MSI::Dof_Type > > & get_residual_dof_type() const
                 {
                     return mResidualDofType;
                 }
@@ -716,7 +716,6 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * check Jacobian that uses multiple dof types with FD
-                 * FIXME: FEM needs refactoring for mResidualDofTypes being a cell of cells
                  * @param[ in ] aPerturbation real to perturb for FD
                  * @param[ in ] aEpsilon      real for check
                  * @param[ in ] aWStar        real weight associated to evaluation point

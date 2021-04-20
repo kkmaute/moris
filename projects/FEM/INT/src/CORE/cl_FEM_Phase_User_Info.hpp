@@ -170,23 +170,29 @@ namespace moris
                  * add dof type to list
                  * @param[ in ] aDofTypes group of dof types to add to list of dof type
                  */
-                void add_dof_type_to_list( moris::Cell< MSI::Dof_Type > & aDofTypes )
+                void add_dof_type_to_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
                 {
-                    // get dof type index in enum list
-                    uint tDofIndex = static_cast< uint >( aDofTypes( 0 ) );
-
-                    // if dof type not added to phase dof type list
-                    if( mDofCheck( tDofIndex ) == -1 )
+                    // loop over all dof types
+                    for ( uint iType = 0; iType < aDofTypes.size(); ++iType )
                     {
-                        // add dof type group to dof type list
-                        mDofTypes.push_back( aDofTypes );
+                        // get dof type index in enum list
+                        uint tDofIndex = static_cast< uint >( aDofTypes( iType )( 0 ) );
 
-                        // set check to 1
-                        mDofCheck( tDofIndex ) = 1;
+                        // if dof type not added to phase dof type list
+                        if( mDofCheck( tDofIndex ) == -1 )
+                        {
+                            // add dof type group to dof type list
+                            mDofTypes.push_back( aDofTypes( iType ) );
+
+                            // set check to 1
+                            mDofCheck( tDofIndex ) = 1;
+                        }
                     }
                 }
 
-                Matrix< DDSMat > & get_dof_type_check_list()
+                //------------------------------------------------------------------------------
+
+                const Matrix< DDSMat > & get_dof_type_check_list()
                 {
                     return mDofCheck;
                 }

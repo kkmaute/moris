@@ -64,8 +64,9 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
     moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -96,7 +97,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof( 0 ) } );
     tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
     tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
@@ -291,7 +292,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
             tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
 
             // set size and fill the set residual assembly map
@@ -447,8 +448,9 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_VdW",
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
     moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -494,7 +496,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_VdW",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_VDW );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof( 0 ) } );
     tCMMasterFluid->set_property( tPropHeatCapacity,   "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,    "SpecificGasConstant" );
     tCMMasterFluid->set_property( tPropViscosity,      "DynamicViscosity" );
@@ -690,7 +692,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_VdW",
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
             tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
 
             // set size and fill the set residual assembly map

@@ -7,9 +7,9 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "IG/cl_MTK_Integration_Rule.hpp" //MTK/src
-#include "IG/cl_MTK_Integrator.hpp" //MTK/src
-#include "IG/cl_MTK_Integrator_Test_Polynomial.hpp" //MTK/src
+#include "cl_MTK_Integration_Rule.hpp" //MTK/src
+#include "cl_MTK_Integrator.hpp" //MTK/src
+#include "cl_MTK_Integrator_Test_Polynomial.hpp" //MTK/src
 
 #include "paths.hpp"
 using namespace moris;

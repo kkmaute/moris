@@ -54,8 +54,7 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes = { MSI::Dof_Type::UX };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -86,7 +85,7 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
-    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes );
+    tCMMasterStrucLinIso->set_dof_type_list( tDispDofTypes );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
@@ -95,7 +94,7 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
-    tCMSlaveStrucLinIso->set_dof_type_list( tDofTypes );
+    tCMSlaveStrucLinIso->set_dof_type_list( tDispDofTypes );
     tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
     tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
     tCMSlaveStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
@@ -120,8 +119,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tDispDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDispDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDispDofTypes, mtk::Master_Slave::SLAVE );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMSlaveStrucLinIso, "ElastLinIso", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
@@ -251,10 +250,10 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
             fill_uhat_Elast( tMasterDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tMasterFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatDisp );
 
             // fill random coefficients for slave FI
@@ -262,14 +261,14 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
             fill_uhat_Elast( tSlaveDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tSlaveFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatDisp );
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDispDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofDisp, 2 * tNumDofDisp - 1 } };
 
@@ -290,14 +289,14 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            tIWG->mRequestedMasterGlobalDofTypes = tDispDofTypes;
+            tIWG->mRequestedSlaveGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tMasterFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;
