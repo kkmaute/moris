@@ -190,14 +190,14 @@ namespace moris
 
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
-            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdt(), 0, tdAdY );
             tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
 
             // loop over contributions from A-matrices
             for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
             {
                 // evaluate d(Ai)/dDof * Y,i
-                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAdY );
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdx( iDim ), iDim + 1, tdAdY );
 
                 // add contribution
                 tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );
