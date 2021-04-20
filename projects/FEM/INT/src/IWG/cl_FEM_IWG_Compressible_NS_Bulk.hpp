@@ -307,20 +307,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the residual strong form
-                 * @param[ in ] aRM a matrix to fill with RM
-                 */
-                void compute_residual_strong_form( Matrix< DDRMat > & aRM );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual strong form
-                 * @param[ in ] aJM       a matrix to fill with dRMdDof
-                 */
-                void compute_jacobian_strong_form( Matrix< DDRMat > & aJM );   
-
-                //------------------------------------------------------------------------------
-                /**
                  * compute the L-operator (Navier-Stokes-Operator) 
                  * applied to the state variable vector Y
                  * @param[ out ] mLY  L-operator applied to Y-vector
