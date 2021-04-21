@@ -208,7 +208,7 @@ TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
         // HMR finalize
         pHMR->perform();
         //
-        pGEN->distribute_advs( pBGMTK->get_mesh_pair( 0 ) );
+        pGEN->distribute_advs( pBGMTK->get_mesh_pair( 0 ),{} );
 
         // Output GEN fields, if requested
         pGEN->output_fields(pBGMTK->get_interpolation_mesh( 0 ));

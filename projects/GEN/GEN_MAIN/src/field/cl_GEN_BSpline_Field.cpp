@@ -33,7 +33,59 @@ namespace moris
         {
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aField);
-            MORIS_ERROR(tTargetField.length() == aCoefficientIndices.length(),
+
+            this->distribute_coeffs(
+                    tTargetField,
+                    aOwnedADVs,
+                    aCoefficientIndices,
+                    aSharedADVIds,
+                    aADVOffsetID);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        BSpline_Field::BSpline_Field(
+                sol::Dist_Vector*      aOwnedADVs,
+                const Matrix<DDUMat>&  aCoefficientIndices,
+                const Matrix<DDSMat>&  aSharedADVIds,
+                uint                   aADVOffsetID,
+                mtk::Mesh_Pair         aMeshPair,
+                std::shared_ptr<Field> aField,
+                std::shared_ptr<mtk::Field> aMTKField )
+                : Field(aCoefficientIndices, aSharedADVIds, aMeshPair, aField)
+                , Field_Discrete_Integration(aMeshPair.get_interpolation_mesh()->get_num_nodes())
+                , mSharedADVIds(aSharedADVIds)
+                , mADVOffsetID(aADVOffsetID)
+                , mMeshPair(aMeshPair)
+        {
+            // Map to B-splines
+            const Matrix<DDRMat> & tTargetField = aMTKField->get_coefficients();
+
+            this->distribute_coeffs(
+                    tTargetField,
+                    aOwnedADVs,
+                    aCoefficientIndices,
+                    aSharedADVIds,
+                    aADVOffsetID);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        BSpline_Field::~BSpline_Field()
+        {
+            delete mOwnedNodalValues;
+            delete mSharedNodalValues;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        void BSpline_Field::distribute_coeffs(
+                const Matrix<DDRMat> & aTargetField,
+                sol::Dist_Vector*      aOwnedADVs,
+                const Matrix<DDUMat>&  aCoefficientIndices,
+                const Matrix<DDSMat>&  aSharedADVIds,
+                uint                   aADVOffsetID)
+        {
+            MORIS_ERROR(aTargetField.length() == aCoefficientIndices.length(),
                     "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
 
             // Get B-spline mesh index
@@ -53,7 +105,7 @@ namespace moris
                             tDiscretizationMeshIndex);
 
                     // Assign distributed vector element based on ID
-                    (*aOwnedADVs)(tADVId) = tTargetField(tCoefficientIndex);
+                    (*aOwnedADVs)(tADVId) = aTargetField(tCoefficientIndex);
                 }
             }
 
@@ -94,15 +146,6 @@ namespace moris
             // Import ADVs and assign nodal values
             this->import_advs(aOwnedADVs);
         }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        BSpline_Field::~BSpline_Field()
-        {
-            delete mOwnedNodalValues;
-            delete mSharedNodalValues;
-        }
-
         //--------------------------------------------------------------------------------------------------------------
 
         real BSpline_Field::get_field_value(uint aNodeIndex)

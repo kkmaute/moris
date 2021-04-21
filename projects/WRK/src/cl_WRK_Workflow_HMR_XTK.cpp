@@ -135,7 +135,8 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0) );
+                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),
+                        {} );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
