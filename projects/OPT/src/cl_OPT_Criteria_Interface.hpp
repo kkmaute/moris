@@ -57,6 +57,12 @@ namespace moris
                  */
                 Matrix<DDRMat> get_dcriteria_dadv();
 
+                //------------------------------------------------------------------------------
+                void initialize_optimization_restart()
+                {
+                    MORIS_ERROR( false, "initialize_optimization_restart() not fully implemented yet." );
+                }
+
             private:
 
                 /**

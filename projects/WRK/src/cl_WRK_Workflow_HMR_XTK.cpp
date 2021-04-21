@@ -85,7 +85,7 @@ namespace moris
                 // Trace HMR
                 Tracer tTracer( "HMR", "HMRmesh", "Create" );
 
-                mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
+                //mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
 
                 // uniform initial refinement
                 mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
@@ -139,7 +139,12 @@ namespace moris
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // XTK perform - decompose - enrich - ghost - multigrid
-            mPerformerManager->mXTKPerformer( 0 )->perform();
+            bool tFlag = mPerformerManager->mXTKPerformer( 0 )->perform();
+
+            if( not tFlag )
+            {
+                this->initialize_optimization_restart();
+            }
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
