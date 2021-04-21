@@ -404,6 +404,16 @@ set(LIB_DEPENDENCIES
     ${PRM}-lib
     )
 
+set(MTK_INCLUDES
+	"IG/"
+	"IP/"
+	)
+
+# Include depedency directories
+foreach(MTK_INCLUDE ${MTK_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDE})
+endforeach()
+
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

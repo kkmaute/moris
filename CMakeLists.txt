@@ -212,6 +212,8 @@ option(MORIS_PERFORM_CHECK
     
 option(MORIS_USE_TACC "USE TACC" OFF)
 
+option(MORIS_USE_OPENMP "Use OpenMP" OFF)
+
 # -------------------------------------------------------------------------
 # Package Options
 
@@ -406,6 +408,15 @@ else(MORIS_USE_TACC)
 endif(MORIS_USE_TACC)
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
+
+if(MORIS_USE_OPENMP)
+    check_cxx_compiler_flag(-fopenmp HAVE_OPENMP)
+    message("CHECK FOPENMP")
+    if(HAVE_OPENMP)
+    message("SETTING FOPENMP")
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fopenmp")
+    endif()
+endif()
 
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,

@@ -51,6 +51,7 @@ struct MtkBlockSetInfo
 
 };
 
+inline
 std::ostream &
 operator<<(std::ostream & os, mtk::MtkBlockSetInfo const * const & dt)
 {

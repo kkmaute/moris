@@ -1186,6 +1186,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::initialize_coarsest_elements()
         {
             MORIS_ERROR( false, "Do not know how initialize elements\n");
@@ -1194,6 +1195,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::finalize_coarsest_elements()
         {
             MORIS_ERROR( false, "Don't know how to finalize coarsest level.");
@@ -1202,6 +1204,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_domain_id_of_element(
                 const uint  & aLevel,
                 const luint & aI ) const
@@ -1213,6 +1216,7 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_domain_id_of_element(
                 const uint  & aLevel,
                 const luint & aI,
@@ -1224,6 +1228,7 @@ namespace moris
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_domain_id_of_element(
                 const uint  & aLevel,
                 const luint & aI,
@@ -1237,6 +1242,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_subdomain_id_of_element( const uint  & aLevel,
                 const luint & aI ) const
         {
@@ -1247,6 +1253,7 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_subdomain_id_of_element( const uint  & aLevel,
                 const luint & aI,
                 const luint & aJ ) const
@@ -1258,6 +1265,7 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_subdomain_id_of_element( const uint  & aLevel,
                 const luint & aI,
                 const luint & aJ,
@@ -1270,6 +1278,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::calc_element_ids(
                 const uint         & aLevel,
                 const Matrix< DDLUMat > & aIJK,
@@ -1281,6 +1290,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         luint Background_Mesh< N >::calc_subdomain_id_from_global_id(
                 const uint         & aLevel,
                 const luint        & aID) const
@@ -1292,6 +1302,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
         {
             MORIS_ERROR( false, "Don't know how to refine element." );
@@ -1300,6 +1311,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::create_coarsest_frame()
         {
             MORIS_ERROR( false, "Don't know how to create coarsest frame.");
@@ -1308,6 +1320,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::collect_neighbors_on_level_zero()
         {
             MORIS_ERROR( false, "Don't know how to collect_neighbors_on_level_zero.");
@@ -1317,6 +1330,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::calc_corner_nodes_of_element(
                 const Background_Element_Base   * aElement,
                 Matrix< DDRMat >                       & aNodeCoords )
@@ -1327,6 +1341,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::calc_center_of_element(
                 const Background_Element_Base  * aElement,
                 Matrix< DDRMat >                      & aNodeCoords )
@@ -1337,6 +1352,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::collect_coarsest_elements_on_side(
                 const uint                       & aSideOrdinal,
                 Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
@@ -1347,6 +1363,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         template < uint N >
+        inline
         void Background_Mesh< N >::collect_coarsest_elements_in_bounding_box( moris::Cell< Background_Element_Base* > & aBackgroundElements,
                 luint                                     aBoundingBoxStartEndIJK[][2],
                 uint                                      alevel )

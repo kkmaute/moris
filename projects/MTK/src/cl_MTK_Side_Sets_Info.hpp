@@ -50,6 +50,7 @@ struct MtkSideSetInfo
     }
 };
 
+inline
 std::ostream &
 operator<<(std::ostream & os, mtk::MtkSideSetInfo const * const & dt)
 {

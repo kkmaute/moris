@@ -65,6 +65,7 @@ namespace moris
          * @param[in] aBackgroundMesh pointer to background mesh
          *
          */
+        inline
         Lagrange_Mesh( const Parameters           * aParameters,
                        Background_Mesh_Base       * aBackgroundMesh,
                        Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
@@ -94,6 +95,7 @@ namespace moris
         /**
          * Default destructor.
          */
+        inline
         ~Lagrange_Mesh()
         {
            this->delete_t_matrices();
@@ -148,6 +150,7 @@ namespace moris
          * @param[in]  aI        proc local i-position of node
          * @return uint          domain wide unique ID
          */
+        inline
         luint calculate_node_id( const uint  & aLevel,
                                  const luint & aI )
         {
@@ -173,6 +176,7 @@ namespace moris
          * @param[in]  aJ        proc local j-position of node
          * @return uint          domain wide unique ID
          */
+        inline
         luint
         calculate_node_id(
                 const uint  & aLevel,
@@ -204,6 +208,7 @@ namespace moris
          * @param[in]  aK        proc local k-position of node
          * @return uint          domain wide unique ID
          */
+        inline
         luint
         calculate_node_id(
                 const uint  & aLevel,
@@ -235,6 +240,7 @@ namespace moris
          * @return void
          *
          */
+        inline
         void
         get_number_of_elements_per_dimension()
         {
@@ -261,6 +267,7 @@ namespace moris
          *
          *  @return void
          */
+        inline
         void calculate_level_offset()
         {
             // calculate node level offset
@@ -287,6 +294,7 @@ namespace moris
          *
          * @return void
          */
+        inline
         void calculate_subdomain_offset()
         {
             Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
@@ -307,6 +315,7 @@ namespace moris
           *
           * @return void
           */
+         inline
          void calculate_node_coordinates()
          {
              // get domain dimensions from settings
@@ -378,6 +387,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
+        inline
         Element * Lagrange_Mesh< N, P >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -388,6 +398,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 2, 1 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -397,6 +408,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 2, 2 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -406,6 +418,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 2, 3 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -415,6 +428,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 2, 4 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -424,6 +438,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 2, 5 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -433,6 +448,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 3, 1 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -442,6 +458,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 3, 2 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -452,6 +469,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 3, 3 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -461,6 +479,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 3, 4 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -470,6 +489,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
+        inline
         Element * Lagrange_Mesh< 3, 5 >::create_element(
                 Background_Element_Base* aElement )
         {
@@ -479,6 +499,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
+        inline
         Facet * Lagrange_Mesh< N, P >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -489,6 +510,7 @@ namespace moris
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 2, 1 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -498,6 +520,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 2, 2 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -507,6 +530,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 2, 3 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -516,6 +540,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 2, 4 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -525,6 +550,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 2, 5 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -533,6 +559,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 3, 1 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -542,6 +569,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 3, 2 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -551,6 +579,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 3, 3 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -560,6 +589,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 3, 4 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -569,6 +599,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Facet * Lagrange_Mesh< 3, 5 >::create_facet(
                 Background_Facet * aFacet )
         {
@@ -578,6 +609,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
+        inline
         Edge * Lagrange_Mesh< N, P >::create_edge(
                 Background_Edge * aEdge  )
         {
@@ -588,6 +620,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Edge * Lagrange_Mesh< 3, 1 >::create_edge(
                 Background_Edge * aEdge  )
         {
@@ -597,6 +630,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Edge * Lagrange_Mesh< 3, 2 >::create_edge(
                 Background_Edge * aEdge  )
         {
@@ -605,6 +639,7 @@ namespace moris
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
+        inline
         Edge * Lagrange_Mesh< 3, 3 >::create_edge(
                 Background_Edge * aEdge  )
         {

@@ -22,6 +22,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
         // derivative of phase state function
+        inline
         moris::real eval_dFdTemp(
                 moris::real aTmelt,
                 moris::real aPCconst,
@@ -94,7 +95,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // 2nd derivative of phase state function wrt temperature
-
+        inline
         moris::real eval_d2FdTemp2(
                 moris::real aTmelt,
                 moris::real aPCconst,
@@ -154,7 +155,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // derivative of the phase state function wrt temperature wrt the DoFs
-
+        inline
         moris::Matrix<DDRMat> eval_dFdTempdDOF(
                 moris::real aTmelt,
                 moris::real aPCconst,

@@ -17,6 +17,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template <>
+        inline
         luint Background_Mesh< 2 >::calc_domain_id_of_element( const uint  & aLevel,
                                                                const luint & aI,
                                                                const luint & aJ ) const
@@ -605,6 +606,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template <>
+        inline
         void
         Background_Mesh< 2 >::calc_corner_nodes_of_element(
                 const Background_Element_Base   * aElement,
@@ -645,6 +647,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
         template <>
+        inline
         void
         Background_Mesh< 2 >::calc_center_of_element(
                 const Background_Element_Base   * aElement,

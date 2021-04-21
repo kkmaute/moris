@@ -247,6 +247,7 @@ namespace moris
                 END_MEASURE_TYPE
         };
 
+        inline
         map< std::string, enum fem::Measure_Type > get_measure_type_map()
         {
             map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;

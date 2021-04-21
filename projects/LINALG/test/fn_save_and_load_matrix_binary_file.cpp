@@ -3,23 +3,12 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Manager.hpp"
+#include "cl_Communication_Tools.hpp"
 
 #include "fn_save_matrix_to_binary_file.hpp"
 #include "fn_load_matrix_from_binary_file.hpp"
-// fixme: this function has to be removed when the new linalg is in comtools
 
 extern moris::Comm_Manager gMorisComm;
-
-namespace moris
-{
-    size_t par_rank()
-    {
-
-        int tProcRank;
-        MPI_Comm_rank(gMorisComm.get_global_comm(), &tProcRank);
-        return (size_t)tProcRank;
-    }
-}
 
 TEST_CASE("moris::save_and_load_binary_file",
           "[linalgebra],[save_and_load_binary_file]")

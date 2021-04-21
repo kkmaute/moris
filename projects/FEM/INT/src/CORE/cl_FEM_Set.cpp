@@ -12,7 +12,7 @@
 #include "cl_FEM_Set.hpp"                        //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
-#include "IG/cl_MTK_Integrator.hpp"                 //MTK/src
+#include "cl_MTK_Integrator.hpp"                 //MTK/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Element.hpp"      //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                    //FEM/INT/src
@@ -272,64 +272,65 @@ namespace moris
 
         void Set::create_integrator( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
-            // get time levels from model solver interface
-            const Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
-            uint tMaxTimeLevels = tTimeLevels.max();
+            MORIS_ERROR(0,"FIXME KEENAN");
+            // // get time levels from model solver interface
+            // const Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
+            // uint tMaxTimeLevels = tTimeLevels.max();
 
-            // init time geometry type
-            mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::UNDEFINED;
+            // // init time geometry type
+            // mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::UNDEFINED;
 
-            // init time integration order
-            mtk::Integration_Order tTimeIntegrationOrder = mtk::Integration_Order::UNDEFINED;
+            // // init time integration order
+            // mtk::Integration_Order tTimeIntegrationOrder = mtk::Integration_Order::UNDEFINED;
 
-            // switch on maximum time level
-            switch ( tMaxTimeLevels )
-            {
-                case 1 :
-                {
-                    tTimeGeometryType     = mtk::Geometry_Type::LINE;
-                    tTimeIntegrationOrder = mtk::Integration_Order::BAR_1;
-                    break;
-                }
-                case 2 :
-                {
-                    tTimeGeometryType     = mtk::Geometry_Type::LINE;
-                    tTimeIntegrationOrder = mtk::Integration_Order::BAR_2;
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "Set::create_integrator - only 1 or 2 time levels handled so far.");
-                }
-            }
+            // // switch on maximum time level
+            // switch ( tMaxTimeLevels )
+            // {
+            //     case 1 :
+            //     {
+            //         tTimeGeometryType     = mtk::Geometry_Type::LINE;
+            //         tTimeIntegrationOrder = mtk::Integration_Order::BAR_1;
+            //         break;
+            //     }
+            //     case 2 :
+            //     {
+            //         tTimeGeometryType     = mtk::Geometry_Type::LINE;
+            //         tTimeIntegrationOrder = mtk::Integration_Order::BAR_2;
+            //         break;
+            //     }
+            //     default :
+            //     {
+            //         MORIS_ERROR( false, "Set::create_integrator - only 1 or 2 time levels handled so far.");
+            //     }
+            // }
 
-            // if a time sideset or boundary
-            if( mTimeContinuity || mTimeBoundary )
-            {
-                tTimeGeometryType     = mtk::Geometry_Type::POINT;
-                tTimeIntegrationOrder = mtk::Integration_Order::POINT;
-            }
+            // // if a time sideset or boundary
+            // if( mTimeContinuity || mTimeBoundary )
+            // {
+            //     tTimeGeometryType     = mtk::Geometry_Type::POINT;
+            //     tTimeIntegrationOrder = mtk::Integration_Order::POINT;
+            // }
 
-            // create an integration rule
-            mtk::Integration_Rule tIntegrationRule(
-                    mIGGeometryType,
-                    mtk::Integration_Type::GAUSS,
-                    this->get_auto_integration_order(
-                            mElementType,
-                            mIGGeometryType,
-                            mIPSpaceInterpolationOrder ),
-                            tTimeGeometryType,
-                            mtk::Integration_Type::GAUSS,
-                            tTimeIntegrationOrder );
+            // // create an integration rule
+            // mtk::Integration_Rule tIntegrationRule(
+            //         mIGGeometryType,
+            //         mtk::Integration_Type::GAUSS,
+            //         this->get_auto_integration_order(
+            //                 mElementType,
+            //                 mIGGeometryType,
+            //                 mIPSpaceInterpolationOrder ),
+            //                 tTimeGeometryType,
+            //                 mtk::Integration_Type::GAUSS,
+            //                 tTimeIntegrationOrder );
 
-            // create an integrator
-            mtk::Integrator tIntegrator( tIntegrationRule );
+            // // // create an integrator
+            // // moris::mtk::Integrator tIntegrator( tIntegrationRule );
 
-            // get integration points
-            tIntegrator.get_points( mIntegPoints );
+            // // // get integration points
+            // // tIntegrator.get_points( mIntegPoints );
 
-            // get integration weights
-            tIntegrator.get_weights( mIntegWeights );
+            // // // get integration weights
+            // // tIntegrator.get_weights( mIntegWeights );
         }
 
         //------------------------------------------------------------------------------

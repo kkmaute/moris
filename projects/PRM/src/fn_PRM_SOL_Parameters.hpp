@@ -30,7 +30,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-
+        inline
         ParameterList create_solver_warehouse_parameterlist( )
         {
             ParameterList tSolverWarehouseList;
@@ -55,7 +55,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // P R E C O N I T I O N E R   P A R A M E T E R L I S T //
-
+        inline
         void create_ifpack_precondtitioner_parameterlist( ParameterList & aParameterlist )
         {
             // ASSIGN DEFAULT PARAMETER VALUES
@@ -171,7 +171,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         void create_ml_precondtitioner_parameterlist( ParameterList & aParameterlist )
         {
             // General Parameters
@@ -251,7 +251,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         // creates a parameter list with default inputs
         ParameterList create_linear_algorithm_parameter_list_aztec( )
         {
@@ -361,7 +361,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         // creates a parameter list with default inputs
         ParameterList create_linear_algorithm_parameter_list_amesos( )
         {
@@ -400,7 +400,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         // creates a parameter list with default inputs
         ParameterList create_linear_algorithm_parameter_list_belos( )
         {
@@ -457,6 +457,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // creates a parameter list with default inputs
+        inline
         ParameterList create_linear_algorithm_parameter_list_petsc( )
         {
             ParameterList tLinAlgorithmParameterList;
@@ -506,7 +507,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         ParameterList create_linear_solver_parameter_list()
         {
             ParameterList tLinSolverParameterList;
@@ -526,7 +527,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         ParameterList create_nonlinear_algorithm_parameter_list()
         {
             ParameterList tNonLinAlgorithmParameterList;
@@ -588,7 +589,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         ParameterList create_nonlinear_solver_parameter_list()
         {
             ParameterList tNonLinSolverParameterList;
@@ -612,7 +613,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         ParameterList create_time_solver_algorithm_parameter_list()
         {
             ParameterList tTimeAlgorithmParameterList;
@@ -635,7 +636,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         ParameterList create_time_solver_parameter_list()
         {
             ParameterList tTimeParameterList;
@@ -661,7 +662,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         // creates a parameter list with default inputs
         ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::SolverType aSolverType,
                 const uint                        aIndex = 0 )
@@ -690,7 +691,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        //inline
         //    // creates a parameter list with default inputs
         //    ParameterList create_nonlinear_algorithm_parameter_list( const enum moris::NLA::NonlinearSolverType aSolverType,
         //                                                             const uint                        aIndex = 0 )

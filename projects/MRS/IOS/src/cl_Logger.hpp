@@ -17,31 +17,18 @@
 // need to be revised later
 #include <mpi.h>
 
-int logger_par_rank()
-{
-    int tProcRank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-    return tProcRank;
-}
+
+
 
 namespace moris
 {
+    int logger_par_rank();
 
     real
-    logger_max_all( real & aLocalInput )
-    {
-        real aGlobalMax;
-        MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
-        return aGlobalMax;
-    }
+    logger_max_all( real & aLocalInput );
 
     real
-    logger_min_all( real & aLocalInput )
-    {
-        real aGlobalMin;
-        MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
-        return aGlobalMin;
-    }
+    logger_min_all( real & aLocalInput );
 
     class Logger
     {

@@ -152,6 +152,7 @@ cl_MTK_Exodus_IO_Helper.cpp
 cl_MTK_Field.cpp
 cl_MTK_Field_Analytic.cpp
 cl_MTK_Field_Discrete.cpp
+cl_MTK_Enums.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp

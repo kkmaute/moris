@@ -33,6 +33,7 @@ namespace moris
                 moris::fem::Field_Interpolator_Manager * aFIManager ) > PropertyFunc;
 
         // default constant property value function
+        inline
         void Property_Function_Constant(
                 moris::Matrix< moris::DDRMat >                 & aPropMatrix,
                 moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,

@@ -7,6 +7,7 @@ set(${WRK}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_WRK_Performer_Manager.hpp
+    cl_WRK_GEN_Performer.hpp
     cl_WRK_Performer.hpp
     cl_WRK_Workflow.hpp
     cl_WRK_Workflow_Factory.hpp
@@ -36,6 +37,7 @@ endforeach()
 set(LIB_SOURCES
     cl_WRK_Performer_Manager.cpp
     cl_WRK_Performer.cpp
+    cl_WRK_GEN_Performer.cpp
     cl_WRK_Workflow_Factory.cpp
     cl_WRK_Workflow_HMR_XTK.cpp
     cl_WRK_Workflow_STK_XTK.cpp

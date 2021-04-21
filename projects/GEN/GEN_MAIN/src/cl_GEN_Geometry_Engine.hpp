@@ -6,8 +6,8 @@
 #include "cl_Library_IO.hpp"
 #include "fn_trans.hpp"
 
-// WRK
-#include "cl_WRK_Performer.hpp"
+// // WRK
+// #include "cl_WRK_Performer.hpp"
 
 // GEN
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
@@ -44,7 +44,7 @@ namespace moris
     namespace ge
     {
 
-        class Geometry_Engine : public wrk::Performer
+        class Geometry_Engine
         {
         // Fields
         protected:

@@ -72,7 +72,7 @@ namespace moris
                 std::string tFilePath = tFieldIdToTarget.find( tField->get_id() );
 
                 // error handler
-                hid_t tStatus = 0;
+                herr_t tStatus = 0;
 
                 // get index of output file
                 uint tIndex = tFileMap.find( tFilePath );

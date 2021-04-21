@@ -82,6 +82,7 @@ private:
 
 };
 
+inline
 std::ostream &
 operator<<(std::ostream & os, const xtk::Interpolation_Vertex_Unzipped & dt)
 {

@@ -15,6 +15,7 @@ namespace moris
              *
              * @return Field parameter list
              */
+            inline
             ParameterList create_field_parameter_list()
             {
                 ParameterList tParameterList;
@@ -41,6 +42,7 @@ namespace moris
          *
          * @return GEN parameter list
          */
+        inline
         ParameterList create_gen_parameter_list()
         {
             ParameterList tParameterList;
@@ -80,6 +82,7 @@ namespace moris
          *
          * @return Geometry parameter list
          */
+        inline
         ParameterList create_geometry_parameter_list()
         {
             ParameterList tParameterList = create_field_parameter_list();
@@ -94,6 +97,7 @@ namespace moris
          *
          * @return User-defined geometry parameter list
          */
+        inline
         ParameterList create_user_defined_geometry_parameter_list()
         {
             ParameterList tParameterList = create_geometry_parameter_list();
@@ -110,6 +114,7 @@ namespace moris
          *
          * @return Voxel geometrie parameterlist
          */
+        inline
         ParameterList create_voxel_field_parameter_list()
         {
             ParameterList tParameterList = create_geometry_parameter_list();
@@ -128,6 +133,7 @@ namespace moris
          *
          * @return Swiss cheese slice parameter list
          */
+        inline
         ParameterList create_swiss_cheese_slice_parameter_list()
         {
             ParameterList tParameterList;
@@ -174,6 +180,7 @@ namespace moris
          *
          * @return GEN property parameter list
          */
+        inline
         ParameterList create_gen_property_parameter_list()
         {
             ParameterList tParameterList = create_field_parameter_list();
@@ -193,6 +200,7 @@ namespace moris
          *
          * @return User-defined GEN property parameter list
          */
+        inline
         ParameterList create_user_defined_property_parameter_list()
         {
             ParameterList tParameterList = create_gen_property_parameter_list();

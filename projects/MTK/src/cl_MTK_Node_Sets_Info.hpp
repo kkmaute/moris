@@ -41,6 +41,7 @@ struct MtkNodeSetInfo
 
 };
 
+inline
 std::ostream &
 operator<<(std::ostream & os, mtk::MtkNodeSetInfo const * const & dt)
 {

@@ -47,6 +47,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template <>
+        inline
         luint
         Background_Mesh< 1 >::calc_domain_id_of_element(
                 const uint  & aLevel,
@@ -78,6 +79,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template <>
+        inline
         luint
         Background_Mesh< 1 >::calc_domain_id_of_element(
                 const uint  & aLevel,

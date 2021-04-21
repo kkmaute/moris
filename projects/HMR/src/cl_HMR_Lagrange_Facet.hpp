@@ -35,7 +35,8 @@ namespace moris
 //------------------------------------------------------------------------------
            public:
 //------------------------------------------------------------------------------
-
+                
+               inline
                Lagrange_Facet( Mesh_Base        * aMesh,
                                Background_Facet * aBackgroundFacet ) : Facet( aMesh, aBackgroundFacet )
                {
@@ -48,14 +49,14 @@ namespace moris
                ~Lagrange_Facet(){};
 
 //------------------------------------------------------------------------------
-
+               inline
                uint get_number_of_vertices() const
                {
                    return D;
                }
 
 //------------------------------------------------------------------------------
-
+               inline
                Matrix< DDRMat > get_vertex_coords() const
                {
                    // create output matrix
@@ -88,21 +89,21 @@ namespace moris
                mtk::Integration_Order get_integration_order() const;
 
 //------------------------------------------------------------------------------
-
+               inline
                const mtk::Vertex * get_vertex( const uint & aIndex ) const
                {
                    return mVertices[ aIndex ];
                }
 
 // ----------------------------------------------------------------------------
-
+               inline
                const Basis * get_basis( const uint & aIndex ) const
                {
                    return mVertices[ aIndex ];
                }
 
 // ----------------------------------------------------------------------------
-
+               inline
                Basis * get_basis( const uint & aIndex )
                {
                    return mVertices[ aIndex ];
@@ -123,6 +124,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
+           inline
            mtk::Geometry_Type Lagrange_Facet< N, D >::get_geometry_type() const
            {
                MORIS_ERROR( false,
@@ -133,6 +135,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
+           inline
            mtk::Interpolation_Order Lagrange_Facet< N, D >::get_interpolation_order() const
            {
                MORIS_ERROR( false,
@@ -143,6 +146,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
+           inline
            mtk::Integration_Order Lagrange_Facet< N, D >::get_integration_order() const
            {
                MORIS_ERROR( false,
@@ -153,6 +157,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
+           inline
            void Lagrange_Facet< N, D >::copy_vertex_pointers( const uint & aIndex )
            {
                MORIS_ERROR( false,

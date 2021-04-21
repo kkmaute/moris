@@ -18,7 +18,7 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
+        inline
         void fd_scheme(
                 enum fem::FDScheme_Type              aFDSchemeType,
                 moris::Cell< moris::Cell< real > > & aFDScheme )

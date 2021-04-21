@@ -41,7 +41,7 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
-
+        inline
         map< std::string, enum MSI::Dof_Type > get_msi_dof_type_map()
         {
             map< std::string, enum MSI::Dof_Type > tMSIDofTypeMap;
@@ -73,7 +73,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
+        inline
         map< enum MSI::Dof_Type, std::string > get_dof_type_name_map()
         {
             map< enum MSI::Dof_Type, std::string  > tMSIDofTypeMap;

@@ -301,6 +301,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         std::string BSpline_Element< N, B >::get_gmsh_string()
         {
             std::string aString = "GMSH not implemented for this element";
@@ -310,6 +311,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         uint BSpline_Element< N, B >::get_vtk_type()
         {
             // this element has no VTK id
@@ -319,6 +321,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // do nothing
@@ -327,6 +330,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::create_basis( const uint & aBasisNumber )
         {
             MORIS_ERROR( false, "Don't know how to create B-Spline.");
@@ -335,6 +339,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::create_basis_on_level_zero(
                 moris::Cell< Element* > & aAllElementsOnProc,
                 luint            & aBasisCounter )
@@ -346,6 +351,7 @@ namespace moris
 
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::create_basis_for_children(
                 moris::Cell< Element * > & aAllElementsOnProc,
                 luint             & aBasisCounter )
@@ -356,6 +362,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::get_ijk_of_basis(
                 const uint & aBasisNumber,
                 luint      * aIJK )
@@ -366,6 +373,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::link_basis_with_neighbors(
                 moris::Cell< Element* > & aAllElementsOnProc )
         {
@@ -376,6 +384,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::refine_basis(
                 const uint & aBasisNumber,
                      luint & aBasisCounter)
@@ -386,6 +395,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         void BSpline_Element< N, B >::refine(
                 moris::Cell< Element* > & aAllElementsOnProc,
                            luint & aBasisCounter )
@@ -396,6 +406,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         mtk::Geometry_Type BSpline_Element< N, B >::get_geometry_type() const
         {
             MORIS_ERROR( false, "get_geometry_type() not available for this element.");
@@ -405,6 +416,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         mtk::Interpolation_Order BSpline_Element< N, B >::get_interpolation_order() const
         {
             MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
@@ -414,6 +426,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
+        inline
         Matrix< DDRMat > BSpline_Element< N, B >::get_vertex_coords() const
         {
             MORIS_ERROR(false, "get_vertex_coords(): to make this Bspline_Element function work, turn on calculate_basis_coordinates() in collect_basis()");
