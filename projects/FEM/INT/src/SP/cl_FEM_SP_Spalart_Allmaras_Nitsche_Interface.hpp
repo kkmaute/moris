@@ -20,6 +20,7 @@
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Cluster.hpp"
+#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris
 {
@@ -177,41 +178,41 @@ namespace moris
                 //------------------------------------------------------------------------------
 
             private:
-                //------------------------------------------------------------------------------
-
-                real compute_diffusion_coefficient(
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-
-                void compute_ddiffusiondu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & addiffusiondu,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-
-                real compute_fn(
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-
-                void compute_dfndu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adfndu,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-
-                real compute_chi(
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-
-                void compute_dchidu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adchidu,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+//                //------------------------------------------------------------------------------
+//
+//                real compute_diffusion_coefficient(
+//                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+//
+//                //------------------------------------------------------------------------------
+//
+//                void compute_ddiffusiondu(
+//                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                        Matrix< DDRMat >                   & addiffusiondu,
+//                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+//
+//                //------------------------------------------------------------------------------
+//
+//                real compute_fn(
+//                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+//
+//                //------------------------------------------------------------------------------
+//
+//                void compute_dfndu(
+//                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                        Matrix< DDRMat >                   & adfndu,
+//                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+//
+//                //------------------------------------------------------------------------------
+//
+//                real compute_chi(
+//                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+//
+//                //------------------------------------------------------------------------------
+//
+//                void compute_dchidu(
+//                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                        Matrix< DDRMat >                   & adchidu,
+//                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
 
         };
         //------------------------------------------------------------------------------

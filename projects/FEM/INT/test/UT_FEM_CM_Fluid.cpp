@@ -61,8 +61,9 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    //tPropViscosity->set_parameters( { {{ 1.0 }}, {{ 0.0 },{0.0}} } );
     tPropViscosity->set_val_function( tConstValFunc );
+    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
@@ -131,6 +132,9 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
 
+                // set viscosity space derivative parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{ 0.0 },{0.0}} } );
+
                 break;
             }
             case 3 :
@@ -150,6 +154,9 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+
+                // set viscosity space derivative parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
@@ -419,8 +426,9 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    //tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
+    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
@@ -500,6 +508,9 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
 
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+
                 break;
             }
             case 3 :
@@ -519,6 +530,9 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
@@ -797,8 +811,9 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    //tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
+    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
@@ -878,6 +893,9 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
 
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+
                 break;
             }
             case 3 :
@@ -897,6 +915,9 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
@@ -1260,6 +1281,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
+    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
@@ -1330,6 +1352,9 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
 
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+
                 break;
             }
             case 3 :
@@ -1349,6 +1374,9 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
