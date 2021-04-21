@@ -13,7 +13,7 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 //FEM/INT/src
-#include "IP/cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
 #include "fn_FEM_Check.hpp"
 
 using namespace moris;

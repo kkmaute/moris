@@ -8,7 +8,7 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BAR_4_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BAR_4_HPP_
 
-#include "IG/cl_MTK_Integration_Coeffs.hpp"
+#include "cl_MTK_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

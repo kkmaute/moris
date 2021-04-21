@@ -84,10 +84,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
+
+    moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -122,7 +124,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) } );
     tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
     tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
@@ -170,7 +172,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
 //            std::cout << "Residual DoF type (0:density, 1:velocity, 2:Temperature) : " << iResDofType << "\n" << std::flush;
 
             // set residual dof type
-            tIWG->set_residual_dof_type( tDofTypes( iResDofType ) );
+            tIWG->set_residual_dof_type( tResDofTypes( iResDofType ) );
             tSPNitsche->set_dof_type_list( { tDofTypes( iResDofType ) }, mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -217,7 +219,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
                         tGeometryType = mtk::Geometry_Type::QUAD;
 
                         // set velocity dof types
-                        tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                        tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                         // set normal
                         tNormal( 1 ) = -2.6;
@@ -233,7 +235,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
                         tGeometryType = mtk::Geometry_Type::HEX;
 
                         // set velocity dof types
-                        tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                        tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                         // set normal
                         tNormal( 1 ) = -2.6;
@@ -354,15 +356,15 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
                     Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
                     // create the field interpolator density
-                    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
+                    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ));
                     tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+                    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
                     tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
                     // create the field interpolator pressure
-                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
                     tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
 
                     // set size and fill the set residual assembly map
@@ -518,10 +520,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
+
+    moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -571,7 +575,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_VDW );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) } );
     tCMMasterFluid->set_property( tPropHeatCapacity,   "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,    "SpecificGasConstant" );
     tCMMasterFluid->set_property( tPropViscosity,      "DynamicViscosity" );
@@ -622,7 +626,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
 //            std::cout << "Residual DoF type (0:density, 1:velocity, 2:Temperature) : " << iResDofType << "\n" << std::flush;
 
             // set residual dof type
-            tIWG->set_residual_dof_type( tDofTypes( iResDofType ) );
+            tIWG->set_residual_dof_type( tResDofTypes( iResDofType ) );
             tSPNitsche->set_dof_type_list( { tDofTypes( iResDofType ) }, mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -669,7 +673,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
                         tGeometryType = mtk::Geometry_Type::QUAD;
 
                         // set velocity dof types
-                        tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                        tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY  } };
 
                         // set normal
                         tNormal( 1 ) = -2.6;
@@ -685,7 +689,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
                         tGeometryType = mtk::Geometry_Type::HEX;
 
                         // set velocity dof types
-                        tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                        tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                         // set normal
                         tNormal( 1 ) = -2.6;
@@ -806,15 +810,15 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
                     Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
                     // create the field interpolator density
-                    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
+                    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ) );
                     tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+                    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
                     tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
                     // create the field interpolator pressure
-                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
                     tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
 
                     // set size and fill the set residual assembly map
@@ -970,10 +974,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
+
+    moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1013,7 +1019,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) } );
     tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
     tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
@@ -1061,7 +1067,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
 //            std::cout << "Residual DoF type (0:density, 1:velocity, 2:Temperature) : " << iResDofType << "\n" << std::flush;
 
             // set residual dof type
-            tIWG->set_residual_dof_type( tDofTypes( iResDofType ) );
+            tIWG->set_residual_dof_type( tResDofTypes( iResDofType ) );
             tSPNitsche->set_dof_type_list( { tDofTypes( iResDofType ) }, mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -1108,7 +1114,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
                         tGeometryType = mtk::Geometry_Type::QUAD;
 
                         // set velocity dof types
-                        tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                        tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                         // set normal
                         tNormal( 1 ) = -2.6;
@@ -1128,7 +1134,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
                         tGeometryType = mtk::Geometry_Type::HEX;
 
                         // set velocity dof types
-                        tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                        tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                         // set normal
                         tNormal( 1 ) = -2.6;
@@ -1253,15 +1259,15 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
                     Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
                     // create the field interpolator density
-                    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
+                    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ) );
                     tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+                    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
                     tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
                     // create the field interpolator pressure
-                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
                     tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
 
                     // set size and fill the set residual assembly map

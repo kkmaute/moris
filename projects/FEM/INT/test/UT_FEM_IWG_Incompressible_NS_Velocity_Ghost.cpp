@@ -153,7 +153,7 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
                          { 0.0, 1.0 }};
 
                // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
                break;
             }
             case 3 :
@@ -172,7 +172,7 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
                          { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
                 break;
             }
             default:
@@ -255,7 +255,7 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // fill random coefficients for slave FI
@@ -266,7 +266,7 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
 
             // set size and fill the set residual assembly map
@@ -405,7 +405,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes };
 
     // create the properties
@@ -486,7 +486,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                          { 0.0, 1.0 }};
 
                // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
                break;
             }
             case 3 :
@@ -505,7 +505,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                          { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
                 break;
             }
             default:
@@ -586,7 +586,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // fill coefficients for slave FI
@@ -598,7 +598,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
 
             // set size and fill the set residual assembly map

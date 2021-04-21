@@ -65,10 +65,11 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX};
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropFluidDensity = std::make_shared< fem::Property >();
@@ -193,7 +194,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
                 break;
             }
             case 3 :
@@ -212,7 +213,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
                 break;
             }
             default:
@@ -288,11 +289,11 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator viscosity

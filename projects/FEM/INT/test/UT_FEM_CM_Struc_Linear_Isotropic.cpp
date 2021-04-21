@@ -15,7 +15,7 @@
 #include "fn_norm.hpp"
 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integrator.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "fn_FEM_Check.hpp"
@@ -55,8 +55,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -120,7 +120,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tDispDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+                tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
 
                 break;
             }
@@ -140,7 +140,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tDispDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
+                tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } };
 
                 break;
             }
@@ -219,7 +219,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
 

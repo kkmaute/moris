@@ -482,12 +482,12 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 fem::IWG_Factory tIWGFactory;
 
                 std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-                tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGBulkA->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichletX = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-                tIWGDirichletX->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGDirichletX->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGDirichletX->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGDirichletX->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
                 tIWGDirichletX->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
@@ -495,7 +495,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tIWGDirichletX->set_property( tPropDirichletSelectX, "Select", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichletY = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-                tIWGDirichletY->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGDirichletY->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGDirichletY->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGDirichletY->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
                 tIWGDirichletY->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
@@ -503,7 +503,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tIWGDirichletY->set_property( tPropDirichletSelectY, "Select", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-                tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 

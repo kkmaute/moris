@@ -62,9 +62,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof, tVelocityDof( 0 ), tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -101,7 +102,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof( 0 ), tTempDof } );
     tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
     tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
@@ -162,7 +163,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
                 break;
             }
             case 3 :
@@ -171,7 +172,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
                 break;
             }
             default:
@@ -282,7 +283,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
 
             // create the field interpolator velocity
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
@@ -441,9 +442,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof =  { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof, tVelocityDof( 0 ), tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -495,7 +497,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_VDW );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof( 0 ), tTempDof } );
     tCMMasterFluid->set_property( tPropHeatCapacity,   "IsochoricHeatCapacity" );
     tCMMasterFluid->set_property( tPropGasConstant,    "SpecificGasConstant" );
     tCMMasterFluid->set_property( tPropViscosity,      "DynamicViscosity" );
@@ -559,7 +561,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
                 break;
             }
             case 3 :
@@ -568,7 +570,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // set velocity dof types
-                tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelocityDof = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
                 break;
             }
             default:
@@ -679,7 +681,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
 
             // create the field interpolator velocity
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure

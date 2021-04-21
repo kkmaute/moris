@@ -62,8 +62,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tTempDofTypes  = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tTempDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDofTypes = { { MSI::Dof_Type::TEMP } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -111,8 +110,8 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_VW_GHOST );
     tIWG->set_residual_dof_type( tTempDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tTempDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tTempDofTypes, mtk::Master_Slave::SLAVE );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "Diffusion", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPGhostVW, "GhostVWOrder" );
@@ -260,10 +259,10 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             fill_that( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tMasterFIs( tTempDofTypes.size() );
 
             // create the field interpolator temperature
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatTemp );
 
             // fill random coefficients for slave FI
@@ -271,20 +270,20 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             fill_that( tSlaveDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tSlaveFIs( tTempDofTypes.size() );
 
             // create the field interpolator temperature
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
             tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatTemp );
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap.resize( 2 * tTempDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofTemp - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofTemp, 2 * tNumDofTemp - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = { { 0, tNumDofTemp-1 }, { tNumDofTemp, 2 * tNumDofTemp - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap.resize( 2 * tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap.resize( 2 * tTempDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
 
@@ -297,14 +296,14 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            tIWG->mRequestedMasterGlobalDofTypes = tTempDofTypes;
+            tIWG->mRequestedSlaveGlobalDofTypes  = tTempDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tMasterFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tSlaveFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tMasterFIManager.mFI = tMasterFIs;

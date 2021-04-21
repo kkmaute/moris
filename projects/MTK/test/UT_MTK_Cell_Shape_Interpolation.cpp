@@ -21,7 +21,7 @@
 #include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell_Info.hpp"
-#include "IP/cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"
@@ -84,14 +84,25 @@ namespace moris
                 real tDetJ = tSpaceInterpolator.space_det_J();
                 Matrix<DDRMat> tInvJac = tSpaceInterpolator.inverse_space_jacobian();
 
-                // setting rectangular flag
-                bool tRectangular = true;
-                tSpaceInterpolator.set_cell_shape( CellShape::RECTANGULAR );
-                tSpaceInterpolator.reset_eval_flags();
+                // setting rectangular space interpolator ----------
 
-                // calculating det J and inv J using rectangular eval
-                real tDetJ_Rect = tSpaceInterpolator.space_det_J();
-                Matrix<DDRMat> tInvJac_Rect = tSpaceInterpolator.inverse_space_jacobian();
+                // create a space interpolator
+                Space_Interpolator tSpaceInterpolatorRect(
+                    tInterpRule,
+                    CellShape::RECTANGULAR );
+
+                // set the coefficients xHat, tHat
+                tSpaceInterpolatorRect.set_space_coeff(tXHat);
+
+                // set the coefficients xiHat, tauHat
+                tSpaceInterpolatorRect.set_space_param_coeff(tXiHat);
+
+                // Set the space
+                tSpaceInterpolatorRect.set_space(tX);
+
+                // calculating detJ and inv J using rectangular calc
+                real tDetJ_Rect = tSpaceInterpolatorRect.space_det_J();
+                Matrix<DDRMat> tInvJac_Rect = tSpaceInterpolatorRect.inverse_space_jacobian();
 
                 // checking det J calc
                 CHECK(tDetJ == Approx(tDetJ_Rect));
@@ -143,14 +154,25 @@ namespace moris
                 real tDetJ = tSpaceInterpolator.space_det_J();
                 Matrix<DDRMat> tInvJac = tSpaceInterpolator.inverse_space_jacobian();
 
-                // setting rectangular flag
-                bool tRectangular = true;
-                tSpaceInterpolator.set_cell_shape( CellShape::RECTANGULAR );
-                tSpaceInterpolator.reset_eval_flags();
+                // setting rectangular space interpolator ----------
+
+                // create a space interpolator
+                Space_Interpolator tSpaceInterpolatorRect(
+                    tInterpRule,
+                    CellShape::RECTANGULAR );
+
+                // set the coefficients xHat, tHat
+                tSpaceInterpolatorRect.set_space_coeff(tXHat);
+
+                // set the coefficients xiHat, tauHat
+                tSpaceInterpolatorRect.set_space_param_coeff(tXiHat);
+
+                // Set the space
+                tSpaceInterpolatorRect.set_space(tX);
 
                 // calculating detJ and inv J using rectangular calc
-                real tDetJ_Rect = tSpaceInterpolator.space_det_J();
-                Matrix<DDRMat> tInvJac_Rect = tSpaceInterpolator.inverse_space_jacobian();
+                real tDetJ_Rect = tSpaceInterpolatorRect.space_det_J();
+                Matrix<DDRMat> tInvJac_Rect = tSpaceInterpolatorRect.inverse_space_jacobian();
 
                 // checking det j
                 CHECK(tDetJ == Approx(tDetJ_Rect));

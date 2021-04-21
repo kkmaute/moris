@@ -38,22 +38,22 @@ namespace moris
             IWG::set_interpolation_order();
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the slave field interpolator for residual dof type
             Field_Interpolator * tFISlave  =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the stabilization parameter
             std::shared_ptr< Stabilization_Parameter > & tSP =
@@ -109,22 +109,22 @@ namespace moris
             IWG::set_interpolation_order();
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the slave field interpolator for residual dof type
             Field_Interpolator * tFISlave  =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the stabilization parameter
             std::shared_ptr< Stabilization_Parameter > & tSP =
@@ -162,7 +162,7 @@ namespace moris
                     uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                     // compute jacobian direct dependencies
-                    if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // dRM/dM
                         mSet->get_jacobian()(
@@ -211,7 +211,7 @@ namespace moris
                     uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
 
                     // compute jacobian direct dependencies
-                    if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // dRM/dS
                         mSet->get_jacobian()(
@@ -411,7 +411,7 @@ namespace moris
             // get the residual dof type FI
             Field_Interpolator * tFIResidual =
                     this->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get number of fields
             uint tNumFields = tFIResidual->get_number_of_fields();

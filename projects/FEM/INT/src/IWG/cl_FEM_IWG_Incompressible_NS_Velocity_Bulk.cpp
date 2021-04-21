@@ -50,39 +50,39 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the gravity property
-            std::shared_ptr< Property > & tGravityProp    =
+            const std::shared_ptr< Property > & tGravityProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             // get the thermal expansion property
-            std::shared_ptr< Property > & tThermalExpProp =
+            const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
             // get the reference temperature property
-            std::shared_ptr< Property > & tRefTempProp    =
+            const std::shared_ptr< Property > & tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability (porosity) property
-            std::shared_ptr< Property > & tInvPermeabProp   =
+            const std::shared_ptr< Property > & tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property
-            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
+            const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPSUPSPSPG =
+            const std::shared_ptr< Stabilization_Parameter > & tSPSUPSPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // compute the residual strong form
@@ -117,23 +117,24 @@ namespace moris
                 tPre( 5, 5 ) = 2.0;
             }
 
+            // get sub-matrix of residual
+            auto tRes = mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex });
+
             // compute the residual
-            mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex }) +=
-                     aWStar * (
-                            tVelocityFI->N_trans() * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
-                            tVelocityFI->N_trans() * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
-                            trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
-                            trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
-                            trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
+            tRes += aWStar * (
+                    tVelocityFI->N_trans() * (
+                            tDensity * trans( tVelocityFI->gradt( 1 ) ) +
+                            tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() ) +
+                    trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
+                    trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
+                    trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
 
             // if gravity
             if ( tGravityProp != nullptr )
             {
                 // add gravity to residual weak form
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) += 
-                        aWStar * ( tVelocityFI->N_trans() * tDensity * tGravityProp->val() );
+                tRes += aWStar * ( tVelocityFI->N_trans() * tDensity * tGravityProp->val() );
             }
 
             // if thermal expansion and reference temperature
@@ -145,32 +146,28 @@ namespace moris
                         mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                 // add contribution to residual
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) -= 
-                        aWStar * (
-                                tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
-                                tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
+                tRes -= aWStar * (
+                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
+                        tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
             }
 
             // if permeability
             if ( tInvPermeabProp != nullptr )
             {
                 // add brinkman term to residual weak form
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) +=
-                        aWStar * (
-                                tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
+                tRes += aWStar * (
+                        tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
             // get the homotopy property
-            std::shared_ptr< Property > & tHomotopyProp    =
+            const std::shared_ptr< Property > & tHomotopyProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+
             if( tHomotopyProp )
             {
                 // compute the residual contribution
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
-                                tDensity * tVelocityFI->N_trans() * tVelocityFI->val() / tHomotopyProp->val()( 0 ) );
+                tRes += aWStar * (
+                        tDensity * tVelocityFI->N_trans() * tVelocityFI->val() / tHomotopyProp->val()( 0 ) );
             }
 
             // check for nan, infinity
@@ -188,42 +185,42 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get velocity FI
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the gravity property
-            std::shared_ptr< Property > & tGravityProp    =
+            const std::shared_ptr< Property > & tGravityProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             // get the thermal expansion property
-            std::shared_ptr< Property > & tThermalExpProp =
+            const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
             // get the reference temperature property
-            std::shared_ptr< Property > & tRefTempProp    =
+            const std::shared_ptr< Property > & tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability property
-            std::shared_ptr< Property > & tInvPermeabProp   =
+            const std::shared_ptr< Property > & tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
-            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
+            const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // evaluate the density
             real tDensity = tDensityProp->val()( 0 );
 
             // get the incompressible flow stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPSUPSPSPG =
+            const std::shared_ptr< Stabilization_Parameter > & tSPSUPSPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // build multiplication matrix for sigma_ij epsilon_ij
@@ -253,22 +250,28 @@ namespace moris
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // compute uj vij
                 Matrix< DDRMat > tujvij;
                 this->compute_ujvij( tujvij );
 
+                // extract sub-matrix
+                auto tJac = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
                 // if residual dof type (velocity)
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute dnNdtn
                     Matrix< DDRMat > tdnNdtn;
@@ -279,22 +282,19 @@ namespace moris
                     this->compute_ujvijrm( tujvijrM, tRM );
 
                     // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tVelocityFI->N_trans() * tDensity * tdnNdtn +
-                                    tVelocityFI->N_trans() * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
-                                    tVelocityFI->N_trans() * tDensity * tujvij +
-                                    tujvijrM * tDensity * tSPSUPSPSPG->val()( 0 ) );
+                    tJac += aWStar * (
+                            tVelocityFI->N_trans() * (
+                                    tDensity * tdnNdtn +
+                                    tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
+                                    tDensity * tujvij ) +
+                            tujvijrM * tDensity * tSPSUPSPSPG->val()( 0 ) );
 
                     // if permeability
                     if ( tInvPermeabProp != nullptr )
                     {
                         // add brinkman term to jacobian of weak form
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
+                        tJac += aWStar * (
+                                tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
                     }
 
                     // get the homotopy property
@@ -303,10 +303,8 @@ namespace moris
                     if( tHomotopyProp )
                     {
                         // compute the jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tDensity * tVelocityFI->N_trans() * tVelocityFI->N() / tHomotopyProp->val()( 0 ) );
+                        tJac += aWStar * (
+                                tDensity * tVelocityFI->N_trans() * tVelocityFI->N() / tHomotopyProp->val()( 0 ) );
                     }
                 }
 
@@ -316,22 +314,18 @@ namespace moris
                 compute_jacobian_strong_form( tDofType, tJM, tJC );
 
                 // compute the jacobian contribution from strong form
-                mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tJM +
-                                trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tJC );
+                tJac += aWStar * (
+                        trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tJM +
+                        trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tJC );
 
                 // if property has dependency on the dof type
                 if ( tDensityProp->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tVelocityFI->N_trans() * trans( tVelocityFI->gradt( 1 ) ) +
-                                    tVelocityFI->N_trans() * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
-                                    trans( tujvij ) * tSPSUPSPSPG->val()( 0 ) * tRM ) *
+                    tJac += aWStar * (
+                            tVelocityFI->N_trans() * trans( tVelocityFI->gradt( 1 ) ) +
+                            tVelocityFI->N_trans() * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
+                            trans( tujvij ) * tSPSUPSPSPG->val()( 0 ) * tRM ) *
                                     tDensityProp->dPropdDOF( tDofType );
                 }
 
@@ -339,10 +333,8 @@ namespace moris
                 if ( tIncFluidCM->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
+                    tJac += aWStar * (
+                            trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
                     // FIXME add dteststrainddof
                 }
 
@@ -350,11 +342,9 @@ namespace moris
                 if ( tSPSUPSPSPG->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tujvij ) * tDensity * tRM * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 0 ) +
-                                    trans( tVelocityFI->div_operator() ) * tRC * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 1 ) );
+                    tJac += aWStar * (
+                            trans( tujvij ) * tDensity * tRM * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 0 ) +
+                            trans( tVelocityFI->div_operator() ) * tRC * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 1 ) );
                 }
 
                 // if permeability depends on DoF type
@@ -362,11 +352,9 @@ namespace moris
                 {
                     if( tInvPermeabProp->check_dof_dependency( tDofType ) )
                     {
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tVelocityFI->N_trans() *
-                                        tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->val() );
+                        tJac += aWStar * (
+                                tVelocityFI->N_trans() *
+                                tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->val() );
                     }
                 }
 
@@ -377,22 +365,18 @@ namespace moris
                     if ( tDensityProp->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tVelocityFI->N_trans() * tGravityProp->val() *
-                                        tDensityProp->dPropdDOF( tDofType ) );
+                        tJac += aWStar * (
+                                tVelocityFI->N_trans() * tGravityProp->val() *
+                                tDensityProp->dPropdDOF( tDofType ) );
                     }
 
                     // if gravity property depends on dof type
                     if ( tGravityProp->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tVelocityFI->N_trans() * tDensity *
-                                        tGravityProp->dPropdDOF( tDofType ) );
+                        tJac += aWStar * (
+                                tVelocityFI->N_trans() * tDensity *
+                                tGravityProp->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -408,59 +392,49 @@ namespace moris
                     if( tDofType( 0 ) == MSI::Dof_Type::TEMP )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
-                                        tThermalExpProp->val() * tTempFI->N() );
+                        tJac -= aWStar * (
+                                tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
+                                tThermalExpProp->val() * tTempFI->N() );
                     }
 
                     // if density property depends on dof type
                     if( tDensityProp->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tVelocityFI->N_trans() * tGravityProp->val() *
-                                        tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
-                                        tDensityProp->dPropdDOF( tDofType ) );
+                        tJac -= aWStar * (
+                                tVelocityFI->N_trans() * tGravityProp->val() *
+                                tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
+                                tDensityProp->dPropdDOF( tDofType ) );
                     }
 
                     // if thermal expansion property depends on dof type
                     if( tThermalExpProp->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
-                                        ( tTempFI->val() - tRefTempProp->val() ) *
-                                        tThermalExpProp->dPropdDOF( tDofType ) );
+                        tJac -= aWStar * (
+                                tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
+                                ( tTempFI->val() - tRefTempProp->val() ) *
+                                tThermalExpProp->dPropdDOF( tDofType ) );
                     }
 
                     // if reference temperature property depends on dof type
                     if( tRefTempProp->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
-                                        tThermalExpProp->val() *
-                                        tRefTempProp->dPropdDOF( tDofType ) );
+                        tJac += aWStar * (
+                                tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
+                                tThermalExpProp->val() *
+                                tRefTempProp->dPropdDOF( tDofType ) );
                     }
 
                     // if gravity property depends on dof type
                     if ( tGravityProp->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tVelocityFI->N_trans() * tDensity *
-                                        tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
-                                        * tGravityProp->dPropdDOF( tDofType ) );
+                        tJac -= aWStar * (
+                                tVelocityFI->N_trans() * tDensity *
+                                tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
+                                * tGravityProp->dPropdDOF( tDofType ) );
                     }
                 }
             }
@@ -501,33 +475,36 @@ namespace moris
                 real             & aRC )
         {
             // get the velocity and pressure FIs
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the properties
-            std::shared_ptr< Property > & tGravityProp =
+            const std::shared_ptr< Property > & tGravityProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
-            std::shared_ptr< Property > & tThermalExpProp =
+
+            const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > & tRefTempProp =
+
+            const std::shared_ptr< Property > & tRefTempProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
-            std::shared_ptr< Property > & tInvPermeabProp   =
+
+            const std::shared_ptr< Property > & tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
-            std::shared_ptr< Property > & tMassSourceProp   =
+
+            const std::shared_ptr< Property > & tMassSourceProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
-            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
+            const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
 
             // compute the residual strong form
-            aRM =
-                    tDensity * trans( tVelocityFI->gradt( 1 ) ) +
+            aRM =   tDensity * trans( tVelocityFI->gradt( 1 ) ) +
                     tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() -
                     tIncFluidCM->divflux();
 
@@ -562,8 +539,8 @@ namespace moris
                             mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // add contribution to residual
-                    aRM -=
-                            tDensity * tGravityProp->val() * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() );
+                    aRM -= tDensity * tGravityProp->val() * tThermalExpProp->val() *
+                            ( tTempFI->val() - tRefTempProp->val() );
                 }
             }
         }
@@ -576,41 +553,46 @@ namespace moris
                 Matrix< DDRMat >                   & aJC )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             Field_Interpolator * tDerFI      = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJM and aJC
             aJM.set_size(
                     tVelocityFI->get_number_of_fields(),
-                    tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+                    tDerFI->get_number_of_space_time_coefficients() );
+
             aJC.set_size(
                     1,
-                    tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+                    tDerFI->get_number_of_space_time_coefficients() );
 
             // get the properties
-            std::shared_ptr< Property > & tGravityProp =
+            const std::shared_ptr< Property > & tGravityProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
-            std::shared_ptr< Property > & tThermalExpProp =
+
+            const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > & tRefTempProp    =
+
+            const std::shared_ptr< Property > & tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
-            std::shared_ptr< Property > & tInvPermeabProp   =
+
+            const std::shared_ptr< Property > & tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
-            std::shared_ptr< Property > & tMassSourceProp   =
+
+            const std::shared_ptr< Property > & tMassSourceProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tIncFluidCM =
+            const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
-            std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
+            const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
 
             // if derivative wrt to residual dof type (here velocity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 // compute the term uj vij
                 Matrix< DDRMat > tujvij;
@@ -621,20 +603,23 @@ namespace moris
                 this->compute_dnNdtn( tdnNdtn );
 
                 // compute the jacobian strong form
-                aJM +=
-                        tDensity * tdnNdtn +
+                aJM =   tDensity * tdnNdtn +
                         tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
                         tDensity * tujvij ;
 
-                aJC += tVelocityFI->div_operator();
+                aJC = tVelocityFI->div_operator();
+            }
+            else
+            {
+                aJM.fill( 0.0 );
+                aJC.fill( 0.0 );
             }
 
             // if density depends on dof type
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJM +=
-                        trans( tVelocityFI->gradt( 1 ) ) * tDensityProp->dPropdDOF( aDofTypes ) +
+                aJM +=  trans( tVelocityFI->gradt( 1 ) ) * tDensityProp->dPropdDOF( aDofTypes ) +
                         trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
             }
 
@@ -642,7 +627,7 @@ namespace moris
             if ( tInvPermeabProp != nullptr )
             {
                 // if derivative dof type is residual dof type
-                if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+                if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // add brinkman term to jacobian strong form
                     aJM += tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
@@ -663,16 +648,14 @@ namespace moris
                 if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to jacobian
-                    aJC +=
-                            tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity ;
+                    aJC += tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity ;
                 }
 
                 // if density depends on dof type
                 if( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to jacobian
-                    aJC -=
-                            tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
+                    aJC -= tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
                 }
             }
 
@@ -717,8 +700,7 @@ namespace moris
                     if( tThermalExpProp->check_dof_dependency( aDofTypes ) )
                     {
                         // add contribution to jacobian
-                        aJM -=
-                                tDensity * tGravityProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
+                        aJM -=  tDensity * tGravityProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tThermalExpProp->dPropdDOF( aDofTypes );
                     }
 
@@ -760,19 +742,21 @@ namespace moris
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // init size for uj vij
             uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
             uint tNumCol = tVelocityFI->dnNdxn( 1 ).n_cols();
+
             aujvij.set_size( tNumRow, tNumRow * tNumCol, 0.0 );
 
-            // loop over the number of rows
+            // compute: u_j * dv_i/dx_j
+            Matrix<DDRMat> tUdVdx = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 );
+
+            // build test function operator by looping over the number of spatial dimensions
             for( uint i = 0; i < tNumRow; i++ )
             {
-                // compute uj vij
-                aujvij( { i, i }, { i * tNumCol, ( i + 1 ) * tNumCol -1 }) =
-                        trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 );
+                aujvij( { i, i }, { i * tNumCol, ( i + 1 ) * tNumCol -1 }) = tUdVdx.matrix_data();
             }
         }
 
@@ -784,11 +768,12 @@ namespace moris
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // set size for uj vij rM
             uint tNumField = tVelocityFI->get_number_of_fields();
             uint tNumBases = tVelocityFI->get_number_of_space_time_bases();
+
             aujvijrm.set_size( tNumField * tNumBases, tNumField * tNumBases , 0.0 );
 
             // loop over the number of fields
@@ -814,11 +799,12 @@ namespace moris
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // init size for dnNdtn
             uint tNumRowt = tVelocityFI->get_number_of_fields();
             uint tNumColt = tVelocityFI->dnNdtn( 1 ).n_cols();
+
             adnNdtn.set_size( tNumRowt, tNumRowt * tNumColt , 0.0 );
 
             // loop over the fields

@@ -272,65 +272,64 @@ namespace moris
 
         void Set::create_integrator( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
-            MORIS_ERROR(0,"FIXME KEENAN");
-            // // get time levels from model solver interface
-            // const Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
-            // uint tMaxTimeLevels = tTimeLevels.max();
+            // get time levels from model solver interface
+            const Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
+            uint tMaxTimeLevels = tTimeLevels.max();
 
-            // // init time geometry type
-            // mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::UNDEFINED;
+            // initialize time geometry type
+            mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::UNDEFINED;
 
-            // // init time integration order
-            // mtk::Integration_Order tTimeIntegrationOrder = mtk::Integration_Order::UNDEFINED;
+            // init time integration order
+            mtk::Integration_Order tTimeIntegrationOrder = mtk::Integration_Order::UNDEFINED;
 
-            // // switch on maximum time level
-            // switch ( tMaxTimeLevels )
-            // {
-            //     case 1 :
-            //     {
-            //         tTimeGeometryType     = mtk::Geometry_Type::LINE;
-            //         tTimeIntegrationOrder = mtk::Integration_Order::BAR_1;
-            //         break;
-            //     }
-            //     case 2 :
-            //     {
-            //         tTimeGeometryType     = mtk::Geometry_Type::LINE;
-            //         tTimeIntegrationOrder = mtk::Integration_Order::BAR_2;
-            //         break;
-            //     }
-            //     default :
-            //     {
-            //         MORIS_ERROR( false, "Set::create_integrator - only 1 or 2 time levels handled so far.");
-            //     }
-            // }
+            // switch on maximum time level
+            switch ( tMaxTimeLevels )
+            {
+                case 1 :
+                {
+                    tTimeGeometryType     = mtk::Geometry_Type::LINE;
+                    tTimeIntegrationOrder = mtk::Integration_Order::BAR_1;
+                    break;
+                }
+                case 2 :
+                {
+                    tTimeGeometryType     = mtk::Geometry_Type::LINE;
+                    tTimeIntegrationOrder = mtk::Integration_Order::BAR_2;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Set::create_integrator - only 1 or 2 time levels handled so far.");
+                }
+            }
 
-            // // if a time sideset or boundary
-            // if( mTimeContinuity || mTimeBoundary )
-            // {
-            //     tTimeGeometryType     = mtk::Geometry_Type::POINT;
-            //     tTimeIntegrationOrder = mtk::Integration_Order::POINT;
-            // }
+            // if a time sideset or boundary
+            if( mTimeContinuity || mTimeBoundary )
+            {
+                tTimeGeometryType     = mtk::Geometry_Type::POINT;
+                tTimeIntegrationOrder = mtk::Integration_Order::POINT;
+            }
 
-            // // create an integration rule
-            // mtk::Integration_Rule tIntegrationRule(
-            //         mIGGeometryType,
-            //         mtk::Integration_Type::GAUSS,
-            //         this->get_auto_integration_order(
-            //                 mElementType,
-            //                 mIGGeometryType,
-            //                 mIPSpaceInterpolationOrder ),
-            //                 tTimeGeometryType,
-            //                 mtk::Integration_Type::GAUSS,
-            //                 tTimeIntegrationOrder );
+            // create an integration rule
+            mtk::Integration_Rule tIntegrationRule(
+                    mIGGeometryType,
+                    mtk::Integration_Type::GAUSS,
+                    this->get_auto_integration_order(
+                            mElementType,
+                            mIGGeometryType,
+                            mIPSpaceInterpolationOrder ),
+                            tTimeGeometryType,
+                            mtk::Integration_Type::GAUSS,
+                            tTimeIntegrationOrder );
 
-            // // // create an integrator
-            // // moris::mtk::Integrator tIntegrator( tIntegrationRule );
+            // create an integrator
+            mtk::Integrator tIntegrator( tIntegrationRule );
 
-            // // // get integration points
-            // // tIntegrator.get_points( mIntegPoints );
+            // get integration points
+            tIntegrator.get_points( mIntegPoints );
 
-            // // // get integration weights
-            // // tIntegrator.get_weights( mIntegWeights );
+            // get integration weights
+            tIntegrator.get_weights( mIntegWeights );
         }
 
         //------------------------------------------------------------------------------
@@ -650,7 +649,7 @@ namespace moris
                     // if dof enum not in the list
                     if ( tSlaveCheckList( tDofTypeindex ) != 1 )
                     {
-                        // put the dof type in the checklist
+                        // put the dof type in the check list
                         tSlaveCheckList( tDofTypeindex ) = 1;
 
                         // put the dof type in the global type list
@@ -1519,7 +1518,7 @@ namespace moris
                 mResDofAssemblyMap( Ik ).set_size( 1, 2, -1 );
             }
 
-            // init dof coefficients counter
+            // initialize dof coefficients counter
             uint tCounter = 0;
 
             // loop over the requested dof types
@@ -2134,11 +2133,22 @@ namespace moris
                     // loop over the IWG in set IWG list
                     for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
-                        // if the IWG residual dof type is requested
-                        if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                        // residual dof types for current IWG
+                        const moris::Cell< moris::Cell < MSI::Dof_Type > > & tResDofType =
+                                mIWGs( iIWG )->get_residual_dof_type();
+
+                        // number of residual dof types
+                        const uint tNumResDofTypes = tResDofType.size();
+
+                        // loop over all residual dof types
+                        for ( uint iType = 0; iType < tNumResDofTypes; ++iType)
                         {
-                            // add the IWg to the requested IWG list
-                            mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                            // if the IWG residual dof type is requested
+                            if( tResDofType( iType )( 0 ) == tDofType )
+                            {
+                                // add the IWg to the requested IWG list
+                                mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                            }
                         }
                     }
                 }
@@ -2151,26 +2161,38 @@ namespace moris
                     // loop over the IWG in set IWG list
                     for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
-                        // if the IWG residual dof type is requested
-                        if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                        // residual dof types for current IWG
+                        const moris::Cell< moris::Cell < MSI::Dof_Type > > & tResDofType =
+                                mIWGs( iIWG )->get_residual_dof_type();
+
+                        // number of residual dof types
+                        const uint tNumResDofTypes = tResDofType.size();
+
+                        // loop over all residual dof types
+                        for ( uint iType = 0; iType < tNumResDofTypes; ++iType)
                         {
-                            if( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                            // if the IWG residual dof type is requested
+                            if( tResDofType( iType )( 0 ) == tDofType )
                             {
-                                if( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                if( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                                {
+                                    if( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                    {
+                                        // add the IWg to the requested IWG list
+                                        mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                    }
+                                }
+                                else
                                 {
                                     // add the IWg to the requested IWG list
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
                             }
-                            else
-                            {
-                                // add the IWg to the requested IWG list
-                                mRequestedIWGs.push_back( mIWGs( iIWG ) );
-                            }
                         }
                     }
                 }
             }
+
             // reduce the size of requested IWG list to fit
             mRequestedIWGs.shrink_to_fit();
         }

@@ -56,8 +56,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -110,7 +109,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
 
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+    tIWG->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
@@ -243,19 +242,19 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
             fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tMasterFIs( tDispDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap.resize( tDispDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = { { 0, tNumDofDisp - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDispDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
@@ -267,12 +266,12 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedMasterGlobalDofTypes = tDispDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tFIManager.mFI = tMasterFIs;
@@ -368,8 +367,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -421,7 +419,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+    tIWG->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
@@ -554,19 +552,19 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Unsymmetric_Nitsche",
             fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tMasterFIs( tDispDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap.resize( tDispDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = { { 0, tNumDofDisp - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDispDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
@@ -578,12 +576,12 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Unsymmetric_Nitsche",
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedMasterGlobalDofTypes = tDispDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tFIManager.mFI = tMasterFIs;
@@ -679,9 +677,10 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes     = { MSI::Dof_Type::P };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tPDofTypes };
+    moris::Cell< MSI::Dof_Type > tPDofTypes = { MSI::Dof_Type::P };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tDispDofTypes( 0 ), tPDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -875,7 +874,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // create the field interpolator pressure
@@ -1005,9 +1004,10 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes     = { MSI::Dof_Type::P };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tPDofTypes };
+    moris::Cell< MSI::Dof_Type > tPDofTypes = { MSI::Dof_Type::P };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tDispDofTypes( 0 ), tPDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1201,7 +1201,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // create the field interpolator pressure
@@ -1331,9 +1331,9 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes = { MSI::Dof_Type::UX };
-    moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tTempDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDofTypes = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tDispDofTypes( 0 ), tTempDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1537,11 +1537,11 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDofHatTemp );
 
             // set size and fill the set residual assembly map
@@ -1667,9 +1667,10 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes = { MSI::Dof_Type::UX };
     moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tTempDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tDispDofTypes( 0 ), tTempDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1873,7 +1874,7 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // create the field interpolator pressure

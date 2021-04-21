@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
-#include "IG/cl_MTK_Integrator.hpp"         //MTK/src
+#include "cl_MTK_Integrator.hpp"         //MTK/src
 #include "fn_vectorize.hpp"                 //LINALG/src
 
 using namespace moris;

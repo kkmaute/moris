@@ -87,7 +87,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // create a L2 IWG
         fem::IWG_Factory tIWGFactory;
         std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::HJTEST );
-        tIWG->set_residual_dof_type( { MSI::Dof_Type::LS1 } );
+        tIWG->set_residual_dof_type( { { MSI::Dof_Type::LS1 } } );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::LS1 }}, mtk::Master_Slave::MASTER );
 
         //std::cout<<" Create the elements "<<std::endl;

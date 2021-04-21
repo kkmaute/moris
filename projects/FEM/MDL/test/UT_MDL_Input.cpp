@@ -231,17 +231,17 @@ TEST_CASE("MDL Input","[MDL_Input]")
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
+        tIWGBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );                          // FIXME through the factory?
         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
+        tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );                          // FIXME through the factory?
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
-        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );                          // FIXME through the factory?
+        tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );                          // FIXME through the factory?
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER ); // FIXME through the factory?
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
