@@ -11,6 +11,7 @@
 
 #include "cl_Stopwatch.hpp"
 #include "cl_WRK_perform_refinement.hpp"
+#include "cl_WRK_perform_remeshing.hpp"
 
 #include "fn_norm.hpp"
 
@@ -23,7 +24,7 @@ namespace moris
 
         // Parameter function
         typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
         Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager * aPerformerManager )
@@ -62,7 +63,7 @@ namespace moris
 
             // create MDL performer
             mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
-            
+
             // Set performer to HMR
             mPerformerManager->mHMRPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 0 ) );
 
@@ -80,8 +81,10 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-            // Stage 1: HMR refinement -------------------------------------------------------------------
+            if( tIsFirstOptSolve )
             {
+                // Stage 1: HMR refinement -------------------------------------------------------------------
+
                 // Trace HMR
                 Tracer tTracer( "HMR", "HMRmesh", "Create" );
 
@@ -99,6 +102,31 @@ namespace moris
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();
+
+                tIsFirstOptSolve = false;
+            }
+            else
+            {
+                std::string tMORISString = "MORISGENERALParameterList";
+                Parameter_Function tMORISParameterListFunc =
+                        mPerformerManager->mLibrary->load_function<Parameter_Function>( tMORISString );
+                moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
+                tMORISParameterListFunc( tMORISParameterList );
+
+                wrk::Remeshing_Mini_Performer tRemeshingPerformer( tMORISParameterList( 0 )( 0 ) );
+
+                tRemeshingPerformer.perform_remeshing(
+                        mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 ).get(),
+                        mPerformerManager->mHMRPerformer );
+
+                // Create new GE performer
+                std::string tGENString = "GENParameterList";
+                Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
+                moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
+                tGENParameterListFunc( tGENParameterList );
+
+                mPerformerManager->mGENPerformer( 0 ) =
+                        std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary );
             }
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
@@ -113,7 +141,7 @@ namespace moris
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
                 aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
                 aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-            }   
+            }
 
         }
 
@@ -152,7 +180,7 @@ namespace moris
             // Stage 3: MDL perform ---------------------------------------------------------------------
 
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
-                                mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
             mPerformerManager->mMDLPerformer( 0 )->initialize();
 
@@ -205,7 +233,7 @@ namespace moris
                     auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
 
                     MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
-                                     i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+                            i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
                 }
 
                 MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");

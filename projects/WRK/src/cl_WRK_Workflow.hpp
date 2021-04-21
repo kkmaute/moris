@@ -62,6 +62,8 @@ namespace moris
                 Cell< mtk::Field * >                   Fields;
                 moris::map< std::string, moris_index > tFieldNameTiIndexMap;
 
+                bool tIsFirstOptSolve = true;
+
             public:
 
                 //------------------------------------------------------------------------------
@@ -86,7 +88,7 @@ namespace moris
                 void initialize(
                         Matrix<DDRMat>& aADVs,
                         Matrix<DDRMat>& aLowerBounds,
-                        Matrix<DDRMat>& aUpperBounds) = 0;
+                        Matrix<DDRMat>& aUpperBounds ) = 0;
 
                 //------------------------------------------------------------------------------
                 /**
