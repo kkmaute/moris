@@ -171,7 +171,7 @@ namespace xtk
              * Decomposes a mesh to conform to a geometric interface
              * @param[in] aMethods Subdivision Methods
              */
-            void decompose(Cell<enum Subdivision_Method> aMethods);
+            bool decompose(Cell<enum Subdivision_Method> aMethods);
 
             //--------------------------------------------------------------------------------
             /*!
@@ -1129,6 +1129,13 @@ namespace xtk
                       moris::uint                        aGeomIndex,
                       moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                       moris::Matrix< moris::IndexMat > & aNewPairBool);
+
+             //------------------------------------------------------------------------------
+              /*
+               * Returns a flag that all intersected cells are on the same level if false the decomposition will return false
+               */
+              bool
+              all_child_meshes_on_same_level();
 
               //------------------------------------------------------------------------------
 

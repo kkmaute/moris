@@ -221,23 +221,15 @@ run_hmr_for_multi_mat_model_3d(hmr::HMR  &                    aHMR,
 
     // create field
     aFields(0) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
-
     aFields(0)->evaluate_scalar_function( MultiMat3dCyl );
-
-    for( uint k=0; k<1; ++k )
-    {
-        aHMR.flag_surface_elements_on_working_pattern( aFields(0) );
-        aHMR.perform_refinement_based_on_working_pattern( 0 );
-        aFields(0)->evaluate_scalar_function( MultiMat3dCyl );
-    }
-
     aFields(1) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
-
     aFields(1)->evaluate_scalar_function( MultiMat3dPlane );
     for( uint k=0; k<1; ++k )
     {
+        aHMR.flag_surface_elements_on_working_pattern( aFields(0) );
         aHMR.flag_surface_elements_on_working_pattern( aFields(1) );
         aHMR.perform_refinement_based_on_working_pattern( 0 );
+        aFields(0)->evaluate_scalar_function( MultiMat3dCyl );
         aFields(1)->evaluate_scalar_function( MultiMat3dPlane );
     }
 
