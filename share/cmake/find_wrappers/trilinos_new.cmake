@@ -126,11 +126,11 @@ if(NOT TRILINOS_FOUND_ONCE)
 
     set(TRILINOS_FOUND_ONCE TRUE CACHE INTERNAL "Trilinos was found.")
 
-    # foreach( lib ${Trilinos_LIBRARIES})
-    #     list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.so")
-    # endforeach(lib)
+    foreach( lib ${Trilinos_LIBRARIES})
+        list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
+    endforeach(lib)
     
-    list(APPEND MORIS_T_LIBS  ${Trilinos_LIBRARIES})
+    list(APPEND MORIS_T_LIBS  ${Trilinos_TPL_LIBRARIES})
 
     # -------------------------------------------------------------------------
     # Linear algebra library fixing -------------------------------------------

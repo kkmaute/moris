@@ -637,123 +637,122 @@ namespace moris
 
         void FEM_Model::initialize( std::shared_ptr< Library_IO > aLibrary )
         {
-            MORIS_ERROR(0,"FIXME KEENAN");
-            // // get msi string to dof type map
-            // moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap =
-            //         moris::MSI::get_msi_dof_type_map();
+            // get msi string to dof type map
+            moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap =
+                    moris::MSI::get_msi_dof_type_map();
 
-            // // get string to dv type map
-            // moris::map< std::string, PDV_Type > tMSIDvTypeMap =
-            //         get_pdv_type_map();
+            // get string to dv type map
+            moris::map< std::string, PDV_Type > tMSIDvTypeMap =
+                    get_pdv_type_map();
 
-            // // get string to field type map
-            // moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
-            //         mtk::get_field_type_map();
+            // get string to field type map
+            moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                    mtk::get_field_type_map();
 
-            // switch( mParameterList.size() )
-            // {
-            //     // without phase
-            //     case 7:
-            //     {
-            //         // create properties
-            //         std::map< std::string, uint > tPropertyMap;
-            //         this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
+            switch( mParameterList.size() )
+            {
+                // without phase
+                case 7:
+                {
+                    // create properties
+                    std::map< std::string, uint > tPropertyMap;
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
-            //         // create fields
-            //         std::map< std::string, uint > tFieldMap;
-            //         this->create_fields( tFieldMap );
+                    // create fields
+                    std::map< std::string, uint > tFieldMap;
+                    this->create_fields( tFieldMap );
 
-            //         // create constitutive models
-            //         std::map< std::string, uint > tCMMap;
-            //         this->create_constitutive_models( tCMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create constitutive models
+                    std::map< std::string, uint > tCMMap;
+                    this->create_constitutive_models( tCMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create stabilization parameters
-            //         std::map< std::string, uint > tSPMap;
-            //         this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create stabilization parameters
+                    std::map< std::string, uint > tSPMap;
+                    this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create IWGs
-            //         std::map< std::string, uint > tIWGMap;
-            //         this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                    // create IWGs
+                    std::map< std::string, uint > tIWGMap;
+                    this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
-            //         // create IQIs
-            //         std::map< std::string, uint > tIQIMap;
-            //         this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                    // create IQIs
+                    std::map< std::string, uint > tIQIMap;
+                    this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
-            //         // create FEM set info
-            //         this->create_fem_set_info();
+                    // create FEM set info
+                    this->create_fem_set_info();
 
-            //         break;
-            //     }
-            //     // with phase
-            //     case 8:
-            //     {
-            //         // create phases
-            //         this->create_phases();
+                    break;
+                }
+                // with phase
+                case 8:
+                {
+                    // create phases
+                    this->create_phases();
 
-            //         // create properties
-            //         std::map< std::string, uint > tPropertyMap;
-            //         this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
+                    // create properties
+                    std::map< std::string, uint > tPropertyMap;
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
-            //         // create fields
-            //         std::map< std::string, uint > tFieldMap;
-            //         this->create_fields( tFieldMap );
+                    // create fields
+                    std::map< std::string, uint > tFieldMap;
+                    this->create_fields( tFieldMap );
 
-            //         // create constitutive models
-            //         this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create constitutive models
+                    this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create stabilization parameters
-            //         std::map< std::string, uint > tSPMap;
-            //         this->create_stabilization_parameters( tSPMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create stabilization parameters
+                    std::map< std::string, uint > tSPMap;
+                    this->create_stabilization_parameters( tSPMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create IWGs
-            //         this->create_IWGs( tPropertyMap, tSPMap, tMSIDofTypeMap );
+                    // create IWGs
+                    this->create_IWGs( tPropertyMap, tSPMap, tMSIDofTypeMap );
 
-            //         // create IQIs
-            //         this->create_IQIs( tPropertyMap, tSPMap, tMSIDofTypeMap );
+                    // create IQIs
+                    this->create_IQIs( tPropertyMap, tSPMap, tMSIDofTypeMap );
 
-            //         // create FEM set info
-            //         this->create_fem_set_info( true );
+                    // create FEM set info
+                    this->create_fem_set_info( true );
 
-            //         // get fem computation type parameter list
-            //         ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+                    // get fem computation type parameter list
+                    ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
 
-            //         // get bool for printing physics model
-            //         bool tPrintPhysics =
-            //                 tComputationParameterList.get< bool >( "print_physics_model" );
+                    // get bool for printing physics model
+                    bool tPrintPhysics =
+                            tComputationParameterList.get< bool >( "print_physics_model" );
 
-            //         // if print FEM model
-            //         if( tPrintPhysics )
-            //         {
-            //             // phase info
-            //             std::cout<<"Phase info "<<std::endl;
+                    // if print FEM model
+                    if( tPrintPhysics )
+                    {
+                        // phase info
+                        std::cout<<"Phase info "<<std::endl;
 
-            //             // loop over phase info
-            //             for( uint iPhase = 0; iPhase < mPhaseInfo.size(); iPhase++ )
-            //             {
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //                 mPhaseInfo( iPhase ).print_names();
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //             }
+                        // loop over phase info
+                        for( uint iPhase = 0; iPhase < mPhaseInfo.size(); iPhase++ )
+                        {
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                            mPhaseInfo( iPhase ).print_names();
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                        }
 
-            //             std::cout<<" "<<std::endl;
+                        std::cout<<" "<<std::endl;
 
-            //             // set info
-            //             std::cout<<"Set info "<<std::endl;
+                        // set info
+                        std::cout<<"Set info "<<std::endl;
 
-            //             // loop over set info
-            //             for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
-            //             {
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //                 mSetInfo( iSet ).print_names();
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //             }
-            //         }
-            //         break;
-            //     }
+                        // loop over set info
+                        for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
+                        {
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                            mSetInfo( iSet ).print_names();
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                        }
+                    }
+                    break;
+                }
 
-            //     default:
-            //         MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list" );
-            // }
+                default:
+                    MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list" );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -917,76 +916,76 @@ namespace moris
         void FEM_Model::create_fields(
                 std::map< std::string, uint > & aFieldMap )
         {
-            MORIS_ERROR(0,"KEENAN FIXME");
-            // // get the property parameter list
-            // moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
+            // MORIS_ERROR(0,"KEENAN FIXME");
+            // get the property parameter list
+            moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 
-            // // get the number of properties
-            // sint tNumFields = tFieldParameterList.size();
+            // get the number of properties
+            sint tNumFields = tFieldParameterList.size();
 
-            // // create a list of property pointers
-            // mFields.resize( tNumFields, nullptr );
+            // create a list of property pointers
+            mFields.resize( tNumFields, nullptr );
 
-            // // loop over the parameter lists
-            // for ( sint iFields = 0; iFields < tNumFields; iFields++ )
-            // {
-            //     // get property parameter list
-            //     ParameterList tFieldParameter = tFieldParameterList( iFields );
+            // loop over the parameter lists
+            for ( sint iFields = 0; iFields < tNumFields; iFields++ )
+            {
+                // get property parameter list
+                ParameterList tFieldParameter = tFieldParameterList( iFields );
 
-            //     // get property name from parameter list
-            //     std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
+                // get property name from parameter list
+                std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
-            //     // create a property pointer
-            //     std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
-            //             mMeshManager->get_mesh_pair( mMeshPairIndex ) );
+                // create a property pointer
+                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
+                        mMeshManager->get_mesh_pair( mMeshPairIndex ) );
 
-            //     // set a name for the property
-            //     tField->set_label( tFieldName );
+                // set a name for the property
+                tField->set_label( tFieldName );
 
-            //     // fill property map
-            //     aFieldMap[ tFieldName ] = iFields;
+                // fill property map
+                aFieldMap[ tFieldName ] = iFields;
 
-            //     // set field type
-            //     moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
-            //             mtk::get_field_type_map();
+                // set field type
+                moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                        mtk::get_field_type_map();
 
-            //     moris::Cell< mtk::Field_Type > tFieldTypes;
-            //     string_to_cell(
-            //             tFieldParameter.get< std::string >( "field_type" ),
-            //             tFieldTypes,
-            //             tFieldTypeMap );
+                moris::Cell< mtk::Field_Type > tFieldTypes;
+                string_to_cell(
+                        tFieldParameter.get< std::string >( "field_type" ),
+                        tFieldTypes,
+                        tFieldTypeMap );
 
-            //     // set field type
-            //     tField->set_field_type( tFieldTypes );
+                // set field type
+                tField->set_field_type( tFieldTypes );
 
-            //     mFieldTypeMap.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, ( uint )mFieldTypeMap.size() ), -1 );
-            //     mFieldTypeMap( static_cast< uint >(tFieldTypes( 0 )) ) = iFields;
+                mFieldTypeMap.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, ( uint )mFieldTypeMap.size() ), -1 );
+                mFieldTypeMap( static_cast< uint >(tFieldTypes( 0 )) ) = iFields;
 
-            //     MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
-            //             (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
-            //             "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+                MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
+                        (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
 
-            //     MORIS_ERROR( not ((not tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) and
-            //             (not tFieldParameter.get< std::string >( "IQI_Name" ).empty()  )),
-            //             "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+                MORIS_ERROR( not ((not tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) and
+                        (not tFieldParameter.get< std::string >( "IQI_Name" ).empty()  )),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
 
-            //     if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
-            //     {
-            //         tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
-            //     }
+                if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
+                {
+                    tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+                }
 
-            //     if( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
-            //     {
-            //         tField->set_IQI_name( tFieldParameter.get< std::string >( "IQI_Name" ) );
-            //     }
+                if( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
+                {
+                    tField->set_IQI_name( tFieldParameter.get< std::string >( "IQI_Name" ) );
+                }
 
-            //     if( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
-            //     {
-            //         tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
-            //     }
+                if( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
+                {
+                    tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
+                }
 
-            //     mFields( iFields ) = tField;
-            // }
+                mFields( iFields ) = tField;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1113,207 +1112,207 @@ namespace moris
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap )
         {
-            // // create a stabilization parameter factory
-            // SP_Factory tSPFactory;
+            // create a stabilization parameter factory
+            SP_Factory tSPFactory;
 
-            // // get the SP parameter list
-            // moris::Cell< ParameterList > tSPParameterList = mParameterList( 2 );
+            // get the SP parameter list
+            moris::Cell< ParameterList > tSPParameterList = mParameterList( 2 );
 
-            // // get the number of stabilization parameters
-            // uint tNumSPs = tSPParameterList.size();
+            // get the number of stabilization parameters
+            uint tNumSPs = tSPParameterList.size();
 
-            // // set size for the list of stabilization parameter pointer
-            // mSPs.resize( tNumSPs, nullptr );
+            // set size for the list of stabilization parameter pointer
+            mSPs.resize( tNumSPs, nullptr );
 
-            // // loop over the parameter list
-            // for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
-            // {
-            //     // get the stabilization parameters
-            //     ParameterList tSPParameter = tSPParameterList( iSP );
+            // loop over the parameter list
+            for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
+            {
+                // get the stabilization parameters
+                ParameterList tSPParameter = tSPParameterList( iSP );
 
-            //     // get the stabilization parameter name
-            //     std::string tSPName = tSPParameter.get< std::string >( "stabilization_name" );
+                // get the stabilization parameter name
+                std::string tSPName = tSPParameter.get< std::string >( "stabilization_name" );
 
-            //     // get the stabilization type from parameter list
-            //     fem::Stabilization_Type tSPType =
-            //             static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
+                // get the stabilization type from parameter list
+                fem::Stabilization_Type tSPType =
+                        static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
 
-            //     // create a stabilization parameter pointer
-            //     mSPs( iSP ) = tSPFactory.create_SP( tSPType );
+                // create a stabilization parameter pointer
+                mSPs( iSP ) = tSPFactory.create_SP( tSPType );
 
-            //     // set name
-            //     mSPs( iSP )->set_name( tSPName );
+                // set name
+                mSPs( iSP )->set_name( tSPName );
 
-            //     // set SP space dimension
-            //     mSPs( iSP )->set_space_dim( mSpaceDim );
+                // set SP space dimension
+                mSPs( iSP )->set_space_dim( mSpaceDim );
 
-            //     // fill stabilization map
-            //     aSPMap[ tSPName ] = iSP;
+                // fill stabilization map
+                aSPMap[ tSPName ] = iSP;
 
-            //     // set parameters
-            //     moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
-            //     string_to_cell_mat_2(
-            //             tSPParameter.get< std::string >( "function_parameters" ),
-            //             tFuncParameters );
-            //     mSPs( iSP )->set_parameters( tFuncParameters );
+                // set parameters
+                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                string_to_cell_mat_2(
+                        tSPParameter.get< std::string >( "function_parameters" ),
+                        tFuncParameters );
+                mSPs( iSP )->set_parameters( tFuncParameters );
 
-            //     // init string for master or slave
-            //     std::string tIsMasterString = "master";
-            //     mtk::Master_Slave tIsMaster = mtk::Master_Slave::MASTER;
+                // init string for master or slave
+                std::string tIsMasterString = "master";
+                mtk::Master_Slave tIsMaster = mtk::Master_Slave::MASTER;
 
-            //     // loop on master and slave
-            //     for( uint iMaster = 0; iMaster <= mSPs( iSP )->get_has_slave(); iMaster++ )
-            //     {
-            //         // if slave
-            //         if( iMaster )
-            //         {
-            //             // reset string for slave
-            //             tIsMasterString = "slave";
-            //             tIsMaster = mtk::Master_Slave::SLAVE;
-            //         }
+                // loop on master and slave
+                for( uint iMaster = 0; iMaster <= mSPs( iSP )->get_has_slave(); iMaster++ )
+                {
+                    // if slave
+                    if( iMaster )
+                    {
+                        // reset string for slave
+                        tIsMasterString = "slave";
+                        tIsMaster = mtk::Master_Slave::SLAVE;
+                    }
 
-            //         // get the treated IWG phase
-            //         std::string tPhaseName =
-            //                 tSPParameter.get< std::string >( tIsMasterString + "_phase_name" );
+                    // get the treated IWG phase
+                    std::string tPhaseName =
+                            tSPParameter.get< std::string >( tIsMasterString + "_phase_name" );
 
-            //         // check for unknown phase
-            //         MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-            //                 "FEM_Model::create_stabilization_parameters - Unknown phase name: %s \n",
-            //                 tPhaseName.c_str() );
+                    // check for unknown phase
+                    MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
+                            "FEM_Model::create_stabilization_parameters - Unknown phase name: %s \n",
+                            tPhaseName.c_str() );
 
-            //         // set dof dependencies
-            //         moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
-            //         string_to_cell_of_cell(
-            //                 std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
-            //                 tDofTypes,
-            //                 aMSIDofTypeMap );
-            //         moris::Cell< std::string > tDofTypeNames;
-            //         string_to_cell( std::get< 1 >(
-            //                 tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
-            //                 tDofTypeNames );
-            //         mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsMaster );
+                    // set dof dependencies
+                    moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                    string_to_cell_of_cell(
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
+                            tDofTypes,
+                            aMSIDofTypeMap );
+                    moris::Cell< std::string > tDofTypeNames;
+                    string_to_cell( std::get< 1 >(
+                            tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
+                            tDofTypeNames );
+                    mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsMaster );
 
-            //         // set dv dependencies
-            //         moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
-            //         string_to_cell_of_cell(
-            //                 std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
-            //                 tDvTypes,
-            //                 aDvTypeMap );
-            //         moris::Cell< std::string > tDvTypeNames;
-            //         string_to_cell(
-            //                 std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
-            //                 tDvTypeNames );
-            //         mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsMaster );
+                    // set dv dependencies
+                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                    string_to_cell_of_cell(
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
+                            tDvTypes,
+                            aDvTypeMap );
+                    moris::Cell< std::string > tDvTypeNames;
+                    string_to_cell(
+                            std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
+                            tDvTypeNames );
+                    mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsMaster );
 
-            //         // set master properties
-            //         moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
-            //         string_to_cell_of_cell(
-            //                 tSPParameter.get< std::string >( tIsMasterString + "_properties" ),
-            //                 tPropertyNamesPair );
+                    // set master properties
+                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    string_to_cell_of_cell(
+                            tSPParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tPropertyNamesPair );
 
-            //         for( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
-            //         {
-            //             // get the property name
-            //             std::string tPropertyName = tPropertyNamesPair( iProp )( 0 );
+                    for( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
+                    {
+                        // get the property name
+                        std::string tPropertyName = tPropertyNamesPair( iProp )( 0 );
 
-            //             // check for unknown property
-            //             MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
-            //                     "FEM_Model::create_stabilization_parameters - Unknown %s aPropertyString : %s \n",
-            //                     tIsMasterString.c_str(),
-            //                     tPropertyName.c_str() );
+                        // check for unknown property
+                        MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
+                                "FEM_Model::create_stabilization_parameters - Unknown %s aPropertyString : %s \n",
+                                tIsMasterString.c_str(),
+                                tPropertyName.c_str() );
 
-            //             // get property index
-            //             uint tPropertyIndex = aPropertyMap[ tPropertyName ];
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tPropertyName ];
 
-            //             // set property for CM
-            //             mSPs( iSP )->set_property(
-            //                     mProperties( tPropertyIndex ),
-            //                     tPropertyNamesPair( iProp )( 1 ),
-            //                     tIsMaster );
-            //         }
+                        // set property for CM
+                        mSPs( iSP )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tPropertyNamesPair( iProp )( 1 ),
+                                tIsMaster );
+                    }
 
-            //         // set constitutive models
-            //         moris::Cell< moris::Cell< std::string > > tCMNamesPair;
-            //         string_to_cell_of_cell(
-            //                 tSPParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
-            //                 tCMNamesPair );
+                    // set constitutive models
+                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    string_to_cell_of_cell(
+                            tSPParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tCMNamesPair );
 
-            //         // loop over CM names
-            //         for( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
-            //         {
-            //             // get the CM name
-            //             std::string tCMName = tCMNamesPair( iCM )( 0 );
+                    // loop over CM names
+                    for( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
+                    {
+                        // get the CM name
+                        std::string tCMName = tCMNamesPair( iCM )( 0 );
 
-            //             // get CM from phase
-            //             std::shared_ptr< fem::Constitutive_Model > tCM =
-            //                     mPhaseInfo( mPhaseMap[ tPhaseName ] ).get_CM_by_name( tCMName );
+                        // get CM from phase
+                        std::shared_ptr< fem::Constitutive_Model > tCM =
+                                mPhaseInfo( mPhaseMap[ tPhaseName ] ).get_CM_by_name( tCMName );
 
-            //             // set CM for SP
-            //             mSPs( iSP )->set_constitutive_model(
-            //                     tCM,
-            //                     tCMNamesPair( iCM )( 1 ) );
-            //         }
+                        // set CM for SP
+                        mSPs( iSP )->set_constitutive_model(
+                                tCM,
+                                tCMNamesPair( iCM )( 1 ) );
+                    }
 
-            //         // get the cluster measures specifications
-            //         moris::Cell< moris::Cell< std::string > > tClusterMeasureTypes;
-            //         string_to_cell_of_cell(
-            //                 std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
-            //                 tClusterMeasureTypes );
+                    // get the cluster measures specifications
+                    moris::Cell< moris::Cell< std::string > > tClusterMeasureTypes;
+                    string_to_cell_of_cell(
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
+                            tClusterMeasureTypes );
 
-            //         // get the cluster measures names
-            //         moris::Cell< std::string > tClusterMeasureNames;
-            //         string_to_cell( std::get< 1 >(tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
-            //                 tClusterMeasureNames );
+                    // get the cluster measures names
+                    moris::Cell< std::string > tClusterMeasureNames;
+                    string_to_cell( std::get< 1 >(tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
+                            tClusterMeasureNames );
 
-            //         // build a cell of tuples describing the cluster measures specifications
-            //         moris::Cell< std::tuple<
-            //         fem::Measure_Type,
-            //         mtk::Primary_Void,
-            //         mtk::Master_Slave > > tClusterMeasureTuples( tClusterMeasureNames.size() );
+                    // build a cell of tuples describing the cluster measures specifications
+                    moris::Cell< std::tuple<
+                    fem::Measure_Type,
+                    mtk::Primary_Void,
+                    mtk::Master_Slave > > tClusterMeasureTuples( tClusterMeasureNames.size() );
 
-            //         // get fem::Measure_Type, mtk::Primary_Void and mtk::Master_Slave map
-            //         // to convert string to enums
-            //         moris::map< std::string, fem::Measure_Type > tFemMeasureMap = fem::get_measure_type_map();
-            //         moris::map< std::string, mtk::Primary_Void > tMtkPrimaryMap = mtk::get_primary_type_map();
-            //         moris::map< std::string, mtk::Master_Slave > tMtkMasterMap = mtk::get_master_type_map();
+                    // get fem::Measure_Type, mtk::Primary_Void and mtk::Master_Slave map
+                    // to convert string to enums
+                    moris::map< std::string, fem::Measure_Type > tFemMeasureMap = fem::get_measure_type_map();
+                    moris::map< std::string, mtk::Primary_Void > tMtkPrimaryMap = mtk::get_primary_type_map();
+                    moris::map< std::string, mtk::Master_Slave > tMtkMasterMap = mtk::get_master_type_map();
 
-            //         // loop over cluster measures names
-            //         for( uint iCMEA = 0; iCMEA < tClusterMeasureNames.size(); iCMEA++ )
-            //         {
-            //             // check that measure type is member of map
-            //             MORIS_ERROR( tFemMeasureMap.key_exists( tClusterMeasureTypes( iCMEA )( 0 ) ),
-            //                     "FEM_Model::create_stabilization_parameters - key does not exist: %s",
-            //                     tClusterMeasureTypes( iCMEA )( 0 ).c_str() );
+                    // loop over cluster measures names
+                    for( uint iCMEA = 0; iCMEA < tClusterMeasureNames.size(); iCMEA++ )
+                    {
+                        // check that measure type is member of map
+                        MORIS_ERROR( tFemMeasureMap.key_exists( tClusterMeasureTypes( iCMEA )( 0 ) ),
+                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                tClusterMeasureTypes( iCMEA )( 0 ).c_str() );
 
-            //             // get fem measure type from map
-            //             fem::Measure_Type tFemMeasureType = tFemMeasureMap.find( tClusterMeasureTypes( iCMEA )( 0 ) );
+                        // get fem measure type from map
+                        fem::Measure_Type tFemMeasureType = tFemMeasureMap.find( tClusterMeasureTypes( iCMEA )( 0 ) );
 
-            //             // check that primary type is member of map
-            //             MORIS_ERROR( tMtkPrimaryMap.key_exists( tClusterMeasureTypes( iCMEA )( 1 ) ),
-            //                     "FEM_Model::create_stabilization_parameters - key does not exist: %s",
-            //                     tClusterMeasureTypes( iCMEA )( 1 ).c_str() );
+                        // check that primary type is member of map
+                        MORIS_ERROR( tMtkPrimaryMap.key_exists( tClusterMeasureTypes( iCMEA )( 1 ) ),
+                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                tClusterMeasureTypes( iCMEA )( 1 ).c_str() );
 
-            //             // get mtk primary type from map
-            //             mtk::Primary_Void tMtkPrimaryType = tMtkPrimaryMap.find( tClusterMeasureTypes( iCMEA )( 1 ) );
+                        // get mtk primary type from map
+                        mtk::Primary_Void tMtkPrimaryType = tMtkPrimaryMap.find( tClusterMeasureTypes( iCMEA )( 1 ) );
 
-            //             // check that master type is member of map
-            //             MORIS_ERROR( tMtkMasterMap.key_exists( tClusterMeasureTypes( iCMEA )( 2 ) ),
-            //                     "FEM_Model::create_stabilization_parameters - key does not exist: %s",
-            //                     tClusterMeasureTypes( iCMEA )( 2 ).c_str() );
+                        // check that master type is member of map
+                        MORIS_ERROR( tMtkMasterMap.key_exists( tClusterMeasureTypes( iCMEA )( 2 ) ),
+                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                tClusterMeasureTypes( iCMEA )( 2 ).c_str() );
 
-            //             // get mtk master type from map
-            //             mtk::Master_Slave tMtkMasterType = tMtkMasterMap.find( tClusterMeasureTypes( iCMEA )( 2 ) );
+                        // get mtk master type from map
+                        mtk::Master_Slave tMtkMasterType = tMtkMasterMap.find( tClusterMeasureTypes( iCMEA )( 2 ) );
 
-            //             // build the cluster measure specification tuple and set it in cell of tuples
-            //             tClusterMeasureTuples( iCMEA ) = std::make_tuple( tFemMeasureType, tMtkPrimaryType, tMtkMasterType );
-            //         }
+                        // build the cluster measure specification tuple and set it in cell of tuples
+                        tClusterMeasureTuples( iCMEA ) = std::make_tuple( tFemMeasureType, tMtkPrimaryType, tMtkMasterType );
+                    }
 
-            //         // set the cell of cluster measure specification tuples to the SP
-            //         mSPs( iSP )->set_cluster_measure_type_list(
-            //                 tClusterMeasureTuples,
-            //                 tClusterMeasureNames );
-            //     }
-            // }
+                    // set the cell of cluster measure specification tuples to the SP
+                    mSPs( iSP )->set_cluster_measure_type_list(
+                            tClusterMeasureTuples,
+                            tClusterMeasureNames );
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
