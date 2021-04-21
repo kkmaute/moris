@@ -36,7 +36,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical]" )
 {
     // define an epsilon environment
-    //real tEpsilon = 5.0E-3;
+    real tEpsilon = 5.0E-3;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
