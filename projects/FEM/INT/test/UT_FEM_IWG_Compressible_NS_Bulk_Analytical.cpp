@@ -36,7 +36,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical]" )
 {
     // define an epsilon environment
-    real tEpsilon = 5.0E-3;
+    //real tEpsilon = 5.0E-3;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -398,7 +398,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     Matrix< DDRMat > tResidualAnalytical = trans( tResidualWeakAnalytical ) + tDummyFactor * trans( tResidualStrongAnalytical );
 
     // check jacobian against analytical solution
-    bool tCheckResidual = fem::check( tResidual, tResidualAnalytical, tEpsilon, true );
+    // bool tCheckResidual = fem::check( tResidual, tResidualAnalytical, tEpsilon, true );
 
     // fixme
     // REQUIRE( tCheckResidual );
