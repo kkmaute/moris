@@ -54,7 +54,7 @@ namespace moris
             uint iStateVar = 0;
             
             // go through residual dof types and assemble the state variable vector
-            for ( uint iResDofType = 0; iResDofType < mResidualDofType.size(); iResDofType++ )
+            for ( uint iResDofType = 0; iResDofType < mResidualDofType( 0 ).size(); iResDofType++ )
             {
                 // get field interpolator
                 Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( iResDofType ) );
@@ -191,7 +191,7 @@ namespace moris
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
-            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
             Matrix< DDRMat > tN = tFI->N()( { 0, 0 }, { 0, this->num_bases() - 1 } );
             Matrix< DDRMat > tdNdt = tFI->dnNdtn( 1 )( { 0, 0 }, { 0, this->num_bases() - 1 } );
             Matrix< DDRMat > tdNdx = tFI->dnNdxn( 1 );
