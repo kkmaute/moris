@@ -614,6 +614,7 @@ namespace moris
             real tU2sq = tU2*tU2;
             real tTsq = tT*tT;
             real tC3 = 1.0/(tR*tT*tT);
+            //real tC4 = tP/(tR*tT*tT);
 
             // check the pre-multiplication vector
             MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2, 
@@ -640,32 +641,32 @@ namespace moris
                         case 0 :
                         {
                             adAdYVR = {
-                                {                        -tC3*tVR4,                               tC3*(tT*tVR2 - tU1*tVR4),                               tC3*(tT*tVR3 - tU2*tVR4),                                 tC3*(tT*tU1*tVR2 - tQ*tVR4 + tT*tU2*tVR3) },
-                                {                              0.0,                               -tC3*(tP*tVR4 - tT*tVR1),                                                    0.0,                              tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1) },
-                                {                              0.0,                                                    0.0,                               -tC3*(tP*tVR4 - tT*tVR1),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1) },
-                                { (tC3*(2.0*tP*tVR4 - tT*tVR1))/tT, -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT, -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR4 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3))/tT } };
-                                
+                                {                                 -tC3*tVR4,                                          0.0,                                          0.0,                                          (tC3*(2.0*tP*tVR4 - tT*tVR1))/tT },
+                                {                  tC3*(tT*tVR2 - tU1*tVR4),                     -tC3*(tP*tVR4 - tT*tVR1),                                          0.0,                    -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
+                                {                  tC3*(tT*tVR3 - tU2*tVR4),                                          0.0,                     -tC3*(tP*tVR4 - tT*tVR1),                    -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
+                                { tC3*(tT*tU1*tVR2 - tQ*tVR4 + tT*tU2*tVR3), tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1), tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR4 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3))/tT } };
+                                                     
                             break; 
                         }
 
                         case 1 :
                         {
                             adAdYVR = {
-                                {                               tC3*(tT*tVR2 - tU1*tVR4),                               tC3*tU1*(2.0*tT*tVR2 - tU1*tVR4),                                      tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                                                              tVR2 + tC3*tQ*tT*tVR2 - tC3*tQ*tU1*tVR4 + tC3*tT*tU1sq*tVR2 + tC3*tCv*tTsq*tVR2 + tC3*tT*tU1*tU2*tVR3 },
-                                {                               -tC3*(tP*tVR4 - tT*tVR1),               2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                                        tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR4 + 2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2 + 2.0*tP*tT*tU2*tVR3))/2.0 },
-                                {                                                    0.0,                                                            0.0,                                        tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                                                                                          tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1) },
-                                { -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT, -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT,                                                            -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR4 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3))/tT } };
- 
+                                {                                                                              tC3*(tT*tVR2 - tU1*tVR4),                                                                                                                                   -tC3*(tP*tVR4 - tT*tVR1),                                                                       0.0,                                                  -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
+                                {                                                                      tC3*tU1*(2.0*tT*tVR2 - tU1*tVR4),                                                                                                           2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
+                                {                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                                                                                                               tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                              tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                     -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT },
+                                { tVR2 + tC3*tQ*tT*tVR2 - tC3*tQ*tU1*tVR4 + tC3*tT*tU1sq*tVR2 + tC3*tCv*tTsq*tVR2 + tC3*tT*tU1*tU2*tVR3, (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4+2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR4+2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1), -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR4 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3))/tT } };
+
                             break; 
                         }
 
                         case 2 :
                         {
                             adAdYVR = {
-                                {                               tC3*(tT*tVR3 - tU2*tVR4),                                      tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                               tC3*tU2*(2.0*tT*tVR3 - tU2*tVR4),                                                              tVR3 + tC3*tQ*tT*tVR3 - tC3*tQ*tU2*tVR4 + tC3*tT*tU2sq*tVR3 + tC3*tCv*tTsq*tVR3 + tC3*tT*tU1*tU2*tVR2 },
-                                {                                                    0.0,                                        tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                                            0.0,                                                                                          tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1) },
-                                {                               -tC3*(tP*tVR4 - tT*tVR1),                                        tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),               2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR4 + 2.0*tT*tU2sq*tVR1 + 2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3))/2.0 },
-                                { -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT, -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT,                                                            -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR4 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2))/tT } };
+                                {                                                                              tC3*(tT*tVR3 - tU2*tVR4),                                                                       0.0,                                                                                                                                   -tC3*(tP*tVR4 - tT*tVR1),                                                  -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
+                                {                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                                                                                               tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                     -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT },
+                                {                                                                      tC3*tU2*(2.0*tT*tVR3 - tU2*tVR4),                                                                       0.0,                                                                                                           2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                          -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
+                                { tVR3 + tC3*tQ*tT*tVR3 - tC3*tQ*tU2*tVR4 + tC3*tT*tU2sq*tVR3 + tC3*tCv*tTsq*tVR3 + tC3*tT*tU1*tU2*tVR2, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4+2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR4+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3))/2.0, -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR4 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2))/tT } };
  
                             break; 
                         }
@@ -701,11 +702,11 @@ namespace moris
                         case 0 :
                         {
                             adAdYVR = {
-                                {                      -tC3*tVR5,                             tC3*(tT*tVR2 - tU1*tVR5),                             tC3*(tT*tVR3 - tU2*tVR5),                             tC3*(tT*tVR4 - tU3*tVR5),                                  tC3*(tT*tU1*tVR2 - tQ*tVR5 + tT*tU2*tVR3 + tT*tU3*tVR4) },
-                                {                              0,                             -tC3*(tP*tVR5 - tT*tVR1),                                                    0,                                                    0,                                             tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1) },
-                                {                              0,                                                    0,                             -tC3*(tP*tVR5 - tT*tVR1),                                                    0,                                             tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1) },
-                                {                              0,                                                    0,                                                    0,                             -tC3*(tP*tVR5 - tT*tVR1),                                             tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1) },
-                                { (tC3*(2.0*tP*tVR5 - tT*tVR1))/tT, -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT, -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR5 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3 + tP*tT*tU3*tVR4))/tT } };
+                                {                                               -tC3*tVR5,                                          0.0,                                          0.0,                                          0.0,                                                           (tC3*(2.0*tP*tVR5 - tT*tVR1))/tT },
+                                {                                tC3*(tT*tVR2 - tU1*tVR5),                     -tC3*(tP*tVR5 - tT*tVR1),                                          0.0,                                          0.0,                                     -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT },
+                                {                                tC3*(tT*tVR3 - tU2*tVR5),                                          0.0,                     -tC3*(tP*tVR5 - tT*tVR1),                                          0.0,                                     -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
+                                {                                tC3*(tT*tVR4 - tU3*tVR5),                                          0.0,                                          0.0,                     -tC3*(tP*tVR5 - tT*tVR1),                                     -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
+                                { tC3*(tT*tU1*tVR2 - tQ*tVR5 + tT*tU2*tVR3 + tT*tU3*tVR4), tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1), tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1), tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR5 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3 + tP*tT*tU3*tVR4))/tT } };
 
                             break; 
                         }
@@ -713,35 +714,34 @@ namespace moris
                         case 1 :
                         {
                             adAdYVR = {
-                                {                             tC3*(tT*tVR2 - tU1*tVR5),                             tC3*tU1*(2.0*tT*tVR2 - tU1*tVR5),                                    tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                                    tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                   (tC3*((2.0*tVR2)/tC3 + 2.0*tCv*tTsq*tVR2 + 2.0*tQ*tT*tVR2 - 2.0*tQ*tU1*tVR5 + 2.0*tT*tU1sq*tVR2 + 2.0*tT*tU1*tU2*tVR3 + 2.0*tT*tU1*tU3*tVR4))/2.0 },
-                                {                             -tC3*(tP*tVR5 - tT*tVR1),             2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR5 + 2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2 + 2.0*tP*tT*tU2*tVR3 + 2.0*tP*tT*tU3*tVR4))/2.0 },
-                                {                                                    0,                                                          0,                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                                 0,                                                                                           tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1) },
-                                {                                                    0,                                                          0,                                                                                 0,                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                                           tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1) },
-                                { -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT, -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT,                                          -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR5 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3 + tP*tT*tU1*tU3*tVR4))/tT } };
- 
+                                {                                                                                                                tC3*(tT*tVR2 - tU1*tVR5),                                                                                                                                            -tC3*(tP*tVR5 - tT*tVR1),                                                                                 0.0,                                                                       0.0,                                                                       -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT },
+                                {                                                                                                        tC3*tU1*(2.0*tT*tVR2 - tU1*tVR5),                                                                                                                    2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                                 0.0,                                                                       0.0,                                                               -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                                                                                                                        tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                        tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                                                                                                        tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                 0.0,                              tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                          -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT },
+                                { (tC3*((2.0*tVR2)/tC3+2.0*tCv*tTsq*tVR2+2.0*tQ*tT*tVR2 - 2.0*tQ*tU1*tVR5+2.0*tT*tU1sq*tVR2+2.0*tT*tU1*tU2*tVR3+2.0*tT*tU1*tU3*tVR4))/2.0, (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR5+2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR5 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3 + tP*tT*tU1*tU3*tVR4))/tT } };
+
                             break; 
                         }
 
                         case 2 :
                         {
                             adAdYVR = {
-                                {                             tC3*(tT*tVR3 - tU2*tVR5),                                    tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                             tC3*tU2*(2.0*tT*tVR3 - tU2*tVR5),                                    tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                   (tC3*((2.0*tVR3)/tC3 + 2.0*tCv*tTsq*tVR3 + 2.0*tQ*tT*tVR3 - 2.0*tQ*tU2*tVR5 + 2.0*tT*tU2sq*tVR3 + 2.0*tT*tU1*tU2*tVR2 + 2.0*tT*tU2*tU3*tVR4))/2.0 },
-                                {                                                    0,                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                          0,                                                                                 0,                                                                                           tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1) },
-                                {                             -tC3*(tP*tVR5 - tT*tVR1),                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),             2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR5 + 2.0*tT*tU2sq*tVR1 + 2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3 + 2.0*tP*tT*tU3*tVR4))/2.0 },
-                                {                                                    0,                                                                                 0,                                                          0,                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                                           tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1) },
-                                { -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT, -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - 2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT,                                          -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR5 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2 + tP*tT*tU2*tU3*tVR4))/tT } };
- 
+                                {                                                                                                              tC3*(tT*tVR3 - tU2*tVR5),                                                                       0.0,                                                                                                                                                -tC3*(tP*tVR5 - tT*tVR1),                                                                       0.0,                                                                       -(tC3*(tP*tT*tVR3-2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
+                                {                                                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                                                                            tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2-2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT },
+                                {                                                                                                      tC3*tU2*(2.0*tT*tVR3 - tU2*tVR5),                                                                       0.0,                                                                                                                        2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                       0.0,                                                               -(tC3*tU2*(2.0*tP*tT*tVR3-2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
+                                {                                                                                        tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                                                       0.0,                                                                                                                            tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                          -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3-2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT },
+                                { (tC3*((2.0*tVR3)/tC3+2.0*tCv*tTsq*tVR3+2.0*tQ*tT*tVR3-2.0*tQ*tU2*tVR5+2.0*tT*tU2sq*tVR3+2.0*tT*tU1*tU2*tVR2+2.0*tT*tU2*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1-2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1-2.0*tP*tU2sq*tVR5+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2+6.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR3-2.0*tP*tQ*tU2*tVR5 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2 + tP*tT*tU2*tU3*tVR4))/tT } }; 
                             break; 
                         }
 
                         case 3 :
                         {
                             adAdYVR = {
-                                {                             tC3*(tT*tVR4 - tU3*tVR5),                                    tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                    tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                             tC3*tU3*(2.0*tT*tVR4 - tU3*tVR5),                                   (tC3*((2.0*tVR4)/tC3 + 2.0*tCv*tTsq*tVR4 + 2.0*tQ*tT*tVR4 - 2.0*tQ*tU3*tVR5 + 2.0*tT*tU3sq*tVR4 + 2.0*tT*tU1*tU3*tVR2 + 2.0*tT*tU2*tU3*tVR3))/2.0 },
-                                {                                                    0,                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                 0,                                                          0,                                                                                           tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1) },
-                                {                                                    0,                                                                                 0,                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                          0,                                                                                           tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1) },
-                                {                             -tC3*(tP*tVR5 - tT*tVR1),                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),             2.0*tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU3sq*tVR5 + 2.0*tT*tU3sq*tVR1 + 2.0*tP*tT*tU1*tVR2 + 2.0*tP*tT*tU2*tVR3 + 6.0*tP*tT*tU3*tVR4))/2.0 },
-                                { -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT, -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - 2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT, -(tC3*tU3*(2.0*tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT,                                          -(tC3*(tP*tQ*tT*tVR4 - 2.0*tP*tQ*tU3*tVR5 + tP*tT*tU3sq*tVR4 + tQ*tT*tU3*tVR1 + tP*tT*tU1*tU3*tVR2 + tP*tT*tU2*tU3*tVR3))/tT } };
+                                {                                                                                                                tC3*(tT*tVR4 - tU3*tVR5),                                                                       0.0,                                                                       0.0,                                                                                                                                                      -tC3*(tP*tVR5 - tT*tVR1),                                                                       -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                              tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                       0.0,                                                                                                                                  tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                          -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                                                       0.0,                              tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                                                                  tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                          -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - 2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT },
+                                {                                                                                                        tC3*tU3*(2.0*tT*tVR4 - tU3*tVR5),                                                                       0.0,                                                                       0.0,                                                                                                                              2.0*tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                               -(tC3*tU3*(2.0*tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
+                                { (tC3*((2.0*tVR4)/tC3+2.0*tCv*tTsq*tVR4+2.0*tQ*tT*tVR4 - 2.0*tQ*tU3*tVR5+2.0*tT*tU3sq*tVR4+2.0*tT*tU1*tU3*tVR2+2.0*tT*tU2*tU3*tVR3))/2.0, tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1), tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1 - 2.0*tP*tU3sq*tVR5+2.0*tT*tU3sq*tVR1+2.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3 + 6.0*tP*tT*tU3*tVR4))/2.0, -(tC3*(tP*tQ*tT*tVR4 - 2.0*tP*tQ*tU3*tVR5 + tP*tT*tU3sq*tVR4 + tQ*tT*tU3*tVR1 + tP*tT*tU1*tU3*tVR2 + tP*tT*tU2*tU3*tVR3))/tT } };
 
                             break; 
                         }
@@ -1335,10 +1335,10 @@ namespace moris
                                 {
                                     // K11
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,                  0.0 },
-                                        { 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-                                        { 0.0, 0.0, 0.0,             tMu*tVR3 },
-                                        { 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, 0.0 } };
 
                                     break; 
                                 }
@@ -1347,10 +1347,10 @@ namespace moris
                                 {
                                     // K12
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,      0.0 },
-                                        { 0.0, 0.0, 0.0, tMu*tVR3 },
-                                        { 0.0, 0.0, 0.0, tLa*tVR2 },
-                                        { 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, tLa*tVR3, tMu*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1376,10 +1376,10 @@ namespace moris
                                 {
                                     // K21
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,      0.0 },
-                                        { 0.0, 0.0, 0.0, tMu*tVR3 },
-                                        { 0.0, 0.0, 0.0, tLa*tVR2 },
-                                        { 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, tMu*tVR3, tLa*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1388,10 +1388,10 @@ namespace moris
                                 {
                                     // K22
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,                  0.0 },
-                                        { 0.0, 0.0, 0.0,             tMu*tVR2 },
-                                        { 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-                                        { 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), 0.0 } };
 
                                     break; 
                                 }
@@ -1437,11 +1437,11 @@ namespace moris
                                 {
                                     // K11
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, tMu*tVR4, 0.0 } };
 
                                     break; 
                                 }
@@ -1450,11 +1450,11 @@ namespace moris
                                 {
                                     // K12
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0, tLa*tVR3, tMu*tVR2, 0.0, 0.0 } };
 
                                     break; 
                                 }
@@ -1463,11 +1463,11 @@ namespace moris
                                 {
                                     // K13
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0, tLa*tVR4, 0.0, tMu*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1493,11 +1493,11 @@ namespace moris
                                 {
                                     // K21
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0, tMu*tVR3, tLa*tVR2, 0.0, 0.0 } };
 
                                     break; 
                                 }
@@ -1506,11 +1506,11 @@ namespace moris
                                 {
                                     // K22
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), tMu*tVR4, 0.0 } };
 
                                     break; 
                                 }
@@ -1519,11 +1519,11 @@ namespace moris
                                 {
                                     // K23
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0, tLa*tVR4, tMu*tVR3, 0.0 } };
 
                                     break; 
                                 }
@@ -1549,11 +1549,11 @@ namespace moris
                                 {
                                     // K31
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0, tMu*tVR4, 0.0, tLa*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1562,11 +1562,11 @@ namespace moris
                                 {
                                     // K32
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0, tMu*tVR4, tLa*tVR3, 0.0 } };
 
                                     break; 
                                 }
@@ -1575,11 +1575,11 @@ namespace moris
                                 {
                                     // K33
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0, tVR4*(tLa + 2.0*tMu) },
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0, tMu*tVR2, tMu*tVR3, tVR4*(tLa+2.0*tMu), 0.0 } };
 
                                     break; 
                                 }
@@ -1869,17 +1869,17 @@ namespace moris
                         {
                             // evaluate Ki1,i - for Y,x
                             adKijidYVR( 1 ) = { 
-                                { 0.0, 0.0, 0.0,                  0.0 },
-                                { 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-                                { 0.0, 0.0, 0.0,             tMu*tVR3 },
-                                { 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0, 0.0 },
+                                { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
                             adKijidYVR( 2 ) = { 
-                                { 0.0, 0.0, 0.0,      0.0 },
-                                { 0.0, 0.0, 0.0, tMu*tVR3 },
-                                { 0.0, 0.0, 0.0, tLa*tVR2 },
-                                { 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, tMu*tVR3, tLa*tVR2, 0.0 } };
 
                             break; 
                         }
@@ -1888,17 +1888,17 @@ namespace moris
                         {
                             // evaluate Ki2,i - for Y,x
                             adKijidYVR( 1 ) = { 
-                                { 0.0, 0.0, 0.0,      0.0 },
-                                { 0.0, 0.0, 0.0, tLa*tVR3 },
-                                { 0.0, 0.0, 0.0, tMu*tVR2 },
-                                { 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, tLa*tVR3, tMu*tVR2, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
                             adKijidYVR( 2 ) = { 
-                                { 0.0, 0.0, 0.0,                  0.0 },
-                                { 0.0, 0.0, 0.0,             tMu*tVR2 },
-                                { 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-                                { 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,                0.0, 0.0 },
+                                { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), 0.0 } };
 
                             break; 
                         }
@@ -1925,27 +1925,27 @@ namespace moris
                         {
                             // evaluate Ki1,i - for Y,x
                             adKijidYVR( 1 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, tMu*tVR4, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
                             adKijidYVR( 2 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0, tMu*tVR3, tLa*tVR2, 0.0, 0.0 } };
         
                             // evaluate Ki1,i - for Y,z
                             adKijidYVR( 3 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0, tMu*tVR4, 0.0, tLa*tVR2, 0.0 } };
 
                             break; 
                         }
@@ -1954,27 +1954,27 @@ namespace moris
                         {
                             // evaluate Ki2,i - for Y,x
                             adKijidYVR( 1 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0, tLa*tVR3, tMu*tVR2, 0.0, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
                             adKijidYVR( 2 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), tMu*tVR4, 0.0 } };
         
                             // evaluate Ki2,i - for Y,z
                             adKijidYVR( 3 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0, tMu*tVR4, tLa*tVR3, 0.0 } };
 
                             break; 
                         }
@@ -1983,27 +1983,27 @@ namespace moris
                         {
                             // evaluate Ki3,i - for Y,x
                             adKijidYVR( 1 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0, tLa*tVR4, 0.0, tMu*tVR2, 0.0 } };
 
                             // evaluate Ki3,i - for Y,y
                             adKijidYVR( 2 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0, tLa*tVR4, tMu*tVR3, 0.0 } };
         
                             // evaluate Ki3,i - for Y,z
                             adKijidYVR( 3 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0, tVR4*(tLa + 2.0*tMu) },
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0, tMu*tVR2, tMu*tVR3, tVR4*(tLa+2.0*tMu), 0.0 } };
 
                             break; 
                         }

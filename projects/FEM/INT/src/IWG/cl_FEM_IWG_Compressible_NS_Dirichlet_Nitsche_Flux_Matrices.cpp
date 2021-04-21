@@ -66,7 +66,7 @@ namespace moris
             if ( tPropPrescDof1 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
                 // compute jump term for velocity, if prescribed
                 mJump( 0 ) = tFIFirstDofType->val()( 0 ) - tPropPrescDof1->val()( 0 );
@@ -149,7 +149,7 @@ namespace moris
             if ( tPropPrescDof1 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
                 // direct dependency of the state variable
                 mdJumpdDOF( { 0, 0 }, { 0, tNumBases - 1 } ) = 
@@ -468,7 +468,7 @@ namespace moris
             mTestFunctionsEval = false;
 
             // get the FIs associated with each residual dof type
-            Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
             Field_Interpolator * tFIVelocity     =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
             Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 2 ) );
 
