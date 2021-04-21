@@ -168,7 +168,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    void
+    bool
     Model::perform()
     {
         Tracer tTracer( "XTK", "Overall", "Run" );
@@ -362,6 +362,8 @@ namespace xtk
             MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
         }
 
+        //FIXME this function should return false if the intersection crosses two different levels of refinement
+        return true;
     }
 
     // ----------------------------------------------------------------------------------

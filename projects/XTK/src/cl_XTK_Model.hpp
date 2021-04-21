@@ -163,7 +163,7 @@ namespace xtk
              * @brief Workflow based perform call. Uses parameter list to decide operations to
              * perform
              */
-            void
+            bool
             perform();
 
             //--------------------------------------------------------------------------------
