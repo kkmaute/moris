@@ -128,8 +128,8 @@ void check_linear_results_serial()
     }
 
     REQUIRE( tNumDims  ==  2     );
-    REQUIRE( tNumNodes ==  16107 );
-    REQUIRE( tNumElems ==  14939 );
+    REQUIRE( tNumNodes ==  16887 );
+    REQUIRE( tNumElems ==  15533 );
 
     // check results
     uint tNodeId = 3187;
