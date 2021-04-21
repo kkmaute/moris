@@ -299,7 +299,7 @@ namespace moris
             mNumBasesEval = false;
             
             // get first FI
-            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get number of spatial dimensions from CM
             mNumBasesPerField = tFI->get_number_of_space_time_bases();
