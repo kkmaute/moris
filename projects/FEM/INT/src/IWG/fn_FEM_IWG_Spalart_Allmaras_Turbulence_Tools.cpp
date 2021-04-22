@@ -959,7 +959,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aVelocityDofGroup( 0 ) );
 
             // get gradient of velocity
-            Matrix< DDRMat > tGradVelocity = tFIVelocity->gradx( 1 );
+            const Matrix< DDRMat > & tGradVelocity = tFIVelocity->gradx( 1 );
 
             // switch on space dim
             uint tSpaceDim = tFIVelocity->val().numel();
@@ -1022,7 +1022,7 @@ namespace moris
                     if( aDofTypes( 0 ) == aVelocityDofGroup( 0 ) )
                     {
                         // get gradient of velocity
-                        Matrix< DDRMat > tdNdxVelocity = tFIVelocity->dnNdxn( 1 );
+                        const Matrix< DDRMat > & tdNdxVelocity = tFIVelocity->dnNdxn( 1 );
 
                         // get number of bases for displacement
                         uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
@@ -1043,7 +1043,7 @@ namespace moris
                     if( aDofTypes( 0 ) == aVelocityDofGroup( 0 ) )
                     {
                         // get gradient of velocity
-                        Matrix< DDRMat > tdNdxVelocity = tFIVelocity->dnNdxn( 1 );
+                        const Matrix< DDRMat > & tdNdxVelocity = tFIVelocity->dnNdxn( 1 );
 
                         // get number of bases for displacement
                         uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
@@ -1360,9 +1360,9 @@ namespace moris
         {
             // compute chi
             real tChi = compute_chi(
-                               aViscosityDofGroup,
-                               aMasterFIManager,
-                               aPropKinViscosity );
+                    aViscosityDofGroup,
+                    aMasterFIManager,
+                    aPropKinViscosity );
 
             // compute chi^2
             real tChi2 = std::pow( tChi, 2.0 );
