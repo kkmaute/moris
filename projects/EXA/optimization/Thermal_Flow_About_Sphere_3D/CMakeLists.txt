@@ -1,10 +1,10 @@
-set(EXAMPLE_MAIN Main_Channel_with_Four_Cylinders_Static_Temp_Only)
-set(EXAMPLE_FILE Channel_with_Four_Cylinders_Static_Temp_Only)
-set(EXAMPLE_PROCS 1 2)
+set(EXAMPLE_MAIN Thermal_Flow_About_Sphere_3D)
+set(EXAMPLE_FILE Channel3D)
+set(EXAMPLE_PROCS 1 4)
 
 # List source files
 set(EXAMPLE_SOURCES
-    ../../../src/example_main.cpp
+    ../../src/example_main.cpp
     example_test_case.cpp
 )
 
@@ -51,14 +51,12 @@ ${ARMADILLO_EIGEN}
 
 # get list of INT subfolders
 get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
-get_property(MTK_SRC_LIST GLOBAL PROPERTY MTK_SRC_LIST)
 
 SET(SO_INCLUDES
 	${Boost_INCLUDE_DIRS}
 	${Trilinos_INCLUDE_DIRS}
 	${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_SRC_LIST}
-    ${MTK_SRC_LIST}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
