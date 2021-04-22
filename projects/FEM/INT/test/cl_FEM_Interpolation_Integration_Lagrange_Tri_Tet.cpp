@@ -10,9 +10,9 @@
 #include "fn_norm.hpp"
 #include "fn_sum.hpp"
 //FEM/INT/src
-#include "IP/cl_MTK_Interpolation_Rule.hpp"
-#include "IG/cl_MTK_Integration_Rule.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
+#include "cl_MTK_Integrator.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"
 #include "fn_FEM_Check.hpp"
 

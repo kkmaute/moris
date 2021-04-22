@@ -1,7 +1,7 @@
 #include "catch.hpp"
 //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integrator.hpp"
 //LINALG/src
 #include "fn_norm.hpp"
 #include "fn_cross.hpp"

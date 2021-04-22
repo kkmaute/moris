@@ -1331,6 +1331,7 @@ namespace xtk
                                         tOwner,
                                         tEnrInterpMesh->mCellInfo );
 
+
                         // add enriched interpolation cell to base cell to enriched cell data
                         tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(
                                 tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));

@@ -892,8 +892,18 @@ namespace xtk
 
     void
     Cut_Mesh::remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
-                                                   Cell<moris::uint> const & aMeshesToDelete)
+                                                   Cell<moris::uint> const & aMeshesToDelete,
+                                                   Cell<moris_index> & aCellsToRemoveFromMesh) 
     {
+        uint tNumCells = 0;
+        // count the cells to delete
+        for(moris::uint iCM = 0; iCM < aMeshesToDelete.size(); iCM++)
+        {
+            tNumCells = tNumCells+mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(EntityRank::ELEMENT);
+        }
+
+        aCellsToRemoveFromMesh.reserve(tNumCells);
+
         Cell<Child_Mesh*> tCMToKeep(aMeshesToKeep.size());
 
         // collect a temporary list then populate member data
@@ -905,6 +915,13 @@ namespace xtk
         // delete the others
         for(moris::uint iCM = 0; iCM < aMeshesToDelete.size(); iCM++)
         {
+
+            Matrix<IndexMat> const & tCellInds = mChildrenMeshes(aMeshesToDelete(iCM))->get_element_inds();
+            for(moris::uint iCell = 0; iCell<mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(EntityRank::ELEMENT);iCell++)
+            {
+                aCellsToRemoveFromMesh.push_back(tCellInds(iCell));
+            }
+
             delete mChildrenMeshes(aMeshesToDelete(iCM));
         }
 
@@ -920,6 +937,18 @@ namespace xtk
         mConsistentCounts = false;
         this->get_entity_counts();
 
+
+        this->setup_subphase_to_child_mesh_connectivity();
+
+    }
+
+    void
+    Cut_Mesh::reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex)
+    {
+        for(moris::uint i = 0; i < this->get_num_child_meshes(); i++)
+        {
+            mChildrenMeshes(i)->reindex_cells(aOldIndexToNewCellIndex);
+        }
     }
 
     // ----------------------------------------------------------------------------------

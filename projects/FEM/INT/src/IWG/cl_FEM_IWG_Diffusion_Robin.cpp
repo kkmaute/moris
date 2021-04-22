@@ -41,12 +41,12 @@ namespace moris
                       mMasterProp(static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ));
 
             // get index for residual dof type, indices for assembly
-            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get filed interpolator for residual dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the residual
             // N * a * (T - T_ref)
@@ -77,12 +77,12 @@ namespace moris
                       mMasterProp(static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ));
 
             // get index for residual dof type, indices for assembly
-            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the Jacobian for dof dependencies
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
@@ -101,7 +101,7 @@ namespace moris
                         { tDepStartIndex, tDepStopIndex } );
 
                 // if dof type is residual dof type
-                if( tDepDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDepDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     tJac += aWStar *
                             tPropHeatTransfer->val() * tFI->N_trans() *  tFI->N();

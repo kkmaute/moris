@@ -284,7 +284,7 @@ namespace moris
 
             protected:
 
-                void collect_all_sets();
+                void collect_all_sets( bool aSetShape = true );
 
                 void
                 setup_set_to_color();

@@ -13,6 +13,7 @@
 #include "linalg_typedefs.hpp"
 #include "assert.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 namespace moris
 {
     namespace mtk
@@ -50,6 +51,14 @@ namespace moris
             get_cell_integration_order() const = 0;
 
             // ---------------------------------------------------------------------------------
+            /*!
+             * Returns the shape of the cell
+             * @return Cell shape
+             */
+            virtual enum CellShape
+            compute_cell_shape(moris::mtk::Cell const *aCell) const = 0;
+
+            // ---------------------------------------------------------------------------------
 
             /*
              * @return number of vertices attached to cell
@@ -71,6 +80,13 @@ namespace moris
              */
             virtual uint
             get_num_facets() const = 0;
+            // ---------------------------------------------------------------------------------
+
+            /*!
+             * @return number of edges attached to the cell
+             */
+            virtual uint
+            get_num_edges() const = 0;
 
             // ---------------------------------------------------------------------------------
 

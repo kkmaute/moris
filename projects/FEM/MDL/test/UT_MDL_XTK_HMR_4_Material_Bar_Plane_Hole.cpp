@@ -400,21 +400,21 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         std::shared_ptr< fem::IWG > tIWGBulk1 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulk2 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
         tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
@@ -422,13 +422,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         std::shared_ptr< fem::IWG > tIWGNeumann =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
-        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface1 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-        tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface1->set_stabilization_parameter( tSPNitscheInterface1, "NitscheInterface" );
@@ -437,7 +437,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         std::shared_ptr< fem::IWG > tIWGInterface2 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-        tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface2->set_stabilization_parameter( tSPNitscheInterface2, "NitscheInterface" );
@@ -446,7 +446,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         std::shared_ptr< fem::IWG > tIWGInterface3 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-        tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface3->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface3->set_stabilization_parameter( tSPNitscheInterface3, "NitscheInterface" );
@@ -892,21 +892,21 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         std::shared_ptr< fem::IWG > tIWGBulk1 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGBulk2 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
         tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
@@ -914,13 +914,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         std::shared_ptr< fem::IWG > tIWGNeumann =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
-        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface1 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-        tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface1->set_stabilization_parameter( tSPNitscheInterface1, "NitscheInterface" );
@@ -929,7 +929,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         std::shared_ptr< fem::IWG > tIWGInterface2 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-        tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface2->set_stabilization_parameter( tSPNitscheInterface2, "NitscheInterface" );
@@ -938,7 +938,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         std::shared_ptr< fem::IWG > tIWGInterface3 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-        tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface3->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface3->set_stabilization_parameter( tSPNitscheInterface3, "NitscheInterface" );

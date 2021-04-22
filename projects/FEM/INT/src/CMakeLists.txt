@@ -35,7 +35,6 @@ set(HEADERS
 
     CORE/cl_FEM_Set.hpp
     CORE/cl_FEM_NodeProxy.hpp
-    CORE/cl_FEM_Cluster.hpp
     CORE/cl_FEM_Enums.hpp
     CORE/cl_FEM_Node_Base.hpp
     CORE/cl_FEM_Node.hpp

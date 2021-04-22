@@ -15,7 +15,7 @@
 #include "fn_norm.hpp"
 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integrator.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_MM_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"

@@ -12,7 +12,7 @@
 #include "cl_FEM_Set.hpp"                        //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
-#include "IG/cl_MTK_Integrator.hpp"                 //MTK/src
+#include "cl_MTK_Integrator.hpp"                 //MTK/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Element.hpp"      //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                    //FEM/INT/src
@@ -276,7 +276,7 @@ namespace moris
             const Matrix< DDUMat > & tTimeLevels = aModelSolverInterface->get_dof_manager()->get_time_levels();
             uint tMaxTimeLevels = tTimeLevels.max();
 
-            // init time geometry type
+            // initialize time geometry type
             mtk::Geometry_Type tTimeGeometryType         = mtk::Geometry_Type::UNDEFINED;
 
             // init time integration order
@@ -649,7 +649,7 @@ namespace moris
                     // if dof enum not in the list
                     if ( tSlaveCheckList( tDofTypeindex ) != 1 )
                     {
-                        // put the dof type in the checklist
+                        // put the dof type in the check list
                         tSlaveCheckList( tDofTypeindex ) = 1;
 
                         // put the dof type in the global type list
@@ -1093,6 +1093,10 @@ namespace moris
                     mMasterFieldTypes,
                     this );
 
+            // assign cell shape to the field interpolator manager
+            mMasterFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mMasterFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+
             // create the geometry interpolators on the master FI manager
             mMasterFIManager->create_geometry_interpolators();
 
@@ -1106,6 +1110,10 @@ namespace moris
                     mSlaveFieldTypes,
                     this,
                     mtk::Master_Slave::SLAVE );
+
+            // assign cell shape to the field interpolator manager
+            mSlaveFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mSlaveFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
             // create the geometry interpolators on the slave FI manager
             mSlaveFIManager->create_geometry_interpolators();
@@ -1122,6 +1130,10 @@ namespace moris
                         mMasterDvTypes,
                         mMasterFieldTypes,
                         this );
+
+                // assign cell shape to the field interpolator manager
+                mMasterPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+                mMasterPreviousFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
                 // create the geometry interpolators on the master FI manager
                 mMasterPreviousFIManager->create_geometry_interpolators();
@@ -1506,7 +1518,7 @@ namespace moris
                 mResDofAssemblyMap( Ik ).set_size( 1, 2, -1 );
             }
 
-            // init dof coefficients counter
+            // initialize dof coefficients counter
             uint tCounter = 0;
 
             // loop over the requested dof types
@@ -2121,11 +2133,22 @@ namespace moris
                     // loop over the IWG in set IWG list
                     for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
-                        // if the IWG residual dof type is requested
-                        if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                        // residual dof types for current IWG
+                        const moris::Cell< moris::Cell < MSI::Dof_Type > > & tResDofType =
+                                mIWGs( iIWG )->get_residual_dof_type();
+
+                        // number of residual dof types
+                        const uint tNumResDofTypes = tResDofType.size();
+
+                        // loop over all residual dof types
+                        for ( uint iType = 0; iType < tNumResDofTypes; ++iType)
                         {
-                            // add the IWg to the requested IWG list
-                            mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                            // if the IWG residual dof type is requested
+                            if( tResDofType( iType )( 0 ) == tDofType )
+                            {
+                                // add the IWg to the requested IWG list
+                                mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                            }
                         }
                     }
                 }
@@ -2138,26 +2161,38 @@ namespace moris
                     // loop over the IWG in set IWG list
                     for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
-                        // if the IWG residual dof type is requested
-                        if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                        // residual dof types for current IWG
+                        const moris::Cell< moris::Cell < MSI::Dof_Type > > & tResDofType =
+                                mIWGs( iIWG )->get_residual_dof_type();
+
+                        // number of residual dof types
+                        const uint tNumResDofTypes = tResDofType.size();
+
+                        // loop over all residual dof types
+                        for ( uint iType = 0; iType < tNumResDofTypes; ++iType)
                         {
-                            if( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                            // if the IWG residual dof type is requested
+                            if( tResDofType( iType )( 0 ) == tDofType )
                             {
-                                if( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                if( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                                {
+                                    if( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                    {
+                                        // add the IWg to the requested IWG list
+                                        mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                    }
+                                }
+                                else
                                 {
                                     // add the IWg to the requested IWG list
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
                             }
-                            else
-                            {
-                                // add the IWg to the requested IWG list
-                                mRequestedIWGs.push_back( mIWGs( iIWG ) );
-                            }
                         }
                     }
                 }
             }
+
             // reduce the size of requested IWG list to fit
             mRequestedIWGs.shrink_to_fit();
         }

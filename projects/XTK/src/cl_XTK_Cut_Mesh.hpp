@@ -502,7 +502,15 @@ namespace xtk
 
         void
         remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
-                                             Cell<moris::uint> const & aMeshesToDelete);
+                                             Cell<moris::uint> const & aMeshesToDelete,
+                                             Cell<moris_index>       & aCellsToRemoveFromMesh);
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex);
+
+        // ----------------------------------------------------------------------------------
 
         friend Model;
         friend Mesh_Cleanup;

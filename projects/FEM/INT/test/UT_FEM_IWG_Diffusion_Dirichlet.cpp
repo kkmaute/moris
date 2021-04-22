@@ -67,8 +67,7 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tTempDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDofTypes = { { MSI::Dof_Type::TEMP } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -252,19 +251,19 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             fill_that( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tMasterFIs( tTempDofTypes.size() );
 
             // create the field interpolator temperature
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatTEMP );
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap.resize( tTempDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofTEMP-1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = { { 0, tNumDofTEMP - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap.resize( tTempDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
@@ -276,12 +275,12 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedMasterGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tFIManager.mFI = tMasterFIs;
@@ -392,7 +391,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );

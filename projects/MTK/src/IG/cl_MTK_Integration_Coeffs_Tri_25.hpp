@@ -15,7 +15,7 @@
 #include "linalg_typedefs.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
-#include "IG/cl_MTK_Integration_Coeffs.hpp"
+#include "cl_MTK_Integration_Coeffs.hpp"
 
 namespace moris
 {

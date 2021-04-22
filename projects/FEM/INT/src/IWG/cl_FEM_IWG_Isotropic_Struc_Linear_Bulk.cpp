@@ -40,7 +40,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -107,13 +107,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for given dof type
             Field_Interpolator * tDisplacementFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get body load property
             std::shared_ptr< Property > & tPropLoad =
@@ -172,7 +172,7 @@ namespace moris
                 // if bedding
                 if ( tPropBedding != nullptr )
                 {
-                    if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // if dof type is displacement, add bedding contribution
                         tJac += aWStar * ( trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );

@@ -383,34 +383,50 @@ namespace moris
             // if order is already set
             if( ( mOrder != MORIS_UINT_MAX ) ) return;
 
-            // get residual dof type interpolation order
-            mtk::Interpolation_Order tInterpOrder =
-                    mSet->get_field_interpolator_manager()->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) )->
-                    get_space_interpolation_order();
+            // get field interpolator manager
+            Field_Interpolator_Manager * tFIManager = mSet->get_field_interpolator_manager();
 
-            // set the interpolation order for IWG
-            switch ( tInterpOrder )
+            // define axuxilliary variable for storing interpolation order
+            uint tPrevOrder = MORIS_UINT_MAX;
+
+            // loop overall residual dof types
+            for ( uint iType = 0; iType < mResidualDofType.size(); ++iType )
             {
-                case mtk::Interpolation_Order::LINEAR :
+                // get field interpolator for current residual dof type;
+                Field_Interpolator * tFI = tFIManager->get_field_interpolators_for_type( mResidualDofType( iType )( 0 ) );
+
+                // get residual dof type interpolation order
+                mtk::Interpolation_Order tInterpOrder = tFI->get_space_interpolation_order();
+
+                // set the interpolation order for IWG
+                switch ( tInterpOrder )
                 {
-                    mOrder = 1;
-                    break;
+                    case mtk::Interpolation_Order::LINEAR :
+                    {
+                        mOrder = 1;
+                        break;
+                    }
+                    case mtk::Interpolation_Order::QUADRATIC :
+                    {
+                        mOrder = 2;
+                        break;
+                    }
+                    case mtk::Interpolation_Order::CUBIC :
+                    {
+                        mOrder = 3;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported" );
+                    }
                 }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported" );
-                }
+
+                // check order is the same for all residual types
+                MORIS_ERROR( iType > 0 ? tPrevOrder == mOrder : true,
+                        "IWG::set_interpolation_order - Interpolation order of residual fields need to be identical among all residual fields.\n");
+
+                tPrevOrder = mOrder;
             }
         }
 
@@ -1938,7 +1954,7 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get master index for residual dof type, indices for assembly
-            sint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            sint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -2068,12 +2084,12 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get master index for residual dof type, indices for assembly
-            sint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            sint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            sint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            sint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
@@ -2328,7 +2344,7 @@ namespace moris
                 bool               aErrorPrint )
         {
             // get residual dof type index in set, start and end indices for residual dof type
-            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartRow = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResEndRow   = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -2338,7 +2354,7 @@ namespace moris
             uint tSlaveNumRows = 0;
             if( mSlaveGlobalDofTypes.size() > 0 )
             {
-                tSlaveDofIndex     = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+                tSlaveDofIndex     = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
                 tSlaveResStartRow  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
                 tSlaveResEndRow    = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
                 tSlaveNumRows      = tSlaveResEndRow  - tSlaveResStartRow  + 1;
@@ -2440,11 +2456,11 @@ namespace moris
                 bool               aErrorPrint )
         {
             // get residual dof type index in set, start and end indices for residual dof type
-            uint tNumResidualDofs = mResidualDofType.size();
-            uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterLastDofIndex = mSet->get_dof_index_for_type( mResidualDofType( tNumResidualDofs - 1 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartRow = mSet->get_res_dof_assembly_map()( tMasterFirstDofIndex )( 0, 0 );
-            uint tMasterResEndRow   = mSet->get_res_dof_assembly_map()( tMasterLastDofIndex )( 0, 1 );
+            uint tNumResidualDofs = mResidualDofType(0).size();
+            uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterLastDofIndex  = mSet->get_dof_index_for_type( mResidualDofType( 0 )( tNumResidualDofs - 1 ), mtk::Master_Slave::MASTER );
+            uint tMasterResStartRow   = mSet->get_res_dof_assembly_map()( tMasterFirstDofIndex )( 0, 0 );
+            uint tMasterResEndRow     = mSet->get_res_dof_assembly_map()( tMasterLastDofIndex )( 0, 1 );
 
             // get number of master and slave rows
             uint tNumRows = tMasterResEndRow - tMasterResStartRow + 1;
@@ -2765,7 +2781,7 @@ namespace moris
                     mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
             // get the residual dof type index in the set
-            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
@@ -2927,7 +2943,7 @@ namespace moris
                     mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
             // get the residual dof type index in the set
-            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
@@ -3108,7 +3124,7 @@ namespace moris
                     mSet->get_field_interpolator_manager_previous_time()->get_IG_geometry_interpolator();
 
             // get the residual dof type index in the set
-            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
@@ -3307,14 +3323,14 @@ namespace moris
 
             // get the master residual dof type index in the set
             uint tMasterResDofIndex = mSet->get_dof_index_for_type(
-                    mResidualDofType( 0 ),
+                    mResidualDofType( 0 )( 0 ),
                     mtk::Master_Slave::MASTER );
             uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
             uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
 
             // get the slave residual dof type index in the set
             uint tSlaveResDofIndex = mSet->get_dof_index_for_type(
-                    mResidualDofType( 0 ),
+                    mResidualDofType( 0 )( 0 ),
                     mtk::Master_Slave::SLAVE );
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
@@ -3521,7 +3537,7 @@ namespace moris
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
             // get the residual dof type index in the set
-            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
@@ -3621,12 +3637,12 @@ namespace moris
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
             // get the residual dof type index in the set
-            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the slave residual dof type index in the set
-            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
 
@@ -3755,7 +3771,7 @@ namespace moris
 
             // get the residual dof type index in the set
             uint tResDofIndex = mSet->get_dof_index_for_type(
-                    mResidualDofType( 0 ),
+                    mResidualDofType( 0 )( 0 ),
                     mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
@@ -3895,12 +3911,12 @@ namespace moris
             uint tNumDvType = tRequestedPdvTypes.size();
 
             // get the master residual dof type index in the set
-            uint tMasterResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
             uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
 
             // get the slave residual dof type index in the set
-            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
 

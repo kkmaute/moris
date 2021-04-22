@@ -211,7 +211,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
 
        std::shared_ptr< fem::IWG > tIWGDiffusionBulk
        = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-       tIWGDiffusionBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+       tIWGDiffusionBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
        tIWGDiffusionBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Master_Slave::MASTER );
        tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
@@ -219,13 +219,13 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
 
        std::shared_ptr< fem::IWG > tIWGNeumann
        = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
-       tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+       tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
        std::shared_ptr< fem::IWG > tIWGTimeContinuity
        = tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
-       tIWGTimeContinuity->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+       tIWGTimeContinuity->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
        tIWGTimeContinuity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGTimeContinuity->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
        tIWGTimeContinuity->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
@@ -499,7 +499,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 
     std::shared_ptr< fem::IWG > tIWGDiffusionBulk
     = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-    tIWGDiffusionBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWGDiffusionBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWGDiffusionBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Master_Slave::MASTER );
     tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
@@ -507,13 +507,13 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 
     std::shared_ptr< fem::IWG > tIWGNeumann
     = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
-    tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::IWG > tIWGTimeContinuity
     = tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
-    tIWGTimeContinuity->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWGTimeContinuity->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWGTimeContinuity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tIWGTimeContinuity->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
     tIWGTimeContinuity->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );

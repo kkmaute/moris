@@ -9,6 +9,9 @@
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "fn_cross.hpp"
+#include "fn_dot.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -37,6 +40,90 @@ namespace moris
             return Integration_Order::HEX_4x4x4;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Hex27::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            // getting vertices and storing them in a local matrix, since each node will be used a few times
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // init cell shape
+            CellShape tCellShape = CellShape::RECTANGULAR;
+
+            // error threshold
+            real tEpsilon = 1.0E-8;
+
+            // looping through each face
+            for ( uint iFace = 0; iFace < 6; iFace++)
+            {
+                // getting nodes on the face
+                moris::Matrix<moris::IndexMat> tFaceNodes = this->get_node_to_face_map( iFace );
+
+                // get edges to define check plane
+                moris::Matrix< DDRMat > tEdge0 = tVertices( tFaceNodes( 1 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge1 = tVertices( tFaceNodes( 2 ) )->get_coords() - tVertices( tFaceNodes( 1 ) )->get_coords();
+                moris::Matrix< DDRMat > tFaceVec01 = cross(tEdge0,tEdge1);
+
+                // these are the other plane normals produced by the other 6 nodes.
+                // keeping node 0 to ensure the plane is at the same offset.
+                moris::Matrix< DDRMat > tEdge2 = tVertices( tFaceNodes( 3 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge3 = tVertices( tFaceNodes( 4 ) )->get_coords() - tVertices( tFaceNodes( 3 ) )->get_coords();
+                moris::Matrix< DDRMat > tFaceVec23 = cross(tEdge2,tEdge3);
+
+                moris::Matrix< DDRMat > tEdge4 = tVertices( tFaceNodes( 5 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge5 = tVertices( tFaceNodes( 6 ) )->get_coords() - tVertices( tFaceNodes( 5 ) )->get_coords();
+                moris::Matrix< DDRMat > tFaceVec45 = cross(tEdge4,tEdge5);
+
+                moris::Matrix< DDRMat > tEdge6 = tVertices( tFaceNodes( 7 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
+                moris::Matrix< DDRMat > tEdge7 = tVertices( tFaceNodes( 8 ) )->get_coords() - tVertices( tFaceNodes( 7 ) )->get_coords();
+                moris::Matrix< DDRMat > tFaceVec67 = cross(tEdge6,tEdge7);
+
+                // All three of the plane normals must be parallel in order to be considered straight shape
+                if( norm( cross(tFaceVec01, tFaceVec23) ) > tEpsilon ||
+                    norm( cross(tFaceVec01, tFaceVec45) ) > tEpsilon ||
+                    norm( cross(tFaceVec01, tFaceVec67) ) > tEpsilon )
+                {
+                    tCellShape = CellShape::GENERAL;
+                    break;
+                }
+
+                // Checking if this face is perpindicular to the next face plane
+                
+                if( iFace < 5 && tCellShape == CellShape::RECTANGULAR )
+                {
+                    moris::Matrix<moris::IndexMat> tNextFaceNodes = this->get_node_to_face_map( iFace + 1 );
+
+                    // get the plane defined by the first 3 nodes on this face
+                    moris::Matrix< DDRMat > tNextEdge0 = tVertices( tNextFaceNodes( 1 ) )->get_coords() -
+                            tVertices( tNextFaceNodes( 0 ) )->get_coords();
+                    moris::Matrix< DDRMat > tNextEdge1 = tVertices( tNextFaceNodes( 2 ) )->get_coords() -
+                            tVertices( tNextFaceNodes( 1 ) )->get_coords();
+                    moris::Matrix< DDRMat > tNextFaceVec01 = cross(tNextEdge0,tNextEdge1);
+
+                    if( iFace < 4 )
+                    {
+                        // the 2 faces should be perpindicular in order for the shape to be rectangular
+                        if( std::abs( dot(tFaceVec01, tNextFaceVec01) ) > tEpsilon )
+                        {
+                            tCellShape = CellShape::STRAIGHT;
+                        }
+                    }
+                    // the last 2 faces should be parallel in order for it to be 
+                    else
+                    {
+                        // the 2 faces should be parallel in order for the shape to be rectangular
+                        if( norm( cross(tFaceVec01, tNextFaceVec01) ) > tEpsilon )
+                        {
+                            tCellShape = CellShape::STRAIGHT;
+                        }
+                    }
+                }
+            }
+
+            return tCellShape;
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint
@@ -51,6 +138,14 @@ namespace moris
         Cell_Info_Hex27::get_num_facets() const
         {
             return 6;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        Cell_Info_Hex27::get_num_edges() const
+        {
+            return 12;
         }
 
         // ----------------------------------------------------------------------------------

@@ -252,7 +252,7 @@ namespace moris
 
             // field field interpolators------------------------------------------
 
-            // get master dv type list from set
+            // get master field type list from set
             const Cell< Cell< mtk::Field_Type > > & tMasterFieldTypeList =
                     mSet->get_field_type_list( mtk::Master_Slave::MASTER );
 
@@ -262,7 +262,7 @@ namespace moris
             // loop on the master field types
             for( uint iFi = 0; iFi < tMasterNumFieldTypes; iFi++ )
             {
-                // get the dv type group
+                // get the field type group
                 const moris::Cell< mtk::Field_Type > & tFieldTypeGroup = tMasterFieldTypeList( iFi );
 
                 Matrix< IndexMat > tIPCellIndices = mMasterInterpolationCell->get_vertex_inds();
@@ -284,7 +284,7 @@ namespace moris
             const Cell< Cell< mtk::Field_Type > > & tSlaveFieldTypeList =
                     mSet->get_field_type_list( mtk::Master_Slave::SLAVE );
 
-            // get number of slave dv types
+            // get number of slave field types
             uint tSlaveNumFieldTypes = tSlaveFieldTypeList.size();
 
             // loop on the slave field types
@@ -1282,13 +1282,13 @@ namespace moris
                         tIQI( iIQI )->reset_eval_flags();
 
                         // compute quantity of interest at evaluation point
-                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                        Matrix< DDRMat > tQINodal;
                         tIQI( iIQI )->compute_QI( tQINodal );
 
                         moris_index tGlobalIndex =
                                 mSet->get_requested_field_IQIs_global_indices()( iIQI );
 
-                        aFields( tGlobalIndex )->set_field_value( tVertexIndices( iVertex ), tQINodal( 0 ) );
+                        aFields( tGlobalIndex )->set_field_value( tVertexIndices( iVertex ), tQINodal );
                     }
                 }
             }

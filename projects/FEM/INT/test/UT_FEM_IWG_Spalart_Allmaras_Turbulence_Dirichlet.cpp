@@ -62,8 +62,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -265,7 +266,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -396,8 +397,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -599,7 +601,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -729,9 +731,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -934,7 +937,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -1065,8 +1068,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1269,7 +1273,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // set size and fill the set residual assembly map

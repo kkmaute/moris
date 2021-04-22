@@ -51,6 +51,10 @@ namespace moris
 
             enum CellTopology mCellTopology = CellTopology::END_ENUM;
 
+            enum CellShape mIGCellShape = CellShape::END_ENUM;
+
+            enum CellShape mIPCellShape = CellShape::END_ENUM;
+
             moris::uint mSpatialDim;
 
             Matrix<IndexMat> mSetColors;
@@ -159,6 +163,37 @@ namespace moris
             {
                 MORIS_ASSERT( mCellTopology != CellTopology::END_ENUM, "Set::get_cell_topology(), Cell topology not set" );
                 return mCellTopology;
+            }
+
+            
+            //------------------------------------------------------------------------------
+
+            void set_IG_cell_shape( enum CellShape aCellShape )
+            {
+                mIGCellShape = aCellShape;
+            }
+
+            //------------------------------------------------------------------------------
+
+            void set_IP_cell_shape( enum CellShape aCellShape )
+            {
+                mIPCellShape = aCellShape;
+            }
+
+            //------------------------------------------------------------------------------
+
+            enum CellShape get_IG_cell_shape()
+            {
+                MORIS_ASSERT( mIGCellShape != CellShape::END_ENUM, "Set::get_IG_cell_shape(), Cell shape not set" );
+                return mIGCellShape;
+            }
+
+            //------------------------------------------------------------------------------
+
+            enum CellShape get_IP_cell_shape()
+            {
+                MORIS_ASSERT( mIPCellShape != CellShape::END_ENUM, "Set::get_IG_cell_shape(), Cell shape not set" );
+                return mIPCellShape;
             }
 
             //------------------------------------------------------------------------------

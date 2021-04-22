@@ -24,7 +24,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integrator.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 
 using namespace moris;
@@ -62,10 +62,11 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_No_Turbulence",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
     moris::Cell< MSI::Dof_Type > tTEMPDofTypes = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tTEMPDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tTEMPDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_No_Turbulence",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
+    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
     tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
     tCMMasterIncFluid->set_property( tPropDensity, "Density" );
     tCMMasterIncFluid->set_local_properties();
@@ -119,7 +120,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_No_Turbulence",
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
             tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    tSPIncFlow->set_dof_type_list( { tVelDofTypes, tPDofTypes }, mtk::Master_Slave::MASTER );
+    tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_parameters( { {{ 36.0 }} } );
@@ -183,7 +184,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_No_Turbulence",
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
                 break;
             }
             case 3 :
@@ -202,7 +203,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_No_Turbulence",
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
                 break;
             }
             default:
@@ -293,11 +294,11 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_No_Turbulence",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator temperature
@@ -440,11 +441,12 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tTEMPDofTypes = { MSI::Dof_Type::TEMP };
     moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tTEMPDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tTEMPDofTypes = { MSI::Dof_Type::TEMP };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tTEMPDofTypes, tVisDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -489,7 +491,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
@@ -499,7 +501,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
             tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    tSPIncFlow->set_dof_type_list( { tVelDofTypes, tPDofTypes }, mtk::Master_Slave::MASTER );
+    tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_parameters( { {{ 36.0 }} } );
@@ -569,6 +571,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+
                 break;
             }
             case 3 :
@@ -591,6 +594,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+
                 break;
             }
             default:
@@ -684,11 +688,11 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator temperature

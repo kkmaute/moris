@@ -13,7 +13,7 @@
 #include "fn_norm.hpp" //LNA/src
 #include "cl_FEM_Enums.hpp" 
 
-#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Rule.hpp" //MTK/src
 
 using namespace moris;
 using namespace fem;

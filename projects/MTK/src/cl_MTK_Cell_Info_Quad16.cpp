@@ -44,6 +44,62 @@ namespace moris
             return Integration_Order::QUAD_5x5;
         }
 
+        //-----------------------------------------------------------------------------
+
+        enum CellShape
+        Cell_Info_Quad16::compute_cell_shape(moris::mtk::Cell const *aCell) const
+        {
+            // throw error, since this function hasn't been tested. Would need to be able to create a cell without an STK mesh
+//            MORIS_ERROR(false,"Cell_Info_Quad16::compute_cell_shape - this has not been tested. no Quad16 STK implementation");
+            
+            // getting vertices and storing them in a local matrix, since each node will be used a few times
+            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // init cell shape
+            CellShape tCellShape = CellShape::RECTANGULAR;
+
+            // error threshold
+            real tEpsilon = 1.0E-8;
+
+            // looping through each Edge
+            for ( uint iEdge = 0; iEdge < 4; iEdge++)
+            {
+                // getting nodes on the edge
+                moris::Matrix<moris::IndexMat> tEdgeNodes = this->get_node_to_edge_map( iEdge );
+
+                // getting getting vectors on this edge
+                moris::Matrix< DDRMat > tEdgeVec0 = tVertices( tEdgeNodes(1) )->get_coords() - tVertices( tEdgeNodes(0) )->get_coords();
+                moris::Matrix< DDRMat > tEdgeVec1 = tVertices( tEdgeNodes(2) )->get_coords() - tVertices( tEdgeNodes(0) )->get_coords();
+                moris::Matrix< DDRMat > tEdgeVec2 = tVertices( tEdgeNodes(3) )->get_coords() - tVertices( tEdgeNodes(0) )->get_coords();
+
+                // perform cross product of the 2D vectors
+                real tCross01 = tEdgeVec0(0) * tEdgeVec1(1) - tEdgeVec0(1) * tEdgeVec1(0);
+                real tCross12 = tEdgeVec1(0) * tEdgeVec2(1) - tEdgeVec1(1) * tEdgeVec2(0);
+
+                // are the nodes on this edge on the same vector?
+                if ( std::abs( tCross01 ) > tEpsilon ||
+                     std::abs( tCross12 ) > tEpsilon  )
+                {
+                    tCellShape = CellShape::GENERAL;
+                    break;
+                }
+ 
+                // checking if this edge is perpindicular to the next edge ordinal. Only need to do it for first 3 corners
+                if ( iEdge < 3 )
+                {
+                    // next adjacent edge. Using a mid edge node for convenience
+                    moris::Matrix< DDRMat > tEdgeVec3 = tVertices( 2*iEdge + 7 )->get_coords() - tVertices( iEdge + 1 )->get_coords();
+                    
+                    if ( std::abs( dot( tEdgeVec0, tEdgeVec2 ) ) > tEpsilon )
+                    {
+                        tCellShape = CellShape::STRAIGHT;
+                    }
+                }
+            }
+
+            return tCellShape;
+        }
+
         // ----------------------------------------------------------------------------------
 
         uint
@@ -56,6 +112,14 @@ namespace moris
 
         uint
         Cell_Info_Quad16::get_num_facets() const
+        {
+            return 4;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        Cell_Info_Quad16::get_num_edges() const
         {
             return 4;
         }

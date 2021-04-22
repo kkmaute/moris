@@ -24,7 +24,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integrator.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 
 using namespace moris;
@@ -62,10 +62,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -94,7 +95,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
@@ -119,7 +120,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGVelocity =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWGVelocity->set_residual_dof_type( tVelDofTypes );
-    tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGVelocity->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
     tIWGVelocity->set_property( tPropUpwind, "Upwind" );
     tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
@@ -175,7 +176,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 break;
             }
@@ -195,7 +196,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 break;
             }
@@ -289,11 +290,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator viscosity
@@ -426,10 +427,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -461,7 +463,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
@@ -486,7 +488,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGVelocity =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
     tIWGVelocity->set_residual_dof_type( tVelDofTypes );
-    tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGVelocity->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
     tIWGVelocity->set_property( tPropUpwind, "Upwind" );
     tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
@@ -537,7 +539,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 break;
             }
@@ -557,7 +559,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 break;
             }
@@ -651,11 +653,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator viscosity
@@ -791,10 +793,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -822,7 +825,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
@@ -833,7 +836,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGPressure =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWGPressure->set_residual_dof_type( tPDofTypes );
-    tIWGPressure->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
     tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
 
@@ -882,7 +885,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 break;
             }
@@ -902,7 +905,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 break;
             }
@@ -995,11 +998,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator viscosity
@@ -1135,10 +1138,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tVisDofTypes };
+    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -1166,7 +1170,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
@@ -1177,7 +1181,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGPressure =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
     tIWGPressure->set_residual_dof_type( tPDofTypes );
-    tIWGPressure->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
     tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
 
@@ -1226,7 +1230,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 break;
             }
@@ -1246,7 +1250,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 break;
             }
@@ -1339,11 +1343,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator viscosity

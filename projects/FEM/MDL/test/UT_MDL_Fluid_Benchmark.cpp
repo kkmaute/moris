@@ -313,21 +313,21 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGVelocityBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-            tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGPressureBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-            tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGInletVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-            tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGInletVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
             tIWGInletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -335,14 +335,14 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGInletPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-            tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
             tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGFSVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-            tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -350,28 +350,28 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGFSPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-            tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGGPViscous =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
+            tIWGGPViscous->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPConvective =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
+            tIWGGPConvective->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "GhostSP" );
@@ -682,27 +682,27 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGVelocityBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-            tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGPressureBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-            tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGInletPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
-            tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
             std::shared_ptr< fem::IWG > tIWGFSVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-            tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -710,28 +710,28 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGFSPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-            tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGGPViscous =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
+            tIWGGPViscous->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPConvective =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
+            tIWGGPConvective->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "GhostSP" );
@@ -1104,27 +1104,27 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-    //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGPressureBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-    //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGInletPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
-    //        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
     //
     //        std::shared_ptr< fem::IWG > tIWGFSVelocity
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1132,7 +1132,7 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGFSPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1153,7 +1153,7 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGGPPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
-    //        tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
     //        tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
     //        tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "PressureGhost" );
@@ -1420,21 +1420,21 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-    //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGPressureBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-    //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGInletVelocity
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGInletVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
     //        tIWGInletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1442,7 +1442,7 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGFSVelocity
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1450,14 +1450,14 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGInletPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
     //        tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //
     //        std::shared_ptr< fem::IWG > tIWGFSPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1688,27 +1688,27 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-    //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGPressureBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-    //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
     //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGInletPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
-    //        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
     //
     //        std::shared_ptr< fem::IWG > tIWGFSVelocity
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1716,7 +1716,7 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGFSPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
     //        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1953,27 +1953,27 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-    //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGPressureBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-    //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
     //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGInletPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
-    //        tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
     //
     //        std::shared_ptr< fem::IWG > tIWGFSVelocity
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+    //        tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
     //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
     //        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -1981,7 +1981,7 @@ namespace moris
     //
     //        std::shared_ptr< fem::IWG > tIWGFSPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
-    //        tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+    //        tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
     //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
     //        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -2381,21 +2381,21 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGVelocityBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-            tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGPressureBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-            tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGDirichletVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
-            tIWGDirichletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
+            tIWGDirichletVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
             tIWGDirichletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGDirichletVelocity->set_property( tPropImposedVelocity, "Dirichlet" );
             tIWGDirichletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
@@ -2403,28 +2403,28 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGDirichletPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-            tIWGDirichletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGDirichletPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGDirichletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGDirichletPressure->set_property( tPropImposedVelocity, "Dirichlet" );
             tIWGDirichletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGGPViscous =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
+            tIWGGPViscous->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPConvective =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
+            tIWGGPConvective->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
+            tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "GhostSP" );

@@ -61,6 +61,8 @@ public:
     Matrix< IdMat >           get_communication_table() const;
     moris::Cell<std::string>  get_set_names(enum EntityRank aSetEntityRank) const;
     enum CellTopology         get_blockset_topology(const  std::string & aSetName);
+    enum CellShape            get_IG_blockset_shape(const  std::string & aSetName);
+    enum CellShape            get_IP_blockset_shape(const  std::string & aSetName);
     Matrix< IndexMat >        get_set_entity_loc_inds( enum EntityRank aSetEntityRank, std::string     aSetName) const;
     Matrix<IndexMat>          get_element_indices_in_block_set(uint aSetIndex);
     void                      get_sideset_elems_loc_inds_and_ords( const  std::string     & aSetName, Matrix< IndexMat >     & aElemIndices, Matrix< IndexMat >     & aSidesetOrdinals ) const;

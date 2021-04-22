@@ -34,12 +34,12 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the velocity FI
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the imposed pressure property
             std::shared_ptr< Property > & tPropPressure =
@@ -106,12 +106,12 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the velocity FI
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the imposed pressure property
             std::shared_ptr< Property > & tPropPressure =
@@ -154,7 +154,7 @@ namespace moris
                 else
                 {
                     // if dof type is residual dof type
-                    if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // compute derivative of imposed pressure with respect to velocities
                         const Matrix< DDRMat > tdpredvel =

@@ -1,6 +1,6 @@
 #include "catch.hpp"
-#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
-#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
+#include "cl_MTK_Integrator.hpp" //MTK/sr
+#include "cl_MTK_Interpolation_Rule.hpp" //MTK/src
 #include "fn_FEM_Rotation_Matrix.hpp"
 
 #include "fn_norm.hpp"

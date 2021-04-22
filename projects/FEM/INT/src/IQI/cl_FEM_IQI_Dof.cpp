@@ -50,17 +50,14 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // check if dof index was set (for the case of vector field)
-            if( mQuantityDofType.size() > 1 )
+            if( mQuantityDofType.size() > 1 && mIQITypeIndex != -1 )
             {
-                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Dof::compute_QI - mIQITypeIndex not set." );
+                aQI = { tFI->val()( mIQITypeIndex ) };
             }
             else
             {
-                mIQITypeIndex = 0;
+                aQI = tFI->val();
             }
-
-            // evaluate the QI
-            aQI = { tFI->val()( mIQITypeIndex ) };
         }
 
         //------------------------------------------------------------------------------

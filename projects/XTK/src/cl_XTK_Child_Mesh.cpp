@@ -2215,6 +2215,20 @@ namespace xtk
 
         return mSubphaseBasisEnrichmentLevel(aSubphaseBin);
     }
+    
+    // ---------------------------------------------------------------------------------
+
+    void
+    Child_Mesh::reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex)
+    {
+        for(moris::uint iC = 0; iC < mChildElementInds.numel(); iC++)
+        {
+            moris_index tOldIndex = mChildElementInds(iC);
+            moris_index tNewIndex = aOldIndexToNewCellIndex(tOldIndex);
+            MORIS_ASSERT(tNewIndex != MORIS_INDEX_MAX,"Trying to reindex with a max value. Was this cell deleted?");
+            mChildElementInds(iC) = tNewIndex;
+        }
+    }
 
     // ---------------------------------------------------------------------------------
 

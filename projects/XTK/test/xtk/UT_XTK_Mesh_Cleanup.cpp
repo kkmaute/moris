@@ -23,8 +23,6 @@
 #include "cl_Param_List.hpp"
 #include "fn_stringify_matrix.hpp"
 
-
-
 namespace xtk
 {
 
@@ -33,155 +31,210 @@ TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
 {
     if(par_size() == 1)
     {
-    //Intersecting plane test parameters
-    real tPlaneAngle = 90; // CCW, degrees
-    real tIntersectionLocalCoordinate = -0.5; // (-1, 1), where the top middle vertical edge is intersected
-    //bool tSnapFromRight = true;
-    //bool tSnapBoth = false;
-    bool tBilinear = false;
-    
-    // XTK parameter list
-    moris::Cell< moris::Cell< moris::ParameterList > > tXTKParams(1);
-    tXTKParams( 0 ).resize( 1 );
-    tXTKParams( 0 )( 0 ) = prm::create_xtk_parameter_list();
-    tXTKParams( 0 )( 0 ).set( "decompose",                 true );
-    tXTKParams( 0 )( 0 ).set( "decomposition_type",        "conformal" );
-    tXTKParams( 0 )( 0 ).set( "enrich",                    true );
-    tXTKParams( 0 )( 0 ).set( "basis_rank",                "bspline" );
-    tXTKParams( 0 )( 0 ).set( "enrich_mesh_indices",       "0" );
-    tXTKParams( 0 )( 0 ).set( "ghost_stab",                true );
-    tXTKParams( 0 )( 0 ).set( "multigrid",                 false );
-    tXTKParams( 0 )( 0 ).set( "verbose",                   true );
-    tXTKParams( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
-    tXTKParams( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
-    tXTKParams( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
-    tXTKParams( 0 )( 0 ).set( "probe_bg_cells", "1,2" );
-    tXTKParams( 0 )( 0 ).set( "cleanup_cut_mesh", true );
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // GEN Parameters
-    moris::Cell< moris::Cell< moris::ParameterList > > tGENParams(3);
-    tGENParams( 0 ).resize( 1 );
-    tGENParams( 1 ).resize( 4 );
+ 
+        bool tIs3D     = false;
+
+        // HMR parameters
+        real tXDomainDim = 2.0;
+        real tYDomainDim = 1.0;
+        real tZDomainDim = 0.1;
+
+        uint tNumElemsX = tIs3D ? 6 : 80;
+        uint tNumElemsY = tIs3D ? 3 : 40;
+        uint tNumElemsZ = 1;
+
+        std::string tNumElemsPerDim     = tIs3D ? std::to_string(tNumElemsX)  + "," + std::to_string(tNumElemsY) + "," + std::to_string(tNumElemsZ) :    
+                                                std::to_string(tNumElemsX)  + "," + std::to_string(tNumElemsY);
+        std::string tDomainDims         = tIs3D ? std::to_string(tXDomainDim) + "," + std::to_string(tYDomainDim) + "," + std::to_string(tZDomainDim) :
+                                                std::to_string(tXDomainDim) + "," + std::to_string(tYDomainDim);
+        std::string tDomainOffset       = tIs3D ? "0.0, 0.0, 0.0" : "0.0, 0.0";
+        std::string tDomainSidesets     = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
+        std::string tInterpolationOrder = "1";
+
+        int tRefineBuffer      = 1;
+
+        // element size
+        moris::real hy = tYDomainDim/ (real)tNumElemsY;
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // plane 1
+        moris::real tPlaneXCenter1 = 0.501*tXDomainDim ;
+        moris::real tPlaneYCenter1 = 0.501*tYDomainDim;
+        moris::real tPlaneXNormal1 = 0.0;
+        moris::real tPlaneYNormal1 = 1.0;
+
+        // plane 2
+        moris::real tPlaneXCenter2 = 0.25*tXDomainDim + 0.01;
+        moris::real tPlaneYCenter2 = 0.50*tYDomainDim + 0.00;
+        moris::real tPlaneXNormal2 = 1.0;
+        moris::real tPlaneYNormal2 = 0.0;
+
+        // plane 3
+        moris::real tPlaneXCenter3 = 0.75*tXDomainDim + 0.01;
+        moris::real tPlaneYCenter3 = 0.50*tYDomainDim + 0.00;
+        moris::real tPlaneXNormal3 = 1.0;
+        moris::real tPlaneYNormal3 = 0.0;
+
+        // plane 4
+        moris::real tPlaneXCenter4 = 0.50*tXDomainDim + 0.5*hy;
+        moris::real tPlaneYCenter4 = 0.50*tYDomainDim + 0.5*hy;
+        moris::real tPlaneXNormal4 = 1.0;
+        moris::real tPlaneYNormal4 = 0.0;
         
-    // Calculations
-    real tOffset = 0.5 * (1 + tIntersectionLocalCoordinate);
-    real tXNormal = sin(-tPlaneAngle * M_PI / 180);
-    real tYNormal = cos(-tPlaneAngle * M_PI / 180);
+        // XTK parameter list
+        moris::Cell< moris::Cell< moris::ParameterList > > tXTKParams(1);
+        tXTKParams( 0 ).resize( 1 );
+        tXTKParams( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tXTKParams( 0 )( 0 ).set( "decompose",                 true );
+        tXTKParams( 0 )( 0 ).set( "decomposition_type",        "conformal" );
+        tXTKParams( 0 )( 0 ).set( "enrich",                    true );
+        tXTKParams( 0 )( 0 ).set( "basis_rank",                "bspline" );
+        tXTKParams( 0 )( 0 ).set( "enrich_mesh_indices",       "0" );
+        tXTKParams( 0 )( 0 ).set( "ghost_stab",                true );
+        tXTKParams( 0 )( 0 ).set( "multigrid",                 false );
+        tXTKParams( 0 )( 0 ).set( "verbose",                   false );
+        tXTKParams( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
+        tXTKParams( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        tXTKParams( 0 )( 0 ).set( "visualize_ghost", true );
+        
+        tXTKParams( 0 )( 0 ).set( "cleanup_cut_mesh", true );
+        
 
-    tGENParams( 0 )( 0 ) = prm::create_gen_parameter_list();
-    tGENParams( 0 )( 0 ).set("isocontour_threshold", 1e-12);
-    tGENParams( 0 )( 0 ).set("isocontour_tolerance", 1e-12);
-    tGENParams( 0 )( 0 ).set("intersection_tolerance", 1e-12);
+        moris::Cell< moris::Cell< moris::ParameterList > > tGenParamList;
+        tGenParamList.resize( 3 );
+        tGenParamList( 0 ).resize( 1 );
+        tGenParamList( 1 ).resize( 1 );
 
-        //     Matrix<DDUMat> tPhaseMap(16,1,7);
-        // tPhaseMap(8)  = 0;
-        // tPhaseMap(12) = 0;
-        // tPhaseMap(13) = 1;
-        // tPhaseMap(15) = 2;
-        // tPhaseMap(0)  = 3;
-        // tPhaseMap(4)  = 4;
-        // tPhaseMap(5)  = 5;
-        // tPhaseMap(7)  = 5;
-        // tParameterlist( 0 )( 0 ).set("phase_table",moris::ios::stringify(tPhaseMap));
 
-    // Geometry parameter lists
-    moris::uint tGeoCounter = 0;
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
-    tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, " + std::to_string(tOffset) + ", " + std::to_string(tXNormal) + ", "+ std::to_string(tYNormal));
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
-    tGeoCounter++;
+        tGenParamList( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tGenParamList( 0 )( 0 ).set("isocontour_threshold", 1e-12);      // Level-set isocontour level
+        tGenParamList( 0 )( 0 ).set("isocontour_tolerance", 1e-12);      // Level-set isocontour level
+        
+        Matrix<DDUMat> tPhaseMap(16,1,7);
+        tPhaseMap(8)  = 0;
+        tPhaseMap(12) = 0;
+        tPhaseMap(13) = 1;
+        tPhaseMap(15) = 2;
+        tPhaseMap(0)  = 3;
+        tPhaseMap(4)  = 4;
+        tPhaseMap(5)  = 5;
+        tPhaseMap(7)  = 5;
+        tGenParamList( 0 )( 0 ).set("phase_table",moris::ios::stringify(tPhaseMap));\
 
-    // Geometry parameter lists
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
-    tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "-0.5, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
-    tGeoCounter++;
+        tGenParamList( 0 )( 0 ).set("initial_advs"      , "0.4999");
+        tGenParamList( 0 )( 0 ).set("lower_bounds"      , "0.0001");
+        tGenParamList( 0 )( 0 ).set("upper_bounds"      , "0.4999");
+        tGenParamList( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy");
+        
+        // Geometry parameter lists
+        moris::uint tGeoCounter = 0;
 
-    // Geometry parameter lists
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
-    tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "-0.499999, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
-    tGeoCounter++;
 
-    // Geometry parameter lists
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
-    tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "1.0, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
-    tGeoCounter++;
+        tGenParamList( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
+        tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+        std::string tPlaneStr1 = std::to_string(tPlaneXCenter1)  + "," + std::to_string(tPlaneYCenter1)  + "," + std::to_string(tPlaneXNormal1)  + "," + std::to_string(tPlaneYNormal1); 
+        tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", tPlaneStr1);
+        tGeoCounter++;
+        
+        tGenParamList( 1 ).push_back( prm::create_geometry_parameter_list() ); 
+        tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+        tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tPlaneXCenter2) + "," + std::to_string(tPlaneYCenter2)  + "," + std::to_string(tPlaneXNormal2) + "," + std::to_string(tPlaneYNormal2));
+        tGeoCounter++;
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // HMR parameters
-    std::string tNumElemsPerDim     = "2, 1";
-    std::string tDomainDims         = "2.0,2.0";
-    std::string tDomainOffset       = "-1.0, -1.0";
-    std::string tDomainSidesets     = "1,2,3,4";
-    std::string tInterpolationOrder = "1";
+        tGenParamList( 1 ).push_back( prm::create_geometry_parameter_list() ); 
+        tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+        tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tPlaneXCenter3) + "," + std::to_string(tPlaneYCenter3)  + "," + std::to_string(tPlaneXNormal3) + "," + std::to_string(tPlaneYNormal3));
+        tGeoCounter++;
 
-    int tRefineBuffer      = 1;
-    moris::Cell< moris::Cell< moris::ParameterList > > tHMRParams(1);
-    tHMRParams( 0 ).resize( 1 );
-    tHMRParams( 0 )( 0 ) = prm::create_hmr_parameter_list();
-    tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
-    tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
-    tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
-    tHMRParams( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
-    tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
-    tHMRParams( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
-    tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
-    tHMRParams( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
-    tHMRParams( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
-    tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-    tHMRParams( 0 )( 0 ).set( "truncate_bsplines",  1 );
-    tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
-    tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
-    tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
-    tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
-    tHMRParams( 0 )( 0 ).set( "use_number_aura", 1);
-    tHMRParams( 0 )( 0 ).set( "use_multigrid",  0 );
-    tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // PSEUDO Workflow
-    // HMR initialize
-    std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
+        tGenParamList( 1 ).push_back( prm::create_geometry_parameter_list() ); 
+        tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+        tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tPlaneXCenter4) + "," + std::to_string(tPlaneYCenter4)  + "," + std::to_string(tPlaneXNormal4) + "," + std::to_string(tPlaneYNormal4));
+        tGeoCounter++;
 
-    // Geometry engine initialize
-    std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGENParams, nullptr );
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // HMR parameters
 
-    // Initialize  Background Mesh Mesh
-    std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();
+        moris::Cell< moris::Cell< moris::ParameterList > > tHMRParams(1);
+        tHMRParams.resize( 1 );
+        tHMRParams( 0 ).resize( 1 );
 
-    // Initialize output mesh from XTK
-    std::shared_ptr< mtk::Mesh_Manager > pOutputMTK = std::make_shared< mtk::Mesh_Manager >();
+        tHMRParams( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
+        tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
+        tHMRParams( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
+        tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
+        tHMRParams( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
+        tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
+        tHMRParams( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
+        tHMRParams( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
+        tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
+        tHMRParams( 0 )( 0 ).set( "truncate_bsplines",  1 );
+        tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
+        tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
+        tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
+        tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
+        tHMRParams( 0 )( 0 ).set( "use_number_aura", 1);
+        tHMRParams( 0 )( 0 ).set( "use_multigrid",  0 );
+        tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
 
-    // XTK initialize
-    std::shared_ptr< xtk::Model > pXTK = std::make_shared< xtk::Model >( tXTKParams( 0 )( 0 ) );
-    
-    // Set performer to HMR
-    pHMR->set_performer( pBGMTK );
-    
-    // Set XTK Cooperations
-    pXTK->set_geometry_engine( pGEN.get() );
-    pXTK->set_input_performer( pBGMTK );
-    pXTK->set_output_performer( pOutputMTK );
+        // PSEUDO Workflow
+        // HMR initialize
+        std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
 
-    // uniform initial refinement
-    pHMR->perform_initial_refinement();
+        // Geometry engine initialize
+        std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGenParamList, nullptr );
 
-    // HMR finalize
-    pHMR->perform();
-    //
-    pGEN->distribute_advs( pBGMTK->get_mesh_pair( 0 ) );
+        // Initialize  Background Mesh Mesh
+        std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();
 
-    // Output GEN fields, if requested
-    pGEN->output_fields(pBGMTK->get_interpolation_mesh( 0 ));
+        // Initialize output mesh from XTK
+        std::shared_ptr< mtk::Mesh_Manager > pOutputMTK = std::make_shared< mtk::Mesh_Manager >();
 
-    // XTK perform - decompose - enrich - ghost - multigrid
-    pXTK->perform();
+        // XTK initialize
+        std::shared_ptr< xtk::Model > pXTK = std::make_shared< xtk::Model >( tXTKParams( 0 )( 0 ) );
+        
+        // Set performer to HMR
+        pHMR->set_performer( pBGMTK );
+        
+        // Set XTK Cooperations
+        pXTK->set_geometry_engine( pGEN.get() );
+        pXTK->set_input_performer( pBGMTK );
+        pXTK->set_output_performer( pOutputMTK );
+
+        // uniform initial refinement
+        pHMR->perform_initial_refinement();
+
+        // HMR finalize
+        pHMR->perform();
+        //
+        pGEN->distribute_advs( pBGMTK->get_mesh_pair( 0 ) );
+
+        // Output GEN fields, if requested
+        pGEN->output_fields(pBGMTK->get_interpolation_mesh( 0 ));
+
+        // XTK perform - decompose - enrich - ghost - multigrid
+        pXTK->perform();
+
+
+        // verify after mesh cleanup that the maps are consistent
+        xtk::Background_Mesh* tBGMesh = & pXTK->get_background_mesh();
+
+        for(moris::uint i = 0; i < tBGMesh->get_num_entities(EntityRank::ELEMENT); i++)
+        {
+            mtk::Cell & tCell = tBGMesh->get_mtk_cell((moris_index)i);
+            CHECK(tCell.get_index() == (moris_index) i);
+
+            if(tBGMesh->entity_has_children((moris_index)i, EntityRank::ELEMENT))
+            {
+                moris_index tCMIndex = pXTK->get_background_mesh().child_mesh_index((moris_index)i,EntityRank::ELEMENT);
+                Child_Mesh & tCM = pXTK->get_cut_mesh().get_child_mesh(tCMIndex);
+                CHECK(tCM.get_parent_element_index() == (moris_index) i);
+            }
+        }
+
+        
+
     }
 }
 

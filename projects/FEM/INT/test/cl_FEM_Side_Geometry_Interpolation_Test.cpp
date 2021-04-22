@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
+#include "cl_MTK_Integrator.hpp" //MTK/sr
 
 using namespace moris;
 using namespace fem;
@@ -130,7 +130,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
                                                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, true );
+        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, true );
 
         // create a side integration
         mtk::Integration_Rule tSideIntegRule( tSideGeometryType,
@@ -380,7 +380,7 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
                                                mtk::Interpolation_Order::LINEAR );
 
        // create a space and time geometry interpolator
-       Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, true );
+       Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, true );
 
         // side space ordinal
         Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2 };
@@ -603,7 +603,7 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
                                                 mtk::Interpolation_Order::LINEAR );
 
          // create a space and time geometry interpolator
-         Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, true );
+         Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, true );
 
          // side space ordinal
          Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3 };
@@ -776,7 +776,7 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
                                                mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, true );
+        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, true );
 
         // side geometry type and space ordinal
         Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3, 4, 5 };

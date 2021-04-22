@@ -59,13 +59,14 @@ namespace moris
                         const Matrix< DDRMat > & aNormal,
                         Matrix< DDRMat >       & aFlatNormal ) = nullptr;
 
-                void ( CM_Struc_Linear_Isotropic:: * mConstFunc )( moris::real,
-                        moris::real ) = &CM_Struc_Linear_Isotropic::full_3d;
+                void ( CM_Struc_Linear_Isotropic:: * mConstFunc )(
+                        const real &,
+                        const real &) = &CM_Struc_Linear_Isotropic::full_3d;
 
                 void ( CM_Struc_Linear_Isotropic:: * m_eval_inv_bulk_modulus )(
-                        moris::real   aNu,
-                        moris::real   aEMod,
-                        moris::real & aInvBulkModulus ) = &CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic;
+                        const real & aNu,
+                        const real & aEMod,
+                        real       & aInvBulkModulus ) = &CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic;
 
                 Model_Type mPlaneType  = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
 
@@ -105,8 +106,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                        Cell< Cell< MSI::Dof_Type > > aDofTypes,
+                        Cell< std::string >           aDofStrings );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -115,8 +116,8 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< PDV_Type > > aDvTypes,
-                        moris::Cell< std::string >             aDvStrings )
+                        Cell< Cell< PDV_Type > > aDvTypes,
+                        Cell< std::string >      aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
@@ -132,7 +133,7 @@ namespace moris
                  * evaluate the inverse of the bulk modulus, K
                  * @return 1/K
                  */
-                moris::real eval_inv_bulk_modulus();
+                real eval_inv_bulk_modulus();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -141,7 +142,7 @@ namespace moris
                  * @param[ in ] aDofTypes            a dof type wrt which the derivative is evaluated
                  * @param[ out ] dInvBulkModulusdDOF derivative of K
                  */
-                moris::Matrix< DDRMat > eval_dInvBulkModulusdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                Matrix< DDRMat > eval_dInvBulkModulusdDOF( const Cell< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -173,7 +174,7 @@ namespace moris
                 /**
                  * returns the E prime values used in the computation of the Stress Intensity Factor(s)
                  */
-                moris::real get_e_prime();
+                real get_e_prime();
 
                 //--------------------------------------------------------------------------------------------------------------
             private:
@@ -186,14 +187,14 @@ namespace moris
                  * @param[ out ] aInvBulkModulus 1/K
                  */
                 void eval_inv_bulk_modulus_generic(
-                        moris::real aNu,
-                        moris::real aEMod,
-                        moris::real & aInvBulkModulus );
+                        const real & aNu,
+                        const real & aEMod,
+                        real       & aInvBulkModulus );
 
                 void eval_inv_bulk_modulus_plane_stress(
-                        moris::real aNu,
-                        moris::real aEMod,
-                        moris::real & aInvBulkModulus );
+                        const real & aNu,
+                        const real & aEMod,
+                        real       & aInvBulkModulus );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -220,8 +221,8 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_testTraction(
-                        const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Matrix< DDRMat >      & aNormal,
+                        const Cell< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -251,7 +252,7 @@ namespace moris
                  * evaluate the constitutive model flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dFluxdDOF( const Cell< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -260,8 +261,8 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_dTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        const Matrix< DDRMat >             & aNormal );
+                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >      & aNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -270,10 +271,10 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_dTestTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        const Matrix< DDRMat >             & aNormal,
-                        const Matrix< DDRMat >             & aJump,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >      & aNormal,
+                        const Matrix< DDRMat >      & aJump,
+                        const Cell< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -281,7 +282,7 @@ namespace moris
                  * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
                  * @param[ in ] adStraindDOF a matrix to fill with derivative evaluation
                  */
-                void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dStraindDOF( const Cell< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -289,7 +290,7 @@ namespace moris
                  * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
                  * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
                  */
-                void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dConstdDOF( const Cell< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -333,8 +334,8 @@ namespace moris
                  * @param[ in ] aNu   Poisson ratio
                  */
                 void full_plane_stress(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -343,8 +344,8 @@ namespace moris
                  * @param aNu   Poisson ratio
                  */
                 void deviatoric_plane_stress(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -353,8 +354,8 @@ namespace moris
                  * @param aNu   Poisson ratio
                  */
                 void full_plane_strain(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu  );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -363,8 +364,8 @@ namespace moris
                  * @param aNu Poisson ratio
                  */
                 void deviatoric_plane_strain(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu  );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -373,8 +374,8 @@ namespace moris
                  * @param[ in ] aNu   Poisson ratio
                  */
                 void full_axisymmetric(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu  );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -383,8 +384,8 @@ namespace moris
                  * @param aNu   Poisson ratio
                  */
                 void deviatoric_axisymmetric(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -393,8 +394,8 @@ namespace moris
                  * @param aNu Poisson ratio
                  */
                 void full_3d(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu  );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -403,8 +404,8 @@ namespace moris
                  * @param aNu Poisson ratio
                  */
                 void deviatoric_3d(
-                        moris::real aEmod,
-                        moris::real aNu );
+                        const real & aEmod,
+                        const real & aNu  );
 
                 //--------------------------------------------------------------------------------------------------------------
 

@@ -34,7 +34,8 @@ namespace xtk
             moris::Matrix< moris::IndexMat >       & aFaceToElement)
     {
         //hard-coded values could be provided as a function input
-        moris::size_t tMaxFacePerNode = 5;
+        //FIXME: convert aNodeToFace into cell of matrices
+        moris::size_t tMaxFacePerNode = 10;
         moris::size_t tMaxUsed        = 0;
 
         // Initialize
@@ -57,7 +58,7 @@ namespace xtk
         aElementToFace.resize(tNumElements,tNumFacesPerElem);
         aFaceToNode.resize   (tMaxNumFaces,tNumNodesPerFace);
 
-        aNodeToFace.resize   (aNumNodes, tMaxFacePerNode);
+        aNodeToFace.resize(aNumNodes, tMaxFacePerNode);
         aNodeToFace.fill(MORIS_INDEX_MAX);
 
         aFaceToElement.resize(tMaxNumFaces,2);

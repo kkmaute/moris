@@ -49,13 +49,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
             Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the selection matrix property
             const std::shared_ptr< Property > & tPropSelect =
@@ -95,7 +95,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
                             - tFI->N_trans() * tM * tCMDiffusion->traction( mNormal )
-                            + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tJump
+                            + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump
                             + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
 
             // check for nan, infinity
@@ -113,13 +113,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the selection matrix property
             const std::shared_ptr< Property > & tPropSelect =
@@ -174,10 +174,10 @@ namespace moris
                         { tMasterDepStartIndex, tMasterDepStopIndex } );
 
                 // if dof type is residual dof type
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     tJac += aWStar * (
-                            mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tFI->N()
+                            mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFI->N()
                             + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tFI->N() ) ;
                 }
 
@@ -186,7 +186,7 @@ namespace moris
                 {
                     // add contribution to Jacobian
                     tJac += aWStar * (
-                            - mBeta  * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
+                            - mBeta  * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )
                             - tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
@@ -196,7 +196,7 @@ namespace moris
                     // add contribution to Jacobian
                     tJac += aWStar * (
                             - tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )
-                            + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType ) * tM( 0 ) * tJump( 0 ) );
+                            + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM( 0 ) * tJump( 0 ) );
                 }
 
                 // if dependency on the dof type

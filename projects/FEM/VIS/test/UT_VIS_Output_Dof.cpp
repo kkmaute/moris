@@ -185,7 +185,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 // create residual dof types
-                moris::Cell< MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tResDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
 
                 // create the properties
                 std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();

@@ -211,20 +211,7 @@ namespace xtk
                     Cell<Matrix<IndexMat>>                 & aEnrCellIds,
                     std::unordered_map<moris_id, moris_id> & aBaseEnrIdToIndexInNonTrivialOwned);
             // ----------------------------------------------------------------------------------
-            void
-            create_not_owned_ghost_ip_cells(
-                    Ghost_Setup_Data &                                 aGhostSetupData,
-                    Enriched_Interpolation_Mesh &                      aEnrInterpMesh,
-                    Cell<Cell<Interpolation_Cell_Unzipped  *>> const & aNonTrivialNotOwnedInterpCells,
-                    Cell<Matrix<IndexMat>>                     const & aReceivedEnrCellIds);
-            // ----------------------------------------------------------------------------------
-            void
-            create_owned_ghost_ip_cells(
-                    Ghost_Setup_Data &                    aGhostSetupData,
-                    Enriched_Interpolation_Mesh &         aEnrInterpMesh,
-                    Cell<Interpolation_Cell_Unzipped *> & aNonTrivialOwnedInterpCells,
-                    Cell<moris_id>                      & aEnrCellIds);
-            // ----------------------------------------------------------------------------------
+
             bool
             verify_ghost_communication(Ghost_Setup_Data & aGhostSetupData);
 

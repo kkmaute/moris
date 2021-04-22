@@ -294,7 +294,6 @@ namespace moris
              */
             size_t get_node_phase_index_wrt_a_geometry(
                     uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
                     uint                  aGeometryIndex);
 
             /**

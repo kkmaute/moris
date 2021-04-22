@@ -37,6 +37,11 @@ namespace moris
             enum Integration_Order
             get_cell_integration_order() const;
 
+            //-----------------------------------------------------------------------------
+
+            enum CellShape
+            compute_cell_shape(moris::mtk::Cell const *aCell) const;
+
             // ----------------------------------------------------------------------------------
 
             uint
@@ -46,6 +51,11 @@ namespace moris
 
             uint
             get_num_facets() const;
+
+            // ----------------------------------------------------------------------------------
+
+            uint
+            get_num_edges() const;
 
             // ----------------------------------------------------------------------------------
 

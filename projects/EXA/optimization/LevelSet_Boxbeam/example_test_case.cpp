@@ -69,7 +69,7 @@ void check_results(
 
 //---------------------------------------------------------------
 
-TEST_CASE("SIMP",
+TEST_CASE("Leveset Boxbeam",
         "[moris],[example],[optimization],[levelset_boxbeam]")
 {
     // define command line call

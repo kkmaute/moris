@@ -12,7 +12,8 @@
 #include "typedefs.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
-#include "IP/cl_MTK_Interpolation_Rule.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
 //LINALG/src
 #include "linalg_typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -56,12 +57,12 @@ namespace moris
                 // element geometry type
                 Geometry_Type mGeometryType;
 
+                // element shape
+                CellShape mInterpolationShape;
+
                 // interpolation cell geometry type
                 Geometry_Type mIPMappingGeometryType;
                 uint mIPMappingNumSpaceParamDim;
-
-                // element shape
-                bool mRectangular = false;
 
                 // boolean true if side interpolation
                 bool mSpaceSideset = false;
@@ -103,23 +104,12 @@ namespace moris
                 real ( Space_Interpolator:: * mSpaceDetJFunc )(
                         const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
-                // pointer to function for space detJ
-                real ( Space_Interpolator:: * mSpaceDetJRectFunc )(
-                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
-                        // pointer to function for space detJ
-
                 // pointers for derivatives of space detJ wrt a single dof
                 real ( Space_Interpolator:: * mSpaceDetJDerivFunc )(
                         const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
-                real ( Space_Interpolator:: * mSpaceDetJDerivRectFunc )(
-                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
-
                 // point to function for inverse of space Jacobian
                 void ( Space_Interpolator:: * mInvSpaceJacFunc )() = nullptr;
-
-                // point to function for inverse of space Jacobian
-                void ( Space_Interpolator:: * mInvSpaceJacRectFunc )() = nullptr;
 
                 // pointer to function for normal
                 void (  Space_Interpolator:: * mNormalFunc )(
@@ -172,6 +162,7 @@ namespace moris
                  */
                 Space_Interpolator(
                         const Interpolation_Rule  & aInterpolationRule,
+                        const CellShape           & aInterpolationShape = CellShape::GENERAL,
                         const bool                  aSpaceSideset = false );
 
                 /**
@@ -183,6 +174,7 @@ namespace moris
                 Space_Interpolator(
                         const Interpolation_Rule  & aInterpolationRule,
                         const Interpolation_Rule  & aIPMapInterpolationRule,
+                        const CellShape           & aInterpolationShape = CellShape::GENERAL,
                         const bool                  aSpaceSideset = false );
 
                 //------------------------------------------------------------------------------
@@ -284,16 +276,6 @@ namespace moris
                 Matrix< DDRMat > get_initialized_mapped_point()
                 {
                     return mMappedPoint;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set the geometry shape for specialization
-                 * @param[ in ] boolean rectangular
-                 */
-                void set_rectangular( bool & aRectangular )
-                {
-                    mRectangular = aRectangular;
                 }
 
                 //------------------------------------------------------------------------------

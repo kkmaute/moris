@@ -6,22 +6,25 @@
 #include "op_div.hpp"
 #include "fn_linsolve.hpp"
 
-#include "IP/cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
 
 namespace moris
 {
     namespace mtk
     {
         // smallest acceptable value for DetJ
+        // note: should be consistent with Geometry_Interpolator::sDetJLowerLimit
         const real Space_Interpolator::sDetJLowerLimit = -1.0e-6;
 
         // smallest acceptable value for DetJ used in building inverse of Jacobian
-        const real Space_Interpolator::sDetJInvJacLowerLimit = 1.0e-12;
+        // note: should be consistent with Geometry_Interpolator::sDetJInvJacLowerLimit
+        const real Space_Interpolator::sDetJInvJacLowerLimit = 1.0e-24;
 
         //------------------------------------------------------------------------------
 
         Space_Interpolator::Space_Interpolator(
                 const Interpolation_Rule      & aInterpolationRule,
+                const CellShape               & aInterpolationShape,
                 const bool                      aSpaceSideset )
         {
             // set bool for side interpolation to true
@@ -38,6 +41,9 @@ namespace moris
             // set member geometry type
             mGeometryType     = aInterpolationRule.get_geometry_type();
 
+            // set the interpolation shape
+            mInterpolationShape = aInterpolationShape;
+
             // Assuming the interpolation cell geometry is the same as the interpolation rule geometry
             mIPMappingGeometryType = mGeometryType;
             mIPMappingNumSpaceParamDim = mNumSpaceParamDim;
@@ -51,6 +57,7 @@ namespace moris
         Space_Interpolator::Space_Interpolator(
                 const Interpolation_Rule  & aInterpolationRule,
                 const Interpolation_Rule  & aIPMapInterpolationRule,
+                const CellShape           & aInterpolationShape,
                 const bool                  aSpaceSideset )
         {
             // set bool for side interpolation to true
@@ -66,6 +73,9 @@ namespace moris
 
             // set member geometry type
             mGeometryType     = aInterpolationRule.get_geometry_type();
+
+            // set the interpolation shape
+            mInterpolationShape = aInterpolationShape;
 
             // Interpolation cell geometry type and space param  dim.  This will be used
             // to determine an appropriate mapping size.
@@ -362,6 +372,8 @@ namespace moris
             return mSpaceJac;
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_space_jacobian()
         {
             // check that mXHat is set
@@ -374,7 +386,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Space_Interpolator::space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        const Matrix< DDRMat > & Space_Interpolator::space_jacobian_deriv(
+                const uint & aLocalVertexID,
+                const uint & aDirection)
         {
             // if space Jacobian needs to be evaluated
             if( mSpaceJacDerivEval )
@@ -390,14 +404,21 @@ namespace moris
             return mSpaceJacDeriv;
         }
 
-        void Space_Interpolator::eval_space_jacobian_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        //------------------------------------------------------------------------------
+
+        void Space_Interpolator::eval_space_jacobian_deriv(
+                const uint & aLocalVertexID,
+                const uint & aDirection)
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel() > 0, "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0,
+                    "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
 
             // check inputs wrt to xHat
-            MORIS_ASSERT( aDirection < mXHat.n_cols(), "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
-            MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(), "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
+            MORIS_ASSERT( aDirection < mXHat.n_cols(),
+                    "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
+            MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(),
+                    "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
             
             // get derivative of space coefficient. Note that only one element of this matrix will have a value
             Matrix< DDRMat > tXHatDeriv = mXHat;
@@ -431,25 +452,15 @@ namespace moris
             return mInvSpaceJac;
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_inverse_space_jacobian()
         {
-            if (mRectangular)
-            {
-                // Rectangular check only works for Quad or Hex elements
-                MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
-                        mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
-                        "Rectangular calcs only applicable for QUAD or HEX");
-
-                // compute the rectangular inv Jacobian
-                (this->*mInvSpaceJacRectFunc)();
-            }
-            else
-            {
-                // compute the standard inv Jacobian
-                (this->*mInvSpaceJacFunc)();
-            }
-
+            // compute the standard inv Jacobian
+            (this->*mInvSpaceJacFunc)();
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_1d()
         {
@@ -467,6 +478,8 @@ namespace moris
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
                     "Inconsistent space Jacobian (1D)\n");
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_2d()
         {
@@ -492,6 +505,8 @@ namespace moris
                     "Inconsistent space Jacobian (2D)");
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_inverse_space_jacobian_2d_tri()
         {
             // get the space Jacobian
@@ -514,9 +529,10 @@ namespace moris
             mInvSpaceJac(1, 1) = ( tSpacJac(0, 0) - tSpacJac(2, 0) ) * tInvDet;
             mInvSpaceJac(1, 2) = ( tSpacJac(1, 0) - tSpacJac(0, 0) ) * tInvDet;
 
-
             // no generic checks available for this calculation;
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_2d_rect()
         {
@@ -537,6 +553,8 @@ namespace moris
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
                     "Inconsistent space Jacobian (2D)");
         }
+
+        //------------------------------------------------------------------------------
 
         void Space_Interpolator::eval_inverse_space_jacobian_3d()
         {
@@ -567,6 +585,8 @@ namespace moris
                     "Inconsistent space Jacobian (3D)");
         }
 
+        //------------------------------------------------------------------------------
+
         void Space_Interpolator::eval_inverse_space_jacobian_3d_rect()
         {
             // get the space Jacobian
@@ -578,10 +598,26 @@ namespace moris
             // compute inverse
             mInvSpaceJac.set_size(3,3,0.0);
 
-            // reciprocals
-            mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
-            mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
-            mInvSpaceJac(2, 2) = 1.0 / tSpacJac(2, 2);
+            // reciprocals. noting it may be inverted diagonal for some STK meshes
+            if ( std::abs(tSpacJac(0,0)) > 1.0e-8 )
+            {
+                mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
+                mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
+                mInvSpaceJac(2, 2) = 1.0 / tSpacJac(2, 2);
+            }
+
+            /*
+             * inverted diagonal jacobian, eg.,
+             * Jac = [ 0, 0, 1
+             *         0, 1, 0
+             *         1, 0, 0]
+             */
+            else
+            {
+                mInvSpaceJac(0, 2) = 1.0 / tSpacJac(2, 0);
+                mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
+                mInvSpaceJac(2, 0) = 1.0 / tSpacJac(0, 2);
+            }
 
             // check results against generic inverse operator
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
@@ -622,20 +658,8 @@ namespace moris
                 // get the space Jacobian
                 const Matrix< DDRMat > & tSpaceJt = this->space_jacobian();
 
-                // filter between
-                if (mRectangular)
-                {
-                    // Rectangular check only works for Quad or Hex elements
-                    MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
-                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
-                                    "Rectangular calcs only applicable for QUAD or HEX");
-
-                    mSpaceDetJ = ( this->*mSpaceDetJRectFunc )( tSpaceJt );
-                }
-                else
-                {
-                    mSpaceDetJ = ( this->*mSpaceDetJFunc )( tSpaceJt );
-                }
+                // det j function pointer
+                mSpaceDetJ = ( this->*mSpaceDetJFunc )( tSpaceJt );
 
                 // set bool for evaluation
                 mSpaceDetJEval = false;
@@ -647,7 +671,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const real & Space_Interpolator::space_det_J_deriv(const uint & aLocalVertexID, const uint & aDirection)
+        const real & Space_Interpolator::space_det_J_deriv(
+                const uint & aLocalVertexID,
+                const uint & aDirection)
         {
             // if determinant of space Jacobian derivative needs to be evaluated
             if( mSpaceDetJDerivEval )
@@ -655,20 +681,8 @@ namespace moris
                 // get the space Jacobian
                 const Matrix< DDRMat > & tSpaceJtDeriv = this->space_jacobian_deriv(aLocalVertexID, aDirection);
 
-                // filter between
-                if (mRectangular)
-                {
-                    // Rectangular check only works for Quad or Hex elements
-                    MORIS_ASSERT( mGeometryType == Geometry_Type::HEX or
-                            mGeometryType == Geometry_Type::QUAD, "Space_Interpolator::space_det_J"
-                                    "Rectangular calcs only applicable for QUAD or HEX");
-
-                    mSpaceDetJDeriv = ( this->*mSpaceDetJDerivRectFunc )( tSpaceJtDeriv );
-                }
-                else
-                {
-                    mSpaceDetJDeriv = ( this->*mSpaceDetJDerivFunc )( tSpaceJtDeriv );
-                }
+                //  det J deriv function pointer
+                mSpaceDetJDeriv = ( this->*mSpaceDetJDerivFunc )( tSpaceJtDeriv );
 
                 // set bool for evaluation
                 mSpaceDetJDerivEval = false;
@@ -872,7 +886,25 @@ namespace moris
         real Space_Interpolator::eval_space_detJ_bulk_hex_rect(
                 const Matrix< DDRMat > & aSpaceJt )
         {
-            real tDetJ = aSpaceJt(0,0)*aSpaceJt(1,1)*aSpaceJt(2,2);
+            // init tDet J
+            real tDetJ;
+
+            // have to account for some jacobians being inverted diagonal from STK meshes
+            if( aSpaceJt(0,0) > 1.0e-8 )
+            {
+                tDetJ = aSpaceJt(1,1)*aSpaceJt(0,0)*aSpaceJt(2,2);
+            }
+
+            /*
+             * inverted diagonal jacobian, eg.,
+             * Jac = [ 0, 0, 1
+             *         0, 1, 0
+             *         1, 0, 0]
+             */
+            else
+            {
+                tDetJ = -aSpaceJt(1,1)*aSpaceJt(0,2)*aSpaceJt(2,0);
+            }
 
             MORIS_ASSERT( tDetJ > sDetJLowerLimit,
                     "Space determinant (bulk 3D) close to zero or negative: %e\n", tDetJ);
@@ -1758,401 +1790,810 @@ namespace moris
 
         void Space_Interpolator::set_function_pointers()
         {
-            // get number of dimensions and set pointer to function
-            // for second space derivative
-            switch ( mNumSpaceDim )
+            switch ( mInterpolationShape )
             {
-                case 1 :
+                case CellShape::GENERAL :
+                case CellShape::PARALLEL :
+                case CellShape::STRAIGHT :
                 {
-                    mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_1d;
-                    mInvSpaceJacRectFunc           = &Space_Interpolator::eval_inverse_space_jacobian_1d;
-                    mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
-                    mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
-                    break;
-                }
-                case 2 :
-                {
-                    switch ( mGeometryType )
+                    // get number of dimensions and set pointer to function
+                    // for second space derivative
+                    switch ( mNumSpaceDim )
                     {
-                        case Geometry_Type::LINE :
-                        case Geometry_Type::QUAD :
+                        case 1 :
                         {
-                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_2d;
-                            mInvSpaceJacRectFunc           = &Space_Interpolator::eval_inverse_space_jacobian_2d_rect;
+                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_1d;
+                            mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
+                            mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
                             break;
                         }
-                        // effectively inverse for non-square triangle element jacobian
-                        case Geometry_Type::TRI :
+                        case 2 :
                         {
-                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_2d_tri;
-                            mInvSpaceJacRectFunc           = &Space_Interpolator::eval_inverse_space_jacobian_2d_tri;
+                            switch ( mGeometryType )
+                            {
+                                case Geometry_Type::LINE :
+                                case Geometry_Type::QUAD :
+                                {
+                                    mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_2d;
+                                    break;
+                                }
+                                // effectively inverse for non-square triangle element jacobian
+                                case Geometry_Type::TRI :
+                                {
+                                    mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_2d_tri;
+                                    break;
+                                }
+                                default :
+                                {
+                                    MORIS_ERROR( false,
+                                    " Space_Interpolator::set_function_pointers - only line, quad, tri allowed for 2D." );
+                                }
+                            }
+                            mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
+                            mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
+                            break;
+                        }
+                        
+                        case 3 :
+                        {
+                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_3d;
+                            mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
+                            mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                             break;
                         }
                         default :
                         {
-                            MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - only line, quad, tri "
-                                "allowd for 2D." );
+                            MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - unknown number of dimensions." );
                         }
                     }
-                    mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
-                    mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
+
+                    // switch on geometry type
+                    if( mSpaceSideset )
+                    {
+                        switch( mGeometryType )
+                        {
+                            case Geometry_Type::LINE :
+                            {
+                                // switching based on background element
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // FIXME: Geometry_Type of LINE only used to prevent
+                                    // existing tests that would fail with this change. This is only
+                                    // a logical inconsistency though. Can't have a line sideset of a 
+                                    // line IP cell.
+                                    case Geometry_Type::LINE :
+                                    case Geometry_Type::QUAD :
+                                    {
+                                        mMappedPoint.set_size( 3, 1, 0.0 );
+                                        break;
+                                    }
+                                    // if the IP cell is a tri, then it could use 2 or 3 parameterization dimensions
+                                    case Geometry_Type::TRI :
+                                    {
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 2 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 3, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric "
+                                                    "space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - Line sidesets can only be "
+                                        "based on quad or tri interpolation cells.");
+                                    }
+                                }
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_side_line;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_line;
+                                mNormalFunc         = &Space_Interpolator::eval_normal_side_line;
+                                // set size for storage
+                                mMapFlag = true;
+                                break;
+                            }
+                            case Geometry_Type::TRI :
+                            {
+                                // the following switch structure determines the mapping size
+                                // based on the IP cell used.  
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // Tri geometry type only used to prevent failing tests
+                                    case Geometry_Type::TRI :
+                                    case Geometry_Type::HEX :
+                                    {
+                                        mMappedPoint.set_size( 4, 1, 0.0 );
+                                        break;
+                                    }
+                                    case Geometry_Type::TET :
+                                    {
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 4 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 5, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric "
+                                                    "space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - tri sidesets can only "
+                                            "come from hex or tet IP cells.");
+                                    }
+                                }
+
+                                // function pointers will not change based on the IP switch structure
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_side_tri;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_tri;
+                                mNormalFunc         = &Space_Interpolator::eval_normal_side_tri;
+
+                                // set size for storage
+                                mMapFlag = true;
+                                break;
+                            }
+                            case Geometry_Type::QUAD :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_side_quad;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_quad;
+                                mNormalFunc         = &Space_Interpolator::eval_normal_side_quad;
+
+                                // set size for storage
+                                mMapFlag = true;
+                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                break;
+                            }
+                            default :
+                            {
+                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - unknown or not implemented side space geometry type ");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        switch( mGeometryType )
+                        {
+                            case Geometry_Type::LINE :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_line;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_line;
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    case Geometry_Type::LINE :
+                                    {
+                                        // set size for storage
+                                        mMappedPoint.set_size( 2, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk line geometry can only be used within line interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::QUAD :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_quad;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_quad;
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    case Geometry_Type::QUAD :
+                                    {
+                                        // set size for storage
+                                        mMappedPoint.set_size( 3, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk quad geometry can only be used within quad interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::HEX :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_hex;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_hex;
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    case Geometry_Type::HEX :
+                                    {
+                                        // set size for storage
+                                        mMappedPoint.set_size( 4, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk hex geometry can only be used within hex interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::TRI :
+                            {
+                                switch( mNumSpaceParamDim )
+                                {
+                                    case 2 :
+                                    {
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tri_param_2;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_2;
+                                        break;
+                                    }
+                                    case 3 :
+                                    {
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tri_param_3;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_3;
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                                    }
+                                }
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // interpolating on a tri background cell
+                                    case Geometry_Type::TRI :
+                                    {
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 2 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 3, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+
+                                    // interpolating on a quad background cell
+                                    case Geometry_Type::QUAD :
+                                    {
+                                        // set size for storage
+                                        mMapFlag = true;
+                                        mMappedPoint.set_size( 3, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk tri geometry can only be used within tri or quad interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::TET :
+                            {
+                                switch( mNumSpaceParamDim )
+                                {
+                                    case 3 :
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tet_param_3;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_3;
+                                        break;
+                                    case 4 :
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tet_param_4;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_4;
+                                        break;
+                                    default :
+                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 3 or 4." );
+                                }
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // interpolating on a tri background cell
+                                    case Geometry_Type::TET :
+                                    {
+
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 4 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 5, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+
+                                    // interpolating on a quad background cell
+                                    case Geometry_Type::HEX :
+                                    {
+                                        // set size for storage
+                                        mMapFlag = true;
+                                        mMappedPoint.set_size( 4, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk tet geometry can only be used within tet or hex interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            default :
+                            {
+                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - unknown or not implemented space geometry type ");
+                            }
+                        }
+                    }
                     break;
                 }
-                
-                case 3 :
+
+
+
+
+
+                // ----------------------------------------------------------------
+                case CellShape::RECTANGULAR :
                 {
-                    mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_3d;
-                    mInvSpaceJacRectFunc           = &Space_Interpolator::eval_inverse_space_jacobian_3d_rect;
-                    mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
-                    mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
+                    // get number of dimensions and set pointer to function
+                    // for second space derivative
+                    switch ( mNumSpaceDim )
+                    {
+                        case 1 :
+                        {
+                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_1d;
+                            mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
+                            mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
+                            break;
+                        }
+                        case 2 :
+                        {
+                            switch ( mGeometryType )
+                            {
+                                case Geometry_Type::LINE :
+                                case Geometry_Type::QUAD :
+                                {
+                                    mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_2d_rect;
+                                    break;
+                                }
+                                // effectively inverse for non-square triangle element jacobian
+                                case Geometry_Type::TRI :
+                                {
+                                    mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_2d_tri;
+                                    break;
+                                }
+                                default :
+                                {
+                                    MORIS_ERROR( false,
+                                    " Space_Interpolator::set_function_pointers - only line, quad, tri allowed for 2D." );
+                                }
+                            }
+                            mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
+                            mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
+                            break;
+                        }
+                        
+                        case 3 :
+                        {
+                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_3d_rect;
+                            mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
+                            mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - unknown number of dimensions." );
+                        }
+                    }
+
+                    // switch on geometry type
+                    if( mSpaceSideset )
+                    {
+                        switch( mGeometryType )
+                        {
+                            case Geometry_Type::LINE :
+                            {
+                                // switching based on background element
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // FIXME: Geometry_Type of LINE only used to prevent
+                                    // existing tests that would fail with this change. This is only
+                                    // a logical inconsistency though. Can't have a line sideset of a 
+                                    // line IP cell.
+                                    case Geometry_Type::LINE :
+                                    case Geometry_Type::QUAD :
+                                    {
+                                        mMappedPoint.set_size( 3, 1, 0.0 );
+                                        break;
+                                    }
+                                    // if the IP cell is a tri, then it could use 2 or 3 parameterization dimensions
+                                    case Geometry_Type::TRI :
+                                    {
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 2 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 3, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric "
+                                                    "space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - Line sidesets can only be "
+                                        "based on quad or tri interpolation cells.");
+                                    }
+                                }
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_side_line;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_line;
+                                mNormalFunc         = &Space_Interpolator::eval_normal_side_line;
+                                // set size for storage
+                                mMapFlag = true;
+                                break;
+                            }
+                            case Geometry_Type::TRI :
+                            {
+                                // the following switch structure determines the mapping size
+                                // based on the IP cell used.  
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // Tri geometry type only used to prevent failing tests
+                                    case Geometry_Type::TRI :
+                                    case Geometry_Type::HEX :
+                                    {
+                                        mMappedPoint.set_size( 4, 1, 0.0 );
+                                        break;
+                                    }
+                                    case Geometry_Type::TET :
+                                    {
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 4 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 5, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric "
+                                                    "space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - tri sidesets can only "
+                                            "come from hex or tet IP cells.");
+                                    }
+                                }
+
+                                // function pointers will not change based on the IP switch structure
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_side_tri;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_tri;
+                                mNormalFunc         = &Space_Interpolator::eval_normal_side_tri;
+
+                                // set size for storage
+                                mMapFlag = true;
+                                break;
+                            }
+                            case Geometry_Type::QUAD :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_side_quad;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_quad;
+                                mNormalFunc         = &Space_Interpolator::eval_normal_side_quad;
+
+                                // set size for storage
+                                mMapFlag = true;
+                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                break;
+                            }
+                            default :
+                            {
+                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - unknown or not implemented side space geometry type ");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        switch( mGeometryType )
+                        {
+                            case Geometry_Type::LINE :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_line;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_line;
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    case Geometry_Type::LINE :
+                                    {
+                                        // set size for storage
+                                        mMappedPoint.set_size( 2, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk line geometry can only be used within line interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::QUAD :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_quad_rect;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_quad_rect;
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    case Geometry_Type::QUAD :
+                                    {
+                                        // set size for storage
+                                        mMappedPoint.set_size( 3, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk quad geometry can only be used within quad interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::HEX :
+                            {
+                                mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_hex_rect;
+                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_hex_rect;
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    case Geometry_Type::HEX :
+                                    {
+                                        // set size for storage
+                                        mMappedPoint.set_size( 4, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk hex geometry can only be used within hex interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::TRI :
+                            {
+                                switch( mNumSpaceParamDim )
+                                {
+                                    case 2 :
+                                    {
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tri_param_2;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_2;
+                                        break;
+                                    }
+                                    case 3 :
+                                    {
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tri_param_3;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_3;
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                                    }
+                                }
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // interpolating on a tri background cell
+                                    case Geometry_Type::TRI :
+                                    {
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 2 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 3, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+
+                                    // interpolating on a quad background cell
+                                    case Geometry_Type::QUAD :
+                                    {
+                                        // set size for storage
+                                        mMapFlag = true;
+                                        mMappedPoint.set_size( 3, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk tri geometry can only be used within tri or quad interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            case Geometry_Type::TET :
+                            {
+                                switch( mNumSpaceParamDim )
+                                {
+                                    case 3 :
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tet_param_3;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_3;
+                                        break;
+                                    case 4 :
+                                        mSpaceDetJFunc      = &Space_Interpolator::eval_space_detJ_bulk_tet_param_4;
+                                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_4;
+                                        break;
+                                    default :
+                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 3 or 4." );
+                                }
+
+                                // switching based on interpolation cell geometry
+                                switch( mIPMappingGeometryType )
+                                {
+                                    // interpolating on a tri background cell
+                                    case Geometry_Type::TET :
+                                    {
+
+                                        switch( mIPMappingNumSpaceParamDim )
+                                        {
+                                            case 3 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 4, 1, 0.0 );
+                                                break;
+                                            }
+                                            case 4 :
+                                            {
+                                                // set size for storage
+                                                mMappedPoint.set_size( 5, 1, 0.0 );
+                                                break;
+                                            }
+                                            default :
+                                            {
+                                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
+                                            }
+                                        }
+                                        break;
+                                    }
+
+                                    // interpolating on a quad background cell
+                                    case Geometry_Type::HEX :
+                                    {
+                                        // set size for storage
+                                        mMapFlag = true;
+                                        mMappedPoint.set_size( 4, 1, 0.0 );
+                                        break;
+                                    }
+                                    default :
+                                    {
+                                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
+                                        "bulk tet geometry can only be used within tet or hex interpolation cells" );
+                                    }
+                                }
+                                break;
+                            }
+
+                            default :
+                            {
+                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - unknown or not implemented space geometry type ");
+                            }
+                        }
+                    }
                     break;
                 }
+
+
+
                 default :
                 {
-                    MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - unknown number of dimensions." );
+                    MORIS_ERROR( false,
+                            " Space_Interpolator::set_function_pointers - invalid cellshape used." );
                 }
+                
             }
 
-            // switch on geometry type
-            if( mSpaceSideset )
-            {
-                switch( mGeometryType )
-                {
-                    case Geometry_Type::LINE :
-                    {
-                        // switching based on background element
-                        switch( mIPMappingGeometryType )
-                        {
-                            // FIXME: Geometry_Type of LINE only used to prevent
-                            // existing tests that would fail with this change. This is only
-                            // a logical inconsistency though. Can't have a line sideset of a 
-                            // line IP cell.
-                            case Geometry_Type::LINE :
-                            case Geometry_Type::QUAD :
-                            {
-                                mMappedPoint.set_size( 3, 1, 0.0 );
-                                break;
-                            }
-                            // if the IP cell is a tri, then it could use 2 or 3 parameterization dimensions
-                            case Geometry_Type::TRI :
-                            {
-                                switch( mIPMappingNumSpaceParamDim )
-                                {
-                                    case 2 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 3, 1, 0.0 );
-                                        break;
-                                    }
-                                    case 3 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 4, 1, 0.0 );
-                                        break;
-                                    }
-                                    default :
-                                    {
-                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric "
-                                            "space dimensions can only be 2 or 3." );
-                                    }
-                                }
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - Line sidesets can only be "
-                                "based on quad or tri interpolation cells.");
-                            }
-                        }
-                        mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_side_line;
-                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_line;
-                        mNormalFunc    = &Space_Interpolator::eval_normal_side_line;
-                        // set size for storage
-                        mMapFlag = true;
-                        break;
-                    }
-                    case Geometry_Type::TRI :
-                    {
-                        // the following switch structure determines the mapping size
-                        // based on the IP cell used.  
-                        switch( mIPMappingGeometryType )
-                        {
-                            // Tri geometry type only used to prevent failing tests
-                            case Geometry_Type::TRI :
-                            case Geometry_Type::HEX :
-                            {
-                                mMappedPoint.set_size( 4, 1, 0.0 );
-                                break;
-                            }
-                            case Geometry_Type::TET :
-                            {
-                                switch( mIPMappingNumSpaceParamDim )
-                                {
-                                    case 3 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 4, 1, 0.0 );
-                                        break;
-                                    }
-                                    case 4 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 5, 1, 0.0 );
-                                        break;
-                                    }
-                                    default :
-                                    {
-                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric "
-                                            "space dimensions can only be 2 or 3." );
-                                    }
-                                }
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - tri sidesets can only "
-                                    "come from hex or tet IP cells.");
-                            }
-                        }
-
-                        // function pointers will not change based on the IP switch structure
-                        mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_side_tri;
-                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_tri;
-                        mNormalFunc    = &Space_Interpolator::eval_normal_side_tri;
-
-                        // set size for storage
-                        mMapFlag = true;
-                        break;
-                    }
-                    case Geometry_Type::QUAD :
-                    {
-                        mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_side_quad;
-                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_side_quad;
-                        mNormalFunc    = &Space_Interpolator::eval_normal_side_quad;
-
-                        // set size for storage
-                        mMapFlag = true;
-                        mMappedPoint.set_size( 4, 1, 0.0 );
-                        break;
-                    }
-                    default :
-                    {
-                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - unknown or not implemented side space geometry type ");
-                    }
-                }
-            }
-            else
-            {
-                switch( mGeometryType )
-                {
-                    case Geometry_Type::LINE :
-                    {
-                        mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_line;
-                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_line;
-
-                        // switching based on interpolation cell geometry
-                        switch( mIPMappingGeometryType )
-                        {
-                            case Geometry_Type::LINE :
-                            {
-                                // set size for storage
-                                mMappedPoint.set_size( 2, 1, 0.0 );
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
-                                "bulk line geometry can only be used within line interpolation cells" );
-                            }
-                        }
-                        break;
-                    }
-
-                    case Geometry_Type::QUAD :
-                    {
-                        mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_quad;
-                        mSpaceDetJRectFunc = &Space_Interpolator::eval_space_detJ_bulk_quad_rect;
-                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_quad;
-                        mSpaceDetJDerivRectFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_quad_rect;
-
-                        // switching based on interpolation cell geometry
-                        switch( mIPMappingGeometryType )
-                        {
-                            case Geometry_Type::QUAD :
-                            {
-                                // set size for storage
-                                mMappedPoint.set_size( 3, 1, 0.0 );
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
-                                "bulk quad geometry can only be used within quad interpolation cells" );
-                            }
-                        }
-                        break;
-                    }
-
-                    case Geometry_Type::HEX :
-                    {
-                        mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_hex;
-                        mSpaceDetJRectFunc = &Space_Interpolator::eval_space_detJ_bulk_hex_rect;
-                        mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_hex;
-                        mSpaceDetJDerivRectFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_hex_rect;
-
-                        // switching based on interpolation cell geometry
-                        switch( mIPMappingGeometryType )
-                        {
-                            case Geometry_Type::HEX :
-                            {
-                                // set size for storage
-                                mMappedPoint.set_size( 4, 1, 0.0 );
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
-                                "bulk hex geometry can only be used within hex interpolation cells" );
-                            }
-                        }
-                        break;
-                    }
-
-                    case Geometry_Type::TRI :
-                    {
-                        switch( mNumSpaceParamDim )
-                        {
-                            case 2 :
-                            {
-                                mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tri_param_2;
-                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_2;
-                                break;
-                            }
-                            case 3 :
-                            {
-                                mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tri_param_3;
-                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tri_param_3;
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
-                            }
-                        }
-
-                        // switching based on interpolation cell geometry
-                        switch( mIPMappingGeometryType )
-                        {
-                            // interpolating on a tri background cell
-                            case Geometry_Type::TRI :
-                            {
-                                switch( mIPMappingNumSpaceParamDim )
-                                {
-                                    case 2 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 3, 1, 0.0 );
-                                        break;
-                                    }
-                                    case 3 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 4, 1, 0.0 );
-                                        break;
-                                    }
-                                    default :
-                                    {
-                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
-                                    }
-                                }
-                                break;
-                            }
-
-                            // interpolating on a quad background cell
-                            case Geometry_Type::QUAD :
-                            {
-                                // set size for storage
-                                mMapFlag = true;
-                                mMappedPoint.set_size( 3, 1, 0.0 );
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
-                                "bulk tri geometry can only be used within tri or quad interpolation cells" );
-                            }
-                        }
-                        break;
-                    }
-
-                    case Geometry_Type::TET :
-                    {
-                        switch( mNumSpaceParamDim )
-                        {
-                            case 3 :
-                                mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tet_param_3;
-                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_3;
-                                break;
-                            case 4 :
-                                mSpaceDetJFunc = &Space_Interpolator::eval_space_detJ_bulk_tet_param_4;
-                                mSpaceDetJDerivFunc = &Space_Interpolator::eval_space_detJ_deriv_bulk_tet_param_4;
-                                break;
-                            default :
-                                MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 3 or 4." );
-                        }
-
-                        // switching based on interpolation cell geometry
-                        switch( mIPMappingGeometryType )
-                        {
-                            // interpolating on a tri background cell
-                            case Geometry_Type::TET :
-                            {
-
-                                switch( mIPMappingNumSpaceParamDim )
-                                {
-                                    case 3 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 4, 1, 0.0 );
-                                        break;
-                                    }
-                                    case 4 :
-                                    {
-                                        // set size for storage
-                                        mMappedPoint.set_size( 5, 1, 0.0 );
-                                        break;
-                                    }
-                                    default :
-                                    {
-                                        MORIS_ERROR( false, " Space_Interpolator::set_function_pointers - Parametric space dimensions can only be 2 or 3." );
-                                    }
-                                }
-                                break;
-                            }
-
-                            // interpolating on a quad background cell
-                            case Geometry_Type::HEX :
-                            {
-                                // set size for storage
-                                mMapFlag = true;
-                                mMappedPoint.set_size( 4, 1, 0.0 );
-                                break;
-                            }
-                            default :
-                            {
-                                MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - "
-                                "bulk tet geometry can only be used within tet or hex interpolation cells" );
-                            }
-                        }
-                        break;
-                    }
-
-                    default :
-                    {
-                        MORIS_ERROR( false, "Space_Interpolator::set_function_pointers - unknown or not implemented space geometry type ");
-                    }
-                }
-            }
+            
         }
 
         //------------------------------------------------------------------------------

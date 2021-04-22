@@ -252,13 +252,13 @@ namespace moris
 
                 std::shared_ptr< fem::IWG > tIWGBulk =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-                tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGBulk->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGBulk->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichlet =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-                tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
                 tIWGDirichlet->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
@@ -266,13 +266,13 @@ namespace moris
 
                 std::shared_ptr< fem::IWG > tIWGNeumann =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-                tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGInterface =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
-                tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGInterface->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
                 tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
@@ -557,13 +557,13 @@ namespace moris
 
                 std::shared_ptr< fem::IWG > tIWGBulk =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-                tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGBulk->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGBulk->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichlet =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-                tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
                 tIWGDirichlet->set_constitutive_model( tCMMasterElastLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
@@ -571,13 +571,13 @@ namespace moris
 
                 std::shared_ptr< fem::IWG > tIWGNeumann =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-                tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IWG > tIWGInterface =
                         tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
-                tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+                tIWGInterface->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
                 tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );

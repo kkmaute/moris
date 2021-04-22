@@ -35,7 +35,9 @@ namespace xtk
         // compute volumes
         this->compute_mesh_volumes(aMeshQuality.mVolumes);
 
-        moris::print(aMeshQuality.mVolumes,"aMeshQuality.mVolumes");
+        std::cout<<"Minumum Volume: "<<aMeshQuality.mVolumes.min()<<std::endl;
+
+        this->compute_mesh_side_lengths(aMeshQuality.mEdgeLengths);
 
     }
 
@@ -56,6 +58,12 @@ namespace xtk
             
             // compute the volume
             aVolumes(i) = tCell.compute_cell_measure();
+
+            if(aVolumes(i) < MORIS_REAL_MIN)
+            {
+                std::cout<<"Degenerated Cell Id:" <<tCell.get_id()<<std::endl;
+                moris::print(tCell.get_vertex_ids(),"Vertex Ids");
+            }
         }
     }
 
@@ -66,7 +74,10 @@ namespace xtk
         uint tNumCells = mModel->get_background_mesh().get_num_entities(EntityRank::ELEMENT);
         
         // allocate volumes
-        aEdgeLengths.resize(tNumCells );
+        aEdgeLengths.resize( tNumCells );
+
+        // global minimum edge length
+        moris::real tMinEdgeLength = MORIS_REAL_MAX;
 
         // iterate through background cells and compute the volume
         for(moris::uint i = 0; i<tNumCells; i++)
@@ -74,15 +85,21 @@ namespace xtk
             // cell
             moris::mtk::Cell & tCell = mModel->get_background_mesh().get_mtk_cell((moris_index) i);
 
-            std::cout<<"tCell->get_num_facets() = "<<tCell.get_number_of_facets();
-
             // allocate lengths
             aEdgeLengths(tCell.get_index()).resize(tCell.get_number_of_facets(),1);
-            
-            // compute the volume
-        //     tVolumes(i) = tCell.compute_cell_measure();
+
+            //iterate through edges and compute the lengths
+            for(moris::uint iEdge = 0; iEdge < tCell.get_number_of_facets(); iEdge++)
+            {
+                aEdgeLengths(tCell.get_index())(iEdge) = tCell.compute_cell_side_measure(iEdge);
+
+                if(aEdgeLengths(tCell.get_index())(iEdge) < tMinEdgeLength)
+                {
+                    tMinEdgeLength = aEdgeLengths(tCell.get_index())(iEdge);
+                }
+            }
         }
-        // return tVolumes;
+        std::cout<<"Global Minimum Edge Length: "<<tMinEdgeLength<<std::endl;
     }
 
 
@@ -109,11 +126,25 @@ namespace xtk
            }
         }
 
-        mModel->get_cut_mesh().remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete);
+        moris::Cell<moris_index> tCellsToRemoveFromMesh;
+        mModel->get_cut_mesh().remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete, tCellsToRemoveFromMesh );
+
+        // moris::print(tCellsToRemoveFromMesh,"tCellsToRemoveFromMesh");
+        moris::Cell<moris_index> tNewCellIndices;
+        mModel->get_background_mesh().remove_cells_from_mesh(tCellsToRemoveFromMesh,tNewCellIndices);
+
+        // reindex the child mesh
+        mModel->get_cut_mesh().reindex_cells(tNewCellIndices);
+
+        // moris::print(tNewCellIndices,"tNewCellIndices");
 
         mModel->get_background_mesh().setup_downward_inheritance(mModel->get_cut_mesh());
+        
 
         MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
         MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
+
+        
     }
+
 }

@@ -31,8 +31,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                Cell< Cell< MSI::Dof_Type > > aDofTypes,
+                Cell< std::string >           aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -122,9 +122,9 @@ namespace moris
             {
                 case 2 :
                 {
-                    m_eval_strain       = &CM_Struc_Linear_Isotropic::eval_strain_2d;
-                    m_eval_teststrain   = &CM_Struc_Linear_Isotropic::eval_teststrain_2d;
-                    m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_2d;
+                    m_eval_strain     = &CM_Struc_Linear_Isotropic::eval_strain_2d;
+                    m_eval_teststrain = &CM_Struc_Linear_Isotropic::eval_teststrain_2d;
+                    m_flatten_normal  = &CM_Struc_Linear_Isotropic::flatten_normal_2d;
 
                     switch( mPlaneType )
                     {
@@ -223,9 +223,9 @@ namespace moris
                 }
                 case 3 :
                 {
-                    m_eval_strain       = &CM_Struc_Linear_Isotropic::eval_strain_3d;
-                    m_eval_teststrain   = &CM_Struc_Linear_Isotropic::eval_teststrain_3d;
-                    m_flatten_normal    = &CM_Struc_Linear_Isotropic::flatten_normal_3d;
+                    m_eval_strain     = &CM_Struc_Linear_Isotropic::eval_strain_3d;
+                    m_eval_teststrain = &CM_Struc_Linear_Isotropic::eval_teststrain_3d;
+                    m_flatten_normal  = &CM_Struc_Linear_Isotropic::flatten_normal_3d;
 
                     mStrain.set_size( 6, 1, 0.0 );
                     mConst.set_size( 6, 6, 0.0 );
@@ -275,7 +275,7 @@ namespace moris
                         mFIManager->get_field_interpolators_for_type( mDofPressure );
 
                 // create identity matrix
-                Matrix< DDRMat > tI( mNumNormalStress, 1, 1.0 );
+                const Matrix< DDRMat > tI( mNumNormalStress, 1, 1.0 );
 
                 // evaluate pressure contribution to flux
                 Matrix< DDRMat > tP( mConst.n_rows(), 1, 0.0 );
@@ -301,8 +301,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_testTraction(
-                const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Matrix< DDRMat >      & aNormal,
+                const Cell< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -331,7 +331,7 @@ namespace moris
         void CM_Struc_Linear_Isotropic::eval_strain_2d()
         {
             // get the displacement spatial gradient from displacement FI
-            Matrix< DDRMat > tDisplGradx =
+            const Matrix< DDRMat > & tDisplGradx =
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->gradx( 1 );
 
             // evaluate the strain
@@ -345,8 +345,8 @@ namespace moris
             if ( mPlaneType == Model_Type::AXISYMMETRIC )
             {
                 // get the displacements and outward radial vector for azimuthal strain
-                Matrix< DDRMat > tDispl = mFIManager->get_field_interpolators_for_type(mDofDispl)->val();
-                Matrix< DDRMat > tOtbdRadVec = mPropRotAxis->val();
+                const Matrix< DDRMat > & tDispl      = mFIManager->get_field_interpolators_for_type(mDofDispl)->val();
+                const Matrix< DDRMat > & tOtbdRadVec = mPropRotAxis->val();
 
                 // normal strain in azimuthal direction u_r / r
                 // here {u}.*{n_r} / (r) where {n_r} = unit outward radial vector from line to point
@@ -402,11 +402,10 @@ namespace moris
         void CM_Struc_Linear_Isotropic::eval_strain_3d()
         {
             // get the displacement spatial gradient from displacement FI
-            Matrix< DDRMat > tDisplGradx =
+            const Matrix< DDRMat > & tDisplGradx =
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->gradx( 1 );
 
             // evaluate the strain
-            mStrain.fill( 0.0 );
             mStrain( 0, 0 ) = tDisplGradx( 0, 0 );
             mStrain( 1, 0 ) = tDisplGradx( 1, 1 );
             mStrain( 2, 0 ) = tDisplGradx( 2, 2 );
@@ -476,10 +475,10 @@ namespace moris
                 // get the displacements and outward radial vector for azimuthal strain
                 // in the form tOtbdRadVec = {{2*pi*r},{r},{n1},{n2}}
                 // where n1 and n2 are components of the unit outboard normal
-                Matrix< DDRMat > tOtbdRadVec = mPropRotAxis->val();
+                const Matrix< DDRMat > & tOtbdRadVec = mPropRotAxis->val();
 
                 // compute interpolation function and location
-                const Matrix< DDRMat > & tN = tFIDispl->NBuild().matrix_data();
+                const Matrix< DDRMat > & tN = tFIDispl->NBuild();
 
                 /*
                  * Axisymmetric strain using u_r and radial location
@@ -537,10 +536,10 @@ namespace moris
         void CM_Struc_Linear_Isotropic::eval_const()
         {
             // get the Poisson's ratio value
-            moris::real tNu = mPropPoisson->val()( 0 );
+            const real tNu = mPropPoisson->val()( 0 );
 
             // get the Youngs' modulus value
-            moris::real tEmod = mPropEMod->val()( 0 );
+            const real tEmod = mPropEMod->val()( 0 );
 
             // evaluate the constitutive matrix
             ( this->*mConstFunc )( tEmod, tNu );
@@ -548,16 +547,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::real CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus()
+        real CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus()
         {
             // get Poisson ratio value
-            moris::real tNu = mPropPoisson->val()( 0 );
+            const real tNu = mPropPoisson->val()( 0 );
 
             // get elasticity modulus value
-            moris::real tEMod = mPropEMod->val()( 0 );
+            const real tEMod = mPropEMod->val()( 0 );
 
             // init inverse of the bulk modulus
-            moris::real tInvBulkModulus;
+            real tInvBulkModulus;
 
             // evaluate inverse of the bulk modulus
             ( this->*m_eval_inv_bulk_modulus )( tNu, tEMod, tInvBulkModulus );
@@ -569,9 +568,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic(
-                moris::real aNu,
-                moris::real aEMod,
-                moris::real & aInvBulkModulus )
+                const real & aNu,
+                const real & aEMod,
+                real       & aInvBulkModulus )
         {
             aInvBulkModulus = 3.0 * ( 1.0 - 2.0 * aNu ) / aEMod;
         }
@@ -579,17 +578,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_plane_stress(
-                moris::real aNu,
-                moris::real aEMod,
-                moris::real & aInvBulkModulus )
+                const real & aNu,
+                const real & aEMod,
+                real       & aInvBulkModulus )
         {
             aInvBulkModulus = 2.0 * ( 1.0 - aNu ) / aEMod;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat > CM_Struc_Linear_Isotropic::eval_dInvBulkModulusdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        Matrix< DDRMat > CM_Struc_Linear_Isotropic::eval_dInvBulkModulusdDOF(
+                const Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof FI
             Field_Interpolator * tFI =
@@ -617,13 +616,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Linear_Isotropic::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Struc_Linear_Isotropic::eval_dFluxdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+            const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+            const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
             Field_Interpolator * tFI =
@@ -632,14 +631,17 @@ namespace moris
             // init mdFluxdDof
             mdFluxdDof( tDofIndex ).set_size(
                     mConst.n_rows(),
-                    tFI->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFI->get_number_of_space_time_coefficients() );
 
             // if displacements or temperature
             if( aDofTypes( 0 ) == mDofDispl || aDofTypes( 0 ) == mDofTemp )
             {
-                mdFluxdDof( tDofIndex ) +=
+                mdFluxdDof( tDofIndex ) =
                         this->constitutive() * this->dStraindDOF( aDofTypes );
+            }
+            else
+            {
+                mdFluxdDof( tDofIndex ).fill( 0.0 );
             }
 
             // if pressure dof
@@ -677,14 +679,14 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal )
+                const Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >      & aNormal )
         {
             // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+            const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+            const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // flatten normal
             Matrix< DDRMat > tFlatNormal;
@@ -697,30 +699,33 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal,
-                const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >      & aNormal,
+                const Matrix< DDRMat >      & aJump,
+                const Cell< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
-            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+            const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // init the dTestTractiondDof
             mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size(
                     mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients());
 
             // if elastic modulus depends on dof type
             if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
                         this->testTraction( aNormal, aTestDofTypes ) * trans( aJump ) *
                         mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
+            }
+            else
+            {
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).fill( 0.0 );
             }
 
             // if Poisson's ratio depends on dof type
@@ -732,10 +737,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Linear_Isotropic::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Struc_Linear_Isotropic::eval_dStraindDOF( const Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof FI
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -743,14 +748,17 @@ namespace moris
             // init mdStraindDof
             mdStraindDof( tDofIndex ).set_size(
                     mStrain.numel(),
-                    tFI->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFI->get_number_of_space_time_coefficients() );
 
             // if displacement dof
             if( aDofTypes( 0 ) == mDofDispl )
             {
                 // compute derivative
-                mdStraindDof( tDofIndex ) += this->testStrain();
+                mdStraindDof( tDofIndex ) = this->testStrain();
+            }
+            else
+            {
+                mdStraindDof( tDofIndex ).fill( 0.0 );
             }
 
             // if temperature dof
@@ -817,7 +825,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Linear_Isotropic::eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Struc_Linear_Isotropic::eval_dConstdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dConstdDOF - Not implemented." );
         }
@@ -890,15 +898,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::real CM_Struc_Linear_Isotropic::get_e_prime()
+        real CM_Struc_Linear_Isotropic::get_e_prime()
         {
-            moris::real tEPrime;
+            real tEPrime;
 
             // get elasticity modulus value
-            real tE  = mPropEMod->val()( 0 );
+            const real tE  = mPropEMod->val()( 0 );
 
             // get Poisson ratio value
-            real tNu = mPropPoisson->val()( 0 );
+            const real tNu = mPropPoisson->val()( 0 );
 
             switch ( mPlaneType )
             {
@@ -927,10 +935,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::full_plane_stress(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / ( 1 - std::pow( aNu, 2 ) );
+            const real tPre = aEmod / ( 1 - std::pow( aNu, 2 ) );
 
             mConst( 0, 0 ) = tPre;
             mConst( 1, 1 ) = tPre;
@@ -942,10 +950,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::deviatoric_plane_stress(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / ((1 + aNu) * 2.0);
+            const real tPre = aEmod / ((1 + aNu) * 2.0);
 
             mConst( 0, 0 ) =  tPre;
             mConst( 1, 1 ) =  tPre;
@@ -957,10 +965,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::full_plane_strain(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            const real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -974,10 +982,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::deviatoric_plane_strain(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / (3.0 * (1.0 + aNu ) );
+            const real tPre = aEmod / (3.0 * (1.0 + aNu ) );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;
@@ -991,10 +999,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::full_axisymmetric(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            const real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -1013,10 +1021,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::deviatoric_axisymmetric(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / (3.0 * (1.0 + aNu ) );
+            real tPre = aEmod / (3.0 * (1.0 + aNu ) );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;
@@ -1035,10 +1043,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::full_3d(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu );
+            const real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -1057,10 +1065,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Struc_Linear_Isotropic::deviatoric_3d(
-                moris::real aEmod,
-                moris::real aNu )
+                const real & aEmod,
+                const real & aNu )
         {
-            moris::real tPre = aEmod / ( 3.0 * ( 1.0 + aNu ) );
+            const real tPre = aEmod / ( 3.0 * ( 1.0 + aNu ) );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;

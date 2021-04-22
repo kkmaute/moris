@@ -5,9 +5,6 @@
  *      Author: doble
  */
 
-
-
-
 #include <catch.hpp>
 #include "op_equal_equal.hpp" //ALG
 #include "fn_all_true.hpp"

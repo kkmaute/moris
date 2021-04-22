@@ -78,13 +78,13 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual() - Only pressure or density primitive variables supported for now."
                     " See error message above for specifics." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
             uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
@@ -151,17 +151,17 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get residual dof indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
             uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType( 0 ), mRequestedMasterGlobalDofTypes ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian - Set of DoF dependencies not suppported. See error message above." );
 
             // get the indices for assembly - dependent dof types

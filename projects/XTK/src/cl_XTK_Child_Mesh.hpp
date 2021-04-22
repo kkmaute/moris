@@ -842,6 +842,11 @@ public:
     get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const;
 
     // --------------------------------------------------------------
+
+    void
+    reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex);
+
+    // --------------------------------------------------------------
     // Functions IO
     // --------------------------------------------------------------
 
@@ -890,7 +895,7 @@ private:
     // Element To Node and Ancestry Information (This is the only data that is set with templates.
     // all other is generated with an algorithm)
     // All node connectivity is indexed by proc local indexs
-    enum CellTopology                         mElementTopology;
+    enum CellTopology                      mElementTopology;
     std::shared_ptr<moris::mtk::Cell_Info> mConnectivity;
 
     moris::size_t                    mNumElem;

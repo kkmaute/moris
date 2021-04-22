@@ -285,6 +285,7 @@ namespace moris
             // create a geometry interpolator for IP cells
             mIPGeometryInterpolator = new Geometry_Interpolator(
                 tIPGeometryInterpolationRule,
+                mIPCellShape,
                 false,
                 false );
 
@@ -294,7 +295,8 @@ namespace moris
             // tIPGeometryInterpolationRule
             mIGGeometryInterpolator = new Geometry_Interpolator(
                 tIGGeometryInterpolationRule,
-                tIPGeometryInterpolationRule, 
+                tIPGeometryInterpolationRule,
+                mIGCellShape,
                 tIsSide,
                 tIsTimeSide );
 
@@ -436,8 +438,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_coeff_for_type(
-                enum MSI::Dof_Type   aDofType,
-                Matrix< DDRMat >   & aCoeff )
+                enum MSI::Dof_Type       aDofType,
+                const Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aDofType )->set_coeff( aCoeff );
@@ -446,8 +448,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_coeff_for_type(
-                enum PDV_Type      aDvType,
-                Matrix< DDRMat > & aCoeff )
+                enum PDV_Type            aDvType,
+                const Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aDvType )->set_coeff( aCoeff );
@@ -456,11 +458,25 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Field_Interpolator_Manager::set_coeff_for_type(
-                enum mtk::Field_Type   aFieldType,
-                Matrix< DDRMat >     & aCoeff )
+                enum mtk::Field_Type     aFieldType,
+                const Matrix< DDRMat > & aCoeff )
         {
             // get field interpolator for dof type and set coefficients
             this->get_field_interpolators_for_type( aFieldType )->set_coeff( aCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator_Manager::set_IG_cell_shape( enum CellShape aCellShape )
+        {
+            mIGCellShape = aCellShape;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Field_Interpolator_Manager::set_IP_cell_shape( enum CellShape aCellShape )
+        {
+            mIPCellShape = aCellShape;
         }
 
         //------------------------------------------------------------------------------

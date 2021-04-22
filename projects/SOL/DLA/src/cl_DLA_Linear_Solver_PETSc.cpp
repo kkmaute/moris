@@ -191,6 +191,10 @@ void Linear_Solver_PETSc::set_solver_analysis_options()
         PetscViewerAndFormat *tViewerAndFormatSV;
         PetscViewerAndFormatCreate( tViewerSV, PETSC_VIEWER_DEFAULT, &tViewerAndFormatSV );
 
+        //KSPMonitorSet(KSP ksp,PetscErrorCode (*monitor)(KSP,PetscInt,PetscReal,void*),void *mctx,PetscErrorCode (*monitordestroy)(void**))
+        // e.g. KSPMonitorSet(ksp1,MyKSPMonitor,NULL,0);
+        // with      MyKSPMonitor(KSP,PetscInt,PetscReal,void*);
+
         KSPMonitorSet( mPetscKSPProblem,
                        reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorSingularValue ),
                        tViewerAndFormatSV,

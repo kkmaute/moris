@@ -47,8 +47,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     moris::Cell< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
     moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< MSI::Dof_Type > tResidualDofTypes = { MSI::Dof_Type::P, MSI::Dof_Type::VX, MSI::Dof_Type::TEMP };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = { { MSI::Dof_Type::P, MSI::Dof_Type::VX, MSI::Dof_Type::TEMP } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -249,7 +250,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     Matrix< DDRMat > tMasterDOFHatVel;
     fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
     Matrix< DDRMat > tMasterDOFHatTemp;
-    fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );                 
+    fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -328,11 +329,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     // loop over integration points
     // uint tNumGPs = tIntegPoints.n_cols();
     //for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
-for( uint iGP = 0; iGP < 1; iGP ++ )
+    for( uint iGP = 0; iGP < 1; iGP ++ )
     {
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        // std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
         // reset CM evaluation flags
         tCMMasterFluid->reset_eval_flags();
@@ -352,9 +353,10 @@ for( uint iGP = 0; iGP < 1; iGP ++ )
         // reset residual & jacobian
         tIWG->mSet->mResidual( 0 ).fill( 0.0 );      
         tIWG->mSet->mJacobian.fill( 0.0 );    
-        
+
         // compute residual & jacobian
         tIWG->compute_residual( 1.0 );
+        tIWG->compute_jacobian( 1.0 );
 
         // init the jacobian for IWG
         if ( iGP == 0 )
@@ -399,8 +401,8 @@ for( uint iGP = 0; iGP < 1; iGP ++ )
     // check jacobian against analytical solution
     bool tCheckResidual = fem::check( tResidual, tResidualAnalytical, tEpsilon, true );
     REQUIRE( tCheckResidual );
-    
+
     // clean up
     tMasterFIs.clear();
-    
+
 }/*END_TEST_CASE*/

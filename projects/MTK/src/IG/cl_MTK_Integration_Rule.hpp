@@ -11,7 +11,7 @@
 #include "cl_MTK_Enums.hpp"                   //MTK/src
 
 #include "cl_MTK_Enums.hpp"                   //MTK/src
-#include "IG/cl_MTK_Integration_Coeffs_Base.hpp" //MTK/src
+#include "cl_MTK_Integration_Coeffs_Base.hpp" //MTK/src
 
 namespace moris
 {

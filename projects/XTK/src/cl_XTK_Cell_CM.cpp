@@ -81,9 +81,6 @@ namespace xtk
     Cell_XTK_CM::capacity()
     {
         size_t tTotal = 0;
-        tTotal +=  sizeof(mElementId);
-        tTotal +=  sizeof(mElementIndex);
-        tTotal +=  sizeof(mElementOwner);
         tTotal +=  sizeof(mCMElementIndex);
         tTotal +=  sizeof(mChildMeshPtr);
         tTotal +=  sizeof(mBackgroundMeshPtr);

@@ -39,10 +39,11 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
         real tEpsilon = 1.0E-4;
 
         // dof type list
-        moris::Cell<MSI::Dof_Type> tDensityDof = {MSI::Dof_Type::RHO};
         moris::Cell<MSI::Dof_Type> tVelocityDof = {MSI::Dof_Type::VX};
-        moris::Cell<MSI::Dof_Type> tTempDof = {MSI::Dof_Type::TEMP};
-        moris::Cell<moris::Cell<MSI::Dof_Type>> tDofTypes = {tDensityDof, tVelocityDof, tTempDof};
+        moris::Cell<MSI::Dof_Type> tTempDof     = {MSI::Dof_Type::TEMP};
+
+        moris::Cell<moris::Cell<MSI::Dof_Type>> tDensityDof = { { MSI::Dof_Type::RHO } };
+        moris::Cell<moris::Cell<MSI::Dof_Type>> tDofTypes   = {tDensityDof( 0 ), tVelocityDof, tTempDof};
 
         // init IWG
         //------------------------------------------------------------------------------
@@ -73,7 +74,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
 
         std::shared_ptr<fem::Constitutive_Model> tCMMasterFluid =
             tCMFactory.create_CM(fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL);
-        tCMMasterFluid->set_dof_type_list({tDensityDof, tVelocityDof, tTempDof});
+        tCMMasterFluid->set_dof_type_list({tDensityDof( 0 ), tVelocityDof, tTempDof});
         tCMMasterFluid->set_property(tPropViscosity, "DynamicViscosity");
         tCMMasterFluid->set_property(tPropHeatCapacity, "IsochoricHeatCapacity");
         tCMMasterFluid->set_property(tPropGasConstant, "SpecificGasConstant");
@@ -210,7 +211,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
         Cell<Field_Interpolator *> tMasterFIs(tDofTypes.size());
 
         // create the field interpolator density
-        tMasterFIs(0) = new Field_Interpolator(1, tFIRule, &tGI, tDensityDof);
+        tMasterFIs(0) = new Field_Interpolator(1, tFIRule, &tGI, tDensityDof( 0 ));
         tMasterFIs(0)->set_coeff(tMasterDOFHatRho);
 
         // create the field interpolator velocity
@@ -352,10 +353,11 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
         real tEpsilon = 1.0E-4;
 
         // dof type list
-        moris::Cell<MSI::Dof_Type> tDensityDof = {MSI::Dof_Type::RHO};
         moris::Cell<MSI::Dof_Type> tVelocityDof = {MSI::Dof_Type::VX};
-        moris::Cell<MSI::Dof_Type> tTempDof = {MSI::Dof_Type::TEMP};
-        moris::Cell<moris::Cell<MSI::Dof_Type>> tDofTypes = {tDensityDof, tVelocityDof, tTempDof};
+        moris::Cell<MSI::Dof_Type> tTempDof     = {MSI::Dof_Type::TEMP};
+
+        moris::Cell<moris::Cell<MSI::Dof_Type>> tDensityDof = { { MSI::Dof_Type::RHO } };
+        moris::Cell<moris::Cell<MSI::Dof_Type>> tDofTypes   = {tDensityDof( 0 ), tVelocityDof, tTempDof};
 
         // init IWG
         //------------------------------------------------------------------------------
@@ -401,7 +403,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
 
         std::shared_ptr<fem::Constitutive_Model> tCMMasterFluid =
             tCMFactory.create_CM(fem::Constitutive_Type::FLUID_COMPRESSIBLE_VDW);
-        tCMMasterFluid->set_dof_type_list({tDensityDof, tVelocityDof, tTempDof});
+        tCMMasterFluid->set_dof_type_list({tDensityDof( 0 ), tVelocityDof, tTempDof});
         tCMMasterFluid->set_property(tPropViscosity, "DynamicViscosity");
         tCMMasterFluid->set_property(tPropHeatCapacity, "IsochoricHeatCapacity");
         tCMMasterFluid->set_property(tPropGasConstant, "SpecificGasConstant");
@@ -542,7 +544,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
         Cell<Field_Interpolator *> tMasterFIs(tDofTypes.size());
 
         // create the field interpolator density
-        tMasterFIs(0) = new Field_Interpolator(1, tFIRule, &tGI, tDensityDof);
+        tMasterFIs(0) = new Field_Interpolator(1, tFIRule, &tGI, tDensityDof( 0 ));
         tMasterFIs(0)->set_coeff(tMasterDOFHatRho);
 
         // create the field interpolator velocity

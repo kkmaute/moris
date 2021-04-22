@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "IG/cl_MTK_Integrator.hpp" //FEM//INT//src
+#include "cl_MTK_Integrator.hpp" //FEM//INT//src
 #include "fn_FEM_Check.hpp"
 
 using namespace moris;
