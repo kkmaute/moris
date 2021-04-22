@@ -51,7 +51,7 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPConvective =
+            const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
             // get flattened derivatives dnNdxn for master and slave
@@ -107,7 +107,7 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPConvective =
+            const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
             // get flattened derivatives dnNdxn for master and slave

@@ -49,19 +49,19 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get body load property
-            std::shared_ptr< Property > & tPropLoad =
+            const std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
 
             // get bedding property
-            std::shared_ptr< Property > & tPropBedding =
+            const std::shared_ptr< Property > & tPropBedding =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMElasticity =
+            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get thickness property
-            std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property > & tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             MORIS_ASSERT( !(tCMElasticity->get_plane_type() == Model_Type::AXISYMMETRIC
@@ -116,19 +116,19 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get body load property
-            std::shared_ptr< Property > & tPropLoad =
+            const std::shared_ptr< Property > & tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
 
             // get bedding property
-            std::shared_ptr< Property > & tPropBedding =
+            const std::shared_ptr< Property > & tPropBedding =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model > & tCMElasticity =
+            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get thickness property
-            std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property > & tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             MORIS_ASSERT( !(tCMElasticity->get_plane_type() == Model_Type::AXISYMMETRIC

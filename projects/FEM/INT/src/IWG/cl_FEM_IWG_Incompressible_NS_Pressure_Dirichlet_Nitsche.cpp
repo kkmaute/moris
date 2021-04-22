@@ -54,7 +54,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -73,11 +73,11 @@ namespace moris
             }
 
             // get the imposed velocity property
-            std::shared_ptr< Property > & tPropVelocity =
+            const std::shared_ptr< Property > & tPropVelocity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // compute the jump
@@ -114,7 +114,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -133,11 +133,11 @@ namespace moris
             }
 
             // get the imposed velocity property
-            std::shared_ptr< Property > & tPropVelocity =
+            const std::shared_ptr< Property > & tPropVelocity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // compute the jump
