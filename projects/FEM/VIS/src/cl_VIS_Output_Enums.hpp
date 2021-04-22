@@ -32,6 +32,7 @@ namespace vis
         END_ENUM//
     };
 
+    inline
     moris::map< std::string, enum vis::Field_Type > get_vis_field_type_map()
     {
         moris::map< std::string, enum vis::Field_Type > tVisFieldTypeMap;

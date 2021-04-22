@@ -598,26 +598,10 @@ namespace moris
             // compute inverse
             mInvSpaceJac.set_size(3,3,0.0);
 
-            // reciprocals. noting it may be inverted diagonal for some STK meshes
-            if ( std::abs(tSpacJac(0,0)) > 1.0e-8 )
-            {
-                mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
-                mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
-                mInvSpaceJac(2, 2) = 1.0 / tSpacJac(2, 2);
-            }
-
-            /*
-             * inverted diagonal jacobian, eg.,
-             * Jac = [ 0, 0, 1
-             *         0, 1, 0
-             *         1, 0, 0]
-             */
-            else
-            {
-                mInvSpaceJac(0, 2) = 1.0 / tSpacJac(2, 0);
-                mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
-                mInvSpaceJac(2, 0) = 1.0 / tSpacJac(0, 2);
-            }
+            // reciprocals
+            mInvSpaceJac(0, 0) = 1.0 / tSpacJac(0, 0);
+            mInvSpaceJac(1, 1) = 1.0 / tSpacJac(1, 1);
+            mInvSpaceJac(2, 2) = 1.0 / tSpacJac(2, 2);
 
             // check results against generic inverse operator
             MORIS_ASSERT( norm( mInvSpaceJac-inv( tSpacJac ) ) < 1e-8*norm(mInvSpaceJac ),
@@ -889,22 +873,8 @@ namespace moris
             // init tDet J
             real tDetJ;
 
-            // have to account for some jacobians being inverted diagonal from STK meshes
-            if( aSpaceJt(0,0) > 1.0e-8 )
-            {
-                tDetJ = aSpaceJt(1,1)*aSpaceJt(0,0)*aSpaceJt(2,2);
-            }
-
-            /*
-             * inverted diagonal jacobian, eg.,
-             * Jac = [ 0, 0, 1
-             *         0, 1, 0
-             *         1, 0, 0]
-             */
-            else
-            {
-                tDetJ = -aSpaceJt(1,1)*aSpaceJt(0,2)*aSpaceJt(2,0);
-            }
+            // get trace of jacobian
+            tDetJ = aSpaceJt(1,1)*aSpaceJt(0,0)*aSpaceJt(2,2);
 
             MORIS_ASSERT( tDetJ > sDetJLowerLimit,
                     "Space determinant (bulk 3D) close to zero or negative: %e\n", tDetJ);

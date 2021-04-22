@@ -9,6 +9,7 @@ set(MORIS_FIND_MODULES
 	FindGCMMA.cmake
 	FindHDF5.cmake
 	FindMKL.cmake
+    FindOPENBLAS.cmake
 	FindPETSc.cmake
 	FindSNOPT.cmake
 	FindSuiteSparse.cmake

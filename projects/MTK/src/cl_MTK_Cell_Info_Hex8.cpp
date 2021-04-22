@@ -53,39 +53,76 @@ namespace moris
             // error threshold
             real tEpsilon = 1.0E-8;
 
+            // init cell of face normals
+            moris::Cell< moris::Matrix< DDRMat > > tFaceNormals( 6 );
+        
             // looping through each face
             for ( uint iFace = 0; iFace < 6; iFace++)
             {
                 // getting nodes on the face
                 moris::Matrix<moris::IndexMat> tFaceNodes = this->get_node_to_face_map( iFace );
 
-                moris::Matrix< DDRMat > tEdge0 = tVertices( tFaceNodes( 1 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge1 = tVertices( tFaceNodes( 2 ) )->get_coords() - tVertices( tFaceNodes( 1 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge2 = tVertices( tFaceNodes( 3 ) )->get_coords() - tVertices( tFaceNodes( 2 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge3 = tVertices( tFaceNodes( 0 ) )->get_coords() - tVertices( tFaceNodes( 3 ) )->get_coords();
+                // get all of the face vertices
+                moris::Matrix< DDRMat > tVertex0 = tVertices( tFaceNodes( 0 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex1 = tVertices( tFaceNodes( 1 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex2 = tVertices( tFaceNodes( 2 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex3 = tVertices( tFaceNodes( 3 ) )->get_coords();
 
-                // are the edges perpindicular to the adjacent edge?
-                if ( std::abs( dot(tEdge1, tEdge0 ) ) > tEpsilon || 
-                     std::abs( dot(tEdge2, tEdge1 ) ) > tEpsilon ||
-                     std::abs( dot(tEdge3, tEdge2 ) ) > tEpsilon ||
-                     std::abs( dot(tEdge0, tEdge3 ) ) > tEpsilon )
+                // get edges to define check plane
+                auto tEdge0 = tVertex1 - tVertex0;
+                auto tEdge1 = tVertex2 - tVertex1;
+                tFaceNormals( iFace ) = cross(tEdge0,tEdge1);
+
+                // these are the other plane normals produced by the other 6 nodes.
+                // keeping node 0 to ensure the plane is at the same offset.
+                auto tEdge2 = tVertex1 - tVertex0;
+                auto tEdge3 = tVertex3 - tVertex1;
+                auto tFaceVec23 = cross(tEdge2,tEdge3);
+
+                // All three of the plane normals must be parallel in order to be considered straight shape
+                if( norm( cross(tFaceNormals( iFace ), tFaceVec23) ) > tEpsilon )
                 {
-                    // cross products at opposite corners
-                    moris::Matrix< DDRMat > tCross0 = cross( tEdge1, tEdge0 );
-                    moris::Matrix< DDRMat > tCross1 = cross( tEdge3, tEdge2 );
+                    tCellShape = CellShape::GENERAL;
+                    break;
+                }
+            }
 
-                    // if the the cross products at the corners are not parallel
-                    if ( norm( cross( tCross0, tCross1 )) > tEpsilon )
-                    {
-                        // no need to check other faces if this is true
-                        tCellShape = CellShape::GENERAL;
-                        break;
-                    }
+            // since the faces are planar, checking if it is rectangular (aligned), parallel, or straight
 
-                    // setting cell shape to straight if the face is planar
-                    else
+            // if the cell shape is straight, determine if it is a parallel cell
+            if( tCellShape == CellShape::RECTANGULAR )
+            {
+                // create the cross products of opposite faces
+                auto tCross02 = cross( tFaceNormals(0), tFaceNormals(2) );
+                auto tCross13 = cross( tFaceNormals(1), tFaceNormals(3) );
+                auto tCross45 = cross( tFaceNormals(4), tFaceNormals(5) );
+
+                // checking if these face normals are parallel
+                if( norm( tCross02 ) > tEpsilon ||
+                    norm( tCross13 ) > tEpsilon ||
+                    norm( tCross45 ) > tEpsilon )
+                {
+                    tCellShape = CellShape::STRAIGHT;
+                }
+                else
+                {
+                    // get the some edges
+                    moris::Matrix< DDRMat > tVertex1 = tVertices( 1 )->get_coords();
+                    moris::Matrix< DDRMat > tEdge0 = tVertex1 - tVertices( 0 )->get_coords();
+                    moris::Matrix< DDRMat > tEdge1 = tVertices( 2 )->get_coords() - tVertex1;
+
+                    // checking that this cell fits requirements for being rectangular and aligned (CellShape::RECTANGULAR)
+                    if ( std::abs(dot( tFaceNormals(0), tFaceNormals(1) )) > tEpsilon ||
+                         std::abs(dot( tFaceNormals(0), tFaceNormals(4) )) > tEpsilon ||
+                         std::abs(dot( tFaceNormals(1), tFaceNormals(4) )) > tEpsilon ||
+                         std::abs( tEdge0(1) ) > tEpsilon ||
+                         std::abs( tEdge0(2) ) > tEpsilon ||
+                         std::abs( tEdge1(0) ) > tEpsilon ||
+                         std::abs( tEdge1(2) ) > tEpsilon ||
+                         tEdge0(0)   < 0.0 ||
+                         tEdge1(1)   < 0.0 )
                     {
-                        tCellShape = CellShape::STRAIGHT;
+                        tCellShape = CellShape::PARALLEL;
                     }
                 }
             }

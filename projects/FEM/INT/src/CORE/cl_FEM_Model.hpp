@@ -211,6 +211,7 @@ namespace moris
                 /**
                  * resets model member variables
                  */
+                inline
                 void report_on_assembly()
                 {
                     MORIS_LOG_SPEC( "Number of Bulk Gauss Points", sum_all(mBulkGaussPoints) );

@@ -247,8 +247,11 @@ foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	endif()
 	
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-	string(APPEND LINALG_CONFIG_MORIS_DEPENDENCIES
-		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+	#string(APPEND LINALG_CONFIG_MORIS_DEPENDENCIES
+	#	"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+        string(APPEND LINALG_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} REQUIRED HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Build *Config and *ConfigVersion files

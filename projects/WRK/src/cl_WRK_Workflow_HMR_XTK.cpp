@@ -5,6 +5,7 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
+#include "cl_WRK_GEN_Performer.hpp"
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -98,9 +99,12 @@ namespace moris
                 // HMR refined by GE
                 Refinement_Mini_Performer tRefinementPerfomer;
 
+                // GEN interface performer 
+                std::shared_ptr<Performer> tGenPerformer = std::make_shared<wrk::Gen_Performer>(mPerformerManager->mGENPerformer( 0 ));
+
                 //mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
 
-                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
+                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {tGenPerformer});
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();

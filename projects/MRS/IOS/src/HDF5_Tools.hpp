@@ -32,6 +32,7 @@ namespace moris
     /**
      * this function takes a path and makes it parallel
      */
+    inline
     std::string
     make_path_parallel(
             const std::string & aPath,
@@ -73,6 +74,7 @@ namespace moris
     /**
      * create a new HDF5 file
      */
+    inline
     hid_t
     create_hdf5_file(
             const std::string & aPath,
@@ -96,6 +98,7 @@ namespace moris
     /**
      * open an existing hdf5 file
      */
+    inline
     hid_t
     open_hdf5_file(
             const std::string & aPath,
@@ -130,6 +133,7 @@ namespace moris
     /**
      * close an open hdf5 file
      */
+    inline
     herr_t
     close_hdf5_file( hid_t aFileID )
     {
@@ -141,6 +145,7 @@ namespace moris
     /**
      * test if a data set exists
      */
+    inline
     bool
     dataset_exists( hid_t aFileID, const std::string & aLabel )
     {
@@ -158,7 +163,9 @@ namespace moris
      *
      * see also https://support.hdfgroup.org/HDF5/doc/H5.user/Datatypes.html
      */
-    template < typename T > hid_t
+    template < typename T > 
+    inline
+    hid_t
     get_hdf5_datatype( const T & aSample )
     {
         MORIS_ERROR( false , "get_hdf5_datatype: unknown data type.");
@@ -167,7 +174,9 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> hid_t
+    template <>
+    inline
+    hid_t
     get_hdf5_datatype( const int & aSample )
     {
         return H5T_NATIVE_INT;
@@ -175,7 +184,9 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> hid_t
+    template <> 
+    inline
+    hid_t
     get_hdf5_datatype( const long int & aSample )
     {
         return H5T_NATIVE_LONG;
@@ -184,7 +195,9 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // moris::uint
-    template <> hid_t
+    template <> 
+    inline
+    hid_t
     get_hdf5_datatype( const unsigned int & aSample )
     {
         return H5T_NATIVE_UINT;
@@ -193,7 +206,9 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // moris::luint
-    template <> hid_t
+    template <> 
+    inline
+    hid_t
     get_hdf5_datatype( const long unsigned int & aSample )
     {
         return H5T_NATIVE_ULONG;
@@ -201,7 +216,9 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> hid_t
+    template <> 
+    inline 
+    hid_t
     get_hdf5_datatype( const double & aSample )
     {
         return H5T_NATIVE_DOUBLE;
@@ -209,7 +226,9 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> hid_t
+    template <> 
+    inline
+    hid_t
     get_hdf5_datatype( const long double & aSample )
     {
         return H5T_NATIVE_LDOUBLE;
@@ -217,7 +236,9 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template<> hid_t
+    template<> 
+    inline
+    hid_t
     get_hdf5_datatype( const bool & aSample )
     {
         return H5T_NATIVE_HBOOL;
@@ -230,6 +251,7 @@ namespace moris
      * and the passed datatype have the same size
      */
     template < typename T >
+    inline
     bool
     test_size_of_datatype( const T aValue )
     {
@@ -252,6 +274,7 @@ namespace moris
      * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
      */
     template < typename T >
+    inline
     void
     save_matrix_to_hdf5_file(
             hid_t               & aFileID,
@@ -369,6 +392,7 @@ namespace moris
      * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
      */
     template < typename T >
+    inline
     void
     load_matrix_from_hdf5_file(
             hid_t               & aFileID,
@@ -478,6 +502,7 @@ namespace moris
      * @param[ in ]    aStatus  error handler
      */
     template < typename T >
+    inline
     void
     save_scalar_to_hdf5_file(
             hid_t               & aFileID,
@@ -538,6 +563,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     template <>
+    inline
     void
     save_scalar_to_hdf5_file(
             hid_t               & aFileID,
@@ -606,6 +632,7 @@ namespace moris
      * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
      */
     template < typename T >
+    inline
     void
     load_scalar_from_hdf5_file(
             hid_t               & aFileID,
@@ -661,6 +688,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     template <>
+    inline
     void
     load_scalar_from_hdf5_file(
             hid_t               & aFileID,
@@ -717,7 +745,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
+    inline
     void
     save_string_to_hdf5_file(
             hid_t               & aFileID,
@@ -771,7 +799,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
+    inline
     void
     load_string_from_hdf5_file(
             hid_t               & aFileID,

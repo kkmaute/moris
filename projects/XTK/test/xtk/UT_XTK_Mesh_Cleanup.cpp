@@ -96,7 +96,6 @@ TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
         tXTKParams( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
         tXTKParams( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         tXTKParams( 0 )( 0 ).set( "visualize_ghost", true );
-        
         tXTKParams( 0 )( 0 ).set( "cleanup_cut_mesh", true );
         
 

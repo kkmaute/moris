@@ -8,7 +8,7 @@ namespace moris
     namespace prm
     {
         //--------------------------------------------------------------------------------------------------------------
-
+        inline
         ParameterList create_opt_problem_parameter_list()
         {
             ParameterList tParameterList;
@@ -26,7 +26,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
+        inline
         ParameterList create_opt_interface_manager_parameter_list()
         {
             ParameterList tParameterList;
@@ -39,7 +39,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
+        inline
         ParameterList create_opt_interface_parameter_list()
         {
             ParameterList tParameterList;
@@ -51,7 +51,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+        inline
         ParameterList create_gcmma_parameter_list()
         {
             ParameterList tParameterList;
@@ -71,7 +71,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+        inline
         ParameterList create_lbfgs_parameter_list()
         {
             ParameterList tParameterList;
@@ -87,7 +87,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+        inline
         ParameterList create_sqp_parameter_list()
         {
             ParameterList tParameterList;
@@ -167,7 +167,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+        inline
         ParameterList create_sweep_parameter_list()
         {
             ParameterList tParameterList;

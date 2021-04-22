@@ -207,7 +207,13 @@ namespace xtk
             }
 
             Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
-            this->decompose(tSubdivisionMethods);
+            bool tSuccess = this->decompose(tSubdivisionMethods);
+
+            // Return false if cells are on different refinement levels
+            if(!tSuccess)
+            {
+                return false;
+            }
         }
 
         if(mParameterList.get<bool>("cleanup_cut_mesh"))
@@ -362,7 +368,6 @@ namespace xtk
             MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
         }
 
-        //FIXME this function should return false if the intersection crosses two different levels of refinement
         return true;
     }
 
@@ -468,7 +473,7 @@ namespace xtk
     // Decomposition Source code
     // ----------------------------------------------------------------------------------
 
-    void
+    bool
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
@@ -504,6 +509,15 @@ namespace xtk
                 // Change the first subdivision flag as false
                 tFirstSubdivisionFlag = false;
 
+                if(iDecomp == 0)
+                {
+                    if(!this->all_child_meshes_on_same_level())
+                    {
+                        MORIS_LOG_INFO("Intersected cells are not on the same level. ");
+                        return false;
+                    }
+                }
+
             }
 
             // If it's not the last geometry tell the geometry engine we're moving on
@@ -518,6 +532,8 @@ namespace xtk
         this->finalize_decomp();
 
         MORIS_LOG_SPEC("Num Intersected BG Cell",mCutMesh.get_num_child_meshes());
+
+        return true;
     }
 
     // ----------------------------------------------------------------------------------
@@ -1077,6 +1093,7 @@ namespace xtk
                 MORIS_ERROR(breaker != 0, "formulate_node_request should not enter the default case, check to see if your aCheckType is undefined.");
             }
         }
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -3020,6 +3037,36 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+    bool
+    Model::all_child_meshes_on_same_level()
+    {
+        moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
+
+        moris::uint tLevel = 0;
+
+        // iterate through
+        for(moris::uint i = 0; i< tNumChildMeshes; i++)
+        {
+            // get the child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
+
+            // get the parent cell index
+            moris_index tParentCellIndex = tChildMesh.get_parent_element_index();
+
+            moris::uint tCellLevel = mBackgroundMesh.get_mesh_data().get_mtk_cell(tParentCellIndex).get_level();
+
+            if(i == 0)
+            {
+                tLevel = tCellLevel;
+            }
+            else if (tCellLevel != tLevel)
+            {
+                return false;
+            }
+        }
+
+        return all_land(true);
+    }
 
     void
     Model::create_child_element_mtk_cells()

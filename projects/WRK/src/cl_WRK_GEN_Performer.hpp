@@ -1,0 +1,54 @@
+#ifndef MORIS_CL_WRK_GEN_PERFORMER_HPP
+#define MORIS_CL_WRK_GEN_PERFORMER_HPP
+#include "cl_WRK_Performer.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
+#include "cl_Matrix.hpp"
+#include <memory>
+
+namespace moris
+{
+    namespace wrk
+    {
+        // Performer interface to the geometry engine
+        class Gen_Performer: public Performer
+        {
+        private:
+
+            std::shared_ptr<moris::ge::Geometry_Engine> mGeometryEngine;
+
+        public:
+            
+            Gen_Performer( std::shared_ptr<moris::ge::Geometry_Engine> aGeometryEngine );
+            //------------------------------------------------------------------------------------------------------------------
+
+            uint 
+            get_num_refinement_fields();
+            //------------------------------------------------------------------------------------------------------------------
+
+            real
+            get_field_value(
+                        uint                  aFieldIndex,
+                        uint                  aNodeIndex,
+                        const Matrix<DDRMat>& aCoordinates);
+            //------------------------------------------------------------------------------------------------------------------
+
+            const Matrix< DDSMat > & 
+            get_num_refinements(uint aFieldIndex );
+            //------------------------------------------------------------------------------------------------------------------
+
+            const Matrix< DDSMat > &
+            get_refinement_mesh_indices(uint aFieldIndex );
+
+            //------------------------------------------------------------------------------------------------------------------
+            
+            sint
+            get_refinement_function_index(
+                        uint aFieldIndex,
+                        uint aRefinementIndex);
+
+            //------------------------------------------------------------------------------------------------------------------
+        };
+    }
+}
+
+#endif

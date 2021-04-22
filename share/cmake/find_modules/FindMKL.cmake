@@ -84,8 +84,8 @@ mark_as_advanced(MKL_DIR
 
 _import_libraries(MKL_LIBRARY_TARGETS "${MKL_LIBRARIES}")
 
-target_link_libraries(subtarget_libmkl_intel_lp64 INTERFACE subtarget_libmkl_core)
-target_link_libraries(subtarget_libmkl_sequential INTERFACE subtarget_libmkl_core)
+#target_link_libraries(subtarget_libmkl_intel_lp64 INTERFACE subtarget_libmkl_core)
+#target_link_libraries(subtarget_libmkl_sequential INTERFACE subtarget_libmkl_core)
 
 add_library(MKL::mkl INTERFACE IMPORTED GLOBAL)
 target_link_libraries(MKL::mkl INTERFACE ${MKL_LIBRARY_TARGETS})

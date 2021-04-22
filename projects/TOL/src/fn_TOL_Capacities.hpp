@@ -15,6 +15,7 @@ namespace moris
      * the internal class must have a capacity function defined.
      */ 
     template<typename Class_With_Capacity_FN>
+    inline
     size_t
     internal_capacity(moris::Cell<Class_With_Capacity_FN> & aCell)
     {
@@ -37,6 +38,7 @@ namespace moris
      */ 
 
     template<>
+    inline
     size_t
     internal_capacity(moris::Cell<std::string> & aCell)
     {
@@ -53,6 +55,7 @@ namespace moris
     }
 
     template<typename Class_With_Capacity_FN>
+    inline
     size_t
     internal_capacity_nested(moris::Cell<moris::Cell<Class_With_Capacity_FN>> & aCell)
     {
@@ -72,6 +75,7 @@ namespace moris
     }
 
     template <typename Class_PTR_With_Capacity_FN>
+    inline
     size_t
     internal_capacity_ptr(moris::Cell<Class_PTR_With_Capacity_FN> &aCell)
     {
@@ -88,6 +92,7 @@ namespace moris
     }
 
     template <typename Class_PTR_With_Capacity_FN>
+    inline
     size_t
     internal_capacity_nested_ptr(moris::Cell<moris::Cell<Class_PTR_With_Capacity_FN>> &aCell)
     {

@@ -24,7 +24,57 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
+set(HEADERS
 
+	cl_GEN_Geometry_Engine.hpp
+	cl_GEN_Phase_Table.hpp
+	cl_GEN_Geometric_Proximity.hpp
+    st_GEN_Geometry_Engine_Parameters.hpp
+
+	field/cl_GEN_Field.hpp
+	field/cl_GEN_Field_Analytic.hpp
+	field/cl_GEN_Field_Discrete_Integration.hpp
+	field/cl_GEN_Field_Discrete_Interpolation.hpp
+	field/cl_GEN_User_Defined_Field.hpp
+	field/cl_GEN_BSpline_Field.hpp
+
+	field/geometry/cl_GEN_Geometry.hpp
+	field/geometry/cl_GEN_Circle.hpp
+	field/geometry/cl_GEN_Superellipse.hpp
+	field/geometry/cl_GEN_Sphere.hpp
+	field/geometry/cl_GEN_Superellipsoid.hpp
+	field/geometry/cl_GEN_Plane.hpp
+	field/geometry/cl_GEN_Mesh_Field_Geometry.hpp
+	field/geometry/cl_GEN_Voxel_Input.hpp
+	field/geometry/cl_GEN_Single_Grain.hpp
+	field/geometry/cl_GEN_User_Defined_Geometry.hpp
+	field/geometry/cl_GEN_BSpline_Geometry.hpp
+	field/geometry/cl_GEN_Stored_Geometry.hpp
+	field/geometry/cl_GEN_Multigeometry.hpp
+	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
+	field/geometry/fn_GEN_create_geometries.hpp
+	field/geometry/cl_GEN_Child_Node.hpp
+    field/geometry/st_GEN_Geometry_Parameters.hpp
+    
+
+	field/property/cl_GEN_Property.hpp
+	field/property/cl_GEN_Constant_Property.hpp
+	field/property/cl_GEN_Scaled_Field.hpp
+	field/property/cl_GEN_User_Defined_Property.hpp
+	field/property/cl_GEN_BSpline_Property.hpp
+	field/property/fn_GEN_create_properties.hpp
+    field/property/st_GEN_Property_Parameters.hpp
+    field/st_GEN_Field_Parameters.hpp
+
+	pdv/cl_GEN_Pdv_Host_Manager.hpp
+	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
+	pdv/cl_GEN_Pdv.hpp
+	pdv/cl_GEN_Pdv_Value.hpp
+	pdv/cl_GEN_Pdv_Property.hpp
+	pdv/cl_GEN_Intersection_Node.hpp
+	pdv/cl_GEN_Intersection_Node_Linear.hpp
+	pdv/cl_GEN_Intersection_Node_Bilinear.hpp
+    )
 # List library source files
 set(LIB_SOURCES
 
@@ -79,8 +129,8 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${MAP}-lib
 	${SDF}-lib
-	${XTK}-lib
-    ${WRK}-lib
+ 	${XTK}-lib
+    #${WRK}-lib
     )
 
 # Set the output path for library
@@ -122,11 +172,23 @@ foreach(TPL ${GEN_TPL_DEPENDENCIES})
 		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
 endforeach()
 
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+	#string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
+    #		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+    string(APPEND GEN_MAIN_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} QUIET HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
+endforeach()
+
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-	string(APPEND GEN_CONFIG_MORIS_DEPENDENCIES
-		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+	#string(APPEND GEN_CONFIG_MORIS_DEPENDENCIES
+	#	"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+        string(APPEND GEN_MAIN_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Properties to be coppied into config file
