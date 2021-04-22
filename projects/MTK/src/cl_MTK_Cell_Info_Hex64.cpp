@@ -46,9 +46,6 @@ namespace moris
         enum CellShape
         Cell_Info_Hex64::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {
-            // throw error, since this function hasn't been tested. Would need to be able to create a cell without an STK mesh
-//            MORIS_ERROR(false,"Cell_Info_Hex64::compute_cell_shape - this has not been tested. no Hex64 STK implementation");
-
             // getting vertices and storing them in a local matrix, since each node will be used a few times
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
 
@@ -58,90 +55,119 @@ namespace moris
             // error threshold
             real tEpsilon = 1.0E-8;
 
+            // init cell of face normals
+            moris::Cell< moris::Matrix< DDRMat > > tFaceNormals( 6 );
+
             // looping through each face
             for ( uint iFace = 0; iFace < 6; iFace++)
             {
                 // getting nodes on the face
                 moris::Matrix<moris::IndexMat> tFaceNodes = this->get_node_to_face_map( iFace );
 
+                // get the vertex coords
+                moris::Matrix< DDRMat > tVertex00 = tVertices( tFaceNodes( 0  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex01 = tVertices( tFaceNodes( 1  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex02 = tVertices( tFaceNodes( 2  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex03 = tVertices( tFaceNodes( 3  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex04 = tVertices( tFaceNodes( 4  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex05 = tVertices( tFaceNodes( 5  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex06 = tVertices( tFaceNodes( 6  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex07 = tVertices( tFaceNodes( 7  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex08 = tVertices( tFaceNodes( 8  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex09 = tVertices( tFaceNodes( 9  ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex10 = tVertices( tFaceNodes( 10 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex11 = tVertices( tFaceNodes( 11 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex12 = tVertices( tFaceNodes( 12 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex13 = tVertices( tFaceNodes( 13 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex14 = tVertices( tFaceNodes( 14 ) )->get_coords();
+                moris::Matrix< DDRMat > tVertex15 = tVertices( tFaceNodes( 15 ) )->get_coords();
+
                 // get edges to define check plane
-                moris::Matrix< DDRMat > tEdge0 = tVertices( tFaceNodes( 1 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge1 = tVertices( tFaceNodes( 2 ) )->get_coords() - tVertices( tFaceNodes( 1 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec01 = cross(tEdge0,tEdge1);
+                auto tEdge00 = tVertex01 - tVertex00;
+                auto tEdge01 = tVertex02 - tVertex01;
+                tFaceNormals( iFace ) = cross( tEdge00,tEdge01 );
 
-                // these are the other plane normals produced by the other nodes.
+                // these are the other plane normals produced by the other 6 nodes.
                 // keeping node 0 to ensure the plane is at the same offset.
-                moris::Matrix< DDRMat > tEdge2 = tVertices( tFaceNodes( 3 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge3 = tVertices( tFaceNodes( 4 ) )->get_coords() - tVertices( tFaceNodes( 3 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec23 = cross(tEdge2,tEdge3);
+                auto tEdge02 = tVertex03 - tVertex00;
+                auto tEdge03 = tVertex04 - tVertex03;
+                auto tFaceVec0203 = cross(tEdge02,tEdge03);
 
-                moris::Matrix< DDRMat > tEdge4 = tVertices( tFaceNodes( 5 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge5 = tVertices( tFaceNodes( 6 ) )->get_coords() - tVertices( tFaceNodes( 5 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec45 = cross(tEdge4,tEdge5);
+                auto tEdge04 = tVertex05 - tVertex00;
+                auto tEdge05 = tVertex06 - tVertex05;
+                auto tFaceVec0405 = cross(tEdge04,tEdge05);
 
-                moris::Matrix< DDRMat > tEdge6 = tVertices( tFaceNodes( 7 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge7 = tVertices( tFaceNodes( 8 ) )->get_coords() - tVertices( tFaceNodes( 7 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec67 = cross(tEdge6,tEdge7);
+                auto tEdge06 = tVertex07 - tVertex00;
+                auto tEdge07 = tVertex08 - tVertex07;
+                auto tFaceVec0607 = cross(tEdge06,tEdge07);
 
-                moris::Matrix< DDRMat > tEdge8 = tVertices( tFaceNodes( 9 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge9 = tVertices( tFaceNodes( 10 ) )->get_coords() - tVertices( tFaceNodes( 9 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec89 = cross(tEdge8,tEdge9);
+                auto tEdge08 = tVertex09 - tVertex00;
+                auto tEdge09 = tVertex10 - tVertex09;
+                auto tFaceVec0809 = cross(tEdge08,tEdge09);
 
-                moris::Matrix< DDRMat > tEdge10 = tVertices( tFaceNodes( 11 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge11 = tVertices( tFaceNodes( 12 ) )->get_coords() - tVertices( tFaceNodes( 11 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec1011 = cross(tEdge10,tEdge11);
+                auto tEdge10 = tVertex11 - tVertex00;
+                auto tEdge11 = tVertex12 - tVertex11;
+                auto tFaceVec1011 = cross(tEdge10,tEdge11);
 
-                moris::Matrix< DDRMat > tEdge12 = tVertices( tFaceNodes( 13 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge13 = tVertices( tFaceNodes( 14 ) )->get_coords() - tVertices( tFaceNodes( 13 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec1213 = cross(tEdge12,tEdge13);
+                auto tEdge12 = tVertex13 - tVertex00;
+                auto tEdge13 = tVertex14 - tVertex13;
+                auto tFaceVec1213 = cross(tEdge12,tEdge13);
 
-                moris::Matrix< DDRMat > tEdge14 = tVertices( tFaceNodes( 15 ) )->get_coords() - tVertices( tFaceNodes( 0 ) )->get_coords();
-                moris::Matrix< DDRMat > tEdge15 = tVertices( tFaceNodes( 1 ) )->get_coords() - tVertices( tFaceNodes( 15 ) )->get_coords();
-                moris::Matrix< DDRMat > tFaceVec1415 = cross(tEdge14,tEdge15);
-                
-                
+                auto tEdge14 = tVertex15 - tVertex00;
+                auto tEdge15 = tVertex01 - tVertex15;
+                auto tFaceVec1415 = cross(tEdge14,tEdge15);
+
                 // All three of the plane normals must be parallel in order to be considered straight shape
-                if( norm( cross(tFaceVec01, tFaceVec23) )   > tEpsilon ||
-                    norm( cross(tFaceVec01, tFaceVec45) )   > tEpsilon ||
-                    norm( cross(tFaceVec01, tFaceVec67) )   > tEpsilon ||
-                    norm( cross(tFaceVec01, tFaceVec89) )   > tEpsilon ||
-                    norm( cross(tFaceVec01, tFaceVec1011) ) > tEpsilon ||
-                    norm( cross(tFaceVec01, tFaceVec1213) ) > tEpsilon ||
-                    norm( cross(tFaceVec01, tFaceVec1415) ) > tEpsilon )
+                if( norm( cross( tFaceNormals( iFace ), tFaceVec0203) ) > tEpsilon ||
+                    norm( cross( tFaceNormals( iFace ), tFaceVec0405) ) > tEpsilon ||
+                    norm( cross( tFaceNormals( iFace ), tFaceVec0607) ) > tEpsilon ||
+                    norm( cross( tFaceNormals( iFace ), tFaceVec0809) ) > tEpsilon ||
+                    norm( cross( tFaceNormals( iFace ), tFaceVec1011) ) > tEpsilon ||
+                    norm( cross( tFaceNormals( iFace ), tFaceVec1213) ) > tEpsilon ||
+                    norm( cross( tFaceNormals( iFace ), tFaceVec1415) ) > tEpsilon )
                 {
                     tCellShape = CellShape::GENERAL;
                     break;
                 }
+            }
 
-                // Checking if this face is perpindicular to the next face plane
-                
-                if( iFace < 5 && tCellShape == CellShape::RECTANGULAR )
+            // since the faces are planar, checking if it is rectangular (aligned), parallel, or straight
+
+            // if the cell shape is straight, determine if it is a parallel cell
+            if( tCellShape == CellShape::RECTANGULAR )
+            {
+                // create the cross products of opposite faces
+                auto tCross02 = cross( tFaceNormals(0), tFaceNormals(2) );
+                auto tCross13 = cross( tFaceNormals(1), tFaceNormals(3) );
+                auto tCross45 = cross( tFaceNormals(4), tFaceNormals(5) );
+
+                // checking if these face normals are parallel
+                if( norm( tCross02 ) > tEpsilon ||
+                    norm( tCross13 ) > tEpsilon ||
+                    norm( tCross45 ) > tEpsilon )
                 {
-                    moris::Matrix<moris::IndexMat> tNextFaceNodes = this->get_node_to_face_map( iFace + 1 );
+                    tCellShape = CellShape::STRAIGHT;
+                }
+                else
+                {
+                    // get the some edges
+                    moris::Matrix< DDRMat > tVertex1 = tVertices( 1 )->get_coords();
 
-                    // get the plane defined by the first 3 nodes on this face
-                    moris::Matrix< DDRMat > tNextEdge0 = tVertices( tNextFaceNodes( 1 ) )->get_coords() -
-                            tVertices( tNextFaceNodes( 0 ) )->get_coords();
-                    moris::Matrix< DDRMat > tNextEdge1 = tVertices( tNextFaceNodes( 2 ) )->get_coords() -
-                            tVertices( tNextFaceNodes( 1 ) )->get_coords();
-                    moris::Matrix< DDRMat > tNextFaceVec01 = cross(tNextEdge0,tNextEdge1);
+                    moris::Matrix< DDRMat > tEdge0 = tVertex1 - tVertices( 0 )->get_coords();
+                    moris::Matrix< DDRMat > tEdge1 = tVertices( 2 )->get_coords() - tVertex1;
 
-                    if( iFace < 4 )
+                    // checking that this cell fits requirements for being rectangular and aligned (CellShape::RECTANGULAR)
+                    if ( std::abs(dot( tFaceNormals(0), tFaceNormals(1) )) > tEpsilon ||
+                            std::abs(dot( tFaceNormals(0), tFaceNormals(4) )) > tEpsilon ||
+                            std::abs(dot( tFaceNormals(1), tFaceNormals(4) )) > tEpsilon ||
+                            std::abs( tEdge0(1) ) > tEpsilon ||
+                            std::abs( tEdge0(2) ) > tEpsilon ||
+                            std::abs( tEdge1(0) ) > tEpsilon ||
+                            std::abs( tEdge1(2) ) > tEpsilon ||
+                            tEdge0(0)   < 0.0 ||
+                            tEdge1(1)   < 0.0 )
                     {
-                        // the 2 faces should be perpindicular in order for the shape to be rectangular
-                        if( std::abs( dot(tFaceVec01, tNextFaceVec01) ) > tEpsilon )
-                        {
-                            tCellShape = CellShape::STRAIGHT;
-                        }
-                    }
-                    // the last 2 faces should be parallel in order for it to be 
-                    else
-                    {
-                        // the 2 faces should be parallel in order for the shape to be rectangular
-                        if( norm( cross(tFaceVec01, tNextFaceVec01) ) > tEpsilon )
-                        {
-                            tCellShape = CellShape::STRAIGHT;
-                        }
+                        tCellShape = CellShape::PARALLEL;
                     }
                 }
             }

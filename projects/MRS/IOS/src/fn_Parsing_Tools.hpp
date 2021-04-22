@@ -31,7 +31,7 @@ namespace moris
      *
      * @return  cell of strings
      */
-
+    inline
     Cell<std::string>
     split_string(
             const std::string  & aString,
@@ -58,6 +58,7 @@ namespace moris
      *
      * @param s std::string
      */
+    inline
     void ltrim_string(std::string& aString )
     {
         auto it = std::find_if(aString.begin(), aString.end(),
@@ -73,6 +74,7 @@ namespace moris
      *
      * @param aString std::string
      */
+    inline
     void rtrim_string(std::string& aString)
     {
         auto it = std::find_if(aString.rbegin(), aString.rend(),
@@ -88,6 +90,7 @@ namespace moris
      *
      * @param aString std::string
      */
+    inline
     void trim_string(std::string& aString)
     {
         // if aString is empty return
@@ -112,6 +115,7 @@ namespace moris
      * @param aString std::string
      * @param aDelimiter const std::string
      */
+    inline
     void split_trim_string(
             std::string       & aString,
             const std::string & aDelimiter)
@@ -456,6 +460,7 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     template < typename T >
+    inline
     void string_to_cell_mat_2(
             const std::string   & aString,
             Cell< Matrix< T > > & aCellMat )
@@ -981,6 +986,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     template < typename T >
+    inline
     moris::Cell<T> string_to_cell( const std::string & aString)
     {
         moris::Cell<T> tCell;
@@ -1013,7 +1019,7 @@ namespace moris
      * This function inverts little endian to big endian and vice versa.
      * Needed for VTK debug files.
      */
-    template <typename T> T swap_byte_endian(T aValue)
+    template <typename T>  inline T swap_byte_endian(T aValue)
     {
         T aOutValue;
         auto *tPointer = (char*) &aValue;

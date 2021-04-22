@@ -18,6 +18,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template <>
+        inline
         mtk::Interpolation_Order Lagrange_Edge< 3 >::get_interpolation_order() const
         {
             return mtk::Interpolation_Order::QUADRATIC;
@@ -26,6 +27,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template <>
+        inline
         void Lagrange_Edge< 3 >::copy_vertex_pointers()
         {
             // get pointer to master

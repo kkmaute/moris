@@ -33,6 +33,7 @@ namespace moris
          * creates a property parameter list with default inputs
          * @param [ out ] ParameterList a property parameter list
          */
+        inline
         ParameterList create_property_parameter_list()
         {
             ParameterList tParameterList;
@@ -55,6 +56,7 @@ namespace moris
          * creates a field parameter list with default inputs
          * @param [ out ] ParameterList a property parameter list
          */
+        inline
         ParameterList create_fem_field_parameter_list()
         {
             ParameterList tParameterList;
@@ -73,6 +75,7 @@ namespace moris
          * creates a constitutive model parameter list with default inputs
          * @param [ out ] ParameterList a CM parameter list
          */
+        inline
         ParameterList create_constitutive_model_parameter_list()
         {
             ParameterList tParameterList;
@@ -93,6 +96,7 @@ namespace moris
          * creates a stabilization parameter parameter list with default inputs
          * @param [ out ] ParameterList a SP parameter list
          */
+        inline
         ParameterList create_stabilization_parameter_parameter_list()
         {
             ParameterList tParameterList;
@@ -121,6 +125,7 @@ namespace moris
          * creates an IWG parameter list with default inputs
          * @param [ out ] ParameterList a IWG parameter list
          */
+        inline
         ParameterList create_IWG_parameter_list()
         {
             ParameterList tParameterList;
@@ -168,6 +173,7 @@ namespace moris
          * creates an IQI parameter list with default inputs
          * @param [ out ] ParameterList a IQI parameter list
          */
+        inline
         ParameterList create_IQI_parameter_list()
         {
             ParameterList tParameterList;
@@ -218,6 +224,7 @@ namespace moris
          * creates phase parameter list with default inputs
          * @param [ out ] ParameterList a phase parameter list
          */
+        inline
         ParameterList create_phase_parameter_list()
         {
             ParameterList tParameterList;
@@ -237,6 +244,7 @@ namespace moris
          * creates computation fem parameter list with default inputs
          * @param [ out ] ParameterList a computation parameter list
          */
+        inline
         ParameterList create_computation_parameter_list()
         {
             ParameterList tParameterList;

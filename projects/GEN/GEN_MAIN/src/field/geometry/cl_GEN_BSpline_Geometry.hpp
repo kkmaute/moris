@@ -29,6 +29,15 @@ namespace moris
                     uint                      aADVOffsetID,
                     mtk::Mesh_Pair            aMeshPair,
                     std::shared_ptr<Geometry> aGeometry);
+
+            BSpline_Geometry(
+                    sol::Dist_Vector*         aOwnedADVs,
+                    const Matrix<DDUMat>&     aCoefficientIndices,
+                    const Matrix<DDSMat>&     aSharedADVIds,
+                    uint                      aADVOffsetID,
+                    mtk::Mesh_Pair            aMeshPair,
+                    std::shared_ptr<Geometry> aGeometry,
+                    std::shared_ptr<mtk::Field> aField );
         };
     }
 }

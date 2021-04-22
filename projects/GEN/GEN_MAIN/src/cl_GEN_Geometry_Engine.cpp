@@ -61,7 +61,7 @@ namespace moris
             mRequestedIQIs = string_to_cell<std::string>( aParameterLists(0)(0).get<std::string>("IQI_types") );
 
             // Set library
-             mLibrary = aLibrary;
+            mLibrary = aLibrary;
 
             // Geometries
             mGeometryFieldFile = aParameterLists(0)(0).get<std::string>("geometry_field_file");
@@ -139,15 +139,15 @@ namespace moris
         Geometry_Engine::Geometry_Engine(
                 mtk::Interpolation_Mesh*   aMesh,
                 Geometry_Engine_Parameters aParameters)
-                : mGeometries(aParameters.mGeometries)
-                , mProperties(aParameters.mProperties)
-                , mPhaseTable( create_phase_table(aParameters.mGeometries.size(), aParameters.mBulkPhases) )
-                , mIntersectionMode(aParameters.mIntersectionMode)
-                , mIsocontourThreshold(aParameters.mIsocontourThreshold)
-                , mIsocontourTolerance(aParameters.mIsocontourTolerance)
-                , mIntersectionTolerance(aParameters.mIntersectionTolerance)
-                , mInitialPrimitiveADVs(aParameters.mADVs)
-                , mTimeOffset(aParameters.mTimeOffset)
+        : mGeometries(aParameters.mGeometries)
+        , mProperties(aParameters.mProperties)
+        , mPhaseTable( create_phase_table(aParameters.mGeometries.size(), aParameters.mBulkPhases) )
+        , mIntersectionMode(aParameters.mIntersectionMode)
+        , mIsocontourThreshold(aParameters.mIsocontourThreshold)
+        , mIsocontourTolerance(aParameters.mIsocontourTolerance)
+        , mIntersectionTolerance(aParameters.mIntersectionTolerance)
+        , mInitialPrimitiveADVs(aParameters.mADVs)
+        , mTimeOffset(aParameters.mTimeOffset)
         {
             // Tracer
             Tracer tTracer("GEN", "Create geometry engine");
@@ -163,7 +163,7 @@ namespace moris
                     aMesh);
 
             mtk::Mesh_Pair tMeshPair(aMesh, tIntegrationMesh);
-            this->distribute_advs(tMeshPair);
+            this->distribute_advs(tMeshPair,{});
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -295,8 +295,8 @@ namespace moris
                     }
 
                     tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
-                                     (std::abs(tMax) < mIsocontourTolerance) or
-                                     (std::abs(tMin) < mIsocontourTolerance);
+                            (std::abs(tMax) < mIsocontourTolerance) or
+                            (std::abs(tMin) < mIsocontourTolerance);
 
                     break;
                 }
@@ -397,7 +397,7 @@ namespace moris
                 {
                     // Determine if edge is intersected
                     if (mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeGlobalCoordinates ) !=
-                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates))
+                            mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeGlobalCoordinates))
                     {
                         mQueuedIntersectionNode = std::make_shared<Intersection_Node_Linear>(
                                 aFirstNodeIndex,
@@ -569,7 +569,7 @@ namespace moris
 
         moris_index 
         Geometry_Engine::is_interface_vertex(moris_index aNodeIndex,
-                                             moris_index aGeometryIndex)
+                moris_index aGeometryIndex)
         {
             moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)aGeometryIndex);
 
@@ -810,33 +810,35 @@ namespace moris
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
             // Loop over properties to build parallel consistent pdv list
-             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
-             {
-                 // PDV type and mesh set names/indices from parameter list
-                 PDV_Type tPdvType = mProperties(tPropertyIndex)->get_pdv_type();
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                // PDV type and mesh set names/indices from parameter list
+                PDV_Type tPdvType = mProperties(tPropertyIndex)->get_pdv_type();
 
-                 if ( tListToCheckIfEnumExist(static_cast< int >(tPdvType) , 0) == 0)
-                 {
-                     // Set 1 at position of the enum value
-                     tListToCheckIfEnumExist( static_cast< int >(tPdvType) ,0 ) = 1;
+                if ( tListToCheckIfEnumExist(static_cast< int >(tPdvType) , 0) == 0)
+                {
+                    // Set 1 at position of the enum value
+                    tListToCheckIfEnumExist( static_cast< int >(tPdvType) ,0 ) = 1;
 
-                     tTemporaryPdvTypeList.push_back( tPdvType );
-                 }
-             }
+                    tTemporaryPdvTypeList.push_back( tPdvType );
+                }
+            }
 
             // Shrink pdv type list to fit
-             tTemporaryPdvTypeList.shrink_to_fit();
+            tTemporaryPdvTypeList.shrink_to_fit();
 
             // Communicate dof types so that all processors have the same unique list
-             mPdvHostManager.communicate_dof_types( tTemporaryPdvTypeList );
+            mPdvHostManager.communicate_dof_types( tTemporaryPdvTypeList );
 
             // Create a map
-             mPdvHostManager.create_dv_type_map();
+            mPdvHostManager.create_dv_type_map();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::distribute_advs(mtk::Mesh_Pair aMeshPair)
+        void Geometry_Engine::distribute_advs(
+                mtk::Mesh_Pair aMeshPair,
+                moris::Cell<std::shared_ptr< mtk::Field > > aFields )
         {
             // Tracer
             Tracer tTracer("GEN", "Distribute ADVs");
@@ -986,6 +988,14 @@ namespace moris
             // Convert to B-spline fields             //
             //----------------------------------------//
 
+            //FIXME this hole section is super hacky and limiting. has to be rewritten from scratch.
+            moris::map< std::string, uint > tFieldNameToIndexMap;
+            for( uint Ik =0; Ik<aFields.size(); Ik++ )
+            {
+                std::string tLabel = aFields( Ik )->get_label();
+                tFieldNameToIndexMap[ tLabel ] = Ik;
+            }
+
             // Loop to find B-spline geometries
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
@@ -998,14 +1008,32 @@ namespace moris
                     // Always have shape sensitivities if B-spline field
                     mShapeSensitivities = true;
 
-                    // Create B-spline geometry
-                    mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
-                            tNewOwnedADVs,
-                            tSharedCoefficientIndices(tGeometryIndex),
-                            tSharedADVIds(tGeometryIndex),
-                            tAllOffsetIDs(tGeometryIndex),
-                            aMeshPair,
-                            mGeometries(tGeometryIndex));
+                    std::string tGeoName = mGeometries(tGeometryIndex)->get_label();
+
+                    if( not tFieldNameToIndexMap.key_exists(tGeoName) )
+                    {
+                        // Create B-spline geometry
+                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
+                                tNewOwnedADVs,
+                                tSharedCoefficientIndices(tGeometryIndex),
+                                tSharedADVIds(tGeometryIndex),
+                                tAllOffsetIDs(tGeometryIndex),
+                                aMeshPair,
+                                mGeometries(tGeometryIndex));
+                    }
+                    else
+                    {
+                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
+                        // Create B-spline geometry
+                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
+                                tNewOwnedADVs,
+                                tSharedCoefficientIndices(tGeometryIndex),
+                                tSharedADVIds(tGeometryIndex),
+                                tAllOffsetIDs(tGeometryIndex),
+                                aMeshPair,
+                                mGeometries(tGeometryIndex),
+                                aFields(tMTKFieldIndex));
+                    }
                 }
 
                 // Store field values if needed
@@ -1517,7 +1545,7 @@ namespace moris
             {
                 Matrix<DDRMat> tCoords = aMesh->get_node_coordinate(moris_index(iV));
 
-                 mVertexGeometricProximity(iV).mAssociatedVertexIndex = (moris_index) iV;
+                mVertexGeometricProximity(iV).mAssociatedVertexIndex = (moris_index) iV;
 
                 for (uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++)
                 {            
@@ -1553,7 +1581,7 @@ namespace moris
             {
                 tGeometricProxIndex = 2;
             }
-            
+
             return tGeometricProxIndex;
         }
 
@@ -1612,11 +1640,11 @@ namespace moris
                 MORIS_ASSERT(0,"Proximity determination failed.");
             }
 
-             return tProxIndex;
+            return tProxIndex;
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void
         Geometry_Engine::admit_queued_intersection_geometric_proximity(uint aNodeIndex)
         {

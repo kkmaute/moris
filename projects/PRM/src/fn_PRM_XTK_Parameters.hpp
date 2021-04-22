@@ -28,6 +28,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
+    inline
     ParameterList create_xtk_parameter_list()
     {
         ParameterList tParameterList;

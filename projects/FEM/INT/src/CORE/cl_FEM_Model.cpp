@@ -925,6 +925,7 @@ namespace moris
         void FEM_Model::create_fields(
                 std::map< std::string, uint > & aFieldMap )
         {
+            // MORIS_ERROR(0,"KEENAN FIXME");
             // get the property parameter list
             moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 

@@ -29,6 +29,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
+        inline
         moris::ParameterList create_vis_parameter_list()
         {
             ParameterList mVISParameterList;

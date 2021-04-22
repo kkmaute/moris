@@ -12,7 +12,6 @@
 # TRILINOS_PATH to the path to your Trilinos install.
 # You do _not_ need to edit this line.
 
-
 if(NOT TRILINOS_FOUND_ONCE) 
     include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 # - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - -
@@ -103,13 +102,12 @@ if(NOT TRILINOS_FOUND_ONCE)
         # MESSAGE("   Trilinos_DIR = ${Trilinos_DIR}")
         # MESSAGE("   Trilinos_VERSION = ${Trilinos_VERSION}")
         # MESSAGE("   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}")
-        # MESSAGE("   Trilinos_LIBRARIES = ${Trilinos_LIBRARIES}")
         # MESSAGE("   Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}")
         # MESSAGE("   Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}")
         # MESSAGE("   Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}")
         # MESSAGE("   Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}")
         # MESSAGE("   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}")
-        # MESSAGE("   Trilinos_CXX_COMPILER = ${Trilinos_CXX_COMPILER}")
+        #  MESSAGE("   Trilinos_CXX_COMPILER = ${Trilinos_CXX_COMPILER}")
         # MESSAGE("   Trilinos_C_COMPILER = ${Trilinos_C_COMPILER}")
         # MESSAGE("   Trilinos_Fortran_COMPILER = ${Trilinos_Fortran_COMPILER}")
         # MESSAGE("   Trilinos_CXX_COMPILER_FLAGS = ${Trilinos_CXX_COMPILER_FLAGS}")

@@ -17,6 +17,7 @@ namespace moris
     {
 // ----------------------------------------------------------------------------
         template<>
+        inline
         void
         Lagrange_Element< 3, 64 >::set_cell_info() 
         {
@@ -34,6 +35,7 @@ namespace moris
          *
          */
         template<>
+        inline
         std::string
         Lagrange_Element< 3, 64 >::get_gmsh_string()
         {
@@ -64,6 +66,7 @@ namespace moris
          *
          */
         template<>
+        inline
         void
         Lagrange_Element< 3, 64 >::get_ijk_of_basis(
             const uint & aBasisNumber, 
@@ -544,6 +547,7 @@ namespace moris
         * @return void
         */
         template<>
+        inline
         void
         Lagrange_Element< 3, 64 >::create_basis_on_level_zero(
               moris::Cell< Element * > & aAllElementsOnProc,
@@ -656,6 +660,7 @@ namespace moris
         * @return void
         */
         template<>
+        inline
         void
         Lagrange_Element< 3, 64 >::create_basis_for_children(
             moris::Cell< Element * > & aAllElementsOnProc,
