@@ -80,7 +80,15 @@ namespace moris
             // Interpolation cell geometry type and space param  dim.  This will be used
             // to determine an appropriate mapping size.
             mIPMappingGeometryType = aIPMapInterpolationRule.get_geometry_type();
-            mIPMappingNumSpaceParamDim = aIPMapInterpolationRule.create_space_interpolation_function()->get_number_of_param_dimensions();
+
+            // create the IP mapping space interpolation function
+            Interpolation_Function_Base * tIPMapInterpolation = aIPMapInterpolationRule.create_space_interpolation_function();
+
+            // getting param dimensions
+            mIPMappingNumSpaceParamDim = tIPMapInterpolation->get_number_of_param_dimensions();
+
+            // delete the pointer data
+            delete tIPMapInterpolation;
 
             // set pointers for second derivative depending on space and time dimensions
             this->set_function_pointers();
