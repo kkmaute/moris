@@ -69,6 +69,7 @@ namespace moris
 
         // path to folder for XTK output
         tParameterList.insert( "output_path", "./" );
+        tParameterList.insert( "output_file", "xtk_temp.exo" );
 
         // print enriched integration mesh
         tParameterList.insert( "print_enriched_ig_mesh", false );

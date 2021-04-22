@@ -36,3 +36,4 @@ include("@PACKAGE_WRK_CONFIG_INSTALL_DIR@/@WRK@Targets.cmake")
 
 # Library target list
 set(@WRK@_LIBRARIES @WRK@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@WRK@-lib")

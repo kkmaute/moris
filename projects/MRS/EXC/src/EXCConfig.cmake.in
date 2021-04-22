@@ -34,3 +34,4 @@ include("@PACKAGE_EXC_CONFIG_INSTALL_DIR@/@EXC@Targets.cmake")
 
 # Library target list
 set(@EXC@_LIBRARIES @EXC@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@EXC@-lib")

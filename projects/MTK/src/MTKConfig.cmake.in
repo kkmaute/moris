@@ -29,3 +29,5 @@ include("@PACKAGE_MTK_CONFIG_INSTALL_DIR@/@MTK@Targets.cmake")
 
 # Library target list
 set(@MTK@_LIBRARIES @MTK@-lib)
+
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@MTK@-lib")
