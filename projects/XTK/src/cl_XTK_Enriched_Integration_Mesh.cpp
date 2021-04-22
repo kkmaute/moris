@@ -774,53 +774,58 @@ namespace xtk
     void
     Enriched_Integration_Mesh::write_mesh(moris::ParameterList* aParamList)
     {
-            if (aParamList->get<bool>("deactivate_empty_sets"))
-            {
-                this->deactivate_empty_sets();
+        if (aParamList->get<bool>("deactivate_empty_sets"))
+        {
+            this->deactivate_empty_sets();
+        }
+
+        // get path to output XTK files to
+        std::string tOutputPath = aParamList->get<std::string>("output_path");
+        std::string tOutputFile = aParamList->get<std::string>("output_file");
+        std::string tOutputBase = tOutputFile.substr(0,tOutputFile.find("."));
+        std::string tOutputExt  = tOutputFile.substr(tOutputFile.find("."),tOutputFile.length());
+
+        MORIS_ASSERT(tOutputExt == ".exo" || tOutputExt == ".e","Invalid file extension, needs to be .exo or .e");
+        
+        // Write mesh
+        moris::mtk::Writer_Exodus writer( this );
+        
+        // if user requests to keep XTK output for all iterations, add iteration count to output file name
+        if ( aParamList->get<bool>("keep_all_opt_iters") ) 
+        {
+            // get optimization iteration ( function returns zero if no optimization )
+            uint tOptIter = gLogger.get_opt_iteration();
+
+            writer.write_mesh(
+                "", tOutputPath + tOutputBase  + "." + std::to_string( tOptIter ) + tOutputExt, 
+                "", tOutputPath + "xtk_temp2." + std::to_string( tOptIter ) + tOutputExt );
+        }
+        // else: proceed as usual and overwrite xtk_temp.exo each iteration
+        else 
+        {
+            writer.write_mesh(
+                "", tOutputPath + "xtk_temp.exo", 
+                "", tOutputPath + "xtk_temp2.exo" );
+        }
+
+        if(aParamList->get<bool>("write_enrichment_fields"))
+        {
+            // set up the nodal fields for basis support
+            moris::Cell<std::string> tNodeFields = this->create_basis_support_fields();
+
+            writer.set_nodal_fields(tNodeFields);
+
+            for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
+            {    
+                moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
+                
+                writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
             }
+        }          
 
-            // get path to output XTK files to
-            std::string tOutputPath = aParamList->get<std::string>("output_path");
-            
-            // Write mesh
-            moris::mtk::Writer_Exodus writer( this );
-            
-            // if user requests to keep XTK output for all iterations, add iteration count to output file name
-            if ( aParamList->get<bool>("keep_all_opt_iters") ) 
-            {
-                // get optimization iteration ( function returns zero if no optimization )
-                uint tOptIter = gLogger.get_opt_iteration();
-
-                writer.write_mesh(
-                    "", tOutputPath + "xtk_temp." + std::to_string( tOptIter ) + ".exo", 
-                    "", tOutputPath + "xtk_temp2." + std::to_string( tOptIter ) + ".exo" );
-            }
-            // else: proceed as usual and overwrite xtk_temp.exo each iteration
-            else 
-            {
-                writer.write_mesh(
-                    "", tOutputPath + "xtk_temp.exo", 
-                    "", tOutputPath + "xtk_temp2.exo" );
-            }
-
-            if(aParamList->get<bool>("write_enrichment_fields"))
-            {
-                // set up the nodal fields for basis support
-                moris::Cell<std::string> tNodeFields = this->create_basis_support_fields();
-
-                writer.set_nodal_fields(tNodeFields);
-
-                for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
-                {    
-                    moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
-                    
-                    writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
-                }
-            }          
-
-            // Write the fields
-            writer.set_time(0.0);
-            writer.close_file();
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
     }
     //------------------------------------------------------------------------------
  

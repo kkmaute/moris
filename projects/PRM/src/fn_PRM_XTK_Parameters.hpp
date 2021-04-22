@@ -71,7 +71,7 @@ namespace moris
         tParameterList.insert( "output_path", "./" );
         tParameterList.insert( "output_file", "xtk_temp.exo" );
 
-        // print enriched integration mesh
+        // print enriched integration meshs
         tParameterList.insert( "print_enriched_ig_mesh", false );
 
         // save enriched integration mesh for every optimization iteration

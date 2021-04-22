@@ -58,7 +58,7 @@ set(HEADERS
     cl_XTK_Pending_Node.hpp
     cl_XTK_Side_Cluster.hpp
     cl_XTK_Vertex_Enrichment.hpp
-    
+    cl_XTK_Field.hpp
     fn_compute_interface_surface_area.hpp
     fn_compute_xtk_model_areas.hpp
     fn_compute_xtk_model_volumes.hpp
