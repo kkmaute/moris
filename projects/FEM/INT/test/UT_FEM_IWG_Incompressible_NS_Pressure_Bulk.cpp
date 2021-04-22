@@ -567,7 +567,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
                         { 0.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                tVelDofTypes = {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }};
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
@@ -590,7 +590,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }};
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );

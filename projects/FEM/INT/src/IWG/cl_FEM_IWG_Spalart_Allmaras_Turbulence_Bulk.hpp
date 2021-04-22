@@ -47,24 +47,24 @@ namespace moris
 
             private :
 
-                // internal threshold
-                const real mEpsilon = 1e-12;//1e-18;
-
-                // Spalart Allmaras model constants
-                real mCb1 = 0.1355;
+//                // internal threshold
+//                const real mEpsilon = 1e-12;//1e-18;
+//
+//                // Spalart Allmaras model constants
+//                real mCb1 = 0.1355;
                 real mCb2 = 0.6220;
                 real mSigma = 2.0/3.0;
-                real mKappa = 0.41;
-                real mCw1 = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
-                real mCw2 = 0.3;
-                real mCw3 = 2.0;
-                real mCt3 = 1.2;
-                real mCt4 = 0.5;
-                real mCv1 = 7.1;
-                real mCv2 = 0.7;
-                real mCv3 = 0.9;
-                real mRLim = 10.0;
-                real mCn1 = 16.0;
+//                real mKappa = 0.41;
+//                real mCw1 = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
+//                real mCw2 = 0.3;
+//                real mCw3 = 2.0;
+//                real mCt3 = 1.2;
+//                real mCt4 = 0.5;
+//                real mCv1 = 7.1;
+//                real mCv2 = 0.7;
+//                real mCv3 = 0.9;
+//                real mRLim = 10.0;
+//                real mCn1 = 16.0;
 
             public:
                 //------------------------------------------------------------------------------

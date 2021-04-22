@@ -44,7 +44,7 @@ namespace moris
 
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ));
 
             // get the velocity FI
             // FIXME protect dof type
@@ -69,7 +69,7 @@ namespace moris
 
             // compute production term
             real tProductionTerm = compute_production_term(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     { MSI::Dof_Type::VX },
                     mMasterFIManager,
                     tPropKinViscosity,
@@ -77,7 +77,7 @@ namespace moris
 
             // compute wall destruction term
             real tWallDestructionTerm = compute_wall_destruction_term(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     { MSI::Dof_Type::VX },
                     mMasterFIManager,
                     tPropKinViscosity,
@@ -85,7 +85,7 @@ namespace moris
 
             // compute diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity );
 
@@ -156,7 +156,7 @@ namespace moris
 
             // compute diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity );
 
@@ -226,7 +226,7 @@ namespace moris
                 // compute derivative of production term
                 Matrix< DDRMat > tdProductiondu;
                 compute_dproductiontermdu(
-                        mResidualDofType,
+                        mResidualDofType( 0 ),
                         { MSI::Dof_Type::VX },
                         mMasterFIManager,
                         tPropKinViscosity,
@@ -237,7 +237,7 @@ namespace moris
                 // compute derivative of wall destruction term
                 Matrix< DDRMat > tdWallDestructiondu;
                 compute_dwalldestructiontermdu(
-                        mResidualDofType,
+                        mResidualDofType( 0 ),
                         { MSI::Dof_Type::VX },
                         mMasterFIManager,
                         tPropKinViscosity,
@@ -248,7 +248,7 @@ namespace moris
                 // compute derivative of diffusion coefficient
                 Matrix< DDRMat > tdDiffdu;
                 compute_ddiffusiondu(
-                        mResidualDofType,
+                        mResidualDofType( 0 ),
                         mMasterFIManager,
                         tPropKinViscosity,
                         tDofType,
@@ -325,7 +325,7 @@ namespace moris
 
             // compute production term
             real tProductionTerm = compute_production_term(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     { MSI::Dof_Type::VX },
                     mMasterFIManager,
                     tPropKinViscosity,
@@ -333,7 +333,7 @@ namespace moris
 
             // compute wall destruction term
             real tWallDestructionTerm = compute_wall_destruction_term(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     { MSI::Dof_Type::VX },
                     mMasterFIManager,
                     tPropKinViscosity,
@@ -359,7 +359,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the velocity FI
             // FIXME protect dof type
@@ -403,7 +403,7 @@ namespace moris
             // compute derivative of production term
             Matrix< DDRMat > tdProductiondu;
             compute_dproductiontermdu(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     { MSI::Dof_Type::VX },
                     mMasterFIManager,
                     tPropKinViscosity,
@@ -414,7 +414,7 @@ namespace moris
             // compute derivative of wall destruction term
             Matrix< DDRMat > tdWallDestructiondu;
             compute_dwalldestructiontermdu(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     { MSI::Dof_Type::VX },
                     mMasterFIManager,
                     tPropKinViscosity,
@@ -824,7 +824,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the kinematic viscosity property
             const std::shared_ptr< Property > & tPropKinViscosity =
@@ -832,14 +832,14 @@ namespace moris
 
             // compute diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity );
 
             // compute diffusion coefficient space derivative
             Matrix<DDRMat > tdDiffusionCoeffdx;
             compute_ddiffusiondx(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity,
                     tdDiffusionCoeffdx );
@@ -860,7 +860,7 @@ namespace moris
         {
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the viscosity property
             const std::shared_ptr< Property > tPropViscosity =
@@ -875,21 +875,22 @@ namespace moris
 
             // compute diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropViscosity );
 
             // compute diffusion coefficient space derivative
             Matrix<DDRMat > tdDiffusionCoeffdx;
             compute_ddiffusiondx(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropViscosity,
                     tdDiffusionCoeffdx );
 
+            // get spatial dimension
+            uint tSpaceDim = tFIViscosity->get_space_dim();
 
-            // FIXME get spatial dimension
-            uint tSpaceDim = tFIViscosity->dnNdxn( 1 ).n_rows();
+            // get number of space time bases
             uint tNumBases = tFIViscosity->get_number_of_space_time_bases();
 
             // if derivative wrt to residual dof type (here viscosity)
@@ -911,7 +912,7 @@ namespace moris
             // compute derivative of diffusion coefficient
             Matrix< DDRMat > tdDiffdu;
             compute_ddiffusiondu(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropViscosity,
                     aDofTypes,
@@ -920,7 +921,7 @@ namespace moris
             // compute diffusion coefficient space derivative
             Matrix<DDRMat > tdDiffusionCoeffdxdu;
             compute_ddiffusiondxdu(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropViscosity,
                     aDofTypes,

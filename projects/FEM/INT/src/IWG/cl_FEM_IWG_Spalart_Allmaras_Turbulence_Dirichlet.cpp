@@ -52,7 +52,7 @@ namespace moris
 
             // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ));
 
             // get the velocity dof FI
             Field_Interpolator * tFIVelocity =
@@ -451,7 +451,7 @@ namespace moris
         {
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ));
 
             // get the kinematic viscosity property
             const std::shared_ptr< Property > & tPropKinViscosity =
@@ -459,7 +459,7 @@ namespace moris
 
             // compute the diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity );
 
@@ -482,7 +482,7 @@ namespace moris
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ));
 
             // get the kinematic viscosity property
             const std::shared_ptr< Property > & tPropKinViscosity =
@@ -490,7 +490,7 @@ namespace moris
 
             // compute the diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity );
 
@@ -505,7 +505,7 @@ namespace moris
             // compute ddiffusiondu
             Matrix< DDRMat > tddiffusiondu;
             compute_ddiffusiondu(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity,
                     aDofTypes, tddiffusiondu );
@@ -538,7 +538,7 @@ namespace moris
 
             // compute the diffusion coefficient
             real tDiffusionCoeff = compute_diffusion_coefficient(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity );
 
@@ -553,7 +553,7 @@ namespace moris
             // compute ddiffusiondu
             Matrix< DDRMat > tddiffusiondu;
             compute_ddiffusiondu(
-                    mResidualDofType,
+                    mResidualDofType( 0 ),
                     mMasterFIManager,
                     tPropKinViscosity,
                     aTestDofTypes,
@@ -604,7 +604,7 @@ namespace moris
                     // compute ddiffusiondutest
                     Matrix< DDRMat > tddiffusiondutest;
                     compute_ddiffusiondu(
-                            mResidualDofType,
+                            mResidualDofType( 0 ),
                             mMasterFIManager,
                             tPropKinViscosity,
                             aTestDofTypes,
@@ -618,7 +618,7 @@ namespace moris
                 // compute ddiffusiondu
                 Matrix< DDRMat > tddiffusiondu;
                 compute_ddiffusiondu(
-                        mResidualDofType,
+                        mResidualDofType( 0 ),
                         mMasterFIManager,
                         tPropKinViscosity,
                         aDofTypes,
