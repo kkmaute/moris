@@ -263,6 +263,79 @@ namespace xtk
             }
         }
 
+        std::string tUnionBlockStr = mParameterList.get<std::string>("union_blocks");
+        if( !tUnionBlockStr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tUnionBlockCells;
+            moris::string_to_cell_of_cell(tUnionBlockStr,tUnionBlockCells);
+
+            // Row based
+            Matrix<IndexMat> tUnionBlockColors = string_to_mat<IndexMat>(mParameterList.get<std::string>("union_block_colors"));
+            std::string tUnionNewBlockNamesStr = mParameterList.get<std::string>("union_block_names");
+
+            moris::Cell< moris::Cell< std::string > > tNewBlockNames;
+            moris::string_to_cell_of_cell(tUnionNewBlockNamesStr,tNewBlockNames);
+
+            MORIS_ERROR(tUnionBlockCells.size() == tNewBlockNames.size(),"Dimension Mismatch in number of union operations for block");
+            MORIS_ERROR(tUnionBlockCells.size() == tUnionBlockColors.n_rows(),"Dimension Mismatch in number of union operations for block");
+            
+            for(moris::uint iUnion = 0; iUnion < tUnionBlockCells.size(); iUnion++)
+            {
+                this->get_enriched_integ_mesh(0).create_union_block(tUnionBlockCells(iUnion),tNewBlockNames(iUnion)(0),tUnionBlockColors.get_row(iUnion));
+            }
+
+        }
+
+        std::string tUnionSideSetStr = mParameterList.get<std::string>("union_side_sets");
+        if( !tUnionSideSetStr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tUnionSideSetCells;
+            moris::string_to_cell_of_cell(tUnionSideSetStr,tUnionSideSetCells);
+
+            // Row based
+            Matrix<IndexMat> tUnionSideSetColors = string_to_mat<IndexMat>(mParameterList.get<std::string>("union_side_set_colors"));
+            std::string tUnionNewSideSetNamesStr = mParameterList.get<std::string>("union_side_set_names");
+
+            moris::Cell< moris::Cell< std::string > > tNewSideSetNames;
+            moris::string_to_cell_of_cell(tUnionNewSideSetNamesStr,tNewSideSetNames);
+
+            MORIS_ERROR(tUnionSideSetCells.size() == tNewSideSetNames.size(),"Dimension Mismatch in number of union operations for side set");
+            MORIS_ERROR(tUnionSideSetCells.size() == tUnionSideSetColors.n_rows(),"Dimension Mismatch in number of union operations for side set");
+            
+            for(moris::uint iUnion = 0; iUnion < tUnionSideSetCells.size(); iUnion++)
+            {
+                this->get_enriched_integ_mesh(0).create_union_side_set(tUnionSideSetCells(iUnion),tNewSideSetNames(iUnion)(0),tUnionSideSetColors.get_row(iUnion));
+            }
+
+        }
+
+        std::string tDeactiveBlockstr = mParameterList.get<std::string>("deactivate_all_but_blocks");
+        if( !tDeactiveBlockstr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tBlocksToKeepStr;
+            moris::string_to_cell_of_cell(tDeactiveBlockstr,tBlocksToKeepStr);
+
+            MORIS_ERROR(tBlocksToKeepStr.size() == 1,"deactivate_all_but_block issue: This operation can only be performed on time");
+
+            this->get_enriched_integ_mesh(0).deactive_all_blocks_but_selected(tBlocksToKeepStr(0));
+        }
+
+        std::string tDeactiveSideSetstr = mParameterList.get<std::string>("deactivate_all_but_side_sets");
+        if( !tDeactiveSideSetstr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tSideSetsToKeepStr;
+            moris::string_to_cell_of_cell(tDeactiveSideSetstr,tSideSetsToKeepStr);
+
+            MORIS_ERROR(tSideSetsToKeepStr.size() == 1,"deactive_all_side_sets_but_selected issue: This operation can only be performed on time");
+
+            this->get_enriched_integ_mesh(0).deactive_all_side_sets_but_selected(tSideSetsToKeepStr(0));
+        }
+
+
         if( mParameterList.get<bool>("multigrid") )
         {
             this->construct_multigrid();

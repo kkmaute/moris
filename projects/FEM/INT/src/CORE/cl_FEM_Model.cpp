@@ -637,123 +637,122 @@ namespace moris
 
         void FEM_Model::initialize( std::shared_ptr< Library_IO > aLibrary )
         {
-            MORIS_ERROR(0,"FIXME KEENAN");
-            // // get msi string to dof type map
-            // moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap =
-            //         moris::MSI::get_msi_dof_type_map();
+            // get msi string to dof type map
+            moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap =
+                    moris::MSI::get_msi_dof_type_map();
 
-            // // get string to dv type map
-            // moris::map< std::string, PDV_Type > tMSIDvTypeMap =
-            //         get_pdv_type_map();
+            // get string to dv type map
+            moris::map< std::string, PDV_Type > tMSIDvTypeMap =
+                    get_pdv_type_map();
 
-            // // get string to field type map
-            // moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
-            //         mtk::get_field_type_map();
+            // get string to field type map
+            moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                    mtk::get_field_type_map();
 
-            // switch( mParameterList.size() )
-            // {
-            //     // without phase
-            //     case 7:
-            //     {
-            //         // create properties
-            //         std::map< std::string, uint > tPropertyMap;
-            //         this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
+            switch( mParameterList.size() )
+            {
+                // without phase
+                case 7:
+                {
+                    // create properties
+                    std::map< std::string, uint > tPropertyMap;
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
-            //         // create fields
-            //         std::map< std::string, uint > tFieldMap;
-            //         this->create_fields( tFieldMap );
+                    // create fields
+                    std::map< std::string, uint > tFieldMap;
+                    this->create_fields( tFieldMap );
 
-            //         // create constitutive models
-            //         std::map< std::string, uint > tCMMap;
-            //         this->create_constitutive_models( tCMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create constitutive models
+                    std::map< std::string, uint > tCMMap;
+                    this->create_constitutive_models( tCMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create stabilization parameters
-            //         std::map< std::string, uint > tSPMap;
-            //         this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create stabilization parameters
+                    std::map< std::string, uint > tSPMap;
+                    this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create IWGs
-            //         std::map< std::string, uint > tIWGMap;
-            //         this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                    // create IWGs
+                    std::map< std::string, uint > tIWGMap;
+                    this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
-            //         // create IQIs
-            //         std::map< std::string, uint > tIQIMap;
-            //         this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                    // create IQIs
+                    std::map< std::string, uint > tIQIMap;
+                    this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
-            //         // create FEM set info
-            //         this->create_fem_set_info();
+                    // create FEM set info
+                    this->create_fem_set_info();
 
-            //         break;
-            //     }
-            //     // with phase
-            //     case 8:
-            //     {
-            //         // create phases
-            //         this->create_phases();
+                    break;
+                }
+                // with phase
+                case 8:
+                {
+                    // create phases
+                    this->create_phases();
 
-            //         // create properties
-            //         std::map< std::string, uint > tPropertyMap;
-            //         this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
+                    // create properties
+                    std::map< std::string, uint > tPropertyMap;
+                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
 
-            //         // create fields
-            //         std::map< std::string, uint > tFieldMap;
-            //         this->create_fields( tFieldMap );
+                    // create fields
+                    std::map< std::string, uint > tFieldMap;
+                    this->create_fields( tFieldMap );
 
-            //         // create constitutive models
-            //         this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create constitutive models
+                    this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create stabilization parameters
-            //         std::map< std::string, uint > tSPMap;
-            //         this->create_stabilization_parameters( tSPMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    // create stabilization parameters
+                    std::map< std::string, uint > tSPMap;
+                    this->create_stabilization_parameters( tSPMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
-            //         // create IWGs
-            //         this->create_IWGs( tPropertyMap, tSPMap, tMSIDofTypeMap );
+                    // create IWGs
+                    this->create_IWGs( tPropertyMap, tSPMap, tMSIDofTypeMap );
 
-            //         // create IQIs
-            //         this->create_IQIs( tPropertyMap, tSPMap, tMSIDofTypeMap );
+                    // create IQIs
+                    this->create_IQIs( tPropertyMap, tSPMap, tMSIDofTypeMap );
 
-            //         // create FEM set info
-            //         this->create_fem_set_info( true );
+                    // create FEM set info
+                    this->create_fem_set_info( true );
 
-            //         // get fem computation type parameter list
-            //         ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+                    // get fem computation type parameter list
+                    ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
 
-            //         // get bool for printing physics model
-            //         bool tPrintPhysics =
-            //                 tComputationParameterList.get< bool >( "print_physics_model" );
+                    // get bool for printing physics model
+                    bool tPrintPhysics =
+                            tComputationParameterList.get< bool >( "print_physics_model" );
 
-            //         // if print FEM model
-            //         if( tPrintPhysics )
-            //         {
-            //             // phase info
-            //             std::cout<<"Phase info "<<std::endl;
+                    // if print FEM model
+                    if( tPrintPhysics )
+                    {
+                        // phase info
+                        std::cout<<"Phase info "<<std::endl;
 
-            //             // loop over phase info
-            //             for( uint iPhase = 0; iPhase < mPhaseInfo.size(); iPhase++ )
-            //             {
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //                 mPhaseInfo( iPhase ).print_names();
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //             }
+                        // loop over phase info
+                        for( uint iPhase = 0; iPhase < mPhaseInfo.size(); iPhase++ )
+                        {
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                            mPhaseInfo( iPhase ).print_names();
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                        }
 
-            //             std::cout<<" "<<std::endl;
+                        std::cout<<" "<<std::endl;
 
-            //             // set info
-            //             std::cout<<"Set info "<<std::endl;
+                        // set info
+                        std::cout<<"Set info "<<std::endl;
 
-            //             // loop over set info
-            //             for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
-            //             {
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //                 mSetInfo( iSet ).print_names();
-            //                 std::cout<<"%-------------------------------------------------"<<std::endl;
-            //             }
-            //         }
-            //         break;
-            //     }
+                        // loop over set info
+                        for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
+                        {
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                            mSetInfo( iSet ).print_names();
+                            std::cout<<"%-------------------------------------------------"<<std::endl;
+                        }
+                    }
+                    break;
+                }
 
-            //     default:
-            //         MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list" );
-            // }
+                default:
+                    MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list" );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -917,76 +916,75 @@ namespace moris
         void FEM_Model::create_fields(
                 std::map< std::string, uint > & aFieldMap )
         {
-            MORIS_ERROR(0,"KEENAN FIXME");
-            // // get the property parameter list
-            // moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
+            // get the property parameter list
+            moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 
-            // // get the number of properties
-            // sint tNumFields = tFieldParameterList.size();
+            // get the number of properties
+            sint tNumFields = tFieldParameterList.size();
 
-            // // create a list of property pointers
-            // mFields.resize( tNumFields, nullptr );
+            // create a list of property pointers
+            mFields.resize( tNumFields, nullptr );
 
-            // // loop over the parameter lists
-            // for ( sint iFields = 0; iFields < tNumFields; iFields++ )
-            // {
-            //     // get property parameter list
-            //     ParameterList tFieldParameter = tFieldParameterList( iFields );
+            // loop over the parameter lists
+            for ( sint iFields = 0; iFields < tNumFields; iFields++ )
+            {
+                // get property parameter list
+                ParameterList tFieldParameter = tFieldParameterList( iFields );
 
-            //     // get property name from parameter list
-            //     std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
+                // get property name from parameter list
+                std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
-            //     // create a property pointer
-            //     std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
-            //             mMeshManager->get_mesh_pair( mMeshPairIndex ) );
+                // create a property pointer
+                std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
+                        mMeshManager->get_mesh_pair( mMeshPairIndex ) );
 
-            //     // set a name for the property
-            //     tField->set_label( tFieldName );
+                // set a name for the property
+                tField->set_label( tFieldName );
 
-            //     // fill property map
-            //     aFieldMap[ tFieldName ] = iFields;
+                // fill property map
+                aFieldMap[ tFieldName ] = iFields;
 
-            //     // set field type
-            //     moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
-            //             mtk::get_field_type_map();
+                // set field type
+                moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
+                        mtk::get_field_type_map();
 
-            //     moris::Cell< mtk::Field_Type > tFieldTypes;
-            //     string_to_cell(
-            //             tFieldParameter.get< std::string >( "field_type" ),
-            //             tFieldTypes,
-            //             tFieldTypeMap );
+                moris::Cell< mtk::Field_Type > tFieldTypes;
+                string_to_cell(
+                        tFieldParameter.get< std::string >( "field_type" ),
+                        tFieldTypes,
+                        tFieldTypeMap );
 
-            //     // set field type
-            //     tField->set_field_type( tFieldTypes );
+                // set field type
+                tField->set_field_type( tFieldTypes );
 
-            //     mFieldTypeMap.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, ( uint )mFieldTypeMap.size() ), -1 );
-            //     mFieldTypeMap( static_cast< uint >(tFieldTypes( 0 )) ) = iFields;
+                mFieldTypeMap.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, ( uint )mFieldTypeMap.size() ), -1 );
+                mFieldTypeMap( static_cast< uint >(tFieldTypes( 0 )) ) = iFields;
 
-            //     MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
-            //             (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
-            //             "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+                MORIS_ERROR( (tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) or
+                        (tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
 
-            //     MORIS_ERROR( not ((not tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) and
-            //             (not tFieldParameter.get< std::string >( "IQI_Name" ).empty()  )),
-            //             "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
+                MORIS_ERROR( not ((not tFieldParameter.get< std::string >( "field_create_from_file" ).empty()) and
+                        (not tFieldParameter.get< std::string >( "IQI_Name" ).empty()  )),
+                        "FEM_Model::create_fields(); Field must be either created based on IQI or read from file.");
 
-            //     if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
-            //     {
-            //         tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
-            //     }
+                if( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
+                {
+                    tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+                }
 
-            //     if( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
-            //     {
-            //         tField->set_IQI_name( tFieldParameter.get< std::string >( "IQI_Name" ) );
-            //     }
+                if( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
+                {
+                    tField->set_IQI_name( tFieldParameter.get< std::string >( "IQI_Name" ) );
+                }
 
-            //     if( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
-            //     {
-            //         tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
-            //     }
+                if( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
+                {
+                    tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
+                }
 
-            //     mFields( iFields ) = tField;
-            // }
+                mFields( iFields ) = tField;
+            }
         }
 
         //------------------------------------------------------------------------------

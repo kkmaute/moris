@@ -64,6 +64,10 @@ namespace moris
         // if to deactivate empty sets - used only if outputting ig mesh as well, set to true only for debugging
         tParameterList.insert( "deactivate_empty_sets", false );
 
+        // deactivate all but selected
+        tParameterList.insert("deactivate_all_but_blocks","");
+        tParameterList.insert("deactivate_all_but_side_sets","");
+
         // Write enrichement fields on mesh (only recommended on very small meshes)
         tParameterList.insert( "write_enrichment_fields", false );
 
@@ -88,6 +92,18 @@ namespace moris
 
         // probe a cell - Debug
         tParameterList.insert( "probe_bg_cells", "" );
+
+        // union
+        tParameterList.insert("union_blocks","");
+        tParameterList.insert("union_block_names","");
+        tParameterList.insert("union_block_colors","");
+
+        // union
+        tParameterList.insert("union_side_sets","");
+        tParameterList.insert("union_side_set_names","");
+        tParameterList.insert("union_side_set_colors","");
+
+
 
         return tParameterList;
     }
