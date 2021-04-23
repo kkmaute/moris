@@ -83,6 +83,14 @@ void tVISCOSITYFIValFunc(
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
 }
 
+void tVISCOSITYFISpaceDerFunc(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = aParameters( 1 );
+}
+
 void tVISCOSITYFIDerFunc(
         moris::Matrix< moris::DDRMat >                 & aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,

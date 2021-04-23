@@ -18,6 +18,7 @@
 #include "fn_sylvester.hpp"
 
 // debug - output to hdf5
+#include "fn_max.hpp"
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
 
@@ -143,7 +144,7 @@ namespace moris
             mM = tdTaudt * tdTaudt * tIdentity;
 
             // get subview of mM for += operatorions
-            auto tM = mM( { 0, tNumStateVars + 1 }, { 0, tNumStateVars + 1 } );
+            auto tM = mM( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
 
             // add loop over A and K terms
             for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
@@ -424,6 +425,10 @@ namespace moris
 
             // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
             moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijdY_Yij( this->num_space_dims() );
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++)
+            {
+                tdKijdY_Yij( iDim ).resize( this->num_space_dims() );
+            }
 
             // get dA0/dY * Y,t
             eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdt(), 0, tdAjdY_Yj( 0 ) );
@@ -447,12 +452,12 @@ namespace moris
                 eval_dKijidY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tdKijidY_Yj( iDim ) );
 
                 // add contributions from Kij,i-matrices
-                // tdLdDofY -= tdKijdY_Yij( iDim )( 0 ) * this->W();
+                // tdLdDofY -= tdKijidY_Yj( iDim )( 0 ) * this->W();
 
                 for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
                 {
                     // add contributions from Kij,i-matrices
-                    tdLdDofY -= tdKijdY_Yij( iDim )( jDim + 1 ) * this->dWdx( jDim );
+                    tdLdDofY -= tdKijidY_Yj( iDim )( jDim + 1 ) * this->dWdx( jDim );
 
                     // get dKij/dY * Y,ij
                     eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->d2Ydx2( iDim, jDim ), iDim, jDim, tdKijdY_Yij( iDim )( jDim ) );
@@ -502,7 +507,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW(  const Matrix< DDRMat > & aVL  )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW( const Matrix< DDRMat > & aVL )
         {
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
@@ -520,6 +525,10 @@ namespace moris
 
             // initialize cell containing Kij,i-matrices pre-multiplied with VL
             moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijdY( this->num_space_dims() );
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++)
+            {
+                tVLdKijdY( iDim ).resize( this->num_space_dims() );
+            }
 
             // get VL * dA0/dY
             eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), aVL, 0, tVLdAjdY( 0 ) );
@@ -540,7 +549,7 @@ namespace moris
                 tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();
 
                 // get VL * dKij,i/dY
-                eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( iDim ), iDim, tVLdKijidY( iDim ) );
+                eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, tVLdKijidY( iDim ) );
 
                 // add contributions from Kij,i-matrices
                 // tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( 0 ) * this->W();

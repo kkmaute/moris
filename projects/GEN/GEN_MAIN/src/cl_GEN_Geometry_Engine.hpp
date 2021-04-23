@@ -362,7 +362,9 @@ namespace moris
              *
              * @param aMeshPair Mesh for discretizing fields
              */
-            void distribute_advs(mtk::Mesh_Pair aMeshPair);
+            void distribute_advs(
+                    mtk::Mesh_Pair aMeshPair,
+                    moris::Cell<std::shared_ptr< mtk::Field > > aFields);
 
             /**
              * Resets the information that the geometry engine stores about a mesh.

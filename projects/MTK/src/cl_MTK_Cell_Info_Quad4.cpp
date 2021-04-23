@@ -55,15 +55,21 @@ namespace moris
             // error threshold
             real tEpsilon = 1.0E-8;
 
+            // get the vertex coordinates
+            moris::Matrix< DDRMat > tVertex0 = tVertices( 0 )->get_coords();
+            moris::Matrix< DDRMat > tVertex1 = tVertices( 1 )->get_coords();
+            moris::Matrix< DDRMat > tVertex2 = tVertices( 2 )->get_coords();
+            moris::Matrix< DDRMat > tVertex3 = tVertices( 3 )->get_coords();
+
             // getting edge vectors
-            moris::Matrix< DDRMat > tEdge0 = tVertices( 1 )->get_coords() - tVertices( 0 )->get_coords();
-            moris::Matrix< DDRMat > tEdge1 = tVertices( 2 )->get_coords() - tVertices( 1 )->get_coords();
-            moris::Matrix< DDRMat > tEdge2 = tVertices( 3 )->get_coords() - tVertices( 2 )->get_coords();
-            moris::Matrix< DDRMat > tEdge3 = tVertices( 0 )->get_coords() - tVertices( 3 )->get_coords();
+            moris::Matrix< DDRMat > tEdge0 = tVertex1 - tVertex0;
+            moris::Matrix< DDRMat > tEdge1 = tVertex2 - tVertex1;
+            moris::Matrix< DDRMat > tEdge2 = tVertex3 - tVertex2;
+            moris::Matrix< DDRMat > tEdge3 = tVertex0 - tVertex3;
 
             // cross products of opposite edges
-            real tCross02 = tEdge0(0)*tEdge2(1)-tEdge0(1)*tEdge2(0);
-            real tCross13 = tEdge1(0)*tEdge3(1)-tEdge1(1)*tEdge3(0);
+            auto tCross02 = tEdge0(0)*tEdge2(1)-tEdge0(1)*tEdge2(0);
+            auto tCross13 = tEdge1(0)*tEdge3(1)-tEdge1(1)*tEdge3(0);
 
             // check if opposite edges are parallel
             if ( std::abs( tCross02 ) > tEpsilon ||

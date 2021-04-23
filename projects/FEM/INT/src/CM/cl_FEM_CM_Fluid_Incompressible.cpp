@@ -277,7 +277,7 @@ namespace moris
         void CM_Fluid_Incompressible::eval_strain_2d()
         {
             // get the velocity spatial gradient from velocity FI
-            Matrix< DDRMat > tVelocityGradx =
+            const Matrix< DDRMat > & tVelocityGradx =
                     mFIManager->get_field_interpolators_for_type( mDofVelocity )->gradx( 1 );
 
             // evaluate the strain
@@ -292,7 +292,7 @@ namespace moris
         void CM_Fluid_Incompressible::eval_strain_3d()
         {
             // get the velocity spatial gradient from velocity FI
-            Matrix< DDRMat > tVelocityGradx =
+            const Matrix< DDRMat > & tVelocityGradx =
                     mFIManager->get_field_interpolators_for_type( mDofVelocity )->gradx( 1 );
 
             // evaluate the strain
@@ -364,7 +364,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // get the 2nd order derivative of the shape functions d2Ndx2
-                Matrix< DDRMat > tVelocityd2Ndx2 = tFI->dnNdxn( 2 );
+                const Matrix< DDRMat > & tVelocityd2Ndx2 = tFI->dnNdxn( 2 );
 
                 // get number of space time bases
                 uint tNumBases = tFI->get_number_of_space_time_bases();

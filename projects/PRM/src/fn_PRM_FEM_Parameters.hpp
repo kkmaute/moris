@@ -43,6 +43,7 @@ namespace moris
             tParameterList.insert( "value_function",           std::string( "" ) );
             tParameterList.insert( "dof_derivative_functions", std::string( "" ) );
             tParameterList.insert( "dv_derivative_functions",  std::string( "" ) );
+            tParameterList.insert( "space_derivative_function",std::string( "" ) );
             tParameterList.insert( "dof_dependencies",         std::string( "" ) );
             tParameterList.insert( "dv_dependencies",          std::string( "" ) );
             tParameterList.insert( "field_dependencies",       std::string( "" ) );

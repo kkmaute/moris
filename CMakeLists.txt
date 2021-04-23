@@ -887,9 +887,11 @@ endif()
 if (MORIS_USE_VALGRIND)
     set(VALGRIND "valgrind")
     set(VALGRIND_OPTIONS "")
+    set(VALGRIND_OPTIONS_EXA "--leak-check=full --track-origins=yes")
 else()
     set(VALGRIND "")
     set(VALGRIND_OPTIONS "")
+    set(VALGRIND_OPTIONS_EXA "")
 endif()
 
 # -------------------------------------------------------------------------

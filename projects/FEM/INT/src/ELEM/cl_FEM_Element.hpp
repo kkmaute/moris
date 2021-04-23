@@ -248,8 +248,8 @@ namespace moris
                         Matrix< DDSMat >                  & aGeoLocalAssembly,
                         moris::Cell< Matrix< IndexMat > > & aVertexIndices )
                 {
-                    // compute Jacobian
-                    aReqIWG->compute_jacobian( aWStar );
+                    // compute dRdpMat at evaluation point
+                    aReqIWG->compute_dRdp( aWStar );
                 }
 
                 void select_dRdp_FD(

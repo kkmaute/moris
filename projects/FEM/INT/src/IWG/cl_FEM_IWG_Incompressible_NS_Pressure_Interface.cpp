@@ -59,13 +59,13 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get master/slave fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-            std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
             real tMasterWeight = tSPNitsche->val()( 1 );
             real tSlaveWeight  = tSPNitsche->val()( 2 );
@@ -117,13 +117,13 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get master/slave fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-            std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
             real tMasterWeight = tSPNitsche->val()( 1 );
             real tSlaveWeight  = tSPNitsche->val()( 2 );

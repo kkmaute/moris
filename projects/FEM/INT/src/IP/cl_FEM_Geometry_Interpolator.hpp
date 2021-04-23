@@ -384,7 +384,7 @@ namespace moris
                     mSpaceInterpolator->get_space_time( aParamPoint );
 
                     // setting time portion
-                    aParamPoint( mNumSpaceParamDim )          = mTauLocal( 0 );
+                    aParamPoint( mNumSpaceParamDim ) = mTauLocal( 0 );
                 }
 
                 //------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical]" )
 {
     // define an epsilon environment
-    //real tEpsilon = 5.0E-3;
+    real tEpsilon = 5.0E-3;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -332,8 +332,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     for( uint iGP = 0; iGP < 1; iGP ++ )
     {
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        // std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
         // reset CM evaluation flags
         tCMMasterFluid->reset_eval_flags();
@@ -356,6 +356,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
 
         // compute residual & jacobian
         tIWG->compute_residual( 1.0 );
+        tIWG->compute_jacobian( 1.0 );
 
         // init the jacobian for IWG
         if ( iGP == 0 )
@@ -398,10 +399,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     Matrix< DDRMat > tResidualAnalytical = trans( tResidualWeakAnalytical ) + tDummyFactor * trans( tResidualStrongAnalytical );
 
     // check jacobian against analytical solution
-    // bool tCheckResidual = fem::check( tResidual, tResidualAnalytical, tEpsilon, true );
-
-    // fixme
-    // REQUIRE( tCheckResidual );
+    bool tCheckResidual = fem::check( tResidual, tResidualAnalytical, tEpsilon, true );
+    REQUIRE( tCheckResidual );
 
     // clean up
     tMasterFIs.clear();

@@ -138,7 +138,7 @@ extern "C"
             tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "type",                  "plane");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",   "0.0, 0.0, 1.0, 0.0");
-            tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0" );
+            tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
             tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
             tGeoCounter++;
 
@@ -146,7 +146,7 @@ extern "C"
             tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "type",                  "plane");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",   "2.2, 0.0, 1.0, 0.0");
-            tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0" );
+            tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
             tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
             tGeoCounter++;
 

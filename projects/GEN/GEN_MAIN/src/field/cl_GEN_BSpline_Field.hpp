@@ -36,10 +36,29 @@ namespace moris
                     mtk::Mesh_Pair         aMeshPair,
                     std::shared_ptr<Field> aField);
 
+            //FIXME this is obviously a brutal hack and should be done properly in a proper version of GE
+            BSpline_Field(
+                    sol::Dist_Vector*      aOwnedADVs,
+                    const Matrix<DDUMat>&  aCoefficientIndices,
+                    const Matrix<DDSMat>&  aSharedADVIds,
+                    uint                   aADVOffsetID,
+                    mtk::Mesh_Pair         aMeshPair,
+                    std::shared_ptr<Field> aField,
+                    std::shared_ptr<mtk::Field> aMTKField);
+
+
+
             /**
              * Destructor
              */
             ~BSpline_Field();
+
+            void distribute_coeffs(
+                    const Matrix<DDRMat> & aTargetField,
+                    sol::Dist_Vector*      aOwnedADVs,
+                    const Matrix<DDUMat>&  aCoefficientIndices,
+                    const Matrix<DDSMat>&  aSharedADVIds,
+                    uint                   aADVOffsetID);
 
             /**
              * Given a node index, returns the field value.

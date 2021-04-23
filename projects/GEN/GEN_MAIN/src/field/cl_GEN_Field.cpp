@@ -84,6 +84,8 @@ namespace moris
             {
                 mFieldVariables(aFieldVariableIndices(tVariable)) = &(*mSharedADVs)(aSharedADVIds(tVariable));
             }
+
+            mLabel = mParameters.mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -99,6 +101,8 @@ namespace moris
         {
             // Fill constant parameters
             this->fill_constant_parameters();
+
+            mLabel = mParameters.mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -805,7 +805,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.2505);
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -817,8 +817,9 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
-
+        bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
+        CHECK(tSuccess);
+        
         tXTKModel.perform_basis_enrichment( EntityRank::NODE, 0 );
 
         // get meshes
@@ -1122,7 +1123,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.2505);
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;

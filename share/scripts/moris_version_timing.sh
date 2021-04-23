@@ -83,6 +83,8 @@ fi
 
 exalist=`cat $exalist`
 
+ctestlist=`ls -t -r  ctest.*`
+
 for exa in $exalist; do
 
    echo ""
@@ -94,14 +96,16 @@ for exa in $exalist; do
 
    rm -f $fname
 
-   grep $exa ctest.* | grep Passed | awk -v file=$fname 'BEGIN{mid=0;mxt=10000.0;cid=0;cur=1e9}
+   grep $exa $ctestlist | grep Passed | awk -v file=$fname 'BEGIN{mxt=10000.0;curnum=0}
    {
         time=$(NF-1)
         split($0,a,":") 
         split(a[1],b,".") 
-        print b[2]"  "time >> file
-        if ( time < mxt  ){ mid=b[2]; mxt=time}
-        if ( b[2] > cid ) { cid=b[2]; cur=time}
+        split(b[2],c,"-")
+        numdate=10000*(c[3]-2000)+100*c[1]+c[2]
+        print numdate"  "time >> file
+        if ( time    < mxt    ){ mid=b[2]; mxt=time}
+        if ( numdate > curnum ){ cid=b[2]; cur=time; curnum=numdate}
    }
    END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/cur*100} ' 
 done
