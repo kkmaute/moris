@@ -52,13 +52,13 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Boundary::compute_residual() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             //uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof2Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 1 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof2Index      = mSet->get_dof_index_for_type( mResidualDofType( 1 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
             //uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             //uint tMasterRes1StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 1 );
             uint tMasterRes2StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof2Index )( 0, 0 );
@@ -69,7 +69,7 @@ namespace moris
             // get the FIs associated with each residual dof type
             //Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 2 ) );
+            Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 )( 0 ) );
 
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
@@ -126,22 +126,22 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Boundary::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof2Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 1 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof2Index      = mSet->get_dof_index_for_type( mResidualDofType( 1 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterRes2StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof2Index )( 0, 0 );
             uint tMasterRes2StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof2Index )( 0, 1 );
             uint tMasterRes3StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
             // get the FIs associated with each residual dof type
-            //Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            //Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 2 ) );
+            Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 )( 0 ) );
 
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );

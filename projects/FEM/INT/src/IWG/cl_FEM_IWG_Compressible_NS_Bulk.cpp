@@ -92,13 +92,13 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
@@ -143,7 +143,7 @@ namespace moris
 
                 // stabilization term
                 //tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
-            }
+            }           
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -159,12 +159,12 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
@@ -176,7 +176,7 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType( 0 ), mRequestedMasterGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
             // get the indeces for assembly
@@ -190,14 +190,14 @@ namespace moris
 
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
-            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdt(), 0, tdAdY );
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
             tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
 
             // loop over contributions from A-matrices
             for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
             {
                 // evaluate d(Ai)/dDof * Y,i
-                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdx( iDim ), iDim + 1, tdAdY );
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAdY );
 
                 // add contribution
                 tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );

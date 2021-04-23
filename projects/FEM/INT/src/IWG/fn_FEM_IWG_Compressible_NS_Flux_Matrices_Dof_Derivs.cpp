@@ -17,11 +17,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_A0_DOF( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                moris::Cell< Matrix< DDRMat > >       & adA0dDOF )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                moris::Cell< Matrix< DDRMat > >                   & adA0dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -71,147 +71,147 @@ namespace moris
             // derivative matrix for FIRST ROW OF A0
         
             adA0dDOF( 0 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } );
+                    tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) );
 
             adA0dDOF( 0 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } );                  
+                    tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) );                  
 
             adA0dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } );
+                    -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) );
 
             adA0dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } );                
+                    -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) );                
 
             // derivative matrix for SECOND ROW OF A0
             
             adA0dDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA0dDOF( 1 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tNUx;                    
 
             adA0dDOF( 1 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA0dDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 0 ) } ).matrix_data();
+                    aMM->DensityDOF( aResidualDofTypes( 0 ) ).matrix_data();
 
             adA0dDOF( 1 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 2 ) } ).matrix_data();
+                    aMM->DensityDOF( aResidualDofTypes( 2 ) ).matrix_data();
 
 
             adA0dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUx * ( -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * ( -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA0dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tNUx;  
 
             adA0dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * ( -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * ( -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
 
             // derivative matrix for THIRD ROW OF A0
             
             adA0dDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA0dDOF( 2 )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tNUy;                    
 
             adA0dDOF( 2 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA0dDOF( 2 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 0 ) } ).matrix_data();
+                    aMM->DensityDOF( aResidualDofTypes( 0 ) ).matrix_data();
 
             adA0dDOF( 2 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 2 ) } ).matrix_data();
+                    aMM->DensityDOF( aResidualDofTypes( 2 ) ).matrix_data();
 
 
             adA0dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUy * ( -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUy * ( -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA0dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tNUy;  
 
             adA0dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * ( -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUy * ( -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
             
             // derivative matrix for FOURTH ROW OF A0 IF 3D
             if ( tNumSpaceDims == 3 )
             {
                 adA0dDOF( 3 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                        tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
                 adA0dDOF( 3 )( { 0, 0 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                         tRho * tBetaT * tNUz;                    
 
                 adA0dDOF( 3 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                        tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
                 adA0dDOF( 3 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                        aMM->DensityDOF( { aResidualDofTypes( 0 ) } ).matrix_data();
+                        aMM->DensityDOF( aResidualDofTypes( 0 ) ).matrix_data();
 
                 adA0dDOF( 3 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        aMM->DensityDOF( { aResidualDofTypes( 2 ) } ).matrix_data();
+                        aMM->DensityDOF( aResidualDofTypes( 2 ) ).matrix_data();
 
 
                 adA0dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                        tUz * ( -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                        tUz * ( -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
                 adA0dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                         -1.0 * tRho * tAlphaP * tNUz;  
 
                 adA0dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUz * ( -1.0 * tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) - tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );  
+                        tUz * ( -1.0 * tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) - tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );  
             }
 
             // derivative matrix for LAST ROW OF A0
             
             adA0dDOF( tThirdVarIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tEtot * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } );
+                    tEtot * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 0 ) );
 
             adA0dDOF( tThirdVarIndex )( { 0, 0 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = 
-                    tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA0dDOF( tThirdVarIndex )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tEtot * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } );
+                    tEtot * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 2 ) );
 
 
             adA0dDOF( tThirdVarIndex )( { 1, tNumSpaceDims }, { 0, tNumBases - 1 } ) = 
-                    tFIVelocity->val() * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tFIVelocity->val() * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA0dDOF( tThirdVarIndex )( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = 
                     tRho * tFIVelocity->N();
 
             adA0dDOF( tThirdVarIndex )( { 1, tNumSpaceDims }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tFIVelocity->val() * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tFIVelocity->val() * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA0dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tCv * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 0 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } );
+                    tCv * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 0 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 0 ) );
 
             adA0dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = 
-                    -1.0 * tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    -1.0 * tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA0dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tCv * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 2 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } );                              
+                    tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) );                              
         }
 
         //------------------------------------------------------------------------------
 
         void eval_A1_DOF( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                moris::Cell< Matrix< DDRMat > >       & adA1dDOF )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                moris::Cell< Matrix< DDRMat > >                   & adA1dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -261,68 +261,68 @@ namespace moris
             // derivative matrix for FIRST ROW OF A1
         
             adA1dDOF( 0 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( 0 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tNUx;
 
             adA1dDOF( 0 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA1dDOF( 0 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 0 ) } ).matrix_data(); 
+                    aMM->DensityDOF( aResidualDofTypes( 0 ) ).matrix_data(); 
 
             adA1dDOF( 0 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 2 ) } ).matrix_data();   
+                    aMM->DensityDOF( aResidualDofTypes( 2 ) ).matrix_data();   
 
 
             adA1dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUx * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUx * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tNUx;
 
             adA1dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUx * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );                
+                    -1.0 * tUx * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );                
 
 
             // derivative matrix for SECOND ROW OF A1
             
             adA1dDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * tUx * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * tUx * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( 1 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     2.0 * tRho * tBetaT * tUx * tNUx;                    
 
             adA1dDOF( 1 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * tUx * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * tUx * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA1dDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                    2.0 * tUx * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    2.0 * tUx * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA1dDOF( 1 )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     2.0 * tRho * tNUx;
 
             adA1dDOF( 1 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    2.0 * tUx * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    2.0 * tUx * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA1dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUx * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUx * tUx * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     -2.0 * tRho * tAlphaP * tUx * tNUx;  
 
             adA1dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUx * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    -1.0 * tUx * tUx * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
 
             // derivative matrix for THIRD ROW OF A1
             
             adA1dDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( 2 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tUy * tNUx;   
@@ -331,31 +331,31 @@ namespace moris
                     tRho * tBetaT * tUx * tNUy;                    
 
             adA1dDOF( 2 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA1dDOF( 2 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                    tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA1dDOF( 2 )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tNUy;
 
             adA1dDOF( 2 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA1dDOF( 2 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                    tUx * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUx * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA1dDOF( 2 )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tNUx;
 
             adA1dDOF( 2 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUx * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA1dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tUy * tNUx;
@@ -364,14 +364,14 @@ namespace moris
                     -1.0 * tRho * tAlphaP * tUx * tNUy;  
 
             adA1dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
             
             // derivative matrix for FOURTH ROW OF A1 IF 3D
             if ( tNumSpaceDims == 3 )
             {
                 adA1dDOF( 3 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tUx * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                        tUx * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
                 adA1dDOF( 3 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                         tRho * tBetaT * tUz * tNUx;   
@@ -380,31 +380,31 @@ namespace moris
                         tRho * tBetaT * tUx * tNUz;                    
 
                 adA1dDOF( 3 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUx * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                        tUx * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
                 adA1dDOF( 3 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                        tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                        tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
                 adA1dDOF( 3 )( { 1, 1 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                         tRho * tNUz;
 
                 adA1dDOF( 3 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                        tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
                 adA1dDOF( 3 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                        tUx * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                        tUx * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
                 adA1dDOF( 3 )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                         tRho * tNUx;
 
                 adA1dDOF( 3 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUx * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                        tUx * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
                 adA1dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                        -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                        -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
                 adA1dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                         -1.0 * tRho * tAlphaP * tUz * tNUx;
@@ -413,39 +413,39 @@ namespace moris
                         -1.0 * tRho * tAlphaP * tUx * tNUz;  
 
                 adA1dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) ); 
+                        -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) ); 
             }
 
             // derivative matrix for LAST ROW OF A1
             
             adA1dDOF( tThirdVarIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * ( tEtot * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * ( tEtot * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) );
 
             adA1dDOF( tThirdVarIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     ( tBetaT * tEtot + 1.0 ) * tNUx;
                     
             adA1dDOF( tThirdVarIndex )( { 0, 0 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) += 
-                    tUx * tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tUx * tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA1dDOF( tThirdVarIndex )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * ( tEtot * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * ( tEtot * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA1dDOF( tThirdVarIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                   aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) + aMM->PressureDOF( { aResidualDofTypes( 0 ) } ) + tUx * tUx * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                   aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) + aMM->PressureDOF( aResidualDofTypes( 0 ) ) + tUx * tUx * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA1dDOF( tThirdVarIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                    2.0 * tRho * tUx * tNUx;
 
             adA1dDOF( tThirdVarIndex )( { 1, 1 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) += 
-                    aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } ).matrix_data();
+                    aCM->dEnergydDOF( aResidualDofTypes( 1 ) ).matrix_data();
 
             adA1dDOF( tThirdVarIndex )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                   aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) + aMM->PressureDOF( { aResidualDofTypes( 2 ) } ) + tUx * tUx * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                   aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) + aMM->PressureDOF( aResidualDofTypes( 2 ) ) + tUx * tUx * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA1dDOF( tThirdVarIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                   tUx * tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                   tUx * tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA1dDOF( tThirdVarIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                    tRho * tUy * tNUx;
@@ -454,13 +454,13 @@ namespace moris
                    tRho * tUx * tNUy;
 
             adA1dDOF( tThirdVarIndex )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                   tUx * tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                   tUx * tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             if ( tNumSpaceDims == 3 ) // third velocity component only for 3D
             {
                 adA1dDOF( tThirdVarIndex )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                    tUx * tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUx * tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
                 adA1dDOF( tThirdVarIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tUz * tNUx;
@@ -469,32 +469,32 @@ namespace moris
                     tRho * tUx * tNUz;
 
                 adA1dDOF( tThirdVarIndex )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUx * tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
             }
 
             adA1dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUx * ( tCv * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 0 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) ) ;
+                    tUx * ( tCv * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 0 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) ) ;
 
             adA1dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     ( tRho * tCv - tAlphaP * tEtot ) * tNUx;  
             
             adA1dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) -= 
-                    tUx * tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tUx * tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA1dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * ( tCv * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 2 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) );                              
+                    tUx * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );                              
         }  
 
         //------------------------------------------------------------------------------
 
         void eval_A2_DOF( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                moris::Cell< Matrix< DDRMat > >       & adA2dDOF )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                moris::Cell< Matrix< DDRMat > >                   & adA2dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -544,35 +544,35 @@ namespace moris
             // derivative matrix for FIRST ROW OF A2
         
             adA2dDOF( 0 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( 0 )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tNUy;
 
             adA2dDOF( 0 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA2dDOF( 0 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 0 ) } ).matrix_data(); 
+                    aMM->DensityDOF( aResidualDofTypes( 0 ) ).matrix_data(); 
 
             adA2dDOF( 0 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 2 ) } ).matrix_data();   
+                    aMM->DensityDOF( aResidualDofTypes( 2 ) ).matrix_data();   
 
 
             adA2dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tNUy;
 
             adA2dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) ); 
+                    -1.0 * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) ); 
 
             // derivative matrix for SECOND ROW OF A2 (is equivalent ot third row of A1)
             
             adA2dDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( 1 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tUy * tNUx;   
@@ -581,31 +581,31 @@ namespace moris
                     tRho * tBetaT * tUx * tNUy;                    
 
             adA2dDOF( 1 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA2dDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                    tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA2dDOF( 1 )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tNUy;
 
             adA2dDOF( 1 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA2dDOF( 1 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                    tUx * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUx * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA2dDOF( 1 )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tNUx;
 
             adA2dDOF( 1 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUx * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA2dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tUy * tNUx;
@@ -614,45 +614,45 @@ namespace moris
                     -1.0 * tRho * tAlphaP * tUx * tNUy;  
 
             adA2dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    -1.0 * tUx * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
 
             // derivative matrix for THIRD ROW OF A2
             
             adA2dDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUy * tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUy * tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( 2 )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     2.0 * tRho * tBetaT * tUy * tNUy;                    
 
             adA2dDOF( 2 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * tUy * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUy * tUy * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA2dDOF( 2 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                    2.0 * tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    2.0 * tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA2dDOF( 2 )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     2.0 * tRho * tNUy;
 
             adA2dDOF( 2 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    2.0 * tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    2.0 * tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA2dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUy * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUy * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     -2.0 * tRho * tAlphaP * tUy * tNUy;  
 
             adA2dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUy * tUy * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    -1.0 * tUy * tUy * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
             // derivative matrix for FOURTH ROW OF A2
             if ( tNumSpaceDims == 3 )
             {
                 adA2dDOF( 3 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                        tUy * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                        tUy * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
                 adA2dDOF( 3 )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                         tRho * tBetaT * tUz * tNUy;   
@@ -661,31 +661,31 @@ namespace moris
                         tRho * tBetaT * tUy * tNUz;                    
 
                 adA2dDOF( 3 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUy * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                        tUy * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
                 adA2dDOF( 3 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                        tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                        tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
                 adA2dDOF( 3 )( { 2, 2 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                         tRho * tNUz;
 
                 adA2dDOF( 3 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                        tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
                 adA2dDOF( 3 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                        tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                        tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
                 adA2dDOF( 3 )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                         tRho * tNUy;
 
                 adA2dDOF( 3 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                        tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
                 adA2dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                        -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                        -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
                 adA2dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                         -1.0 * tRho * tAlphaP * tUz * tNUy;
@@ -694,26 +694,26 @@ namespace moris
                         -1.0 * tRho * tAlphaP * tUy * tNUz;  
 
                 adA2dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                        -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) ); 
+                        -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) ); 
             }
 
             // derivative matrix for LAST ROW OF A2
             
             adA2dDOF( tThirdVarIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUy * ( tEtot * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUy * ( tEtot * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) );
 
             adA2dDOF( tThirdVarIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     ( tBetaT * tEtot + 1.0 ) * tNUy;
                     
             adA2dDOF( tThirdVarIndex )( { 0, 0 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) += 
-                    tUy * tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tUy * tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA2dDOF( tThirdVarIndex )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * ( tEtot * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUy * ( tEtot * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA2dDOF( tThirdVarIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                   tUx * tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                   tUx * tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA2dDOF( tThirdVarIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                    tRho * tUy * tNUx;
@@ -722,26 +722,26 @@ namespace moris
                    tRho * tUx * tNUy;
 
             adA2dDOF( tThirdVarIndex )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                   tUx * tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                   tUx * tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA2dDOF( tThirdVarIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                   aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) + aMM->PressureDOF( { aResidualDofTypes( 0 ) } ) + tUy * tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                   aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) + aMM->PressureDOF( aResidualDofTypes( 0 ) ) + tUy * tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA2dDOF( tThirdVarIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                    2.0 * tRho * tUy * tNUy;
 
             adA2dDOF( tThirdVarIndex )( { 2, 2 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) += 
-                    aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } ).matrix_data();
+                    aCM->dEnergydDOF( aResidualDofTypes( 1 ) ).matrix_data();
 
             adA2dDOF( tThirdVarIndex )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                   aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) + aMM->PressureDOF( { aResidualDofTypes( 2 ) } ) + tUy * tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                   aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) + aMM->PressureDOF( aResidualDofTypes( 2 ) ) + tUy * tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             if ( tNumSpaceDims == 3 ) // third velocity component only for 3D
             {
                 adA2dDOF( tThirdVarIndex )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                    tUy * tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUy * tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
                 adA2dDOF( tThirdVarIndex )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tUz * tNUy;
@@ -750,33 +750,33 @@ namespace moris
                     tRho * tUy * tNUz;
 
                 adA2dDOF( tThirdVarIndex )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUy * tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
             }
 
             adA2dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUy * ( tCv * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 0 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) ) ;
+                    tUy * ( tCv * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 0 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) ) ;
 
             adA2dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     ( tRho * tCv - tAlphaP * tEtot ) * tNUy;  
             
             adA2dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) -= 
-                    tUy * tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tUy * tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA2dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * ( tCv * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 2 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) );   
+                    tUy * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );   
 
         }   
 
         //------------------------------------------------------------------------------
 
         void eval_A3_DOF( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                moris::Cell< Matrix< DDRMat > >       & adA3dDOF )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                moris::Cell< Matrix< DDRMat > >                   & adA3dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -821,36 +821,36 @@ namespace moris
             // derivative matrix for FIRST ROW OF A3
         
             adA3dDOF( 0 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 0 )( { 0, 0 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tNUz;
 
             adA3dDOF( 0 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA3dDOF( 0 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 0 ) } ).matrix_data(); 
+                    aMM->DensityDOF( aResidualDofTypes( 0 ) ).matrix_data(); 
 
             adA3dDOF( 0 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    aMM->DensityDOF( { aResidualDofTypes( 2 ) } ).matrix_data();   
+                    aMM->DensityDOF( aResidualDofTypes( 2 ) ).matrix_data();   
 
 
             adA3dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tNUz;
 
             adA3dDOF( 0 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) ); 
+                    -1.0 * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) ); 
 
 
             // derivative matrix for SECOND ROW OF A3 (identical to fourth row of A1)
 
             adA3dDOF( 1 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUx * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUx * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 1 )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tUz * tNUx;   
@@ -859,31 +859,31 @@ namespace moris
                     tRho * tBetaT * tUx * tNUz;                    
 
             adA3dDOF( 1 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUx * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA3dDOF( 1 )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                    tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( 1 )( { 1, 1 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     tRho * tNUz;
 
             adA3dDOF( 1 )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( 1 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                    tUx * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUx * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( 1 )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     tRho * tNUx;
 
             adA3dDOF( 1 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUx * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUx * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, 2 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tUz * tNUx;
@@ -892,13 +892,13 @@ namespace moris
                     -1.0 * tRho * tAlphaP * tUx * tNUz;  
 
             adA3dDOF( 1 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) ); 
+                    -1.0 * tUx * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) ); 
 
 
             // derivative matrix for THIRD ROW OF A3 (identical to fourth row of A2)
 
             adA3dDOF( 2 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUy * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUy * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 2 )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tBetaT * tUz * tNUy;   
@@ -907,31 +907,31 @@ namespace moris
                     tRho * tBetaT * tUy * tNUz;                    
 
             adA3dDOF( 2 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUy * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA3dDOF( 2 )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                    tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( 2 )( { 2, 2 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     tRho * tNUz;
 
             adA3dDOF( 2 )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( 2 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                    tUy * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    tUy * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( 2 )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     tRho * tNUy;
 
             adA3dDOF( 2 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUy * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    tUy * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                     -1.0 * tRho * tAlphaP * tUz * tNUy;
@@ -940,58 +940,58 @@ namespace moris
                     -1.0 * tRho * tAlphaP * tUy * tNUz;  
 
             adA3dDOF( 2 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) ); 
+                    -1.0 * tUy * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) ); 
 
 
             // derivative matrix for FOURTH ROW OF A3
 
             adA3dDOF( 3 )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUz * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUz * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 3 )( { 0, 0 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     2.0 * tRho * tBetaT * tUz * tNUz;                    
 
             adA3dDOF( 3 )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * tUz * ( tBetaT * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUz * tUz * ( tBetaT * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA3dDOF( 3 )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                    2.0 * tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                    2.0 * tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( 3 )( { 3, 3 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     2.0 * tRho * tNUz;
 
             adA3dDOF( 3 )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    2.0 * tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                    2.0 * tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    -1.0 * tUz * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) );
+                    -1.0 * tUz * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     -2.0 * tRho * tAlphaP * tUz * tNUz;  
 
             adA3dDOF( 3 )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    -1.0 * tUz * tUz * ( tAlphaP * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) );
+                    -1.0 * tUz * tUz * ( tAlphaP * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) );
 
 
             // derivative matrix for LAST ROW OF A3
 
             adA3dDOF( tThirdVarIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = 
-                    tUz * ( tEtot * aMM->BetaTDOF( { aResidualDofTypes( 0 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) );
+                    tUz * ( tEtot * aMM->BetaTDOF( aResidualDofTypes( 0 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) );
 
             adA3dDOF( tThirdVarIndex )( { 0, 0 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     ( tBetaT * tEtot + 1.0 ) * tNUz;
                     
             adA3dDOF( tThirdVarIndex )( { 0, 0 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) += 
-                    tUz * tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tUz * tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA3dDOF( tThirdVarIndex )( { 0, 0 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * ( tEtot * aMM->BetaTDOF( { aResidualDofTypes( 2 ) } ) + tBetaT * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) );
+                    tUz * ( tEtot * aMM->BetaTDOF( aResidualDofTypes( 2 ) ) + tBetaT * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );
 
 
             adA3dDOF( tThirdVarIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = 
-                   tUx * tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                   tUx * tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( tThirdVarIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = 
                    tRho * tUz * tNUx;
@@ -1000,11 +1000,11 @@ namespace moris
                    tRho * tUx * tNUz;
 
             adA3dDOF( tThirdVarIndex )( { 1, 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                   tUx * tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                   tUx * tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( tThirdVarIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = 
-                tUy * tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                tUy * tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( tThirdVarIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 
                 tRho * tUz * tNUy;
@@ -1013,47 +1013,47 @@ namespace moris
                 tRho * tUy * tNUz;
 
             adA3dDOF( tThirdVarIndex )( { 2, 2 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                tUy * tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                tUy * tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
             adA3dDOF( tThirdVarIndex )( { 3, 3 }, { 0, tNumBases - 1 } ) = 
-                   aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) + aMM->PressureDOF( { aResidualDofTypes( 0 ) } ) + tUz * tUz * aMM->DensityDOF( { aResidualDofTypes( 0 ) } );
+                   aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) + aMM->PressureDOF( aResidualDofTypes( 0 ) ) + tUz * tUz * aMM->DensityDOF( aResidualDofTypes( 0 ) );
 
             adA3dDOF( tThirdVarIndex )( { 3, 3 }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                    2.0 * tRho * tUz * tNUz;
 
             adA3dDOF( tThirdVarIndex )( { 3, 3 }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) += 
-                    aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } ).matrix_data();
+                    aCM->dEnergydDOF( aResidualDofTypes( 1 ) ).matrix_data();
 
             adA3dDOF( tThirdVarIndex )( { 3, 3 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                   aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) + aMM->PressureDOF( { aResidualDofTypes( 2 ) } ) + tUz * tUz * aMM->DensityDOF( { aResidualDofTypes( 2 ) } );
+                   aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) + aMM->PressureDOF( aResidualDofTypes( 2 ) ) + tUz * tUz * aMM->DensityDOF( aResidualDofTypes( 2 ) );
 
 
 
             adA3dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 0, tNumBases - 1 } ) = 
-                    tUz * ( tCv * aMM->DensityDOF( { aResidualDofTypes( 0 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 0 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 0 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 0 ) } ) ) ;
+                    tUz * ( tCv * aMM->DensityDOF( aResidualDofTypes( 0 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 0 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 0 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 0 ) ) ) ;
 
             adA3dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { 3 * tNumBases, 4 * tNumBases - 1 } ) = 
                     ( tRho * tCv - tAlphaP * tEtot ) * tNUz;  
             
             adA3dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) -= 
-                    tUz * tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 1 ) } );                    
+                    tUz * tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 1 ) );                    
 
             adA3dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
-                    tUz * ( tCv * aMM->DensityDOF( { aResidualDofTypes( 2 ) } ) + tRho * aMM->CpDOF( { aResidualDofTypes( 2 ) } ) - 
-                    tEtot * aMM->AlphaPDOF( { aResidualDofTypes( 2 ) } ) - tAlphaP * aCM->dEnergydDOF( { aResidualDofTypes( 2 ) } ) );  
+                    tUz * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );  
 
         }
 
         //------------------------------------------------------------------------------
 
         void eval_KijYjDOF( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >    & aDofType,
-                moris::Cell< Matrix< DDRMat > >       & aKijYjDOF )
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Cell< MSI::Dof_Type >                & aDofType,
+                moris::Cell< Matrix< DDRMat > >                   & aKijYjDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -1147,11 +1147,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYjiDOF( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >    & aDofType,
-                Matrix< DDRMat >                      & aKijYjiDOF )
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Cell< MSI::Dof_Type >                & aDofType,
+                Matrix< DDRMat >                                  & aKijYjiDOF )
         {
 
             // check inputs

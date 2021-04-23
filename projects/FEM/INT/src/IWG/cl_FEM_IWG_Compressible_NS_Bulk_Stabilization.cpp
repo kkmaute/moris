@@ -260,7 +260,7 @@ namespace moris
 
                 // get the variable derivs for the A and K matrices
                 moris::Cell< Matrix< DDRMat > > tdAdY;
-                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), iVar, tdAdY );
+                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, iVar, tdAdY );
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
                 eval_dKdY( tPropMu, tPropKappa, mMasterFIManager, iVar, tdKdY );
 
@@ -431,7 +431,7 @@ namespace moris
             }
 
             // get dA0/dY * Y,t
-            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdt(), 0, tdAjdY_Yj( 0 ) );
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAjdY_Yj( 0 ) );
 
             // compute A(0) term
             mdLdDofY = tdAjdY_Yj( 0 ) * this->W();
@@ -443,7 +443,7 @@ namespace moris
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 // get dAj/dY * Y,j
-                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdx( iDim ), iDim + 1, tdAjdY_Yj( iDim + 1 ) );
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAjdY_Yj( iDim + 1 ) );
 
                 // add contributions from A-matrices
                 tdLdDofY += tdAjdY_Yj( iDim + 1 )  * this->W();
@@ -531,7 +531,7 @@ namespace moris
             }
 
             // get VL * dA0/dY
-            eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), aVL, 0, tVLdAjdY( 0 ) );
+            eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
 
             // compute A(0) term
             mdLdDofW = trans( this->dWdt() ) * tVLdAjdY( 0 ) * this->W();
@@ -543,7 +543,7 @@ namespace moris
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 // get VL * dAj/dY
-                eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
+                eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
 
                 // add contributions from A-matrices
                 tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();

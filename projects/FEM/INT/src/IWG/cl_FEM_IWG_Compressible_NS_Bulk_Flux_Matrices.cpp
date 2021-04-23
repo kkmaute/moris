@@ -34,7 +34,7 @@ namespace moris
             mVarSetEval = false;
 
             // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::Y() - check for residual DoF types failed. See Error message above for more info." );
 
             // get number of state variable fields
@@ -54,10 +54,10 @@ namespace moris
             uint iStateVar = 0;
             
             // go through residual dof types and assemble the state variable vector
-            for ( uint iResDofType = 0; iResDofType < mResidualDofType( 0 ).size(); iResDofType++ )
+            for ( uint iResDofType = 0; iResDofType < mResidualDofType.size(); iResDofType++ )
             {
                 // get field interpolator
-                Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( iResDofType ) );
+                Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( iResDofType )( 0 ) );
 
                 // get number of fields in FI
                 uint tNumFields = tFI->get_number_of_fields(); 
@@ -176,7 +176,7 @@ namespace moris
             mTestFuncSetEval = false;
 
             // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::assemble_test_function_set() - check for residual DoF types failed." );
 
             // get number of state variable fields
@@ -327,7 +327,7 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // evaluate A-matrices and store them
-            eval_A( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), mA );  
+            eval_A( tMM, tCM, mMasterFIManager, mResidualDofType, mA );  
         }
 
        //------------------------------------------------------------------------------
@@ -367,16 +367,16 @@ namespace moris
             } 
 
             // check Dof dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType( 0 ), mRequestedMasterGlobalDofTypes ),
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
                     "IWG_Compressible_NS_Bulk::eval_A_DOF_matrices() - List of Dof Dependencies not supported. See error messages above." );     
 
             // evaluate the derivatives for each of the matrices and store them
-            eval_A0_DOF( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), mADOF( 0 ) ); 
-            eval_A1_DOF( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), mADOF( 1 ) );  
-            eval_A2_DOF( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), mADOF( 2 ) ); 
+            eval_A0_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 0 ) ); 
+            eval_A1_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 1 ) );  
+            eval_A2_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 2 ) ); 
             if ( tNumSpaceDims == 3 )
             {
-                eval_A3_DOF( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), mADOF( 3 ) );  
+                eval_A3_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 3 ) );  
             } 
         }
 
