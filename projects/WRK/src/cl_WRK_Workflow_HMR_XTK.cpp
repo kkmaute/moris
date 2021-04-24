@@ -84,6 +84,8 @@ namespace moris
         {
             mInitializeOptimizationRestart = false;
 
+            moris::Cell< std::shared_ptr< mtk::Field > > tFields;
+
             if( tIsFirstOptSolve )
             {
                 // Stage 1: HMR refinement -------------------------------------------------------------------
@@ -120,10 +122,13 @@ namespace moris
                 tMORISParameterListFunc( tMORISParameterList );
 
                 wrk::Remeshing_Mini_Performer tRemeshingPerformer( tMORISParameterList( 0 )( 0 ) );
-
                 tRemeshingPerformer.perform_remeshing(
-                        mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 ).get(),
-                        mPerformerManager->mHMRPerformer );
+                            mPerformerManager->mGENPerformer( 0 )->get_mtk_fields(),
+                            mPerformerManager->mHMRPerformer,
+                            mPerformerManager->mMTKPerformer,
+                            tFields);
+
+                //tFields(0)->save_field_to_exodus( "FieldNewInput123.exo");
 
                 // Create new GE performer
                 std::string tGENString = "GENParameterList";
@@ -142,7 +147,7 @@ namespace moris
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                         mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),
-                        {} );
+                        tFields );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
