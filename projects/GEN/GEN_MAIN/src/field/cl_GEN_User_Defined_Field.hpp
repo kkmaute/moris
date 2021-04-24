@@ -83,6 +83,9 @@ namespace moris
              */
             const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
 
+            // FIXME hack! redundant function but is doing the job for now.
+            void compute_nodal_values();
+
         private:
 
             /**
