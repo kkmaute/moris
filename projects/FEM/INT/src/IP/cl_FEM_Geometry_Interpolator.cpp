@@ -523,6 +523,8 @@ namespace moris
             return mTimeJac;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_time_jacobian()
         {
             // check that mTHat is set
@@ -574,6 +576,8 @@ namespace moris
                     "Inconsistent time Jacobian (1D)");
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_inverse_time_jacobian_2d()
         {
             // get the space Jacobian
@@ -597,6 +601,8 @@ namespace moris
             MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
                     "Inconsistent time Jacobian (2D)");
         }
+
+        //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::eval_inverse_time_jacobian_3d()
         {

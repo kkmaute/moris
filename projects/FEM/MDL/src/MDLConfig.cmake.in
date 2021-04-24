@@ -29,3 +29,4 @@ include("@PACKAGE_MDL_CONFIG_INSTALL_DIR@/@MDL@Targets.cmake")
 
 # Library target list
 set(@MDL@_LIBRARIES @MDL@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@MDL@-lib")

@@ -229,6 +229,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get the number of space dimension
+                 */
+                uint get_space_dim() const
+                {
+                    return mNSpaceDim;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get the number of fields
                  */
                 uint get_number_of_fields() const

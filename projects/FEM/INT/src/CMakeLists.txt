@@ -174,6 +174,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
+    IWG/fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp
 
     #IWG/cl_FEM_IWG_Helmholtz_Bulk.hpp
     #IWG/cl_FEM_IWG_Helmholtz_Bulk2.hpp
@@ -358,6 +359,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
+    IWG/fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.cpp
 
     #IWG/cl_FEM_IWG_Helmholtz_Bulk.cpp
     #IWG/cl_FEM_IWG_Helmholtz_Bulk2.cpp

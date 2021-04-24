@@ -29,3 +29,4 @@ include("@PACKAGE_OPT_CONFIG_INSTALL_DIR@/@OPT@Targets.cmake")
 
 # Library target list
 set(@OPT@_LIBRARIES @OPT@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@OPT@-lib")

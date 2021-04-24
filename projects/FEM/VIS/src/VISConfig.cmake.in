@@ -29,3 +29,4 @@ include("@PACKAGE_VIS_CONFIG_INSTALL_DIR@/@VIS@Targets.cmake")
 
 # Library target list
 set(@VIS@_LIBRARIES @VIS@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@VIS@-lib")

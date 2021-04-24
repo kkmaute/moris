@@ -908,6 +908,15 @@ namespace moris
                     }
                 }
                 mProperties( iProp )->set_dv_derivative_functions( tDvDerFunctions );
+
+                // set space derivative function for property
+                std::string tSpaceDerFuncName = tPropParameter.get< std::string >( "space_derivative_function" );
+                FEM_Function tSpaceDerFunction = nullptr;
+                if ( tSpaceDerFuncName.size() > 1 )
+                {
+                    tSpaceDerFunction = aLibrary->load_function<FEM_Function>( tSpaceDerFuncName );
+                    mProperties( iProp )->set_space_der_function( tSpaceDerFunction );
+                }
             }
         }
 
@@ -916,7 +925,6 @@ namespace moris
         void FEM_Model::create_fields(
                 std::map< std::string, uint > & aFieldMap )
         {
-            // MORIS_ERROR(0,"KEENAN FIXME");
             // get the property parameter list
             moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 

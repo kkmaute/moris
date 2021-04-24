@@ -31,3 +31,4 @@ include("@PACKAGE_NLA_CONFIG_INSTALL_DIR@/@NLA@Targets.cmake")
 
 # Library target list
 set(@NLA@_LIBRARIES @NLA@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@NLA@-lib")

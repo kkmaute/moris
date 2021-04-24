@@ -188,7 +188,7 @@ namespace moris
             Matrix< DDRMat > tdViscosityTdxdu;
             this->compute_dviscositytdxdu( aDofTypes, tdViscosityTdxdu );
 
-            Matrix< DDRMat > tStrain = this->strain();
+            const Matrix< DDRMat > & tStrain = this->strain();
             Matrix< DDRMat > tStrainFull;
             switch ( mSpaceDim )
             {
@@ -391,8 +391,15 @@ namespace moris
                 // get the density property
 
 
+                // get the viscosity property
+                const std::shared_ptr< Property > & tPropKinViscosity =
+                        mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+
                 // compute fv1
-                real tFv1 = this->compute_fv1();
+                real tFv1 = compute_fv1(
+                        { mDofViscosity },
+                        mFIManager,
+                        tPropKinViscosity );
 
                 // compute turbulent viscosity
                 tViscosityT = tModViscosity * tFv1;
@@ -422,6 +429,10 @@ namespace moris
             Field_Interpolator * tFIModViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
+            // get the viscosity property
+            const std::shared_ptr< Property > & tPropKinViscosity =
+                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+
             // get the modified viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
 
@@ -433,8 +444,12 @@ namespace moris
                 {
                     // get the density property
 
+
                     // compute fv1
-                    real tFv1 = this->compute_fv1();
+                    real tFv1 = compute_fv1(
+                            { mDofViscosity },
+                            mFIManager,
+                            tPropKinViscosity );
 
                     // add contribution to dSPdu
                     adviscositytdu += tFv1 * tFIModViscosity->N();
@@ -442,7 +457,12 @@ namespace moris
 
                 // compute dfv1du
                 Matrix< DDRMat > tdfv1du;
-                this->compute_dfv1du( aDofTypes, tdfv1du );
+                compute_dfv1du(
+                        { mDofViscosity },
+                        mFIManager,
+                        tPropKinViscosity,
+                        aDofTypes,
+                        tdfv1du );
 
                 // add contribution from dfv1du
                 adviscositytdu += tFIModViscosity->val() * tdfv1du;
@@ -460,6 +480,10 @@ namespace moris
             Field_Interpolator * tFIModViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
+            // get the viscosity property
+            const std::shared_ptr< Property > & tPropKinViscosity =
+                      mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+
             // get the modified viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
 
@@ -469,14 +493,21 @@ namespace moris
                 // get the density property
 
                 // compute fv1
-                real tFv1 = this->compute_fv1();
+                real tFv1 = compute_fv1(
+                        { mDofViscosity },
+                        mFIManager,
+                        tPropKinViscosity );
 
                 // compute dfv1dx
                 Matrix< DDRMat > tdfv1dx;
-                this->compute_dfv1dx( tdfv1dx );
+                compute_dfv1dx(
+                        { mDofViscosity },
+                        mFIManager,
+                        tPropKinViscosity,
+                        tdfv1dx );
 
                 // compute dviscositytdx
-                adviscositytdx = tFIModViscosity->gradx( 1 ) * tFv1 + tdfv1dx * tModViscosity;
+                adviscositytdx += tFIModViscosity->gradx( 1 ) * tFv1 + tdfv1dx * tModViscosity;
             }
         }
 
@@ -500,6 +531,10 @@ namespace moris
             Field_Interpolator * tFIModViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
+            // get the viscosity property
+            const std::shared_ptr< Property > & tPropKinViscosity =
+                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+
             // get the modified viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
 
@@ -512,11 +547,18 @@ namespace moris
                 if( aDofTypes( 0 ) == mDofViscosity )
                 {
                     // compute fv1
-                    real tFv1 = this->compute_fv1();
+                                  real tFv1 = compute_fv1(
+                                          { mDofViscosity },
+                                          mFIManager,
+                                          tPropKinViscosity );
 
                     // compute dfv1dx
                     Matrix< DDRMat > tdfv1dx;
-                    this->compute_dfv1dx( tdfv1dx );
+                    compute_dfv1dx(
+                            { mDofViscosity },
+                            mFIManager,
+                            tPropKinViscosity,
+                            tdfv1dx );
 
                     // add contribution to dviscositytdxdu
                     adviscositytdxdu +=
@@ -526,11 +568,21 @@ namespace moris
 
                 // compute dfv1du
                 Matrix< DDRMat > tdfv1du;
-                this->compute_dfv1du( aDofTypes, tdfv1du );
+                compute_dfv1du(
+                        { mDofViscosity },
+                        mFIManager,
+                        tPropKinViscosity,
+                        aDofTypes,
+                        tdfv1du );
 
                 // compute dfv1dxdu
                 Matrix< DDRMat > tdfv1dxdu;
-                this->compute_dfv1dxdu( aDofTypes, tdfv1dxdu );
+                compute_dfv1dxdu(
+                        { mDofViscosity },
+                        mFIManager,
+                        tPropKinViscosity,
+                        aDofTypes,
+                        tdfv1dxdu );
 
                 // add contribution from dfv1du
                 adviscositytdxdu +=
@@ -539,172 +591,172 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
-
-        real CM_Fluid_Turbulence::compute_chi()
-        {
-            // get the viscosity dof FI
-            Field_Interpolator * tFIViscosity =
-                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-            // compute chi
-            return tFIViscosity->val()( 0 ) / mPropViscosity->val()( 0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::compute_dchidu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adchidu )
-        {
-            // get the derivative dof FIs
-            Field_Interpolator * tDerFI =
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // init adchidu
-            adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the viscosity dof FI
-            Field_Interpolator * tFIViscosity =
-                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-            // if dof type is viscosity
-            if( aDofTypes( 0 ) == mDofViscosity )
-            {
-                adchidu += tDerFI->N() / mPropViscosity->val()( 0 );
-            }
-
-            // if viscosity property depends on dof type
-            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
-            {
-                adchidu -=
-                        tFIViscosity->val() * mPropViscosity->dPropdDOF( aDofTypes ) /
-                        std::pow( mPropViscosity->val()( 0 ), 2 );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::compute_dchidx(Matrix< DDRMat > & adchidx )
-        {
-            // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity =
-                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-            // compute dchidx
-            adchidx = tFIViscosity->gradx( 1 ) / mPropViscosity->val()( 0 );
-
-            // FIXME dependency of property on x not accounted for
-        }
-
-        //------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::compute_dchidxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adchidxdu )
-        {
-            // get the derivative dof FIs
-            Field_Interpolator * tDerFI =
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // init adchidu
-            adchidxdu.set_size( mSpaceDim, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity =
-                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-            // if dof type is viscosity
-            if( aDofTypes( 0 ) == mDofViscosity )
-            {
-                adchidxdu += tDerFI->dnNdxn( 1 ) / mPropViscosity->val()( 0 );
-            }
-
-            // if viscosity property depends on dof type
-            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
-            {
-                adchidxdu -=
-                        tFIViscosity->gradx( 1 ) * mPropViscosity->dPropdDOF( aDofTypes ) /
-                        std::pow( mPropViscosity->val()( 0 ), 2 );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        real CM_Fluid_Turbulence::compute_fv1()
-        {
-            // compute chi
-            real tChi = this->compute_chi();
-
-            // compute fv1
-            return std::pow( tChi, 3.0 ) / ( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ) );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::compute_dfv1du(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adfv1du )
-        {
-            // compute chi
-            real tChi = this->compute_chi();
-
-            // compute dchidu
-            Matrix< DDRMat > tdchidu;
-            this->compute_dchidu( aDofTypes, tdchidu );
-
-            // compute adfv1du
-            adfv1du =
-                    3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu /
-                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::compute_dfv1dx( Matrix< DDRMat > & adfv1dx )
-        {
-            // compute chi
-            real tChi = this->compute_chi();
-
-            // compute dchidx
-            Matrix< DDRMat > tdchidx;
-            this->compute_dchidx( tdchidx );
-
-            // compute dfv1dx
-            adfv1dx =
-                    3.0 * mCv1 * std::pow( tChi, 2 ) * tdchidx /
-                    std::pow( std::pow( tChi, 3 ) + std::pow( mCv1, 3 ), 2 );
-
-            // FIXME dependency of property on x not accounted for
-        }
-
-        //------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::compute_dfv1dxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adfv1dxdu )
-        {
-            // compute chi
-            real tChi = this->compute_chi();
-
-            // compute dchidx
-            Matrix< DDRMat > tdchidx;
-            this->compute_dchidx( tdchidx );
-
-            // compute dchidu
-            Matrix< DDRMat > tdchidu;
-            this->compute_dchidu( aDofTypes, tdchidu );
-
-            // compute dchidxdu
-            Matrix< DDRMat > tdchidxdu;
-            this->compute_dchidxdu( aDofTypes, tdchidxdu );
-
-            // compute dfv1dxdu
-            adfv1dxdu = 3.0 * mCv1 * (
-                    2.0 * tChi * ( std::pow( mCv1, 3 ) - 2.0 * std::pow( tChi, 3 ) ) * tdchidx * tdchidu
-                    + std::pow( tChi, 2 ) * ( std::pow( tChi, 3 ) + std::pow( mCv1, 3 ) ) * tdchidxdu ) /
-                            std::pow( std::pow( tChi, 3 ) + std::pow( mCv1, 3 ), 3 );
-        }
+//        //------------------------------------------------------------------------------
+//
+//        real CM_Fluid_Turbulence::compute_chi()
+//        {
+//            // get the viscosity dof FI
+//            Field_Interpolator * tFIViscosity =
+//                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+//
+//            // compute chi
+//            return tFIViscosity->val()( 0 ) / mPropViscosity->val()( 0 );
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        void CM_Fluid_Turbulence::compute_dchidu(
+//                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                Matrix< DDRMat >                   & adchidu )
+//        {
+//            // get the derivative dof FIs
+//            Field_Interpolator * tDerFI =
+//                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+//
+//            // init adchidu
+//            adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+//
+//            // get the viscosity dof FI
+//            Field_Interpolator * tFIViscosity =
+//                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+//
+//            // if dof type is viscosity
+//            if( aDofTypes( 0 ) == mDofViscosity )
+//            {
+//                adchidu += tDerFI->N() / mPropViscosity->val()( 0 );
+//            }
+//
+//            // if viscosity property depends on dof type
+//            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
+//            {
+//                adchidu -=
+//                        tFIViscosity->val() * mPropViscosity->dPropdDOF( aDofTypes ) /
+//                        std::pow( mPropViscosity->val()( 0 ), 2 );
+//            }
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        void CM_Fluid_Turbulence::compute_dchidx(Matrix< DDRMat > & adchidx )
+//        {
+//            // get the residual dof FI (here viscosity)
+//            Field_Interpolator * tFIViscosity =
+//                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+//
+//            // compute dchidx
+//            adchidx = tFIViscosity->gradx( 1 ) / mPropViscosity->val()( 0 );
+//
+//            // FIXME dependency of property on x not accounted for
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        void CM_Fluid_Turbulence::compute_dchidxdu(
+//                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                Matrix< DDRMat >                   & adchidxdu )
+//        {
+//            // get the derivative dof FIs
+//            Field_Interpolator * tDerFI =
+//                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+//
+//            // init adchidu
+//            adchidxdu.set_size( mSpaceDim, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+//
+//            // get the residual dof FI (here viscosity)
+//            Field_Interpolator * tFIViscosity =
+//                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+//
+//            // if dof type is viscosity
+//            if( aDofTypes( 0 ) == mDofViscosity )
+//            {
+//                adchidxdu += tDerFI->dnNdxn( 1 ) / mPropViscosity->val()( 0 );
+//            }
+//
+//            // if viscosity property depends on dof type
+//            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
+//            {
+//                adchidxdu -=
+//                        tFIViscosity->gradx( 1 ) * mPropViscosity->dPropdDOF( aDofTypes ) /
+//                        std::pow( mPropViscosity->val()( 0 ), 2 );
+//            }
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        real CM_Fluid_Turbulence::compute_fv1()
+//        {
+//            // compute chi
+//            real tChi = this->compute_chi();
+//
+//            // compute fv1
+//            return std::pow( tChi, 3.0 ) / ( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ) );
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        void CM_Fluid_Turbulence::compute_dfv1du(
+//                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                Matrix< DDRMat >                   & adfv1du )
+//        {
+//            // compute chi
+//            real tChi = this->compute_chi();
+//
+//            // compute dchidu
+//            Matrix< DDRMat > tdchidu;
+//            this->compute_dchidu( aDofTypes, tdchidu );
+//
+//            // compute adfv1du
+//            adfv1du =
+//                    3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu /
+//                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        void CM_Fluid_Turbulence::compute_dfv1dx( Matrix< DDRMat > & adfv1dx )
+//        {
+//            // compute chi
+//            real tChi = this->compute_chi();
+//
+//            // compute dchidx
+//            Matrix< DDRMat > tdchidx;
+//            this->compute_dchidx( tdchidx );
+//
+//            // compute dfv1dx
+//            adfv1dx =
+//                    3.0 * mCv1 * std::pow( tChi, 2 ) * tdchidx /
+//                    std::pow( std::pow( tChi, 3 ) + std::pow( mCv1, 3 ), 2 );
+//
+//            // FIXME dependency of property on x not accounted for
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
+//        void CM_Fluid_Turbulence::compute_dfv1dxdu(
+//                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+//                Matrix< DDRMat >                   & adfv1dxdu )
+//        {
+//            // compute chi
+//            real tChi = this->compute_chi();
+//
+//            // compute dchidx
+//            Matrix< DDRMat > tdchidx;
+//            this->compute_dchidx( tdchidx );
+//
+//            // compute dchidu
+//            Matrix< DDRMat > tdchidu;
+//            this->compute_dchidu( aDofTypes, tdchidu );
+//
+//            // compute dchidxdu
+//            Matrix< DDRMat > tdchidxdu;
+//            this->compute_dchidxdu( aDofTypes, tdchidxdu );
+//
+//            // compute dfv1dxdu
+//            adfv1dxdu = 3.0 * mCv1 * (
+//                    2.0 * tChi * ( std::pow( mCv1, 3 ) - 2.0 * std::pow( tChi, 3 ) ) * tdchidx * tdchidu
+//                    + std::pow( tChi, 2 ) * ( std::pow( tChi, 3 ) + std::pow( mCv1, 3 ) ) * tdchidxdu ) /
+//                            std::pow( std::pow( tChi, 3 ) + std::pow( mCv1, 3 ), 3 );
+//        }
 
         //--------------------------------------------------------------------------------------------------------------
 

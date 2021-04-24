@@ -42,11 +42,11 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the imposed pressure property
-            std::shared_ptr< Property > & tPropPressure =
+            const std::shared_ptr< Property > & tPropPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // get the imposed total pressure property
-            std::shared_ptr< Property > & tPropTotalPressure =
+            const std::shared_ptr< Property > & tPropTotalPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
 
             // check that either pressure or total pressure property is set
@@ -73,7 +73,7 @@ namespace moris
             else
             {
                 // get density property
-                std::shared_ptr< Property > tPropDensity =
+                const std::shared_ptr< Property > tPropDensity =
                         mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
                 // check that density is set
@@ -114,15 +114,15 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the imposed pressure property
-            std::shared_ptr< Property > & tPropPressure =
+            const std::shared_ptr< Property > & tPropPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // get the imposed total pressure property
-            std::shared_ptr< Property > & tPropTotalPressure =
+            const std::shared_ptr< Property > & tPropTotalPressure =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
 
             // get density property
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
             // compute the jacobian for dof dependencies

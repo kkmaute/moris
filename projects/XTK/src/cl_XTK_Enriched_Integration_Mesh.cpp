@@ -606,6 +606,9 @@ namespace xtk
                 tSetIndex++;
             }
         }
+
+        this->setup_color_to_set();
+        this->collect_all_sets();
     }
 
     //------------------------------------------------------------------------------
@@ -653,6 +656,9 @@ namespace xtk
                 tSetIndex++;
             }
         }
+
+        this->setup_color_to_set();
+        this->collect_all_sets();
     }
 
     //------------------------------------------------------------------------------
@@ -774,54 +780,242 @@ namespace xtk
     void
     Enriched_Integration_Mesh::write_mesh(moris::ParameterList* aParamList)
     {
-            if (aParamList->get<bool>("deactivate_empty_sets"))
-            {
-                this->deactivate_empty_sets();
+        if (aParamList->get<bool>("deactivate_empty_sets"))
+        {
+            this->deactivate_empty_sets();
+        }
+
+        // get path to output XTK files to
+        std::string tOutputPath = aParamList->get<std::string>("output_path");
+        std::string tOutputFile = aParamList->get<std::string>("output_file");
+        std::string tOutputBase = tOutputFile.substr(0,tOutputFile.find("."));
+        std::string tOutputExt  = tOutputFile.substr(tOutputFile.find("."),tOutputFile.length());
+
+        MORIS_ASSERT(tOutputExt == ".exo" || tOutputExt == ".e","Invalid file extension, needs to be .exo or .e");
+        
+        // Write mesh
+        moris::mtk::Writer_Exodus writer( this );
+        
+        // if user requests to keep XTK output for all iterations, add iteration count to output file name
+        if ( aParamList->get<bool>("keep_all_opt_iters") ) 
+        {
+            // get optimization iteration ( function returns zero if no optimization )
+            uint tOptIter = gLogger.get_opt_iteration();
+
+            writer.write_mesh(
+                "", tOutputPath + tOutputBase  + "." + std::to_string( tOptIter ) + tOutputExt, 
+                "", tOutputPath + "xtk_temp2." + std::to_string( tOptIter ) + tOutputExt );
+        }
+        // else: proceed as usual and overwrite xtk_temp.exo each iteration
+        else 
+        {
+            writer.write_mesh(
+                "", tOutputPath + tOutputFile, 
+                "", tOutputPath + "xtk_temp2.exo" );
+        }
+
+        if(aParamList->get<bool>("write_enrichment_fields"))
+        {
+            // set up the nodal fields for basis support
+            moris::Cell<std::string> tNodeFields = this->create_basis_support_fields();
+
+            writer.set_nodal_fields(tNodeFields);
+
+            for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
+            {    
+                moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
+                
+                writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
             }
+        }          
 
-            // get path to output XTK files to
-            std::string tOutputPath = aParamList->get<std::string>("output_path");
-            
-            // Write mesh
-            moris::mtk::Writer_Exodus writer( this );
-            
-            // if user requests to keep XTK output for all iterations, add iteration count to output file name
-            if ( aParamList->get<bool>("keep_all_opt_iters") ) 
-            {
-                // get optimization iteration ( function returns zero if no optimization )
-                uint tOptIter = gLogger.get_opt_iteration();
-
-                writer.write_mesh(
-                    "", tOutputPath + "xtk_temp." + std::to_string( tOptIter ) + ".exo", 
-                    "", tOutputPath + "xtk_temp2." + std::to_string( tOptIter ) + ".exo" );
-            }
-            // else: proceed as usual and overwrite xtk_temp.exo each iteration
-            else 
-            {
-                writer.write_mesh(
-                    "", tOutputPath + "xtk_temp.exo", 
-                    "", tOutputPath + "xtk_temp2.exo" );
-            }
-
-            if(aParamList->get<bool>("write_enrichment_fields"))
-            {
-                // set up the nodal fields for basis support
-                moris::Cell<std::string> tNodeFields = this->create_basis_support_fields();
-
-                writer.set_nodal_fields(tNodeFields);
-
-                for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
-                {    
-                    moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
-                    
-                    writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
-                }
-            }          
-
-            // Write the fields
-            writer.set_time(0.0);
-            writer.close_file();
+        // Write the fields
+        writer.set_time(0.0);
+        writer.close_file();
     }
+    //------------------------------------------------------------------------------
+    void
+   Enriched_Integration_Mesh::create_union_block(Cell<std::string> const & aBlocks,
+                                                 std::string aNewBlock,
+                                                 Matrix<IndexMat> const & aNewBlockColor)
+    {   
+        MORIS_ERROR(aBlocks.size()>=2,"Union needs to happen between two blocks or more");
+
+        enum CellTopology tCellTopo = CellTopology::INVALID;
+
+        moris::uint tCount = 0;
+        Cell<moris_index> tBlockIndices(aBlocks.size());
+        for(moris::uint i = 0; i < aBlocks.size(); i++)
+        {
+            tBlockIndices(i) = this->get_block_set_index(aBlocks(i));
+            tCount = tCount +  mPrimaryBlockSetClusters(tBlockIndices(i)).size();
+
+            moris::mtk::Set * tSet =  this->get_set_by_index( this->get_set_index_by_name(aBlocks(i)) );
+            if(i == 0)
+            {
+                tCellTopo = tSet->get_cell_topology();
+            }
+            else
+            {
+                MORIS_ERROR(tCellTopo == tSet->get_cell_topology(),"Invalid merge detected, verify that all blocks have the same cell topology");
+            }
+
+        }
+
+        Cell<moris_index> tBlockSetIndex = this->register_block_set_names_with_cell_topo({aNewBlock},tCellTopo);
+        mPrimaryBlockSetClusters(tBlockSetIndex(0)).reserve(tCount);
+
+        for(moris::uint i = 0; i < aBlocks.size(); i++)
+        {
+            mPrimaryBlockSetClusters(tBlockSetIndex(0)).append(mPrimaryBlockSetClusters(tBlockIndices(i)));
+        }            
+
+        // Check compatibility of union
+
+        this->commit_block_set(tBlockSetIndex(0));
+        this->set_block_set_colors(tBlockSetIndex(0),aNewBlockColor);
+        this->setup_color_to_set();
+        this->collect_all_sets( false );
+
+    }
+    //------------------------------------------------------------------------------
+    void
+    Enriched_Integration_Mesh::create_union_side_set(Cell<std::string> const & aSideSets,
+                          std::string aNewSideSet,
+                          Matrix<IndexMat> const & aNewSideSetColor)
+    {
+        MORIS_ERROR(aSideSets.size()>=2,"Union needs to happen between two side sets or more");
+
+        enum CellTopology tCellTopo = CellTopology::INVALID;
+
+        moris::uint tCount = 0;
+        Cell<moris_index> tSideSetIndices(aSideSets.size());
+        for(moris::uint i = 0; i < aSideSets.size(); i++)
+        {
+            tSideSetIndices(i) = this->get_side_set_index(aSideSets(i));
+            tCount = tCount +  mSideSets(tSideSetIndices(i)).size();
+
+            moris::mtk::Set * tSet =  this->get_set_by_index( this->get_set_index_by_name(aSideSets(i)) );
+            if(i == 0)
+            {
+                tCellTopo = tSet->get_cell_topology();
+            }
+            else
+            {
+                MORIS_ERROR(tCellTopo == tSet->get_cell_topology(),"Invalid merge detected, verify that all blocks have the same cell topology");
+            }
+
+        }
+
+        Cell<moris_index> tSideSetIndex = this->register_side_set_names({aNewSideSet});
+        mSideSets(tSideSetIndex(0)).reserve(tCount);
+
+        for(moris::uint i = 0; i < aSideSets.size(); i++)
+        {
+            mSideSets(tSideSetIndex(0)).append(mSideSets(tSideSetIndices(i)));
+        }            
+
+        this->commit_side_set(tSideSetIndex(0));
+
+        this->set_side_set_colors(tSideSetIndex(0),aNewSideSetColor);
+
+        this->setup_color_to_set();
+        this->collect_all_sets( false );
+    }
+
+    void
+    Enriched_Integration_Mesh::deactive_all_blocks_but_selected(Cell<std::string> const & aBlockSetsToKeep)
+    {
+        std::unordered_map<std::string,moris_index> tBlocksToKeepMap;
+        for(moris::uint i = 0; i <aBlockSetsToKeep.size(); i++ )
+        {
+            tBlocksToKeepMap[aBlockSetsToKeep(i)] = 1;
+        }
+
+
+        std::unordered_map<std::string, moris_index>        tOldSetMap      = mBlockSetLabelToOrd;
+        moris::Cell<std::string>                            tOldSetNames    = mBlockSetNames;
+        moris::Cell<enum CellTopology>                      tOldSetTopo     = mBlockSetTopology;
+        moris::Cell<moris::Cell<xtk::Cell_Cluster const *>> tOldSetClusters = mPrimaryBlockSetClusters;
+        moris::Cell<moris::Matrix<IndexMat>>                tOldColors      = mBlockSetColors;
+
+        // clear member data
+        mBlockSetLabelToOrd.clear();
+        mBlockSetNames.clear();
+        mBlockSetTopology.clear();
+        mPrimaryBlockSetClusters.clear();
+        mBlockSetColors.clear();
+
+        for(auto iB: mListofBlocks)
+        {
+            delete iB;
+        }
+        mListofBlocks.clear();
+
+        // current index
+        moris_index tSetIndex = 0;
+
+        for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
+        {
+            if ( tBlocksToKeepMap.find(tOldSetNames(i)) != tBlocksToKeepMap.end() )
+            {
+                mBlockSetNames.push_back(tOldSetNames(i));
+                mPrimaryBlockSetClusters.push_back(tOldSetClusters(i));
+                mBlockSetTopology.push_back(tOldSetTopo(i));
+                mBlockSetColors.push_back(tOldColors(i));
+
+                MORIS_ASSERT(mBlockSetLabelToOrd.find(tOldSetNames(i)) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh");
+                mBlockSetLabelToOrd[tOldSetNames(i)] = tSetIndex ;
+                this->commit_block_set(tSetIndex);
+                tSetIndex++;
+            }
+        }
+
+    }
+    void
+    Enriched_Integration_Mesh::deactive_all_side_sets_but_selected(Cell<std::string> const & aSideSetsToKeep)
+    {        
+        std::unordered_map<std::string,moris_index> tSideSetsToKeepMap;
+        for(moris::uint i = 0; i <aSideSetsToKeep.size(); i++ )
+        {
+            tSideSetsToKeepMap[aSideSetsToKeep(i)] = 1;
+        }
+
+
+        // copy old data
+        std::unordered_map<std::string, moris_index> tOldSetMap = mSideSideSetLabelToOrd;
+        moris::Cell<std::string> tOldSetNames = mSideSetLabels;
+        moris::Cell<moris::Cell<std::shared_ptr<xtk::Side_Cluster>>> tOldSetClusters = mSideSets;
+
+        // clear member data
+        mSideSideSetLabelToOrd.clear();
+        mSideSetLabels.clear();
+        mSideSets.clear();
+
+        for(auto iB: mListofSideSets)
+        {
+            delete iB;
+        }
+        mListofSideSets.clear();
+
+        // current index
+        moris_index tSetIndex = 0;
+
+        for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
+        {
+            if ( tSideSetsToKeepMap.find(tOldSetNames(i)) != tSideSetsToKeepMap.end() )
+            {
+                mSideSetLabels.push_back(tOldSetNames(i));
+                mSideSets.push_back(tOldSetClusters(i));
+
+                MORIS_ASSERT(mSideSideSetLabelToOrd.find(tOldSetNames(i)) ==  mSideSideSetLabelToOrd.end(),"Duplicate block set in mesh");
+                mSideSideSetLabelToOrd[tOldSetNames(i)] = tSetIndex ;
+                this->commit_side_set(tSetIndex);
+                tSetIndex++;
+            }
+        }
+    }
+
     //------------------------------------------------------------------------------
  
     moris::Memory_Map
