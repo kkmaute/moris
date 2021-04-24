@@ -1024,8 +1024,7 @@ namespace moris
                     else
                     {
                         uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
-                        aFields( tMTKFieldIndex )->save_field_to_exodus( "FieldNewInputGE.exo");
-
+                     
                         // Create B-spline geometry
                         mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                                 tNewOwnedADVs,
