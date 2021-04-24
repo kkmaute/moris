@@ -34,25 +34,38 @@ namespace moris
         ParameterList mMSIParameterList;
 
         // Adof type interpolation index
+        mMSIParameterList.insert( "TEMP"       , 0 );
+        mMSIParameterList.insert( "P"          , 0 );
+        mMSIParameterList.insert( "RHO"        , 0 );
+        mMSIParameterList.insert( "E"          , 0 );
+        mMSIParameterList.insert( "EVP"        , 0 );
+        mMSIParameterList.insert( "EVT"        , 0 );
+
         mMSIParameterList.insert( "UX"         , 0 );
         mMSIParameterList.insert( "UY"         , 0 );
         mMSIParameterList.insert( "UZ"         , 0 );
-        mMSIParameterList.insert( "TEMP"       , 0 );
+        mMSIParameterList.insert( "VX"         , 0 );
+        mMSIParameterList.insert( "VY"         , 0 );
+        mMSIParameterList.insert( "VZ"         , 0 );
+        mMSIParameterList.insert( "MX"         , 0 );
+        mMSIParameterList.insert( "MY"         , 0 );
+        mMSIParameterList.insert( "MZ"         , 0 );
+        mMSIParameterList.insert( "EVX"        , 0 );
+        mMSIParameterList.insert( "EVY"        , 0 );
+        mMSIParameterList.insert( "EVZ"        , 0 );
+        mMSIParameterList.insert( "NLSX"       , 0 );
+        mMSIParameterList.insert( "NLSY"       , 0 );
+        mMSIParameterList.insert( "NLSZ"       , 0 );
+
         mMSIParameterList.insert( "L2"         , 0 );
         mMSIParameterList.insert( "MAPPING_DOF", 0 );
         mMSIParameterList.insert( "LS1"        , 0 );
         mMSIParameterList.insert( "LS2"        , 0 );
-        mMSIParameterList.insert( "NLSX"       , 0 );
-        mMSIParameterList.insert( "NLSY"       , 0 );
-        mMSIParameterList.insert( "NLSZ"       , 0 );
+
         mMSIParameterList.insert( "THETA"      , 0 );
         mMSIParameterList.insert( "PHID"       , 0 );
         mMSIParameterList.insert( "PHISD"      , 0 );
-        mMSIParameterList.insert( "VX"         , 0 );
-        mMSIParameterList.insert( "VY"         , 0 );
-        mMSIParameterList.insert( "VZ"         , 0 );
-        mMSIParameterList.insert( "P"          , 0 );
-        mMSIParameterList.insert( "RHO"        , 0 );
+
         mMSIParameterList.insert( "VISCOSITY"  , 0 );
         mMSIParameterList.insert( "STRESS_DOF" , 0 );
 
