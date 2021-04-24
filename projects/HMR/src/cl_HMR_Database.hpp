@@ -49,7 +49,7 @@ namespace moris
 
                 //! cell of pointers to Lagrange meshes.
                 // These Lagrange meshes are created on the flight and not in the input file
-                Cell< Lagrange_Mesh_Base* > mAdditionalLagrangeMeshes;
+                Cell< Cell< Lagrange_Mesh_Base* > > mAdditionalLagrangeMeshes;
 
                 //! communication table for this mesh. Created during finalize.
                 Matrix< IdMat > mCommunicationTable;
@@ -125,6 +125,13 @@ namespace moris
                 void set_parameter_owning_flag();
 
                 // -----------------------------------------------------------------------------
+                /**
+                 * sets the flag that the parameter object must not be deleted
+                 * by the destructor
+                 */
+                void unset_parameter_owning_flag();
+
+                // -----------------------------------------------------------------------------
 
                 /**
                  * creates a union of two patterns
@@ -189,15 +196,20 @@ namespace moris
                     return mLagrangeMeshes( aIndex );
                 }
 
-                Lagrange_Mesh_Base * get_additional_lagrange_mesh_by_index( const uint& aIndex )
+                // -----------------------------------------------------------------------------
+                Lagrange_Mesh_Base * get_additional_lagrange_mesh_by_index(
+                        const uint& aIndex,
+                        uint aPattern)
                 {
-                    return mAdditionalLagrangeMeshes( aIndex );
+                    return mAdditionalLagrangeMeshes( aPattern )( aIndex );
                 }
 
                 // -----------------------------------------------------------------------------
-                void add_lagrange_mesh( Lagrange_Mesh_Base * aLagrangeMesh)
+                void add_lagrange_mesh(
+                        Lagrange_Mesh_Base * aLagrangeMesh,
+                        uint                 aLagrangePattern)
                 {
-                    mAdditionalLagrangeMeshes.push_back( aLagrangeMesh );
+                    mAdditionalLagrangeMeshes( aLagrangePattern ).push_back( aLagrangeMesh );
                 }
 
                 // -----------------------------------------------------------------------------
@@ -265,9 +277,9 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
-                uint get_number_of_additional_lagrange_meshes() const
+                uint get_number_of_additional_lagrange_meshes( uint aLagrangePattern ) const
                 {
-                    return mAdditionalLagrangeMeshes.size();
+                    return mAdditionalLagrangeMeshes( aLagrangePattern ).size();
                 }
 
                 // -----------------------------------------------------------------------------
@@ -510,6 +522,10 @@ namespace moris
                  * the function is called before create_meshes
                  */
                 void delete_meshes();
+
+                // -----------------------------------------------------------------------------
+
+                void delete_additional_meshes( uint aPattern );
 
                 // -----------------------------------------------------------------------------
 

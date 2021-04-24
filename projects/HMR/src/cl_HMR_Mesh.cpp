@@ -49,11 +49,11 @@ namespace moris
 
             if( !tMeshFound)
             {
-                tNumberOfMeshes = mDatabase->get_number_of_additional_lagrange_meshes();
+                tNumberOfMeshes = mDatabase->get_number_of_additional_lagrange_meshes( aLagrangePattern );
 
                 for( uint k=0; k<tNumberOfMeshes; ++k )
                 {
-                    auto tMesh = mDatabase->get_additional_lagrange_mesh_by_index( k );
+                    auto tMesh = mDatabase->get_additional_lagrange_mesh_by_index( k,aLagrangePattern );
 
                     // test if mesh uses active pattern
                     if ( tMesh->get_activation_pattern() == aLagrangePattern &&           //FIXME
@@ -129,7 +129,7 @@ namespace moris
                     aLagrangePattern,
                     aOrder );
 
-            mDatabase->add_lagrange_mesh( mMesh );                                       //FIXME dont add
+            mDatabase->add_lagrange_mesh( mMesh, aLagrangePattern );                                       //FIXME dont add
 
             // remember active pattern
             auto tActivePattern = mDatabase->get_background_mesh()->get_activation_pattern();
@@ -186,7 +186,7 @@ namespace moris
                     aLagrangePattern,
                     aLagrangeOrder );
 
-            mDatabase->add_lagrange_mesh( mMesh );                                       //FIXME dont add
+            mDatabase->add_lagrange_mesh( mMesh, aLagrangePattern );                                       //FIXME dont add
 
             // remember active pattern
             auto tActivePattern = mDatabase->get_background_mesh()->get_activation_pattern();

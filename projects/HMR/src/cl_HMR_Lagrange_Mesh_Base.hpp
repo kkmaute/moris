@@ -79,10 +79,10 @@ namespace moris
                 Cell< Facet * > mFacets;
 
                 //! Cell containing facet clusters
-                Cell< Facet_Cluster * > mFacetClusters;
+                //Cell< Facet_Cluster * > mFacetClusters;
 
                 //! Facet to Facet Cluster Relationship
-                Cell< Cell<Facet_Cluster * > > mFacetToFacetCluster;
+                //Cell< Cell<Facet_Cluster * > > mFacetToFacetCluster;
 
             private:
 
