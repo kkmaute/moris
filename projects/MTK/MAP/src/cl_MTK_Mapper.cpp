@@ -127,6 +127,13 @@ namespace moris
                     tTargetPattern,
                     tUnionPattern );
 
+            uint tNumAdditionalMeshes = tHMRDatabase->get_number_of_additional_lagrange_meshes( tSourcePattern );
+
+            for( uint Ik = 0; Ik < tNumAdditionalMeshes; Ik++ )
+            {
+                tHMRDatabase->get_additional_lagrange_mesh_by_index( Ik, tSourcePattern )->update_mesh();
+            }
+
             // create union mesh
             hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                     tHMRDatabase,
