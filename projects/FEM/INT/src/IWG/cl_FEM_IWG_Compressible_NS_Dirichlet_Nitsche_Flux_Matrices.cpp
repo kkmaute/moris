@@ -95,7 +95,7 @@ namespace moris
 
         const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dJumpdDOF()
         {
-                        // check if the variable vectors have already been assembled
+            // check if the variable vectors have already been assembled
             if( !mJumpDofEval )
             {      
                 return mdJumpdDOF;
@@ -226,13 +226,29 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::A_Matrix( uint aAindex )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::A( const uint aK )
         {
-            // check if the A matrices have already been assembled
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aK >= 0 ) and ( aK <= this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Dirichlet_Nitsche::A() - index out of bounds." );
+
+            // 
+            this->eval_A_matrices();
+
+            // return requested value
+            return mA( aK );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG_Compressible_NS_Dirichlet_Nitsche::eval_A_matrices()
+        {
+            // check if the variable vectors have already been assembled
             if( !mFluxAMatEval )
             {
-                return mA( aAindex );
+                return;
             }  
             
             // set the eval flag
@@ -244,9 +260,6 @@ namespace moris
 
             // evaluate A-matrices and store them
             eval_A( tMM, tCM, mMasterFIManager, mResidualDofType, mA );  
-
-            // return 
-            return mA( aAindex );
         }
 
        //------------------------------------------------------------------------------
@@ -502,6 +515,34 @@ namespace moris
 
             // return matrix of test functions
             return mTestFunctions;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::K( const uint aI, const uint aJ )
+        {
+            // check that indices are not out of bounds
+            MORIS_ASSERT( ( aI >= 0 ) and ( aI < this->num_space_dims() ) and ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
+                    "IWG_Compressible_NS_Dirichlet_Nitsche::K() - indices out of bounds." );
+
+            // check if K matrices have already been evaluated
+            if ( !mFluxKMatEval )
+            {
+                return mK( aI )( aJ );
+            }
+
+            // set the eval flag
+            mFluxKMatEval = false;            
+
+            // get the viscosity
+            std::shared_ptr< Property > tPropDynamicViscosity = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropThermalConductivity = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // eval K matrices and store them
+            eval_K( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mK );
+
+            // return requested K matrix
+            return mK( aI )( aJ );
         }
 
         //------------------------------------------------------------------------------

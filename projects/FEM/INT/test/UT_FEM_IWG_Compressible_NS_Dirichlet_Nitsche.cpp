@@ -488,7 +488,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                             1.0,
                             tJacobian,
                             tJacobianFD,
-                            true );
+                            false );
 
                     // print for debug
                     if( !tCheckJacobian )

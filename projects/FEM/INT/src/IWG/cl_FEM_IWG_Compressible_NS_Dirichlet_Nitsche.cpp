@@ -57,12 +57,15 @@ namespace moris
         void IWG_Compressible_NS_Dirichlet_Nitsche::reset_spec_eval_flags()
         {
             // reset eval flags
+            mSpaceDimEval = true;
+
             mSelectMatrixEval = true;
             mTestFunctionsEval = true;
             mJumpEval = true;
             mJumpDofEval = true;
             mFluxAMatEval = true;
             mFluxAMatDofEval = true;
+            mFluxKMatEval = true;
             mTractionEval = true;
             mTractionDofEval = true;
             mTestTractionEval = true;
@@ -111,10 +114,10 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add A-matrices
-                Matrix< DDRMat > tAini = this->A_Matrix( 1 ) * mNormal( 0 ) + this->A_Matrix( 2 ) * mNormal( 1 );
+                Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
                 if ( tNumSpaceDims == 3 )
                 {
-                    tAini = tAini + this->A_Matrix( 3 ) * mNormal( 2 );
+                    tAini = tAini + this->A( 3 ) * mNormal( 2 );
                 }
 
                 // add contribution
@@ -196,10 +199,10 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add A-matrices
-                Matrix< DDRMat > tAini = this->A_Matrix( 1 ) * mNormal( 0 ) + this->A_Matrix( 2 ) * mNormal( 1 );
+                Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
                 if ( tNumSpaceDims == 3 )
                 {
-                    tAini = tAini + this->A_Matrix( 3 ) * mNormal( 2 );
+                    tAini = tAini + this->A( 3 ) * mNormal( 2 );
                 }
 
                 // add contribution - jump derivative
@@ -277,6 +280,30 @@ namespace moris
 #endif
 
             MORIS_ERROR( false, "IWG_Compressible_NS_Dirichlet_Nitsche::compute_dRdp - Not implemented." );
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint IWG_Compressible_NS_Dirichlet_Nitsche::num_space_dims()
+        {
+            // check if number of spatial dimensions is known
+            if ( !mSpaceDimEval )
+            {
+                return mNumSpaceDims;
+            }
+
+            // set eval flag
+            mSpaceDimEval = false;
+            
+            // get CM
+            std::shared_ptr< Constitutive_Model > tCM = 
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get number of spatial dimensions from CM
+            mNumSpaceDims = tCM->get_num_space_dims();
+
+            // return
+            return mNumSpaceDims;
         }
 
         //------------------------------------------------------------------------------
