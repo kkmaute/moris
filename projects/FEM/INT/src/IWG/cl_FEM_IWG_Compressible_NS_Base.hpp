@@ -1,15 +1,16 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Bulk.hpp
+ * cl_FEM_IWG_Compressible_NS_Base.hpp
  *
- *  Created on: Feb 10, 2021
+ *  Created on: Apr 23, 2021
  *      Author: wunsch
  *
- * IWG for unified NS equations using flux matrices
+ * Base IWG for unified NS equations using flux matrices
  * operating on all residual DoF types simultaneously
+ * 
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BASE_HPP_
+#define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BASE_HPP_
 
 #include <map>
 #include "typedefs.hpp"                     //MRS/COR/src
@@ -26,54 +27,61 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Compressible_NS_Bulk : public IWG
+        class IWG_Compressible_NS_Base : public IWG
         {
                 //------------------------------------------------------------------------------
 
             private:
 
-                // default dof types (FIXME: only primitive vars for now)
+                // default dof types (FIXME: temporary)
                 MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
                 MSI::Dof_Type mDofPressure    = MSI::Dof_Type::P;
                 MSI::Dof_Type mDofVelocity    = MSI::Dof_Type::VX;
                 MSI::Dof_Type mDofTemperature = MSI::Dof_Type::TEMP;
 
-                // save number of spatial dimensions and basis functions per field
-                bool mSpaceDimEval = true;
-                uint mNumSpaceDims;
-                bool mNumBasesEval = true;
-                uint mNumBasesPerField;
+                // Define Variable Set (FIXME: only primitive vars for now, needs to have a set function later)
+                fem::Variable_Set mVariableSet = fem::Variable_Set::PRESSURE_PRIMITIVE;
+                MSI::Dof_Type mFirstDof   = MSI::Dof_Type::P;
+                MSI::Dof_Type mVectorDof  = MSI::Dof_Type::VX;
+                MSI::Dof_Type mLastDof    = MSI::Dof_Type::TEMP;
+                uint mFirstDofIndex   = 0;
+                uint mVectorDofIndex  = 1;
+                uint mLastDofINdex    = 2;
 
-                // evaluation flags for variable and test function sets
-                bool mVarSetEval = true;
-                bool mTestFuncSetEval = true;
+                // List of accepted variable sets
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mConservativeVars = { 
+                        { MSI::Dof_Type::P }, 
+                        { MSI::Dof_Type::MX }, 
+                        { MSI::Dof_Type::E } };
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mDensityPrimitiveVars = { 
+                        { MSI::Dof_Type::RHO }, 
+                        { MSI::Dof_Type::VX }, 
+                        { MSI::Dof_Type::TEMP } };
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mPressurePrimitiveVars = { 
+                        { MSI::Dof_Type::P }, 
+                        { MSI::Dof_Type::VX }, 
+                        { MSI::Dof_Type::TEMP } };
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mEntropyVars = { 
+                        { MSI::Dof_Type::EVP }, 
+                        { MSI::Dof_Type::EVX }, 
+                        { MSI::Dof_Type::EVT } };
+
+                // evaluation flags for variable set
+                bool mYEval = true;
+                bool mdYdtEval = true;
+                bool mdYdxEval = true;
+                bool md2Ydx2Eval = true;
+
+                // evaluation flags for test function sets
+                bool mWEval = true;
+                bool mdWdtEval = true;
+                bool mdWdxEval = true;
+                bool md2Wdx2Eval = true;
 
                 // evaluation flags for flux matrices
-                bool mFluxAMatEval = true;
-                bool mFluxADofMatEval = true;
-                bool mFluxKMatEval = true;
+                bool mAEval = true;
+                bool mKEval = true;
                 bool mKijiEval = true;
-                bool mFluxKDofMatEval = true;
-
-                // evaluation flags for L-operators
-                bool mLYEval = true;
-                bool mLWEval = true;
-                bool mLDofYEval = true;
-
-                // evaluation flag for the variable mapping operator
-                bool mA0invEval = true;
-                
-                // evaluation flag for G-operator
-                bool mGEval = true;
-
-                // evaluation flags for M-operator and its inverse
-                bool mMEval = true;
-                bool mMinvEval = true;
-                bool mSqrtMinvEval = true;
-
-                // evaluation flag for GLS stabilization operator
-                bool mTauEval = true;
-
 
                 // vectors and matrices containing field variables and their spatial derivatives
                 Matrix< DDRMat > mY;
@@ -87,49 +95,10 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mdWdx;
                 moris::Cell< Matrix< DDRMat > > md2Wdx2;
 
-                // cells of matrices containing the A flux matrices and their DoF derivatives
+                // cells of matrices containing the flux matrices 
                 moris::Cell< Matrix< DDRMat > > mA;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > mADOF;
-                
-                // cells of matrices containing the K flux matrices and their DoF derivatives
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
-                moris::Cell< Matrix< DDRMat > > mKiji;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > mKDOF;   
-
-                // storage for L-operators
-                Matrix< DDRMat > mLY;
-                Matrix< DDRMat > mdLdDofY;
-                Matrix< DDRMat > mLW;
-                Matrix< DDRMat > mdLdDofW;
-
-                // storage for the variable mapping operator
-                Matrix< DDRMat > mA0inv;
-
-                // storage for G-operator
-                Matrix< DDRMat > mG;
-
-                // storage for M-operator and its inverse
-                Matrix< DDRMat > mM;
-                Matrix< DDRMat > mMinv;
-                Matrix< DDRMat > mSqrtMinv;
-
-                // storage for the GLS stabiliation operator
-                Matrix< DDRMat > mTau;
-                Matrix< DDRMat > mdTaudY;
-
-                // multiplication matrices for condensed tensors
-                const Matrix< DDRMat > mMultipMat2D = { 
-                        { 1.0, 0.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 2.0 } };  
-
-                const Matrix< DDRMat > mMultipMat3D = { 
-                        { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 } };     
+                moris::Cell< Matrix< DDRMat > > mKiji;    
 
                 //------------------------------------------------------------------------------
 
@@ -159,59 +128,72 @@ namespace moris
                     MAX_ENUM
                 };
 
-                // local SP enums
-                // FIXME: generic SP only for testing purposes for strong form
-                enum class IWG_Stabilization_Type
-                {
-                    GENERIC,
-                    MAX_ENUM
-                };
-
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
                  */
-                IWG_Compressible_NS_Bulk();
+                IWG_Compressible_NS_Base()
+                {
+                    MORIS_ERROR( false, "IWG_Compressible_NS_Base::IWG_Compressible_NS_Base() - Base class constructor does nothing." );
+                };
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Compressible_NS_Bulk(){};
+                ~IWG_Compressible_NS_Base(){};
 
                 //------------------------------------------------------------------------------
                 /**
-                 * reset eval flags specific to this IWG
+                 * reset eval flags specific to this base IWG
                  */
                 void reset_spec_eval_flags();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the residual
-                 * @param[ in ] aWStar weight associated to the evaluation point
+                 * reset eval flags specific to the children comp flow IWGs, empty in base class
                  */
-                void compute_residual( real aWStar );
+                virtual void reset_child_eval_flags(){};
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the jacobian
+                 * compute the residual in children, doesn't do anything in base
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_jacobian( real aWStar );
+                virtual void compute_residual( real aWStar )
+                {
+                    MORIS_ERROR( false, "IWG_Compressible_NS_Base::compute_residual() - not implemented in comp flow base class" );
+                };
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the residual and the jacobian
+                 * compute the jacobian in children, doesn't do anything in base
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_jacobian_and_residual( real aWStar );
+                virtual void compute_jacobian( real aWStar )
+                {
+                    MORIS_ERROR( false, "IWG_Compressible_NS_Base::compute_jacobian() - not implemented in comp flow base class" );
+                };
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the derivative of the residual wrt design variables
+                 * compute the residual and the jacobian in children, doesn't do anything in base
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_dRdp( real aWStar );
+                virtual void compute_jacobian_and_residual( real aWStar )
+                {
+                    MORIS_ERROR( false, "IWG_Compressible_NS_Base::compute_jacobian_and_residual() - not implemented in comp flow base class" );
+                };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the residual wrt design variables in children, doesn't do anything in base
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                virtual void compute_dRdp( real aWStar )
+                {
+                    MORIS_ERROR( false, "IWG_Compressible_NS_Base::compute_jacobian_and_residual() - not implemented in comp flow base class" );
+                };
 
             private:
 
@@ -230,12 +212,6 @@ namespace moris
                 uint num_bases();
 
                 //------------------------------------------------------------------------------
-                /**
-                 * assemble the state variables and their derivatives
-                 * into vectors and matrices
-                 */
-                void assemble_variable_set();
-
                 //------------------------------------------------------------------------------
                 /**
                  * get vector of state state variables
@@ -253,7 +229,7 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * get a matrix of spatial derivative of test functions W for all dof types
-                 * @param[ in ]  aJ index of the first spatial dimension for derivative
+                 * @param[ in ]  aJ index of the spatial dimension for derivative
                  * @param[ out ] dYdx  spatial derivatives of the state variables
                  */
                 const Matrix< DDRMat > & dYdx( const uint aJ );
@@ -265,15 +241,9 @@ namespace moris
                  * @param[ in ]  aJ index of the second spatial dimension for derivative
                  * @param[ out ] d2Ydx2  spatial derivatives of the state variables
                  */
-                const Matrix< DDRMat > & d2Ydx2( const uint aI, const uint aJ );
+                const Matrix< DDRMat > & d2Ydx2( const uint aI, const uint aJ ); 
 
                 //------------------------------------------------------------------------------
-                /**
-                 * assemble the DoF derivatives of the state variables and their spatial 
-                 * derivatives. These are equal to the test functions
-                 */
-                void assemble_test_function_set();        
-
                 //------------------------------------------------------------------------------
                 /**
                  * get matrix of test functions W for all dof types
@@ -306,50 +276,6 @@ namespace moris
                 const Matrix< DDRMat > & d2Wdx2( const uint aI, const uint aJ );
 
                 //------------------------------------------------------------------------------
-                /**
-                 * compute the L-operator (Navier-Stokes-Operator) 
-                 * applied to the state variable vector Y
-                 * @param[ out ] mLY  L-operator applied to Y-vector
-                 */
-                const Matrix< DDRMat > & LY();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
-                 * applied to the state variable vector Y
-                 * @param[ out ] mdLdDofY  dof deriv of L-operator applied to Y-vector
-                 */
-                const Matrix< DDRMat > & dLdDofY();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the L-operator (Navier-Stokes-Operator) 
-                 * applied to the test functions (matrix W)
-                 * @param[ out ] mLW  L-operator applied to W-matrix
-                 */
-                const Matrix< DDRMat > & LW();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
-                 * applied to the test functions (matrix W)
-                 * @param[ in ]  aVL       pre-multiplication vector applied from the left
-                 * @param[ out ] mdLdDofW  dof deriv of L-operator applied to W-matrix
-                 */
-                const Matrix< DDRMat > & dLdDofW( const Matrix< DDRMat > & aVL );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the A flux matrices
-                 */
-                void eval_A_matrices();     
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the DoF derivatives of the A flux matrices for the Jacobians
-                 */
-                void eval_A_DOF_matrices();
-
                 //------------------------------------------------------------------------------
                 /**
                  * get the A flux matrices
@@ -376,63 +302,6 @@ namespace moris
                 const Matrix< DDRMat > & Kiji ( const uint aJ );   
 
                 //------------------------------------------------------------------------------
-                /**
-                 * get the operator mapping from the state variables to conservative variables Y/U
-                 * @param[ out ] mA0inv variale mapping operator mapping
-                 */
-                const Matrix< DDRMat > & A0inv();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the G operator G_ij = sum_d( dxi_d / dx_i * dxi_d / dx_j )
-                 * @param[ out ] mG G operator
-                 */
-                const Matrix< DDRMat > & G();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the M term for the stabiliztion operator
-                 * @param[ out ] mM M operator
-                 */
-                const Matrix< DDRMat > & M();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the inverse of the M term for the stabiliztion operator
-                 * @param[ out ] mMinv  inverse of the M operator
-                 */
-                const Matrix< DDRMat > & Minv();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the square root of the inverse of the M term for the stabiliztion operator
-                 * @param[ out ] mSqrtMinv  square root of the inverse of the M operator
-                 */
-                const Matrix< DDRMat > & SqrtMinv();
-                
-                //------------------------------------------------------------------------------
-                /**
-                 * get the stabilization operator
-                 * @param[ out ] mTau stabilization operator
-                 */
-                const Matrix< DDRMat > & Tau();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the deriv of the stabilization operator wrt to the state variables
-                 * @param[ in ]  aVR     a constant pre-multiplication vector acting on the right index of Tau
-                 * @param[ out ] dTaudY  deriv of the stabilization operator wrt.to the state variables
-                 */
-                const Matrix< DDRMat > & dTaudY( const Matrix< DDRMat > aVR );
-
-                //------------------------------------------------------------------------------
-                // FIXME provided directly by the field interpolator?
-                /**
-                 * compute the term dnNdtn
-                 * @param[ in ] adnNdtn a matrix to fill with dnNdtn
-                 */
-                void compute_dnNdtn( Matrix< DDRMat > & adnNdtn );
-
                 //------------------------------------------------------------------------------
                 /**
                  * get the multiplication matrix for condensed tensors
