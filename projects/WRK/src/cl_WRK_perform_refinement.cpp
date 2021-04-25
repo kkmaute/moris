@@ -73,7 +73,7 @@ namespace moris
             {
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
-                uint tOrder = 1;
+                uint tOrder = 1;                               //TODO
 
                 for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
                 {

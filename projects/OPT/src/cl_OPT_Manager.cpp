@@ -56,11 +56,27 @@ namespace moris
                 // solve the optimization problem based on the algorithm cell
                 mAlgorithms(i)->solve(i, mProblem);
 
+                this->restart_with_remesh( i );
+
                 // scale the solution of the optimization problem
                 mProblem->scale_solution();
 
                 // update the optimization problem
                 mProblem->update_problem();
+            }
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        void Manager::restart_with_remesh( uint aI )
+        {
+            if( mProblem->restart_optimization())
+            {
+                mProblem->initialize();
+
+                mAlgorithms(aI)->solve(aI, mProblem);
+
+                this->restart_with_remesh( aI );
             }
         }
 

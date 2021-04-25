@@ -117,7 +117,7 @@ namespace moris
                 UNDEFINED
         };
 
-        moris::map< std::string, Master_Slave > get_master_type_map();
+        moris::map< std::string, mtk::Master_Slave > get_master_type_map();
 
         //------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ namespace moris
                 UNDEFINED
         };
 
-        moris::map< std::string, Primary_Void > get_primary_type_map();
+        moris::map< std::string, mtk::Primary_Void > get_primary_type_map();
 
         //------------------------------------------------------------------------------
 

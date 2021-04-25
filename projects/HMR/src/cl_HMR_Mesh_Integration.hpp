@@ -203,7 +203,9 @@ namespace moris
                 {
                     // check to see the meshes are the same (since all trivial)
                     MORIS_ASSERT(this->get_num_nodes() == aInterpolationMesh->get_num_nodes(),
-                            "Mismatch nodes between integration and interpolation mesh");
+                            "Mismatch nodes between integration and interpolation mesh nodes. %-5i | %-5i",
+                            this->get_num_nodes(),
+                            aInterpolationMesh->get_num_nodes());
 
                     MORIS_ASSERT(this->get_num_elemens_including_aura() == aInterpolationMesh->get_num_elemens_including_aura(),
                             "Mismatch elements between integration and interpolation mesh");

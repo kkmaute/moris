@@ -34,3 +34,4 @@ include("@PACKAGE_ASR_CONFIG_INSTALL_DIR@/@ASR@Targets.cmake")
 
 # Library target list
 set(@ASR@_LIBRARIES @ASR@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@ASR@-lib")

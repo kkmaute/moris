@@ -29,3 +29,4 @@ include("@PACKAGE_SOL_CORE_CONFIG_INSTALL_DIR@/@SOL_CORE@Targets.cmake")
 
 # Library target list
 set(@SOL_CORE@_LIBRARIES @SOL_CORE@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@SOL_CORE@-lib")

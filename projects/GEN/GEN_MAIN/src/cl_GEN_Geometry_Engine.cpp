@@ -1008,11 +1008,11 @@ namespace moris
                     // Always have shape sensitivities if B-spline field
                     mShapeSensitivities = true;
 
-                    std::string tGeoName = mGeometries(tGeometryIndex)->get_label();
+                    std::string tGeoName = mGeometries(tGeometryIndex)->get_name();
 
                     if( not tFieldNameToIndexMap.key_exists(tGeoName) )
                     {
-                        // Create B-spline geometry
+                        // Create B-spline geometry FIXME Overwriting the given geometry is obviously wrong
                         mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                                 tNewOwnedADVs,
                                 tSharedCoefficientIndices(tGeometryIndex),
@@ -1024,6 +1024,7 @@ namespace moris
                     else
                     {
                         uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
+                     
                         // Create B-spline geometry
                         mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
                                 tNewOwnedADVs,
@@ -1035,15 +1036,26 @@ namespace moris
                                 aFields(tMTKFieldIndex));
                     }
                 }
-
-                // Store field values if needed
+                // Store field values if needed. FIXME this is obviously wrong that GEN sets it's own mesh
                 else if (mGeometries(tGeometryIndex)->intended_storage())
                 {
-                    // Create stored geometry
+                    // Create stored geometry FIXME this stored geometry stuff is kind of hacky
                     mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
                             tMesh,
                             mGeometries(tGeometryIndex));
+
+                    mGeometries(tGeometryIndex)->unlock_field();
+                    mGeometries(tGeometryIndex)->set_mesh_pair( aMeshPair );
                 }
+
+                else
+                {
+                    // Every Field needs a mesh. FIXME setting the mesh here is to late
+                    mGeometries(tGeometryIndex)->unlock_field();
+                    mGeometries(tGeometryIndex)->set_mesh_pair( aMeshPair );
+                }
+
+
             }
 
             // Loop to find B-spline properties

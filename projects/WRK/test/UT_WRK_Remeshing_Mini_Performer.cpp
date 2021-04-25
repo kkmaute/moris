@@ -175,20 +175,20 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
 
         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
-        tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
-
-        std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
-
-        hmr::Interpolation_Mesh_HMR * tInterpolationMeshNewMesh = new hmr::Interpolation_Mesh_HMR(
-                tHMRDatabaseNew,
-                1,
-                0,
-                1,
-                0);
-
-        mtk::Mesh_Pair tMeshPairNewMesh(tInterpolationMeshNewMesh, nullptr, true);
-        tFields( 0 )->unlock_field();
-        tFields( 0 )->set_mesh_pair(tMeshPairNewMesh);
-        tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
+//        tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
+//
+//        std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
+//
+//        hmr::Interpolation_Mesh_HMR * tInterpolationMeshNewMesh = new hmr::Interpolation_Mesh_HMR(
+//                tHMRDatabaseNew,
+//                1,
+//                0,
+//                1,
+//                0);
+//
+//        mtk::Mesh_Pair tMeshPairNewMesh(tInterpolationMeshNewMesh, nullptr, true);
+//        tFields( 0 )->unlock_field();
+//        tFields( 0 )->set_mesh_pair(tMeshPairNewMesh);
+//        tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
     }
 }

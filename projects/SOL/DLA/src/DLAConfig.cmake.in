@@ -29,3 +29,4 @@ include("@PACKAGE_DLA_CONFIG_INSTALL_DIR@/@DLA@Targets.cmake")
 
 # Library target list
 set(@DLA@_LIBRARIES @DLA@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@DLA@-lib")

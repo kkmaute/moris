@@ -29,3 +29,4 @@ include("@PACKAGE_MSI_CONFIG_INSTALL_DIR@/@MSI@Targets.cmake")
 
 # Library target list
 set(@MSI@_LIBRARIES @MSI@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@MSI@-lib")

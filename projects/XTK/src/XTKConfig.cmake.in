@@ -29,3 +29,6 @@ include("@PACKAGE_XTK_CONFIG_INSTALL_DIR@/@XTK@Targets.cmake")
 
 # Library target list
 set(@XTK@_LIBRARIES @XTK@-lib)
+
+# add to moris
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@XTK@-lib")

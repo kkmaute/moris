@@ -36,3 +36,4 @@ include("@PACKAGE_COM_CONFIG_INSTALL_DIR@/@COM@Targets.cmake")
 
 # Library target list
 set(@COM@_LIBRARIES @COM@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@COM@-lib")

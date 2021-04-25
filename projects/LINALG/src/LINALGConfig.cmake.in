@@ -36,3 +36,4 @@ include("@PACKAGE_LINALG_CONFIG_INSTALL_DIR@/@LINALG@Targets.cmake")
 
 # Library target list
 set(@LINALG@_LIBRARIES @LINALG@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@LINALG@-lib")
