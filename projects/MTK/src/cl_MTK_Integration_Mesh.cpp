@@ -221,6 +221,7 @@ namespace moris
             this->collect_all_sets();  
         }
 
+        // ----------------------------------------------------------------------------
 
         void 
         Integration_Mesh::collect_all_sets( bool aSetShape )
