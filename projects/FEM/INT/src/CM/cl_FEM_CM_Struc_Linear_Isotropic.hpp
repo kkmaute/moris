@@ -24,12 +24,13 @@ namespace moris
             protected:
 
                 // default local properties
-                std::shared_ptr< Property > mPropEMod    = nullptr;
-                std::shared_ptr< Property > mPropPoisson = nullptr;
-                std::shared_ptr< Property > mPropCTE     = nullptr;
-                std::shared_ptr< Property > mPropTemp    = nullptr;
-                std::shared_ptr< Property > mPropTRef    = nullptr;
-                std::shared_ptr< Property > mPropRotAxis = nullptr;
+                std::shared_ptr< Property > mPropEMod         = nullptr;
+                std::shared_ptr< Property > mPropPoisson      = nullptr;
+                std::shared_ptr< Property > mPropCTE          = nullptr;
+                std::shared_ptr< Property > mPropTemp         = nullptr;
+                std::shared_ptr< Property > mPropTRef         = nullptr;
+                std::shared_ptr< Property > mPropRotAxis      = nullptr;
+                std::shared_ptr< Property > mPropEigenStrain  = nullptr;
 
             private:
 
@@ -47,6 +48,7 @@ namespace moris
                         TEMP_PROP,
                         TEMP_REF,
                         ROT_AXI,
+                        EIGEN_STRAIN,
                         MAX_ENUM
                 };
 

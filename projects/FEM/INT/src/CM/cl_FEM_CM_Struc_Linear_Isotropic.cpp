@@ -26,6 +26,7 @@ namespace moris
             mPropertyMap[ "PropertyTemperature" ]  = static_cast< uint >( CM_Property_Type::TEMP_PROP );
             mPropertyMap[ "ReferenceTemperature" ] = static_cast< uint >( CM_Property_Type::TEMP_REF );
             mPropertyMap[ "AxisymRotationAxis" ]   = static_cast< uint >( CM_Property_Type::ROT_AXI );
+            mPropertyMap[ "EigenStrain" ]          = static_cast< uint >( CM_Property_Type::EIGEN_STRAIN );
         }
 
         //------------------------------------------------------------------------------
@@ -92,6 +93,9 @@ namespace moris
 
             // set the reference temperature property
             mPropRotAxis = get_property( "AxisymRotationAxis" );
+
+            // set the eigen-strain property
+            mPropEigenStrain = get_property( "EigenStrain" );
 
             // check that essential properties exist
             MORIS_ASSERT( mPropEMod,
@@ -283,6 +287,13 @@ namespace moris
 
                 // add contribution to the flux
                 mFlux -= tP;
+            }
+
+            // if eigen-strain is not defined
+            if ( mPropEigenStrain != nullptr )
+            {
+                // add eigen strain contribution
+                mFlux += this->constitutive()* mPropEigenStrain->val();
             }
         }
 
