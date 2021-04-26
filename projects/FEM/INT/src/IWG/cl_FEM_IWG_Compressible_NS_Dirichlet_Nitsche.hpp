@@ -173,7 +173,7 @@ namespace moris
                 /**
                  * evaluate and get the Dof-derivative of the Test Traction term d^2( K_ij * Y_,j * n_i )^T / dDof^2 * VR
                  */
-                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVR );             
+                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVL );             
 
                 //------------------------------------------------------------------------------
         };

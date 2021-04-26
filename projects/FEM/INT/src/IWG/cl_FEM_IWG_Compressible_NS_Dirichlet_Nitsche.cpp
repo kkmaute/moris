@@ -94,7 +94,8 @@ namespace moris
             // Boundary terms from Ibp
             tRes -= trans( this->W() ) * this->select_matrix() * this->Traction();
 
-            // FIXME: adjoint term missing
+            // adjoint term
+            tRes -= mBeta * this->TestTraction() * this->select_matrix() * this->jump();
 
             // get number of spatial dimensions
             uint tNumSpaceDims = this->num_space_dims();
@@ -173,7 +174,9 @@ namespace moris
             // Boundary terms from Ibp
             tJac -= trans( this->W() ) * this->select_matrix() * this->dTractiondDOF();
 
-            // FIXME: adjoint term missing
+            // adjoint term
+            tJac -= mBeta * this->TestTraction() * this->select_matrix() * this->dJumpdDOF();
+            tJac -= mBeta * this->dTestTractiondDOF( this->select_matrix() * this->jump() );
 
             // get number of space dimensions
             uint tNumSpaceDims = num_space_dims();

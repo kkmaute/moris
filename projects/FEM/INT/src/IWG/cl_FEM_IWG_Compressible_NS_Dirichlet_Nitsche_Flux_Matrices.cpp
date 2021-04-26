@@ -368,7 +368,69 @@ namespace moris
             return mTractionDOF;
         }
 
+        //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::TestTraction()
+        {
+            // check if matrix has already been assembled
+            if( !mTestTractionEval )
+            {
+                return mTestTraction;
+            }  
+            
+            // set the eval flag
+            mTestTractionEval = false;  
+
+            // get test traction
+            mTestTraction = trans( this->dTractiondDOF() );
+
+            // return value
+            return mTestTraction;
+        }
+
+        //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dTestTractiondDOF( const Matrix< DDRMat > aVL )
+        {
+            // check if matrix has already been assembled
+            if( !mTestTractionDofEval )
+            {
+                return mTestTractionDOF;
+            }  
+            
+            // set the eval flag
+            mTestTractionDofEval = false;  
+
+            // get number of basis functions for complete variable set
+            uint tTotNumBases = ( this->num_space_dims() + 2 ) * this->num_bases();
+
+            // initialize test traction dof deriv
+            mTestTractionDOF.set_size( tTotNumBases, tTotNumBases, 0.0 );
+            auto tTestTractionDOF = mTestTractionDOF( { 0, tTotNumBases - 1 }, { 0, tTotNumBases - 1 } );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // initialize storage matrix for variable derivative of K
+            Matrix< DDRMat > tdKdY_jump;
+
+            // loop over K-matrices
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // get dKij/dY * Y,j
+                    eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, jDim, tdKdY_jump );
+
+                    // add contribution
+                    Matrix< DDRMat > tdTijdDOF = mNormal( iDim ) * trans( this->dWdx( jDim ) ) * tdKdY_jump * this->W();
+                    tTestTractionDOF += tdTijdDOF + trans( tdTijdDOF );
+                }
+            }
+
+            // return value
+            return mTestTractionDOF;
+        }
 
         //------------------------------------------------------------------------------
         
