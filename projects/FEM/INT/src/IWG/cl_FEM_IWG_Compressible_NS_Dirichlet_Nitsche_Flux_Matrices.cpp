@@ -24,7 +24,7 @@ namespace moris
             {      
                 return mJump;
             }         
-            
+
             // set the eval flag
             mJumpEval = false;
 
@@ -32,13 +32,8 @@ namespace moris
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::eval_jump() - check for residual DoF types failed." );
 
-            //FIXME: only density and pressure primitive variable sets supported in this function
-
-            // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-
             // get number of space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+            uint tNumSpaceDims = this->num_space_dims();
 
             // get the properties
             std::shared_ptr< Property > tPropPrescDof1 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
@@ -66,7 +61,7 @@ namespace moris
             if ( tPropPrescDof1 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
 
                 // compute jump term for velocity, if prescribed
                 mJump( 0 ) = tFIFirstDofType->val()( 0 ) - tPropPrescDof1->val()( 0 );
@@ -74,6 +69,9 @@ namespace moris
 
             if ( tPropPrescVel != nullptr )
             {
+                // get field interpolator
+                Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+
                 // compute jump term for velocity, if prescribed
                 mJump( { 1, tNumSpaceDims } ) = tSelectVelMat * ( tFIVelocity->val() - tPropPrescVel->val() );
             }
@@ -81,10 +79,10 @@ namespace moris
             if ( tPropPrescDof3 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 )( 0 ) );
+                Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
 
                 // compute jump term for third Dof, if prescribed
-                mJump( tNumSpaceDims ) = tFIThirdDofType->val()( 0 ) - tPropPrescDof3->val()( 0 );
+                mJump( tNumSpaceDims + 1 ) = tFIThirdDofType->val()( 0 ) - tPropPrescDof3->val()( 0 );
             }
 
             // return jump
@@ -113,15 +111,12 @@ namespace moris
             // check Dof dependencies
             MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::eval_dJumpdDOF() - List of Dof Dependencies not supported. See error messages above." );
-            
-            // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get number of space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+            uint tNumSpaceDims = this->num_space_dims();
 
             // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+            uint tNumBases = this->num_bases();
 
             // get the properties
             std::shared_ptr< Property > tPropPrescDof1 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
@@ -149,7 +144,7 @@ namespace moris
             if ( tPropPrescDof1 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
 
                 // direct dependency of the state variable
                 mdJumpdDOF( { 0, 0 }, { 0, tNumBases - 1 } ) = 
@@ -159,6 +154,9 @@ namespace moris
             // second (velocity) DoF
             if ( tPropPrescVel != nullptr )
             {
+                // get field interpolator
+                Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+
                 // direct dependency of the state variable
                 mdJumpdDOF( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = 
                         tSelectVelMat * tFIVelocity->N().matrix_data();
@@ -168,7 +166,7 @@ namespace moris
             if ( tPropPrescDof3 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIThirdVar =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 )( 0 ) );
+                Field_Interpolator * tFIThirdVar =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
 
                 // direct dependency of the state variable
                 mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
@@ -226,180 +224,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::A( const uint aK )
-        {
-            // check that indices are not out of bounds
-            MORIS_ASSERT( ( aK >= 0 ) and ( aK <= this->num_space_dims() ), 
-                    "IWG_Compressible_NS_Dirichlet_Nitsche::A() - index out of bounds." );
-
-            // 
-            this->eval_A_matrices();
-
-            // return requested value
-            return mA( aK );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Dirichlet_Nitsche::eval_A_matrices()
-        {
-            // check if the variable vectors have already been assembled
-            if( !mFluxAMatEval )
-            {
-                return;
-            }  
-            
-            // set the eval flag
-            mFluxAMatEval = false;          
-
-            // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
-
-            // evaluate A-matrices and store them
-            eval_A( tMM, tCM, mMasterFIManager, mResidualDofType, mA );  
-        }
-
-       //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Dirichlet_Nitsche::eval_A_DOF_matrices()
-        {
-            // check if the A-Dof flux matrices have already been assembled
-            if( !mFluxAMatDofEval )
-            {
-                return;
-            }
-            
-            // set the eval flag
-            mFluxAMatDofEval = false;
-
-            // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
-
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-
-            // create standard empty matrix
-            const Matrix< DDRMat > tEmptyADof( tNumSpaceDims + 2, ( tNumSpaceDims + 2 ) * tNumBases, 0.0 );
-
-            // initialize derivatives of A-matrices
-            mADOF.resize( tNumSpaceDims + 1 );
-            for ( uint iMat = 0; iMat < tNumSpaceDims + 1; iMat++)
-            {
-                mADOF( iMat ).assign( tNumSpaceDims + 2, tEmptyADof );
-            }      
-
-            // evaluate the derivatives for each of the matrices and store them
-            eval_A0_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 0 ) ); 
-            eval_A1_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 1 ) );  
-            eval_A2_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 2 ) ); 
-            if ( tNumSpaceDims == 3 )
-            {
-                eval_A3_DOF( tMM, tCM, mMasterFIManager, mResidualDofType, mADOF( 3 ) );  
-            } 
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::Traction()
-        {
-            // check if the A matrices have already been assembled
-            if( !mTractionEval )
-            {
-                return mTraction;
-            }  
-            
-            // set the eval flag
-            mTractionEval = false;          
-
-            // get the constitutive model
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
-
-            // get Kij*Y,j
-            Matrix< DDRMat > tKijYj;
-            eval_KijYj( tCM, mMasterFIManager, mResidualDofType, tKijYj );
-
-            // evaluate A-matrices and store them
-            mTraction = trans( tKijYj ) * mNormal;
-
-            // return 
-            return mTraction;
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dTractiondDOF()
-        {
-            // check if the A matrices have already been assembled
-            if( !mTractionDofEval )
-            {
-                return mTractionDOF;
-            }  
-            
-            // set the eval flag
-            mTractionDofEval = false; 
-
-            // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
-                    "IWG_Compressible_NS_Dirichlet_Nitsche::dTractiondDOF() - check for residual DoF types failed. See error message above." );
-
-            // check Dof dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
-                    "IWG_Compressible_NS_Dirichlet_Nitsche::dTractiondDOF() - List of Dof Dependencies not supported. See error message above." );         
-
-            // get the constitutive model
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
-
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-
-            // initialize
-            mTractionDOF.set_size( tNumSpaceDims + 2, ( tNumSpaceDims + 2 ) * tNumBases, 0.0 );
-
-            // loop over dof dependencies and add contributions from property derivatives
-            for (uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++)
-            { 
-                // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
-
-                // get dof indices for assembly
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( iDof )( 0 ), mtk::Master_Slave::MASTER );
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
-
-                // get d(Kij*Y,j)_dDOF
-                moris::Cell< Matrix< DDRMat > > tKijYjDOF;
-                eval_KijYjDOF( tCM, mMasterFIManager, mResidualDofType, tDofType, tKijYjDOF );
-
-                // loop over the different colums (=cells) of tKijYjDOF and multiply & assemble into dTractiondDOF
-                for ( uint iCol = 0; iCol < tNumSpaceDims + 2; iCol++ )
-                {   
-                    // add contribution into matrix
-                    mTractionDOF( { iCol, iCol }, { tMasterDepStartIndex, tMasterDepStopIndex } ) = trans( mNormal ) * tKijYjDOF( iCol );
-                }
-            }
-
-            // return 
-            return mTractionDOF;
-        }
-
-        //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::select_matrix()
         {
@@ -418,11 +242,8 @@ namespace moris
             std::shared_ptr< Property > tPropSelectVel = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
             std::shared_ptr< Property > tPropPrescDof3 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-
             // get number of spatial dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+            uint tNumSpaceDims = this->num_space_dims();
 
             // initialize Selection matrix
             mSelectMat.set_size( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
@@ -441,7 +262,7 @@ namespace moris
                 {
                     // check selection matrix set by user
                     MORIS_ASSERT( ( tPropSelectVel->val().n_cols() == tNumSpaceDims ) and ( tPropSelectVel->val().n_rows() == tNumSpaceDims ),
-                            "IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual() - size of select matrix wrong." );
+                            "IWG_Compressible_NS_Dirichlet_Nitsche::select_matrix() - size of select matrix wrong." );
                     
                     // set selection matrix as identity
                     mSelectMat( { 1, tNumSpaceDims }, { 1, tNumSpaceDims } ) = tPropSelectVel->val().matrix_data();
@@ -468,82 +289,86 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::test_functions()
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::Traction()
         {
-            // if select matrix has been evaluated, return it imidiately
-            if ( !mTestFunctionsEval )
+            // check if the A matrices have already been assembled
+            if( !mTractionEval )
             {
-                return mTestFunctions;
+                return mTraction;
+            }  
+            
+            // set the eval flag
+            mTractionEval = false;  
+
+            // number of state variables and total bases
+            uint tNumStateVars = this->num_space_dims() + 2; 
+
+            // initialize traction
+            mTraction.set_size( tNumStateVars, 1, 0.0 );
+            auto tTraction = mTraction( { 0, tNumStateVars - 1 }, { 0, 0 } );
+
+            // loop over K-matrices
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // add contribution
+                    tTraction += this->K( iDim, jDim ) * this->dYdx( jDim ) * mNormal( iDim );
+                }
             }
 
-            // else, compute it
-            mTestFunctionsEval = false;
-
-            // get the FIs associated with each residual dof type
-            Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-            Field_Interpolator * tFIVelocity     =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 2 )( 0 ) );
-
-            // get number of space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();   
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();   
-
-            // initialize Selection matrix
-            mTestFunctions.set_size( ( tNumSpaceDims + 2 ) * tNumBases, tNumSpaceDims + 2, 0.0 );
- 
-            // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index       = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof2Index       = mSet->get_dof_index_for_type( mResidualDofType( 1 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index       = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes1StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 1 );
-            uint tMasterRes2StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof2Index )( 0, 0 );
-            uint tMasterRes2StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof2Index )( 0, 1 );
-            uint tMasterRes3StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
-
-            // assemble test function matrix
-            mTestFunctions( { tMasterRes1StartIndex, tMasterRes1StopIndex }, { 0, 0 } ) = 
-                    tFIFirstDofType->N_trans().matrix_data();
-            mTestFunctions( { tMasterRes2StartIndex, tMasterRes2StopIndex }, { 1, tNumSpaceDims } ) = 
-                    tFIVelocity->N_trans().matrix_data();
-            mTestFunctions( { tMasterRes3StartIndex, tMasterRes3StopIndex }, { tNumSpaceDims + 1, tNumSpaceDims + 1 } ) = 
-                    tFIThirdDofType->N_trans().matrix_data();
-
-            // return matrix of test functions
-            return mTestFunctions;
+            // return 
+            return mTraction;
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::K( const uint aI, const uint aJ )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dTractiondDOF()
         {
-            // check that indices are not out of bounds
-            MORIS_ASSERT( ( aI >= 0 ) and ( aI < this->num_space_dims() ) and ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
-                    "IWG_Compressible_NS_Dirichlet_Nitsche::K() - indices out of bounds." );
-
-            // check if K matrices have already been evaluated
-            if ( !mFluxKMatEval )
+            // check if the A matrices have already been assembled
+            if( !mTractionDofEval )
             {
-                return mK( aI )( aJ );
+                return mTractionDOF;
+            }  
+            
+            // set the eval flag
+            mTractionDofEval = false;  
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // number of state variables and total bases
+            uint tNumStateVars = this->num_space_dims() + 2;
+            uint tTotNumBases = tNumStateVars * this->num_bases();
+
+            // initialize traction
+            mTractionDOF.set_size( tNumStateVars, tTotNumBases , 0.0 );
+            auto tTractionDOF = mTractionDOF( { 0, tNumStateVars - 1 }, { 0, tTotNumBases - 1 } );
+
+            // initialize storage matrix for variable derivative of K
+            Matrix< DDRMat > dKijdY_dYdxj;
+
+            // loop over K-matrices
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // get dKij/dY * Y,j
+                    eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( jDim ), iDim, jDim, dKijdY_dYdxj );
+
+                    // add contribution
+                    tTractionDOF += mNormal( iDim ) * ( dKijdY_dYdxj * this->W() + this->K( iDim, jDim ) * this->dWdx( jDim ) );
+                }
             }
 
-            // set the eval flag
-            mFluxKMatEval = false;            
-
-            // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropThermalConductivity = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
-
-            // eval K matrices and store them
-            eval_K( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mK );
-
-            // return requested K matrix
-            return mK( aI )( aJ );
+            // return 
+            return mTractionDOF;
         }
+
+
 
         //------------------------------------------------------------------------------
         

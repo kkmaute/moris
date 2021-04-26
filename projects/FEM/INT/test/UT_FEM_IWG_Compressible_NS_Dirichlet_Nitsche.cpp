@@ -154,14 +154,16 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
     for( uint iIWG = 0; iIWG < 2; iIWG++ )
     {
         // output for debugging
-        // std::cout << "----------------------------------------------------------------------------------\n" << std::flush;
-        // std::cout << "Performing Tests for IWG ( 0 : All fields prescribed, 1: Some fields prescribed + Upwinding ) : " << iIWG << "\n" << std::flush;
+        std::cout << "----------------------------------------------------------------------------------\n" << std::flush;
+        std::cout << "Performing Tests for IWG ( 0 : All fields prescribed, 1: Some fields prescribed + Upwinding ) : " << iIWG << "\n" << std::flush;
 
         // create IWG (pointer)
         std::shared_ptr< fem::IWG > tIWG =
                 tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWG->set_residual_dof_type( tResidualDofTypes );
         tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+        tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
+        tIWG->set_property( tPropConductivity, "ThermalConductivity" );
         tIWG->set_material_model( tMMFluid, "FluidMM" );
         tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
         tIWG->set_stabilization_parameter( tSPNitsche, "NitschePenaltyParameter" );
@@ -216,9 +218,9 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
         for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
         {
             // output for debugging
-            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            // std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-            // std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+            std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
             // prescribed velocity
             Matrix< DDRMat > tPrescVel( iSpaceDim, 1, 2.7 );
@@ -304,9 +306,9 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                 }
 
                 // output for debugging
-                // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                // std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+                std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
                 // create an interpolation order
                 mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -452,8 +454,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                 for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
                 {
                     // output for debugging
-                    // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                    // std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                    std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                    std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                     // reset IWG evaluation flags
                     tIWG->reset_eval_flags();
@@ -471,6 +473,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
 
                     // compute residual
                     tIWG->compute_residual( 1.0 );
+                    tIWG->compute_jacobian( 1.0 );
 
                     // check evaluation of the jacobian by FD
                     //------------------------------------------------------------------------------
@@ -478,7 +481,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                     tIWG->mSet->mJacobian.fill( 0.0 );
 
                     // init the jacobian for IWG and FD evaluation
-                    Matrix< DDRMat > tJacobian;
+                    Matrix< DDRMat > tJacobian = tIWG->mSet->get_jacobian();
+                    Matrix< DDRMat > tJacobianTest;
                     Matrix< DDRMat > tJacobianFD;
 
                     // check jacobian by FD
@@ -486,9 +490,9 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                             tPerturbation,
                             tEpsilon,
                             1.0,
-                            tJacobian,
+                            tJacobianTest,
                             tJacobianFD,
-                            false );
+                            true );
 
                     // print for debug
                     if( !tCheckJacobian )
@@ -497,7 +501,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                     }
 
                     // require check is true
-                    //REQUIRE( tCheckJacobian );
+                    REQUIRE( tCheckJacobian );
                 }
 
                 // clean up
