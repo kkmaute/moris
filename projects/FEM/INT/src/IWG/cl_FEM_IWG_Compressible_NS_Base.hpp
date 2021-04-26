@@ -132,10 +132,7 @@ namespace moris
                 /*
                  *  constructor
                  */
-                IWG_Compressible_NS_Base()
-                {
-                    MORIS_ERROR( false, "IWG_Compressible_NS_Base::IWG_Compressible_NS_Base() - Base class constructor does nothing." );
-                };
+                IWG_Compressible_NS_Base(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -195,7 +192,7 @@ namespace moris
                     MORIS_ERROR( false, "IWG_Compressible_NS_Base::compute_jacobian_and_residual() - not implemented in comp flow base class" );
                 };
 
-            private:
+            //private:
 
                 //------------------------------------------------------------------------------
                 /**

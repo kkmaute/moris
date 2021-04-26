@@ -30,12 +30,12 @@ namespace moris
         {
             // reset eval flags
             mYEval = true;
-            mdYdxEval = true;
+            mdYdtEval = true;
             mdYdxEval = true;
             md2Ydx2Eval = true;
 
             mWEval = true;
-            mdWdxEval = true;
+            mdWdtEval = true;
             mdWdxEval = true;
             md2Wdx2Eval = true;
 
@@ -212,7 +212,7 @@ namespace moris
                             { tFI1->gradx( 1 )( 0 )    }, 
                             { tFI2->gradx( 1 )( 0, 0 ) },
                             { tFI2->gradx( 1 )( 0, 1 ) }, 
-                            { tFI3->gradt( 1 )( 0 )    } };
+                            { tFI3->gradx( 1 )( 0 )    } };
  
                     // y-derivative
                     mdYdx( 1 ) = {  
@@ -236,7 +236,7 @@ namespace moris
                             { tFI2->gradx( 1 )( 0, 0 ) },
                             { tFI2->gradx( 1 )( 0, 1 ) }, 
                             { tFI2->gradx( 1 )( 0, 2 ) }, 
-                            { tFI3->gradt( 1 )( 0 )    } };
+                            { tFI3->gradx( 1 )( 0 )    } };
  
                     // y-derivative
                     mdYdx( 1 ) = {  
@@ -308,7 +308,7 @@ namespace moris
                                 { tFI1->gradx( 2 )( iDeriv )    }, 
                                 { tFI2->gradx( 2 )( iDeriv, 0 ) },
                                 { tFI2->gradx( 2 )( iDeriv, 1 ) }, 
-                                { tFI3->gradt( 2 )( iDeriv )    } }; 
+                                { tFI3->gradx( 2 )( iDeriv )    } }; 
                     }    
                     break;
                 }
@@ -327,7 +327,7 @@ namespace moris
                                 { tFI2->gradx( 2 )( iDeriv, 0 ) },
                                 { tFI2->gradx( 2 )( iDeriv, 1 ) }, 
                                 { tFI2->gradx( 2 )( iDeriv, 2 ) }, 
-                                { tFI3->gradt( 2 )( iDeriv )    } }; 
+                                { tFI3->gradx( 2 )( iDeriv )    } }; 
                     } 
                     break;
                 }
@@ -438,11 +438,12 @@ namespace moris
 
             // get number of state variable fields
             uint tNumStateVars = this->num_space_dims() + 2;
-            uint tNumSecondSpaceDerivs = 3 * this->num_space_dims() - 3;
+
+            // create zero mat
+            Matrix< DDRMat > tZeroMat( tNumStateVars, tNumStateVars * this->num_bases(), 0.0 );   
             
             // initialize W matrix
-            mdWdx.assign( this->num_space_dims(), mW );
-            md2Wdx2.assign( tNumSecondSpaceDerivs, mW );    
+            mdWdx.assign( this->num_space_dims(), tZeroMat );
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
@@ -484,8 +485,11 @@ namespace moris
             uint tNumStateVars = this->num_space_dims() + 2;
             uint tNumSecondSpaceDerivs = 3 * this->num_space_dims() - 3;
             
+            // create zero mat
+            Matrix< DDRMat > tZeroMat( tNumStateVars, tNumStateVars * this->num_bases(), 0.0 );   
+            
             // initialize W matrix
-            md2Wdx2.assign( tNumSecondSpaceDerivs, mW );    
+            md2Wdx2.assign( tNumSecondSpaceDerivs, tZeroMat ); 
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
