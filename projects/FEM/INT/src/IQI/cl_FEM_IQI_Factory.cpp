@@ -28,6 +28,7 @@
 #include "cl_FEM_IQI_Mass_Flow.hpp"
 #include "cl_FEM_IQI_Thermal_Energy.hpp"
 #include "cl_FEM_IQI_Stabilization.hpp"
+#include "cl_FEM_IQI_Homogenized_Constitutive.hpp"
 
 namespace moris
 {
@@ -109,6 +110,9 @@ namespace moris
 
                 case IQI_Type::THERMAL_ENERGY :
                     return std::make_shared< IQI_Thermal_Energy >();
+
+                case IQI_Type::HOMOGENIZED_CONSTITUTIVE:
+                    return std::make_shared< IQI_Homogenized_Constitutive >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
