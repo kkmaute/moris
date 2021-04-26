@@ -2456,9 +2456,9 @@ namespace moris
                 bool               aErrorPrint )
         {
             // get residual dof type index in set, start and end indices for residual dof type
-            uint tNumResidualDofs = mResidualDofType(0).size();
+            uint tNumResidualDofs     = mResidualDofType.size();
             uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterLastDofIndex  = mSet->get_dof_index_for_type( mResidualDofType( 0 )( tNumResidualDofs - 1 ), mtk::Master_Slave::MASTER );
+            uint tMasterLastDofIndex  = mSet->get_dof_index_for_type( mResidualDofType( tNumResidualDofs - 1 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartRow   = mSet->get_res_dof_assembly_map()( tMasterFirstDofIndex )( 0, 0 );
             uint tMasterResEndRow     = mSet->get_res_dof_assembly_map()( tMasterLastDofIndex )( 0, 1 );
 
@@ -2622,8 +2622,8 @@ namespace moris
                             std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
                             std::cout<<"aJacobian( iiJac, jjJac )   "<<std::setprecision( 12 )<<aJacobian( iiJac, jjJac )<<"\n"<<std::flush;
                             std::cout<<"aJacobianFD( iiJac, jjJac ) "<<std::setprecision( 12 )<<aJacobianFD( iiJac, jjJac )<<"\n"<<std::flush;
-                            //std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
-                            //std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                            std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
                         }
                     }
                 }

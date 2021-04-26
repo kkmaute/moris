@@ -57,12 +57,15 @@ namespace moris
         void IWG_Compressible_NS_Dirichlet_Nitsche::reset_spec_eval_flags()
         {
             // reset eval flags
+            mSpaceDimEval = true;
+
             mSelectMatrixEval = true;
             mTestFunctionsEval = true;
             mJumpEval = true;
             mJumpDofEval = true;
             mFluxAMatEval = true;
             mFluxAMatDofEval = true;
+            mFluxKMatEval = true;
             mTractionEval = true;
             mTractionDofEval = true;
             mTestTractionEval = true;
@@ -78,13 +81,13 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual() - Only pressure or density primitive variables supported for now."
                     " See error message above for specifics." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
             uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
@@ -111,10 +114,10 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add A-matrices
-                Matrix< DDRMat > tAini = this->A_Matrix( 1 ) * mNormal( 0 ) + this->A_Matrix( 2 ) * mNormal( 1 );
+                Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
                 if ( tNumSpaceDims == 3 )
                 {
-                    tAini = tAini + this->A_Matrix( 3 ) * mNormal( 2 );
+                    tAini = tAini + this->A( 3 ) * mNormal( 2 );
                 }
 
                 // add contribution
@@ -151,17 +154,17 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType( 0 )  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get residual dof indices for assembly (FIXME: assembly only for primitive vars)
             uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 2 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
             uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType( 0 ), mRequestedMasterGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian - Set of DoF dependencies not suppported. See error message above." );
 
             // get the indices for assembly - dependent dof types
@@ -196,10 +199,10 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add A-matrices
-                Matrix< DDRMat > tAini = this->A_Matrix( 1 ) * mNormal( 0 ) + this->A_Matrix( 2 ) * mNormal( 1 );
+                Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
                 if ( tNumSpaceDims == 3 )
                 {
-                    tAini = tAini + this->A_Matrix( 3 ) * mNormal( 2 );
+                    tAini = tAini + this->A( 3 ) * mNormal( 2 );
                 }
 
                 // add contribution - jump derivative
@@ -277,6 +280,30 @@ namespace moris
 #endif
 
             MORIS_ERROR( false, "IWG_Compressible_NS_Dirichlet_Nitsche::compute_dRdp - Not implemented." );
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint IWG_Compressible_NS_Dirichlet_Nitsche::num_space_dims()
+        {
+            // check if number of spatial dimensions is known
+            if ( !mSpaceDimEval )
+            {
+                return mNumSpaceDims;
+            }
+
+            // set eval flag
+            mSpaceDimEval = false;
+            
+            // get CM
+            std::shared_ptr< Constitutive_Model > tCM = 
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get number of spatial dimensions from CM
+            mNumSpaceDims = tCM->get_num_space_dims();
+
+            // return
+            return mNumSpaceDims;
         }
 
         //------------------------------------------------------------------------------

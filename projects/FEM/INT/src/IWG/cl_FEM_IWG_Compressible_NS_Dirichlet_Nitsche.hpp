@@ -42,6 +42,10 @@ namespace moris
                 // flag indicating what variable set is being used
                 fem::Variable_Set mVariableSet = fem::Variable_Set::UNDEFINED;
 
+                // save number of spatial dimensions and basis functions per field
+                bool mSpaceDimEval = true;
+                uint mNumSpaceDims;
+
                 // reset flags for storage variables
                 bool mSelectMatrixEval = true;
                 bool mTestFunctionsEval = true;
@@ -49,6 +53,8 @@ namespace moris
                 bool mJumpDofEval = true;
                 bool mFluxAMatEval = true;
                 bool mFluxAMatDofEval = true;
+                bool mFluxKMatEval = true;
+
                 bool mTractionEval = true;
                 bool mTractionDofEval = true;
                 bool mTestTractionEval = true;
@@ -68,6 +74,10 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mA;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mADOF;
 
+                // cells of matrices containing the K flux matrices and their DoF derivatives
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
+                moris::Cell< Matrix< DDRMat > > mKiji;
+
                 // cells of matrices containing the traction terms (K*n)
                 Matrix< DDRMat > mTraction;
                 Matrix< DDRMat > mTractionDOF;
@@ -83,6 +93,8 @@ namespace moris
                         SELECT_VELOCITY,
                         PRESCRIBED_DOF_3,
                         UPWIND,
+                        DYNAMIC_VISCOSITY,
+                        THERMAL_CONDUCTIVITY,
                         MAX_ENUM
                 };
 
@@ -159,6 +171,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get number of spatial dimensions
+                 * @param[ out ] mNumSpaceDims number of spatial dimensions
+                 */
+                uint num_space_dims();
+
+                //------------------------------------------------------------------------------
+                /**
                  * get selection matrix for all dof Types
                  */
                 const Matrix< DDRMat > & select_matrix();
@@ -185,9 +204,26 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate and get the A flux matrices
+                 * evaluate the A flux matrices
                  */
-                const Matrix< DDRMat > & A_Matrix( uint aAindex );   
+                void eval_A_matrices();    
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the A flux matrices
+                 * @param[ in ]  aK index
+                 * @param[ out ] mA A-matrix
+                 */
+                const Matrix< DDRMat > & A( const uint aK );   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the K flux matrices
+                 * @param[ in ]  aI  first index
+                 * @param[ in ]  aJ  second index
+                 * @param[ out ] Kij K-matrix
+                 */
+                const Matrix< DDRMat > & K( const uint aI, const uint aJ );     
 
                 //------------------------------------------------------------------------------
                 /**
@@ -197,15 +233,27 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate and get the Traction term (K*n)
+                 * evaluate and get the Traction term ( K_ij * Y_,j * n_i )
                  */
                 const Matrix< DDRMat > & Traction();     
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate and get the Dof-derivative of the Traction term (K*n)
+                 * evaluate and get the Dof-derivative of the Traction term d( K_ij * Y_,j * n_i ) / dDof
                  */
-                const Matrix< DDRMat > & dTractiondDOF();            
+                const Matrix< DDRMat > & dTractiondDOF();    
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate and get the Test Traction term d( K_ij * Y_,j * n_i )^T / dDof 
+                 */
+                const Matrix< DDRMat > & TestTraction(); 
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate and get the Dof-derivative of the Test Traction term d^2( K_ij * Y_,j * n_i )^T / dDof^2 * VR
+                 */
+                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVR );             
 
                 //------------------------------------------------------------------------------
         };

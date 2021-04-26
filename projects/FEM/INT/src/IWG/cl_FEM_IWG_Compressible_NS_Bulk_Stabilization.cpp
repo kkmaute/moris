@@ -260,7 +260,7 @@ namespace moris
 
                 // get the variable derivs for the A and K matrices
                 moris::Cell< Matrix< DDRMat > > tdAdY;
-                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), iVar, tdAdY );
+                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, iVar, tdAdY );
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
                 eval_dKdY( tPropMu, tPropKappa, mMasterFIManager, iVar, tdKdY );
 
@@ -333,35 +333,6 @@ namespace moris
             return mdTaudY;
         }
 
-
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Kiji( const uint aJ )
-        {
-            // check that indices are not out of bounds
-            MORIS_ASSERT( ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
-                    "IWG_Compressible_NS_Bulk::Kiji() - index out of bounds." );
-
-            // check if Kiji matrices have already been evaluated
-            if ( !mKijiEval )
-            {
-                return mKiji( aJ );
-            }
-
-            // set the eval flag
-            mKijiEval = false;            
-
-            // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropThermalConductivity = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
-
-            // eval spatial derivatives of K matrices and store them
-            eval_dKijdxi( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mKiji );
-
-            // return requested Kiji matrix
-            return mKiji( aJ );
-        } 
-
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LY()
@@ -431,7 +402,7 @@ namespace moris
             }
 
             // get dA0/dY * Y,t
-            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdt(), 0, tdAjdY_Yj( 0 ) );
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAjdY_Yj( 0 ) );
 
             // compute A(0) term
             mdLdDofY = tdAjdY_Yj( 0 ) * this->W();
@@ -443,7 +414,7 @@ namespace moris
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 // get dAj/dY * Y,j
-                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), this->dYdx( iDim ), iDim + 1, tdAjdY_Yj( iDim + 1 ) );
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAjdY_Yj( iDim + 1 ) );
 
                 // add contributions from A-matrices
                 tdLdDofY += tdAjdY_Yj( iDim + 1 )  * this->W();
@@ -531,7 +502,7 @@ namespace moris
             }
 
             // get VL * dA0/dY
-            eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), aVL, 0, tVLdAjdY( 0 ) );
+            eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
 
             // compute A(0) term
             mdLdDofW = trans( this->dWdt() ) * tVLdAjdY( 0 ) * this->W();
@@ -543,7 +514,7 @@ namespace moris
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 // get VL * dAj/dY
-                eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType( 0 ), aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
+                eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
 
                 // add contributions from A-matrices
                 tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();

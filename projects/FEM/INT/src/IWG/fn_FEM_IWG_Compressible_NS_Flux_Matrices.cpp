@@ -19,11 +19,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_A( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                moris::Cell< Matrix< DDRMat > >       & aAMats )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                moris::Cell< Matrix< DDRMat > >                   & aAMats )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -298,10 +298,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYj( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                Matrix< DDRMat >                      & aKijYj )
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                Matrix< DDRMat >                                  & aKijYj )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -328,10 +328,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYji( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                Matrix< DDRMat >                      & aKijYji )
+                std::shared_ptr< Constitutive_Model >                aCM,
+                Field_Interpolator_Manager                         * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >  & aResidualDofTypes,
+                Matrix< DDRMat >                                   & aKijYji )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
