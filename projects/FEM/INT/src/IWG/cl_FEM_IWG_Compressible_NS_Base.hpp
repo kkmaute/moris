@@ -192,6 +192,20 @@ namespace moris
                     MORIS_ERROR( false, "IWG_Compressible_NS_Base::compute_jacobian_and_residual() - not implemented in comp flow base class" );
                 };
 
+                //------------------------------------------------------------------------------
+                /**
+                 * get the dof type for the state variables by the index in the standardized state var lists
+                 * @param[ out ] PrimaryDofType MSI dof type of the standardized state variable list
+                 */
+                MSI::Dof_Type get_primary_state_var( uint aIndex )
+                {
+                    // make sure the index makes sense
+                    MORIS_ASSERT( aIndex >= 0 and aIndex <= 2, "get_primary_state_var() - index must be 0, 1, or 2" );
+
+                    // return Dof Type
+                    return mPressurePrimitiveVars( aIndex )( 0 );
+                };
+
             //private:
 
                 //------------------------------------------------------------------------------
