@@ -127,7 +127,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
     // FIXME: generic SP for testing strong form only
-    tIWG->set_stabilization_parameter( tSP, "GenericSP" );
+    tIWG->set_stabilization_parameter( tSP, "GLS" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer

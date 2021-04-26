@@ -333,35 +333,6 @@ namespace moris
             return mdTaudY;
         }
 
-
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::Kiji( const uint aJ )
-        {
-            // check that indices are not out of bounds
-            MORIS_ASSERT( ( aJ >= 0 ) and ( aJ < this->num_space_dims() ), 
-                    "IWG_Compressible_NS_Bulk::Kiji() - index out of bounds." );
-
-            // check if Kiji matrices have already been evaluated
-            if ( !mKijiEval )
-            {
-                return mKiji( aJ );
-            }
-
-            // set the eval flag
-            mKijiEval = false;            
-
-            // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropThermalConductivity = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
-
-            // eval spatial derivatives of K matrices and store them
-            eval_dKijdxi( tPropDynamicViscosity, tPropThermalConductivity, mMasterFIManager, mKiji );
-
-            // return requested Kiji matrix
-            return mKiji( aJ );
-        } 
-
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::LY()

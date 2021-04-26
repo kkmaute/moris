@@ -144,7 +144,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
     // FIXME: generic SP for testing strong form only
-    tIWG->set_stabilization_parameter( tSP, "GenericSP" );
+    tIWG->set_stabilization_parameter( tSP, "GLS" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -244,6 +244,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             // create a space geometry interpolation rule
             mtk::Interpolation_Rule tGIRule( tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
+                    //mtk::Interpolation_Order::LINEAR,
                     tGIInterpolationOrder,
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
@@ -253,7 +254,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
             // create time coeff tHat
             Matrix< DDRMat > tTHat = {{ 0.26 }, { 0.87 }};
+            //Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.5 }};
 
+            //Matrix< DDRMat > tXHat = { { 0.0, 0.0 }, { 2.0, 0.0 }, { 2.0, 3.0 }, { 0.0, 3.0} };
             Matrix< DDRMat > tXHat;
             fill_xhat( tXHat, iSpaceDim, iInterpOrder );
 
@@ -433,8 +436,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                 }
 
                 // require check is true
-                // fixme - put back in
-                // REQUIRE( tCheckJacobian );
+                REQUIRE( tCheckJacobian );
             }
 
             // clean up

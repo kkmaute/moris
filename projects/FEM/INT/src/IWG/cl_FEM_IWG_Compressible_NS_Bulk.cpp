@@ -52,26 +52,14 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization parameter map
-            mStabilizationMap[ "GenericSP" ] = static_cast< uint >( IWG_Stabilization_Type::GENERIC );
+            mStabilizationMap[ "GLS" ] = static_cast< uint >( IWG_Stabilization_Type::GLS );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Bulk::reset_spec_eval_flags()
+        void IWG_Compressible_NS_Bulk::reset_child_eval_flags()
         {
-            // reset eval flags
-            mSpaceDimEval = true;
-            mNumBasesEval = true;
-
-            mVarSetEval = true;
-            mTestFuncSetEval = true;
-
-            mFluxAMatEval = true;
-            mFluxADofMatEval = true;
-            mFluxKMatEval = true;
-            mKijiEval = true;
-            mFluxKDofMatEval = true;
-
+            // reset eval flags specific to this child IWG
             mLYEval = true;
             mLWEval = true;
             mLDofYEval = true;
@@ -133,7 +121,7 @@ namespace moris
             }
 
             // get the Stabilization Parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GENERIC ) );
+            const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
 
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
@@ -184,7 +172,7 @@ namespace moris
             sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterDep1StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofFirstDepIndex, 0 );
             uint tMasterDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofThirdDepIndex, 1 );                
-           
+
             // get subview of jacobian for += operations   
             auto tJac = mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );  
 
@@ -223,7 +211,7 @@ namespace moris
             }
 
             // get the Stabilization Parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GENERIC ) );
+            const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
 
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
@@ -260,95 +248,7 @@ namespace moris
 
             MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::compute_dRdp - Not implemented." );
         }
-
-        //------------------------------------------------------------------------------
-
-        uint IWG_Compressible_NS_Bulk::num_space_dims()
-        {
-            // check if number of spatial dimensions is known
-            if ( !mSpaceDimEval )
-            {
-                return mNumSpaceDims;
-            }
-
-            // set eval flag
-            mSpaceDimEval = false;
-            
-            // get CM
-            std::shared_ptr< Constitutive_Model > tCM = 
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
-
-            // get number of spatial dimensions from CM
-            mNumSpaceDims = tCM->get_num_space_dims();
-
-            // return
-            return mNumSpaceDims;
-        }
-
-        //------------------------------------------------------------------------------
-
-        uint IWG_Compressible_NS_Bulk::num_bases()
-        {
-            // check if number of spatial dimensions is known
-            if ( !mNumBasesEval )
-            {
-                return mNumBasesPerField;
-            }
-
-            // set eval flag
-            mNumBasesEval = false;
-            
-            // get first FI
-            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            // get number of spatial dimensions from CM
-            mNumBasesPerField = tFI->get_number_of_space_time_bases();
-
-            // return
-            return mNumBasesPerField;
-        }
-
-        //------------------------------------------------------------------------------
-
-        // FIXME provided directly by the field interpolator?
-        void IWG_Compressible_NS_Bulk::compute_dnNdtn(
-                Matrix< DDRMat > & adnNdtn )
-        {
-            // get the residual dof type FI (here velocity)
-            Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );                 
-
-            // init size for dnNdtn
-            uint tNumRowt = tVelocityFI->get_number_of_fields();
-            uint tNumColt = tVelocityFI->dnNdtn( 1 ).n_cols();
-            adnNdtn.set_size( tNumRowt, tNumRowt * tNumColt , 0.0 );
-
-            // loop over the fields
-            for( uint iField = 0; iField < tNumRowt; iField++ )
-            {
-                // fill the matrix for each dimension
-                adnNdtn( { iField, iField }, { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 } ) =
-                        tVelocityFI->dnNdtn( 1 ).matrix_data();
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::MultipMat()
-        {
-            //build multiplication matrix
-            //for 2D
-            if( mMasterFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
-            {
-                return mMultipMat2D;
-            }
-            // for 3D
-            else
-            {
-                return mMultipMat3D;
-            }
-        }  
-
+        
         //------------------------------------------------------------------------------
 
     } /* namespace fem */
