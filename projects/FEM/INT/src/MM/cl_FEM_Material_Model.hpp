@@ -391,7 +391,7 @@ namespace moris
                         moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                         moris::Cell< std::string >                  aDofStrings )
                 {
-                    MORIS_ERROR( false, "Material_Model::set_model_type - Not implemented for base class." );
+                    MORIS_ERROR( false, "Material_Model::set_dof_type_list - Not implemented for base class." );
                 }
 
                 //------------------------------------------------------------------------------
