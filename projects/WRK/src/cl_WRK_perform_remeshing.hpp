@@ -26,8 +26,9 @@ namespace moris
                 uint        mModeIndex;
 
                 //mode ab_initio
-                Matrix< DDUMat > mRefinementsMode_0;
-                Matrix< DDUMat > mRefinementPatternMode_0;
+                moris::Cell< std::string > mRefinementsFieldNames_0;
+                Matrix< DDUMat >           mRefinementsMode_0;
+                Matrix< DDUMat >           mRefinementPatternMode_0;
         };
 
         class Remeshing_Mini_Performer
@@ -85,6 +86,20 @@ namespace moris
                 std::shared_ptr< hmr::HMR >     aHMRPerformer,
                 mtk::Field                  *   aSourceField,
                 mtk::Field                  * & aTargetField );
+
+                //------------------------------------------------------------------------------
+
+                void prepare_input_for_refinement(
+                        Cell< moris_index >                       & aPatternForRefinement,
+                        moris::Cell< moris::Cell< std::string > > & aFieldsForRefinement,
+                        moris::Cell< moris::Cell< uint > >        & aRefinements,
+                        moris::Cell< sint >                       & aMaxRefinementPerPattern );
+
+                //------------------------------------------------------------------------------
+
+                void create_refinement_input_list(
+                        moris::ParameterList & aRefinementParameterlist,
+                        uint                   aPattern );
 
                 //------------------------------------------------------------------------------
         };
