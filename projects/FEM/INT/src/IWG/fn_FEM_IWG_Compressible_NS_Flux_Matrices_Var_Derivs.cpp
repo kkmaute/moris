@@ -210,8 +210,9 @@ namespace moris
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aMasterFIManager,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const uint                                          aAind,
                 const uint                                          aYind,
-                moris::Cell< Matrix< DDRMat > >                   & adAdY )
+                Matrix< DDRMat >                                  & adAdY )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -222,9 +223,6 @@ namespace moris
             
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // size dAdY correctly
-            adAdY.resize( tNumSpaceDims + 1 );
 
             // // get commonly used values
             real tP   = aMM->pressure()( 0 );
@@ -260,23 +258,49 @@ namespace moris
                         // for PRESSURE
                         case 0 :
                         {
-                            adAdY( 0 ) = {
-                            	{ 0.0,     0.0,     0.0,                               -tC3 },
-                            	{ 0.0,     tC1,     0.0,                           -tC3*tU1 },
-                            	{ 0.0,     0.0,     tC1,                           -tC3*tU2 },
-                            	{ 0.0, tC1*tU1, tC1*tU2, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 1 ) = {
-                            	{ 0.0,                                tC1,         0.0,                                 -tC3*tU1 },
-                            	{ 0.0,                        2.0*tC1*tU1,         0.0,                               -tC3*tU1sq },
-                            	{ 0.0,                            tC1*tU2,     tC1*tU1,                             -tC3*tU1*tU2 },
-                            	{ 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };                             
-                             
-                            adAdY( 2 ) = {
-                            	{ 0.0,         0.0,                                tC1,                                 -tC3*tU2 },
-                            	{ 0.0,     tC1*tU2,                            tC1*tU1,                             -tC3*tU1*tU2 },
-                            	{ 0.0,         0.0,                        2.0*tC1*tU2,                               -tC3*tU2sq },
-                            	{ 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        { 0.0,     0.0,     0.0,                               -tC3 },
+                                        { 0.0,     tC1,     0.0,                           -tC3*tU1 },
+                                        { 0.0,     0.0,     tC1,                           -tC3*tU2 },
+                                        { 0.0, tC1*tU1, tC1*tU2, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        { 0.0,                                tC1,         0.0,                                 -tC3*tU1 },
+                                        { 0.0,                        2.0*tC1*tU1,         0.0,                               -tC3*tU1sq },
+                                        { 0.0,                            tC1*tU2,     tC1*tU1,                             -tC3*tU1*tU2 },
+                                        { 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        { 0.0,         0.0,                                tC1,                                 -tC3*tU2 },
+                                        { 0.0,     tC1*tU2,                            tC1*tU1,                             -tC3*tU1*tU2 },
+                                        { 0.0,         0.0,                        2.0*tC1*tU2,                               -tC3*tU2sq },
+                                        { 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
 
                             // break for PRESSURE case
                             break;
@@ -285,24 +309,50 @@ namespace moris
                         // for VX
                         case 1 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{     tC1, 0.0, 0.0,     -tC4 },
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{ tC1*tU1, tC2, 0.0, -tC4*tU1 } };                            
-                             
-                            adAdY( 1 ) = {
-                            	{                                tC1,         0.0,     0.0,                                           -tC4 },
-                            	{                        2.0*tC1*tU1,     2.0*tC2,     0.0,                                   -2.0*tC4*tU1 },
-                            	{                            tC1*tU2,         0.0,     tC2,                                       -tC4*tU2 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };                            
-                             
-                            adAdY( 2 ) = {
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{     tC1*tU2,     0.0,     tC2,     -tC4*tU2 },
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        {     tC1, 0.0, 0.0,     -tC4 },
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        { tC1*tU1, tC2, 0.0, -tC4*tU1 } }; 
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,         0.0,     0.0,                                           -tC4 },
+                                        {                        2.0*tC1*tU1,     2.0*tC2,     0.0,                                   -2.0*tC4*tU1 },
+                                        {                            tC1*tU2,         0.0,     tC2,                                       -tC4*tU2 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        {     tC1*tU2,     0.0,     tC2,     -tC4*tU2 },
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
+                                    
                             // break for VX case
                             break;
                         }
@@ -310,24 +360,50 @@ namespace moris
                         // for VY
                         case 2 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{     tC1, 0.0, 0.0,     -tC4 },
-                            	{ tC1*tU2, 0.0, tC2, -tC4*tU2 } };                           
-                             
-                            adAdY( 1 ) = {
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{     tC1*tU1,     tC2,     0.0,     -tC4*tU1 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };                        
-                             
-                            adAdY( 2 ) = {
-                            	{                                tC1,     0.0,         0.0,                                           -tC4 },
-                            	{                            tC1*tU1,     tC2,         0.0,                                       -tC4*tU1 },
-                            	{                        2.0*tC1*tU2,     0.0,     2.0*tC2,                                   -2.0*tC4*tU2 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        {     tC1, 0.0, 0.0,     -tC4 },
+                                        { tC1*tU2, 0.0, tC2, -tC4*tU2 } };   
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        {     tC1*tU1,     tC2,     0.0,     -tC4*tU1 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };    
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,     0.0,         0.0,                                           -tC4 },
+                                        {                            tC1*tU1,     tC2,         0.0,                                       -tC4*tU1 },
+                                        {                        2.0*tC1*tU2,     0.0,     2.0*tC2,                                   -2.0*tC4*tU2 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
+                                    
                             // break for VY case
                             break;
                         }
@@ -335,24 +411,49 @@ namespace moris
                         // for TEMP
                         case 3 :
                         {
-                            adAdY( 0 ) = {
-                            	{                               -tC3,      0.0,      0.0,                                  (2.0*tC4)/tT },
-                            	{                           -tC3*tU1,     -tC4,      0.0,                              (2.0*tC4*tU1)/tT },
-                            	{                           -tC3*tU2,      0.0,     -tC4,                              (2.0*tC4*tU2)/tT },
-                            	{ tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };                            	 
-                             
-                            adAdY( 1 ) = {
-                            	{                                   -tC3*tU1,                                           -tC4,          0.0,                                     (2.0*tC4*tU1)/tT },
-                            	{                                 -tC3*tU1sq,                                   -2.0*tC4*tU1,          0.0,                                   (2.0*tC4*tU1sq)/tT },
-                            	{                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{ tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tU1*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                             
-                            adAdY( 2 ) = {
-                            	{                                   -tC3*tU2,          0.0,                                           -tC4,                                     (2.0*tC4*tU2)/tT },
-                            	{                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{                                 -tC3*tU2sq,          0.0,                                   -2.0*tC4*tU2,                                   (2.0*tC4*tU2sq)/tT },
-                            	{ tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tU2*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
- 
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {                               -tC3,      0.0,      0.0,                                  (2.0*tC4)/tT },
+                                        {                           -tC3*tU1,     -tC4,      0.0,                              (2.0*tC4*tU1)/tT },
+                                        {                           -tC3*tU2,      0.0,     -tC4,                              (2.0*tC4*tU2)/tT },
+                                        { tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU1,                                           -tC4,          0.0,                                     (2.0*tC4*tU1)/tT },
+                                        {                                 -tC3*tU1sq,                                   -2.0*tC4*tU1,          0.0,                                   (2.0*tC4*tU1sq)/tT },
+                                        {                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        { tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tU1*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU2,          0.0,                                           -tC4,                                     (2.0*tC4*tU2)/tT },
+                                        {                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        {                                 -tC3*tU2sq,          0.0,                                   -2.0*tC4*tU2,                                   (2.0*tC4*tU2sq)/tT },
+                                        { tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tU2*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }        
                             
                             // break for TEMP case
                             break;
@@ -373,7 +474,7 @@ namespace moris
                 case 3 :
                 {
                     // get Z-velocity
-                    real tU3  = tFIVelocity->val()( 3 );  
+                    real tU3  = tFIVelocity->val()( 2 );  
                     real tU3sq = tU3*tU3;
 
                     // get the 1/2 * v^2 term
@@ -385,33 +486,64 @@ namespace moris
                         // for PRESSURE
                         case 0 :
                         {
-                            adAdY( 0 ) = {
-                            	{ 0.0,     0.0,     0.0,     0.0,                               -tC3 },
-                            	{ 0.0,     tC1,     0.0,     0.0,                           -tC3*tU1 },
-                            	{ 0.0,     0.0,     tC1,     0.0,                           -tC3*tU2 },
-                            	{ 0.0,     0.0,     0.0,     tC1,                           -tC3*tU3 },
-                            	{ 0.0, tC1*tU1, tC1*tU2, tC1*tU3, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 1 ) = {
-                            	{ 0.0,                                tC1,         0.0,         0.0,                                 -tC3*tU1 },
-                            	{ 0.0,                        2.0*tC1*tU1,         0.0,         0.0,                               -tC3*tU1sq },
-                            	{ 0.0,                            tC1*tU2,     tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
-                            	{ 0.0,                            tC1*tU3,         0.0,     tC1*tU1,                             -tC3*tU1*tU3 },
-                            	{ 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tC1*tU1*tU3, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
-                             
-                            adAdY( 2 ) = {
-                            	{ 0.0,         0.0,                                tC1,         0.0,                                 -tC3*tU2 },
-                            	{ 0.0,     tC1*tU2,                            tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
-                            	{ 0.0,         0.0,                        2.0*tC1*tU2,         0.0,                               -tC3*tU2sq },
-                            	{ 0.0,         0.0,                            tC1*tU3,     tC1*tU2,                             -tC3*tU2*tU3 },
-                            	{ 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC1*tU2*tU3, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
-                             
-                            adAdY( 3 ) = {
-                            	{ 0.0,         0.0,         0.0,                                tC1,                                 -tC3*tU3 },
-                            	{ 0.0,     tC1*tU3,         0.0,                            tC1*tU1,                             -tC3*tU1*tU3 },
-                            	{ 0.0,         0.0,     tC1*tU3,                            tC1*tU2,                             -tC3*tU2*tU3 },
-                            	{ 0.0,         0.0,         0.0,                        2.0*tC1*tU3,                               -tC3*tU3sq },
-                            	{ 0.0, tC1*tU1*tU3, tC1*tU2*tU3, tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tU3*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        { 0.0,     0.0,     0.0,     0.0,                               -tC3 },
+                                        { 0.0,     tC1,     0.0,     0.0,                           -tC3*tU1 },
+                                        { 0.0,     0.0,     tC1,     0.0,                           -tC3*tU2 },
+                                        { 0.0,     0.0,     0.0,     tC1,                           -tC3*tU3 },
+                                        { 0.0, tC1*tU1, tC1*tU2, tC1*tU3, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        { 0.0,                                tC1,         0.0,         0.0,                                 -tC3*tU1 },
+                                        { 0.0,                        2.0*tC1*tU1,         0.0,         0.0,                               -tC3*tU1sq },
+                                        { 0.0,                            tC1*tU2,     tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
+                                        { 0.0,                            tC1*tU3,         0.0,     tC1*tU1,                             -tC3*tU1*tU3 },
+                                        { 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tC1*tU1*tU3, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        { 0.0,         0.0,                                tC1,         0.0,                                 -tC3*tU2 },
+                                        { 0.0,     tC1*tU2,                            tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
+                                        { 0.0,         0.0,                        2.0*tC1*tU2,         0.0,                               -tC3*tU2sq },
+                                        { 0.0,         0.0,                            tC1*tU3,     tC1*tU2,                             -tC3*tU2*tU3 },
+                                        { 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC1*tU2*tU3, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        { 0.0,         0.0,         0.0,                                tC1,                                 -tC3*tU3 },
+                                        { 0.0,     tC1*tU3,         0.0,                            tC1*tU1,                             -tC3*tU1*tU3 },
+                                        { 0.0,         0.0,     tC1*tU3,                            tC1*tU2,                             -tC3*tU2*tU3 },
+                                        { 0.0,         0.0,         0.0,                        2.0*tC1*tU3,                               -tC3*tU3sq },
+                                        { 0.0, tC1*tU1*tU3, tC1*tU2*tU3, tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tU3*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }                                    
 
                             // break for PRESSURE case
                             break;
@@ -420,33 +552,64 @@ namespace moris
                         // for VX
                         case 1 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{ tC1*tU1, tC2, 0.0, 0.0, -tC4*tU1 } };
-                             
-                            adAdY( 1 ) = {
-                            	{                                tC1,         0.0,     0.0,     0.0,                                           -tC4 },
-                            	{                        2.0*tC1*tU1,     2.0*tC2,     0.0,     0.0,                                    2.0*tC4*tU1 },
-                            	{                            tC1*tU2,         0.0,     tC2,     0.0,                                       -tC4*tU2 },
-                            	{                            tC1*tU3,         0.0,     0.0,     tC2,                                       -tC4*tU3 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 2 ) = {
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{     tC1*tU2,     0.0,     tC2, 0.0,     -tC4*tU2 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
-                             
-                            adAdY( 3 ) = {
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{     tC1*tU3,     0.0, 0.0,     tC2,     -tC4*tU3 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{ tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        { tC1*tU1, tC2, 0.0, 0.0, -tC4*tU1 } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,         0.0,     0.0,     0.0,                                           -tC4 },
+                                        {                        2.0*tC1*tU1,     2.0*tC2,     0.0,     0.0,                                    2.0*tC4*tU1 },
+                                        {                            tC1*tU2,         0.0,     tC2,     0.0,                                       -tC4*tU2 },
+                                        {                            tC1*tU3,         0.0,     0.0,     tC2,                                       -tC4*tU3 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {     tC1*tU2,     0.0,     tC2, 0.0,     -tC4*tU2 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {     tC1*tU3,     0.0, 0.0,     tC2,     -tC4*tU3 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        { tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
                             
                             // break for VX case
                             break;
@@ -455,33 +618,64 @@ namespace moris
                         // for VY
                         case 2 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{ tC1*tU2, 0.0, tC2, 0.0, -tC4*tU2 } };
-                             
-                            adAdY( 1 ) = {
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{     tC1*tU1,     tC2,     0.0, 0.0,     -tC4*tU1 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
-                             
-                            adAdY( 2 ) = {
-                            	{                                tC1,     0.0,         0.0,     0.0,                                           -tC4 },
-                            	{                            tC1*tU1,     tC2,         0.0,     0.0,                                       -tC4*tU1 },
-                            	{                        2.0*tC1*tU2,     0.0,     2.0*tC2,     0.0,                                    2.0*tC4*tU2 },
-                            	{                            tC1*tU3,     0.0,         0.0,     tC2,                                       -tC4*tU3 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 3 ) = {
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{     tC1*tU3, 0.0,     0.0,     tC2,     -tC4*tU3 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{ tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        { tC1*tU2, 0.0, tC2, 0.0, -tC4*tU2 } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {     tC1*tU1,     tC2,     0.0, 0.0,     -tC4*tU1 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,     0.0,         0.0,     0.0,                                           -tC4 },
+                                        {                            tC1*tU1,     tC2,         0.0,     0.0,                                       -tC4*tU1 },
+                                        {                        2.0*tC1*tU2,     0.0,     2.0*tC2,     0.0,                                    2.0*tC4*tU2 },
+                                        {                            tC1*tU3,     0.0,         0.0,     tC2,                                       -tC4*tU3 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {     tC1*tU3, 0.0,     0.0,     tC2,     -tC4*tU3 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        { tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
                             
                             // break for VY case
                             break;
@@ -490,34 +684,65 @@ namespace moris
                         // for VZ
                         case 3 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
-                            	{ tC1*tU3, 0.0, 0.0, tC2, -tC4*tU3 } };
-                             
-                            adAdY( 1 ) = {
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{     tC1*tU1,     tC2, 0.0,     0.0,     -tC4*tU1 },
-                            	{ tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
-                             
-                            adAdY( 2 ) = {
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{     tC1*tU2, 0.0,     tC2,     0.0,     -tC4*tU2 },
-                            	{ tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
-                             
-                            adAdY( 3 ) = {
-                            	{                                tC1,     0.0,     0.0,         0.0,                                           -tC4 },
-                            	{                            tC1*tU1,     tC2,     0.0,         0.0,                                       -tC4*tU1 },
-                            	{                            tC1*tU2,     0.0,     tC2,         0.0,                                       -tC4*tU2 },
-                            	{                        2.0*tC1*tU3,     0.0,     0.0,     2.0*tC2,                                    2.0*tC4*tU3 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tC2*tU1, tC2*tU2, 3.0*tC2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1) } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                                        { tC1*tU3, 0.0, 0.0, tC2, -tC4*tU3 } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {     tC1*tU1,     tC2, 0.0,     0.0,     -tC4*tU1 },
+                                        { tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {     tC1*tU2, 0.0,     tC2,     0.0,     -tC4*tU2 },
+                                        { tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,     0.0,     0.0,         0.0,                                           -tC4 },
+                                        {                            tC1*tU1,     tC2,     0.0,         0.0,                                       -tC4*tU1 },
+                                        {                            tC1*tU2,     0.0,     tC2,         0.0,                                       -tC4*tU2 },
+                                        {                        2.0*tC1*tU3,     0.0,     0.0,     2.0*tC2,                                    2.0*tC4*tU3 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tC2*tU1, tC2*tU2, 3.0*tC2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
+
                             // break for VZ case
                             break;
                         }
@@ -525,37 +750,65 @@ namespace moris
                         // for TEMP
                         case 4 :
                         {
-                            adAdY( 0 ) = {
-                            	{                               -tC3,      0.0,      0.0,      0.0,                                  (2.0*tC4)/tT },
-                            	{                           -tC3*tU1,     -tC4,      0.0,      0.0,                              (2.0*tC4*tU1)/tT },
-                            	{                           -tC3*tU2,      0.0,     -tC4,      0.0,                              (2.0*tC4*tU2)/tT },
-                            	{                           -tC3*tU3,      0.0,      0.0,     -tC4,                              (2.0*tC4*tU3)/tT },
-                            	{ tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, -tC4*tU3, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
-                             
-                             
-                            adAdY( 1 ) = {
-                            	{                                   -tC3*tU1,                                           -tC4,          0.0,          0.0,                                     (2.0*tC4*tU1)/tT },
-                            	{                                 -tC3*tU1sq,                                    2.0*tC4*tU1,          0.0,          0.0,                                   (2.0*tC4*tU1sq)/tT },
-                            	{                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{                               -tC3*tU1*tU3,                                       -tC4*tU3,          0.0,     -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
-                            	{ tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tC4*tU1*tU3, -tU1*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                             
-                             
-                            adAdY( 2 ) = {
-                            	{                                   -tC3*tU2,          0.0,                                           -tC4,          0.0,                                     (2.0*tC4*tU2)/tT },
-                            	{                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{                                 -tC3*tU2sq,          0.0,                                    2.0*tC4*tU2,          0.0,                                   (2.0*tC4*tU2sq)/tT },
-                            	{                               -tC3*tU2*tU3,          0.0,                                       -tC4*tU3,     -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
-                            	{ tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU2*tU3, -tU2*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                             
-                             
-                            adAdY( 3 ) = {
-                            	{                                   -tC3*tU3,          0.0,          0.0,                                           -tC4,                                     (2.0*tC4*tU3)/tT },
-                            	{                               -tC3*tU1*tU3,     -tC4*tU3,          0.0,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
-                            	{                               -tC3*tU2*tU3,          0.0,     -tC4*tU3,                                       -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
-                            	{                                 -tC3*tU3sq,          0.0,          0.0,                                    2.0*tC4*tU3,                                   (2.0*tC4*tU3sq)/tT },
-                            	{ tC1*tCp*tU3 - tC3*tU3*(tEint + tQ+1.0/tC1), -tC4*tU1*tU3, -tC4*tU2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1), -tU3*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {                               -tC3,      0.0,      0.0,      0.0,                                  (2.0*tC4)/tT },
+                                        {                           -tC3*tU1,     -tC4,      0.0,      0.0,                              (2.0*tC4*tU1)/tT },
+                                        {                           -tC3*tU2,      0.0,     -tC4,      0.0,                              (2.0*tC4*tU2)/tT },
+                                        {                           -tC3*tU3,      0.0,      0.0,     -tC4,                              (2.0*tC4*tU3)/tT },
+                                        { tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, -tC4*tU3, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU1,                                           -tC4,          0.0,          0.0,                                     (2.0*tC4*tU1)/tT },
+                                        {                                 -tC3*tU1sq,                                    2.0*tC4*tU1,          0.0,          0.0,                                   (2.0*tC4*tU1sq)/tT },
+                                        {                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        {                               -tC3*tU1*tU3,                                       -tC4*tU3,          0.0,     -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
+                                        { tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tC4*tU1*tU3, -tU1*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU2,          0.0,                                           -tC4,          0.0,                                     (2.0*tC4*tU2)/tT },
+                                        {                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        {                                 -tC3*tU2sq,          0.0,                                    2.0*tC4*tU2,          0.0,                                   (2.0*tC4*tU2sq)/tT },
+                                        {                               -tC3*tU2*tU3,          0.0,                                       -tC4*tU3,     -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
+                                        { tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU2*tU3, -tU2*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU3,          0.0,          0.0,                                           -tC4,                                     (2.0*tC4*tU3)/tT },
+                                        {                               -tC3*tU1*tU3,     -tC4*tU3,          0.0,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
+                                        {                               -tC3*tU2*tU3,          0.0,     -tC4*tU3,                                       -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
+                                        {                                 -tC3*tU3sq,          0.0,          0.0,                                    2.0*tC4*tU3,                                   (2.0*tC4*tU3sq)/tT },
+                                        { tC1*tCp*tU3 - tC3*tU3*(tEint + tQ+1.0/tC1), -tC4*tU1*tU3, -tC4*tU2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1), -tU3*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }                                    
+
                             // break for TEMP case
                             break;
                         }

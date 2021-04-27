@@ -65,9 +65,14 @@ namespace moris
             mLDofYEval = true;
 
             mA0invEval = true;
+            mdA0invdYEval = true;
+
             mGEval = true;
+
             mMEval = true;
             mMinvEval = true;
+            mdMdYEval = true;
+
             mTauEval = true;
         }
 
@@ -127,10 +132,18 @@ namespace moris
             if ( tSP != nullptr )
             {
                 // stabilization term for testing
-                tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->LY();
+                //tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->LY();
 
-                // stabilization term
-                //tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
+                // debug
+                // uint tNumStateVars = tNumSpaceDims + 2;
+                // Matrix< DDRMat > tVR( tNumStateVars, 1, 2.3 );
+                // tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->M() * tVR;
+
+                // debug 
+                tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->LY();
+
+                // GLS stabilization term
+                // tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
             }           
 
             // check for nan, infinity
@@ -217,7 +230,29 @@ namespace moris
             if ( tSP != nullptr )
             {
                 // stabilization term for testing
-                tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * ( this->LW() + this->dLdDofY() );
+                // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * ( this->LW() + this->dLdDofY() );
+
+                // debug
+                // uint tNumStateVars = tNumSpaceDims + 2;
+                // Matrix< DDRMat > tVR( tNumStateVars, 1, 2.3 );
+                // Matrix< DDRMat > tdMdY( tNumStateVars, tNumStateVars, 0.0 );
+                // for ( uint iVar = 0; iVar < tNumStateVars; iVar++ ) 
+                // {
+                //     tdMdY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = this->dMdY( iVar ) * tVR; 
+                // }
+                // Matrix< DDRMat > tdMdDof = tdMdY * this->W();
+                // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * tdMdDof;
+
+                // debug 
+                tJac += aWStar * tSP->val()( 0 ) * ( 
+                        this->dLdDofW( this->LY() ) + 
+                        trans( this->LW() ) * ( this->LW() + this->dLdDofY() ) );
+
+                // GLS stabilization term
+                // tJac += tSP->val()( 0 ) * (
+                //         trans( this->LW() ) * this->Tau() * this->dLdDofY() +
+                //         trans( this->LW() ) * this->dTaudY( this->LY() ) * this->W() +
+                //         this->dLdDofW( this->Tau() * this->LY() ) );
             }
 
             // check for nan, infinity

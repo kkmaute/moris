@@ -49,8 +49,9 @@ namespace moris
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aMasterFIManager,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const uint                                          aAind,
                 const uint                                          aYind,
-                moris::Cell< Matrix< DDRMat > >                   & adAdY );
+                Matrix< DDRMat >                                  & adAdY );
 
         void eval_VL_dAdY( 
                 std::shared_ptr< Material_Model >                   aMM,  

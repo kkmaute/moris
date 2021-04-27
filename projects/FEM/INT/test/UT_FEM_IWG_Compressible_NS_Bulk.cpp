@@ -37,11 +37,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 5.0E-6;
+    real tEpsilonCubic = 1.0E-4;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 5.0E-4;
+    real tPerturbationCubic = 1.0E-3;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
