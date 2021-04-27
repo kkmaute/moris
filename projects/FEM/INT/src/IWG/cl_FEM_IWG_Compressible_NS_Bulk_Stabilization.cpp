@@ -232,10 +232,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dTaudY( const Matrix< DDRMat > aVR )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dMdY( const uint aYind )
         {
-            // get number of state variables
-            uint tNumStateVars = this->num_space_dims() + 2;
+            // check if Tau has already been evaluated
+            if ( !mdMdYEval )
+            {
+                return mdMdY( aYind );
+            }
+
+            // update eval flag
+            mdMdYEval = false;
 
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
@@ -244,35 +250,43 @@ namespace moris
             // get the properties
             std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
             std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
-            
-            // -------------------------------------------------
-            // STEP 1: get the state variable derivatives of M
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
 
             // initialize cell for storage
             Matrix< DDRMat > tZeroMatrix( tNumStateVars, tNumStateVars, 0.0 );
-            moris::Cell< Matrix< DDRMat > > tdMdY( tNumStateVars, tZeroMatrix );
+            mdMdY.assign( tNumStateVars, tZeroMatrix );
 
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
                 // get subview for += operations
-                auto tdMdVar = tdMdY( iVar )( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
+                auto tdMdVar = mdMdY( iVar )( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
 
-                // get the variable derivs for the A and K matrices
-                moris::Cell< Matrix< DDRMat > > tdAdY;
-                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, iVar, tdAdY );
+                // get the variable derivs for the K matrices
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
                 eval_dKdY( tPropMu, tPropKappa, mMasterFIManager, iVar, tdKdY );
 
                 // loops for addition over indices j,k,l,m
                 for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
                 {
+                    // get the variable derivs for the A matrices
+                    Matrix< DDRMat > tdAjdY;
+                    eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, jDim + 1, iVar, tdAjdY );
+
                     for ( uint kDim = 0; kDim < this->num_space_dims(); kDim++ )
                     {
+                        // get the variable derivs for the A matrices
+                        Matrix< DDRMat > tdAkdY;
+                        eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, kDim + 1, iVar, tdAkdY );
+
                         // add contribution from the A-terms
                         tdMdVar += this->G()( jDim, kDim ) * (
-                                tdAdY( jDim + 1 ) * this->A0inv() * this->A( kDim + 1 ) * this->A0inv() + 
-                                this->A( jDim + 1 ) * this->A0inv() * tdAdY( kDim + 1 ) * this->A0inv() );
+                                             tdAjdY * this->A0inv()          * this->A( kDim + 1 ) * this->A0inv() + 
+                                this->A( jDim + 1 ) * this->dA0invdY( iVar ) * this->A( kDim + 1 ) * this->A0inv() + 
+                                this->A( jDim + 1 ) * this->A0inv()          *              tdAkdY * this->A0inv() +
+                                this->A( jDim + 1 ) * this->A0inv()          * this->A( kDim + 1 ) * this->dA0invdY( iVar ) );
 
                         for ( uint lDim = 0; lDim < this->num_space_dims(); lDim++ )
                         {
@@ -288,6 +302,63 @@ namespace moris
                 }
             }
 
+            // return
+            return mdMdY( aYind );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dA0invdY( const uint aYind )
+        {
+            // check if Tau has already been evaluated
+            if ( !mdA0invdYEval )
+            {
+                return mdA0invdY( aYind );
+            }
+
+            // update eval flag
+            mdA0invdYEval = false;
+
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // initialize
+            mdA0invdY.resize( tNumStateVars );
+
+            // for each state variable compute the derivative
+            for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
+            {
+                // get the variable derivs for the A matrices
+                Matrix< DDRMat > tdA0dY;
+                eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, 0, iVar, tdA0dY );
+
+                // compute the state var deriv of the inverse of A0
+                mdA0invdY( iVar ) = -1.0 * this->A0inv() * tdA0dY * this->A0inv();
+            }
+
+            // return
+            return mdA0invdY( aYind );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dTaudY( const Matrix< DDRMat > aVR )
+        {
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+            
+            // -------------------------------------------------
+            // STEP 1: get the state variable derivatives of M
+            // see two functions above
+
             // -------------------------------------------------
             // STEP 2: get the state variable derivatives of the inverse of M
 
@@ -298,7 +369,7 @@ namespace moris
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
                 // compute the state var deriv
-                tdMinvdY( iVar ) = -1.0 * this->Minv() * tdMdY( iVar ) * this->Minv();
+                tdMinvdY( iVar ) = -1.0 * this->Minv() * this->dMdY( iVar ) * this->Minv();
             }
 
             // -------------------------------------------------
@@ -316,7 +387,11 @@ namespace moris
             }
 
             // -------------------------------------------------
-            // STEP 4: post-multiplication with the input vector
+            // STEP 4: get the state variable derivatives of the inverse of A0
+            // see function above
+
+            // -------------------------------------------------
+            // STEP 5: post-multiplication with the input vector
 
             // initialize
             mdTaudY.set_size( tNumStateVars, tNumStateVars, 0.0 );
@@ -325,7 +400,9 @@ namespace moris
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
                 // perform multiplication and put everything in
-                mdTaudY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = this->A0inv() * tdSqrtMinvdY( iVar ) * aVR;
+                mdTaudY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = 
+                        this->A0inv() * tdSqrtMinvdY( iVar ) * aVR +
+                        this->dA0invdY( iVar ) * this->SqrtMinv() * aVR;
             }
 
             // -------------------------------------------------

@@ -39,6 +39,7 @@ namespace moris
 
                 // evaluation flag for the variable mapping operator
                 bool mA0invEval = true;
+                bool mdA0invdYEval = true;
                 
                 // evaluation flag for G-operator
                 bool mGEval = true;
@@ -47,6 +48,7 @@ namespace moris
                 bool mMEval = true;
                 bool mMinvEval = true;
                 bool mSqrtMinvEval = true;
+                bool mdMdYEval = true;
 
                 // evaluation flag for GLS stabilization operator
                 bool mTauEval = true; 
@@ -59,6 +61,7 @@ namespace moris
 
                 // storage for the variable mapping operator
                 Matrix< DDRMat > mA0inv;
+                moris::Cell< Matrix< DDRMat > > mdA0invdY;
 
                 // storage for G-operator
                 Matrix< DDRMat > mG;
@@ -67,6 +70,7 @@ namespace moris
                 Matrix< DDRMat > mM;
                 Matrix< DDRMat > mMinv;
                 Matrix< DDRMat > mSqrtMinv;
+                moris::Cell< Matrix< DDRMat > > mdMdY;
 
                 // storage for the GLS stabiliation operator
                 Matrix< DDRMat > mTau;
@@ -181,7 +185,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the M term for the stabiliztion operator
+                 * get the M term for the stabilization operator
                  * @param[ out ] mM M operator
                  */
                 const Matrix< DDRMat > & M();
@@ -206,6 +210,20 @@ namespace moris
                  * @param[ out ] mTau stabilization operator
                  */
                 const Matrix< DDRMat > & Tau();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the state variable derivatives of M term
+                 * @param[ out ] mdMdY state variable derivatives of M term
+                 */
+                const Matrix< DDRMat > & dMdY( const uint aYind );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the state variable derivatives of the inverse of the A0 matrix
+                 * @param[ out ] mdA0invdY state var derivatives of the inverse of the A0 matrix
+                 */
+                const Matrix< DDRMat > & dA0invdY( const uint aYind );
 
                 //------------------------------------------------------------------------------
                 /**
