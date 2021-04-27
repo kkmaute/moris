@@ -20,7 +20,6 @@ namespace moris
         private:
 
             uint mOptIter = 0;         // optimization iteration counter
-            uint mRestartIndex = 0;    // iteration index to be set when restarting
 
             const int    MAXINT    = std::numeric_limits<int>::max();     // (int) (std::pow( 2, 63 )) - 1;
             const double MAXDOUBLE = std::numeric_limits<double>::max();  //        std::pow( 2, 63 )  - 1;
@@ -67,7 +66,7 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
+            uint solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
 
             /**
              * @brief MORIS-SQP interface for evaluation of objective,

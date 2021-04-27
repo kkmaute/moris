@@ -15,8 +15,6 @@ private:
     bool mPrint;
 
     moris::uint mResFlag = 0;         // flag from GCMMA describing result of optimization algorithm
-    moris::uint mRestartIndex;        // iteration index to be set when restarting
-    moris::sint mMaxIterations;       // maximum number of iterations
     moris::sint mMaxInnerIterations;  // maximum inner iterations per every optimization iteration
     moris::real mNormDrop;            // relative change in objective convergence criteria
     moris::real mAsympAdapt0;         // initial asymptote adaptation factor
@@ -67,7 +65,7 @@ public:
      * @param[in] aOptProb Object of type Problem containing relevant
      *            data regarding ADVs, the objective and constraints
      */
-    void solve(
+    uint solve(
             uint                                 aCurrentOptAlgInd,
             std::shared_ptr<moris::opt::Problem> aOptProb );
 

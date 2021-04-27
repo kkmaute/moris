@@ -46,7 +46,9 @@ namespace moris
              */
             void perform();
 
-            void restart_with_remesh( uint aI );
+            void restart_with_remesh(
+                    uint aI,
+                    uint aOptIteration );
 
             /**
              * Gets the avs from the problem
