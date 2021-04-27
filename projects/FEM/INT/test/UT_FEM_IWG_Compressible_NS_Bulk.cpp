@@ -104,7 +104,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
