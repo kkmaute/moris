@@ -559,6 +559,7 @@ namespace moris
                 void create_constitutive_models(
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aPropertyMap,
+                        std::map< std::string, uint >            & aMMMap,
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                         moris::map< std::string, PDV_Type >      & aDvTypeMap );
 
@@ -592,6 +593,7 @@ namespace moris
                 void create_IWGs(
                         std::map< std::string, uint >            & aIWGMap,
                         std::map< std::string, uint >            & aPropertyMap,
+                        std::map< std::string, uint >            & aMMMap,
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aSPMap,
                         std::map< std::string, uint >            & aFieldMap,

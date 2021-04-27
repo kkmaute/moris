@@ -669,7 +669,7 @@ namespace moris
 
                     // create constitutive models
                     std::map< std::string, uint > tCMMap;
-                    this->create_constitutive_models( tCMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                    this->create_constitutive_models( tCMMap, tPropertyMap, tMMMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
                     // create stabilization parameters
                     std::map< std::string, uint > tSPMap;
@@ -677,7 +677,7 @@ namespace moris
 
                     // create IWGs
                     std::map< std::string, uint > tIWGMap;
-                    this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                    this->create_IWGs( tIWGMap, tPropertyMap, tMMMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
 
                     // create IQIs
                     std::map< std::string, uint > tIQIMap;
@@ -1132,6 +1132,11 @@ namespace moris
                 std::string tPhaseName =
                         tCMParameter.get< std::string >( "phase_name" );
 
+                // check for unknown phase
+                MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
+                        "FEM_Model::create_CMs - Unknown phase name: %s \n",
+                        tPhaseName.c_str() );
+
                 // get the model type
                 fem::Model_Type tCMModelType =
                         static_cast< fem::Model_Type >( tCMParameter.get< uint >( "model_type" ) );
@@ -1176,6 +1181,32 @@ namespace moris
                         std::get< 1 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypeNames );
                 tCM->set_dv_type_list( tDvTypes, tDvTypeNames );
+
+                // set CM material model
+                moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                string_to_cell_of_cell(
+                        tCMParameter.get< std::string >( "material_model" ),
+                        tMMNamesPair );
+                MORIS_ERROR( tMMNamesPair.size() <= 1, "FEM_Model::create_CMs() - Only one material model per CM allowed." );
+
+                // loop over Material Model names
+                for( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
+                {
+                    // get the material name
+                    std::string tMaterialName = tMMNamesPair( iMM )( 0 );
+
+                    // get phase index
+                    uint tPhaseIndex = mPhaseMap[ tPhaseName ];
+
+                    // get MM from phase
+                    std::shared_ptr< fem::Material_Model > tMM =
+                            mPhaseInfo( tPhaseIndex ).get_MM_by_name( tMaterialName );
+
+                    // set material for CM
+                    tCM->set_material_model(
+                            tMM,
+                            tMMNamesPair( iMM )( 1 ) );
+                }
 
                 // set CM properties
                 moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
@@ -1546,6 +1577,30 @@ namespace moris
                         mIWGs( iIWG )->set_property(
                                 mProperties( tPropertyIndex ),
                                 tPropertyNamesPair( iProp )( 1 ),
+                                tIsMaster );
+                    }
+
+                    // set material model
+                    moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                    string_to_cell_of_cell(
+                            tIWGParameter.get< std::string >( tIsMasterString + "_material_model" ),
+                            tMMNamesPair );
+                    MORIS_ERROR( tMMNamesPair.size() <= 1, "FEM_Model::create_IWGs() - Only one material model per CM allowed." );
+
+                    // loop over material model
+                    for( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
+                    {
+                        // get the MM name
+                        std::string tMMName = tMMNamesPair( iMM )( 0 );
+
+                        // get MM from phase
+                        std::shared_ptr< fem::Material_Model > tMM =
+                                mPhaseInfo( tPhaseIndex ).get_MM_by_name( tMMName );
+
+                        // set CM for IWG
+                        mIWGs( iIWG )->set_material_model(
+                                tMM,
+                                tMMNamesPair( iMM )( 1 ),
                                 tIsMaster );
                     }
 
@@ -2475,6 +2530,7 @@ namespace moris
         void FEM_Model::create_constitutive_models(
                 std::map< std::string, uint >            & aCMMap,
                 std::map< std::string, uint >            & aPropertyMap,
+                std::map< std::string, uint >            & aMMMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap )
         {
@@ -2569,6 +2625,34 @@ namespace moris
                 }
                 // set local properties
                 mCMs( iCM )->set_local_properties();
+
+                // set material model
+                moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                string_to_cell_of_cell(
+                        tCMParameterList( iCM ).get< std::string >( "material_model" ),
+                        tMMNamesPair );
+
+                for( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
+                {
+                    // if MM name is in the CM map
+                    if ( aMMMap.find( tMMNamesPair( iMM )( 0 ) ) != aMMMap.end() )
+                    {
+                        // get MM index
+                        uint tMMIndex = aMMMap[ tMMNamesPair( iMM )( 0 ) ];
+
+                        // set MM for IWG
+                        mCMs( iCM )->set_material_model(
+                                mMMs( tMMIndex ),
+                                tMMNamesPair( iMM )( 1 ) );
+                    }
+                    else
+                    {
+                        // error message unknown MM
+                        MORIS_ERROR( false ,
+                                "FEM_Model::create_CMs - Unknown aMMString: %s \n",
+                                tMMNamesPair( iMM )( 0 ).c_str() );
+                    }
+                }
 
             }
         }
@@ -2722,6 +2806,7 @@ namespace moris
         void FEM_Model::create_IWGs(
                 std::map< std::string, uint >              & aIWGMap,
                 std::map< std::string, uint >              & aPropertyMap,
+                std::map< std::string, uint >              & aMMMap,
                 std::map< std::string, uint >              & aCMMap,
                 std::map< std::string, uint >              & aSPMap,
                 std::map< std::string, uint >              & aFieldMap,
@@ -2841,6 +2926,36 @@ namespace moris
                                     "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
                                     tIsMasterString.c_str(),
                                     tPropertyNamesPair( iProp )( 0 ).c_str() );
+                        }
+                    }
+
+                    // set material model
+                    moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                    string_to_cell_of_cell(
+                            tIWGParameter.get< std::string >( tIsMasterString + "_material_model" ),
+                            tMMNamesPair );
+
+                    for( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
+                    {
+                        // if MM name is in the CM map
+                        if ( aMMMap.find( tMMNamesPair( iMM )( 0 ) ) != aMMMap.end() )
+                        {
+                            // get MM index
+                            uint tMMIndex = aMMMap[ tMMNamesPair( iMM )( 0 ) ];
+
+                            // set MM for IWG
+                            mIWGs( iIWG )->set_material_model(
+                                    mMMs( tMMIndex ),
+                                    tMMNamesPair( iMM )( 1 ),
+                                    tIsMaster );
+                        }
+                        else
+                        {
+                            // error message unknown MM
+                            MORIS_ERROR( false ,
+                                    "FEM_Model::create_IWGs - Unknown %s aMMString: %s \n",
+                                    tIsMasterString.c_str(),
+                                    tMMNamesPair( iMM )( 0 ).c_str() );
                         }
                     }
 

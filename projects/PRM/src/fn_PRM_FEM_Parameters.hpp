@@ -104,6 +104,7 @@ namespace moris
             tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "material_model",    std::string( "" ) );
             tParameterList.insert( "model_type",        static_cast< uint >( fem::Model_Type::UNDEFINED ) );
             tParameterList.insert( "phase_name",        std::string( "" ) );
 
@@ -165,6 +166,8 @@ namespace moris
 
             tParameterList.insert( "master_properties",          std::string( "" ) );
             tParameterList.insert( "slave_properties",           std::string( "" ) );
+            tParameterList.insert( "master_material_model",      std::string( "" ) );
+            tParameterList.insert( "slave_material_model",       std::string( "" ) );
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
