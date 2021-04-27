@@ -56,7 +56,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     // create the properties
 
     // dummy factor by which strong form of the residual gets multiplied and added to weak form
-    real tDummyFactor = 1.3;
+    real tDummyFactor = 0.0;
 
     // dynamic viscosity
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
