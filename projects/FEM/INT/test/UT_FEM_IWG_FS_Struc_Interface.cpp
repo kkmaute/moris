@@ -57,9 +57,10 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         Matrix< DDRMat > tNormal;
 
         // dof type list
-        Cell< MSI::Dof_Type > tVelDofTypes;
-        Cell< MSI::Dof_Type > tPDofTypes = { MSI::Dof_Type::P };
         Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+
+        Cell<  Cell< MSI::Dof_Type > > tVelDofTypes;
+        Cell<  Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
 
         switch( iSpaceDim )
         {
@@ -84,7 +85,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
                tNormal = {{ 1.0 }, { 0.0 }};
 
                // set dof type list
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                break;
             }
@@ -113,7 +114,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
                 tNormal = {{1.0},{0.0},{0.0}};
 
                 // set dof type list
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 break;
             }
@@ -250,7 +251,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             Cell< Field_Interpolator* > tMasterFIs( 2 );
 
             // create the field interpolator
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
 
             // set the coefficients uHat
@@ -265,7 +266,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             Cell< Field_Interpolator* > tSlaveFIs( 2 );
 
             // create the field interpolator
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
             tSlaveFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
 
             // set the coefficients uHat
@@ -282,8 +283,8 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             std::shared_ptr< fem::IWG > tIWG =
                     tIWGFactory.create_IWG( fem::IWG_Type::FS_STRUC_INTERFACE );
             tIWG->set_residual_dof_type( tVelDofTypes );
-            tIWG->set_dof_type_list( { tVelDofTypes, tPDofTypes }, mtk::Master_Slave::MASTER );
-            tIWG->set_dof_type_list( { tVelDofTypes, tPDofTypes }, mtk::Master_Slave::SLAVE );
+            tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
+            tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::SLAVE );
 
             // create and set the fem set for the IWG
             MSI::Equation_Set * tSet = new fem::Set();

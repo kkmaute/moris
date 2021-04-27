@@ -22,12 +22,13 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         // Get the length of different vector types
         //--------------------------------------------------------------------------------------------------------------
-
+        inline
         uint get_length(Matrix<DDRMat>& aVector)
         {
             return aVector.length();
         }
 
+        inline
         uint get_length(sol::Dist_Vector* aVector)
         {
             return aVector->vec_local_length();
@@ -38,6 +39,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         template <typename Vector_Type>
+        inline
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 Vector_Type&                aADVs,
@@ -136,6 +138,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         template <typename Vector_Type>
+        inline
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 Vector_Type&                aADVs,

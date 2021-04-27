@@ -39,13 +39,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the field interpolators
             Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // build dyadic product of velocity vectors
             Matrix< DDRMat > tUiUj;
@@ -73,13 +73,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the FIs
             Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -112,7 +112,7 @@ namespace moris
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // build derivative of dyadic product of velocity vectors wrt to dofs
                     Matrix< DDRMat > tdUiUjdDOF;

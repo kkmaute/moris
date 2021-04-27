@@ -4,6 +4,22 @@
 # Set version
 set(${MTK}_VERSION ${MORIS_VERSION})
 
+# List header dependencies                                                                                                                                                                                                                                                     
+set(MTK_INCLUDES
+    "IP"
+    "IG")
+
+set(MTK_INTERNAL_INCLUDES)
+
+# Include depedency directories
+foreach(MTK_INCLUDES ${MTK_INCLUDES})
+    list(APPEND MTK_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${MTK_INCLUDES}")
+	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDES})
+endforeach()
+
+# create global list for .../MTK/src/ includes
+set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
+
 # List header files
 set(HEADERS
 cl_Mesh_Enums.hpp
@@ -40,6 +56,7 @@ cl_MTK_Mesh_Manager.hpp
 cl_MTK_Mesh_Checker.hpp
 cl_MTK_Mesh_Tools.hpp
 cl_MTK_Mesh.hpp
+cl_MTK_Mesh_Pair.hpp
 cl_MTK_Node_Sets_Info.hpp
 cl_MTK_Periodic_Boundary_Condition_Helper.hpp
 cl_MTK_Scalar_Field_Info.hpp
@@ -151,6 +168,7 @@ cl_MTK_Exodus_IO_Helper.cpp
 cl_MTK_Field.cpp
 cl_MTK_Field_Analytic.cpp
 cl_MTK_Field_Discrete.cpp
+cl_MTK_Enums.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
@@ -194,7 +212,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Create library
 add_library(${MTK}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${MTK}-lib PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${MTK_INTERNAL_INCLUDES};>"
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/stk_impl>
 	$<INSTALL_INTERFACE:${${MTK}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${MTK}-lib PUBLIC ${LIB_DEPENDENCIES})
@@ -229,8 +247,16 @@ endforeach()
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-	string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
-		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+    string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} QUIET HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
+endforeach()
+
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+
+    string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} REQUIRED HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Properties to be coppied into config file

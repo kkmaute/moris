@@ -19,11 +19,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_A( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                moris::Cell< Matrix< DDRMat > >       & aAMats )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                moris::Cell< Matrix< DDRMat > >                   & aAMats )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -256,7 +256,7 @@ namespace moris
                         { 0.0, 0.0,       0.0,       0.0, 0.0 }, 
                         { 0.0, 0.0,       0.0,       tLa, 0.0 }, 
                         { 0.0, 0.0,       tMu,       0.0, 0.0 }, 
-                        { 0.0, 0.0, tUy * tMu, tUy * tLa, 0.0 } };
+                        { 0.0, 0.0, tUz * tMu, tUy * tLa, 0.0 } };
 
                     // =======================
 
@@ -298,10 +298,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYj( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                Matrix< DDRMat >                      & aKijYj )
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                Matrix< DDRMat >                                  & aKijYj )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -328,10 +328,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYji( 
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes,
-                Matrix< DDRMat >                      & aKijYji )
+                std::shared_ptr< Constitutive_Model >                aCM,
+                Field_Interpolator_Manager                         * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >  & aResidualDofTypes,
+                Matrix< DDRMat >                                   & aKijYji )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -384,14 +384,14 @@ namespace moris
             // fill 
             if ( tNumSpaceDims == 2 )
             {
-                adKijdxi( 0 )( 4, 1 ) = 
+                adKijdxi( 0 )( 3, 1 ) = 
                         ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 0, 0 ) - tGradVel( 1, 1 ) );
-                adKijdxi( 0 )( 4, 2 ) = 
+                adKijdxi( 0 )( 3, 2 ) = 
                         tGradVel( 1, 0 ) * tMu + tGradVel( 0, 1 ) * tMu; 
 
-                adKijdxi( 1 )( 4, 1 ) = 
+                adKijdxi( 1 )( 3, 1 ) = 
                         tGradVel( 1, 0 ) * tMu + tGradVel( 0, 1 ) * tMu;
-                adKijdxi( 1 )( 4, 2 ) = 
+                adKijdxi( 1 )( 3, 2 ) = 
                         ( 2.0 * tMu / 3.0 ) * ( 2.0 * tGradVel( 1, 1 ) - tGradVel( 0, 0 ) );
             }
             else if ( tNumSpaceDims == 3 )

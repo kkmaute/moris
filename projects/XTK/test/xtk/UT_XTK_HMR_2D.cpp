@@ -255,36 +255,10 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
+        bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+        CHECK(!tSuccess);
 
-        // output to exodus file ----------------------------------------------------------
-        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-        // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-
-        // output solution and meshes
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh1);
-
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_wi_ig.e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
-        delete tIntegMesh1;
-        delete tInterpMesh;
     }
 }
 

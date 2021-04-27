@@ -15,7 +15,7 @@
 //LNA/src
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
-#include "IP/cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -225,6 +225,15 @@ namespace moris
                 const moris::Cell< PDV_Type > & get_dv_type() const
                 {
                     return mDvType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the number of space dimension
+                 */
+                uint get_space_dim() const
+                {
+                    return mNSpaceDim;
                 }
 
                 //------------------------------------------------------------------------------

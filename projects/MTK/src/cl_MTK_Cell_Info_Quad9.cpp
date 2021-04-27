@@ -60,6 +60,9 @@ namespace moris
             // error threshold
             real tEpsilon = 1.0E-8;
 
+            // init cell of edge vectors
+            moris::Cell< moris::Matrix< DDRMat > > tEdgeVectors( 4 );
+
             // looping through each Edge
             for ( uint iEdge = 0; iEdge < 4; iEdge++)
             {
@@ -67,11 +70,12 @@ namespace moris
                 moris::Matrix<moris::IndexMat> tEdgeNodes = this->get_node_to_edge_map( iEdge );
 
                 // getting getting vectors on this edge
-                moris::Matrix< DDRMat > tEdgeVec0 = tVertices( tEdgeNodes(1) )->get_coords() - tVertices( tEdgeNodes(0) )->get_coords();
-                moris::Matrix< DDRMat > tEdgeVec1 = tVertices( tEdgeNodes(2) )->get_coords() - tVertices( tEdgeNodes(1) )->get_coords();
+                moris::Matrix< DDRMat > tVertex1  = tVertices( tEdgeNodes(1) )->get_coords();
+                            tEdgeVectors( iEdge ) = tVertex1 - tVertices( tEdgeNodes(0) )->get_coords();
+                moris::Matrix< DDRMat > tEdgeVec1 = tVertices( tEdgeNodes(2) )->get_coords() - tVertex1;
 
                 // perform cross product of the 2D vectors
-                real tCross = tEdgeVec0(0) * tEdgeVec1(1) - tEdgeVec0(1) * tEdgeVec1(0);
+                auto tCross = tEdgeVectors( iEdge )(0) * tEdgeVec1(1) - tEdgeVectors( iEdge )(1) * tEdgeVec1(0);
 
                 // are the nodes on this edge on the same vector?
                 if ( std::abs( tCross ) > tEpsilon )
@@ -79,16 +83,31 @@ namespace moris
                     tCellShape = CellShape::GENERAL;
                     break;
                 }
- 
-                // checking if this edge is perpindicular to the next edge ordinal. Only need to do it for first 3 corners
-                if ( iEdge < 3 )
+            }
+
+            // check if the cell is still rectangular check if it is parallel or straight
+            if ( tCellShape == CellShape::RECTANGULAR )
+            {
+                // get cross products of opposite edges
+                auto tCross02 = tEdgeVectors(0)(0)*tEdgeVectors(2)(1) - tEdgeVectors(0)(1)*tEdgeVectors(2)(0);
+                auto tCross13 = tEdgeVectors(1)(0)*tEdgeVectors(3)(1) - tEdgeVectors(1)(1)*tEdgeVectors(3)(0);
+
+                // if they aren't parallel, then it is a straight cell
+                if( std::abs( tCross02 ) > tEpsilon ||
+                    std::abs( tCross13 ) > tEpsilon )
                 {
-                    // next adjacent edge. Using the mid edge node for convenience
-                    moris::Matrix< DDRMat > tEdgeVec2 = tVertices( iEdge + 5 )->get_coords() - tVertices( iEdge + 1 )->get_coords();
-                    
-                    if ( std::abs( dot( tEdgeVec0, tEdgeVec2 ) ) > tEpsilon )
+                    tCellShape = CellShape::STRAIGHT;
+                }
+
+                // if they are parallel edges check if it is rectangular and aligned
+                else
+                {
+                    // if the first two edges aren't perpindicular or if it isn't aligned
+                    if( std::abs(dot( tEdgeVectors(0), tEdgeVectors(1) ) ) > tEpsilon ||
+                        std::abs( tEdgeVectors(0)(1) )                     > tEpsilon ||
+                        tEdgeVectors(0)(0)                                 < 0.0 )
                     {
-                        tCellShape = CellShape::STRAIGHT;
+                        tCellShape = CellShape::PARALLEL;
                     }
                 }
             }

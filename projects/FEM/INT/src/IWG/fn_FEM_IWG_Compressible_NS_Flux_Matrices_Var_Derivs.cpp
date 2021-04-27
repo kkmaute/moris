@@ -17,13 +17,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_VL_dAdY( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                const Matrix< DDRMat >                & aVL,
-                const uint                              aI,
-                Matrix< DDRMat >                      & aVLdAdY )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const Matrix< DDRMat >                            & aVL,
+                const uint                                          aI,
+                Matrix< DDRMat >                                  & aVLdAdY )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -206,12 +206,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_dAdY( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                const uint                              aYind,
-                moris::Cell< Matrix< DDRMat > >       & adAdY )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const uint                                          aAind,
+                const uint                                          aYind,
+                Matrix< DDRMat >                                  & adAdY )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -222,9 +223,6 @@ namespace moris
             
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // size dAdY correctly
-            adAdY.resize( tNumSpaceDims + 1 );
 
             // // get commonly used values
             real tP   = aMM->pressure()( 0 );
@@ -260,23 +258,49 @@ namespace moris
                         // for PRESSURE
                         case 0 :
                         {
-                            adAdY( 0 ) = {
-                            	{ 0.0,     0.0,     0.0,                               -tC3 },
-                            	{ 0.0,     tC1,     0.0,                           -tC3*tU1 },
-                            	{ 0.0,     0.0,     tC1,                           -tC3*tU2 },
-                            	{ 0.0, tC1*tU1, tC1*tU2, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 1 ) = {
-                            	{ 0.0,                                tC1,         0.0,                                 -tC3*tU1 },
-                            	{ 0.0,                        2.0*tC1*tU1,         0.0,                               -tC3*tU1sq },
-                            	{ 0.0,                            tC1*tU2,     tC1*tU1,                             -tC3*tU1*tU2 },
-                            	{ 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };                             
-                             
-                            adAdY( 2 ) = {
-                            	{ 0.0,         0.0,                                tC1,                                 -tC3*tU2 },
-                            	{ 0.0,     tC1*tU2,                            tC1*tU1,                             -tC3*tU1*tU2 },
-                            	{ 0.0,         0.0,                        2.0*tC1*tU2,                               -tC3*tU2sq },
-                            	{ 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        { 0.0,     0.0,     0.0,                               -tC3 },
+                                        { 0.0,     tC1,     0.0,                           -tC3*tU1 },
+                                        { 0.0,     0.0,     tC1,                           -tC3*tU2 },
+                                        { 0.0, tC1*tU1, tC1*tU2, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        { 0.0,                                tC1,         0.0,                                 -tC3*tU1 },
+                                        { 0.0,                        2.0*tC1*tU1,         0.0,                               -tC3*tU1sq },
+                                        { 0.0,                            tC1*tU2,     tC1*tU1,                             -tC3*tU1*tU2 },
+                                        { 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        { 0.0,         0.0,                                tC1,                                 -tC3*tU2 },
+                                        { 0.0,     tC1*tU2,                            tC1*tU1,                             -tC3*tU1*tU2 },
+                                        { 0.0,         0.0,                        2.0*tC1*tU2,                               -tC3*tU2sq },
+                                        { 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
 
                             // break for PRESSURE case
                             break;
@@ -285,24 +309,50 @@ namespace moris
                         // for VX
                         case 1 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{     tC1, 0.0, 0.0,     -tC4 },
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{ tC1*tU1, tC2, 0.0, -tC4*tU1 } };                            
-                             
-                            adAdY( 1 ) = {
-                            	{                                tC1,         0.0,     0.0,                                           -tC4 },
-                            	{                        2.0*tC1*tU1,     2.0*tC2,     0.0,                                   -2.0*tC4*tU1 },
-                            	{                            tC1*tU2,         0.0,     tC2,                                       -tC4*tU2 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };                            
-                             
-                            adAdY( 2 ) = {
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{     tC1*tU2,     0.0,     tC2,     -tC4*tU2 },
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        {     tC1, 0.0, 0.0,     -tC4 },
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        { tC1*tU1, tC2, 0.0, -tC4*tU1 } }; 
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,         0.0,     0.0,                                           -tC4 },
+                                        {                        2.0*tC1*tU1,     2.0*tC2,     0.0,                                   -2.0*tC4*tU1 },
+                                        {                            tC1*tU2,         0.0,     tC2,                                       -tC4*tU2 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        {     tC1*tU2,     0.0,     tC2,     -tC4*tU2 },
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
+                                    
                             // break for VX case
                             break;
                         }
@@ -310,24 +360,50 @@ namespace moris
                         // for VY
                         case 2 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{     0.0, 0.0, 0.0,        0 },
-                            	{     tC1, 0.0, 0.0,     -tC4 },
-                            	{ tC1*tU2, 0.0, tC2, -tC4*tU2 } };                           
-                             
-                            adAdY( 1 ) = {
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{         0.0,     0.0,     0.0,            0 },
-                            	{     tC1*tU1,     tC2,     0.0,     -tC4*tU1 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };                        
-                             
-                            adAdY( 2 ) = {
-                            	{                                tC1,     0.0,         0.0,                                           -tC4 },
-                            	{                            tC1*tU1,     tC2,         0.0,                                       -tC4*tU1 },
-                            	{                        2.0*tC1*tU2,     0.0,     2.0*tC2,                                   -2.0*tC4*tU2 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        {     0.0, 0.0, 0.0,        0 },
+                                        {     tC1, 0.0, 0.0,     -tC4 },
+                                        { tC1*tU2, 0.0, tC2, -tC4*tU2 } };   
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        {         0.0,     0.0,     0.0,            0 },
+                                        {     tC1*tU1,     tC2,     0.0,     -tC4*tU1 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };    
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,     0.0,         0.0,                                           -tC4 },
+                                        {                            tC1*tU1,     tC2,         0.0,                                       -tC4*tU1 },
+                                        {                        2.0*tC1*tU2,     0.0,     2.0*tC2,                                   -2.0*tC4*tU2 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
+                                    
                             // break for VY case
                             break;
                         }
@@ -335,24 +411,49 @@ namespace moris
                         // for TEMP
                         case 3 :
                         {
-                            adAdY( 0 ) = {
-                            	{                               -tC3,      0.0,      0.0,                                  (2.0*tC4)/tT },
-                            	{                           -tC3*tU1,     -tC4,      0.0,                              (2.0*tC4*tU1)/tT },
-                            	{                           -tC3*tU2,      0.0,     -tC4,                              (2.0*tC4*tU2)/tT },
-                            	{ tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };                            	 
-                             
-                            adAdY( 1 ) = {
-                            	{                                   -tC3*tU1,                                           -tC4,          0.0,                                     (2.0*tC4*tU1)/tT },
-                            	{                                 -tC3*tU1sq,                                   -2.0*tC4*tU1,          0.0,                                   (2.0*tC4*tU1sq)/tT },
-                            	{                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{ tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tU1*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                             
-                            adAdY( 2 ) = {
-                            	{                                   -tC3*tU2,          0.0,                                           -tC4,                                     (2.0*tC4*tU2)/tT },
-                            	{                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{                                 -tC3*tU2sq,          0.0,                                   -2.0*tC4*tU2,                                   (2.0*tC4*tU2sq)/tT },
-                            	{ tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tU2*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
- 
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {                               -tC3,      0.0,      0.0,                                  (2.0*tC4)/tT },
+                                        {                           -tC3*tU1,     -tC4,      0.0,                              (2.0*tC4*tU1)/tT },
+                                        {                           -tC3*tU2,      0.0,     -tC4,                              (2.0*tC4*tU2)/tT },
+                                        { tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU1,                                           -tC4,          0.0,                                     (2.0*tC4*tU1)/tT },
+                                        {                                 -tC3*tU1sq,                                   -2.0*tC4*tU1,          0.0,                                   (2.0*tC4*tU1sq)/tT },
+                                        {                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        { tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tU1*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU2,          0.0,                                           -tC4,                                     (2.0*tC4*tU2)/tT },
+                                        {                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        {                                 -tC3*tU2sq,          0.0,                                   -2.0*tC4*tU2,                                   (2.0*tC4*tU2sq)/tT },
+                                        { tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tU2*(2.0*tC4*tCp - (2*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }        
                             
                             // break for TEMP case
                             break;
@@ -373,7 +474,7 @@ namespace moris
                 case 3 :
                 {
                     // get Z-velocity
-                    real tU3  = tFIVelocity->val()( 3 );  
+                    real tU3  = tFIVelocity->val()( 2 );  
                     real tU3sq = tU3*tU3;
 
                     // get the 1/2 * v^2 term
@@ -385,33 +486,64 @@ namespace moris
                         // for PRESSURE
                         case 0 :
                         {
-                            adAdY( 0 ) = {
-                            	{ 0.0,     0.0,     0.0,     0.0,                               -tC3 },
-                            	{ 0.0,     tC1,     0.0,     0.0,                           -tC3*tU1 },
-                            	{ 0.0,     0.0,     tC1,     0.0,                           -tC3*tU2 },
-                            	{ 0.0,     0.0,     0.0,     tC1,                           -tC3*tU3 },
-                            	{ 0.0, tC1*tU1, tC1*tU2, tC1*tU3, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 1 ) = {
-                            	{ 0.0,                                tC1,         0.0,         0.0,                                 -tC3*tU1 },
-                            	{ 0.0,                        2.0*tC1*tU1,         0.0,         0.0,                               -tC3*tU1sq },
-                            	{ 0.0,                            tC1*tU2,     tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
-                            	{ 0.0,                            tC1*tU3,         0.0,     tC1*tU1,                             -tC3*tU1*tU3 },
-                            	{ 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tC1*tU1*tU3, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
-                             
-                            adAdY( 2 ) = {
-                            	{ 0.0,         0.0,                                tC1,         0.0,                                 -tC3*tU2 },
-                            	{ 0.0,     tC1*tU2,                            tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
-                            	{ 0.0,         0.0,                        2.0*tC1*tU2,         0.0,                               -tC3*tU2sq },
-                            	{ 0.0,         0.0,                            tC1*tU3,     tC1*tU2,                             -tC3*tU2*tU3 },
-                            	{ 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC1*tU2*tU3, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
-                             
-                            adAdY( 3 ) = {
-                            	{ 0.0,         0.0,         0.0,                                tC1,                                 -tC3*tU3 },
-                            	{ 0.0,     tC1*tU3,         0.0,                            tC1*tU1,                             -tC3*tU1*tU3 },
-                            	{ 0.0,         0.0,     tC1*tU3,                            tC1*tU2,                             -tC3*tU2*tU3 },
-                            	{ 0.0,         0.0,         0.0,                        2.0*tC1*tU3,                               -tC3*tU3sq },
-                            	{ 0.0, tC1*tU1*tU3, tC1*tU2*tU3, tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tU3*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        { 0.0,     0.0,     0.0,     0.0,                               -tC3 },
+                                        { 0.0,     tC1,     0.0,     0.0,                           -tC3*tU1 },
+                                        { 0.0,     0.0,     tC1,     0.0,                           -tC3*tU2 },
+                                        { 0.0,     0.0,     0.0,     tC1,                           -tC3*tU3 },
+                                        { 0.0, tC1*tU1, tC1*tU2, tC1*tU3, tC1*tCp - tC3*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        { 0.0,                                tC1,         0.0,         0.0,                                 -tC3*tU1 },
+                                        { 0.0,                        2.0*tC1*tU1,         0.0,         0.0,                               -tC3*tU1sq },
+                                        { 0.0,                            tC1*tU2,     tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
+                                        { 0.0,                            tC1*tU3,         0.0,     tC1*tU1,                             -tC3*tU1*tU3 },
+                                        { 0.0, tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, tC1*tU1*tU2, tC1*tU1*tU3, tU1*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        { 0.0,         0.0,                                tC1,         0.0,                                 -tC3*tU2 },
+                                        { 0.0,     tC1*tU2,                            tC1*tU1,         0.0,                             -tC3*tU1*tU2 },
+                                        { 0.0,         0.0,                        2.0*tC1*tU2,         0.0,                               -tC3*tU2sq },
+                                        { 0.0,         0.0,                            tC1*tU3,     tC1*tU2,                             -tC3*tU2*tU3 },
+                                        { 0.0, tC1*tU1*tU2, tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC1*tU2*tU3, tU2*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        { 0.0,         0.0,         0.0,                                tC1,                                 -tC3*tU3 },
+                                        { 0.0,     tC1*tU3,         0.0,                            tC1*tU1,                             -tC3*tU1*tU3 },
+                                        { 0.0,         0.0,     tC1*tU3,                            tC1*tU2,                             -tC3*tU2*tU3 },
+                                        { 0.0,         0.0,         0.0,                        2.0*tC1*tU3,                               -tC3*tU3sq },
+                                        { 0.0, tC1*tU1*tU3, tC1*tU2*tU3, tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tU3*(tC1*tCp - tC3*(tEint + tQ+1.0/tC1)) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }                                    
 
                             // break for PRESSURE case
                             break;
@@ -420,33 +552,64 @@ namespace moris
                         // for VX
                         case 1 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{ tC1*tU1, tC2, 0.0, 0.0, -tC4*tU1 } };
-                             
-                            adAdY( 1 ) = {
-                            	{                                tC1,         0.0,     0.0,     0.0,                                           -tC4 },
-                            	{                        2.0*tC1*tU1,     2.0*tC2,     0.0,     0.0,                                    2.0*tC4*tU1 },
-                            	{                            tC1*tU2,         0.0,     tC2,     0.0,                                       -tC4*tU2 },
-                            	{                            tC1*tU3,         0.0,     0.0,     tC2,                                       -tC4*tU3 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 2 ) = {
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{     tC1*tU2,     0.0,     tC2, 0.0,     -tC4*tU2 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
-                             
-                            adAdY( 3 ) = {
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{     tC1*tU3,     0.0, 0.0,     tC2,     -tC4*tU3 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{ tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        { tC1*tU1, tC2, 0.0, 0.0, -tC4*tU1 } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,         0.0,     0.0,     0.0,                                           -tC4 },
+                                        {                        2.0*tC1*tU1,     2.0*tC2,     0.0,     0.0,                                    2.0*tC4*tU1 },
+                                        {                            tC1*tU2,         0.0,     tC2,     0.0,                                       -tC4*tU2 },
+                                        {                            tC1*tU3,         0.0,     0.0,     tC2,                                       -tC4*tU3 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU1sq+1.0, 3.0*tC2*tU1, tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {     tC1*tU2,     0.0,     tC2, 0.0,     -tC4*tU2 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {     tC1*tU3,     0.0, 0.0,     tC2,     -tC4*tU3 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        { tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
                             
                             // break for VX case
                             break;
@@ -455,33 +618,64 @@ namespace moris
                         // for VY
                         case 2 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{ tC1*tU2, 0.0, tC2, 0.0, -tC4*tU2 } };
-                             
-                            adAdY( 1 ) = {
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{     tC1*tU1,     tC2,     0.0, 0.0,     -tC4*tU1 },
-                            	{         0.0,     0.0,     0.0, 0.0,          0.0 },
-                            	{ tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
-                             
-                            adAdY( 2 ) = {
-                            	{                                tC1,     0.0,         0.0,     0.0,                                           -tC4 },
-                            	{                            tC1*tU1,     tC2,         0.0,     0.0,                                       -tC4*tU1 },
-                            	{                        2.0*tC1*tU2,     0.0,     2.0*tC2,     0.0,                                    2.0*tC4*tU2 },
-                            	{                            tC1*tU3,     0.0,         0.0,     tC2,                                       -tC4*tU3 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
-                             
-                            adAdY( 3 ) = {
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{     tC1*tU3, 0.0,     0.0,     tC2,     -tC4*tU3 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{ tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        { tC1*tU2, 0.0, tC2, 0.0, -tC4*tU2 } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        {     tC1*tU1,     tC2,     0.0, 0.0,     -tC4*tU1 },
+                                        {         0.0,     0.0,     0.0, 0.0,          0.0 },
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, 0.0, -tC4*tU1*tU2 } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,     0.0,         0.0,     0.0,                                           -tC4 },
+                                        {                            tC1*tU1,     tC2,         0.0,     0.0,                                       -tC4*tU1 },
+                                        {                        2.0*tC1*tU2,     0.0,     2.0*tC2,     0.0,                                    2.0*tC4*tU2 },
+                                        {                            tC1*tU3,     0.0,         0.0,     tC2,                                       -tC4*tU3 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU2sq+1.0, tC2*tU1, 3.0*tC2*tU2, tC2*tU3, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {     tC1*tU3, 0.0,     0.0,     tC2,     -tC4*tU3 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        { tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
                             
                             // break for VY case
                             break;
@@ -490,34 +684,65 @@ namespace moris
                         // for VZ
                         case 3 :
                         {
-                            adAdY( 0 ) = {
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     0.0, 0.0, 0.0, 0.0,      0.0 },
-                            	{     tC1, 0.0, 0.0, 0.0,     -tC4 },
-                            	{ tC1*tU3, 0.0, 0.0, tC2, -tC4*tU3 } };
-                             
-                            adAdY( 1 ) = {
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{         0.0,     0.0, 0.0,     0.0,          0.0 },
-                            	{     tC1*tU1,     tC2, 0.0,     0.0,     -tC4*tU1 },
-                            	{ tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
-                             
-                            adAdY( 2 ) = {
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{         0.0, 0.0,     0.0,     0.0,          0.0 },
-                            	{     tC1*tU2, 0.0,     tC2,     0.0,     -tC4*tU2 },
-                            	{ tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
-                             
-                            adAdY( 3 ) = {
-                            	{                                tC1,     0.0,     0.0,         0.0,                                           -tC4 },
-                            	{                            tC1*tU1,     tC2,     0.0,         0.0,                                       -tC4*tU1 },
-                            	{                            tC1*tU2,     0.0,     tC2,         0.0,                                       -tC4*tU2 },
-                            	{                        2.0*tC1*tU3,     0.0,     0.0,     2.0*tC2,                                    2.0*tC4*tU3 },
-                            	{ tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tC2*tU1, tC2*tU2, 3.0*tC2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1) } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     0.0, 0.0, 0.0, 0.0,      0.0 },
+                                        {     tC1, 0.0, 0.0, 0.0,     -tC4 },
+                                        { tC1*tU3, 0.0, 0.0, tC2, -tC4*tU3 } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {         0.0,     0.0, 0.0,     0.0,          0.0 },
+                                        {     tC1*tU1,     tC2, 0.0,     0.0,     -tC4*tU1 },
+                                        { tC1*tU1*tU3, tC2*tU3, 0.0, tC2*tU1, -tC4*tU1*tU3 } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {         0.0, 0.0,     0.0,     0.0,          0.0 },
+                                        {     tC1*tU2, 0.0,     tC2,     0.0,     -tC4*tU2 },
+                                        { tC1*tU2*tU3, 0.0, tC2*tU3, tC2*tU2, -tC4*tU2*tU3 } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {                                tC1,     0.0,     0.0,         0.0,                                           -tC4 },
+                                        {                            tC1*tU1,     tC2,     0.0,         0.0,                                       -tC4*tU1 },
+                                        {                            tC1*tU2,     0.0,     tC2,         0.0,                                       -tC4*tU2 },
+                                        {                        2.0*tC1*tU3,     0.0,     0.0,     2.0*tC2,                                    2.0*tC4*tU3 },
+                                        { tC1*tEint + tC1*tQ + tC1*tU3sq+1.0, tC2*tU1, tC2*tU2, 3.0*tC2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }
+
                             // break for VZ case
                             break;
                         }
@@ -525,37 +750,65 @@ namespace moris
                         // for TEMP
                         case 4 :
                         {
-                            adAdY( 0 ) = {
-                            	{                               -tC3,      0.0,      0.0,      0.0,                                  (2.0*tC4)/tT },
-                            	{                           -tC3*tU1,     -tC4,      0.0,      0.0,                              (2.0*tC4*tU1)/tT },
-                            	{                           -tC3*tU2,      0.0,     -tC4,      0.0,                              (2.0*tC4*tU2)/tT },
-                            	{                           -tC3*tU3,      0.0,      0.0,     -tC4,                              (2.0*tC4*tU3)/tT },
-                            	{ tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, -tC4*tU3, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
-                             
-                             
-                            adAdY( 1 ) = {
-                            	{                                   -tC3*tU1,                                           -tC4,          0.0,          0.0,                                     (2.0*tC4*tU1)/tT },
-                            	{                                 -tC3*tU1sq,                                    2.0*tC4*tU1,          0.0,          0.0,                                   (2.0*tC4*tU1sq)/tT },
-                            	{                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{                               -tC3*tU1*tU3,                                       -tC4*tU3,          0.0,     -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
-                            	{ tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tC4*tU1*tU3, -tU1*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                             
-                             
-                            adAdY( 2 ) = {
-                            	{                                   -tC3*tU2,          0.0,                                           -tC4,          0.0,                                     (2.0*tC4*tU2)/tT },
-                            	{                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
-                            	{                                 -tC3*tU2sq,          0.0,                                    2.0*tC4*tU2,          0.0,                                   (2.0*tC4*tU2sq)/tT },
-                            	{                               -tC3*tU2*tU3,          0.0,                                       -tC4*tU3,     -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
-                            	{ tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU2*tU3, -tU2*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                             
-                             
-                            adAdY( 3 ) = {
-                            	{                                   -tC3*tU3,          0.0,          0.0,                                           -tC4,                                     (2.0*tC4*tU3)/tT },
-                            	{                               -tC3*tU1*tU3,     -tC4*tU3,          0.0,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
-                            	{                               -tC3*tU2*tU3,          0.0,     -tC4*tU3,                                       -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
-                            	{                                 -tC3*tU3sq,          0.0,          0.0,                                    2.0*tC4*tU3,                                   (2.0*tC4*tU3sq)/tT },
-                            	{ tC1*tCp*tU3 - tC3*tU3*(tEint + tQ+1.0/tC1), -tC4*tU1*tU3, -tC4*tU2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1), -tU3*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
-                            
+                            // assemble matrices for requested A-matrix
+                            switch ( aAind )
+                            {
+                                // for A0
+                                case 0 :
+                                {
+                                    adAdY = {
+                                        {                               -tC3,      0.0,      0.0,      0.0,                                  (2.0*tC4)/tT },
+                                        {                           -tC3*tU1,     -tC4,      0.0,      0.0,                              (2.0*tC4*tU1)/tT },
+                                        {                           -tC3*tU2,      0.0,     -tC4,      0.0,                              (2.0*tC4*tU2)/tT },
+                                        {                           -tC3*tU3,      0.0,      0.0,     -tC4,                              (2.0*tC4*tU3)/tT },
+                                        { tC1*tCp - tC3*(tEint + tQ+1.0/tC1), -tC4*tU1, -tC4*tU2, -tC4*tU3, (2.0*tC4*(tEint + tQ+1.0/tC1))/tT-2.0*tC4*tCp } };
+                                    break;
+                                }
+
+                                // for A1
+                                case 1 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU1,                                           -tC4,          0.0,          0.0,                                     (2.0*tC4*tU1)/tT },
+                                        {                                 -tC3*tU1sq,                                    2.0*tC4*tU1,          0.0,          0.0,                                   (2.0*tC4*tU1sq)/tT },
+                                        {                               -tC3*tU1*tU2,                                       -tC4*tU2,     -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        {                               -tC3*tU1*tU3,                                       -tC4*tU3,          0.0,     -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
+                                        { tC1*tCp*tU1 - tC3*tU1*(tEint + tQ+1.0/tC1), tC2*tCp - tC4*tU1sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, -tC4*tU1*tU3, -tU1*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // for A2
+                                case 2 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU2,          0.0,                                           -tC4,          0.0,                                     (2.0*tC4*tU2)/tT },
+                                        {                               -tC3*tU1*tU2,     -tC4*tU2,                                       -tC4*tU1,          0.0,                                 (2.0*tC4*tU1*tU2)/tT },
+                                        {                                 -tC3*tU2sq,          0.0,                                    2.0*tC4*tU2,          0.0,                                   (2.0*tC4*tU2sq)/tT },
+                                        {                               -tC3*tU2*tU3,          0.0,                                       -tC4*tU3,     -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
+                                        { tC1*tCp*tU2 - tC3*tU2*(tEint + tQ+1.0/tC1), -tC4*tU1*tU2, tC2*tCp - tC4*tU2sq - tC4*(tEint + tQ+1.0/tC1), -tC4*tU2*tU3, -tU2*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // for A3
+                                case 3 :
+                                {
+                                    adAdY = {
+                                        {                                   -tC3*tU3,          0.0,          0.0,                                           -tC4,                                     (2.0*tC4*tU3)/tT },
+                                        {                               -tC3*tU1*tU3,     -tC4*tU3,          0.0,                                       -tC4*tU1,                                 (2.0*tC4*tU1*tU3)/tT },
+                                        {                               -tC3*tU2*tU3,          0.0,     -tC4*tU3,                                       -tC4*tU2,                                 (2.0*tC4*tU2*tU3)/tT },
+                                        {                                 -tC3*tU3sq,          0.0,          0.0,                                    2.0*tC4*tU3,                                   (2.0*tC4*tU3sq)/tT },
+                                        { tC1*tCp*tU3 - tC3*tU3*(tEint + tQ+1.0/tC1), -tC4*tU1*tU3, -tC4*tU2*tU3, tC2*tCp - tC4*tU3sq - tC4*(tEint + tQ+1.0/tC1), -tU3*(2.0*tC4*tCp-(2.0*tC4*(tEint + tQ+1.0/tC1))/tT) } };
+                                    break;
+                                }
+
+                                // error, unknown Ai
+                                default:
+                                {
+                                    MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
+                                    break;
+                                }
+                            }                                    
+
                             // break for TEMP case
                             break;
                         }
@@ -582,13 +835,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_dAdY_VR( 
-                std::shared_ptr< Material_Model >       aMM,  
-                std::shared_ptr< Constitutive_Model >   aCM,
-                Field_Interpolator_Manager            * aMasterFIManager,
-                const moris::Cell< MSI::Dof_Type >    & aResidualDofTypes, 
-                const Matrix< DDRMat >                & aVR,
-                const uint                              aI,
-                Matrix< DDRMat >                      & adAdYVR )
+                std::shared_ptr< Material_Model >                   aMM,  
+                std::shared_ptr< Constitutive_Model >               aCM,
+                Field_Interpolator_Manager                        * aMasterFIManager,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const Matrix< DDRMat >                            & aVR,
+                const uint                                          aI,
+                Matrix< DDRMat >                                  & adAdYVR )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
@@ -614,6 +867,7 @@ namespace moris
             real tU2sq = tU2*tU2;
             real tTsq = tT*tT;
             real tC3 = 1.0/(tR*tT*tT);
+            //real tC4 = tP/(tR*tT*tT);
 
             // check the pre-multiplication vector
             MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2, 
@@ -640,32 +894,32 @@ namespace moris
                         case 0 :
                         {
                             adAdYVR = {
-                                {                        -tC3*tVR4,                               tC3*(tT*tVR2 - tU1*tVR4),                               tC3*(tT*tVR3 - tU2*tVR4),                                 tC3*(tT*tU1*tVR2 - tQ*tVR4 + tT*tU2*tVR3) },
-                                {                              0.0,                               -tC3*(tP*tVR4 - tT*tVR1),                                                    0.0,                              tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1) },
-                                {                              0.0,                                                    0.0,                               -tC3*(tP*tVR4 - tT*tVR1),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1) },
-                                { (tC3*(2.0*tP*tVR4 - tT*tVR1))/tT, -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT, -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR4 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3))/tT } };
-                                
+                                {                                 -tC3*tVR4,                                          0.0,                                          0.0,                                          (tC3*(2.0*tP*tVR4 - tT*tVR1))/tT },
+                                {                  tC3*(tT*tVR2 - tU1*tVR4),                     -tC3*(tP*tVR4 - tT*tVR1),                                          0.0,                    -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
+                                {                  tC3*(tT*tVR3 - tU2*tVR4),                                          0.0,                     -tC3*(tP*tVR4 - tT*tVR1),                    -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
+                                { tC3*(tT*tU1*tVR2 - tQ*tVR4 + tT*tU2*tVR3), tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1), tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR4 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3))/tT } };
+                                                     
                             break; 
                         }
 
                         case 1 :
                         {
                             adAdYVR = {
-                                {                               tC3*(tT*tVR2 - tU1*tVR4),                               tC3*tU1*(2.0*tT*tVR2 - tU1*tVR4),                                      tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                                                              tVR2 + tC3*tQ*tT*tVR2 - tC3*tQ*tU1*tVR4 + tC3*tT*tU1sq*tVR2 + tC3*tCv*tTsq*tVR2 + tC3*tT*tU1*tU2*tVR3 },
-                                {                               -tC3*(tP*tVR4 - tT*tVR1),               2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                                        tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR4 + 2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2 + 2.0*tP*tT*tU2*tVR3))/2.0 },
-                                {                                                    0.0,                                                            0.0,                                        tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                                                                                          tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1) },
-                                { -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT, -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT,                                                            -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR4 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3))/tT } };
- 
+                                {                                                                              tC3*(tT*tVR2 - tU1*tVR4),                                                                                                                                   -tC3*(tP*tVR4 - tT*tVR1),                                                                       0.0,                                                  -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
+                                {                                                                      tC3*tU1*(2.0*tT*tVR2 - tU1*tVR4),                                                                                                           2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
+                                {                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                                                                                                               tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                              tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                     -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT },
+                                { tVR2 + tC3*tQ*tT*tVR2 - tC3*tQ*tU1*tVR4 + tC3*tT*tU1sq*tVR2 + tC3*tCv*tTsq*tVR2 + tC3*tT*tU1*tU2*tVR3, (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4+2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR4+2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1), -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR4 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3))/tT } };
+
                             break; 
                         }
 
                         case 2 :
                         {
                             adAdYVR = {
-                                {                               tC3*(tT*tVR3 - tU2*tVR4),                                      tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                               tC3*tU2*(2.0*tT*tVR3 - tU2*tVR4),                                                              tVR3 + tC3*tQ*tT*tVR3 - tC3*tQ*tU2*tVR4 + tC3*tT*tU2sq*tVR3 + tC3*tCv*tTsq*tVR3 + tC3*tT*tU1*tU2*tVR2 },
-                                {                                                    0.0,                                        tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                                            0.0,                                                                                          tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1) },
-                                {                               -tC3*(tP*tVR4 - tT*tVR1),                                        tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),               2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR4 + 2.0*tT*tU2sq*tVR1 + 2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3))/2.0 },
-                                { -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT, -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT,                                                            -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR4 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2))/tT } };
+                                {                                                                              tC3*(tT*tVR3 - tU2*tVR4),                                                                       0.0,                                                                                                                                   -tC3*(tP*tVR4 - tT*tVR1),                                                  -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
+                                {                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                                                                                               tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                     -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT },
+                                {                                                                      tC3*tU2*(2.0*tT*tVR3 - tU2*tVR4),                                                                       0.0,                                                                                                           2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                          -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
+                                { tVR3 + tC3*tQ*tT*tVR3 - tC3*tQ*tU2*tVR4 + tC3*tT*tU2sq*tVR3 + tC3*tCv*tTsq*tVR3 + tC3*tT*tU1*tU2*tVR2, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4+2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR4+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3))/2.0, -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR4 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2))/tT } };
  
                             break; 
                         }
@@ -701,11 +955,11 @@ namespace moris
                         case 0 :
                         {
                             adAdYVR = {
-                                {                      -tC3*tVR5,                             tC3*(tT*tVR2 - tU1*tVR5),                             tC3*(tT*tVR3 - tU2*tVR5),                             tC3*(tT*tVR4 - tU3*tVR5),                                  tC3*(tT*tU1*tVR2 - tQ*tVR5 + tT*tU2*tVR3 + tT*tU3*tVR4) },
-                                {                              0,                             -tC3*(tP*tVR5 - tT*tVR1),                                                    0,                                                    0,                                             tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1) },
-                                {                              0,                                                    0,                             -tC3*(tP*tVR5 - tT*tVR1),                                                    0,                                             tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1) },
-                                {                              0,                                                    0,                                                    0,                             -tC3*(tP*tVR5 - tT*tVR1),                                             tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1) },
-                                { (tC3*(2.0*tP*tVR5 - tT*tVR1))/tT, -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT, -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR5 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3 + tP*tT*tU3*tVR4))/tT } };
+                                {                                               -tC3*tVR5,                                          0.0,                                          0.0,                                          0.0,                                                           (tC3*(2.0*tP*tVR5 - tT*tVR1))/tT },
+                                {                                tC3*(tT*tVR2 - tU1*tVR5),                     -tC3*(tP*tVR5 - tT*tVR1),                                          0.0,                                          0.0,                                     -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT },
+                                {                                tC3*(tT*tVR3 - tU2*tVR5),                                          0.0,                     -tC3*(tP*tVR5 - tT*tVR1),                                          0.0,                                     -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
+                                {                                tC3*(tT*tVR4 - tU3*tVR5),                                          0.0,                                          0.0,                     -tC3*(tP*tVR5 - tT*tVR1),                                     -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
+                                { tC3*(tT*tU1*tVR2 - tQ*tVR5 + tT*tU2*tVR3 + tT*tU3*tVR4), tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1), tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1), tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR5 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3 + tP*tT*tU3*tVR4))/tT } };
 
                             break; 
                         }
@@ -713,35 +967,34 @@ namespace moris
                         case 1 :
                         {
                             adAdYVR = {
-                                {                             tC3*(tT*tVR2 - tU1*tVR5),                             tC3*tU1*(2.0*tT*tVR2 - tU1*tVR5),                                    tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                                    tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                   (tC3*((2.0*tVR2)/tC3 + 2.0*tCv*tTsq*tVR2 + 2.0*tQ*tT*tVR2 - 2.0*tQ*tU1*tVR5 + 2.0*tT*tU1sq*tVR2 + 2.0*tT*tU1*tU2*tVR3 + 2.0*tT*tU1*tU3*tVR4))/2.0 },
-                                {                             -tC3*(tP*tVR5 - tT*tVR1),             2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR5 + 2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2 + 2.0*tP*tT*tU2*tVR3 + 2.0*tP*tT*tU3*tVR4))/2.0 },
-                                {                                                    0,                                                          0,                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                                 0,                                                                                           tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1) },
-                                {                                                    0,                                                          0,                                                                                 0,                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                                           tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1) },
-                                { -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT, -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT,                                          -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR5 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3 + tP*tT*tU1*tU3*tVR4))/tT } };
- 
+                                {                                                                                                                tC3*(tT*tVR2 - tU1*tVR5),                                                                                                                                            -tC3*(tP*tVR5 - tT*tVR1),                                                                                 0.0,                                                                       0.0,                                                                       -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT },
+                                {                                                                                                        tC3*tU1*(2.0*tT*tVR2 - tU1*tVR5),                                                                                                                    2.0*tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                                 0.0,                                                                       0.0,                                                               -(tC3*tU1*(2.0*tP*tT*tVR2 - 2.0*tP*tU1*tVR5 + tT*tU1*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                                                                                                                        tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                        tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                                                                                                        tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                 0.0,                              tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                          -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT },
+                                { (tC3*((2.0*tVR2)/tC3+2.0*tCv*tTsq*tVR2+2.0*tQ*tT*tVR2 - 2.0*tQ*tU1*tVR5+2.0*tT*tU1sq*tVR2+2.0*tT*tU1*tU2*tVR3+2.0*tT*tU1*tU3*tVR4))/2.0, (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR5+2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR5 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3 + tP*tT*tU1*tU3*tVR4))/tT } };
+
                             break; 
                         }
 
                         case 2 :
                         {
                             adAdYVR = {
-                                {                             tC3*(tT*tVR3 - tU2*tVR5),                                    tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                             tC3*tU2*(2.0*tT*tVR3 - tU2*tVR5),                                    tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                   (tC3*((2.0*tVR3)/tC3 + 2.0*tCv*tTsq*tVR3 + 2.0*tQ*tT*tVR3 - 2.0*tQ*tU2*tVR5 + 2.0*tT*tU2sq*tVR3 + 2.0*tT*tU1*tU2*tVR2 + 2.0*tT*tU2*tU3*tVR4))/2.0 },
-                                {                                                    0,                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                          0,                                                                                 0,                                                                                           tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1) },
-                                {                             -tC3*(tP*tVR5 - tT*tVR1),                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),             2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR5 + 2.0*tT*tU2sq*tVR1 + 2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3 + 2.0*tP*tT*tU3*tVR4))/2.0 },
-                                {                                                    0,                                                                                 0,                                                          0,                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                                           tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1) },
-                                { -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT, -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT, -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - 2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT,                                          -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR5 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2 + tP*tT*tU2*tU3*tVR4))/tT } };
- 
+                                {                                                                                                              tC3*(tT*tVR3 - tU2*tVR5),                                                                       0.0,                                                                                                                                                -tC3*(tP*tVR5 - tT*tVR1),                                                                       0.0,                                                                       -(tC3*(tP*tT*tVR3-2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
+                                {                                                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                                                                            tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2-2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT },
+                                {                                                                                                      tC3*tU2*(2.0*tT*tVR3 - tU2*tVR5),                                                                       0.0,                                                                                                                        2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                       0.0,                                                               -(tC3*tU2*(2.0*tP*tT*tVR3-2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
+                                {                                                                                        tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                                                       0.0,                                                                                                                            tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                          -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3-2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT },
+                                { (tC3*((2.0*tVR3)/tC3+2.0*tCv*tTsq*tVR3+2.0*tQ*tT*tVR3-2.0*tQ*tU2*tVR5+2.0*tT*tU2sq*tVR3+2.0*tT*tU1*tU2*tVR2+2.0*tT*tU2*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1-2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1-2.0*tP*tU2sq*tVR5+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2+6.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR3-2.0*tP*tQ*tU2*tVR5 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2 + tP*tT*tU2*tU3*tVR4))/tT } }; 
                             break; 
                         }
 
                         case 3 :
                         {
                             adAdYVR = {
-                                {                             tC3*(tT*tVR4 - tU3*tVR5),                                    tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                    tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                             tC3*tU3*(2.0*tT*tVR4 - tU3*tVR5),                                   (tC3*((2.0*tVR4)/tC3 + 2.0*tCv*tTsq*tVR4 + 2.0*tQ*tT*tVR4 - 2.0*tQ*tU3*tVR5 + 2.0*tT*tU3sq*tVR4 + 2.0*tT*tU1*tU3*tVR2 + 2.0*tT*tU2*tU3*tVR3))/2.0 },
-                                {                                                    0,                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                 0,                                                          0,                                                                                           tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1) },
-                                {                                                    0,                                                                                 0,                                      tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                          0,                                                                                           tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1) },
-                                {                             -tC3*(tP*tVR5 - tT*tVR1),                                      tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                      tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),             2.0*tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), (tC3*((2.0*tVR1)/tC3 + 2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5 + 2.0*tQ*tT*tVR1 - 2.0*tP*tU3sq*tVR5 + 2.0*tT*tU3sq*tVR1 + 2.0*tP*tT*tU1*tVR2 + 2.0*tP*tT*tU2*tVR3 + 6.0*tP*tT*tU3*tVR4))/2.0 },
-                                { -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT, -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT, -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - 2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT, -(tC3*tU3*(2.0*tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT,                                          -(tC3*(tP*tQ*tT*tVR4 - 2.0*tP*tQ*tU3*tVR5 + tP*tT*tU3sq*tVR4 + tQ*tT*tU3*tVR1 + tP*tT*tU1*tU3*tVR2 + tP*tT*tU2*tU3*tVR3))/tT } };
+                                {                                                                                                                tC3*(tT*tVR4 - tU3*tVR5),                                                                       0.0,                                                                       0.0,                                                                                                                                                      -tC3*(tP*tVR5 - tT*tVR1),                                                                       -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                              tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                       0.0,                                                                                                                                  tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                          -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT },
+                                {                                                                                          tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                                                       0.0,                              tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                                                                  tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                          -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - 2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT },
+                                {                                                                                                        tC3*tU3*(2.0*tT*tVR4 - tU3*tVR5),                                                                       0.0,                                                                       0.0,                                                                                                                              2.0*tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                               -(tC3*tU3*(2.0*tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
+                                { (tC3*((2.0*tVR4)/tC3+2.0*tCv*tTsq*tVR4+2.0*tQ*tT*tVR4 - 2.0*tQ*tU3*tVR5+2.0*tT*tU3sq*tVR4+2.0*tT*tU1*tU3*tVR2+2.0*tT*tU2*tU3*tVR3))/2.0, tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1), tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1 - 2.0*tP*tU3sq*tVR5+2.0*tT*tU3sq*tVR1+2.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3 + 6.0*tP*tT*tU3*tVR4))/2.0, -(tC3*(tP*tQ*tT*tVR4 - 2.0*tP*tQ*tU3*tVR5 + tP*tT*tU3sq*tVR4 + tQ*tT*tU3*tVR1 + tP*tT*tU1*tU3*tVR2 + tP*tT*tU2*tU3*tVR3))/tT } };
 
                             break; 
                         }
@@ -770,10 +1023,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_dKdY( 
-                std::shared_ptr< Property >   aPropDynamicViscosity,  
-                std::shared_ptr< Property >   aPropThermalConductivity,
-                Field_Interpolator_Manager  * aMasterFIManager,
-                const uint                    aYind,
+                std::shared_ptr< Property >                       aPropDynamicViscosity,  
+                std::shared_ptr< Property >                       aPropThermalConductivity,
+                Field_Interpolator_Manager                      * aMasterFIManager,
+                const uint                                        aYind,
                 moris::Cell< moris::Cell< Matrix< DDRMat > > >  & adKdY )
         {
             // get the velocity FI
@@ -1335,10 +1588,10 @@ namespace moris
                                 {
                                     // K11
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,                  0.0 },
-                                        { 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-                                        { 0.0, 0.0, 0.0,             tMu*tVR3 },
-                                        { 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, 0.0 } };
 
                                     break; 
                                 }
@@ -1347,10 +1600,10 @@ namespace moris
                                 {
                                     // K12
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,      0.0 },
-                                        { 0.0, 0.0, 0.0, tMu*tVR3 },
-                                        { 0.0, 0.0, 0.0, tLa*tVR2 },
-                                        { 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, tLa*tVR3, tMu*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1376,10 +1629,10 @@ namespace moris
                                 {
                                     // K21
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,      0.0 },
-                                        { 0.0, 0.0, 0.0, tMu*tVR3 },
-                                        { 0.0, 0.0, 0.0, tLa*tVR2 },
-                                        { 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, tMu*tVR3, tLa*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1388,10 +1641,10 @@ namespace moris
                                 {
                                     // K22
                                     adKdYVR = {
-                                        { 0.0, 0.0, 0.0,                  0.0 },
-                                        { 0.0, 0.0, 0.0,             tMu*tVR2 },
-                                        { 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-                                        { 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), 0.0 } };
 
                                     break; 
                                 }
@@ -1437,11 +1690,11 @@ namespace moris
                                 {
                                     // K11
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, tMu*tVR4, 0.0 } };
 
                                     break; 
                                 }
@@ -1450,11 +1703,11 @@ namespace moris
                                 {
                                     // K12
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0, tLa*tVR3, tMu*tVR2, 0.0, 0.0 } };
 
                                     break; 
                                 }
@@ -1463,11 +1716,11 @@ namespace moris
                                 {
                                     // K13
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0, tLa*tVR4, 0.0, tMu*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1493,11 +1746,11 @@ namespace moris
                                 {
                                     // K21
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                        { 0.0, tMu*tVR3, tLa*tVR2, 0.0, 0.0 } };
 
                                     break; 
                                 }
@@ -1506,11 +1759,11 @@ namespace moris
                                 {
                                     // K22
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                        { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), tMu*tVR4, 0.0 } };
 
                                     break; 
                                 }
@@ -1519,11 +1772,11 @@ namespace moris
                                 {
                                     // K23
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0, tLa*tVR4, tMu*tVR3, 0.0 } };
 
                                     break; 
                                 }
@@ -1549,11 +1802,11 @@ namespace moris
                                 {
                                     // K31
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                        { 0.0, tMu*tVR4, 0.0, tLa*tVR2, 0.0 } };
 
                                     break; 
                                 }
@@ -1562,11 +1815,11 @@ namespace moris
                                 {
                                     // K32
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-										{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-										{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                        { 0.0, 0.0, tMu*tVR4, tLa*tVR3, 0.0 } };
 
                                     break; 
                                 }
@@ -1575,11 +1828,11 @@ namespace moris
                                 {
                                     // K33
                                     adKdYVR = {
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-										{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-										{ 0.0, 0.0, 0.0, 0.0, tVR4*(tLa + 2.0*tMu) },
-										{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                        { 0.0, tMu*tVR2, tMu*tVR3, tVR4*(tLa+2.0*tMu), 0.0 } };
 
                                     break; 
                                 }
@@ -1869,17 +2122,17 @@ namespace moris
                         {
                             // evaluate Ki1,i - for Y,x
                             adKijidYVR( 1 ) = { 
-                                { 0.0, 0.0, 0.0,                  0.0 },
-                                { 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-                                { 0.0, 0.0, 0.0,             tMu*tVR3 },
-                                { 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0, 0.0 },
+                                { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
                             adKijidYVR( 2 ) = { 
-                                { 0.0, 0.0, 0.0,      0.0 },
-                                { 0.0, 0.0, 0.0, tMu*tVR3 },
-                                { 0.0, 0.0, 0.0, tLa*tVR2 },
-                                { 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, tMu*tVR3, tLa*tVR2, 0.0 } };
 
                             break; 
                         }
@@ -1888,17 +2141,17 @@ namespace moris
                         {
                             // evaluate Ki2,i - for Y,x
                             adKijidYVR( 1 ) = { 
-                                { 0.0, 0.0, 0.0,      0.0 },
-                                { 0.0, 0.0, 0.0, tLa*tVR3 },
-                                { 0.0, 0.0, 0.0, tMu*tVR2 },
-                                { 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, tLa*tVR3, tMu*tVR2, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
                             adKijidYVR( 2 ) = { 
-                                { 0.0, 0.0, 0.0,                  0.0 },
-                                { 0.0, 0.0, 0.0,             tMu*tVR2 },
-                                { 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-                                { 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,                0.0, 0.0 },
+                                { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), 0.0 } };
 
                             break; 
                         }
@@ -1925,27 +2178,27 @@ namespace moris
                         {
                             // evaluate Ki1,i - for Y,x
                             adKijidYVR( 1 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tVR2*(tLa + 2.0*tMu) },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0,                0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, tMu*tVR4, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
                             adKijidYVR( 2 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0, tMu*tVR3, tLa*tVR2, 0.0, 0.0 } };
         
                             // evaluate Ki1,i - for Y,z
                             adKijidYVR( 3 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0, tMu*tVR4, 0.0, tLa*tVR2, 0.0 } };
 
                             break; 
                         }
@@ -1954,27 +2207,27 @@ namespace moris
                         {
                             // evaluate Ki2,i - for Y,x
                             adKijidYVR( 1 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0,      0.0,      0.0, 0.0, 0.0 },
+                                { 0.0, tLa*tVR3, tMu*tVR2, 0.0, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
                             adKijidYVR( 2 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0, tVR3*(tLa + 2.0*tMu) },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0,      0.0,                0.0,      0.0, 0.0 },
+                                { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), tMu*tVR4, 0.0 } };
         
                             // evaluate Ki2,i - for Y,z
                             adKijidYVR( 3 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0, tMu*tVR4, tLa*tVR3, 0.0 } };
 
                             break; 
                         }
@@ -1983,27 +2236,27 @@ namespace moris
                         {
                             // evaluate Ki3,i - for Y,x
                             adKijidYVR( 1 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0,      0.0, 0.0,      0.0, 0.0 },
+                                { 0.0, tLa*tVR4, 0.0, tMu*tVR2, 0.0 } };
 
                             // evaluate Ki3,i - for Y,y
                             adKijidYVR( 2 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 },
-								{ 0.0, 0.0, 0.0, 0.0, tLa*tVR4 },
-								{ 0.0, 0.0, 0.0, 0.0, tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0,      0.0 } };
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0,      0.0,      0.0, 0.0 },
+                                { 0.0, 0.0, tLa*tVR4, tMu*tVR3, 0.0 } };
         
                             // evaluate Ki3,i - for Y,z
                             adKijidYVR( 3 ) = { 
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR2 },
-								{ 0.0, 0.0, 0.0, 0.0,             tMu*tVR3 },
-								{ 0.0, 0.0, 0.0, 0.0, tVR4*(tLa + 2.0*tMu) },
-								{ 0.0, 0.0, 0.0, 0.0,                  0.0 } };
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0,      0.0,      0.0,                0.0, 0.0 },
+                                { 0.0, tMu*tVR2, tMu*tVR3, tVR4*(tLa+2.0*tMu), 0.0 } };
 
                             break; 
                         }

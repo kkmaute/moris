@@ -30,6 +30,7 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
@@ -168,7 +169,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    void
+    bool
     Model::perform()
     {
         Tracer tTracer( "XTK", "Overall", "Run" );
@@ -207,7 +208,13 @@ namespace xtk
             }
 
             Cell<enum Subdivision_Method> tSubdivisionMethods = this->get_subdivision_methods();
-            this->decompose(tSubdivisionMethods);
+            bool tSuccess = this->decompose(tSubdivisionMethods);
+
+            // Return false if cells are on different refinement levels
+            if(!tSuccess)
+            {
+                return false;
+            }
         }
 
         if(mParameterList.get<bool>("cleanup_cut_mesh"))
@@ -263,6 +270,79 @@ namespace xtk
             }
         }
 
+        std::string tUnionBlockStr = mParameterList.get<std::string>("union_blocks");
+        if( !tUnionBlockStr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tUnionBlockCells;
+            moris::string_to_cell_of_cell(tUnionBlockStr,tUnionBlockCells);
+
+            // Row based
+            Matrix<IndexMat> tUnionBlockColors = string_to_mat<IndexMat>(mParameterList.get<std::string>("union_block_colors"));
+            std::string tUnionNewBlockNamesStr = mParameterList.get<std::string>("union_block_names");
+
+            moris::Cell< moris::Cell< std::string > > tNewBlockNames;
+            moris::string_to_cell_of_cell(tUnionNewBlockNamesStr,tNewBlockNames);
+
+            MORIS_ERROR(tUnionBlockCells.size() == tNewBlockNames.size(),"Dimension Mismatch in number of union operations for block");
+            MORIS_ERROR(tUnionBlockCells.size() == tUnionBlockColors.n_rows(),"Dimension Mismatch in number of union operations for block");
+            
+            for(moris::uint iUnion = 0; iUnion < tUnionBlockCells.size(); iUnion++)
+            {
+                this->get_enriched_integ_mesh(0).create_union_block(tUnionBlockCells(iUnion),tNewBlockNames(iUnion)(0),tUnionBlockColors.get_row(iUnion));
+            }
+
+        }
+
+        std::string tUnionSideSetStr = mParameterList.get<std::string>("union_side_sets");
+        if( !tUnionSideSetStr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tUnionSideSetCells;
+            moris::string_to_cell_of_cell(tUnionSideSetStr,tUnionSideSetCells);
+
+            // Row based
+            Matrix<IndexMat> tUnionSideSetColors = string_to_mat<IndexMat>(mParameterList.get<std::string>("union_side_set_colors"));
+            std::string tUnionNewSideSetNamesStr = mParameterList.get<std::string>("union_side_set_names");
+
+            moris::Cell< moris::Cell< std::string > > tNewSideSetNames;
+            moris::string_to_cell_of_cell(tUnionNewSideSetNamesStr,tNewSideSetNames);
+
+            MORIS_ERROR(tUnionSideSetCells.size() == tNewSideSetNames.size(),"Dimension Mismatch in number of union operations for side set");
+            MORIS_ERROR(tUnionSideSetCells.size() == tUnionSideSetColors.n_rows(),"Dimension Mismatch in number of union operations for side set");
+            
+            for(moris::uint iUnion = 0; iUnion < tUnionSideSetCells.size(); iUnion++)
+            {
+                this->get_enriched_integ_mesh(0).create_union_side_set(tUnionSideSetCells(iUnion),tNewSideSetNames(iUnion)(0),tUnionSideSetColors.get_row(iUnion));
+            }
+
+        }
+
+        std::string tDeactiveBlockstr = mParameterList.get<std::string>("deactivate_all_but_blocks");
+        if( !tDeactiveBlockstr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tBlocksToKeepStr;
+            moris::string_to_cell_of_cell(tDeactiveBlockstr,tBlocksToKeepStr);
+
+            MORIS_ERROR(tBlocksToKeepStr.size() == 1,"deactivate_all_but_block issue: This operation can only be performed on time");
+
+            this->get_enriched_integ_mesh(0).deactive_all_blocks_but_selected(tBlocksToKeepStr(0));
+        }
+
+        std::string tDeactiveSideSetstr = mParameterList.get<std::string>("deactivate_all_but_side_sets");
+        if( !tDeactiveSideSetstr.empty())
+        {
+            // get the blocks to unionize
+            moris::Cell< moris::Cell< std::string > > tSideSetsToKeepStr;
+            moris::string_to_cell_of_cell(tDeactiveSideSetstr,tSideSetsToKeepStr);
+
+            MORIS_ERROR(tSideSetsToKeepStr.size() == 1,"deactive_all_side_sets_but_selected issue: This operation can only be performed on time");
+
+            this->get_enriched_integ_mesh(0).deactive_all_side_sets_but_selected(tSideSetsToKeepStr(0));
+        }
+
+
         if( mParameterList.get<bool>("multigrid") )
         {
             this->construct_multigrid();
@@ -278,6 +358,16 @@ namespace xtk
 
             // place the pair in mesh manager
             mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
+
+            //Periodic Boundary condition environment
+            if( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
+            {
+                //constrcut the object for periodic boundary condition
+                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
+
+                //perform periodic boundary condition
+                tPBCHelper.setup_periodic_boundary_conditions();
+            }
 
             // if( mParameterList.get<bool>("contact_sandbox") )
             // {
@@ -362,6 +452,7 @@ namespace xtk
             MORIS_LOG_SPEC("My_IP_cells",tEnrInterpMesh.get_num_entities(EntityRank::ELEMENT));
         }
 
+        return true;
     }
 
     // ----------------------------------------------------------------------------------
@@ -466,7 +557,7 @@ namespace xtk
     // Decomposition Source code
     // ----------------------------------------------------------------------------------
 
-    void
+    bool
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
@@ -502,6 +593,15 @@ namespace xtk
                 // Change the first subdivision flag as false
                 tFirstSubdivisionFlag = false;
 
+                if(iDecomp == 0)
+                {
+                    if(!this->all_child_meshes_on_same_level())
+                    {
+                        MORIS_LOG_INFO("Intersected cells are not on the same level. ");
+                        return false;
+                    }
+                }
+
             }
 
             // If it's not the last geometry tell the geometry engine we're moving on
@@ -516,6 +616,8 @@ namespace xtk
         this->finalize_decomp();
 
         MORIS_LOG_SPEC("Num Intersected BG Cell",mCutMesh.get_num_child_meshes());
+
+        return true;
     }
 
     // ----------------------------------------------------------------------------------
@@ -1075,6 +1177,7 @@ namespace xtk
                 MORIS_ERROR(breaker != 0, "formulate_node_request should not enter the default case, check to see if your aCheckType is undefined.");
             }
         }
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -3018,6 +3121,36 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+    bool
+    Model::all_child_meshes_on_same_level()
+    {
+        moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
+
+        moris::uint tLevel = 0;
+
+        // iterate through
+        for(moris::uint i = 0; i< tNumChildMeshes; i++)
+        {
+            // get the child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
+
+            // get the parent cell index
+            moris_index tParentCellIndex = tChildMesh.get_parent_element_index();
+
+            moris::uint tCellLevel = mBackgroundMesh.get_mesh_data().get_mtk_cell(tParentCellIndex).get_level();
+
+            if(i == 0)
+            {
+                tLevel = tCellLevel;
+            }
+            else if (tCellLevel != tLevel)
+            {
+                return false;
+            }
+        }
+
+        return all_land(true);
+    }
 
     void
     Model::create_child_element_mtk_cells()

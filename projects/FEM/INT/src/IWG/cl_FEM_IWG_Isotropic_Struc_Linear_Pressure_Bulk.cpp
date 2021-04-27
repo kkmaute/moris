@@ -38,13 +38,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for dof type
             Field_Interpolator* tPressureFI     =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             Field_Interpolator* tDisplacementFI =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
@@ -80,12 +80,12 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator* tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get elasticity CM
             moris::fem::CM_Struc_Linear_Isotropic* tCMElasticity =
@@ -114,7 +114,7 @@ namespace moris
                 Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // if dof type is pressure
-                if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },

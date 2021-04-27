@@ -12,8 +12,8 @@
 #include "typedefs.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
-#include "IP/cl_MTK_Interpolation_Rule.hpp"
-#include "IP/cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
 //FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 //LINALG/src
@@ -146,6 +146,7 @@ namespace moris
                  */
                 Geometry_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
+                        const CellShape               & aInterpolationShape = CellShape::GENERAL,
                         const bool                      aSpaceSideset = false,
                         const bool                      aTimeSideset  = false );
 
@@ -159,6 +160,7 @@ namespace moris
                 Geometry_Interpolator(
                         const mtk::Interpolation_Rule & aInterpolationRule,
                         const mtk::Interpolation_Rule & aIPMapInterpolationRule,
+                        const CellShape               & aInterpolationShape = CellShape::GENERAL,
                         const bool                      aSpaceSideset = false,
                         const bool                      aTimeSideset  = false );
 
@@ -262,13 +264,6 @@ namespace moris
                 {
                     return mSpaceInterpolator->get_space_geometry_type();
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * sets the cell shape used for interpolation
-                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
-                 */
-                void set_cell_shape( enum CellShape aCellShape );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -389,7 +384,7 @@ namespace moris
                     mSpaceInterpolator->get_space_time( aParamPoint );
 
                     // setting time portion
-                    aParamPoint( mNumSpaceParamDim )          = mTauLocal( 0 );
+                    aParamPoint( mNumSpaceParamDim ) = mTauLocal( 0 );
                 }
 
                 //------------------------------------------------------------------------------

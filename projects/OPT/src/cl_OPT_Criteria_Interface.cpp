@@ -18,10 +18,13 @@ namespace moris
 
         Matrix<DDRMat> Criteria_Interface::get_dcriteria_dadv()
         {
-            if (!mEvaluated)
+            if( !mInitializeOptimizationRestart)
             {
-                mSensitivities = this->compute_dcriteria_dadv();
-                mEvaluated = true;
+                if (!mEvaluated)
+                {
+                    mSensitivities = this->compute_dcriteria_dadv();
+                    mEvaluated = true;
+                }
             }
             return mSensitivities;
         }

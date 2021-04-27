@@ -382,6 +382,14 @@ namespace moris
         return aGlobalMin;
     }
 
+    /*
+    * MPI_LAND is a predefined reduction operation that will calculate the logical and of the values reduced.
+    * https://www.rookiehpc.com/mpi/docs/mpi_land.php
+    */
+    
+    bool
+    all_land(bool aMyBool);
+
     //------------------------------------------------------------------------------
     /**
      *

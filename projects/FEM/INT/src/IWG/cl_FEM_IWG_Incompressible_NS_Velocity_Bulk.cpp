@@ -50,13 +50,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the gravity property
             const std::shared_ptr< Property > & tGravityProp    =
@@ -185,13 +185,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here velocity), indices for assembly
-            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get velocity FI
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the gravity property
             const std::shared_ptr< Property > & tGravityProp    =
@@ -271,7 +271,7 @@ namespace moris
                         { tMasterDepStartIndex, tMasterDepStopIndex } );
 
                 // if residual dof type (velocity)
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute dnNdtn
                     Matrix< DDRMat > tdnNdtn;
@@ -475,7 +475,7 @@ namespace moris
                 real             & aRC )
         {
             // get the velocity and pressure FIs
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the properties
             const std::shared_ptr< Property > & tGravityProp =
@@ -553,7 +553,7 @@ namespace moris
                 Matrix< DDRMat >                   & aJC )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             Field_Interpolator * tDerFI      = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJM and aJC
@@ -592,7 +592,7 @@ namespace moris
             real tDensity = tDensityProp->val()( 0 );
 
             // if derivative wrt to residual dof type (here velocity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 // compute the term uj vij
                 Matrix< DDRMat > tujvij;
@@ -627,7 +627,7 @@ namespace moris
             if ( tInvPermeabProp != nullptr )
             {
                 // if derivative dof type is residual dof type
-                if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+                if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // add brinkman term to jacobian strong form
                     aJM += tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
@@ -742,7 +742,7 @@ namespace moris
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // init size for uj vij
             uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
@@ -768,7 +768,7 @@ namespace moris
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // set size for uj vij rM
             uint tNumField = tVelocityFI->get_number_of_fields();
@@ -799,7 +799,7 @@ namespace moris
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // init size for dnNdtn
             uint tNumRowt = tVelocityFI->get_number_of_fields();

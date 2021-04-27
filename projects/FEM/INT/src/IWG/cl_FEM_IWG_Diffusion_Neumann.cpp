@@ -33,13 +33,13 @@ namespace moris
 #endif
 
             // get index for residual dof type, indices for assembly
-            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get filed interpolator for residual dof type
             Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get indices for SP, CM, properties
             uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );
@@ -64,13 +64,13 @@ namespace moris
 #endif
 
             // get index for residual dof type, indices for assembly
-            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get indices for SP, CM, properties
             uint tNeumannIndex = static_cast< uint >( IWG_Property_Type::NEUMANN );

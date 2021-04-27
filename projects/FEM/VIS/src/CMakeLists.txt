@@ -9,7 +9,6 @@ set(HEADERS
     cl_VIS_Output_Manager.hpp
     cl_VIS_Visualization_Mesh.hpp
     cl_VIS_Vertex_Visualization.hpp
-    cl_VIS_Cell_Visualization.hpp
     cl_VIS_Cell_Cluster_Visualization.hpp
     cl_VIS_Factory.hpp
     )

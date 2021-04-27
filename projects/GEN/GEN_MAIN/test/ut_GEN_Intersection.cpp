@@ -355,7 +355,7 @@ namespace moris
                 // Set new ADVs, level set field now has no intersections
                 mtk::Mesh_Pair tMeshPair(tMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, tMesh));
                 tGeometryEngine.set_advs(Matrix<DDRMat>(16, 1, 1.0));
-                tGeometryEngine.distribute_advs(tMeshPair);
+                tGeometryEngine.distribute_advs(tMeshPair,{});
 
                 // Solution for is_intersected() per geometry and per element
                 tIsElementIntersected =

@@ -58,7 +58,7 @@ set(HEADERS
     cl_XTK_Pending_Node.hpp
     cl_XTK_Side_Cluster.hpp
     cl_XTK_Vertex_Enrichment.hpp
-    
+    cl_XTK_Field.hpp
     fn_compute_interface_surface_area.hpp
     fn_compute_xtk_model_areas.hpp
     fn_compute_xtk_model_volumes.hpp
@@ -72,6 +72,7 @@ set(HEADERS
     fn_prune_element_to_element.hpp
     fn_write_element_ownership_as_field.hpp
     fn_generate_element_to_element_2D.hpp
+    xtk_typedefs.hpp
     )                                                                                                                                                                                                                                                                   
 
 
@@ -162,84 +163,6 @@ foreach(TPL ${XTK_TPL_DEPENDENCIES})
 endforeach()
 
 
-#############################################################################
-# Create executable for XFEM
-#############################################################################
-set(XTK_EXE_SOURCES
-        main.cpp)
-
-# List executable dependencies
-set(XTK_EXE_DEPENDENCIES
-    ${XTK}-lib
-    ${MTK}-lib
-    ${GEN_MAIN}-lib
-    ${COM}-lib
-    ${IOS}-lib
-    ${ALG}-lib
-    ${MAP}-lib
-    ${MDL}-lib
-    ${INT}-lib
-    ${GEN_MAIN}-lib
-	${MORIS_BASE_LIBS}
-# Add back with arborx   ${MORIS_ArborX_LIBRARIES}
-    )    
-
-add_executable(XTK_EXE ${XTK_EXE_SOURCES})
-target_link_libraries(XTK_EXE PRIVATE ${XTK_EXE_DEPENDENCIES})
-set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK )
-
-#############################################################################
-# Create executable for hole seeding
-#############################################################################
-set(HOLE_SEED_EXE_SOURCES
-        main_hole_seed.cpp)
-
-# List executable dependencies
-set(HOLE_EXE_DEPENDENCIES
-    ${XTK}-lib
-    ${MTK}-lib
-    ${COM}-lib
-    ${ALG}-lib
-    ${MAP}-lib
-    ${MDL}-lib
-    ${INT}-lib
-    ${GEN_MAIN}-lib
-	${MORIS_BASE_LIBS}
-    )    
- 
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-add_executable(XTK_HOLE_SEED ${HOLE_SEED_EXE_SOURCES})
-target_link_libraries(XTK_HOLE_SEED PRIVATE ${HOLE_EXE_DEPENDENCIES})
-set_target_properties(XTK_HOLE_SEED PROPERTIES OUTPUT_NAME XTK_Hole_Seed.exe )
-
-if(BUILD_HMR)
-	set(HMR_EXE_SOURCES
-	        main_hmr.cpp)
-	
-	# List executable dependencies
-	set(HMR_EXE_DEPENDENCIES
-	    ${XTK}-lib
-	    ${MAP}-lib
-	    ${MDL}-lib # for L2
-	    ${MSI}-lib # for L2
-	    ${NLA}-lib # for L2
-	    ${GEN_MAIN}-lib
-	    ${ALG}-lib
-	    ${MAP}-lib
-	    ${MORIS_BASE_LIBS}
-	    )    
-	 
-	# Set the output path for executable
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-	
-	# Create executable
-	add_executable(XTK_HMR ${HMR_EXE_SOURCES})
-	target_link_libraries(XTK_HMR ${HMR_EXE_DEPENDENCIES})
-	set_target_properties(XTK_HMR PROPERTIES OUTPUT_NAME XTK_HMR.exe )
-endif()
-
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Config Files
 
@@ -253,8 +176,16 @@ endforeach()
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-	string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
-		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+
+    string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} QUIET HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
+endforeach()
+
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+
+    string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
+		"find_package(${LIB} REQUIRED HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Properties to be coppied into config file
@@ -293,16 +224,6 @@ install(TARGETS ${XTK}-lib
     DESTINATION ${${XTK}_LIB_INSTALL_DIR}
     EXPORT ${XTK}Targets )
 
-# Install executables
-install(TARGETS XTK_HOLE_SEED XTK_EXE
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
-    EXPORT ${XTK}Targets )
-    
-if(BUILD_HMR)
-install(TARGETS XTK_HMR
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
-    EXPORT ${XTK}Targets )
-endif()    
 
 # Export executable in to *Targets file
 install(EXPORT ${XTK}Targets

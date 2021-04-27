@@ -35,23 +35,23 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get the master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPConvective =
+            const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
             // get flattened derivatives dnNdxn for master and slave
@@ -91,23 +91,23 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get the master field interpolator for residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the slave field interpolator for residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPConvective =
+            const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
             // get flattened derivatives dnNdxn for master and slave
@@ -132,7 +132,7 @@ namespace moris
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // compute jacobian direct dependencies
-                if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // dRM/dM
                     mSet->get_jacobian()(
@@ -181,7 +181,7 @@ namespace moris
                 uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
 
                 // compute jacobian direct dependencies
-                if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // dRM/dS
                     mSet->get_jacobian()(
@@ -235,7 +235,7 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator * tFIVelocity =
                     this->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // init size for dnNdtn
             uint tNumField = tFIVelocity->get_number_of_fields();

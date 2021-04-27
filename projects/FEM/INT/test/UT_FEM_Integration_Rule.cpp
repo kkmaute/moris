@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "IG/cl_MTK_Integrator.hpp" //MTK/sr
+#include "cl_MTK_Integrator.hpp" //MTK/sr
 
 using namespace moris;
 using namespace fem;

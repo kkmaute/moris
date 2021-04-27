@@ -15,7 +15,7 @@
 #include "fn_norm.hpp"
 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integrator.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_MM_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
@@ -92,7 +92,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tDensityDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
@@ -942,7 +942,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );

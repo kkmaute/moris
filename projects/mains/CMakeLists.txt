@@ -89,11 +89,24 @@ foreach(INT_INCLUDES ${INT_INCLUDES})
     list(APPEND INT_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES}")
 endforeach()
 
+# List header dependencies in /MTK/src                                                                                                                                                                                                                                                    
+set(MTK_INCLUDES
+    "IP"
+    "IG")
+
+set(MTK_INTERNAL_INCLUDES)
+
+# Include depedency directories
+foreach(MTK_INCLUDES ${MTK_INCLUDES})
+    list(APPEND MTK_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDES}")
+endforeach()
+
 SET(SO_INCLUDES
     ${Boost_INCLUDE_DIRS}
     ${Trilinos_INCLUDE_DIRS}
     ${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_INTERNAL_INCLUDES}
+    ${MTK_INTERNAL_INCLUDES}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
@@ -113,6 +126,7 @@ SET(SO_INCLUDES
 
 # make SO_INCLUDES available as global list
 set_property(GLOBAL PROPERTY INT_SRC_LIST "${SO_INCLUDES}")
+set_property(GLOBAL PROPERTY MTK_SRC_LIST "${SO_INCLUDES}")
     
 foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)

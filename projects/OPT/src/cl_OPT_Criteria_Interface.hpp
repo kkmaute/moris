@@ -15,6 +15,9 @@ namespace moris
                 bool mEvaluated = false;
                 Matrix<DDRMat> mSensitivities;
 
+            protected:
+                bool mInitializeOptimizationRestart = false;
+
             public:
 
                 /**
@@ -56,6 +59,15 @@ namespace moris
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
                 Matrix<DDRMat> get_dcriteria_dadv();
+
+                /**
+                 * indicates a request to restart the optimization
+                 *
+                 */
+                bool get_restart_optimization()
+                {
+                    return mInitializeOptimizationRestart;
+                }
 
             private:
 

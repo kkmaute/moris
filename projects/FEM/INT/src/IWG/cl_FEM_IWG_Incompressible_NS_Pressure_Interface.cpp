@@ -42,12 +42,12 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
@@ -59,13 +59,13 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get master/slave fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-            std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
             real tMasterWeight = tSPNitsche->val()( 1 );
             real tSlaveWeight  = tSPNitsche->val()( 2 );
@@ -77,13 +77,13 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) -= aWStar * (
-                            mBeta * tMasterWeight * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
+                            mBeta * tMasterWeight * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump );
 
             // compute slave residual
             mSet->get_residual()( 0 )(
                     { tSlaveResStartIndex, tSlaveResStopIndex },
                     { 0, 0 } ) -= aWStar * (
-                            mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
+                            mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -100,12 +100,12 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
@@ -117,13 +117,13 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get master/slave fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMMasterFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-            std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
             real tMasterWeight = tSPNitsche->val()( 1 );
             real tSlaveWeight  = tSPNitsche->val()( 2 );
@@ -153,13 +153,13 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    mBeta * tMasterWeight * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tFIMaster->N() );
+                                    mBeta * tMasterWeight * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFIMaster->N() );
 
                     // add contribution to slave jacobian
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex, tSlaveResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tFIMaster->N() );
+                                    mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFIMaster->N() );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -169,7 +169,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    mBeta * tMasterWeight * tCMMasterFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
+                                    mBeta * tMasterWeight * tCMMasterFluid->dTestTractiondDOF(
+                                            tDofType, mNormal, tVelocityJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if master SP depends on dof type
@@ -183,8 +184,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump * tMasterWeightDer
-                                    + mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump * tSlaveWeightDer );
+                                    mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tMasterWeightDer
+                                    + mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tSlaveWeightDer );
                 }
             }
 
@@ -210,13 +211,13 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    mBeta * tMasterWeight * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tFISlave->N() );
+                                    mBeta * tMasterWeight * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFISlave->N() );
 
                     // add contribution to slave jacobian
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex, tSlaveResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tFISlave->N() );
+                                    mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFISlave->N() );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -226,7 +227,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex, tSlaveResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) -= aWStar * (
-                                    mBeta * tSlaveWeight * tCMSlaveFluid->dTestTractiondDOF( tDofType, mNormal, tVelocityJump, mResidualDofType ) );
+                                    mBeta * tSlaveWeight * tCMSlaveFluid->dTestTractiondDOF(
+                                            tDofType, mNormal, tVelocityJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if master SP depends on dof type
@@ -240,8 +242,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) -= aWStar * (
-                                    mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump * tMasterWeightDer
-                                    + mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump * tSlaveWeightDer );
+                                    mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tMasterWeightDer
+                                    + mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tSlaveWeightDer );
                 }
             }
 

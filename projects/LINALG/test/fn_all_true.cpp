@@ -5,8 +5,6 @@
  *      Author: doble
  */
 
-
-
 #include <catch.hpp>
 
 #include "typedefs.hpp"

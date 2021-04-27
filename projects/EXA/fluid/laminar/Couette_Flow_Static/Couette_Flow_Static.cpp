@@ -207,7 +207,7 @@ extern "C"
         void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
         {
             // create a cell of cell of parameter list for fem
-            tParameterList.resize( 7 );
+            tParameterList.resize( 8 );
 
             //------------------------------------------------------------------------------
             // fill the property part of the parameter list

@@ -19,6 +19,7 @@ namespace moris
      * For example if the result of an tMat1 == tMat2 holds
      * for all elements, this will return true.
      */
+    inline
     bool
     all_true(Matrix< DDBMat > const & aMatrix)
     {

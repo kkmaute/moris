@@ -26,7 +26,7 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "IG/cl_MTK_Integrator.hpp"            //FEM/INT/src
+#include "cl_MTK_Integrator.hpp"            //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
 
 namespace moris

@@ -137,7 +137,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Level set function for diamond shaped wedge
-    
+
     moris::real Inclusion(
             const moris::Matrix< DDRMat >     & aCoordinates,
             const moris::Cell< moris::real* > & aGeometryParameters )
@@ -154,7 +154,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Constant function for properties
-    
+
     void Func_Const( moris::Matrix<
             moris::DDRMat >                                & aPropMatrix,
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -166,7 +166,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Exact temperature
     // see Matlab file in test src folder
-    
+
     void Func_Exact_Temperature(
             moris::Matrix< moris::DDRMat >                 & aPropMatrix,
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -306,7 +306,7 @@ namespace moris
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
     {
         // create a cell of cell of parameter list for fem
-        tParameterList.resize( 7 );
+        tParameterList.resize( 8 );
 
         //------------------------------------------------------------------------------
         // init property counter
@@ -421,8 +421,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity1 , Conductivity;"
-				"PropDensity1      , Density;"
-				"PropCapacity1     , HeatCapacity") ;
+                "PropDensity1      , Density;"
+                "PropCapacity1     , HeatCapacity") ;
         tCMCounter++;
 
         // create parameter list for constitutive model - 2 Material
@@ -432,8 +432,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity2 , Conductivity;"
-				"PropDensity2      , Density;"
-				"PropCapacity2     , HeatCapacity") ;
+                "PropDensity2      , Density;"
+                "PropCapacity2     , HeatCapacity") ;
         tCMCounter++;
 
         //------------------------------------------------------------------------------

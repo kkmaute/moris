@@ -42,25 +42,25 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get slave field interpolator for the residual dof type
             Field_Interpolator * tFISlave  =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
             real tNitsche      = tSPNitsche->val()( 0 );
             real tMasterWeight = tSPNitsche->val()( 1 );
@@ -77,9 +77,9 @@ namespace moris
 
             // evaluate test traction
             Matrix< DDRMat > tMasterTestTraction;
-            this->compute_testtraction( mResidualDofType, tMasterTestTraction, mtk::Master_Slave::MASTER );
+            this->compute_testtraction( mResidualDofType( 0 ), tMasterTestTraction, mtk::Master_Slave::MASTER );
             Matrix< DDRMat > tSlaveTestTraction;
-            this->compute_testtraction( mResidualDofType, tSlaveTestTraction,  mtk::Master_Slave::SLAVE );
+            this->compute_testtraction( mResidualDofType( 0 ), tSlaveTestTraction,  mtk::Master_Slave::SLAVE );
 
             // evaluate temperature jump
             Matrix< DDRMat > tJumpViscosity = tFIMaster->val() - tFISlave->val();
@@ -114,25 +114,25 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get slave field interpolator for the residual dof type
             Field_Interpolator * tFISlave  =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
             real tNitsche      = tSPNitsche->val()( 0 );
             real tMasterWeight = tSPNitsche->val()( 1 );
@@ -149,9 +149,9 @@ namespace moris
 
             // evaluate test traction
             Matrix< DDRMat > tMasterTestTraction;
-            this->compute_testtraction( mResidualDofType, tMasterTestTraction, mtk::Master_Slave::MASTER );
+            this->compute_testtraction( mResidualDofType( 0 ), tMasterTestTraction, mtk::Master_Slave::MASTER );
             Matrix< DDRMat > tSlaveTestTraction;
-            this->compute_testtraction( mResidualDofType, tSlaveTestTraction,  mtk::Master_Slave::SLAVE );
+            this->compute_testtraction( mResidualDofType( 0 ), tSlaveTestTraction,  mtk::Master_Slave::SLAVE );
 
             // evaluate temperature jump
             Matrix< DDRMat > tJumpViscosity = tFIMaster->val() - tFISlave->val();
@@ -171,7 +171,7 @@ namespace moris
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // compute jacobian direct dependencies
-                if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
@@ -192,7 +192,7 @@ namespace moris
 
                 // evaluate derivative of testtraction
                 Matrix< DDRMat > tMasterdTestTractiondu;
-                this->compute_dtesttractiondu( tDofType, mResidualDofType, tMasterdTestTractiondu, mtk::Master_Slave::MASTER );
+                this->compute_dtesttractiondu( tDofType, mResidualDofType( 0 ), tMasterdTestTractiondu, mtk::Master_Slave::MASTER );
 
                 // add contribution to jacobian
                 mSet->get_jacobian()(
@@ -246,7 +246,7 @@ namespace moris
                 uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
 
                 // if dof type is residual dof type
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
@@ -267,7 +267,7 @@ namespace moris
 
                 // evaluate derivative of testtraction
                 Matrix< DDRMat > tSlavedTestTractiondu;
-                this->compute_dtesttractiondu( tDofType, mResidualDofType, tSlavedTestTractiondu, mtk::Master_Slave::SLAVE );
+                this->compute_dtesttractiondu( tDofType, mResidualDofType( 0 ), tSlavedTestTractiondu, mtk::Master_Slave::SLAVE );
 
                 // add contribution to jacobian
                 mSet->get_jacobian()(
@@ -348,7 +348,7 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the wall distance property
             std::shared_ptr< Property > tPropKinViscosity =
@@ -400,7 +400,7 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the kinematic viscosity property
             std::shared_ptr< Property > tPropKinViscosity =
@@ -413,7 +413,7 @@ namespace moris
             if( tModViscosity >= 0.0 )
             {
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to ddiffusiondu
                     addiffusiondu += tFIModViscosity->N() / mSigma;
@@ -437,7 +437,7 @@ namespace moris
                 this->compute_dfndu( aDofTypes, tdfndu, aIsMaster );
 
                 // if derivative dof type is viscosity
-                if( tDerDofType == mResidualDofType( 0 ) )
+                if( tDerDofType == mResidualDofType( 0 )( 0 ) )
                 {
                     // add contribution to ddiffusiondu
                     addiffusiondu += tFn * tFIModViscosity->N() / mSigma;
@@ -464,7 +464,7 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the diffusion coefficient
             real tDiffusionCoeff = this->compute_diffusion_coefficient( aIsMaster );
@@ -491,13 +491,13 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the diffusion coefficient
             real tDiffusionCoeff = this->compute_diffusion_coefficient( aIsMaster );
 
             // if derivative dof type is residual dof type
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 // add contribution to dtractiondu
                 adtractiondu +=
@@ -531,13 +531,13 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the diffusion coefficient
             real tDiffusionCoeff = this->compute_diffusion_coefficient( aIsMaster );
 
             // if derivative dof type is residual dof type
-            if( aTestDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aTestDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 // add contribution to dtractiondu
                 aTestTraction +=
@@ -580,15 +580,15 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get modified viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
 
-            if( ( tModViscosity >= 0.0 ) && ( aTestDofTypes( 0 ) == mResidualDofType( 0 ) ) )
+            if( ( tModViscosity >= 0.0 ) && ( aTestDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) ) )
             {
                 // if derivative dof type is residual dof type
-                if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+                if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute ddiffusiondutest
                     Matrix< DDRMat > tddiffusiondutest;
@@ -742,7 +742,7 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the kinematic viscosity property
             std::shared_ptr< Property > tPropKinViscosity =
@@ -770,7 +770,7 @@ namespace moris
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
                     mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the kinematic viscosity property
             std::shared_ptr< Property > tPropKinViscosity =
@@ -780,7 +780,7 @@ namespace moris
             real tChi = tFIModViscosity->val()( 0 ) / tPropKinViscosity->val()( 0 );
 
             // if residual dof type (here viscosity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
                 adchidu += tDerFI->N() / tPropKinViscosity->val()( 0 );
             }

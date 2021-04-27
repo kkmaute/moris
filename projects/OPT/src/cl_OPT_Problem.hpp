@@ -130,6 +130,14 @@ namespace moris
                 void initialize();
 
                 /**
+                 * get restart optimization flag
+                 */
+                bool restart_optimization()
+                {
+                    return mInterface->get_restart_optimization();
+                }
+
+                /**
                  * Checks that the constraints are given in the correct order (equality constraints first)
                  *
                  * @return bool, if order is correct

@@ -1,31 +1,31 @@
 #include "assert.hpp"
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Rule.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Factory.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Base.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Rule.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Factory.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Base.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function.hpp" //MTK/src
 
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar1.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar2.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar3.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Bar4.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad9.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex20.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Hex64.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tri3.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tri6.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tri10.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tet4.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tet10.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Lagrange_Tet20.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Bar1.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Bar2.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Bar3.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Bar4.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Quad9.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Hex20.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Hex64.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Tri3.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Tri6.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Tri10.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Tet4.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Tet10.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Tet20.hpp" //MTK/src
 
-#include "IP/cl_MTK_Interpolation_Function_Constant_Bar2.hpp" //MTK/src
-#include "IP/cl_MTK_Interpolation_Function_Constant_Point.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Constant_Bar2.hpp" //MTK/src
+#include "cl_MTK_Interpolation_Function_Constant_Point.hpp" //MTK/src
 
 namespace moris
 {
@@ -35,7 +35,7 @@ namespace moris
 
     Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function
         ( const Geometry_Type       & aGeometryType,
-          const Interpolation_Type       & aInterpolationType,
+          const Interpolation_Type  & aInterpolationType,
           const Interpolation_Order & aInterpolationOrder )
         {
             // select type

@@ -33,6 +33,7 @@ namespace moris
          * creates a property parameter list with default inputs
          * @param [ out ] ParameterList a property parameter list
          */
+        inline
         ParameterList create_property_parameter_list()
         {
             ParameterList tParameterList;
@@ -42,6 +43,7 @@ namespace moris
             tParameterList.insert( "value_function",           std::string( "" ) );
             tParameterList.insert( "dof_derivative_functions", std::string( "" ) );
             tParameterList.insert( "dv_derivative_functions",  std::string( "" ) );
+            tParameterList.insert( "space_derivative_function",std::string( "" ) );
             tParameterList.insert( "dof_dependencies",         std::string( "" ) );
             tParameterList.insert( "dv_dependencies",          std::string( "" ) );
             tParameterList.insert( "field_dependencies",       std::string( "" ) );
@@ -54,6 +56,7 @@ namespace moris
          * creates a field parameter list with default inputs
          * @param [ out ] ParameterList a property parameter list
          */
+        inline
         ParameterList create_fem_field_parameter_list()
         {
             ParameterList tParameterList;
@@ -69,9 +72,29 @@ namespace moris
 
         //------------------------------------------------------------------------------
         /*
+        * creates a material model parameter list with default inputs
+        * @param [ out ] ParameterList a MM parameter list
+        */
+        inline
+        ParameterList create_material_model_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert( "material_name", std::string( "undefined" ) );
+            tParameterList.insert( "material_type", static_cast< uint >( fem::Material_Type::UNDEFINED ) );
+            tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "phase_name",        std::string( "" ) );
+
+            return tParameterList;
+        }
+
+        //------------------------------------------------------------------------------
+        /*
          * creates a constitutive model parameter list with default inputs
          * @param [ out ] ParameterList a CM parameter list
          */
+        inline
         ParameterList create_constitutive_model_parameter_list()
         {
             ParameterList tParameterList;
@@ -81,6 +104,7 @@ namespace moris
             tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "material_model",    std::string( "" ) );
             tParameterList.insert( "model_type",        static_cast< uint >( fem::Model_Type::UNDEFINED ) );
             tParameterList.insert( "phase_name",        std::string( "" ) );
 
@@ -92,6 +116,7 @@ namespace moris
          * creates a stabilization parameter parameter list with default inputs
          * @param [ out ] ParameterList a SP parameter list
          */
+        inline
         ParameterList create_stabilization_parameter_parameter_list()
         {
             ParameterList tParameterList;
@@ -120,6 +145,7 @@ namespace moris
          * creates an IWG parameter list with default inputs
          * @param [ out ] ParameterList a IWG parameter list
          */
+        inline
         ParameterList create_IWG_parameter_list()
         {
             ParameterList tParameterList;
@@ -140,6 +166,8 @@ namespace moris
 
             tParameterList.insert( "master_properties",          std::string( "" ) );
             tParameterList.insert( "slave_properties",           std::string( "" ) );
+            tParameterList.insert( "master_material_model",      std::string( "" ) );
+            tParameterList.insert( "slave_material_model",       std::string( "" ) );
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
@@ -167,6 +195,7 @@ namespace moris
          * creates an IQI parameter list with default inputs
          * @param [ out ] ParameterList a IQI parameter list
          */
+        inline
         ParameterList create_IQI_parameter_list()
         {
             ParameterList tParameterList;
@@ -217,6 +246,7 @@ namespace moris
          * creates phase parameter list with default inputs
          * @param [ out ] ParameterList a phase parameter list
          */
+        inline
         ParameterList create_phase_parameter_list()
         {
             ParameterList tParameterList;
@@ -236,6 +266,7 @@ namespace moris
          * creates computation fem parameter list with default inputs
          * @param [ out ] ParameterList a computation parameter list
          */
+        inline
         ParameterList create_computation_parameter_list()
         {
             ParameterList tParameterList;

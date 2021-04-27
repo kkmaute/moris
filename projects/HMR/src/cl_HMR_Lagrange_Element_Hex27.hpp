@@ -17,6 +17,7 @@ namespace moris
     {
 // ----------------------------------------------------------------------------
         template<>
+        inline
         void
         Lagrange_Element< 3, 27 >::set_cell_info() 
         {
@@ -34,6 +35,7 @@ namespace moris
          *
          */
         template<>
+        inline
         std::string Lagrange_Element< 3, 27 >::get_gmsh_string()
         {
             // gmsh type - number of tags - physical tag - geometry tag
@@ -132,6 +134,7 @@ namespace moris
          * @return uint
          */
         template<>
+        inline
         uint
         Lagrange_Element< 3, 27 >::get_vtk_type() 
         {
@@ -149,6 +152,7 @@ namespace moris
          *
          */
         template<>
+        inline
         void Lagrange_Element< 3, 27 >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // assemble nodes in correct order
@@ -193,6 +197,7 @@ namespace moris
          *
          */
         template<>
+        inline
         void Lagrange_Element< 3, 27 >::get_ijk_of_basis( const uint   & aBasisNumber,
                                                                  luint * aIJK )
         {
@@ -412,6 +417,7 @@ namespace moris
         * @return void
         */
         template<>
+        inline
         void Lagrange_Element< 3, 27 >::create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc,
                                                                     luint                    & aBasisCounter )
         {
@@ -500,6 +506,7 @@ namespace moris
         * @return void
         */
         template<>
+        inline
         void Lagrange_Element< 3, 27 >::create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc,
                                                                    luint                    & aBasisCounter )
         {

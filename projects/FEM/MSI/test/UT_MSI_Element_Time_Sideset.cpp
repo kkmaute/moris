@@ -213,7 +213,7 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIWG->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
         tIWG->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
@@ -479,15 +479,15 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWGTime = tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tIWGTime->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-        tIWGTime->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIWGTime->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
+        tIWGTime->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIWGTime->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
         tIWGTime->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
         tIWGTime->set_property( tPropInitCond, "InitialCondition", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDiffusion = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGDiffusion->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-        tIWGDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIWGDiffusion->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
+        tIWGDiffusion->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIWGDiffusion->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGDiffusion->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
         tIWGDiffusion->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );

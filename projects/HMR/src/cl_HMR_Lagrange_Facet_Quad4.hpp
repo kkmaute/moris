@@ -18,6 +18,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template<>
+        inline
         mtk::Geometry_Type
         Lagrange_Facet< 3, 4 >::get_geometry_type() const
         {
@@ -27,6 +28,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template<>
+        inline
         mtk::Interpolation_Order
         Lagrange_Facet< 3, 4 >::get_interpolation_order() const
         {
@@ -36,6 +38,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template<>
+        inline
         void
         Lagrange_Facet< 3, 4 >::copy_vertex_pointers( const uint & aIndex )
         {

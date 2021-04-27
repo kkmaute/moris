@@ -5,12 +5,14 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
+#include "cl_WRK_GEN_Performer.hpp"
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
 #include "cl_Stopwatch.hpp"
 #include "cl_WRK_perform_refinement.hpp"
+#include "cl_WRK_perform_remeshing.hpp"
 
 #include "fn_norm.hpp"
 
@@ -23,7 +25,7 @@ namespace moris
 
         // Parameter function
         typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
         Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager * aPerformerManager )
@@ -62,7 +64,7 @@ namespace moris
 
             // create MDL performer
             mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
-            
+
             // Set performer to HMR
             mPerformerManager->mHMRPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 0 ) );
 
@@ -80,12 +82,18 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-            // Stage 1: HMR refinement -------------------------------------------------------------------
+            mInitializeOptimizationRestart = false;
+
+            moris::Cell< std::shared_ptr< mtk::Field > > tFields;
+
+            if( tIsFirstOptSolve )
             {
+                // Stage 1: HMR refinement -------------------------------------------------------------------
+
                 // Trace HMR
                 Tracer tTracer( "HMR", "HMRmesh", "Create" );
 
-                mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
+                //mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
 
                 // uniform initial refinement
                 mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
@@ -93,12 +101,43 @@ namespace moris
                 // HMR refined by GE
                 Refinement_Mini_Performer tRefinementPerfomer;
 
+                // GEN interface performer 
+                std::shared_ptr<Performer> tGenPerformer = std::make_shared<wrk::Gen_Performer>(mPerformerManager->mGENPerformer( 0 ));
+
                 //mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
 
-                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});
+                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {tGenPerformer});
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();
+
+                tIsFirstOptSolve = false;
+            }
+            else
+            {
+                std::string tMORISString = "MORISGENERALParameterList";
+                Parameter_Function tMORISParameterListFunc =
+                        mPerformerManager->mLibrary->load_function<Parameter_Function>( tMORISString );
+                moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
+                tMORISParameterListFunc( tMORISParameterList );
+
+                wrk::Remeshing_Mini_Performer tRemeshingPerformer( tMORISParameterList( 0 )( 0 ) );
+                tRemeshingPerformer.perform_remeshing(
+                            mPerformerManager->mGENPerformer( 0 )->get_mtk_fields(),
+                            mPerformerManager->mHMRPerformer,
+                            mPerformerManager->mMTKPerformer,
+                            tFields);
+
+                //tFields(0)->save_field_to_exodus( "FieldNewInput123.exo");
+
+                // Create new GE performer
+                std::string tGENString = "GENParameterList";
+                Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
+                moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
+                tGENParameterListFunc( tGENParameterList );
+
+                mPerformerManager->mGENPerformer( 0 ) =
+                        std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary );
             }
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
@@ -107,13 +146,14 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0) );
+                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),
+                        tFields );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
                 aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
                 aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-            }   
+            }
 
         }
 
@@ -139,7 +179,20 @@ namespace moris
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // XTK perform - decompose - enrich - ghost - multigrid
-            mPerformerManager->mXTKPerformer( 0 )->perform();
+            bool tFlag = mPerformerManager->mXTKPerformer( 0 )->perform();
+
+            if( not tFlag )
+            {
+                mInitializeOptimizationRestart = true;
+
+                MORIS_ERROR( mNumCriterias != MORIS_UINT_MAX,
+                        "Workflow_HMR_XTK::perform() problem with mNumCriterias. "
+                        "This can happen if the xtk interface interfaces different refinement level in the first optimization iteration");
+
+                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
+
+                return tMat;
+            }
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
@@ -147,7 +200,7 @@ namespace moris
             // Stage 3: MDL perform ---------------------------------------------------------------------
 
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
-                                mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
             mPerformerManager->mMDLPerformer( 0 )->initialize();
 
@@ -158,15 +211,17 @@ namespace moris
 
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
+            mNumCriterias = tVal.size();
+
             // Communicate IQIs
-            for( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
+            for( uint iIQIIndex = 0; iIQIIndex < mNumCriterias; iIQIIndex++ )
             {
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
-            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
+            moris::Matrix< DDRMat > tMat( mNumCriterias, 1, 0.0 );
 
-            for( uint Ik = 0; Ik < tVal.size(); Ik ++ )
+            for( uint Ik = 0; Ik < mNumCriterias; Ik ++ )
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
@@ -200,7 +255,7 @@ namespace moris
                     auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
 
                     MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
-                                     i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+                            i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
                 }
 
                 MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");

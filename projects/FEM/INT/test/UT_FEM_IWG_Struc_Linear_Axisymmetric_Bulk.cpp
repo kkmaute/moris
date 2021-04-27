@@ -53,8 +53,8 @@ TEST_CASE( "IWG_Elasticity_Axisymmetric_Bulk", "[moris],[fem],[axi],[IWG_Elastic
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -210,7 +210,7 @@ TEST_CASE( "IWG_Elasticity_Axisymmetric_Bulk", "[moris],[fem],[axi],[IWG_Elastic
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // set size and fill the set residual assembly map
@@ -332,9 +332,10 @@ TEST_CASE( "IWG_Elasticity_Axi_Bulk_Mixed_Displacement", "[moris],[fem],[axi],[I
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes     = { MSI::Dof_Type::P };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tPDofTypes };
+    moris::Cell< MSI::Dof_Type > tPDofTypes = { MSI::Dof_Type::P };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tDispDofTypes( 0 ), tPDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -495,7 +496,7 @@ TEST_CASE( "IWG_Elasticity_Axi_Bulk_Mixed_Displacement", "[moris],[fem],[axi],[I
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // create the field interpolator pressure

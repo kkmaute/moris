@@ -23,7 +23,7 @@ namespace moris
 // ----------------------------------------------------------------------------
         public :
 // ----------------------------------------------------------------------------
-
+            inline
             Lagrange_Edge( Mesh_Base       * aMesh,
                            Background_Edge * aBackgroundEdge) : Edge( aMesh, aBackgroundEdge )
             {
@@ -35,7 +35,7 @@ namespace moris
             ~Lagrange_Edge(){};
 
 // ----------------------------------------------------------------------------
-
+            inline
             uint get_number_of_vertices() const
             {
                 return D;
@@ -50,14 +50,14 @@ namespace moris
             mtk::Integration_Order get_integration_order() const;
 
 // ----------------------------------------------------------------------------
-
+            inline
             const Basis * get_basis( const uint aIndex ) const
             {
                 return mVertices[ aIndex ];
             }
 
 // ----------------------------------------------------------------------------
-
+            inline
             Basis * get_basis( const uint aIndex )
             {
                 return mVertices[ aIndex ];
@@ -73,6 +73,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint D >
+        inline
         mtk::Interpolation_Order Lagrange_Edge< D >::get_interpolation_order() const
         {
             MORIS_ERROR( false, "get_interpolation_order() not implemented for this Lagrange_Edge.");
@@ -82,6 +83,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint D >
+        inline
         mtk::Integration_Order Lagrange_Edge< D >::get_integration_order() const
         {
             MORIS_ERROR( false, "get_integration_order() not implemented for this Lagrange_Edge.");
@@ -91,6 +93,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint D >
+        inline
         void Lagrange_Edge< D >::copy_vertex_pointers()
         {
             MORIS_ERROR( false, "copy_vertex_pointers() not implemented for this Lagrange_Edge.");

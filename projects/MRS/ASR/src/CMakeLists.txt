@@ -28,10 +28,18 @@ target_link_libraries(${ASR}-lib INTERFACE ${LIB_DEPENDENCIES})
 # Assert Config Files
 
 # Makes sure all tpl dependencies are searched for in the config file
-foreach(TPL ${ASR_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-	string(APPEND ASR_CONFIG_TPL_DEPENDENCIES 
-		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+
+    string(APPEND ASR_CONFIG_TPL_DEPENDENCIES
+		"find_package(${LIB} QUIET HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
+endforeach()
+
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+
+    string(APPEND ASR_CONFIG_TPL_DEPENDENCIES
+		"find_package(${LIB} REQUIRED HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Makes sure all moris library dependencies are included in the config file

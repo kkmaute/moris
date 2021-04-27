@@ -44,6 +44,8 @@ namespace moris
 
             // initialize mesh objects
             this->create_meshes();
+
+            mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
         }
 
         // -----------------------------------------------------------------------------
@@ -67,6 +69,8 @@ namespace moris
 
             // initialize mesh objects
             this->create_meshes();
+
+            mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
 
             // activate input pattern
             this->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
@@ -104,6 +108,8 @@ namespace moris
             // initialize mesh objects
             this->create_meshes();
 
+            mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
+
             // activate input pattern
             this->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
         }
@@ -125,6 +131,17 @@ namespace moris
                 delete mParameters;
                 mParameters = nullptr;
             }
+        }
+
+        // -----------------------------------------------------------------------------
+        void Database::delete_additional_meshes( uint aPattern )
+        {
+            for( auto tMesh : mAdditionalLagrangeMeshes( aPattern ) )
+            {
+                // delete this mesh
+                delete tMesh;
+            }
+            mAdditionalLagrangeMeshes( aPattern ).clear();
         }
 
         // -----------------------------------------------------------------------------
@@ -214,6 +231,17 @@ namespace moris
         void Database::set_parameter_owning_flag()
         {
             mDeleteParametersOnDestruction = true;
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * sets the flag that the parameter object must not be deleted
+         * by the destructor
+         */
+        void Database::unset_parameter_owning_flag()
+        {
+            mDeleteParametersOnDestruction = false;
         }
 
         // -----------------------------------------------------------------------------
@@ -357,10 +385,14 @@ namespace moris
             mLagrangeMeshes.clear();
 
             // delete all pointers
-            for( auto tMesh : mAdditionalLagrangeMeshes )
+            for( auto tMeshes : mAdditionalLagrangeMeshes )
             {
-                // delete this mesh
-                delete tMesh;
+                for( auto tMesh : tMeshes )
+                {
+                    // delete this mesh
+                    delete tMesh;
+                }
+                tMeshes.clear();
             }
 
             mAdditionalLagrangeMeshes.clear();
@@ -789,6 +821,8 @@ namespace moris
         {
             tic tTimer;
 
+            this->delete_additional_meshes( aTarget );
+
             mBackgroundMesh->unite_patterns( aSourceA,
                     aSourceB,
                     aTarget );
@@ -999,7 +1033,7 @@ namespace moris
             if( !tMeshFound )
             {
                 // find pointer to input mesh
-                for( Lagrange_Mesh_Base * tMesh : mAdditionalLagrangeMeshes )
+                for( Lagrange_Mesh_Base * tMesh : mAdditionalLagrangeMeshes( aSourcePattern ) )
                 {
                     if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aSourcePattern )
                     {
@@ -1028,7 +1062,7 @@ namespace moris
             if( !tMeshFound )
             {
                 // find pointer to output mesh
-                for( Lagrange_Mesh_Base *  tMesh : mAdditionalLagrangeMeshes )
+                for( Lagrange_Mesh_Base *  tMesh : mAdditionalLagrangeMeshes( aTargetPattern ) )
                 {
                     if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aTargetPattern )
                     {

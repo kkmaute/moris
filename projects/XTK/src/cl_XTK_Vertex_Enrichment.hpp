@@ -192,6 +192,7 @@ protected:
  * They are considered the same if they have the same basis weights and basis coefficients,
  * not necessarily in the same order
  */
+inline
 bool
 operator==(const Vertex_Enrichment & aA,
            const Vertex_Enrichment & aB )

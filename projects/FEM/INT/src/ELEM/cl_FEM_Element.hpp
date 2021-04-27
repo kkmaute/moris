@@ -23,7 +23,7 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
-#include "IG/cl_MTK_Integrator.hpp"            //MTK/src
+#include "cl_MTK_Integrator.hpp"            //MTK/src
 
 #include "cl_FEM_Set.hpp"   //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"   //FEM/INT/src
@@ -248,8 +248,8 @@ namespace moris
                         Matrix< DDSMat >                  & aGeoLocalAssembly,
                         moris::Cell< Matrix< IndexMat > > & aVertexIndices )
                 {
-                    // compute Jacobian
-                    aReqIWG->compute_jacobian( aWStar );
+                    // compute dRdpMat at evaluation point
+                    aReqIWG->compute_dRdp( aWStar );
                 }
 
                 void select_dRdp_FD(

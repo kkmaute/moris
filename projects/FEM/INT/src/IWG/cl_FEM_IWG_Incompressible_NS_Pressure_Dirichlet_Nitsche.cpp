@@ -44,7 +44,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -54,7 +54,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -73,11 +73,11 @@ namespace moris
             }
 
             // get the imposed velocity property
-            std::shared_ptr< Property > & tPropVelocity =
+            const std::shared_ptr< Property > & tPropVelocity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // compute the jump
@@ -87,7 +87,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) -= aWStar * (
-                             mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump );
+                             mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -104,7 +104,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -114,7 +114,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property > & tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
@@ -133,11 +133,11 @@ namespace moris
             }
 
             // get the imposed velocity property
-            std::shared_ptr< Property > & tPropVelocity =
+            const std::shared_ptr< Property > & tPropVelocity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // compute the jump
@@ -165,7 +165,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityFI->N() );
+                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityFI->N() );
                 }
 
                 // if imposed velocity property depends on dof type
@@ -175,7 +175,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -185,7 +185,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
+                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType( 0 ) ) );
                 }
             }
 

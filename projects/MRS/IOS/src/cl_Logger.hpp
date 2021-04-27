@@ -17,32 +17,8 @@
 // need to be revised later
 #include <mpi.h>
 
-int logger_par_rank()
-{
-    int tProcRank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-    return tProcRank;
-}
-
 namespace moris
 {
-
-    real
-    logger_max_all( real & aLocalInput )
-    {
-        real aGlobalMax;
-        MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
-        return aGlobalMax;
-    }
-
-    real
-    logger_min_all( real & aLocalInput )
-    {
-        real aGlobalMin;
-        MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
-        return aGlobalMin;
-    }
-
     class Logger
     {
         public:
@@ -75,6 +51,30 @@ namespace moris
             GlobalClock  mGlobalClock;
 
             uint mIteration = 0; // FIXME this is absolutely a hack, it doesn't even store the iteration correctly :)
+
+            inline
+            int logger_par_rank()
+            {
+                int tProcRank;
+                MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
+                return tProcRank;
+            }
+
+            inline
+            real logger_max_all( real & aLocalInput )
+            {   
+                real aGlobalMax;
+                MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+                return aGlobalMax;
+            }
+
+            inline
+            real logger_min_all( real & aLocalInput )
+            {   
+                real aGlobalMin;
+                MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+                return aGlobalMin;
+            }
 
         public:
 

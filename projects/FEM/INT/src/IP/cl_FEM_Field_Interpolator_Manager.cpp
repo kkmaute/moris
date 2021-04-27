@@ -285,11 +285,9 @@ namespace moris
             // create a geometry interpolator for IP cells
             mIPGeometryInterpolator = new Geometry_Interpolator(
                 tIPGeometryInterpolationRule,
+                mIPCellShape,
                 false,
                 false );
-
-            // assign the cell shape to the geometry interpolator
-            mIPGeometryInterpolator->set_cell_shape( mIPCellShape );
 
             // create a geometry interpolator for IG cells
             // IG interpolation requires knowledge about  the IP Element in 
@@ -297,12 +295,10 @@ namespace moris
             // tIPGeometryInterpolationRule
             mIGGeometryInterpolator = new Geometry_Interpolator(
                 tIGGeometryInterpolationRule,
-                tIPGeometryInterpolationRule, 
+                tIPGeometryInterpolationRule,
+                mIGCellShape,
                 tIsSide,
                 tIsTimeSide );
-
-            // assign the cell shape to the geometry interpolator
-            mIGGeometryInterpolator->set_cell_shape( mIGCellShape );
 
             // set flag that Field_Interpolator_Manager owns pointers to GeometryInterpolators
             mGeometryInterpolatorOwned = true;

@@ -117,15 +117,7 @@ namespace moris
                 UNDEFINED
         };
 
-        moris::map< std::string, Master_Slave > get_master_type_map()
-        {
-            moris::map< std::string, Master_Slave > tMasterTypeMap;
-
-            tMasterTypeMap["MASTER"]    = Master_Slave::MASTER;
-            tMasterTypeMap["SLAVE"]     = Master_Slave::SLAVE;
-            tMasterTypeMap["UNDEFINED"] = Master_Slave::UNDEFINED;
-            return tMasterTypeMap;
-        }
+        moris::map< std::string, mtk::Master_Slave > get_master_type_map();
 
         //------------------------------------------------------------------------------
 
@@ -137,16 +129,7 @@ namespace moris
                 UNDEFINED
         };
 
-        moris::map< std::string, Primary_Void > get_primary_type_map()
-        {
-            moris::map< std::string, Primary_Void > tPrimaryTypeMap;
-
-            tPrimaryTypeMap["PRIMARY"]   = Primary_Void::PRIMARY;
-            tPrimaryTypeMap["VOID"]      = Primary_Void::VOID;
-            tPrimaryTypeMap["INTERP"]    = Primary_Void::INTERP;
-            tPrimaryTypeMap["UNDEFINED"] = Primary_Void::UNDEFINED;
-            return tPrimaryTypeMap;
-        }
+        moris::map< std::string, mtk::Primary_Void > get_primary_type_map();
 
         //------------------------------------------------------------------------------
 
@@ -160,18 +143,7 @@ namespace moris
                 UNDEFINED
         };
 
-        moris::map< std::string, Field_Type > get_field_type_map()
-        {
-            moris::map< std::string, Field_Type > tFieldTypeMap;
-
-            tFieldTypeMap["FIELD_1"]   = Field_Type::FIELD_1;
-            tFieldTypeMap["FIELD_2"]   = Field_Type::FIELD_2;
-            tFieldTypeMap["FIELD_3"]   = Field_Type::FIELD_3;
-            tFieldTypeMap["FIELD_4"]   = Field_Type::FIELD_4;
-            tFieldTypeMap["FIELD_5"]   = Field_Type::FIELD_5;
-            tFieldTypeMap[""]          = Field_Type::UNDEFINED;
-            return tFieldTypeMap;
-        }
+        moris::map< std::string, Field_Type > get_field_type_map();
 
         //------------------------------------------------------------------------------
     } /* namespace mtk */

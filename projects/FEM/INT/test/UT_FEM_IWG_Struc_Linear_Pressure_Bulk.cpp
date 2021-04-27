@@ -54,9 +54,9 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed_Pressure
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes     = { MSI::Dof_Type::P };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tPDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tDispDofTypes( 0 ), tPDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -217,11 +217,11 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed_Pressure
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDofHatP );
 
             // set size and fill the set residual assembly map

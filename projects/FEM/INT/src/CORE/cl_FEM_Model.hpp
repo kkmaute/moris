@@ -46,6 +46,7 @@ namespace moris
         class Set;
         class Field_Interpolator;
         class Property;
+        class Material_Model;
         class Constitutive_Model;
         class Stabilization_Parameter;
         class IWG;
@@ -98,6 +99,7 @@ namespace moris
                 // fixme remove ?
                 moris::Cell< std::shared_ptr< fem::Property > >                mProperties;
                 moris::Cell< std::shared_ptr< fem::Field > >                   mFields;
+                moris::Cell< std::shared_ptr< fem::Material_Model > >          mMMs;
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      mCMs;
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
                 moris::Cell< std::shared_ptr< fem::IWG > >                     mIWGs;
@@ -201,8 +203,8 @@ namespace moris
                  */
                 void reset()
                 {
-                    mBulkGaussPoints               = 0;
-                    mSideSetsGaussPoints           = 0;
+                    mBulkGaussPoints                = 0;
+                    mSideSetsGaussPoints            = 0;
                     mDoubleSidedSideSetsGaussPoints = 0;
                 };
 
@@ -211,6 +213,7 @@ namespace moris
                 /**
                  * resets model member variables
                  */
+                inline
                 void report_on_assembly()
                 {
                     MORIS_LOG_SPEC( "Number of Bulk Gauss Points", sum_all(mBulkGaussPoints) );
@@ -429,6 +432,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * create a list of material model pointers
+                 * @param[ in ] aPropertyMap   a map from property name to property index
+                 * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+                 * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 */
+                void create_material_models(
+                        std::map< std::string, uint >            & aPropertyMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+
+                //------------------------------------------------------------------------------
+                /**
                  * create a list of constitutive model pointers
                  * @param[ in ] aPropertyMap   a map from property name to property index
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
@@ -521,6 +536,20 @@ namespace moris
                 // FIXME Old version of FEM inputs to be removed
                 //------------------------------------------------------------------------------
                 /**
+                 * create a list of material model pointers
+                 * @param[ in ] aMMMap         a map from MM name to index in aMMs
+                 * @param[ in ] aPropertyMap   a map from property name to property index
+                 * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+                 * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 */
+                void create_material_models(
+                        std::map< std::string, uint >            & aMMMap,
+                        std::map< std::string, uint >            & aPropertyMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+
+                //------------------------------------------------------------------------------
+                /**
                  * create a list of constitutive model pointers
                  * @param[ in ] aCMMap         a map from CM name to index in aCMs
                  * @param[ in ] aPropertyMap   a map from property name to property index
@@ -530,6 +559,7 @@ namespace moris
                 void create_constitutive_models(
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aPropertyMap,
+                        std::map< std::string, uint >            & aMMMap,
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                         moris::map< std::string, PDV_Type >      & aDvTypeMap );
 
@@ -563,6 +593,7 @@ namespace moris
                 void create_IWGs(
                         std::map< std::string, uint >            & aIWGMap,
                         std::map< std::string, uint >            & aPropertyMap,
+                        std::map< std::string, uint >            & aMMMap,
                         std::map< std::string, uint >            & aCMMap,
                         std::map< std::string, uint >            & aSPMap,
                         std::map< std::string, uint >            & aFieldMap,

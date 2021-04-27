@@ -212,6 +212,8 @@ option(MORIS_PERFORM_CHECK
     
 option(MORIS_USE_TACC "USE TACC" OFF)
 
+option(MORIS_USE_OPENMP "Use OpenMP" OFF)
+
 # -------------------------------------------------------------------------
 # Package Options
 
@@ -407,6 +409,15 @@ endif(MORIS_USE_TACC)
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
 
+if(MORIS_USE_OPENMP)
+    check_cxx_compiler_flag(-fopenmp HAVE_OPENMP)
+    message("CHECK FOPENMP")
+    if(HAVE_OPENMP)
+    message("SETTING FOPENMP")
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fopenmp")
+    endif()
+endif()
+
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,
 # for debugging purposes.
@@ -445,7 +456,7 @@ else()
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
         if (MORIS_USE_TACC)
-	        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
+	        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -xCORE-AVX2 -mkl:sequential -ip")
         else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
         endif()
@@ -496,21 +507,21 @@ endif()
 #                      Strict aliasing means that pointer arguments in a function are assumed to not alias.
 #                      For example, the following code would not compile: foo * a; bar * b; b = (foo *) a;
 #                      Because the pointers point to fundamentally different types.
-check_cxx_compiler_flag("-Wall -Werror" HAVE_PEDANTIC )
+check_cxx_compiler_flag("-Wall -Werror -Wno-unknown-pragmas" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror -Wno-unknown-pragmas" )
 endif()
 check_cxx_compiler_flag("-Wno-long-long" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-long-long" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-long-long -Wno-unknown-pragmas" )
 endif()
 check_cxx_compiler_flag("-pedantic-errors" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors -Wno-unknown-pragmas" )
 endif()
 check_cxx_compiler_flag("-Wno-error=maybe-uninitialized" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized -Wno-unknown-pragmas" )
 endif()
 
 # Check for C++11 or C++0x support.
@@ -876,9 +887,11 @@ endif()
 if (MORIS_USE_VALGRIND)
     set(VALGRIND "valgrind")
     set(VALGRIND_OPTIONS "")
+    set(VALGRIND_OPTIONS_EXA "--leak-check=full --track-origins=yes")
 else()
     set(VALGRIND "")
     set(VALGRIND_OPTIONS "")
+    set(VALGRIND_OPTIONS_EXA "")
 endif()
 
 # -------------------------------------------------------------------------

@@ -34,7 +34,7 @@ namespace moris
             mVarSetEval = false;
 
             // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::Y() - check for residual DoF types failed. See Error message above for more info." );
 
             // get number of state variable fields
@@ -57,7 +57,7 @@ namespace moris
             for ( uint iResDofType = 0; iResDofType < mResidualDofType.size(); iResDofType++ )
             {
                 // get field interpolator
-                Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( iResDofType ) );
+                Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( iResDofType )( 0 ) );
 
                 // get number of fields in FI
                 uint tNumFields = tFI->get_number_of_fields(); 
@@ -176,7 +176,7 @@ namespace moris
             mTestFuncSetEval = false;
 
             // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::assemble_test_function_set() - check for residual DoF types failed." );
 
             // get number of state variable fields
@@ -191,7 +191,7 @@ namespace moris
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
-            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFI =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
             Matrix< DDRMat > tN = tFI->N()( { 0, 0 }, { 0, this->num_bases() - 1 } );
             Matrix< DDRMat > tdNdt = tFI->dnNdtn( 1 )( { 0, 0 }, { 0, this->num_bases() - 1 } );
             Matrix< DDRMat > tdNdx = tFI->dnNdxn( 1 );

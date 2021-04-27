@@ -42,9 +42,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * create a constitutive model
+         * create a material model
          */
-        std::shared_ptr< Material_Model > create_CM( Material_Type aMaterialType );
+        std::shared_ptr< Material_Model > create_MM( Material_Type aMaterialType );
 
 //------------------------------------------------------------------------------
     };

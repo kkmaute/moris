@@ -46,6 +46,8 @@ namespace moris
              */
             void perform();
 
+            void restart_with_remesh( uint aI );
+
             /**
              * Gets the avs from the problem
              *

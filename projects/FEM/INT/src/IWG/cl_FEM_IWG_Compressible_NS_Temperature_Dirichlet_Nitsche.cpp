@@ -50,7 +50,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -77,10 +77,10 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                            mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::THERMAL ) ) * tTemperatureJump );
+                            mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::THERMAL ) ) * tTemperatureJump );
 
             // if residual dof type is velocity
-            if ( mResidualDofType( 0 ) == mDofTemperature )
+            if ( mResidualDofType( 0 )( 0 ) == mDofTemperature )
             {
                 // compute master residual
                 mSet->get_residual()( 0 )(
@@ -105,7 +105,7 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
@@ -147,11 +147,11 @@ namespace moris
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                 mBeta * tCMFluid->dTestTractiondDOF(
-                                        tDofType, mNormal, tTemperatureJump, mResidualDofType, CM_Function_Type::THERMAL ) );
+                                        tDofType, mNormal, tTemperatureJump, mResidualDofType( 0 ), CM_Function_Type::THERMAL ) );
 
                 //---------------------------------------------------------------------
                 // if residual dof type is velocity
-                if ( mResidualDofType( 0 ) == mDofTemperature )
+                if ( mResidualDofType( 0 )( 0 ) == mDofTemperature )
                 {
                     // compute master residual
                     mSet->get_jacobian()(
@@ -166,7 +166,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::THERMAL ) ) * tFITemp->N()
+                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::THERMAL ) ) * tFITemp->N()
                                         + tSPNitsche->val()( 0 ) * tFITemp->N_trans() * tFITemp->N() );
                     }
 
@@ -177,7 +177,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::THERMAL ) ) * tPropTemperature->dPropdDOF( tDofType )
+                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::THERMAL ) ) * tPropTemperature->dPropdDOF( tDofType )
                                         + tSPNitsche->val()( 0 ) * tFITemp->N_trans() * tPropTemperature->dPropdDOF( tDofType ) );
                     }
 
@@ -200,7 +200,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::THERMAL ) ) * tFITemp->N() );
+                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::THERMAL ) ) * tFITemp->N() );
                     }
 
                     // if imposed velocity depends on dof type
@@ -210,7 +210,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType, CM_Function_Type::THERMAL ) ) * tPropTemperature->dPropdDOF( tDofType ) );
+                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::THERMAL ) ) * tPropTemperature->dPropdDOF( tDofType ) );
                     }
                 }
             }

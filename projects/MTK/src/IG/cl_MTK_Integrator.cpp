@@ -1,6 +1,6 @@
 //MTK/src
-#include "IG/cl_MTK_Integration_Rule.hpp"
-#include "IG/cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
+#include "cl_MTK_Integrator.hpp"
 
 //LINALG/src
 #include "op_times.hpp"

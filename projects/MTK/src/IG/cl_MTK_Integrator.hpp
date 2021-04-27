@@ -11,8 +11,8 @@
 #include "typedefs.hpp"                  //MRS/COR/src
 #include "cl_Matrix.hpp"                 //LNA/src
 #include "cl_MTK_Enums.hpp"              //MTK/src
-#include "IG/cl_MTK_Integration_Rule.hpp"   //MTK/src
-#include "IG/cl_MTK_Integration_Coeffs.hpp" //MTK/src
+#include "cl_MTK_Integration_Rule.hpp"   //MTK/src
+#include "cl_MTK_Integration_Coeffs.hpp" //MTK/src
 
 namespace moris
 {

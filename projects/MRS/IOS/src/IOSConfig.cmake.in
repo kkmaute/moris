@@ -34,4 +34,5 @@ include("@PACKAGE_IOS_CONFIG_INSTALL_DIR@/@IOS@Targets.cmake")
 
 # Library target list
 set(@IOS@_LIBRARIES @IOS@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@IOS@-lib")
 

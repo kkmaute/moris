@@ -1,5 +1,3 @@
-
-
 #include "catch.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -45,7 +43,7 @@ moris::real tCircleForHMR( const Matrix< DDRMat > & aCoords )
     return norm( aCoords ) - 1.5237;
 }
 
-moris::real tCircle( 
+moris::real tCircle(
         const Matrix< DDRMat > & aCoords,
         const Matrix< DDRMat > & aParameters)
 {
@@ -67,128 +65,130 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
     {
         std::string tFieldName = "Geometry";
 
-         //----- HRM parameter list --------
+        //----- HRM parameter list --------
 
-         ParameterList tParameters = prm::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
-         tParameters.set( "number_of_elements_per_dimension", "4,   4" );
-         tParameters.set( "domain_dimensions",                "4.0,   4.0" );
-         tParameters.set( "domain_offset",                    "-2.0,  -2.0"  );
-         tParameters.set( "domain_sidesets",                  "1,2,3,4");
-         tParameters.set( "lagrange_output_meshes",           "0");
+        tParameters.set( "number_of_elements_per_dimension", "4,   4" );
+        tParameters.set( "domain_dimensions",                "4.0,   4.0" );
+        tParameters.set( "domain_offset",                    "-2.0,  -2.0"  );
+        tParameters.set( "domain_sidesets",                  "1,2,3,4");
+        tParameters.set( "lagrange_output_meshes",           "0");
 
-         tParameters.set( "lagrange_orders",  "1" );
-         tParameters.set( "lagrange_pattern",  "0" )  ;
-         tParameters.set( "bspline_orders",   "1" );
-         tParameters.set( "bspline_pattern",   "0" )  ;
+        tParameters.set( "lagrange_orders",  "1" );
+        tParameters.set( "lagrange_pattern",  "0" )  ;
+        tParameters.set( "bspline_orders",   "1" );
+        tParameters.set( "bspline_pattern",   "0" )  ;
 
-         tParameters.set( "lagrange_to_bspline", "0") ;
+        tParameters.set( "lagrange_to_bspline", "0") ;
 
-         tParameters.set( "truncate_bsplines",  1 );
-         tParameters.set( "refinement_buffer",  0 );
-         tParameters.set( "staircase_buffer",   1 );
-         tParameters.set( "initial_refinement", "1" );
-         tParameters.set( "initial_refinement_pattern", "0" );
+        tParameters.set( "truncate_bsplines",  1 );
+        tParameters.set( "refinement_buffer",  0 );
+        tParameters.set( "staircase_buffer",   1 );
+        tParameters.set( "initial_refinement", "1" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
-         tParameters.set( "use_number_aura", 1);
+        tParameters.set( "use_number_aura", 1);
 
-         tParameters.set( "use_multigrid",  0 );
-         tParameters.set( "severity_level", 0 );
+        tParameters.set( "use_multigrid",  0 );
+        tParameters.set( "severity_level", 0 );
 
-         ParameterList tRefinementParameters;
-         prm::create_refinement_parameterlist( tRefinementParameters );
-         tRefinementParameters.set( "field_names" , "Circle" );
-         tRefinementParameters.set( "levels_of_refinement" , "1" );
-         tRefinementParameters.set( "refinement_pattern" , "0" );
+        ParameterList tRefinementParameters;
+        prm::create_refinement_parameterlist( tRefinementParameters );
+        tRefinementParameters.set( "field_names" , "Circle" );
+        tRefinementParameters.set( "levels_of_refinement" , "1" );
+        tRefinementParameters.set( "refinement_pattern" , "0" );
 
-         ParameterList tRemeshingParameters;
-         prm::create_remeshing_parameterlist( tRemeshingParameters );
-         tRemeshingParameters.set( "mode" , "ab_initio" );
-         tRemeshingParameters.set( "remeshing_levels_of_refinement" , "1" );
-         tRemeshingParameters.set( "remeshing_refinement_pattern" , "0" );
+        ParameterList tRemeshingParameters;
+        prm::create_remeshing_parameterlist( tRemeshingParameters );
+        tRemeshingParameters.set( "mode" , "ab_initio" );
+        tRemeshingParameters.set( "remeshing_levels_of_refinement" , "1" );
+        tRemeshingParameters.set( "remeshing_refinement_pattern" , "0" );
 
-         //---------------------------------------------------------------------------------------
-         //                               Stage 1: HMR refinement
-         //---------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------
+        //                               Stage 1: HMR refinement
+        //---------------------------------------------------------------------------------------
 
-         std::shared_ptr< hmr::HMR > tHMRPerformer = std::make_shared< hmr::HMR >( tParameters );
+        std::shared_ptr< hmr::HMR > tHMRPerformer = std::make_shared< hmr::HMR >( tParameters );
 
-         // uniform initial refinement
-         tHMRPerformer->perform_initial_refinement();
+        // uniform initial refinement
+        tHMRPerformer->perform_initial_refinement();
 
-         std::shared_ptr< hmr::Database > tHMRDatabase = tHMRPerformer->get_database();
+        std::shared_ptr< hmr::Database > tHMRDatabase = tHMRPerformer->get_database();
 
-         hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                 tHMRDatabase,
-                 1,
-                 0,
-                 1,
-                 0);
+        hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                tHMRDatabase,
+                1,
+                0,
+                1,
+                0);
 
-         mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
+        mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
 
-         // Define two analytic MTK fields
-         moris::Cell< mtk::Field * > tFields( 1, nullptr );
+        // Define two analytic MTK fields
+        moris::Cell< mtk::Field * > tFields( 1, nullptr );
 
-         tFields( 0 ) = new mtk::Field_Analytic(
-                 tCircle,
-                 DummyDerivativeFunction,
-                 {{1.5237}},
-                 tMeshPair);
+        tFields( 0 ) = new mtk::Field_Analytic(
+                tCircle,
+                DummyDerivativeFunction,
+                {{1.5237}},
+                tMeshPair);
 
-         tFields( 0 )->set_label( "Circle" );
+        tFields( 0 )->set_label( "Circle" );
 
-         tFields( 0 )->save_field_to_exodus( "Remeshing_Field1.exo");
+        tFields( 0 )->save_field_to_exodus( "Remeshing_Field1.exo");
 
-         wrk::Refinement_Mini_Performer tRefinementPerformer( tRefinementParameters );
-         tRefinementPerformer.perform_refinement( tFields, tHMRPerformer );
+        wrk::Refinement_Mini_Performer tRefinementPerformer( tRefinementParameters );
+        tRefinementPerformer.perform_refinement( tFields, tHMRPerformer );
 
-         //delete( tInterpolationMesh );
+        //delete( tInterpolationMesh );
 
-         std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_HMR = std::make_shared< mtk::Mesh_Manager >();
-         tHMRPerformer->set_performer( tMTKPerformer_HMR );
+        std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_HMR = std::make_shared< mtk::Mesh_Manager >();
+        tHMRPerformer->set_performer( tMTKPerformer_HMR );
 
-         //hmr::Interpolation_Mesh_HMR * tInterpolationMeshNew = new hmr::Interpolation_Mesh_HMR(
-         //        tHMRDatabase,
-         //        1,
-         //        0,
-         //        1,
-         //        0);
+        hmr::Interpolation_Mesh_HMR * tInterpolationMeshNew = new hmr::Interpolation_Mesh_HMR(
+                tHMRDatabase,
+                1,
+                0,
+                1,
+                0);
 
-         // FIXME mesh pair should never be modified from the outside, this needs to be reworked
-//         delete tMeshPair.mInterpolationMesh;
-//         tMeshPair.mInterpolationMesh = tInterpolationMeshNew;
-//         tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
+        mtk::Mesh_Pair tMeshPairNew(tInterpolationMeshNew, nullptr, true);
+
+        tFields( 0 )->unlock_field();
+        tFields( 0 )->set_mesh_pair(tMeshPairNew);
+        tFields( 0 )->save_field_to_exodus( "Remeshing_Field2.exo");
+
+        tFields( 0 )->unlock_field();
+        tFields( 0 )->set_coefficients( {{0.8713}} );
+        tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
+
+        //print( tFields( 0 )->get_nodal_values(), "Val1");
+
+        tHMRDatabase->get_background_mesh()->update_database();
+        tHMRDatabase->update_bspline_meshes();
+        tHMRDatabase->update_lagrange_meshes();
+
+        // HMR finalize
+        tHMRPerformer->perform();
+
+        Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
+
+        wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
+//        tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
 //
-//         tFields( 0 )->unlock_field();
-//         tFields( 0 )->set_coefficients( {{0.8713}} );
-//         tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
+//        std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
 //
-//         //print( tFields( 0 )->get_nodal_values(), "Val1");
+//        hmr::Interpolation_Mesh_HMR * tInterpolationMeshNewMesh = new hmr::Interpolation_Mesh_HMR(
+//                tHMRDatabaseNew,
+//                1,
+//                0,
+//                1,
+//                0);
 //
-//         tHMRDatabase->get_background_mesh()->update_database();
-//         tHMRDatabase->update_bspline_meshes();
-//         tHMRDatabase->update_lagrange_meshes();
-//
-//         // HMR finalize
-//         tHMRPerformer->perform();
-//
-//         Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
-//
-//         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
-//         tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
-//
-//         std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
-//
-//         hmr::Interpolation_Mesh_HMR * tInterpolationMeshNewMesh = new hmr::Interpolation_Mesh_HMR(
-//                 tHMRDatabaseNew,
-//                 1,
-//                 0,
-//                 1,
-//                 0);
-//
-//         delete tMeshPair.mInterpolationMesh;
-//         tMeshPair.mInterpolationMesh = tInterpolationMeshNewMesh;
-//         tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
+//        mtk::Mesh_Pair tMeshPairNewMesh(tInterpolationMeshNewMesh, nullptr, true);
+//        tFields( 0 )->unlock_field();
+//        tFields( 0 )->set_mesh_pair(tMeshPairNewMesh);
+//        tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
     }
 }

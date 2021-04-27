@@ -21,7 +21,7 @@
 #include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell_Info.hpp"
-#include "IP/cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"

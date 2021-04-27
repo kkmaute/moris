@@ -49,12 +49,12 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the selection matrix property
             const std::shared_ptr< Property > & tPropSelect =
@@ -101,7 +101,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
                             - tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal )
-                            + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tJump
+                            + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump
                             + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
 
             // check for nan, infinity
@@ -119,13 +119,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator * tFIDispl =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the selection matrix property
             const std::shared_ptr< Property > & tPropSelect =
@@ -185,11 +185,11 @@ namespace moris
                         { tMasterDepStartIndex, tMasterDepStopIndex } );
 
                 // if dof type is residual dof type
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
+                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute the jacobian for direct dof dependencies
                     tJac += aWStar * (
-                            mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tFIDispl->N()
+                            mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFIDispl->N()
                             + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
                 }
 
@@ -198,7 +198,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     tJac -= aWStar * (
-                            mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tPropDirichlet->dPropdDOF( tDofType )
+                            mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )
                             + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
@@ -208,7 +208,7 @@ namespace moris
                     // add contribution to jacobian
                     tJac += aWStar * (
                             - tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal )
-                            + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType ) );
+                            + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if dependency on the dof type

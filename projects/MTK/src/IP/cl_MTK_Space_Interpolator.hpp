@@ -13,7 +13,7 @@
 //MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_Mesh_Enums.hpp"
-#include "IP/cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
 //LINALG/src
 #include "linalg_typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -58,7 +58,7 @@ namespace moris
                 Geometry_Type mGeometryType;
 
                 // element shape
-                CellShape mCellShape = CellShape::GENERAL;
+                CellShape mInterpolationShape;
 
                 // interpolation cell geometry type
                 Geometry_Type mIPMappingGeometryType;
@@ -104,23 +104,12 @@ namespace moris
                 real ( Space_Interpolator:: * mSpaceDetJFunc )(
                         const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
-                // pointer to function for space detJ
-                real ( Space_Interpolator:: * mSpaceDetJRectFunc )(
-                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
-                        // pointer to function for space detJ
-
                 // pointers for derivatives of space detJ wrt a single dof
                 real ( Space_Interpolator:: * mSpaceDetJDerivFunc )(
                         const Matrix< DDRMat > & aSpaceJt ) = nullptr;
 
-                real ( Space_Interpolator:: * mSpaceDetJDerivRectFunc )(
-                        const Matrix< DDRMat > & aSpaceJt ) = nullptr;
-
                 // point to function for inverse of space Jacobian
                 void ( Space_Interpolator:: * mInvSpaceJacFunc )() = nullptr;
-
-                // point to function for inverse of space Jacobian
-                void ( Space_Interpolator:: * mInvSpaceJacRectFunc )() = nullptr;
 
                 // pointer to function for normal
                 void (  Space_Interpolator:: * mNormalFunc )(
@@ -173,6 +162,7 @@ namespace moris
                  */
                 Space_Interpolator(
                         const Interpolation_Rule  & aInterpolationRule,
+                        const CellShape           & aInterpolationShape = CellShape::GENERAL,
                         const bool                  aSpaceSideset = false );
 
                 /**
@@ -184,6 +174,7 @@ namespace moris
                 Space_Interpolator(
                         const Interpolation_Rule  & aInterpolationRule,
                         const Interpolation_Rule  & aIPMapInterpolationRule,
+                        const CellShape           & aInterpolationShape = CellShape::GENERAL,
                         const bool                  aSpaceSideset = false );
 
                 //------------------------------------------------------------------------------
@@ -267,13 +258,6 @@ namespace moris
                 {
                     return mGeometryType;
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * sets the cell shape used for interpolation
-                 * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
-                 */
-                void set_cell_shape( enum CellShape aCellShape );
 
                 //------------------------------------------------------------------------------
                 /**

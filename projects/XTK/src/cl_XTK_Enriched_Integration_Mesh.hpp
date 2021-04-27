@@ -190,6 +190,24 @@ public:
     write_mesh(moris::ParameterList* aParamList);
 
 
+    void
+    create_union_block(Cell<std::string> const & aBlocks,
+                       std::string aNewBlock,
+                       Matrix<IndexMat> const & aNewBlockColor);
+
+    void
+    create_union_side_set(Cell<std::string> const & aSideSets,
+                          std::string aNewSideSet,
+                          Matrix<IndexMat> const & aNewSideSetColor);  
+
+
+    void
+    deactive_all_blocks_but_selected(Cell<std::string> const & aBlockSetsToKeep);
+
+    void
+    deactive_all_side_sets_but_selected(Cell<std::string> const & aSideSetsToKeep);
+
+
     //------------------------------------------------------------------------------
     // Memory Map
     //------------------------------------------------------------------------------

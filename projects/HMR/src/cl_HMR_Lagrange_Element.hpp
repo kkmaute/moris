@@ -53,6 +53,7 @@ namespace moris
                 /**
                  * default Lagrange Element constructor
                  */
+                inline
                 Lagrange_Element(
                         Background_Element_Base * aElement,
                         const uint              & aActivationPattern ) : Element( aElement, aActivationPattern )
@@ -432,6 +433,7 @@ namespace moris
         };
         //------------------------------------------------------------------------------
         template< uint N, uint D >
+        inline
         void
         Lagrange_Element< N, D >::set_cell_info() 
         {
@@ -440,6 +442,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         void Lagrange_Element< N, D >::create_basis_on_level_zero(
                 moris::Cell< Element * > & aAllElementsOnProc,
                 luint                    & aBasisCounter )
@@ -450,6 +453,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         void Lagrange_Element< N, D >::create_basis_for_children(
                 moris::Cell< Element * > & aAllElementsOnProc,
                 luint                    & aBasisCounter )
@@ -460,6 +464,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         std::string Lagrange_Element< N, D >::get_gmsh_string()
         {
             std::string aString = "GMSH not implemented for this element";
@@ -469,6 +474,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         uint Lagrange_Element< N, D >::get_vtk_type()
         {
             // this element has no VTK id
@@ -478,6 +484,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         void Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // do nothing
@@ -486,6 +493,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         void Lagrange_Element< N, D >::get_ijk_of_basis(
                 const uint & aBasisNumber,
                 luint      * aIJK )
@@ -496,6 +504,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         template< uint N, uint D >
+        inline
         Matrix< DDRMat > Lagrange_Element< N, D >::get_vertex_coords() const
         {
             Matrix< DDRMat > aCoords( D, N );

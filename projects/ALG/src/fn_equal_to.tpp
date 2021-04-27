@@ -2,6 +2,7 @@ namespace moris {
 // ----------------------------------------------------------------------------
 
 template< class T >
+inline
 bool
 equal_to(
                 T           const & a,
@@ -18,6 +19,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template<>
+inline
 bool
 equal_to(
                 int         const & a,
@@ -30,6 +32,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template<>
+inline
 bool
 equal_to(
                 uint        const & a,
@@ -42,6 +45,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template<>
+inline
 bool
 equal_to(
                 luint       const & a,
@@ -54,6 +58,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template<>
+inline
 bool
 equal_to(
                 long long unsigned int const & a,
@@ -66,6 +71,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template<>
+inline
 bool
 equal_to(
                 long long int const & a,
@@ -78,6 +84,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< class T, class A >
+inline
 bool
 equal_to(
                 T           const & a,
@@ -94,6 +101,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 uint        const & a,
@@ -106,6 +114,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 uint        const & a,
@@ -118,6 +127,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 luint       const & a,
@@ -130,6 +140,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 uint                   const & a,
@@ -142,6 +153,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 long long unsigned int const & a,
@@ -154,6 +166,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 long long unsigned int const & a,
@@ -166,6 +179,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 luint       const & a,
@@ -178,6 +192,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 uint        const & a,
@@ -191,6 +206,7 @@ equal_to(
 // ----------------------------------------------------------------------------
 
 template< >
+inline
 bool
 equal_to(
                 luint       const & a,

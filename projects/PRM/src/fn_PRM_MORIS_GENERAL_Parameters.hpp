@@ -28,6 +28,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
+    inline
     ParameterList create_moris_general_parameter_list()
     {
         ParameterList tParameterList;
@@ -36,7 +37,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
+    inline
     void create_refinement_parameterlist( ParameterList & aParameterlist )
     {
         aParameterlist.insert( "field_names" , "" );
@@ -45,7 +46,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
+    inline
     void create_remeshing_parameterlist( ParameterList & aParameterlist )
     {
         // Remeshing mode. Options are "ab_initio", "former"
@@ -61,7 +62,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
+    inline
     void create_mapping_parameterlist( ParameterList & aParameterlist )
     {
 

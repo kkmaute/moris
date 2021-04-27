@@ -66,8 +66,9 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
     moris::Cell< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
     moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< MSI::Dof_Type > tResidualDofTypes = { MSI::Dof_Type::P, MSI::Dof_Type::VX, MSI::Dof_Type::TEMP };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -111,7 +112,7 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
@@ -444,7 +445,7 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                     Matrix< DDRMat > tJacobianFD;
 
                     // check jacobian by FD
-                    bool tCheckJacobian = tIWG->check_jacobian(
+                    bool tCheckJacobian = tIWG->check_jacobian_multi_residual(
                             tPerturbation,
                             tEpsilon,
                             1.0,

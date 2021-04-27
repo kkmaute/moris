@@ -62,8 +62,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -73,8 +74,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    //tPropViscosity->set_parameters( { {{ 2.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
+    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
     //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
@@ -144,6 +146,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
                // set velocity dof types
                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+
+               // set viscosity property parameters
+               tPropViscosity->set_parameters( { {{ 2.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -163,6 +168,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 2.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -252,7 +260,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // set size and fill the set residual assembly map
@@ -384,8 +392,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
+
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -395,8 +404,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    //tPropViscosity->set_parameters( { {{ 2.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
+    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
     //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
@@ -466,6 +476,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
 
                // set velocity dof types
                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+
+               // set viscosity property parameters
+               tPropViscosity->set_parameters( { {{ 2.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -485,6 +498,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+
+                // set viscosity property parameters
+                tPropViscosity->set_parameters( { {{ 2.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -575,7 +591,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // set size and fill the set residual assembly map
