@@ -680,7 +680,7 @@ namespace moris
                         {
                             Matrix<DDRMat> tIndividualSensitivity =
                                     (*tdIQIdPDV)(tPDVID, tVectorIndex) *
-                                    tHostADVSensitivities.get_column(tCoordinateIndex);
+                                    tHostADVSensitivities.get_row(tCoordinateIndex);
 
                             // Fill matrix
                             tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);

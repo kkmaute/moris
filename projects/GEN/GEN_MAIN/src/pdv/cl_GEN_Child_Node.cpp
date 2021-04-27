@@ -59,8 +59,8 @@ namespace moris
                 
                 // Join sensitivities
                 uint tJoinedSensitivityLength = mJoinedSensitivities.n_cols();
-                mJoinedSensitivities.resize(1, tJoinedSensitivityLength + tAncestorSensitivities.n_cols());
-                for (uint tAncestorSensitivity = 0; tAncestorSensitivity < tAncestorSensitivities.n_cols(); tAncestorSensitivity++)
+                mJoinedSensitivities.resize(1, tJoinedSensitivityLength + tAncestorSensitivities.length());
+                for (uint tAncestorSensitivity = 0; tAncestorSensitivity < tAncestorSensitivities.length(); tAncestorSensitivity++)
                 {
                     mJoinedSensitivities(tJoinedSensitivityLength + tAncestorSensitivity) = tAncestorSensitivities(tAncestorSensitivity);
                 }

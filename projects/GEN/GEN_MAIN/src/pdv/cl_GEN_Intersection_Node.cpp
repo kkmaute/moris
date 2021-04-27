@@ -95,7 +95,7 @@ namespace moris
 
                 // Ancestor sensitivities
                 tSensitivitiesToAdd = 0.5 * this->get_dcoordinate_dfield_from_ancestor(tAncestorNode) *
-                        trans( trans(mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0)) * tFieldSensitivities );
+                        trans( mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0) ) * tFieldSensitivities;
 
                 // Join sensitivities
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
@@ -253,18 +253,18 @@ namespace moris
         void Intersection_Node::join_coordinate_sensitivities(const Matrix<DDRMat>& aSensitivitiesToAdd)
         {
             // Resize sensitivities
-            uint tJoinedSensitivityLength = mCoordinateSensitivities.n_rows();
+            uint tJoinedSensitivityLength = mCoordinateSensitivities.n_cols();
             mCoordinateSensitivities.resize(
-                    tJoinedSensitivityLength + aSensitivitiesToAdd.n_rows(),
-                    aSensitivitiesToAdd.n_cols());
+                    aSensitivitiesToAdd.n_rows(),
+                    tJoinedSensitivityLength + aSensitivitiesToAdd.n_cols());
 
             // Join sensitivities
-            for (uint tAddedSensitivity = 0; tAddedSensitivity < aSensitivitiesToAdd.n_rows(); tAddedSensitivity++)
+            for (uint tCoordinateIndex = 0; tCoordinateIndex < aSensitivitiesToAdd.n_rows(); tCoordinateIndex++)
             {
-                for (uint tCoordinateIndex = 0; tCoordinateIndex < aSensitivitiesToAdd.n_cols(); tCoordinateIndex++)
+                for (uint tAddedSensitivity = 0; tAddedSensitivity < aSensitivitiesToAdd.n_cols(); tAddedSensitivity++)
                 {
-                    mCoordinateSensitivities(tJoinedSensitivityLength + tAddedSensitivity, tCoordinateIndex) =
-                            aSensitivitiesToAdd(tAddedSensitivity, tCoordinateIndex);
+                    mCoordinateSensitivities(tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity) =
+                            aSensitivitiesToAdd(tCoordinateIndex, tAddedSensitivity);
                 }
             }
         }
@@ -274,11 +274,11 @@ namespace moris
         void Intersection_Node::join_adv_ids(const Matrix<DDSMat>& aIDsToAdd)
         {
             // Resize IDs
-            uint tJoinedSensitivityLength = mCoordinateDeterminingADVIDs.n_rows();
-            mCoordinateDeterminingADVIDs.resize(tJoinedSensitivityLength + aIDsToAdd.n_rows(), 1);
+            uint tJoinedSensitivityLength = mCoordinateDeterminingADVIDs.n_cols();
+            mCoordinateDeterminingADVIDs.resize(1, tJoinedSensitivityLength + aIDsToAdd.length());
 
             // Join IDs
-            for (uint tAddedSensitivity = 0; tAddedSensitivity < aIDsToAdd.n_rows(); tAddedSensitivity++)
+            for (uint tAddedSensitivity = 0; tAddedSensitivity < aIDsToAdd.length(); tAddedSensitivity++)
             {
                 mCoordinateDeterminingADVIDs(tJoinedSensitivityLength + tAddedSensitivity) = aIDsToAdd(tAddedSensitivity);
             }
