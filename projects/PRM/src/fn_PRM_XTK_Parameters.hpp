@@ -75,7 +75,7 @@ namespace moris
         tParameterList.insert( "output_path", "./" );
         tParameterList.insert( "output_file", "xtk_temp.exo" );
 
-        // print enriched integration meshs
+        // print enriched integration meshes
         tParameterList.insert( "print_enriched_ig_mesh", false );
 
         // save enriched integration mesh for every optimization iteration
@@ -103,7 +103,8 @@ namespace moris
         tParameterList.insert("union_side_set_names","");
         tParameterList.insert("union_side_set_colors","");
 
-
+        //Periodic environment sidesets
+        tParameterList.insert( "periodic_side_set_pair", "");
 
         return tParameterList;
     }

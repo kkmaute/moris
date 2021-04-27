@@ -28,8 +28,9 @@ namespace moris
                 moris::Cell< moris::mtk::Set * > mListofBlocks;
                 moris::Cell< moris::mtk::Set * > mListofSideSets;
                 moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
+                moris::Cell< moris::mtk::Set * > mListOfAllSets;
 
-                moris::Cell< moris::mtk::Set * > mListOfAllSets;    
+                moris::Cell<mtk::Double_Side_Cluster*> mDoubleSideClusters;
 
                 map< std::string, moris_index >  mSetNameToIndexMap;
 
@@ -279,8 +280,19 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
+                /*!
+                 * adds a double sided side set to the mesh
+                 */
                 void
                 add_double_side_set(mtk::Set* aDblSideSet);
+
+                // ----------------------------------------------------------------------------
+
+                /*!
+                 * adds a double sided side set to the mesh
+                 */
+                void
+                add_double_sided_cluster(mtk::Double_Side_Cluster* );
 
             protected:
 

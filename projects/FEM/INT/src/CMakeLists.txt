@@ -208,6 +208,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Mass_Flow.hpp
     IQI/cl_FEM_IQI_Thermal_Energy.hpp  
     IQI/cl_FEM_IQI_Stabilization.hpp
+    IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -393,6 +394,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Mass_Flow.cpp
     IQI/cl_FEM_IQI_Thermal_Energy.cpp
     IQI/cl_FEM_IQI_Stabilization.cpp
+    IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     

@@ -34,6 +34,12 @@ namespace moris
                 delete tListofDoubleSideSets;
             }
             mListofDoubleSideSets.clear();
+
+            for(auto p:mDoubleSideClusters)
+            {
+                delete p;
+            }
+            mDoubleSideClusters.clear();
         }
 
         // ----------------------------------------------------------------------------
@@ -208,10 +214,14 @@ namespace moris
         void
         Integration_Mesh::add_double_side_set(mtk::Set* aDblSideSet)
         {
+            //add double sided set to the list
             mListofDoubleSideSets.push_back(aDblSideSet); 
+
+            //reconstruct list of all sets by adding double sided set and a corresponding index
             this->collect_all_sets();  
         }
 
+        // ----------------------------------------------------------------------------
 
         void 
         Integration_Mesh::collect_all_sets( bool aSetShape )
@@ -356,8 +366,14 @@ namespace moris
                 }
             }
         }
+        
         // ----------------------------------------------------------------------------
-
+        void
+        Integration_Mesh::add_double_sided_cluster(mtk::Double_Side_Cluster* aDblSidedCluster)
+        {
+            // add double sided cluster to the double sided cluster list
+            mDoubleSideClusters.push_back(aDblSidedCluster);
+        }
         
         // ----------------------------------------------------------------------------
 

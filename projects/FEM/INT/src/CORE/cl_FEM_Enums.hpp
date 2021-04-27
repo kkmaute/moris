@@ -147,6 +147,8 @@ namespace moris
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
 
+                HOMOGENIZED_CONSTITUTIVE,
+
                 END_IQI_TYPE
         };
 
