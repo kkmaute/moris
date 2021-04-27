@@ -72,6 +72,25 @@ namespace moris
 
         //------------------------------------------------------------------------------
         /*
+        * creates a material model parameter list with default inputs
+        * @param [ out ] ParameterList a MM parameter list
+        */
+        inline
+        ParameterList create_material_model_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert( "material_name", std::string( "undefined" ) );
+            tParameterList.insert( "material_type", static_cast< uint >( fem::Material_Type::UNDEFINED ) );
+            tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "phase_name",        std::string( "" ) );
+
+            return tParameterList;
+        }
+
+        //------------------------------------------------------------------------------
+        /*
          * creates a constitutive model parameter list with default inputs
          * @param [ out ] ParameterList a CM parameter list
          */
