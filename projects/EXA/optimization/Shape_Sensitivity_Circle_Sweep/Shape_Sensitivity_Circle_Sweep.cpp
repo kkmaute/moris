@@ -184,7 +184,6 @@ namespace moris
 
     void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
-
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize(1);
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
@@ -327,7 +326,7 @@ namespace moris
 
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP");
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIDisp");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY") ;
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
@@ -404,9 +403,13 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-//        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "shape_opt_test.exo" ) );
-//        tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-//        tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p3,HMR_dummy_c_p3" );
+        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p3,HMR_dummy_c_p3" );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "U");
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL");
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIDisp");
+        tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
 
