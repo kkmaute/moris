@@ -27,8 +27,8 @@ namespace moris
 
                 //mode ab_initio
                 moris::Cell< std::string > mRefinementsFieldNames_0;
-                Matrix< DDUMat >           mRefinementsMode_0;
-                Matrix< DDUMat >           mRefinementPatternMode_0;
+                Cell< Matrix< DDSMat > >   mRefinementsMode_0;
+                Cell< Matrix< DDSMat > >   mRefinementPatternMode_0;
         };
 
         class Remeshing_Mini_Performer

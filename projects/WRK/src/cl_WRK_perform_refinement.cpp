@@ -47,7 +47,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
-                Cell< mtk::Field* >                    & aFields,
+                Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
             // create field name to index map
@@ -93,7 +93,7 @@ namespace moris
 
                     for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
                     {
-                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+                        std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
 
                         const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
 

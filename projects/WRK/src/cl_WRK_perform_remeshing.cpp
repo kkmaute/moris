@@ -49,19 +49,22 @@ namespace moris
                         aParameterlist.get< std::string >( "remeshing_field_names" ),
                         tFieldNames );
 
-                Matrix< DDUMat > tRefinementLevel;
-                string_to_mat(
+                // set refinement level
+                Cell< Matrix< DDSMat > > tRefinementLevel;
+                string_to_cell_mat(
                         aParameterlist.get< std::string >( "remeshing_levels_of_refinement" ),
                         tRefinementLevel );
 
-                Matrix< DDUMat > tRefinementPattern;
-                string_to_mat(
+                // set refinementpattern
+                Cell< Matrix< DDSMat > >  tRefinementPattern;
+                string_to_cell_mat(
                         aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                         tRefinementPattern );
 
                 mParameters.mRefinementsFieldNames_0 = tFieldNames;
                 mParameters.mRefinementsMode_0       = tRefinementLevel;
                 mParameters.mRefinementPatternMode_0 = tRefinementPattern;
+
             }
 
 
@@ -142,6 +145,7 @@ namespace moris
             // copy values from input mesh to New/Old mesh ( this mesh is build based on the new HMR performer )
             tFieldOld->unlock_field();
             tFieldOld->set_nodal_values( aSourceFields( 1 )->get_nodal_values() );
+            tFieldOld->set_label( aSourceFields( 1 )->get_label() );
 
             Cell< std::shared_ptr< mtk::Field > > tOldFields( 2 );
             tOldFields( 0 ) = aSourceFields( 0 );
@@ -228,23 +232,18 @@ namespace moris
 
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
-//            Cell< moris_index >                       tRefinementPattern;
-//            moris::Cell< moris::Cell< std::string > > tFieldNames;
-//            moris::Cell< moris::Cell< uint > >        tRefinements;
-//            moris::Cell< sint >                       tMaxRefinementPerLevel;
-//
-//            this->prepare_input_for_refinement(
-//                    tRefinementPattern,
-//                    tFieldNames,
-//                    tRefinements,
-//                    tMaxRefinementPerLevel );
+            Cell< moris_index >                       tRefinementPattern;
+            moris::Cell< moris::Cell< std::string > > tFieldNames;
+            moris::Cell< moris::Cell< uint > >        tRefinements;
+            moris::Cell< sint >                       tMaxRefinementPerLevel;
 
-            // get refinement level and pattern
-            Matrix< DDUMat > tRefinementLevel = mParameters.mRefinementsMode_0;
-            Matrix< DDUMat > tRefinementPattern = mParameters.mRefinementPatternMode_0;
+            this->prepare_input_for_refinement(
+                    tRefinementPattern,
+                    tFieldNames,
+                    tRefinements,
+                    tMaxRefinementPerLevel );
 
-            //uint tNumPattern = tRefinementPattern.size();
-            uint tNumPattern = tRefinementPattern.numel();  
+            uint tNumPattern = tRefinementPattern.size();
             
             // loop over pattern
             for( uint Ik = 0; Ik < tNumPattern; Ik++ )
@@ -252,10 +251,8 @@ namespace moris
                 // get pattern
                 uint tPattern = tRefinementPattern( Ik );
 
-                //for( uint Ii = 0; Ii < tMaxRefinementPerLevel( Ik ); Ii++ )
-                for( uint Ii = 0; Ii < tRefinementLevel( Ik ); Ii++ )
+                for( sint Ii = 0; Ii < tMaxRefinementPerLevel( Ik ); Ii++ )
                 {
-
                     // create mesh for this pattern
                     hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                             tHMRDatabase,
@@ -271,32 +268,33 @@ namespace moris
 
                     mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh, true);
 
-                    // create field object for this mesh
-                    mtk::Field_Discrete tFieldOnPattern( tMeshPair, tPattern );
-                    tFieldOnPattern.set_label( "Level_Set_Field" );
+                    uint tNumFields = aSourceFields.size();
 
-                    // create mapper and map input field to new field
-                    mtk::Mapper tMapper;
-                    tMapper.map_input_field_to_output_field( aSourceFields( 1 ).get(), &tFieldOnPattern );
+                    Cell< std::shared_ptr< mtk::Field > > tFields( tNumFields, nullptr );
+
+                    for( uint If = 0; If< aSourceFields.size(); If++ )
+                    {
+                        if( aSourceFields( If )->get_field_is_discrete() )
+                        {
+                            // create field object for this mesh
+                            tFields( If )= std::make_shared< mtk::Field_Discrete >( tMeshPair, tPattern );
+                            tFields( If )->set_label( aSourceFields( If )->get_label() );
+
+                            // create mapper and map input field to new field
+                            mtk::Mapper tMapper;
+                            tMapper.map_input_field_to_output_field( aSourceFields( If ).get(), tFields( If ).get() );
+                        }
+                        else
+                        {
+                            tFields( If ) = aSourceFields( If );
+                            tFields( If )->unlock_field();
+                            tFields( If )->set_mesh_pair( tMeshPair );
+                        }
+                    }
 
                     // create refinement parameter list
                     moris::ParameterList tRefinementParameterlist;
-                    prm::create_refinement_parameterlist( tRefinementParameterlist );
-                    tRefinementParameterlist.set( "field_names" , "Box,Level_Set_Field" );
-                    tRefinementParameterlist.set( "levels_of_refinement" , "1;1" );
-                    tRefinementParameterlist.set( "refinement_pattern" , "0;0" );
-
-//                    this->create_refinement_input_list( tRefinementParameterlist, tPattern );
-
-                    // put field pointer in cell
-                    Cell< mtk::Field* > tFields( 2 );
-                    tFields( 0 )=aSourceFields(0).get();
-                    tFields( 0 )->set_label( "Box" );
-                    tFields( 0 )->unlock_field();
-                    tFields( 0 )->set_mesh_pair( tMeshPair );
-                    tFields( 1 )=&tFieldOnPattern;
-
-                    tFields( 1 )->save_field_to_exodus( "Field.exo");
+                    this->create_refinement_input_list( tRefinementParameterlist, tPattern );
 
                     // create refinement mini performer and perform refinement
                     wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist );
@@ -366,60 +364,60 @@ namespace moris
                 moris::Cell< moris::Cell< uint > >        & aRefinements,
                 moris::Cell< sint >                       & aMaxRefinementPerPattern )
         {
-//            // produce unique list of pattern which will be refined
-//            for( uint Ik = 0; Ik< mParameters.mRefinementPatternMode_0.size(); Ik++ )
-//            {
-//                for( uint Ii = 0; Ii< mParameters.mRefinementPatternMode_0( Ik ).numel(); Ii++ )
-//                {
-//                    aPatternForRefinement.push_back( mParameters.mRefinementPatternMode_0( Ik )( Ii ) );
-//                }
-//            }
-//
-//            // Sort this created list
-//            std::sort( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
-//
-//            // use std::unique and std::distance to create list containing all used dof types. This list is unique
-//            auto last = std::unique( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
-//            auto pos  = std::distance( ( aPatternForRefinement.data() ).data(), last );
-//
-//            aPatternForRefinement.resize( pos );
-//
-//            uint tNumberOfRefinementPattern = aPatternForRefinement.size();
-//
-//            // resize
-//            aFieldsForRefinement    .resize( tNumberOfRefinementPattern );
-//            aRefinements            .resize( tNumberOfRefinementPattern );
-//            aMaxRefinementPerPattern.resize( tNumberOfRefinementPattern, MORIS_REAL_MAX );
-//
-//            // create list with field pointers and refinements per pattern
-//            for( uint Ik = 0; Ik< tNumberOfRefinementPattern; Ik++ )
-//            {
-//                moris_index tPattern = aPatternForRefinement( Ik );
-//
-//                // loop over all fields and corresponding patterns. Find the pattern which corresponds to tPattern and put it in list.
-//                // This is kind of a brute force algorithm. however there will be only a few fields
-//                for( uint Ii = 0; Ii< mParameters.mRefinementPatternMode_0.size(); Ii++ )
-//                {
-//                    for( uint Ia = 0; Ia< mParameters.mRefinementPatternMode_0( Ii ).numel(); Ia++ )
-//                    {
-//                        if( tPattern == mParameters.mRefinementPatternMode_0( Ii )( Ia ) )
-//                        {
-//                            aFieldsForRefinement( Ik ).push_back( mParameters.mRefinementsFieldNames_0( Ii ) );
-//
-//                            // aRefinements are not use tight now but implemented for future use
-//                            aRefinements( Ik )        .push_back( mParameters.mRefinementsMode_0( Ii )( Ia ) );
-//
-//                            uint tRefPatt = mParameters.mRefinementsMode_0( Ii )( Ia );
-//
-//                            MORIS_ERROR( tRefPatt == aMaxRefinementPerPattern( Ik ) || aMaxRefinementPerPattern( Ik ) == MORIS_REAL_MAX,
-//                                    "prepare_input_for_refinement(), This implementation is limited to one refinement level per pattern."
-//                                    "It can be extended if needed." );
-//
-//                            aMaxRefinementPerPattern( Ik ) = tRefPatt;
-//                        }
-//                    }
-//                }
-//            }
+            // produce unique list of pattern which will be refined
+            for( uint Ik = 0; Ik< mParameters.mRefinementPatternMode_0.size(); Ik++ )
+            {
+                for( uint Ii = 0; Ii< mParameters.mRefinementPatternMode_0( Ik ).numel(); Ii++ )
+                {
+                    aPatternForRefinement.push_back( mParameters.mRefinementPatternMode_0( Ik )( Ii ) );
+                }
+            }
+
+            // Sort this created list
+            std::sort( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
+
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
+            auto last = std::unique( ( aPatternForRefinement.data() ).data(), ( aPatternForRefinement.data() ).data() + aPatternForRefinement.size() );
+            auto pos  = std::distance( ( aPatternForRefinement.data() ).data(), last );
+
+            aPatternForRefinement.resize( pos );
+
+            uint tNumberOfRefinementPattern = aPatternForRefinement.size();
+
+            // resize
+            aFieldsForRefinement    .resize( tNumberOfRefinementPattern );
+            aRefinements            .resize( tNumberOfRefinementPattern );
+            aMaxRefinementPerPattern.resize( tNumberOfRefinementPattern, MORIS_SINT_MAX );
+
+            // create list with field pointers and refinements per pattern
+            for( uint Ik = 0; Ik< tNumberOfRefinementPattern; Ik++ )
+            {
+                moris_index tPattern = aPatternForRefinement( Ik );
+
+                // loop over all fields and corresponding patterns. Find the pattern which corresponds to tPattern and put it in list.
+                // This is kind of a brute force algorithm. however there will be only a few fields
+                for( uint Ii = 0; Ii< mParameters.mRefinementPatternMode_0.size(); Ii++ )
+                {
+                    for( uint Ia = 0; Ia< mParameters.mRefinementPatternMode_0( Ii ).numel(); Ia++ )
+                    {
+                        if( tPattern == mParameters.mRefinementPatternMode_0( Ii )( Ia ) )
+                        {
+                            aFieldsForRefinement( Ik ).push_back( mParameters.mRefinementsFieldNames_0( Ii ) );
+
+                            // aRefinements are not use tight now but implemented for future use
+                            aRefinements( Ik )        .push_back( mParameters.mRefinementsMode_0( Ii )( Ia ) );
+
+                            sint tRefPatt = mParameters.mRefinementsMode_0( Ii )( Ia );
+
+                            MORIS_ERROR( tRefPatt == aMaxRefinementPerPattern( Ik ) || aMaxRefinementPerPattern( Ik ) == MORIS_SINT_MAX,
+                                    "prepare_input_for_refinement(), This implementation is limited to one refinement level per pattern."
+                                    "It can be extended if needed." );
+
+                            aMaxRefinementPerPattern( Ik ) = tRefPatt;
+                        }
+                    }
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -443,7 +441,7 @@ namespace moris
             tPattern.pop_back();
             tRefinement.pop_back();
 
-
+            prm::create_refinement_parameterlist( aRefinementParameterlist );
             aRefinementParameterlist.set( "field_names" , tFieldNames );
             aRefinementParameterlist.set( "levels_of_refinement" , tPattern );
             aRefinementParameterlist.set( "refinement_pattern" , tRefinement );
