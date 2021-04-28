@@ -40,6 +40,8 @@ namespace moris
                     aCoefficientIndices,
                     aSharedADVIds,
                     aADVOffsetID);
+
+            mFieldIsDiscrete = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -67,6 +69,8 @@ namespace moris
                     aCoefficientIndices,
                     aSharedADVIds,
                     aADVOffsetID);
+
+            mFieldIsDiscrete = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -50,6 +50,8 @@ namespace moris
             
             // Fill constant parameters
             this->fill_constant_parameters();
+
+            mLabel = mParameters.mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -111,6 +113,7 @@ namespace moris
                 : mParameters(aField->mParameters)
                 , mDependsOnADVs(aField->mDependsOnADVs)
         {
+            mLabel = mParameters.mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------
