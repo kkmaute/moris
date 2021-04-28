@@ -126,13 +126,11 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
 
         // Define two analytic MTK fields
-        moris::Cell< mtk::Field * > tFields( 1, nullptr );
+        moris::Cell< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
 
-        tFields( 0 ) = new mtk::Field_Analytic(
-                tCircle,
-                DummyDerivativeFunction,
-                {{1.5237}},
-                tMeshPair);
+        moris::Matrix<DDRMat> tMat = {{1.5237}};
+
+        tFields( 0 ) = std::make_shared< mtk::Field_Analytic >( tCircle, DummyDerivativeFunction, tMat, tMeshPair, 1 );
 
         tFields( 0 )->set_label( "Circle" );
 
