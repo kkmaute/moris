@@ -53,6 +53,7 @@ namespace moris
         aParameterlist.insert( "mode" , "" );
 
         // modde "ab_initio"
+        aParameterlist.insert( "remeshing_field_names" , "" );
         aParameterlist.insert( "remeshing_levels_of_refinement" , "" );
         aParameterlist.insert( "remeshing_refinement_pattern" , "" );
 

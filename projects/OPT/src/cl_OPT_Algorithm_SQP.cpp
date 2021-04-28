@@ -154,7 +154,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_SQP::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
+        uint Algorithm_SQP::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
             Tracer tTracer( "OptimizationAlgorithm", "SQP", "Solve" );
@@ -187,6 +187,10 @@ namespace moris
                 // Run dummy solve
                 this->dummy_solve();
             }
+
+            uint tOptIter = gLogger.get_opt_iteration();
+
+            return tOptIter;
         }
 
         //--------------------------------------------------------------------------------------------------------------

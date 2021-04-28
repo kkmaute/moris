@@ -49,7 +49,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_Sweep::solve(
+        uint Algorithm_Sweep::solve(
                 uint                     aCurrentOptAlgInd,
                 std::shared_ptr<Problem> aOptProb )
         {
@@ -82,6 +82,8 @@ namespace moris
 
             // update aOptProb
             aOptProb = mProblem;
+
+            return 0;
         }
 
         //----------------------------------------------------------------------------------------------------------
