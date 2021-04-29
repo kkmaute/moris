@@ -1,6 +1,7 @@
 #ifndef MORIS_FN_PRM_OPT_PARAMETERS_HPP
 #define MORIS_FN_PRM_OPT_PARAMETERS_HPP
 
+#include "typedefs.hpp"
 #include "cl_Param_List.hpp"
 
 namespace moris
@@ -21,6 +22,8 @@ namespace moris
                                                                           // central, forward, backward, or none
             tParameterList.insert("finite_difference_epsilons", "1E-8");  // Epsilon(s) to use per ADV for finite differencing
             tParameterList.insert("library", ""); // Path to a shared object file for user-defined functions
+
+            tParameterList.insert("reinitialize_interface_iter", INT_MAX); // number of iterations until the interface will be reinitialized
 
             return tParameterList;
         }
