@@ -73,7 +73,6 @@ namespace moris
             {
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
-                uint tOrder = 1;                               //TODO
 
                 for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
                 {
@@ -94,6 +93,8 @@ namespace moris
                     for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
                     {
                         std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                        uint tOrder = tField->get_lagrange_order();
 
                         const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
 

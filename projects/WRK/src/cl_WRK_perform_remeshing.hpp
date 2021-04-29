@@ -51,7 +51,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 void perform_remeshing(
-                        moris::Cell< std::shared_ptr< mtk::Field > > const  & aSourceFields,
+                        moris::Cell< std::shared_ptr< mtk::Field > >          aSourceFields,
                         moris::Cell< std::shared_ptr< hmr::HMR > >          & aHMRPerformers,
                         moris::Cell< std::shared_ptr< mtk::Mesh_Manager > > & mMTKPerformer,
                         moris::Cell< std::shared_ptr< mtk::Field > >        & aNewFields);
@@ -71,8 +71,8 @@ namespace moris
                  *
                  */
                 void perform_refinement_mode_0(
-                        std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                        Cell< std::shared_ptr< mtk::Field > > aSourceFields );
+                        std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                        Cell< std::shared_ptr< mtk::Field > > & aSourceFields );
 
                 //------------------------------------------------------------------------------
 
@@ -82,10 +82,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void map_field(
-                std::shared_ptr< hmr::HMR >     aHMRPerformer,
-                mtk::Field                  *   aSourceField,
-                mtk::Field                  * & aTargetField );
+                void map_fields(
+                        Cell< std::shared_ptr< mtk::Field > > & aSourceFields,
+                        Cell< std::shared_ptr< mtk::Field > > & aTargetFields,
+                        mtk::Mesh_Pair                        & aMeshPair,
+                        uint                                    aDiscretizationMeshIndex,
+                        bool                                    aMapFields);
 
                 //------------------------------------------------------------------------------
 

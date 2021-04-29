@@ -74,12 +74,24 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Remeshing_Mini_Performer::perform_remeshing(
-                moris::Cell< std::shared_ptr< mtk::Field > > const  & aSourceFields,
+                moris::Cell< std::shared_ptr< mtk::Field > >          aSourceFields,
                 moris::Cell< std::shared_ptr< hmr::HMR > >          & aHMRPerformers,
                 moris::Cell< std::shared_ptr< mtk::Mesh_Manager > > & aMTKPerformer,
                 moris::Cell< std::shared_ptr< mtk::Field > >        & aNewFields )
         {
-            mtk::Mesh_Pair tMeshPairIn = aSourceFields( 1 )->get_mesh_pair();
+            // find first discrete field. // assumption: all fields are based on the same interpolation mesh
+            // If no discrete field is found use first with index 0 TODO
+            sint tFirstDiscreteFieldIndex = 0;
+            for(uint Ik = 0; Ik < aSourceFields.size(); Ik++ )
+            {
+                if( aSourceFields( Ik )->get_field_is_discrete() )
+                {
+                    tFirstDiscreteFieldIndex = Ik;
+                    break;
+                }
+            }
+
+            mtk::Mesh_Pair tMeshPairIn = aSourceFields( tFirstDiscreteFieldIndex )->get_mesh_pair();
 
             moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
 
@@ -89,8 +101,8 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = tSourceMesh->get_HMR_database();
 
             // get Lagrange and Discretization orer
-            uint tSourceLagrangeOrder = aSourceFields( 1 )->get_lagrange_order();
-            uint tDiscretizationOrder = aSourceFields( 1 )->get_discretization_order();
+            uint tSourceLagrangeOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
+            uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
 
             // extract pattern from mesh on which this field id based on
             // both Lagrange and discretization order if they are not the same
@@ -100,7 +112,7 @@ namespace moris
             hmr::File tFile;
             tFile.save_refinement_pattern(
                     tSourceMesh->get_HMR_lagrange_mesh(),
-                    aSourceFields( 1 )->get_discretization_mesh_index(),
+                    aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_mesh_index(),
                     aElementCounterPerLevelAndPattern,
                     aElementPerPattern );
 
@@ -139,18 +151,14 @@ namespace moris
             // Create  mesh pair
             mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, tOldIntegrationMesh, true);
 
-            // build field with mesh
-            std::shared_ptr< mtk::Field > tFieldOld = std::make_shared< mtk::Field_Discrete >( tMeshPairOld );
+            Cell< std::shared_ptr< mtk::Field > > tOldFields;
 
-            // copy values from input mesh to New/Old mesh ( this mesh is build based on the new HMR performer )
-            tFieldOld->unlock_field();
-            tFieldOld->set_nodal_values( aSourceFields( 1 )->get_nodal_values() );
-            tFieldOld->set_label( aSourceFields( 1 )->get_label() );
-
-            Cell< std::shared_ptr< mtk::Field > > tOldFields( 2 );
-            tOldFields( 0 ) = aSourceFields( 0 );
-            tOldFields( 1 ) = tFieldOld;
-
+            this->map_fields(
+                    aSourceFields,
+                    tOldFields,
+                    tMeshPairOld,
+                    0,
+                    false ); //FIXME =  discretization meshindex
 
             this->perform_refinement( tHMRPerformerNew, tOldFields );
 
@@ -165,30 +173,36 @@ namespace moris
             // Set HMR performer to MTK performer
             aMTKPerformer( 0 )->set_performer( aHMRPerformers( 0 ) );
 
-            mtk::Field * tFieldOnPattern = nullptr;
+            //------------------------------------------------------------------------------
 
-            this->map_field(
-                    aHMRPerformers( 0 ),
-                    tFieldOld.get(),
-                    tFieldOnPattern );
+            uint tPattern =0;
+
+            // create mesh for this pattern
+            hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                    tHMRDatabaseNew,
+                    tSourceLagrangeOrder,
+                    tPattern,
+                    tDiscretizationOrder,
+                    tPattern);
+
+            hmr::Integration_Mesh_HMR* tIntegrationMesh = new hmr::Integration_Mesh_HMR(
+                    tSourceLagrangeOrder,
+                    tPattern,
+                    tInterpolationMesh);
+
+            mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh, true);
+
+            this->map_fields(
+                    tOldFields,
+                    aNewFields,
+                    tMeshPair,
+                    0,
+                    true ); //FIXME =  discretization meshindex
+
+            //------------------------------------------------------------------------------
 
             // HMR finalize
             aHMRPerformers( 0 )->perform();
-
-            // build field with mesh
-            std::shared_ptr< mtk::Field > tFieldNew =
-                    std::make_shared< mtk::Field_Discrete >( aMTKPerformer( 0 )->get_mesh_pair(0), 0 );
-            tFieldNew->set_label( "Level_Set_Field" );
-
-            tFieldNew->unlock_field();
-            tFieldNew->set_coefficients( tFieldOnPattern->get_coefficients());
-            //tFieldNew->unlock_field();
-            //tFieldNew->set_nodal_values( tFieldOnPattern->get_nodal_values());
-
-
-            //tFieldNew->save_field_to_exodus( "FieldNew.exo");
-
-            aNewFields.resize( 1, tFieldNew );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -220,15 +234,25 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Remeshing_Mini_Performer::perform_refinement_mode_0(
-                std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                Cell< std::shared_ptr< mtk::Field > > aSourceFields )
+                std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                Cell< std::shared_ptr< mtk::Field > > & aSourceFields )
         {
             // perform initial uniform refinement
             aHMRPerformer->perform_initial_refinement();
 
+            sint tFirstDiscreteFieldIndex = 0;
+            for(uint Ik = 0; Ik < aSourceFields.size(); Ik++ )
+            {
+                if( aSourceFields( Ik )->get_field_is_discrete() )
+                {
+                    tFirstDiscreteFieldIndex = Ik;
+                    break;
+                }
+            }
+
             // get input field order
-            uint tLagrangeOrder = aSourceFields( 1 )->get_lagrange_order();
-            uint tDiscretizationOrder = aSourceFields( 1 )->get_discretization_order();
+            uint tLagrangeOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
+            uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
 
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
@@ -268,29 +292,14 @@ namespace moris
 
                     mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh, true);
 
-                    uint tNumFields = aSourceFields.size();
+                    Cell< std::shared_ptr< mtk::Field > > aTargetFields;
 
-                    Cell< std::shared_ptr< mtk::Field > > tFields( tNumFields, nullptr );
-
-                    for( uint If = 0; If< aSourceFields.size(); If++ )
-                    {
-                        if( aSourceFields( If )->get_field_is_discrete() )
-                        {
-                            // create field object for this mesh
-                            tFields( If )= std::make_shared< mtk::Field_Discrete >( tMeshPair, tPattern );
-                            tFields( If )->set_label( aSourceFields( If )->get_label() );
-
-                            // create mapper and map input field to new field
-                            mtk::Mapper tMapper;
-                            tMapper.map_input_field_to_output_field( aSourceFields( If ).get(), tFields( If ).get() );
-                        }
-                        else
-                        {
-                            tFields( If ) = aSourceFields( If );
-                            tFields( If )->unlock_field();
-                            tFields( If )->set_mesh_pair( tMeshPair );
-                        }
-                    }
+                    this->map_fields(
+                            aSourceFields,
+                            aTargetFields,
+                            tMeshPair,
+                            tPattern,
+                            true ); //FIXME tPattern = DiscretizationMeshiondex
 
                     // create refinement parameter list
                     moris::ParameterList tRefinementParameterlist;
@@ -298,7 +307,7 @@ namespace moris
 
                     // create refinement mini performer and perform refinement
                     wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist );
-                    tRefinementMiniPerformer.perform_refinement( tFields, aHMRPerformer );
+                    tRefinementMiniPerformer.perform_refinement( aTargetFields, aHMRPerformer );
 
                     tHMRDatabase->get_background_mesh()->update_database();
                     tHMRDatabase->update_bspline_meshes();
@@ -315,45 +324,46 @@ namespace moris
         {
 
         }
-
         //--------------------------------------------------------------------------------------------------------------
-        void Remeshing_Mini_Performer::map_field(
-                std::shared_ptr< hmr::HMR >     aHMRPerformer,
-                mtk::Field                  *   aSourceField,
-                mtk::Field                  * & aTargetField )
+
+        void Remeshing_Mini_Performer::map_fields(
+                Cell< std::shared_ptr< mtk::Field > > & aSourceFields,
+                Cell< std::shared_ptr< mtk::Field > > & aTargetFields,
+                mtk::Mesh_Pair                        & aMeshPair,
+                uint                                    aDiscretizationMeshIndex,
+                bool                                    aMapFields)
         {
-            std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
+            uint tNumFields = aSourceFields.size();
 
-            uint tLagrangeOrder = 1;                  //TODO
-            uint tDiscretizationOrder = 1;            //TODO
-            uint tPattern =0;
+            aTargetFields.resize( tNumFields, nullptr );
 
-            // create mesh for this pattern
-            hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                    tHMRDatabase,
-                    tLagrangeOrder,
-                    tPattern,
-                    tDiscretizationOrder,
-                    tPattern);
+            for( uint If = 0; If< tNumFields; If++ )
+            {
+                if( aSourceFields( If )->get_field_is_discrete() )
+                {
+                    // create field object for this mesh
+                    aTargetFields( If )= std::make_shared< mtk::Field_Discrete >( aMeshPair, aDiscretizationMeshIndex );
+                    aTargetFields( If )->set_label( aSourceFields( If )->get_label() );
 
-            hmr::Integration_Mesh_HMR* tIntegrationMesh = new hmr::Integration_Mesh_HMR(
-                    tLagrangeOrder,
-                    tPattern,
-                    tInterpolationMesh);
-
-            mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh, true);
-
-            // create field object for this mesh
-            mtk::Field_Discrete *  tFieldOnPattern = new mtk::Field_Discrete( tMeshPair, tPattern );
-            tFieldOnPattern->set_label( "Level_Set_Field" );
-
-            mtk::Mapper tMapper;
-            // create mapper and map input field to new field
-            tMapper.map_input_field_to_output_field( aSourceField, tFieldOnPattern );
-
-            //tFieldOnPattern->save_field_to_exodus( "Field1111.exo");
-
-            aTargetField = tFieldOnPattern;
+                    if( aMapFields )
+                    {
+                        // create mapper and map input field to new field
+                        mtk::Mapper tMapper;
+                        tMapper.map_input_field_to_output_field( aSourceFields( If ).get(), aTargetFields( If ).get() );
+                    }
+                    else
+                    {
+                        aTargetFields( If )->unlock_field();
+                        aTargetFields( If )->set_nodal_values( aSourceFields( If )->get_nodal_values() );
+                    }
+                }
+                else
+                {
+                    aTargetFields( If ) = aSourceFields( If );
+                    aTargetFields( If )->unlock_field();
+                    aTargetFields( If )->set_mesh_pair( aMeshPair );
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
