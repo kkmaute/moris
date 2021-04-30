@@ -13,6 +13,8 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Mesh_Checker.hpp"
+#include "cl_MTK_Cell_Info_Factory.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "fn_generate_shared_face_element_graph.hpp"
 
 namespace xtk
@@ -112,6 +114,8 @@ namespace xtk
         // access enriched integration mesh and enriched interp mesh
         Enriched_Integration_Mesh &   tEnrIgMesh = mXTKModel->get_enriched_integ_mesh(0);
         Enriched_Interpolation_Mesh & tEnrIpMesh = mXTKModel->get_enriched_interp_mesh(0);
+
+        aGhostSetupData.mLinearBackgroundMesh = this->is_linear_ip_mesh();
 
         // get the groupings of interpolation cells
         Cell<Interpolation_Cell_Unzipped *>       tOwnedInterpCells;
@@ -931,6 +935,7 @@ namespace xtk
         Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
         Enriched_Integration_Mesh   & tEnrIntegMesh  = mXTKModel->get_enriched_integ_mesh();
 
+
         // all interpolation cells
         Cell<Interpolation_Cell_Unzipped*> & tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
 
@@ -1051,7 +1056,19 @@ namespace xtk
         aGhostSetupData.mTransitionLocation.shrink_to_fit();
 
         // allocate ids for non-trivial integration cells
-        moris_id tCurrentId    = tEnrIntegMesh.allocate_entity_ids(tNonTrivialCount,EntityRank::ELEMENT);
+        moris_id tCurrentId    = 0;
+        
+        if(aGhostSetupData.mLinearBackgroundMesh)
+        {
+            tCurrentId = tEnrIntegMesh.allocate_entity_ids(tNonTrivialCount,EntityRank::ELEMENT);
+        }
+        else
+        {
+            tCurrentId = tEnrIntegMesh.allocate_entity_ids(tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT),EntityRank::ELEMENT);
+        }
+        
+
+
         moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities(EntityRank::ELEMENT);
 
         // determine total number of ghost faces across all processors
@@ -1077,11 +1094,10 @@ namespace xtk
             {
                 // create a new side cluster for each of the pairs
                 std::shared_ptr<Side_Cluster> tSlaveSideCluster  =
-                        this->create_slave_side_cluster(aGhostSetupData,tEnrIpCells,i,j);
+                        this->create_slave_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tCurrentIndex,tCurrentId);
 
                 std::shared_ptr<Side_Cluster> tMasterSideCluster =
-                        this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,
-                                tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
+                        this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
 
                 // verify the subphase cluster
                 MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,
@@ -1227,7 +1243,9 @@ namespace xtk
             Ghost_Setup_Data                         &  aGhostSetupData,
             Cell<Interpolation_Cell_Unzipped*>       & aEnrIpCells,
             uint                               const & aBulkIndex,
-            uint                               const & aCellIndex)
+            uint                               const & aCellIndex,
+            moris_index                              & aCurrentIndex,
+            moris_index                              & aCurrentId)
     {
         // create a new side cluster for the slave
         std::shared_ptr<Side_Cluster> tSlaveSideCluster  = std::make_shared< Side_Cluster >();
@@ -1239,7 +1257,7 @@ namespace xtk
         tSlaveSideCluster->mTrivial = true;
 
         // add integration cell
-        tSlaveSideCluster->mIntegrationCells  = {aEnrIpCells(aGhostSetupData.mSlaveSideIpCells(aBulkIndex)(aCellIndex))->get_base_cell()};
+        tSlaveSideCluster->mIntegrationCells  = {this->get_linear_ig_cell(aGhostSetupData,aEnrIpCells(aGhostSetupData.mSlaveSideIpCells(aBulkIndex)(aCellIndex)),aCurrentIndex,aCurrentId)};
 
         // allocate space in integration cell side ordinals
         tSlaveSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mSlaveSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
@@ -1321,12 +1339,13 @@ namespace xtk
         {
             // flag the master side as trivial
             tMasterSideCluster->mTrivial = true;
+            
             // add integration cell
-            tMasterSideCluster->mIntegrationCells =
-            {aEnrIpCells(aGhostSetupData.mMasterSideIpCells(aBulkIndex)(aCellIndex))->get_base_cell()};
-
+            tMasterSideCluster->mIntegrationCells = {this->get_linear_ig_cell(aGhostSetupData,aEnrIpCells(aGhostSetupData.mMasterSideIpCells(aBulkIndex)(aCellIndex)),aCurrentIndex,aCurrentId)};
+            
             // add side ordinal relative to the integration cell
             tMasterSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
+            
 
             // add the vertices on the side ordinal
             tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
@@ -1393,12 +1412,16 @@ namespace xtk
             tCellVertices(tCount++) = &mXTKModel->get_background_mesh().get_mtk_vertex(iV->get_index());
         }
 
+        // linear cell info
+        mtk::Cell_Info_Factory tCellInfoFactory;
+        std::shared_ptr<moris::mtk::Cell_Info> tLinearCellInfo = tCellInfoFactory.create_cell_info_sp(tMasterIpCell->get_geometry_type(),mtk::Interpolation_Order::LINEAR);
+
         // create a new integration cell that does not have a child mesh association
         moris::mtk::Cell* tIgCell = new Cell_XTK_No_CM(
                 aCurrentId,
                 aCurrentIndex,
                 tMasterIpCell->get_owner(),
-                tCellInfo,
+                tLinearCellInfo,
                 tCellVertices);
 
         // increment current id and index
@@ -1407,6 +1430,108 @@ namespace xtk
 
         return tIgCell;
     }
+
+    // ----------------------------------------------------------------------------------
+    mtk::Cell*
+    Ghost_Stabilization::get_linear_ig_cell(Ghost_Setup_Data                  & aGhostSetupData,
+                                            Interpolation_Cell_Unzipped       * aInterpCell,
+                                            moris_index                       & aCurrentIndex,
+                                            moris_index                       & aCurrentId)
+    {
+        mtk::Cell* tCell = nullptr;
+
+        auto tIter = aGhostSetupData.mLinearIgCellIndex.find(aInterpCell->get_id());
+        if(aGhostSetupData.mLinearBackgroundMesh == true)
+        {
+            tCell = aInterpCell->get_base_cell();
+        }
+        else if(tIter == aGhostSetupData.mLinearIgCellIndex.end())
+        {
+            tCell = this->create_linear_ig_cell(aGhostSetupData,aInterpCell,aCurrentIndex,aCurrentId);
+            
+        }
+        else
+        {
+            moris_index tIndex = tIter->second;
+            tCell = aGhostSetupData.mLinearIgCells(tIndex);
+        }
+
+        return tCell;
+    }
+    // ----------------------------------------------------------------------------------
+    mtk::Cell*
+    Ghost_Stabilization::create_linear_ig_cell(Ghost_Setup_Data                  & aGhostSetupData,
+                                               Interpolation_Cell_Unzipped const * aInterpCell,
+                                               moris_index                       & aCurrentIndex,
+                                               moris_index                       & aCurrentId)
+    {
+        MORIS_ASSERT(aGhostSetupData.mLinearIgCellIndex.find(aInterpCell->get_id()) == aGhostSetupData.mLinearIgCellIndex.end(),"Trying to create linear ig cell twice");
+        
+        // get the base cell
+        moris::mtk::Cell const* tBaseCell = aInterpCell->get_base_cell();
+
+        // get the geometric vertices
+        moris::Cell<moris::mtk::Vertex *> tAllVertices = tBaseCell->get_vertex_pointers();
+
+        moris::Cell<moris::mtk::Vertex *> tLinearVertices;
+
+        moris::uint tSpatialDim = mXTKModel->get_spatial_dim();
+
+        MORIS_ERROR(tBaseCell->get_geometry_type() == mtk::Geometry_Type::HEX || tBaseCell->get_geometry_type() == mtk::Geometry_Type::QUAD,
+        "Ghost only tested on quads and hex");
+
+        if(tSpatialDim == 2)
+        {
+            tLinearVertices.resize(4);
+            tLinearVertices(0) = tAllVertices(0);
+            tLinearVertices(1) = tAllVertices(1);
+            tLinearVertices(2) = tAllVertices(2);
+            tLinearVertices(3) = tAllVertices(3);
+        }
+        else if(tSpatialDim == 3)
+        {
+            tLinearVertices.resize(8);
+
+            tLinearVertices(0) = tAllVertices(0);
+            tLinearVertices(1) = tAllVertices(1);
+            tLinearVertices(2) = tAllVertices(2);
+            tLinearVertices(3) = tAllVertices(3);
+            tLinearVertices(4) = tAllVertices(4);
+            tLinearVertices(5) = tAllVertices(5);
+            tLinearVertices(6) = tAllVertices(6);
+            tLinearVertices(7) = tAllVertices(7);
+        }
+        else
+        {
+            MORIS_ERROR(0,"Only 2/3d");
+        }
+
+        // linear cell info
+        mtk::Cell_Info_Factory tCellInfoFactory;
+        std::shared_ptr<moris::mtk::Cell_Info> tLinearCellInfo = tCellInfoFactory.create_cell_info_sp(aInterpCell->get_geometry_type(),mtk::Interpolation_Order::LINEAR);
+
+
+        // create a new integration cell that does not have a child mesh association
+        moris::mtk::Cell* tIgCell = new Cell_XTK_No_CM(
+                aCurrentId,
+                aCurrentIndex,
+                aInterpCell->get_owner(),
+                tLinearCellInfo,
+                tLinearVertices);
+
+
+        // add to map
+        aGhostSetupData.mLinearIgCellIndex[aInterpCell->get_id()] = (moris_index) aGhostSetupData.mLinearIgCells.size();
+
+        // add to data
+        aGhostSetupData.mLinearIgCells.push_back(tIgCell);
+
+        // add to background mesh
+        mXTKModel->get_background_mesh().add_new_cell_to_mesh( tIgCell );
+
+        return tIgCell;
+    }
+    
 
     // ----------------------------------------------------------------------------------
 
@@ -1562,6 +1687,27 @@ namespace xtk
         {
             MORIS_ERROR(0,"Invalid spatial dimension for ghost");
             return 0;
+        }
+    }
+
+    bool
+    Ghost_Stabilization::is_linear_ip_mesh()
+    {
+        Enriched_Interpolation_Mesh & tEnrIpMesh = mXTKModel->get_enriched_interp_mesh(0);
+
+        MORIS_ERROR(tEnrIpMesh.get_num_entities(EntityRank::ELEMENT) > 0,"Cannot deduce type on empty mesh.");
+
+        // get the first cell
+        mtk::Cell const & tCell0 = tEnrIpMesh.get_mtk_cell(0);
+
+        if(tCell0.get_interpolation_order() == mtk::Interpolation_Order::LINEAR)
+        {
+            return true;
+        }
+
+        else
+        {
+            return false;
         }
     }
 }
