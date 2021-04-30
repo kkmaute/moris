@@ -231,7 +231,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Field::get_discretization_mesh_index()
+        moris_index Field::get_discretization_mesh_index() const
         {
             MORIS_ASSERT(mParameters.mDiscretizationMeshIndex >= 0,
                     "A discretization is not intended for this field. Check this with intended_discretization() first.");

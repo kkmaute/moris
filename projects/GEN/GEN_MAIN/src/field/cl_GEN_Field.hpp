@@ -209,7 +209,7 @@ namespace moris
              *
              * @return Mesh index
              */
-            uint get_discretization_mesh_index();
+            moris_index get_discretization_mesh_index() const;
 
             /**
              * Gets the lower bound for a discretized field.

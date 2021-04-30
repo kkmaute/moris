@@ -90,7 +90,9 @@ namespace moris
                 uint                   aADVOffsetID)
         {
             MORIS_ERROR(aTargetField.length() == aCoefficientIndices.length(),
-                    "MTK mapper is reporting a different number of coefficients than the mesh at the finest level.");
+                    "MTK mapper is reporting a different number of coefficients than the mesh at the finest level. %-5i | %-5i",
+                    aTargetField.length(),
+                    aCoefficientIndices.length() );
 
             // Get B-spline mesh index
             mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
