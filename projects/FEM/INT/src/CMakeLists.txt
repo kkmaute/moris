@@ -166,6 +166,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
 
+    IWG/cl_FEM_IWG_Compressible_NS_Base.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Boundary.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp
@@ -207,6 +208,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Mass_Flow.hpp
     IQI/cl_FEM_IQI_Thermal_Energy.hpp  
     IQI/cl_FEM_IQI_Stabilization.hpp
+    IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -344,8 +346,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
 
+    IWG/cl_FEM_IWG_Compressible_NS_Base.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
-    IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+    #IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk_Stabilization.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Boundary.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
@@ -391,6 +394,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Mass_Flow.cpp
     IQI/cl_FEM_IQI_Thermal_Energy.cpp
     IQI/cl_FEM_IQI_Stabilization.cpp
+    IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     

@@ -38,6 +38,10 @@ namespace moris
 
                 uint mCurrentOptAlgInd;                         // stores index of current optimization solver
 
+                moris::uint mRestartIndex  = 0;                  // iteration index to be set when restarting
+                moris::sint mMaxIterations = 0;                  // maximum number of iterations
+                moris::sint mMaxIterationsInitial = 0;                  // maximum number of iterations
+
                 std::shared_ptr<moris::opt::Problem> mProblem;  // pointer to problem algorithm operates on
 
                 Matrix< DDSMat > mActive;                       // flag for active/inactive constraints
@@ -83,7 +87,7 @@ namespace moris
                  * @param[in] aOptProb Object of type Problem containing relevant
                  *            data regarding ADVs, the objective and constraints
                  */
-                virtual void solve(uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb) = 0;
+                virtual uint solve(uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb) = 0;
 
                 /**
                  * Computes design criteria for a given vector of ADVs
@@ -160,6 +164,17 @@ namespace moris
                  * @brief write restart file with advs as well as upper and lower bounds
                  */
                 void write_advs_to_file( const Matrix<DDRMat> aADVs );
+
+                /**
+                 * @brief set restart index
+                 */
+                void set_restart_index( uint aRestartIndex )
+                {
+                    mRestartIndex = aRestartIndex;
+
+                    // calculating updated max its
+                    mMaxIterations = mMaxIterationsInitial - mRestartIndex;
+                }
 
             private:
 

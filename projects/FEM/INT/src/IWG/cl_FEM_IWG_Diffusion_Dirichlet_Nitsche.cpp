@@ -55,7 +55,7 @@ namespace moris
 
             // get field interpolator for a given dof type
             Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property > & tPropSelect =

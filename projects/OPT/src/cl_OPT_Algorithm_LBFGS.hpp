@@ -13,7 +13,6 @@ namespace moris
         private:
 
             uint mOptIter = 0;         // optimization iteration counter
-            uint mRestartIndex = 0;    // iteration index to be set when restarting
             uint mResFlag;             // Flag from L-BFGS describing result of optimization algorithm
             sint mMaxIt;               // Maximum number of optimization iterations
             int mNumCorrections;       // Number of limited memory corrections
@@ -40,7 +39,7 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve(
+            uint solve(
                     uint aCurrentOptAlgInd,
                     std::shared_ptr<Problem> aOptProb );
 

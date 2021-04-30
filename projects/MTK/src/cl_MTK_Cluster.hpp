@@ -299,6 +299,14 @@ namespace moris
                     return moris::Matrix<moris::IdMat>(0,0);
                 }
 
+                virtual
+                moris::Matrix<moris::DDRMat>
+                get_vertex_coords_in_cluster() const
+                {
+                    MORIS_ERROR(false, "get_vertex_ids_in_cluster(): not implemented for this cluster type");
+                    return moris::Matrix<moris::DDRMat>(0,0);
+                }
+
                 //##############################################
                 // Local Coordinate access
                 //##############################################

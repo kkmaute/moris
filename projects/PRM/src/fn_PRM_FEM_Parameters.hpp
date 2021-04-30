@@ -72,6 +72,25 @@ namespace moris
 
         //------------------------------------------------------------------------------
         /*
+        * creates a material model parameter list with default inputs
+        * @param [ out ] ParameterList a MM parameter list
+        */
+        inline
+        ParameterList create_material_model_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert( "material_name", std::string( "undefined" ) );
+            tParameterList.insert( "material_type", static_cast< uint >( fem::Material_Type::UNDEFINED ) );
+            tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "phase_name",        std::string( "" ) );
+
+            return tParameterList;
+        }
+
+        //------------------------------------------------------------------------------
+        /*
          * creates a constitutive model parameter list with default inputs
          * @param [ out ] ParameterList a CM parameter list
          */
@@ -85,6 +104,7 @@ namespace moris
             tParameterList.insert( "dof_dependencies",  std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties",        std::string( "" ) );
+            tParameterList.insert( "material_model",    std::string( "" ) );
             tParameterList.insert( "model_type",        static_cast< uint >( fem::Model_Type::UNDEFINED ) );
             tParameterList.insert( "phase_name",        std::string( "" ) );
 
@@ -146,6 +166,8 @@ namespace moris
 
             tParameterList.insert( "master_properties",          std::string( "" ) );
             tParameterList.insert( "slave_properties",           std::string( "" ) );
+            tParameterList.insert( "master_material_model",      std::string( "" ) );
+            tParameterList.insert( "slave_material_model",       std::string( "" ) );
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );

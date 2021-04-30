@@ -15,9 +15,7 @@ using namespace moris;
 //----------------------------------------------------------------------------------------------------------------------
 
 OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
-: mRestartIndex(aParameterList.get< moris::sint >( "restart_index" )),
-  mMaxIterations(aParameterList.get< moris::sint >( "max_its" )),
-  mMaxInnerIterations(aParameterList.get< moris::sint >( "max_inner_its" )),
+: mMaxInnerIterations(aParameterList.get< moris::sint >( "max_inner_its" )),
   mNormDrop(aParameterList.get< moris::real >( "norm_drop" )),
   mAsympAdapt0(aParameterList.get< moris::real >( "asymp_adapt0" )),
   mAsympShrink(aParameterList.get< moris::real >( "asymp_adaptb" )),
@@ -25,6 +23,9 @@ OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
   mStepSize(aParameterList.get< moris::real >( "step_size" )),
   mPenalty(aParameterList.get< moris::real >( "penalty" ))
 {
+    mRestartIndex         = aParameterList.get< moris::sint >( "restart_index" );
+    mMaxIterationsInitial = aParameterList.get< moris::sint >( "max_its" );
+    mMaxIterations        = mMaxIterationsInitial;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -35,7 +36,7 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void OptAlgGCMMA::solve(
+uint OptAlgGCMMA::solve(
         uint aCurrentOptAlgInd,
         std::shared_ptr<moris::opt::Problem> aOptProb )
 {
@@ -74,6 +75,10 @@ void OptAlgGCMMA::solve(
     this->printresult(); // print the result of the optimization algorithm
 
     aOptProb = mProblem; // update aOptProb
+
+    uint tOptIter = gLogger.get_opt_iteration();
+
+    return tOptIter;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -16,6 +16,8 @@ namespace moris
         {
             // update coefficient data
             this->update_coefficent_data();
+
+            mFieldIsDiscrete = true;
         }
 
         // ----------------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace moris
                 std::shared_ptr<Geometry> aGeometry,
                 std::shared_ptr<mtk::Field> aField )
                 : Field(aCoefficientIndices, aSharedADVIds, aMeshPair, aGeometry)
-                , BSpline_Field(aOwnedADVs, aCoefficientIndices, aSharedADVIds, aADVOffsetID, aMeshPair, aGeometry)
+                , BSpline_Field(aOwnedADVs, aCoefficientIndices, aSharedADVIds, aADVOffsetID, aMeshPair, aGeometry, aField)
                 , Geometry(aGeometry)
         {
 

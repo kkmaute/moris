@@ -9,7 +9,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
-        std::shared_ptr< Material_Model > MM_Factory::create_CM( fem::Material_Type aMaterialType )
+        std::shared_ptr< Material_Model > MM_Factory::create_MM( fem::Material_Type aMaterialType )
         {
 
             switch( aMaterialType )

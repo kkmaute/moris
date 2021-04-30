@@ -176,7 +176,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
 
     // FEM parameter lists
     Cell<Cell<ParameterList>> tParameterList;
-    tParameterList.resize( 7 );
+    tParameterList.resize( 8 );
 
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
     tParameterList( 4 )( 0 ).set( "IQI_name",                   "Strain Energy");

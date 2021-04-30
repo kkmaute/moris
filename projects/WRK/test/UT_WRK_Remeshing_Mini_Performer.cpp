@@ -102,6 +102,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         ParameterList tRemeshingParameters;
         prm::create_remeshing_parameterlist( tRemeshingParameters );
         tRemeshingParameters.set( "mode" , "ab_initio" );
+        tRemeshingParameters.set( "remeshing_field_names" , "Circle" );
         tRemeshingParameters.set( "remeshing_levels_of_refinement" , "1" );
         tRemeshingParameters.set( "remeshing_refinement_pattern" , "0" );
 
@@ -126,13 +127,12 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
 
         // Define two analytic MTK fields
-        moris::Cell< mtk::Field * > tFields( 1, nullptr );
+        moris::Cell< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
+        moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
 
-        tFields( 0 ) = new mtk::Field_Analytic(
-                tCircle,
-                DummyDerivativeFunction,
-                {{1.5237}},
-                tMeshPair);
+        moris::Matrix<DDRMat> tMat = {{1.5237}};
+
+        tFields( 0 ) = std::make_shared< mtk::Field_Analytic >( tCircle, DummyDerivativeFunction, tMat, tMeshPair, 1 );
 
         tFields( 0 )->set_label( "Circle" );
 
@@ -173,9 +173,10 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         tHMRPerformer->perform();
 
         Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
+        Cell< std::shared_ptr< mtk::Mesh_Manager > > tMTKPerformers(1);
 
         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
-        tRemeshingPerformer.perform_remeshing( tFields( 0 ), tHMRPerformers );
+        tRemeshingPerformer.perform_remeshing( tFields, tHMRPerformers, tMTKPerformers, tFieldsOut );
 
         std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformers( 0 )->get_database();
 

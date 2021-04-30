@@ -49,14 +49,14 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = { { MSI::Dof_Type::P, MSI::Dof_Type::VX, MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
 
     // dummy factor by which strong form of the residual gets multiplied and added to weak form
-    real tDummyFactor = 1.3;
+    real tDummyFactor = 0.0;
 
     // dynamic viscosity
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -87,7 +87,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
@@ -127,7 +127,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
     // FIXME: generic SP for testing strong form only
-    tIWG->set_stabilization_parameter( tSP, "GenericSP" );
+    tIWG->set_stabilization_parameter( tSP, "GLS" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer

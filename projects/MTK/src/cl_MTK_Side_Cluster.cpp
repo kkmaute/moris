@@ -453,5 +453,28 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------------
+
+        moris::Matrix<moris::DDRMat>
+        Side_Cluster::get_vertex_coords_in_cluster() const
+        {
+            // number of cells in cluster
+            moris::uint tNumVertices = this->get_num_vertices_in_cluster();
+
+            // cell access
+            moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
+
+            // initialize output
+            moris::Matrix<moris::DDRMat> tVertexCoords(tNumVertices,this->get_dim_of_param_coord());
+
+            // get cell indices and store
+            for(moris::uint i = 0 ; i < tNumVertices; i++)
+            {
+                tVertexCoords.get_row(i) = tVertices(i)->get_coords().get_row(0);
+            }
+
+            return tVertexCoords;
+        }
+
+        // ----------------------------------------------------------------------------------
     }
 }

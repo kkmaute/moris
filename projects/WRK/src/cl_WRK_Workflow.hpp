@@ -62,6 +62,8 @@ namespace moris
                 Cell< mtk::Field * >                   Fields;
                 moris::map< std::string, moris_index > tFieldNameTiIndexMap;
 
+                uint mNumCriterias = MORIS_UINT_MAX;
+
                 bool tIsFirstOptSolve = true;
 
             public:

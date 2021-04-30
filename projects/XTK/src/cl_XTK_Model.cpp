@@ -30,6 +30,7 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
@@ -357,6 +358,16 @@ namespace xtk
 
             // place the pair in mesh manager
             mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
+
+            //Periodic Boundary condition environment
+            if( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
+            {
+                //constrcut the object for periodic boundary condition
+                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
+
+                //perform periodic boundary condition
+                tPBCHelper.setup_periodic_boundary_conditions();
+            }
 
             // if( mParameterList.get<bool>("contact_sandbox") )
             // {

@@ -17,7 +17,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool check_residual_dof_types( const moris::Cell< MSI::Dof_Type > & aResidualDofTypes )
+        bool check_residual_dof_types( 
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes )
         {
             // initialize
             bool tCheck = true;
@@ -32,15 +33,15 @@ namespace moris
             }
 
             // check that the correct DoF types are present
-            tCheck = tCheck && ( ( aResidualDofTypes( 0 ) == MSI::Dof_Type::RHO ) || ( aResidualDofTypes( 0 ) == MSI::Dof_Type::P ) );
-            if ( !( ( aResidualDofTypes( 0 ) == MSI::Dof_Type::RHO ) || ( aResidualDofTypes( 0 ) == MSI::Dof_Type::P ) ) )
+            tCheck = tCheck && ( ( aResidualDofTypes( 0 )( 0 ) == MSI::Dof_Type::RHO ) || ( aResidualDofTypes( 0 )( 0 ) == MSI::Dof_Type::P ) );
+            if ( !( ( aResidualDofTypes( 0 )( 0 ) == MSI::Dof_Type::RHO ) || ( aResidualDofTypes( 0 )( 0 ) == MSI::Dof_Type::P ) ) )
             {
                 MORIS_LOG_ERROR( "Compressible_NS_Dof_Check::check_residual_dof_types() - First DoF type must be density or pressure." );
             }
 
-            tCheck = tCheck && ( aResidualDofTypes( 1 ) == MSI::Dof_Type::VX );
-            tCheck = tCheck && ( aResidualDofTypes( 2 ) == MSI::Dof_Type::TEMP );
-            if ( !( ( aResidualDofTypes( 1 ) == MSI::Dof_Type::VX ) and ( aResidualDofTypes( 2 ) == MSI::Dof_Type::TEMP ) ) )
+            tCheck = tCheck && ( aResidualDofTypes( 1 )( 0 ) == MSI::Dof_Type::VX );
+            tCheck = tCheck && ( aResidualDofTypes( 2 )( 0 ) == MSI::Dof_Type::TEMP );
+            if ( !( ( aResidualDofTypes( 1 )( 0 ) == MSI::Dof_Type::VX ) and ( aResidualDofTypes( 2 )( 0 ) == MSI::Dof_Type::TEMP ) ) )
             {
                 MORIS_LOG_ERROR( "Compressible_NS_Dof_Check::check_residual_dof_types() - Second and third DoF types must be velocity and temperature." );
             }
@@ -53,7 +54,7 @@ namespace moris
 
         bool check_dof_dependencies(
                 fem::Set                                          * aFemSet, 
-                const moris::Cell< MSI::Dof_Type >                & aResidualDofTypes,
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aRequestedDofTypeList )
         {  
             // get and check the number of dof dependencies
@@ -76,9 +77,9 @@ namespace moris
             }
         
             // check that the assembly map is a connected block            
-            uint tMasterDof1Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof2Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 1 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 2 ), mtk::Master_Slave::MASTER );            
+            uint tMasterDof1Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof2Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 1 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tMasterDof3Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );            
             sint tDofDep1Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 0 )( 0 ), mtk::Master_Slave::MASTER );
             sint tDofDep2Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 1 )( 0 ), mtk::Master_Slave::MASTER );
             sint tDofDep3Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 2 )( 0 ), mtk::Master_Slave::MASTER );

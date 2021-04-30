@@ -68,7 +68,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = { { MSI::Dof_Type::P, MSI::Dof_Type::VX, MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
@@ -162,6 +162,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                 tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWG->set_residual_dof_type( tResidualDofTypes );
         tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+        tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
+        tIWG->set_property( tPropConductivity, "ThermalConductivity" );
         tIWG->set_material_model( tMMFluid, "FluidMM" );
         tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
         tIWG->set_stabilization_parameter( tSPNitsche, "NitschePenaltyParameter" );
@@ -471,6 +473,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
 
                     // compute residual
                     tIWG->compute_residual( 1.0 );
+                    tIWG->compute_jacobian( 1.0 );
 
                     // check evaluation of the jacobian by FD
                     //------------------------------------------------------------------------------
@@ -478,15 +481,16 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                     tIWG->mSet->mJacobian.fill( 0.0 );
 
                     // init the jacobian for IWG and FD evaluation
-                    Matrix< DDRMat > tJacobian;
+                    Matrix< DDRMat > tJacobian = tIWG->mSet->get_jacobian();
+                    Matrix< DDRMat > tJacobianTest;
                     Matrix< DDRMat > tJacobianFD;
 
                     // check jacobian by FD
-                    bool tCheckJacobian = tIWG->check_jacobian(
+                    bool tCheckJacobian = tIWG->check_jacobian_multi_residual(
                             tPerturbation,
                             tEpsilon,
                             1.0,
-                            tJacobian,
+                            tJacobianTest,
                             tJacobianFD,
                             true );
 

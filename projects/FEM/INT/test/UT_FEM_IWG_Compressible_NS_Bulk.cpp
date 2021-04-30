@@ -37,11 +37,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 5.0E-6;
+    real tEpsilonCubic = 1.2E-4;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 5.0E-4;
+    real tPerturbationCubic = 1.0E-3;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = { { MSI::Dof_Type::P, MSI::Dof_Type::VX, MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     fem::MM_Factory tMMFactory;
 
     std::shared_ptr< fem::Material_Model > tMMFluid =
-            tMMFactory.create_CM( fem::Material_Type::PERFECT_GAS );
+            tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
     tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
@@ -144,7 +144,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
     // FIXME: generic SP for testing strong form only
-    tIWG->set_stabilization_parameter( tSP, "GenericSP" );
+    tIWG->set_stabilization_parameter( tSP, "GLS" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -244,6 +244,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             // create a space geometry interpolation rule
             mtk::Interpolation_Rule tGIRule( tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
+                    //mtk::Interpolation_Order::LINEAR,
                     tGIInterpolationOrder,
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
@@ -253,7 +254,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
             // create time coeff tHat
             Matrix< DDRMat > tTHat = {{ 0.26 }, { 0.87 }};
+            //Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.5 }};
 
+            //Matrix< DDRMat > tXHat = { { 0.0, 0.0 }, { 2.0, 0.0 }, { 2.0, 3.0 }, { 0.0, 3.0} };
             Matrix< DDRMat > tXHat;
             fill_xhat( tXHat, iSpaceDim, iInterpOrder );
 
@@ -433,8 +436,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                 }
 
                 // require check is true
-                // fixme - put back in
-                // REQUIRE( tCheckJacobian );
+                REQUIRE( tCheckJacobian );
             }
 
             // clean up

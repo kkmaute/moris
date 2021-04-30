@@ -147,6 +147,8 @@ namespace moris
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
 
+                HOMOGENIZED_CONSTITUTIVE,
+
                 END_IQI_TYPE
         };
 
@@ -175,7 +177,7 @@ namespace moris
                 UNDEFINED,
                 PERFECT_GAS,
                 VAN_DER_WAALS_FLUID,
-                END_CONSTITUTIVE_TYPE
+                END_MATERIAL_TYPE
         };        
 
         //------------------------------------------------------------------------------
@@ -187,7 +189,7 @@ namespace moris
                 DENSITY_PRIMITIVE,
                 PRESSURE_PRIMITIVE,
                 ENTROPY,
-                END_CONSTITUTIVE_TYPE
+                END_VARIABLE_SET
         };
 
         //------------------------------------------------------------------------------

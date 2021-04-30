@@ -82,6 +82,12 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
+            mInitializeOptimizationRestart = false;
+
+            mIter = 0;
+
+            moris::Cell< std::shared_ptr< mtk::Field > > tFields;
+
             if( tIsFirstOptSolve )
             {
                 // Stage 1: HMR refinement -------------------------------------------------------------------
@@ -118,10 +124,11 @@ namespace moris
                 tMORISParameterListFunc( tMORISParameterList );
 
                 wrk::Remeshing_Mini_Performer tRemeshingPerformer( tMORISParameterList( 0 )( 0 ) );
-
                 tRemeshingPerformer.perform_remeshing(
-                        mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 ).get(),
-                        mPerformerManager->mHMRPerformer );
+                            mPerformerManager->mGENPerformer( 0 )->get_mtk_fields(),
+                            mPerformerManager->mHMRPerformer,
+                            mPerformerManager->mMTKPerformer,
+                            tFields);
 
                 // Create new GE performer
                 std::string tGENString = "GENParameterList";
@@ -140,7 +147,7 @@ namespace moris
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                         mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),
-                        {} );
+                        tFields );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
@@ -154,6 +161,15 @@ namespace moris
 
         Matrix<DDRMat> Workflow_HMR_XTK::perform(const Matrix<DDRMat> & aNewADVs)
         {
+            if( mIter >= mReinitializeIter )
+            {
+                mInitializeOptimizationRestart = true;
+
+                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
+
+                return tMat;
+            }
+
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
 
@@ -176,7 +192,15 @@ namespace moris
 
             if( not tFlag )
             {
-                this->initialize_optimization_restart();
+                mInitializeOptimizationRestart = true;
+
+                MORIS_ERROR( mNumCriterias != MORIS_UINT_MAX,
+                        "Workflow_HMR_XTK::perform() problem with mNumCriterias. "
+                        "This can happen if the xtk interface interfaces different refinement level in the first optimization iteration");
+
+                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
+
+                return tMat;
             }
 
             // Assign PDVs
@@ -196,18 +220,22 @@ namespace moris
 
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
+            mNumCriterias = tVal.size();
+
             // Communicate IQIs
-            for( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
+            for( uint iIQIIndex = 0; iIQIIndex < mNumCriterias; iIQIIndex++ )
             {
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
-            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
+            moris::Matrix< DDRMat > tMat( mNumCriterias, 1, 0.0 );
 
-            for( uint Ik = 0; Ik < tVal.size(); Ik ++ )
+            for( uint Ik = 0; Ik < mNumCriterias; Ik ++ )
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
+
+            mIter++;
 
             return tMat;
         }

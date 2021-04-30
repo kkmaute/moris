@@ -15,6 +15,13 @@ namespace moris
                 bool mEvaluated = false;
                 Matrix<DDRMat> mSensitivities;
 
+            protected:
+                bool mInitializeOptimizationRestart = false;
+
+                uint mReinitializeIter = MORIS_UINT_MAX;
+
+                uint mIter = 0;
+
             public:
 
                 /**
@@ -57,10 +64,18 @@ namespace moris
                  */
                 Matrix<DDRMat> get_dcriteria_dadv();
 
-                //------------------------------------------------------------------------------
-                void initialize_optimization_restart()
+                /**
+                 * indicates a request to restart the optimization
+                 *
+                 */
+                bool get_restart_optimization()
                 {
-                    MORIS_ERROR( false, "initialize_optimization_restart() not fully implemented yet." );
+                    return mInitializeOptimizationRestart;
+                }
+
+                void set_reinitialize_iter( uint aReinitializeIter )
+                {
+                    mReinitializeIter = aReinitializeIter;
                 }
 
             private:

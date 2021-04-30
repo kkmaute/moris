@@ -31,7 +31,8 @@ set(TEST_SOURCES
 	UT_MTK_Cell_Area.cpp
     UT_MTK_Cell_Shape.cpp
     UT_MTK_Cell_Shape_Interpolation.cpp
-	MTK_Test_Proxy/cl_MTK_Field_Proxy.cpp )
+	MTK_Test_Proxy/cl_MTK_Field_Proxy.cpp
+	UT_MTK_Periodic_Boundary_Condition_Helper.cpp )
 
 # List additional includes
 include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
