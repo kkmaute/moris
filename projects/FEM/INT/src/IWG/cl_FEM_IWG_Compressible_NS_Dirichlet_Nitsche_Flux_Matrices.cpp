@@ -389,6 +389,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
         const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dTestTractiondDOF( const Matrix< DDRMat > aVL )
         {
             // check if matrix has already been assembled
