@@ -348,6 +348,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
         tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
         tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
+        // for debug
+        // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
+        // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
+
+
         // check evaluation of the residual for IWG
         //------------------------------------------------------------------------------
         // reset residual & jacobian

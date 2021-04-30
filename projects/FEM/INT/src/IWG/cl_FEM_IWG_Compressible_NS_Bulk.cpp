@@ -134,13 +134,13 @@ namespace moris
                 // stabilization term for testing
                 //tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->LY();
 
-                // debug
-                // uint tNumStateVars = tNumSpaceDims + 2;
-                // Matrix< DDRMat > tVR( tNumStateVars, 1, 2.3 );
-                // tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->M() * tVR;
+                // debug - stabilization term without Tau for testing
+                // tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->LY();
 
-                // debug 
-                tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->LY();
+                // debug - test M
+                uint tNumStateVars = tNumSpaceDims + 2;
+                Matrix< DDRMat > tVR( tNumStateVars, 1, 2.3 );
+                tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->M() * tVR;
 
                 // GLS stabilization term
                 // tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
@@ -229,29 +229,29 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // stabilization term for testing
+                // debug - stabilization term for testing
                 // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * ( this->LW() + this->dLdDofY() );
 
-                // debug
-                // uint tNumStateVars = tNumSpaceDims + 2;
-                // Matrix< DDRMat > tVR( tNumStateVars, 1, 2.3 );
-                // Matrix< DDRMat > tdMdY( tNumStateVars, tNumStateVars, 0.0 );
-                // for ( uint iVar = 0; iVar < tNumStateVars; iVar++ ) 
-                // {
-                //     tdMdY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = this->dMdY( iVar ) * tVR; 
-                // }
-                // Matrix< DDRMat > tdMdDof = tdMdY * this->W();
-                // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * tdMdDof;
+                // debug - stabilization term without Tau for testing
+                // tJac += aWStar * tSP->val()( 0 ) * ( 
+                //         this->dLdDofW( this->LY() ) + 
+                //         trans( this->LW() ) * ( this->LW() + this->dLdDofY() ) );
 
-                // debug 
-                tJac += aWStar * tSP->val()( 0 ) * ( 
-                        this->dLdDofW( this->LY() ) + 
-                        trans( this->LW() ) * ( this->LW() + this->dLdDofY() ) );
+                // debug - test M
+                uint tNumStateVars = tNumSpaceDims + 2;
+                Matrix< DDRMat > tVR( tNumStateVars, 1, 2.3 );
+                Matrix< DDRMat > tdMVRdY( tNumStateVars, tNumStateVars, 0.0 );
+                for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
+                {
+                    tdMVRdY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = this->dMdY( iVar ) * tVR;
+                }
+                tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * tdMVRdY * this->W();
+
+                // debug - test GLS terms
 
                 // GLS stabilization term
-                // tJac += tSP->val()( 0 ) * (
-                //         trans( this->LW() ) * this->Tau() * this->dLdDofY() +
-                //         trans( this->LW() ) * this->dTaudY( this->LY() ) * this->W() +
+                // tJac += aWStar * tSP->val()( 0 ) * (
+                //         trans( this->LW() ) * ( this->Tau() * this->dLdDofY() + this->dTaudY( this->LY() ) * this->W() ) +
                 //         this->dLdDofW( this->Tau() * this->LY() ) );
             }
 
