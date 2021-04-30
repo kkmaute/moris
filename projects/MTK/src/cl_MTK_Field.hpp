@@ -73,6 +73,9 @@ namespace moris
                 //! Lock flag
                 bool mFieldIsLocked = true;
 
+                //! Lock flag
+                bool mFieldIsDiscrete = false;
+
                 //------------------------------------------------------------------------------
             protected:
                 //------------------------------------------------------------------------------
@@ -391,6 +394,17 @@ namespace moris
                 void set_label( const std::string & aLabel )
                 {
                     mLabel = aLabel;
+                };
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief indicates if this is a discrete field. This can be used to dermine if a field has to be mapped
+                 *
+                 */
+                bool get_field_is_discrete()
+                {
+                    return mFieldIsDiscrete;
                 };
 
                 //------------------------------------------------------------------------------

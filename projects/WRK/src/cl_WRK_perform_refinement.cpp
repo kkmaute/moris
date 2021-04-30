@@ -47,7 +47,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
-                Cell< mtk::Field* >                    & aFields,
+                Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
             // create field name to index map
@@ -73,7 +73,6 @@ namespace moris
             {
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
-                uint tOrder = 1;                               //TODO
 
                 for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
                 {
@@ -93,7 +92,9 @@ namespace moris
 
                     for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
                     {
-                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+                        std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                        uint tOrder = tField->get_lagrange_order();
 
                         const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
 
@@ -324,7 +325,7 @@ namespace moris
                             }
 
                             // Put elements on queue and set flag for refinement
-                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, 0, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
+                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, aMeshIndex, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
                         }
                     }
                 }

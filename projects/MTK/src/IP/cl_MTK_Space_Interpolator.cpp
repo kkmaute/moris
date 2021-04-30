@@ -544,6 +544,11 @@ namespace moris
             MORIS_ASSERT(this->space_det_J() > sDetJInvJacLowerLimit,
                     "Space determinate (2D) close to zero or negative: %e\n", this->space_det_J());
 
+            MORIS_ASSERT(
+                    std::abs( tSpacJac(0,1) ) < mEpsilon ||
+                    std::abs( tSpacJac(1,0) ) < mEpsilon,
+                    "Space_Interpolator::eval_inverse_space_jacobian_2d_rect - Jacobian is not diagonal");
+
             // compute inverse
             mInvSpaceJac.set_size(2,2,0.0);
 
@@ -596,6 +601,15 @@ namespace moris
 
             MORIS_ASSERT(this->space_det_J() > sDetJInvJacLowerLimit,
                     "Space determinate (3D) close to zero or negative: %e\n", this->space_det_J());
+
+            MORIS_ASSERT(
+                    std::abs( tSpacJac(0,1) ) < mEpsilon ||
+                    std::abs( tSpacJac(0,2) ) < mEpsilon ||
+                    std::abs( tSpacJac(1,0) ) < mEpsilon ||
+                    std::abs( tSpacJac(1,2) ) < mEpsilon ||
+                    std::abs( tSpacJac(2,0) ) < mEpsilon ||
+                    std::abs( tSpacJac(2,1) ) < mEpsilon,
+                    "Space_Interpolator::eval_inverse_space_jacobian_3d_rect - Jacobian is not diagonal");
 
             // compute inverse
             mInvSpaceJac.set_size(3,3,0.0);
@@ -812,6 +826,11 @@ namespace moris
         real Space_Interpolator::eval_space_detJ_bulk_quad_rect(
                 const Matrix< DDRMat > & aSpaceJt )
         {
+            MORIS_ASSERT(
+                    std::abs( aSpaceJt(0,1) ) < mEpsilon ||
+                    std::abs( aSpaceJt(1,0) ) < mEpsilon,
+                    "Space_Interpolator::eval_space_detJ_bulk_quad_rect - Jacobian is not diagonal");
+
             real tDetJ = aSpaceJt(0,0)*aSpaceJt(1,1);
 
             MORIS_ASSERT( tDetJ > sDetJLowerLimit,
@@ -829,6 +848,11 @@ namespace moris
         real Space_Interpolator::eval_space_detJ_deriv_bulk_quad_rect(
                 const Matrix< DDRMat > & aSpaceJDerivt )
         {
+            MORIS_ASSERT(
+                    std::abs( aSpaceJDerivt(0,1) ) < mEpsilon ||
+                    std::abs( aSpaceJDerivt(1,0) ) < mEpsilon,
+                    "Space_Interpolator::eval_space_detJ_deriv_bulk_quad_rect - Jacobian is not diagonal");
+
             real tDetJDeriv = aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1);
 
             return tDetJDeriv;
@@ -872,6 +896,15 @@ namespace moris
         real Space_Interpolator::eval_space_detJ_bulk_hex_rect(
                 const Matrix< DDRMat > & aSpaceJt )
         {
+            MORIS_ASSERT(
+                    std::abs( aSpaceJt(0,1) ) < mEpsilon ||
+                    std::abs( aSpaceJt(0,2) ) < mEpsilon ||
+                    std::abs( aSpaceJt(1,0) ) < mEpsilon ||
+                    std::abs( aSpaceJt(1,2) ) < mEpsilon ||
+                    std::abs( aSpaceJt(2,0) ) < mEpsilon ||
+                    std::abs( aSpaceJt(2,1) ) < mEpsilon,
+                    "Space_Interpolator::eval_space_detJ_bulk_hex_rect - Jacobian is not diagonal");
+
             // init tDet J
             real tDetJ;
 
@@ -893,6 +926,15 @@ namespace moris
         real Space_Interpolator::eval_space_detJ_deriv_bulk_hex_rect(
                 const Matrix< DDRMat > & aSpaceJDerivt )
         {
+            MORIS_ASSERT(
+                    std::abs( aSpaceJDerivt(0,1) ) < mEpsilon ||
+                    std::abs( aSpaceJDerivt(0,2) ) < mEpsilon ||
+                    std::abs( aSpaceJDerivt(1,0) ) < mEpsilon ||
+                    std::abs( aSpaceJDerivt(1,2) ) < mEpsilon ||
+                    std::abs( aSpaceJDerivt(2,0) ) < mEpsilon ||
+                    std::abs( aSpaceJDerivt(2,1) ) < mEpsilon,
+                    "Space_Interpolator::eval_space_detJ_deriv_bulk_hex_rect - Jacobian is not diagonal");
+
             real tDetJDeriv = aSpaceJDerivt(0,0)*aSpaceJDerivt(1,1)*aSpaceJDerivt(2,2);
 
             return tDetJDeriv;

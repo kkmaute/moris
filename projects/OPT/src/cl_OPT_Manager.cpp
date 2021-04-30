@@ -54,9 +54,9 @@ namespace moris
             for (uint i = 0; i < mAlgorithms.size(); i++)
             {
                 // solve the optimization problem based on the algorithm cell
-                mAlgorithms(i)->solve(i, mProblem);
+                uint tOptIteration = mAlgorithms(i)->solve(i, mProblem);
 
-                this->restart_with_remesh( i );
+                this->restart_with_remesh( i, tOptIteration );
 
                 // scale the solution of the optimization problem
                 mProblem->scale_solution();
@@ -68,15 +68,19 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Manager::restart_with_remesh( uint aI )
+        void Manager::restart_with_remesh(
+                uint aI,
+                uint aOptIteration )
         {
             if( mProblem->restart_optimization())
             {
                 mProblem->initialize();
 
-                mAlgorithms(aI)->solve(aI, mProblem);
+                mAlgorithms( aI )->set_restart_index( aOptIteration - 1 );
 
-                this->restart_with_remesh( aI );
+                uint tOptIteration = mAlgorithms( aI )->solve( aI, mProblem );
+
+                this->restart_with_remesh( aI, tOptIteration );
             }
         }
 

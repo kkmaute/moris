@@ -31,7 +31,7 @@ namespace moris
              * @param[in] aOptProb Object of type Problem containing relevant
              *            data regarding ADVs, the objective and constraints
              */
-            void solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
+            uint solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb );
 
         private:
 

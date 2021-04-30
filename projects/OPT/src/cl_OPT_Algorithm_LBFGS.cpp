@@ -47,7 +47,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_LBFGS::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
+        uint Algorithm_LBFGS::solve( uint aCurrentOptAlgInd, std::shared_ptr<Problem> aOptProb )
         {
             // Trace optimization
             Tracer tTracer( "OptimizationAlgorithm", "LBFGS", "Solve" );
@@ -131,6 +131,10 @@ namespace moris
             delete[] iwa;
             delete[] isave;
             delete[] dsave;
+
+            uint tOptIter = gLogger.get_opt_iteration();
+
+            return tOptIter;
         }
 
         //--------------------------------------------------------------------------------------------------------------
