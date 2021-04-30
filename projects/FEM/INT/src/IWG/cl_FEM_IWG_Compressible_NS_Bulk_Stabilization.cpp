@@ -133,7 +133,7 @@ namespace moris
             // FIXME: C-operator for body forces and heat load ignored for right now
 
             // get the time jacobian from IP geometry interpolator
-            uint tdTaudt =
+            real tdTaudt =
                     mMasterFIManager->get_IP_geometry_interpolator()->inverse_time_jacobian()( 0 );
 
             // get identity matrix of correct size
@@ -159,8 +159,9 @@ namespace moris
                         for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
                         {
                             // add contribution from the K-terms
-                            tM += this->G()( jDim, kDim ) * this->K( jDim, kDim ) * this->A0inv() *
-                                    this->G()( lDim, mDim ) * this->K( lDim, mDim ) * this->A0inv(); 
+                            tM += this->G()( jDim, kDim ) * this->G()( lDim, mDim ) * 
+                                    this->K( kDim, lDim ) * this->A0inv() *
+                                    this->K( jDim, mDim ) * this->A0inv(); 
                         }
                     }
                 }
@@ -282,7 +283,7 @@ namespace moris
                         eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, kDim + 1, iVar, tdAkdY );
 
                         // add contribution from the A-terms
-                        tdMdVar += this->G()( jDim, kDim ) * (
+                        tdMdVar += this->G()( jDim, kDim ) * (  // tdMdVar
                                              tdAjdY * this->A0inv()          * this->A( kDim + 1 ) * this->A0inv() + 
                                 this->A( jDim + 1 ) * this->dA0invdY( iVar ) * this->A( kDim + 1 ) * this->A0inv() + 
                                 this->A( jDim + 1 ) * this->A0inv()          *              tdAkdY * this->A0inv() +
@@ -293,9 +294,11 @@ namespace moris
                             for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
                             {
                                 // add contribution from the K-terms
-                                tdMdVar += this->G()( jDim, kDim ) * this->G()( lDim, mDim ) * (
-                                        tdKdY( jDim )( kDim ) * this->A0inv() * this->K( lDim, mDim ) * this->A0inv() + 
-                                        this->K( jDim, kDim ) * this->A0inv() * tdKdY( lDim )( mDim ) * this->A0inv() ); 
+                                tdMdVar += this->G()( jDim, kDim ) * this->G()( lDim, mDim ) * ( // tdMdVar
+                                        tdKdY( kDim )( lDim ) * this->A0inv()          * this->K( jDim, mDim ) * this->A0inv() + 
+                                        this->K( kDim, lDim ) * this->dA0invdY( iVar ) * this->K( jDim, mDim ) * this->A0inv() + 
+                                        this->K( kDim, lDim ) * this->A0inv()          * tdKdY( jDim )( mDim ) * this->A0inv() +
+                                        this->K( kDim, lDim ) * this->A0inv()          * this->K( jDim, mDim ) * this->dA0invdY( iVar ) ); 
                             }
                         }
                     }
