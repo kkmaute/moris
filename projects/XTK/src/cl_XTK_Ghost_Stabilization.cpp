@@ -1529,6 +1529,9 @@ namespace xtk
         // add to background mesh
         mXTKModel->get_background_mesh().add_new_cell_to_mesh( tIgCell );
 
+        aCurrentIndex++;
+        aCurrentId++;
+
         return tIgCell;
     }
     
