@@ -325,7 +325,7 @@ namespace moris
                             }
 
                             // Put elements on queue and set flag for refinement
-                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, 0, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
+                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, aMeshIndex, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
                         }
                     }
                 }

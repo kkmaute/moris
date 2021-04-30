@@ -91,18 +91,20 @@ namespace moris
                 }
             }
 
+            // get mesh pair from discrete field. We assume all fields are based on the same mesh
             mtk::Mesh_Pair tMeshPairIn = aSourceFields( tFirstDiscreteFieldIndex )->get_mesh_pair();
 
+            // get interpolation mesh from mesh pair
             moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
 
+            // check if interpolation mesh is an HMR mesh
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
 
-            std::shared_ptr< hmr::Database > tHMRDatabase = tSourceMesh->get_HMR_database();
-
-            // get Lagrange and Discretization orer
-            uint tSourceLagrangeOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
-            uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
+            // get Lagrange and Discretization order
+            uint tSourceLagrangeOrder     = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
+            uint tDiscretizationOrder     = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
+            uint tDiscretizationMeshIndex = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_mesh_index();
 
             // extract pattern from mesh on which this field id based on
             // both Lagrange and discretization order if they are not the same
@@ -112,32 +114,29 @@ namespace moris
             hmr::File tFile;
             tFile.save_refinement_pattern(
                     tSourceMesh->get_HMR_lagrange_mesh(),
-                    aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_mesh_index(),
+                    tDiscretizationMeshIndex,
                     aElementCounterPerLevelAndPattern,
                     aElementPerPattern );
 
             // copy HMR parameters from old HMR performer
             hmr::Parameters * tParameters = aHMRPerformers( 0 )->get_parameters();
 
+            // unset parameter owning flag. Input HMR does not own this parameteropject anymore
             aHMRPerformers( 0 )->get_database()->unset_parameter_owning_flag();
 
             //FIXME adjust parameters here. eg no initial refinement
 
             // build new HMR performer with copied parameters
-            std::shared_ptr< hmr::HMR > tHMRPerformerNew =
-                    std::make_shared< hmr::HMR >( tParameters );
-
-            // FIXME put this line into HMR / all of this in function map discrete fields.
-            std::shared_ptr< hmr::Database > tHMRDatabaseNew = tHMRPerformerNew->get_database();
+            std::shared_ptr< hmr::HMR > tHMRPerformerNew = std::make_shared< hmr::HMR >( tParameters );
 
             // refine pattern 5 and 6 with given pattern
-            tHMRDatabaseNew->load_refinement_pattern(
+            tHMRPerformerNew->get_database()->load_refinement_pattern(
                     aElementCounterPerLevelAndPattern,
                     aElementPerPattern);
 
             // create mesh based on pattern 5 and 6
             hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                    tHMRDatabaseNew,
+                    tHMRPerformerNew->get_database(),
                     tSourceLagrangeOrder,
                     5,
                     tDiscretizationOrder,
@@ -151,17 +150,22 @@ namespace moris
             // Create  mesh pair
             mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, tOldIntegrationMesh, true);
 
+            // create list of fields
             Cell< std::shared_ptr< mtk::Field > > tOldFields;
 
+            // transfer nodal values from old-HMR-Fields to new-HMR-fields.
+            // these fields are based on the same lagrange mesh
             this->map_fields(
                     aSourceFields,
                     tOldFields,
                     tMeshPairOld,
                     0,
-                    false ); //FIXME =  discretization meshindex
+                    false ); // discretization mesh index is zero because mesh has only on discretization ( tOldInterpolationMesh )
 
+            // use new-HMR-fields to perform refinement
             this->perform_refinement( tHMRPerformerNew, tOldFields );
 
+            // overwrite old HMR performer with new HMR performer
             aHMRPerformers( 0 ) = tHMRPerformerNew;
 
             // create MTK performer - will be used for HMR mesh
@@ -175,19 +179,21 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            uint tPattern =0;
+            //FIXME //FIXME
+            uint tSourceBSplinePattern = tSourceMesh->get_HMR_lagrange_mesh() ->get_bspline_pattern( tDiscretizationMeshIndex );
+            //uint tPattern =0;
 
             // create mesh for this pattern
             hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                    tHMRDatabaseNew,
+                    tHMRPerformerNew->get_database(),
                     tSourceLagrangeOrder,
-                    tPattern,
+                    tSourceBSplinePattern,
                     tDiscretizationOrder,
-                    tPattern);
+                    tSourceBSplinePattern);
 
             hmr::Integration_Mesh_HMR* tIntegrationMesh = new hmr::Integration_Mesh_HMR(
                     tSourceLagrangeOrder,
-                    tPattern,
+                    tSourceBSplinePattern,
                     tInterpolationMesh);
 
             mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh, true);
