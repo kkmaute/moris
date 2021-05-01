@@ -65,7 +65,7 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get density property
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
             // get the number of master dof type dependencies

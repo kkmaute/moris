@@ -73,7 +73,7 @@ namespace moris
             else
             {
                 // get density property
-                const std::shared_ptr< Property > tPropDensity =
+                const std::shared_ptr< Property > & tPropDensity =
                         mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
                 // check that density is set

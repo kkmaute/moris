@@ -41,7 +41,7 @@ namespace moris
                     std::get<2>( mElementSizeTuple ) )->val()( 0 );
 
             // get the density property
-            std::shared_ptr< Property > & tDensityProp =
+            const std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
@@ -71,10 +71,10 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
             // get the density property
-            std::shared_ptr< Property > & tDensityProp =
+            const std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
@@ -84,9 +84,13 @@ namespace moris
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from density
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdMasterDof( tDofIndex ) =
                         mParameters( 0 ) * std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 3.0 ) *
                         tDensityProp->dPropdDOF( aDofTypes ) / ( mParameters( 1 )( 0 ) * tDeltaT );
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
         }
 

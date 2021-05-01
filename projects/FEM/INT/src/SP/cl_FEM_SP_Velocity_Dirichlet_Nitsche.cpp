@@ -99,9 +99,9 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity and density property
-            std::shared_ptr< Property > & tPropViscosity =
+            const std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > & tPropDensity   =
+            const std::shared_ptr< Property > & tPropDensity   =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute infinity norm of u
@@ -144,18 +144,18 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDerivative->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDerivative->get_number_of_space_time_coefficients() );
 
             // get the velocity field interpolator
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity property
-            std::shared_ptr< Property > & tPropViscosity =
+            const std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the density property
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute infinity norm
@@ -182,8 +182,12 @@ namespace moris
                 }
 
                 // compute contribution from velocity
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdMasterDof( tDofIndex ) =
                         mParameters( 0 )( 0 ) * tPropDensity->val()( 0 ) * tdInfinityNormdu / 6.0;
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
 
             // if viscosity depends on dof type

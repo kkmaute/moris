@@ -99,7 +99,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density property
-            std::shared_ptr< Property > & tDensityProp =
+            const std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get absolute value of u.n
@@ -131,8 +131,7 @@ namespace moris
             // set size for dSPdMasterDof
             mdPPdMasterDof( tDofIndex ).set_size(
                     1,
-                    tFI->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFI->get_number_of_space_time_coefficients() );
 
             // get the velocity FI
             Field_Interpolator* tVelocityFI =
@@ -143,17 +142,21 @@ namespace moris
             real tAbsReal = std::sqrt( tNormalDispl * tNormalDispl + mEpsilon * mEpsilon ) - mEpsilon;
 
             // get the density property
-            std::shared_ptr< Property > & tDensityProp =
+            const std::shared_ptr< Property > & tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // if velocity dof
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // compute contribution from velocity
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdMasterDof( tDofIndex ) =
                         mParameters( 0 ) * std::pow( tElementSize, 2.0 ) * tDensityProp->val()( 0 ) *
                         tNormalDispl * trans( mNormal ) * tVelocityFI->N() /
                         ( tAbsReal + mEpsilon );
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
 
             // if density depends on dof

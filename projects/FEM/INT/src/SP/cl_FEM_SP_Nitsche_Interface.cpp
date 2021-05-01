@@ -60,12 +60,12 @@ namespace moris
                     std::get<2>( mInterfaceSurfaceTuple ) )->val()( 0 );
 
             // init SP values
-            mPPVal.set_size( 3, 1, 0.0 );
+            mPPVal.set_size( 3, 1 );
 
             // get the master/slave material property
-            std::shared_ptr< Property > & tMasterPropMaterial =
+            const std::shared_ptr< Property > & tMasterPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            std::shared_ptr< Property > & tSlavePropMaterial =
+            const std::shared_ptr< Property > & tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the master/slave material property values
@@ -115,13 +115,12 @@ namespace moris
             // reset the matrix
             mdPPdMasterDof( tDofIndex ).set_size(
                     3,
-                    tFIDer->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFIDer->get_number_of_space_time_coefficients() );
 
             // get the master/slave material property
-            std::shared_ptr< Property > & tMasterPropMaterial =
+            const std::shared_ptr< Property > & tMasterPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            std::shared_ptr< Property > & tSlavePropMaterial =
+            const std::shared_ptr< Property > & tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the master/slave material property values
@@ -135,19 +134,23 @@ namespace moris
             if ( tMasterPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute Nitsche SP derivative
-                mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                mdPPdMasterDof( tDofIndex ).get_row( 0 ) =
                         this->val()( 0 ) * tMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tMasterMaterial, 2 ) * tDeno );
 
                 // compute master weight derivative
-                mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
-                        this->val()( 1 ) * tSlaveVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
+                mdPPdMasterDof( tDofIndex ).get_row( 1 ) =
+                        - this->val()( 1 ) * tSlaveVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
                         ( tMasterMaterial * tSlaveMaterial * tDeno );
 
                 // compute slave weight derivative
-                mdPPdMasterDof( tDofIndex ).get_row( 2 ) +=
+                mdPPdMasterDof( tDofIndex ).get_row( 2 ) =
                         this->val()( 2 ) * tMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tMasterMaterial, 2 ) * tDeno );
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
         }
 
@@ -181,13 +184,12 @@ namespace moris
             // reset the matrix
             mdPPdSlaveDof( tDofIndex ).set_size(
                     3,
-                    tFIDer->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFIDer->get_number_of_space_time_coefficients() );
 
             // get the master/slave material property
-            std::shared_ptr< Property > tMasterPropMaterial =
+            const std::shared_ptr< Property > & tMasterPropMaterial =
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            std::shared_ptr< Property > tSlavePropMaterial =
+            const std::shared_ptr< Property > & tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // get the master/slave material property values
@@ -201,19 +203,23 @@ namespace moris
             if ( tSlavePropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute Nitsche SP derivative
-                mdPPdSlaveDof( tDofIndex ).get_row( 0 ) +=
+                mdPPdSlaveDof( tDofIndex ).get_row( 0 ) =
                         this->val()( 0 ) * tSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
                 // compute master weight SP derivative
-                mdPPdSlaveDof( tDofIndex ).get_row( 1 ) +=
+                mdPPdSlaveDof( tDofIndex ).get_row( 1 ) =
                         this->val()( 1 ) * tSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
                         ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
                 // compute slave weight SP derivative
-                mdPPdSlaveDof( tDofIndex ).get_row( 2 ) -=
-                        this->val()( 2 ) * tMasterVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
+                mdPPdSlaveDof( tDofIndex ).get_row( 2 ) =
+                        - this->val()( 2 ) * tMasterVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
                         ( tMasterMaterial * tSlaveMaterial * tDeno );
+            }
+            else
+            {
+                mdPPdSlaveDof( tDofIndex ).fill( 0.0 );
             }
         }
 

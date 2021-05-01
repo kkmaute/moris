@@ -84,7 +84,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the conductivity property
-            std::shared_ptr< Property > & tPropConductivity =
+            const std::shared_ptr< Property > & tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
@@ -141,16 +141,16 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set size for dSPdMasterDof, dTau1dDof, dTau3dDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-            Matrix< DDRMat > tdTau1dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-            Matrix< DDRMat > tdTau2dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
+            Matrix< DDRMat > tdTau1dDof( 1, tFIDer->get_number_of_space_time_coefficients() );
+            Matrix< DDRMat > tdTau2dDof( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the conductivity property
-            std::shared_ptr< Property > & tPropConductivity =
+            const std::shared_ptr< Property > & tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
@@ -187,14 +187,18 @@ namespace moris
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // compute derivative of hugn wrt velocity dof
-                Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
-                Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
+                Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
+                Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
                 Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
 
                 // compute derivative of the velocity norm (compute only derivative if not thresholded)
                 if ( tNorm > mEpsilon )
                 {
                     tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
+                }
+                else
+                {
+                    tdNormdu.fill( 0.0 );
                 }
 
                 // compute derivative of the abs term (compute only derivative if not thresholded)
@@ -220,17 +224,26 @@ namespace moris
                 // compute derivative of hugn (compute only derivative if not thresholded)
                 if ( tHugn > mEpsilon )
                 {
-                    tdHugndu +=
+                    tdHugndu =
                             2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
+                }
+                else
+                {
+                    tdHugndu.fill( 0.0 );
                 }
 
                 // compute dtau1du
-                tdTau1dDof +=
+                tdTau1dDof =
                         2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
 
                 // compute dtau2du
-                tdTau2dDof -=
-                        8.0 * tPropConductivity->val()( 0 ) * tdHugndu / std::pow( tHugn, 3.0 );
+                tdTau2dDof =
+                       - 8.0 * tPropConductivity->val()( 0 ) * tdHugndu / std::pow( tHugn, 3.0 );
+            }
+            else
+            {
+                tdTau1dDof.fill( 0.0 );
+                tdTau2dDof.fill( 0.0 );
             }
 
             // if conductivity property depends on dof type
@@ -247,7 +260,11 @@ namespace moris
              // compute dSPdu
              if ( tSum > mEpsilon )
              {
-                 mdPPdMasterDof( tDofIndex ) -= std::pow( tSum, -1.5 ) * ( tTau1 * tdTau1dDof + tTau2 * tdTau2dDof );
+                 mdPPdMasterDof( tDofIndex ) = - std::pow( tSum, -1.5 ) * ( tTau1 * tdTau1dDof + tTau2 * tdTau2dDof );
+             }
+             else
+             {
+                 mdPPdMasterDof( tDofIndex ).fill( 0.0 );
              }
 
             // check for nan, infinity

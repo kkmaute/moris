@@ -126,9 +126,12 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            std::shared_ptr< Property > & tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > & tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > & tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property > & tDensityProp    =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > & tViscosityProp  =
+                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            const std::shared_ptr< Property > & tInvPermeabProp =
+                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -192,15 +195,19 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set matrix size and initialize
-            mdPPdMasterDof( tDofIndex ).set_size( 2, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 2, tFI->get_number_of_space_time_coefficients() );
 
             // get the velocity FI
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            std::shared_ptr< Property > & tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > & tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > & tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property > & tDensityProp    =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > & tViscosityProp  =
+                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            const std::shared_ptr< Property > & tInvPermeabProp =
+                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -248,9 +255,13 @@ namespace moris
                 // if velocity
                 if( aDofTypes( 0 ) == mMasterDofVelocity )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) =
                             tPreFactor * std::pow( tDensity, 2.0 ) *
                             ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
+                }
+                else
+                {
+                    mdPPdMasterDof( tDofIndex ).fill( 0.0 );
                 }
 
                 // if density
@@ -287,10 +298,14 @@ namespace moris
                 // dtauCdDOF
                 if ( tTauM > mEpsilon )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
-                        mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
+                    mdPPdMasterDof( tDofIndex ).get_row( 1 ) =
+                        - mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
                         ( tTrG * std::pow( tTauM, 2.0 ) );
                 }
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
         }
 
