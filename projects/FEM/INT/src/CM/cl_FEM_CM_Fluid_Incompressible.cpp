@@ -569,11 +569,8 @@ namespace moris
 
                 tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
 
-                // get shape function for presure field
-                const Matrix< SDRMat > & tPressureN = tFI->N();
-
                 // build the dfluxdp
-                mdFluxdDof( tDofIndex ) = -1.0 * tII * tPressureN;
+                mdFluxdDof( tDofIndex ) = -1.0 * tII * tFI->N();
             }
             else
             {
