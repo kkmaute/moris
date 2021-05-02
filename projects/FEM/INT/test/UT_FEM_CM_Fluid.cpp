@@ -427,12 +427,15 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    //tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
     tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+
+    std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_val_function( tConstValFunc );
+    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
@@ -455,6 +458,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
 
@@ -511,6 +515,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
 
                 break;
             }
@@ -534,6 +539,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
@@ -820,6 +826,10 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_val_function( tConstValFunc );
+    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
     tPropDensity->set_val_function( tConstValFunc );
@@ -841,6 +851,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
 
@@ -897,6 +908,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
 
                 break;
             }
@@ -920,6 +932,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
@@ -1289,6 +1302,10 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_val_function( tConstValFunc );
+    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
     tPropDensity->set_val_function( tConstValFunc );
@@ -1303,6 +1320,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
 
@@ -1357,6 +1375,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
 
                 break;
             }
@@ -1380,6 +1399,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 
                 // set viscosity property parameters
                 tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }
