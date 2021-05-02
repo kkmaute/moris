@@ -417,6 +417,12 @@ namespace moris
                         uint                     aLagrangeMeshIndex,
                         sint                     aFunctionIndex);
 
+                uint based_on_field_put_low_level_elements_on_queue(
+                        const Matrix< DDRMat > & aFieldValues,
+                        uint                     aPattern,
+                        uint                     aOrder,
+                        sint                     aFunctionIndex);
+
                 // -----------------------------------------------------------------------------
 
                 /**

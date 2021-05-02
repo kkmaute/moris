@@ -1671,6 +1671,73 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
+        uint HMR::based_on_field_put_low_level_elements_on_queue(
+                const Matrix< DDRMat > & aFieldValues,
+                uint                     aPattern,
+                uint                     aOrder,
+                sint                     aFunctionIndex)
+        {
+            uint tElementCounter = 0;
+
+            if( mParameters->use_refinement_for_low_level_elements() )
+            {
+                // candidates for refinement
+                Cell< hmr::Element* > tCandidates;
+
+                // elements to be flagged for refinement
+                Cell< hmr::Element* > tRefinementList;
+
+                Cell< BSpline_Mesh_Base * > tBSplineDummy( 1, nullptr );
+
+                moris::hmr::Factory tFactory;
+
+                Lagrange_Mesh_Base * tMesh = tFactory.create_lagrange_mesh(
+                        mParameters,
+                        mDatabase->get_background_mesh(),
+                        tBSplineDummy,
+                        aPattern,
+                        aOrder );
+
+                // get candidates for surface
+                this->get_candidates_for_refinement(
+                        tCandidates,
+                        tMesh );
+
+                // call refinement manager and get intersected cells
+                if (aFunctionIndex < 0)
+                {
+                    this->find_low_level_cells_intersected_by_levelset(
+                            tRefinementList,
+                            tCandidates,
+                            aFieldValues );
+                }
+                else
+                {
+                    MORIS_ERROR( false, "the behavior of this function is not tested when using a refinement function.");
+
+                    this->user_defined_flagging(
+                            tRefinementList,
+                            tCandidates,
+                            aFieldValues,
+                            uint(aFunctionIndex));
+                }
+
+
+                // add length of list to counter
+                tElementCounter += tRefinementList.size();
+
+                // flag elements in HMR
+                this->put_elements_on_refinment_queue( tRefinementList );
+
+                delete tMesh;
+            }
+
+            // return number of flagged elements
+            return tElementCounter;
+        }
+
+        // ----------------------------------------------------------------------------
+
         /**
          * needed for tutorials
          */
