@@ -9,7 +9,7 @@ namespace moris
     namespace fem
     {
         // internal threshold for zero
-        const real mEpsilon = 1e-12;
+        const real mEpsilon = 1e-18;
 
         // internal threshold for wall distance
         const real mWallDistanceEpsilon = 1e-6;
