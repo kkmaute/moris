@@ -36,49 +36,51 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep",
     hid_t tFileID = open_hdf5_file( "shape_opt_test.hdf5" );
     herr_t tStatus = 0;
 
-    // Declare sensitivity matrices for comparison
-    Matrix<DDRMat> tObjectiveAnalytical;
-    Matrix<DDRMat> tConstraintsAnalytical;
-    Matrix<DDRMat> tObjectiveFD;
-    Matrix<DDRMat> tConstraintsFD;
-
-    // Read analytical sensitivities
-    load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 analytical", tObjectiveAnalytical, tStatus);
-    load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus);
-    REQUIRE(tObjectiveAnalytical.length() == tConstraintsAnalytical.length()); // one objective and one constraint for this problem only
-
-    // Read FD sensitivities and compare
-    Cell<std::string> tFDTypes = {"fd_forward", "fd_backward", "fd_central"};
-    for (uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++)
+    if (par_size() == 1)
     {
-        load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tObjectiveFD, tStatus);
-        load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tConstraintsFD, tStatus);
+        // Declare sensitivity matrices for comparison
+        Matrix<DDRMat> tObjectiveAnalytical;
+        Matrix<DDRMat> tConstraintsAnalytical;
+        Matrix<DDRMat> tObjectiveFD;
+        Matrix<DDRMat> tConstraintsFD;
 
-        REQUIRE(tObjectiveAnalytical.length() == tObjectiveFD.length());
-        REQUIRE(tConstraintsAnalytical.length() == tConstraintsFD.length());
+        // Read analytical sensitivities
+        load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 analytical", tObjectiveAnalytical, tStatus);
+        load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus);
+        REQUIRE(tObjectiveAnalytical.length() == tConstraintsAnalytical.length()); // one objective and one constraint for this problem only
 
-        for (uint tADVIndex = 0; tADVIndex < tObjectiveAnalytical.length(); tADVIndex++)
+        // Read FD sensitivities and compare
+        Cell<std::string> tFDTypes = {"fd_forward", "fd_backward", "fd_central"};
+        for (uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++)
         {
-            MORIS_LOG_INFO("Check derivative of objective  wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
-                    tADVIndex,
-                    tObjectiveAnalytical(tADVIndex),
-                    tFDTypes(tFDIndex).c_str(),
-                    tObjectiveFD(tADVIndex),
-                    100*std::abs((tObjectiveAnalytical(tADVIndex)-tObjectiveFD(tADVIndex))/tObjectiveFD(tADVIndex)));
+            load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tObjectiveFD, tStatus);
+            load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tConstraintsFD, tStatus);
 
-            MORIS_LOG_INFO("Check derivative of constraint wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
-                    tADVIndex,
-                    tConstraintsAnalytical(tADVIndex),
-                    tFDTypes(tFDIndex).c_str(),
-                    tConstraintsFD(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
+            REQUIRE(tObjectiveAnalytical.length() == tObjectiveFD.length());
+            REQUIRE(tConstraintsAnalytical.length() == tConstraintsFD.length());
 
-            CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
-            CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
+            for (uint tADVIndex = 0; tADVIndex < tObjectiveAnalytical.length(); tADVIndex++)
+            {
+                MORIS_LOG_INFO("Check derivative of objective  wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
+                        tADVIndex,
+                        tObjectiveAnalytical(tADVIndex),
+                        tFDTypes(tFDIndex).c_str(),
+                        tObjectiveFD(tADVIndex),
+                        100*std::abs((tObjectiveAnalytical(tADVIndex)-tObjectiveFD(tADVIndex))/tObjectiveFD(tADVIndex)));
+
+                MORIS_LOG_INFO("Check derivative of constraint wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
+                        tADVIndex,
+                        tConstraintsAnalytical(tADVIndex),
+                        tFDTypes(tFDIndex).c_str(),
+                        tConstraintsFD(tADVIndex),
+                        100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
+
+                CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
+                CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
+            }
         }
+
+        // close file
+        close_hdf5_file( tFileID );
     }
-
-    // close file
-    close_hdf5_file( tFileID );
-
 }
