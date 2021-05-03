@@ -17,6 +17,7 @@
 #include "linalg_typedefs.hpp"              //LINALG/src
 
 #include "cl_FEM_IQI.hpp"                   //FEM/INT/src
+#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris
 {
@@ -34,7 +35,7 @@ namespace moris
                 // property type for IQI
                 enum class Property_Type
                 {
-                        DYNAMIC_VISCOSITY, // fluid dynamic viscosity
+                        KINEMATIC_VISCOSITY, // fluid dynamic viscosity
                         DENSITY,           // fluid density
                         MAX_ENUM
                 };
@@ -106,43 +107,6 @@ namespace moris
                 {
                     MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute fv1 = chi³ / ( chi³ + cv1³)
-                 * @param[ out ] fv1
-                 */
-                real compute_fv1();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of fv1 wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adfv1du    a matrix to fill with dfv1du
-                 */
-                void compute_dfv1du(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adfv1du );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute chi = viscosityDof / viscosityProp
-                 * @param[ out ] chi
-                 */
-                real compute_chi();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of chi wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adchidu    a matrix to fill with dchidu
-                 */
-                void compute_dchidu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adchidu );
-
         };
     }/* end namespace fem */
 } /* end namespace moris */

@@ -131,8 +131,7 @@ namespace moris
             // reset the matrix
             mdPPdMasterDof( tDofIndex ).set_size(
                     1,
-                    tFIDer->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFIDer->get_number_of_space_time_coefficients() );
 
             // get the kinematic viscosity property
             const std::shared_ptr< Property > & tPropKinViscosity =
@@ -148,7 +147,7 @@ namespace moris
                     tdDiffusiondu );
 
             // add contribution from diffusion coefficient
-            mdPPdMasterDof( tDofIndex ) +=
+            mdPPdMasterDof( tDofIndex ) =
                     mParameters( 0 ) * tdDiffusiondu / tElementSize;
         }
 

@@ -56,7 +56,13 @@ namespace moris
                 //--------------------------------------------------------------------------------------------------------------
 
                 void perform_refinement(
-                        Cell< mtk::Field* >                    & aFields,
+                        Cell< std::shared_ptr< mtk::Field > >  & aFields,
+                        std::shared_ptr<hmr::HMR>                aHMR );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                void perform_refinement_low_level_elements(
+                        Cell< std::shared_ptr< mtk::Field > >  & aFields,
                         std::shared_ptr<hmr::HMR>                aHMR );
 
                 //--------------------------------------------------------------------------------------------------------------

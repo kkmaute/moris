@@ -35,12 +35,18 @@ namespace moris
                 enum class CM_Property_Type
                 {
                     DENSITY,   // fluid density
-                    VISCOSITY, // fluid viscosity
+                    VISCOSITY, // fluid dynamic viscosity
+                    KIN_VISCOSITY, // fluid kinematic viscosity
                     MAX_ENUM
                 };
 
                 // Spalart Allmaras model constants
                 real mCv1 = 7.1;
+
+            protected:
+
+                // default properties
+                std::shared_ptr< Property > mPropKinViscosity = nullptr;
 
                 //--------------------------------------------------------------------------------------------------------------
             public:

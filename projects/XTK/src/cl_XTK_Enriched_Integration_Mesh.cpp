@@ -886,25 +886,12 @@ namespace xtk
     {
         MORIS_ERROR(aSideSets.size()>=2,"Union needs to happen between two side sets or more");
 
-        enum CellTopology tCellTopo = CellTopology::INVALID;
-
         moris::uint tCount = 0;
         Cell<moris_index> tSideSetIndices(aSideSets.size());
         for(moris::uint i = 0; i < aSideSets.size(); i++)
         {
             tSideSetIndices(i) = this->get_side_set_index(aSideSets(i));
             tCount = tCount +  mSideSets(tSideSetIndices(i)).size();
-
-            moris::mtk::Set * tSet =  this->get_set_by_index( this->get_set_index_by_name(aSideSets(i)) );
-            if(i == 0)
-            {
-                tCellTopo = tSet->get_cell_topology();
-            }
-            else
-            {
-                MORIS_ERROR(tCellTopo == tSet->get_cell_topology(),"Invalid merge detected, verify that all blocks have the same cell topology");
-            }
-
         }
 
         Cell<moris_index> tSideSetIndex = this->register_side_set_names({aNewSideSet});

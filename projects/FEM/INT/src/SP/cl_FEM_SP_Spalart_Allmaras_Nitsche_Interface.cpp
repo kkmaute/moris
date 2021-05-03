@@ -201,8 +201,7 @@ namespace moris
             // reset the matrix
             mdPPdMasterDof( tDofIndex ).set_size(
                     3,
-                    tFIDer->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFIDer->get_number_of_space_time_coefficients() );
 
             // get the master kinematic viscosity property
             const std::shared_ptr< Property > & tMasterPropKinViscosity =
@@ -237,17 +236,17 @@ namespace moris
                     tMasterdmaterialdu );
 
             // compute derivative of Nitsche SP FIXME ????
-            mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+            mdPPdMasterDof( tDofIndex ).get_row( 0 ) =
                     this->val()( 0 ) * tMasterVolume * tMasterdmaterialdu /
                     ( std::pow( tMasterMaterial, 2 ) * tDeno );
 
             // compute derivative of master weight SP
-            mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
-                    this->val()( 1 ) * tSlaveVolume * tMasterdmaterialdu /
+            mdPPdMasterDof( tDofIndex ).get_row( 1 ) =
+                    - this->val()( 1 ) * tSlaveVolume * tMasterdmaterialdu /
                     ( tMasterMaterial * tSlaveMaterial * tDeno );
 
             // compute derivative of the slave weight SP
-            mdPPdMasterDof( tDofIndex ).get_row( 2 ) +=
+            mdPPdMasterDof( tDofIndex ).get_row( 2 ) =
                     this->val()( 2 ) * tMasterVolume * tMasterdmaterialdu /
                     ( std::pow( tMasterMaterial, 2 ) * tDeno );
         }
@@ -315,18 +314,18 @@ namespace moris
                     tSlavedmaterialdu );
 
             // compute derivative of Nitsche SP FIXME ????
-            mdPPdSlaveDof( tDofIndex ).get_row( 0 ) +=
+            mdPPdSlaveDof( tDofIndex ).get_row( 0 ) =
                     this->val()( 0 ) * tSlaveVolume * tSlavedmaterialdu /
                     ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
             // compute derivative of master weight SP
-            mdPPdSlaveDof( tDofIndex ).get_row( 1 ) +=
+            mdPPdSlaveDof( tDofIndex ).get_row( 1 ) =
                     this->val()( 1 ) * tSlaveVolume * tSlavedmaterialdu /
                     ( std::pow( tSlaveMaterial, 2 ) * tDeno );
 
             // compute derivative of the slave weight SP
-            mdPPdSlaveDof( tDofIndex ).get_row( 2 ) -=
-                    this->val()( 2 ) * tMasterVolume * tSlavedmaterialdu /
+            mdPPdSlaveDof( tDofIndex ).get_row( 2 ) =
+                    - this->val()( 2 ) * tMasterVolume * tSlavedmaterialdu /
                     ( tMasterMaterial * tSlaveMaterial * tDeno );
         }
 

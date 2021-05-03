@@ -84,6 +84,8 @@ namespace moris
         {
             mInitializeOptimizationRestart = false;
 
+            mIter = 0;
+
             moris::Cell< std::shared_ptr< mtk::Field > > tFields;
 
             if( tIsFirstOptSolve )
@@ -128,8 +130,6 @@ namespace moris
                             mPerformerManager->mMTKPerformer,
                             tFields);
 
-                //tFields(0)->save_field_to_exodus( "FieldNewInput123.exo");
-
                 // Create new GE performer
                 std::string tGENString = "GENParameterList";
                 Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
@@ -161,6 +161,15 @@ namespace moris
 
         Matrix<DDRMat> Workflow_HMR_XTK::perform(const Matrix<DDRMat> & aNewADVs)
         {
+            if( mIter >= mReinitializeIter )
+            {
+                mInitializeOptimizationRestart = true;
+
+                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
+
+                return tMat;
+            }
+
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
 
@@ -225,6 +234,8 @@ namespace moris
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
+
+            mIter++;
 
             return tMat;
         }

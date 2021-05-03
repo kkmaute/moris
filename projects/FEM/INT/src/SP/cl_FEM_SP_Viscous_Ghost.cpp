@@ -41,7 +41,7 @@ namespace moris
                     std::get<2>( mElementSizeTuple ) )->val()( 0 );
 
             // get the viscosity property
-            std::shared_ptr< Property > & tViscosityProp =
+            const std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // compute stabilization parameter value
@@ -69,20 +69,24 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
             // get the viscosity property
-            std::shared_ptr< Property > & tViscosityProp =
+            const std::shared_ptr< Property > & tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // if viscosity depends on dof type
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdMasterDof( tDofIndex ) =
                         mParameters( 0 ) *
                         std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 ) *
                         tViscosityProp->dPropdDOF( aDofTypes );
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
         }
 

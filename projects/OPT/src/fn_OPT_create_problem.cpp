@@ -8,6 +8,11 @@ namespace moris
         std::shared_ptr<Problem> create_problem(ParameterList aProblemParameterList, std::shared_ptr<Criteria_Interface> aInterface)
         {
             std::string tProblemType = aProblemParameterList.get<std::string>("problem");
+
+            sint tReinitializeInterfaceIter = aProblemParameterList.get<sint>("reinitialize_interface_iter");
+
+            aInterface->set_reinitialize_iter( tReinitializeInterfaceIter );
+
             if (!tProblemType.compare("user_defined"))
             {
                 return std::make_shared<Problem_User_Defined>(aProblemParameterList, aInterface);

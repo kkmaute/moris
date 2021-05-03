@@ -16,11 +16,6 @@ namespace moris
 {
     namespace fem
     {
-
-        //------------------------------------------------------------------------------
-        // FIXME: dividing by zero not properly and consistently handled
-        //------------------------------------------------------------------------------
-
         SP_SUPG_Spalart_Allmaras_Turbulence::SP_SUPG_Spalart_Allmaras_Turbulence()
         {
             // set the property pointer cell size
@@ -112,7 +107,7 @@ namespace moris
                     std::get<2>( mElementSizeTuple ) )->val()( 0 );
 
             // set size for SP values
-            mPPVal.set_size( 1, 1, 0.0 );
+            mPPVal.set_size( 1, 1 );
 
             // get the velocity FI
             Field_Interpolator * tViscosityFI =
@@ -200,7 +195,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set matrix size
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
             // get the velocity FI
             Field_Interpolator * tViscosityFI =
@@ -260,9 +255,9 @@ namespace moris
             real tTauS = tProductionTerm + tWallDestructionTerm;
 
             // init derivative of tauA, tauK, tauS
-            Matrix< DDRMat > tdtauAdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
-            Matrix< DDRMat > tdtauKdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
-            Matrix< DDRMat > tdtauSdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            Matrix< DDRMat > tdtauAdu( 1, tFI->get_number_of_space_time_coefficients() );
+            Matrix< DDRMat > tdtauKdu( 1, tFI->get_number_of_space_time_coefficients() );
+            Matrix< DDRMat > tdtauSdu( 1, tFI->get_number_of_space_time_coefficients() );
 
             // if normA greater than threshold
             if( tNormA > mEpsilon )
@@ -271,14 +266,17 @@ namespace moris
                 if( aDofTypes( 0 ) == mMasterDofVelocity )
                 {
                     // add contribution to dtauAdu
-                    tdtauAdu += trans( tModVelocity ) * tVelocityFI->N();
+                    tdtauAdu = trans( tModVelocity ) * tVelocityFI->N();
                 }
-
                 // if dof type is viscosity
-                if( aDofTypes( 0 ) == mMasterDofViscosity )
+                else if( aDofTypes( 0 ) == mMasterDofViscosity )
                 {
                     // add contribution to dtauAdu
-                    tdtauAdu -= mCb2 * trans( tModVelocity ) * tViscosityFI->dnNdxn( 1 ) / mSigma;
+                    tdtauAdu = - mCb2 * trans( tModVelocity ) * tViscosityFI->dnNdxn( 1 ) / mSigma;
+                }
+                else
+                {
+                    tdtauAdu.fill( 0.0 );
                 }
 
                 // multiply by common scaling factor
@@ -328,8 +326,12 @@ namespace moris
             // compute dSPdu
             if ( tTau > mEpsilon )
             {
-                mdPPdMasterDof( tDofIndex ) = - 0.5 * std::pow( tTau, -1.5 ) *
-                    ( 2.0 * tTauA * tdtauAdu + 2.0 * tTauK * tdtauKdu + 2.0 * tTauS * tdtauSdu );
+                mdPPdMasterDof( tDofIndex ) = - std::pow( tTau, -1.5 ) *
+                    ( tTauA * tdtauAdu + tTauK * tdtauKdu + tTauS * tdtauSdu );
+            }
+            else
+            {
+                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
         }
 

@@ -8,8 +8,11 @@ namespace moris
 {
     namespace fem
     {
-        // internal threshold
-        const real mEpsilon = 1e-12;
+        // internal threshold for zero
+        const real mEpsilon = 1e-18;
+
+        // internal threshold for wall distance
+        const real mWallDistanceEpsilon = 1e-6;
 
         // Spalart Allmaras model constants
         real mCb1 = 0.1355;
@@ -100,7 +103,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( tDerDofType );
 
             // init adproductiondu
-            adproductiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            adproductiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
@@ -146,6 +149,11 @@ namespace moris
                         aDofTypes,
                         tdstildedu );
 
+                // add contribution to dproductiondu
+                adproductiondu =
+                        - mCb1 * tSTilde * tModViscosity * tdft2du +
+                        mCb1 * ( 1 - tFt2 ) * tModViscosity * tdstildedu;
+
                 // if derivative dof type is viscosity dof type
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -153,11 +161,6 @@ namespace moris
                     adproductiondu +=
                             mCb1 * ( 1.0 - tFt2 ) * tSTilde * tFIModViscosity->N();
                 }
-
-                // add contribution to dproductiondu
-                adproductiondu +=
-                        - mCb1 * tSTilde * tModViscosity * tdft2du +
-                        mCb1 * ( 1 - tFt2 ) * tModViscosity * tdstildedu;
             }
             // if viscosity is negative
             else
@@ -175,6 +178,10 @@ namespace moris
                         aDofTypes,
                         tdsdu );
 
+                // add contribution to dproductiondu
+                adproductiondu =
+                        mCb1 * ( 1.0 - mCt3 ) * tModViscosity * tdsdu;
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -182,10 +189,6 @@ namespace moris
                     adproductiondu +=
                             mCb1 * ( 1.0 - mCt3 ) * tS * tFIModViscosity->N();
                 }
-
-                // add contribution to dproductiondu
-                adproductiondu +=
-                        mCb1 * ( 1.0 - mCt3 ) * tModViscosity * tdsdu;
             }
         }
 
@@ -262,7 +265,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( tDerDofType );
 
             // init adproductiondu
-            adproductiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            adproductiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
@@ -309,7 +312,7 @@ namespace moris
                         tdstildedu );
 
                 // add contribution to dproductiondu
-                adproductiondu += - mCb1 * tSTilde * tdft2du +
+                adproductiondu = - mCb1 * tSTilde * tdft2du +
                         mCb1 * ( 1 - tFt2 ) * tdstildedu;
             }
             // if viscosity is negative
@@ -324,7 +327,7 @@ namespace moris
                         tdsdu );
 
                 // add contribution to dproductiondu
-                adproductiondu += mCb1 * ( 1.0 - mCt3 ) * tdsdu;
+                adproductiondu = mCb1 * ( 1.0 - mCt3 ) * tdsdu;
             }
         }
 
@@ -351,7 +354,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -404,7 +407,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( tDerDofType );
 
             // init adwalldestructiondu
-            adwalldestructiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            adwalldestructiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients());
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
@@ -417,7 +420,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -456,6 +459,11 @@ namespace moris
                         aDofTypes,
                         tdft2du );
 
+                // add contribution from ft2 and fw to dwalldestructiondu
+                adwalldestructiondu =
+                        ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
+                        std::pow( tModViscosity / tWallDistance, 2.0 );
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -466,14 +474,9 @@ namespace moris
                             std::pow( tWallDistance, 2.0 );
                 }
 
-                // add contribution from ft2 and fw to dwalldestructiondu
-                adwalldestructiondu +=
-                        ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
-                        std::pow( tModViscosity / tWallDistance, 2.0 );
-
                 // if wall distance depends on derivative dof type
                 if( ( aPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mEpsilon ) )
+                        ( tWallDistance > mWallDistanceEpsilon ) )
                 {
                     // add contribution to dwalldestructiondu
                     adwalldestructiondu -=
@@ -486,6 +489,9 @@ namespace moris
             // if viscosity is negative
             else
             {
+                // fill with zeros
+                adwalldestructiondu.fill( 0.0 );
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -497,7 +503,7 @@ namespace moris
 
                 // if wall distance depends on derivative dof type
                 if( ( aPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mEpsilon ) )
+                        ( tWallDistance > mWallDistanceEpsilon ) )
                 {
                     // add contribution to dwalldestructiondu
                     adwalldestructiondu +=
@@ -531,7 +537,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -584,7 +590,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( tDerDofType );
 
             // init adwalldestructiondu
-            adwalldestructiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            adwalldestructiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
@@ -597,7 +603,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -636,6 +642,11 @@ namespace moris
                         aDofTypes,
                         tdft2du );
 
+                // add contribution to dwalldestructiondu
+                adwalldestructiondu =
+                        ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
+                        tModViscosity / std::pow( tWallDistance, 2.0 );
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -646,14 +657,9 @@ namespace moris
                             std::pow( tWallDistance, 2.0 );
                 }
 
-                // add contribution to dwalldestructiondu
-                adwalldestructiondu +=
-                        ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
-                        tModViscosity / std::pow( tWallDistance, 2.0 );
-
                 // if wall distance depends on derivative dof type
                 if( ( aPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mEpsilon ) )
+                        ( tWallDistance > mWallDistanceEpsilon ) )
                 {
                     // add contribution to dwalldestructiondu
                     adwalldestructiondu -=
@@ -666,6 +672,9 @@ namespace moris
             // if viscosity is negative
             else
             {
+                // fill with zeros
+                adwalldestructiondu.fill( 0.0 );
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -677,7 +686,7 @@ namespace moris
 
                 // if wall distance depends on derivative dof type
                 if( ( aPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mEpsilon ) )
+                        ( tWallDistance > mWallDistanceEpsilon ) )
                 {
                     // add contribution to dwalldestructiondu
                     adwalldestructiondu +=
@@ -747,7 +756,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( tDerDofType );
 
             // init ddiffusiondu
-            addiffusiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            addiffusiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the viscosity FI
             Field_Interpolator * tFIModViscosity =
@@ -759,6 +768,9 @@ namespace moris
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
+                // fill with zeros
+                addiffusiondu.fill( 0.0 );
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -791,6 +803,9 @@ namespace moris
                         aDofTypes,
                         tdfndu );
 
+                // add contribution from fn to ddiffusiondu
+                addiffusiondu = tModViscosity * tdfndu / mSigma;
+
                 // if derivative dof type is viscosity
                 if( tDerDofType == aViscosityDofGroup( 0 ) )
                 {
@@ -804,9 +819,6 @@ namespace moris
                     // add contribution to ddiffusiondu
                     addiffusiondu += aPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
-
-                // add contribution from fn to ddiffusiondu
-                addiffusiondu += tModViscosity * tdfndu / mSigma;
             }
         }
 
@@ -823,7 +835,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // init diffusion coeff
-            addiffusiondx.set_size( tFIModViscosity->gradx( 1 ).n_rows(), 1, 0.0 );
+            addiffusiondx.set_size( tFIModViscosity->gradx( 1 ).n_rows(), 1 );
 
             // get the viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
@@ -832,7 +844,7 @@ namespace moris
             if( tModViscosity >= 0.0 )
             {
                 // compute diffusion term
-                addiffusiondx += ( aPropKinViscosity->dPropdx() + tFIModViscosity->gradx( 1 ) ) / mSigma;
+                addiffusiondx = ( aPropKinViscosity->dPropdx() + tFIModViscosity->gradx( 1 ) ) / mSigma;
             }
             // if viscosity is negative
             else
@@ -852,7 +864,7 @@ namespace moris
                         dfndx );
 
                 // compute diffusion term
-                addiffusiondx += ( aPropKinViscosity->dPropdx() +
+                addiffusiondx = ( aPropKinViscosity->dPropdx() +
                         tFIModViscosity->gradx( 1 ) * tFn +
                         tFIModViscosity->val( )( 0 ) * dfndx ) / mSigma;
             }
@@ -881,8 +893,7 @@ namespace moris
             // init ddiffusiondxdu
             addiffusiondxdu.set_size(
                     tFIModViscosity->gradx( 1 ).n_rows(),
-                    tFIDer->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tFIDer->get_number_of_space_time_coefficients() );
 
             // get the viscosity value
             real tModViscosity = tFIModViscosity->val()( 0 );
@@ -890,6 +901,9 @@ namespace moris
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
+                // fill with zeros
+                addiffusiondxdu.fill( 0.0 );
+
                 // if derivative dof type is viscosity
                 if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
                 {
@@ -933,17 +947,17 @@ namespace moris
                         aDofTypes,
                         tdfndxdu );
 
+                // compute diffusion term
+                //FIXME missing term aPropKinViscosity->dPropdxdu()
+                addiffusiondxdu = ( tFIModViscosity->gradx( 1 ) * tdfndu +
+                        tFIModViscosity->val()( 0 ) * tdfndxdu ) / mSigma;
+
                 // if derivative dof type is viscosity
                 if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
                 {
                     addiffusiondxdu += ( tFIModViscosity->dnNdxn( 1 ) * tFn +
                             dfndx * tFIModViscosity->N() ) / mSigma;
                 }
-
-                // compute diffusion term
-                //FIXME missing term aPropKinViscosity->dPropdxdu()
-                addiffusiondxdu += ( tFIModViscosity->gradx( 1 ) * tdfndu +
-                        tFIModViscosity->val()( 0 ) * tdfndxdu ) / mSigma;
             }
         }
 
@@ -1110,7 +1124,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init dsdu
-            adsdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            adsdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
 
             // compute sbar
             real tS = compute_s(
@@ -1136,7 +1150,11 @@ namespace moris
                         tdWijdu );
 
                 // compute dsdu
-                adsdu += 2.0 * trans( tWij ) * tdWijdu / tS;
+                adsdu = 2.0 * trans( tWij ) * tdWijdu / tS;
+            }
+            else
+            {
+                adsdu.fill( 0.0 );
             }
         }
 
@@ -1231,8 +1249,18 @@ namespace moris
             // init adchidxdu
             adchidxdu.set_size(
                     tDerFI->gradx( 1 ).n_rows(),
-                    tDerFI->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tDerFI->get_number_of_space_time_coefficients() );
+
+            // compute dchidu
+            Matrix< DDRMat > tdChidu;
+            compute_dchidu(
+                    aViscosityDofGroup,
+                    aMasterFIManager,
+                    aPropKinViscosity,
+                    aDofTypes,
+                    tdChidu );
+
+            adchidxdu = - aPropKinViscosity->dPropdx() * tdChidu / aPropKinViscosity->val()( 0 );
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
@@ -1259,17 +1287,6 @@ namespace moris
 
                 // FIXME missing - tChi * aPropKinViscosity->dPropdxdu() / aPropKinViscosity->val()
             }
-
-            // compute dchidu
-            Matrix< DDRMat > tdChidu;
-            compute_dchidu(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity,
-                    aDofTypes,
-                    tdChidu );
-
-            adchidxdu -= aPropKinViscosity->dPropdx() * tdChidu / aPropKinViscosity->val()( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -1509,8 +1526,7 @@ namespace moris
             // init adfndxdu
             adfndu.set_size(
                     1,
-                    tDerFI->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tDerFI->get_number_of_space_time_coefficients() );
 
             // compute chi, chi², chi³
             real tChi = compute_chi(
@@ -1534,7 +1550,7 @@ namespace moris
                     tdchidu );
 
             // compute adfndu
-            adfndu += 6.0 * mCn1 * tChi2 * tdchidu / std::pow( mCn1 - tChi3, 2.0 );
+            adfndu = 6.0 * mCn1 * tChi2 * tdchidu / std::pow( mCn1 - tChi3, 2.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -1585,8 +1601,7 @@ namespace moris
             // init adfndxdu
             adfndxdu.set_size(
                     tDerFI->gradx( 1 ).n_rows(),
-                    tDerFI->get_number_of_space_time_coefficients(),
-                    0.0 );
+                    tDerFI->get_number_of_space_time_coefficients() );
 
             // compute chi
             real tChi = compute_chi(
@@ -1627,7 +1642,7 @@ namespace moris
                     tdchidxdu );
 
             // compute adfndx
-            adfndxdu += 6.0 * mCn1 * ( 2.0 * tChi * ( mCn1 + 2.0 * tChi3 ) * tdchidx * tdchidu +
+            adfndxdu = 6.0 * mCn1 * ( 2.0 * tChi * ( mCn1 + 2.0 * tChi3 ) * tdchidx * tdchidu +
                     ( mCn1 - tChi3 ) * tChi2 * tdchidxdu ) / std::pow( mCn1 - tChi3, 3.0 );
         }
 
@@ -1647,7 +1662,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // compute fv2
             real tFv2 = compute_fv2(
@@ -1674,7 +1689,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init dsbardu
-            adsbardu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            adsbardu.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the viscosity FI
             Field_Interpolator * tFIViscosity =
@@ -1684,7 +1699,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // compute fv2
             real tFv2 = compute_fv2(
@@ -1702,7 +1717,7 @@ namespace moris
                     tdfv2du );
 
             // compute dsbardu
-            adsbardu +=
+            adsbardu =
                     tFIViscosity->val() * tdfv2du /
                     std::pow( mKappa * tWallDistance, 2.0 );
 
@@ -1716,7 +1731,7 @@ namespace moris
 
             // if wall distance depends on derivative dof type
             if( ( aPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                    ( tWallDistance > mEpsilon ) )
+                    ( tWallDistance > mWallDistanceEpsilon ) )
             {
                 // add contribution to dsbardu
                 adsbardu -=
@@ -2000,7 +2015,7 @@ namespace moris
             real tWallDistance = aPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mEpsilon );
+            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
@@ -2032,7 +2047,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adrdu
-            adrdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            adrdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
 
             // compute r
             real tR = compute_r(
@@ -2053,7 +2068,7 @@ namespace moris
                 real tWallDistance = aPropWallDistance->val()( 0 );
 
                 // threshold wall distance
-                tWallDistance = std::max( tWallDistance, mEpsilon );
+                tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
                 // compute stilde
                 real tSTilde = compute_stilde(
@@ -2078,7 +2093,7 @@ namespace moris
                         tdSTildedu );
 
                 // add contribution from dStildedu
-                adrdu -= tFIViscosity->val() * tdSTildedu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
+                adrdu = - tFIViscosity->val() * tdSTildedu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
 
                 // if dof type is viscosity
                 if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
@@ -2089,12 +2104,16 @@ namespace moris
 
                 // if wall distance depends on derivative dof type
                 if( ( aPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mEpsilon ) )
+                        ( tWallDistance > mWallDistanceEpsilon ) )
                 {
                     // add contribution from wall distance
                     adrdu -= 2.0 * tFIViscosity->val()( 0 ) * aPropWallDistance->dPropdDOF( aDofTypes ) /
                             ( tSTilde * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
                 }
+            }
+            else
+            {
+                adrdu.fill( 0.0 );
             }
         }
 
@@ -2135,7 +2154,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adgdu
-            adgdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            adgdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
 
             // compute r
             real tR = compute_r(
@@ -2157,7 +2176,7 @@ namespace moris
                     tdrdu );
 
             // compute adgdu
-            adgdu += ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
+            adgdu = ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
         }
 
         //------------------------------------------------------------------------------
@@ -2201,7 +2220,7 @@ namespace moris
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adfwdu
-            adfwdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            adfwdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
 
             // compute g
             real tG = compute_g(
@@ -2231,7 +2250,7 @@ namespace moris
                     aPropWallDistance );
 
             // init adfwdu
-            adfwdu += ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
+            adfwdu = ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
                     ( tG * ( std::pow( tG, 6.0 ) + std::pow( mCw3, 6.0 ) ) );
         }
 

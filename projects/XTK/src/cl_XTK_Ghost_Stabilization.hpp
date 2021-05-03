@@ -46,6 +46,11 @@ namespace xtk
             Cell<Cell<moris_index>> mTrivialFlag;
             Cell<Cell<moris_index>> mTransitionLocation;
 
+            // Linear integration cells
+            bool mLinearBackgroundMesh = false;
+            std::unordered_map<moris_index,moris_index> mLinearIgCellIndex;
+            Cell<mtk::Cell*> mLinearIgCells;
+
             size_t
             capacity()
             {
@@ -236,8 +241,10 @@ namespace xtk
             create_slave_side_cluster(
                     Ghost_Setup_Data &  aGhostSetupData,
                     Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
-                    uint const & aBulkIndex,
-                    uint const & aCellIndex);
+                    uint const   & aBulkIndex,
+                    uint const   & aCellIndex,
+                    moris_index  & aCurrentIndex,
+                    moris_index  & aCurrentId);
 
             // ----------------------------------------------------------------------------------
             std::shared_ptr<Side_Cluster>
@@ -261,6 +268,21 @@ namespace xtk
                     moris_index & aCurrentIndex,
                     moris_index & aCurrentId);
 
+
+            // ----------------------------------------------------------------------------------
+
+            mtk::Cell*
+            get_linear_ig_cell( Ghost_Setup_Data                  & aGhostSetupData,
+                                Interpolation_Cell_Unzipped       * aInterpCell,
+                                moris_index                       & aCurrentIndex,
+                                moris_index                       & aCurrentId );
+            // ----------------------------------------------------------------------------------
+            mtk::Cell*
+            create_linear_ig_cell( Ghost_Setup_Data                  & aGhostSetupData,
+                                   Interpolation_Cell_Unzipped const * aInterpCell,
+                                   moris_index                       & aCurrentIndex,
+                                   moris_index                       & aCurrentId );
+
             // ----------------------------------------------------------------------------------
             void
             permute_slave_vertices(
@@ -279,6 +301,9 @@ namespace xtk
         private:
             Model* mXTKModel; /*Pointer to the model*/
             moris_index mMinMeshIndex;
+
+            bool
+            is_linear_ip_mesh();
 
     };
 

@@ -18,6 +18,10 @@ namespace moris
             protected:
                 bool mInitializeOptimizationRestart = false;
 
+                uint mReinitializeIter = MORIS_UINT_MAX;
+
+                uint mIter = 0;
+
             public:
 
                 /**
@@ -67,6 +71,11 @@ namespace moris
                 bool get_restart_optimization()
                 {
                     return mInitializeOptimizationRestart;
+                }
+
+                void set_reinitialize_iter( uint aReinitializeIter )
+                {
+                    mReinitializeIter = aReinitializeIter;
                 }
 
             private:

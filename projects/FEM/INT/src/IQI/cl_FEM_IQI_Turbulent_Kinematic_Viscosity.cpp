@@ -25,7 +25,7 @@ namespace moris
 
             // populate the map
             mPropertyMap[ "Density" ]          = static_cast< uint >( Property_Type::DENSITY );
-            mPropertyMap[ "DynamicViscosity" ] = static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY );
+            mPropertyMap[ "DynamicViscosity" ] = static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY );
         }
 
         //------------------------------------------------------------------------------
@@ -90,11 +90,18 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density property
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
+            // get the kinematic viscosity property
+            const std::shared_ptr< Property > & tPropKinViscosity =
+                    mMasterProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
+
             // compute fv1
-            real tFv1 = this->compute_fv1();
+            real tFv1 = compute_fv1(
+                    { mMasterDofViscosity },
+                    mMasterFIManager,
+                    tPropKinViscosity );
 
             // compute turbulent kinematic viscosity
             aQI = tPropDensity->val() * tFIModViscosity->val() * tFv1;
@@ -113,110 +120,22 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density property
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
+            // get the kinematic viscosity property
+            const std::shared_ptr< Property > & tPropKinViscosity =
+                    mMasterProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
+
             // compute fv1
-            real tFv1 = this->compute_fv1();
+            real tFv1 = compute_fv1(
+                    { mMasterDofViscosity },
+                    mMasterFIManager,
+                    tPropKinViscosity );
 
             // compute turbulent kinematic viscosity
             mSet->get_QI()( tQIIndex ) += aWStar * ( tPropDensity->val() * tFIModViscosity->val() * tFv1 );
         }
-
-        //------------------------------------------------------------------------------
-
-        real IQI_Turbulent_Kinematic_Viscosity::compute_fv1()
-        {
-            // compute chi
-            real tChi = this->compute_chi();
-
-            // compute chi³
-            real tChi3 = std::pow( tChi, 3.0 );
-
-            // compute cv1³
-            real tCv13 = std::pow( mCv1, 3.0 );
-
-            // compute fv1
-            return tChi3 / ( tChi3 + tCv13 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Turbulent_Kinematic_Viscosity::compute_dfv1du(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adfv1du )
-        {
-            // compute chi
-            real tChi = this->compute_chi();
-
-            // compute chi²
-            real tChi2 = std::pow( tChi, 2.0 );
-
-            // compute chi³
-            real tChi3 = std::pow( tChi, 3.0 );
-
-            // compute cv1³
-            real tCv13 = std::pow( mCv1, 3.0 );
-
-            // compute dchidu
-            Matrix< DDRMat > tdchidu;
-            this->compute_dchidu( aDofTypes, tdchidu );
-
-            // compute adfv1du
-            adfv1du = 3.0 * tCv13 * tChi2 * tdchidu / std::pow( tChi3 + tCv13, 2.0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        real IQI_Turbulent_Kinematic_Viscosity::compute_chi()
-        {
-            // get the modified viscosity dof FI
-            Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
-
-            // get the density and gravity properties
-            std::shared_ptr< Property > & tPropDynViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY ) );
-
-            // compute chi
-            return tFIViscosity->val()( 0 ) / tPropDynViscosity->val()( 0 );
-        }
-
-        //------------------------------------------------------------------------------
-        void IQI_Turbulent_Kinematic_Viscosity::compute_dchidu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adchidu )
-        {
-            // get the derivative dof FIs
-            Field_Interpolator * tDerFI =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // init adchidu
-            adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
-
-            // get the density and gravity properties
-            std::shared_ptr< Property > & tPropDynViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY ) );
-
-            // if dof type is viscosity
-            if( aDofTypes( 0 ) == mMasterDofViscosity )
-            {
-                adchidu += tDerFI->N() / tPropDynViscosity->val()( 0 );
-            }
-
-            // if viscosity property depends on dof type
-            if( tPropDynViscosity->check_dof_dependency( aDofTypes ) )
-            {
-                adchidu -=
-                        tFIModViscosity->val() * tPropDynViscosity->dPropdDOF( aDofTypes ) /
-                        std::pow( tPropDynViscosity->val()( 0 ), 2 );
-            }
-        }
-
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */

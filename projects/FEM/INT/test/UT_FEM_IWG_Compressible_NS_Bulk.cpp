@@ -36,12 +36,12 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 1.2E-4;
+    real tEpsilon = 8.0E-5;
+    real tEpsilonCubic = 8.0E-4;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 1.0E-3;
+    real tPerturbationCubic = 2.0E-3;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -179,9 +179,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        // std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        // std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // use correct body force for number of spatial dimensions
         if ( iSpaceDim == 2 )
@@ -232,9 +232,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             }
 
             // output for debugging
-            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            // std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -389,8 +389,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // output for debugging
-                // std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                // std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();

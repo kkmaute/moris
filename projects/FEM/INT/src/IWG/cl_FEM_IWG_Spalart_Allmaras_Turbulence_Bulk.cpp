@@ -93,16 +93,20 @@ namespace moris
             Matrix< DDRMat > tR;
             this->compute_residual_strong_form( tR );
 
+            // get sub-matrix of residual
+            auto tRes = mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex });
+
             // compute the residual weak form
-            mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
-                            tFIViscosity->N_trans() * tFIViscosity->gradt( 1 ) +
-                            tFIViscosity->N_trans() * trans( tModVelocity ) * tFIViscosity->gradx( 1 ) -
-                            tFIViscosity->N_trans() * tProductionTerm +
-                            tFIViscosity->N_trans() * tWallDestructionTerm +
-                            trans( tFIViscosity->dnNdxn( 1 ) ) * tDiffusionCoeff * tFIViscosity->gradx( 1 ) +
-                            trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) );
+            tRes += aWStar * (
+                    tFIViscosity->N_trans() * (
+                            tFIViscosity->gradt( 1 ) +
+                            trans( tModVelocity ) * tFIViscosity->gradx( 1 ) -
+                            tProductionTerm +
+                            tWallDestructionTerm ) +
+                            trans( tFIViscosity->dnNdxn( 1 ) ) * (
+                                    tDiffusionCoeff * tFIViscosity->gradx( 1 ) +
+                                    tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
 
             // show that wall distance is negative
             if( tPropWallDistance->val()( 0 ) < 0.0 )
@@ -171,12 +175,17 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+
+                // extract sub-matrix
+                auto tJac = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
 
                 // if residual dof type (here viscosity)
                 if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
@@ -185,38 +194,33 @@ namespace moris
                     Matrix< DDRMat > tModVelocityDer = - mCb2 * tFIViscosity->dnNdxn( 1 ) / mSigma;
 
                     // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tFIViscosity->N_trans() * tFIViscosity->dnNdtn( 1 ) +
-                                    tFIViscosity->N_trans() * trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 ) +
-                                    trans( tFIViscosity->dnNdxn( 1 ) ) * tDiffusionCoeff * tFIViscosity->dnNdxn( 1 ) +
-                                    trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) );
+                    tJac += aWStar * (
+                            tFIViscosity->N_trans() * (
+                                    tFIViscosity->dnNdtn( 1 ) +
+                                    trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 ) ) +
+                                    trans( tFIViscosity->dnNdxn( 1 ) ) * (
+                                            tDiffusionCoeff * tFIViscosity->dnNdxn( 1 ) +
+                                            tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
                 }
-
                 // if velocity dof type
                 // FIXME protect dof type
-                if( tDofType( 0 ) == MSI::Dof_Type::VX )
+                else if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // compute dModVelocitydVelocity
-                    Matrix< DDRMat > tModVelocityDer = tFIVelocity->N();
+                    const Matrix< DDRMat > & tModVelocityDer = tFIVelocity->N();
 
                     // compute the jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tFIViscosity->N_trans() * trans( tFIViscosity->gradx( 1 ) ) * tModVelocityDer +
-                                    trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) );
+                    tJac += aWStar * (
+                            tFIViscosity->N_trans() * trans( tFIViscosity->gradx( 1 ) ) * tModVelocityDer +
+                            trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) );
                 }
 
                 if( tSPSUPG->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity *
-                                    tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                    tJac += aWStar * (
+                            trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity *
+                            tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
                 }
 
                 // compute jacobian of the strong form
@@ -255,13 +259,11 @@ namespace moris
                         tdDiffdu );
 
                 // compute the jacobian
-                mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                - tFIViscosity->N_trans() * tdProductiondu +
-                                tFIViscosity->N_trans() * tdWallDestructiondu +
-                                trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tdDiffdu +
-                                trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tJ );
+                tJac += aWStar * (
+                        tFIViscosity->N_trans() *
+                        ( -1.0 * tdProductiondu + tdWallDestructiondu ) +
+                        trans( tFIViscosity->dnNdxn( 1 ) ) *
+                        ( tFIViscosity->gradx( 1 ) * tdDiffdu + tModVelocity * tSPSUPG->val()( 0 ) * tJ ) );
             }
 
             // show that wall distance is negative
@@ -379,26 +381,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             //init aJ
-            aJ.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            aJ.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // compute derivative of the divergence of flux
             Matrix< DDRMat > tddivfluxdu;
             this->compute_ddivfluxdu( aDofTypes, tddivfluxdu );
-
-            // if dof type is residual df type (here viscosity)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
-            {
-                aJ +=
-                        tFIViscosity->dnNdtn( 1 ) +
-                        trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 );// -
-            }
-
-            // if dof type is velocity dof type
-            // FIXME protect dof type
-            if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
-            {
-                aJ += trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N();
-            }
 
             // compute derivative of production term
             Matrix< DDRMat > tdProductiondu;
@@ -423,7 +410,20 @@ namespace moris
                     tdWallDestructiondu );
 
             // add contribution to jacobian
-            aJ += -1.0 * tdProductiondu + tdWallDestructiondu - tddivfluxdu;
+            aJ = -1.0 * tdProductiondu + tdWallDestructiondu - tddivfluxdu;
+
+            // if dof type is residual df type (here viscosity)
+            if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
+            {
+                aJ += tFIViscosity->dnNdtn( 1 ) +
+                        trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 );// -
+            }
+            // if dof type is velocity dof type
+            // FIXME protect dof type
+            else if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
+            {
+                aJ += trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N();
+            }
         }
 
 //        //------------------------------------------------------------------------------

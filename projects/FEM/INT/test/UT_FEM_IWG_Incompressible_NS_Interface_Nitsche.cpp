@@ -79,6 +79,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     //tPropMasterViscosity->set_val_function( tVXFIValFunc );
     //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
+    tPropMasterKinViscosity->set_val_function( tConstValFunc );
+    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
     tPropMasterDensity->set_val_function( tConstValFunc );
@@ -94,6 +98,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     //tPropSlaveViscosity->set_val_function( tVXFIValFunc );
     //tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
+    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
+    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
     tPropSlaveDensity->set_val_function( tConstValFunc );
@@ -108,6 +116,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropMasterViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropMasterKinViscosity, "KinViscosity" );
     tCMMasterTurbulence->set_property( tPropMasterDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
 
@@ -115,6 +124,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMSlaveTurbulence->set_property( tPropSlaveViscosity, "Viscosity" );
+    tCMSlaveTurbulence->set_property( tPropSlaveKinViscosity, "KinViscosity" );
     tCMSlaveTurbulence->set_property( tPropSlaveDensity, "Density" );
     tCMSlaveTurbulence->set_local_properties();
 
@@ -197,6 +207,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
                // set velocity dof types
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+
+               // set viscosity property parameters
+               tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -216,6 +230,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
+
+                // set viscosity property parameters
+                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -508,6 +526,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     //tPropMasterViscosity->set_val_function( tVXFIValFunc );
     //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
+    tPropMasterKinViscosity->set_val_function( tConstValFunc );
+    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
     tPropMasterDensity->set_val_function( tConstValFunc );
@@ -523,6 +545,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     //tPropSlaveViscosity->set_val_function( tVXFIValFunc );
     //tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
+    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
+    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
     tPropSlaveDensity->set_val_function( tConstValFunc );
@@ -537,6 +563,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropMasterViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropMasterKinViscosity, "KinViscosity" );
     tCMMasterTurbulence->set_property( tPropMasterDensity, "Density" );
     tCMMasterTurbulence->set_local_properties();
 
@@ -544,6 +571,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMSlaveTurbulence->set_property( tPropSlaveViscosity, "Viscosity" );
+    tCMSlaveTurbulence->set_property( tPropSlaveKinViscosity, "KinViscosity" );
     tCMSlaveTurbulence->set_property( tPropSlaveDensity, "Density" );
     tCMSlaveTurbulence->set_local_properties();
 
@@ -626,6 +654,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
                // set velocity dof types
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+
+               // set viscosity property parameters
+               tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -645,6 +677,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
+
+                // set viscosity property parameters
+                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -940,6 +976,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 //    tPropMasterViscosity->set_val_function( tVXFIValFunc );
 //    tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
+    tPropMasterKinViscosity->set_val_function( tConstValFunc );
+    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
     tPropMasterDensity->set_val_function( tConstValFunc );
@@ -956,6 +996,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 //    tPropSlaveViscosity->set_val_function( tVXFIValFunc );
 //    tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
+    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
+    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
     tPropSlaveDensity->set_val_function( tConstValFunc );
@@ -970,6 +1014,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterFluid->set_property( tPropMasterViscosity, "Viscosity" );
+    tCMMasterFluid->set_property( tPropMasterKinViscosity, "KinViscosity" );
     tCMMasterFluid->set_property( tPropMasterDensity, "Density" );
     tCMMasterFluid->set_local_properties();
 
@@ -977,6 +1022,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMSlaveFluid->set_property( tPropSlaveViscosity, "Viscosity" );
+    tCMSlaveFluid->set_property( tPropSlaveKinViscosity, "KinViscosity" );
     tCMSlaveFluid->set_property( tPropSlaveDensity, "Density" );
     tCMSlaveFluid->set_local_properties();
 
@@ -1058,7 +1104,11 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
                          { 0.0, 1.0 }};
 
                // set velocity dof types
-               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+
+                // set viscosity property parameters
+                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -1078,6 +1128,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
+
+                // set viscosity property parameters
+                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -1370,6 +1424,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 //    tPropMasterViscosity->set_val_function( tVXFIValFunc );
 //    tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
+    tPropMasterKinViscosity->set_val_function( tConstValFunc );
+    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
     tPropMasterDensity->set_val_function( tConstValFunc );
@@ -1386,6 +1444,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 //    tPropSlaveViscosity->set_val_function( tVXFIValFunc );
 //    tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
+    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
+    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
     tPropSlaveDensity->set_val_function( tConstValFunc );
@@ -1400,6 +1462,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMMasterFluid->set_property( tPropMasterViscosity, "Viscosity" );
+    tCMMasterFluid->set_property( tPropMasterKinViscosity, "KinViscosity" );
     tCMMasterFluid->set_property( tPropMasterDensity, "Density" );
     tCMMasterFluid->set_local_properties();
 
@@ -1407,6 +1470,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMSlaveFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMSlaveFluid->set_property( tPropSlaveViscosity, "Viscosity" );
+    tCMSlaveFluid->set_property( tPropSlaveKinViscosity, "KinViscosity" );
     tCMSlaveFluid->set_property( tPropSlaveDensity, "Density" );
     tCMSlaveFluid->set_local_properties();
 
@@ -1489,6 +1553,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
                // set velocity dof types
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+
+               // set viscosity property parameters
+               tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -1508,6 +1576,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
+
+                // set viscosity property parameters
+                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:

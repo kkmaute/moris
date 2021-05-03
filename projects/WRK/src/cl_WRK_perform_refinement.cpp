@@ -47,7 +47,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Refinement_Mini_Performer::perform_refinement(
-                Cell< mtk::Field* >                    & aFields,
+                Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
             // create field name to index map
@@ -73,7 +73,6 @@ namespace moris
             {
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
-                uint tOrder = 1;                               //TODO
 
                 for( uint Ii = 0; Ii< tMaxRefinementPerLevel.size(); Ii++ )
                 {
@@ -93,7 +92,9 @@ namespace moris
 
                     for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
                     {
-                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+                        std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                        uint tOrder = tField->get_lagrange_order();
 
                         const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
 
@@ -108,36 +109,59 @@ namespace moris
 
                 aHMR->perform_refinement( tActivationPattern );
                 aHMR->update_refinement_pattern( tActivationPattern );
+            }
+        }
 
-                //                while ( true )
-                //                {
-                //                    uint tNumElements = 0;
-                //
-                //                    for( uint Ia = 0; Ia< tFieldNames.size(); Ia++ )
-                //                    {
-                //                        mtk::Field * tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ia ) ) );
-                //
-                //                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
-                //
-                //                        tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue(
-                //                                tFieldValues,
-                //                                tActivationPattern,
-                //                                tOrder,
-                //                                0);
-                //                    }
-                //
-                //                    if( tNumElements == 0 )
-                //                    {
-                //                        break;
-                //                    }
-                //                    else
-                //                    {
-                //                        aHMR->perform_refinement( tActivationPattern );
-                //                        aHMR->update_refinement_pattern( tActivationPattern );
-                //                    }
-                //
-                //                    break;
-                //                }
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::perform_refinement_low_level_elements(
+                Cell< std::shared_ptr< mtk::Field > >  & aFields,
+                std::shared_ptr<hmr::HMR>                aHMR )
+        {
+            // create field name to index map
+            moris::map< std::string, moris_index >   tFieldNameToIndexMap;
+
+            for( uint Ik = 0; Ik < aFields.size(); Ik++ )
+            {
+                tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
+            }
+
+            Cell< moris_index >                       tPattern;
+            moris::Cell< moris::Cell< std::string > > tFieldNames;
+            moris::Cell< moris::Cell< uint > >        tRefinements;
+            moris::Cell< sint >                       tMaxRefinementPerLevel;
+
+            this->prepare_input_for_refinement(
+                    tPattern,
+                    tFieldNames,
+                    tRefinements,
+                    tMaxRefinementPerLevel);
+
+            for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
+            {
+                // get pattern
+                uint tActivationPattern = tPattern( Ik );
+
+                uint tNumQueuedElements = 0;
+
+                for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
+                {
+                    std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                    uint tOrder = tField->get_lagrange_order();
+
+                    const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+
+                    // Put elements on queue and set flag for refinement
+                    tNumQueuedElements += aHMR->based_on_field_put_low_level_elements_on_queue(
+                            tFieldValues,
+                            tActivationPattern,
+                            tOrder,
+                            -1);
+                }
+
+                aHMR->perform_refinement( tActivationPattern );
+                aHMR->update_refinement_pattern( tActivationPattern );
             }
         }
 
@@ -324,7 +348,7 @@ namespace moris
                             }
 
                             // Put elements on queue and set flag for refinement
-                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, 0, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
+                            aHMR->based_on_field_put_elements_on_queue(tFieldValues, aMeshIndex, aPerformer->get_refinement_function_index(Ik, aRefinementNumber));
                         }
                     }
                 }

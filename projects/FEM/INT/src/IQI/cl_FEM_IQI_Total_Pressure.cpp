@@ -31,11 +31,12 @@ namespace moris
         void IQI_Total_Pressure::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity = tCMFluid->get_property( "Density" );
+            const std::shared_ptr< Property > & tPropDensity =
+                    tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
@@ -49,7 +50,7 @@ namespace moris
 
             // evaluate the QI
             aQI = tFIPressure->val() +
-                    0.5 * tPropDensity->val() * trans( tFIVelocity->val() ) * tFIVelocity->val();
+                    0.5 * tPropDensity->val() * tFIVelocity->val_trans() * tFIVelocity->val();
         }
 
         //------------------------------------------------------------------------------
@@ -60,11 +61,12 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity = tCMFluid->get_property( "Density" );
+            const std::shared_ptr< Property > & tPropDensity =
+                    tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
@@ -78,7 +80,7 @@ namespace moris
 
             // evaluate the QI
             mSet->get_QI()( tQIIndex ) += aWStar * ( tFIPressure->val() +
-                    0.5 * tPropDensity->val() * trans( tFIVelocity->val() ) * tFIVelocity->val() );
+                    0.5 * tPropDensity->val() * tFIVelocity->val_trans() * tFIVelocity->val() );
         }
 
         //------------------------------------------------------------------------------
@@ -89,11 +91,11 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
@@ -113,7 +115,7 @@ namespace moris
             for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
                 // get master index for residual dof type, indices for assembly
                 uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -129,10 +131,9 @@ namespace moris
                             { 0, 0 } ) += aWStar * (
                                     tPropDensity->val()( 0 ) * tFIVelocity->N_trans() * tFIVelocity->val() );
                 }
-
                 // if dof type is pressure
                 // FIXME protect dof type
-                if ( tDofType( 0 ) == MSI::Dof_Type::P )
+                else if ( tDofType( 0 ) == MSI::Dof_Type::P )
                 {
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
@@ -145,7 +146,7 @@ namespace moris
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
-                            { 0, 0 } ) += aWStar * ( 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() *
+                            { 0, 0 } ) += aWStar * ( 0.5 * tFIVelocity->val_trans() * tFIVelocity->val() *
                                     tPropDensity->dPropdDOF( tDofType ) );
                 }
             }
@@ -158,11 +159,11 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
@@ -179,21 +180,20 @@ namespace moris
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
-                adQIdu += tPropDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->val();
+                adQIdu += tPropDensity->val()( 0 ) * tFIVelocity->N_trans() * tFIVelocity->val();
             }
-
             // if dof type is pressure
             // FIXME protect dof type
-            if ( aDofType( 0 ) == MSI::Dof_Type::P )
+            else if ( aDofType( 0 ) == MSI::Dof_Type::P )
             {
-                adQIdu += trans( tFIPressure->N() );
+                adQIdu += tFIPressure->N_trans();
             }
 
             // if density depends on dof type
             if ( tPropDensity->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu += 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() *
+                adQIdu += 0.5 * tFIVelocity->val_trans() * tFIVelocity->val() *
                         tPropDensity->dPropdDOF( aDofType );
             }
         }

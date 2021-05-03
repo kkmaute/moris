@@ -32,11 +32,11 @@ namespace moris
         void IQI_Thermal_Energy::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
@@ -50,7 +50,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // evaluate the QI
-            aQI = tPropDensity->val() * tFITemp->val() * trans( tFIVelocity->val() ) * mNormal;
+            aQI = tPropDensity->val() * tFITemp->val() * tFIVelocity->val_trans() * mNormal;
         }
 
         //------------------------------------------------------------------------------
@@ -61,11 +61,11 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
@@ -80,7 +80,7 @@ namespace moris
 
             // evaluate the QI
             mSet->get_QI()( tQIIndex ) += aWStar * (
-                    tPropDensity->val() * tFITemp->val() * trans( tFIVelocity->val() ) * mNormal );
+                    tPropDensity->val() * tFITemp->val() * tFIVelocity->val_trans() * mNormal );
         }
 
         //------------------------------------------------------------------------------
@@ -132,10 +132,9 @@ namespace moris
                                     tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) *
                                     tFIVelocity->N_trans() * mNormal );
                 }
-
                 // if dof type is temperature
                 // FIXME protect dof type
-                if ( tDofType( 0 ) == MSI::Dof_Type::TEMP )
+                else if ( tDofType( 0 ) == MSI::Dof_Type::TEMP )
                 {
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
@@ -166,11 +165,11 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the fluid CM
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > & tCMFluid =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > & tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
@@ -189,16 +188,15 @@ namespace moris
             {
                 adQIdu +=
                         tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) *
-                        trans( tFIVelocity->N() ) * mNormal;
+                        tFIVelocity->N_trans() * mNormal;
             }
-
             // if dof type is temperature
             // FIXME protect dof type
-            if ( aDofType( 0 ) == MSI::Dof_Type::TEMP )
+            else if ( aDofType( 0 ) == MSI::Dof_Type::TEMP )
             {
                 adQIdu +=
                         tPropDensity->val()( 0 ) *
-                        dot( tFIVelocity->val(), mNormal ) *
+                        tFIVelocity->val_trans() * mNormal *
                         trans( tFITemp->N() );
             }
 
@@ -208,7 +206,7 @@ namespace moris
                 // compute dQIdu
                 adQIdu +=
                         tFITemp->val()( 0 ) *
-                        trans( tFIVelocity->val() ) * mNormal *
+                        tFIVelocity->val_trans() * mNormal *
                         tPropDensity->dPropdDOF( aDofType );
             }
         }

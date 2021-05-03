@@ -569,11 +569,8 @@ namespace moris
 
                 tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
 
-                // get shape function for presure field
-                const Matrix< SDRMat > & tPressureN = tFI->N();
-
                 // build the dfluxdp
-                mdFluxdDof( tDofIndex ) = -1.0 * tII * tPressureN;
+                mdFluxdDof( tDofIndex ) = -1.0 * tII * tFI->N();
             }
             else
             {
@@ -677,13 +674,19 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // init mdStraindDof
-            mdStraindDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdStraindDof( tDofIndex ).set_size(
+                    ( mSpaceDim - 1 ) * 3,
+                    tFI->get_number_of_space_time_coefficients() );
 
             // if velocity dof
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute derivative
                 mdStraindDof( tDofIndex ) = this->testStrain();
+            }
+            else
+            {
+                mdStraindDof( tDofIndex ).fill( 0.0 );
             }
         }
 
