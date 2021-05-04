@@ -3151,13 +3151,8 @@ namespace xtk
             }
         }
 
-        uint tMaxLevel = max_all( tLevel );
-        uint tMinLevel = min_all( tLevel );
-
-        if( tMaxLevel != tMinLevel )
-        {
-            tFlag = false;
-        }
+        // TODO the current implementation might be a problem for small meshes,
+        // when only one single element is intersected on a proc
 
         return all_land(tFlag);
     }
