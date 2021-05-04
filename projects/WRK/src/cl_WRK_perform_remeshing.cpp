@@ -125,35 +125,35 @@ namespace moris
             // build new HMR performer with copied parameters
             std::shared_ptr< hmr::HMR > tHMRPerformerNew = std::make_shared< hmr::HMR >( tParameters );
 
-            // refine pattern 4 and 5 with given pattern
+            // refine pattern 5 and 6 with given pattern
             tHMRPerformerNew->get_database()->load_refinement_pattern(
                     tElementCounterPerLevelAndPattern,
                     tElementPerPattern);
 
-            //uint tNumPattern = tElementPerPattern.size();
+            uint tNumPattern = tElementPerPattern.size();
 
-            //hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = nullptr;
+            hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = nullptr;
 
-//            if( tNumPattern == 1 )
-//            {
+            if( tNumPattern == 1 )
+            {
                 // create mesh based on pattern 5 and 6
-                hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                         tHMRPerformerNew->get_database(),
                         tSourceLagrangeOrder,
                         5,
                         tDiscretizationOrder,
                         5); // order, Lagrange pattern, bspline pattern
-//            }
-//            else
-//            {
-//                // create mesh based on pattern 5 and 6
-//                tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-//                        tHMRPerformerNew->get_database(),
-//                        tSourceLagrangeOrder,
-//                        4,
-//                        tDiscretizationOrder,
-//                        5); // order, Lagrange pattern, bspline pattern
-//            }
+            }
+            else
+            {
+                // create mesh based on pattern 5 and 6
+                tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRPerformerNew->get_database(),
+                        tSourceLagrangeOrder,
+                        5,
+                        tDiscretizationOrder,
+                        6); // order, Lagrange pattern, bspline pattern
+            }
 
             // Create  mesh pair
             mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, nullptr, true);
