@@ -3128,6 +3128,8 @@ namespace xtk
 
         moris::uint tLevel = 0;
 
+        bool tFlag = true;
+
         // iterate through
         for(moris::uint i = 0; i< tNumChildMeshes; i++)
         {
@@ -3145,11 +3147,19 @@ namespace xtk
             }
             else if (tCellLevel != tLevel)
             {
-                return false;
+                tFlag = false;
             }
         }
 
-        return all_land(true);
+        uint tMaxLevel = max_all( tLevel );
+        uint tMinLevel = min_all( tLevel );
+
+        if( tMaxLevel != tMinLevel )
+        {
+            tFlag = false;
+        }
+
+        return all_land(tFlag);
     }
 
     void
