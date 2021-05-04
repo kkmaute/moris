@@ -205,6 +205,8 @@ namespace moris
 
             // copy coefficients
             mCoefficients = aCoefficients;
+
+            mNumberOfCoefficients = aCoefficients.n_rows();
         }
 
         // ----------------------------------------------------------------------------------------------
@@ -241,7 +243,7 @@ namespace moris
             mNodalValues.resize( tIPmesh->get_num_nodes(), mNumberOfFields );
 
             //loop over all nodes
-            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_cols();++tNodeIndex)
+            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_rows();++tNodeIndex)
             {
                 // get node owner
                 sint tNodeOwner = tIPmesh->get_entity_owner(tNodeIndex, EntityRank::NODE );
@@ -250,7 +252,8 @@ namespace moris
                 if ( par_rank() == tNodeOwner )
                 {
                     MORIS_ASSERT ( tIPmesh->get_mtk_vertex(tNodeIndex).has_interpolation(mDiscretizationMeshIndex),
-                            "Field_Discrete::compute_nodal_values - owned node does not have discretization.\n");
+                            "Field_Discrete::compute_nodal_values - owned node with index %d does not have discretization.\n",
+                            tNodeIndex );
 
                     // get t-matrix and coefficient indices - FIXME: should receive const reference
                     const Matrix<IndexMat> tMeshCoefIndices = tIPmesh->get_coefficient_indices_of_node(
@@ -288,7 +291,7 @@ namespace moris
             mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);
 
             // copy shared and own nodal values onto local nodal field
-            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_cols();++tNodeIndex)
+            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_rows();++tNodeIndex)
             {
                 // get node ID
                  sint tNodeID = tIPmesh->get_glb_entity_id_from_entity_loc_index(
@@ -304,6 +307,8 @@ namespace moris
                     mNodalValues(tNodeIndex,tFieldIndex)=tValue;
                 }
             }
+
+            mUpdateNodalValues=false;
         }
 
         // ----------------------------------------------------------------------------------------------
