@@ -114,10 +114,10 @@ namespace moris
             const      uint mLagrangeOutputPattern = 3;
 
             //! default union pattern
-            uint mUnionPattern = gNumberOfPatterns - 2;
+            uint mUnionPattern = gNumberOfPatterns - 1;
 
             //! default pattern for iterative refinement
-            uint mWorkingPattern = gNumberOfPatterns - 1;
+            uint mWorkingPattern = gNumberOfPatterns - 2;
 
             //! default pattern for output refinement
             //           const      uint mRefinedOutputPattern = 5;
