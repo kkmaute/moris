@@ -182,6 +182,18 @@ namespace moris
             return trans( tMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) ) + mADVOffsetID;
         }
 
+        void BSpline_Field::get_coefficient_vector()
+        {
+            uint tNumCoeffs = mFieldVariables.size();
+
+            mCoefficients.set_size( tNumCoeffs, 1 );
+
+            for( uint Ik = 0; Ik<tNumCoeffs; Ik++)
+            {
+                mCoefficients( Ik ) = *mFieldVariables( Ik );
+            }
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void BSpline_Field::import_advs(sol::Dist_Vector* aOwnedADVs)
