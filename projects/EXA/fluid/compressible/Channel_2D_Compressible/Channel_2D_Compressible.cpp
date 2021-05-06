@@ -44,6 +44,11 @@ namespace moris
 
     // Nitsche Penalty
     moris::real tNitscheGamma   = 100.0;  /* Penalty for Dirichlet BC */
+    std::string sNitscheGammas = 
+            ios::stringify( tNitscheGamma ) + ";" +
+            ios::stringify( tNitscheGamma ) + ";" +
+            ios::stringify( tNitscheGamma ) + ";" +
+            ios::stringify( tNitscheGamma );
 
     // Constant function for properties
     void Func_Const(
@@ -83,8 +88,8 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "100,20");
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "10.0,2.0");
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "15,10");
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "5.0,2.0");
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0,-1.5");
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
@@ -113,8 +118,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       "0") ;
         tParameterlist( 0 )( 0 ).set( "ghost_stab",                false );
         tParameterlist( 0 )( 0 ).set( "multigrid",                 false );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", false );
+        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",    true );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
     }
 
     void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -202,7 +207,7 @@ namespace moris
         // Inlet Velocity
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropInletU") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tInletVelocity) + ",0.0" );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tInletVelocity) + ";0.0" );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
@@ -294,9 +299,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      "NitscheSP" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      (uint) fem::Stabilization_Type::COMPRESSIBLE_DIRICHLET_NITSCHE );
-        // tParameterList( tSPIndex )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >(
-        //                                                                          "P;VX,VY;T", "Pressure,Velocity,Temperature" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     ios::stringify( tNitscheGamma ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     sNitscheGammas );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",  "PropViscosity,DynamicViscosity;"
                                                                             "PropConductivity,ThermalConductivity" );
         tSPCounter++;
@@ -322,7 +325,9 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGBulk" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;T" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropViscosity,DynamicViscosity;"
+                                                                                      "PropConductivity,ThermalConductivity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "DummySP,GLS" );
@@ -337,11 +342,11 @@ namespace moris
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "2" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BOUNDARY );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;T" );
+        // tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropOutletPressure,Pressure;"
         //                                                                               "PropViscosity,DynamicViscosity;" 
         //                                                                               "PropConductivity,ThermalConductivity" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",     "MMFluid,FluidMM" );
+        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
         // tIWGCounter++;
 
@@ -352,12 +357,12 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,3" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;T" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
                                                                                       "PropUpwind,Upwind;"
                                                                                       "PropViscosity,DynamicViscosity;"
                                                                                       "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",     "MMFluid,FluidMM" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
         tIWGCounter++;
@@ -369,13 +374,13 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;T" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletU,PrescribedVelocity;"
                                                                                       "PropInletTemperature,PrescribedDof3;"
                                                                                       "PropUpwind,Upwind;"
                                                                                       "PropViscosity,DynamicViscosity;"
                                                                                       "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",     "MMFluid,FluidMM" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
         tIWGCounter++;
@@ -387,12 +392,12 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "2" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;T" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropOutletPressure,PrescribedDof1;"
                                                                                       "PropUpwind,Upwind;"
                                                                                       "PropViscosity,DynamicViscosity;"
                                                                                       "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",     "MMFluid,FluidMM" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
         tIWGCounter++;
@@ -484,10 +489,6 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
-        tParameterlist( 0 )( 0 ).set("P"    , 1);
-        tParameterlist( 0 )( 0 ).set("VX"   , 1);
-        tParameterlist( 0 )( 0 ).set("VY"   , 1);
-        tParameterlist( 0 )( 0 ).set("TEMP" , 1);
     }
 
     void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
