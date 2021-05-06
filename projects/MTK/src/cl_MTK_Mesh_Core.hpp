@@ -936,6 +936,10 @@ namespace moris
                     uint aNodeIndex,
                     uint aDiscretizationIndex );
 
+            virtual Matrix< IdMat > get_coefficient_owners_of_node(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex );
+
             /**
              * Get the IDs of the discretization coefficients of a node.
              *

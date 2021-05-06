@@ -228,6 +228,10 @@ namespace moris
                     uint aNodeIndex,
                     uint aBSplineMeshIndex );
 
+            Matrix< IdMat >  get_coefficient_owners_of_node(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex);
+
             //-------------------------------------------------------------------------------
 
             Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(

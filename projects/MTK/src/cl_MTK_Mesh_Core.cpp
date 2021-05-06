@@ -823,6 +823,14 @@ namespace moris
             return {{(sint)aNodeIndex}};
         }
 
+        Matrix< IdMat >  Mesh::get_coefficient_owners_of_node(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex )
+        {
+            MORIS_ERROR(false,"failing");
+            return {{0}};
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix< IdMat >
