@@ -8,13 +8,13 @@ The strong form of the Navier-Stokes equations is given as:
 \begin{array}{l}
 \displaystyle
 \rho \frac{\partial \mathbf{u}}{\partial t} 
-+ \rho \mathbf{u} \cdot \nabla \mathbf{u} 
++ \rho \mathbf{u} \cdot \nabla \mathbf{u} + \left( { S + b } \right) \mathbf{u} 
 = \nabla \cdot \left[ \boldsymbol{\sigma}(\mathbf{u}, p) 
 + \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right] 
 + \rho \mathbf{g}\\\\[15pt]
 
 \displaystyle
-\nabla \cdot \mathbf{u} = 0
+\nabla \cdot \mathbf{u} - S / \rho= 0
 \end{array}
 \f$
 
@@ -24,7 +24,10 @@ where
 - \f$ \tilde{\nu} \f$ is the modified dynamic viscosity, 
 - \f$ \rho \f$ is the fluid density, 
 - \f$ \boldsymbol{\sigma}(\mathbf{u}, p) \f$ is the stress and is described in \ref FE_CM_Fluid,
-- \f$ \boldsymbol{\sigma}_t(\mathbf{u}, \tilde{\nu}) \f$ is the Reynolds stress and is described in \ref FE_CM_Fluid_Turbulence.
+- \f$ \boldsymbol{\sigma}_t(\mathbf{u}, \tilde{\nu}) \f$ is the Reynolds stress and is described in \ref FE_CM_Fluid_Turbulence
+- \f$ S \f$ is a mass production\destruction source term; positive \f$ S \f$ describes production of mass (volume),
+- \f$ b \f$ is the Brinkman penalization factor, i.e., the inverse of the permeability: 
+     \f$ b=\mu/p_{rm} \f$, where \f$ p_{rm} \f$ is the permeability and \f$ \mu \f$ the dyamic viscosity.
 
 The weak form of the Navier-Stokes equations (bulk part) is given as:
 \f$
@@ -32,13 +35,14 @@ The weak form of the Navier-Stokes equations (bulk part) is given as:
 \mathbf{R}_{u} & = & \displaystyle
   \bigg( \mathbf{v},\ \rho \frac{\partial \mathbf{u}}{\partial t} \bigg)_{\Omega}
 + \bigg( \mathbf{v},\ \rho \mathbf{u} \cdot \nabla \mathbf{u} \bigg)_{\Omega}
-- \bigg( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}( \mathbf{u}, p) \bigg)_{\Omega}
-- \bigg( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \bigg)_{\Omega}
++ \bigg( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}( \mathbf{u}, p) \bigg)_{\Omega}
++ \bigg( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \bigg)_{\Omega}
++ \bigg( \mathbf{v},\ \left( { S + b } \right) \mathbf{u} \bigg)_{\Omega}
 - \bigg( \mathbf{v},\ \rho \mathbf{g}\bigg)_{\Omega}
 - \bigg( \mathbf{v},\ \mathbf{h} \bigg)_{\Gamma_N}\\[15pt]
 
 \mathbf{R}_{p} & = & \displaystyle
-\bigg( q,\ \nabla \cdot \mathbf{u} \bigg)_{\Omega}
+\bigg( q,\ \nabla \cdot \mathbf{u} - S / \rho \bigg)_{\Omega}
 \end{array}
 \f$
 
@@ -69,10 +73,11 @@ where
 + \rho \mathbf{u} \cdot \nabla \mathbf{u} 
 - \nabla \cdot \left[ \boldsymbol{\sigma}(\mathbf{u}, p) 
 + \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right] 
++ \left( { S + b } \right) \mathbf{u} 
 - \rho \mathbf{g}\\[15pt]
 
 \mathbf{r}_{C} & = & \displaystyle
-\nabla \cdot \mathbf{u}
+\nabla \cdot \mathbf{u} - S / \rho
 
 \end{array}
 \f$

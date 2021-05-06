@@ -48,9 +48,7 @@ namespace moris
 
                 enum class IWG_Stabilization_Type
                 {
-                        PENALTY_CONTACT,
-                        MASTER_WEIGHT_INTERFACE,
-                        SLAVE_WEIGHT_INTERFACE,
+                        NITSCHE_INTERFACE,
                         MAX_ENUM
                 };
 
@@ -100,9 +98,5 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
-
-
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_NITSCHE_HPP_ */

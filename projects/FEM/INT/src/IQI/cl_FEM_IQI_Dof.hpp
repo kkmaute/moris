@@ -26,8 +26,18 @@ namespace moris
 
         class IQI_Dof : public IQI
         {
+            private:
+
+                //! initialization flag
+                bool mIsInitialized = false;
+
+                //! spatial and time derivative information
+                uint mSpatialDerivativeDirection = 0;
+                uint mSpatialDerivativeOrder     = 0;
+                uint mTimeDerivativeOrder        = 0;
 
             public:
+
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
@@ -46,6 +56,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * initialize parameters
+                 */
+                void initialize( );
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute the quantity of interest
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
@@ -57,6 +73,15 @@ namespace moris
                  * @param[ in ] aQI IQI value at evaluation point
                  */
                 void compute_QI( Matrix< DDRMat > & aQI );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the quantity of interest
+                 * @param[ in ] index of vector dof
+                 *
+                 * @return quantity of interest
+                 */
+                real evaluate_QI( sint aIQITypeIndex );
 
                 //------------------------------------------------------------------------------
                 /**
