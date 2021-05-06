@@ -209,13 +209,13 @@ namespace moris
 
             moris::Cell< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
 
-            // Set Mat to store number of shared adofs per processor
+            // Set Mat to store number of shared coeffs per processor
             Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
 
-            // Loop over adofs per type/time. Count number of adofs per proc which have to be communicated
+            // Count number of coeffs per proc which have to be communicated
             for ( moris::uint Ib = 0; Ib < aAllCoefIds.numel(); Ib++ )
             {
-                // Check if adof at this position is not NULL
+                // Check if coeffs at this position is not NULL
                 if ( aAllCoefIds( Ib ) != gNoID && aAllCoefOwners( Ib ) != par_rank() )
                 {
 
@@ -227,7 +227,7 @@ namespace moris
                     MORIS_ASSERT( tProcIdPos != gNoID,
                             "Dof_Manager::communicate_missing_owned_coefficients: Map returns proc rank -1. Check communication table");
 
-                    // Add +1 to the processor number of shared dofs per processor
+                    // Add +1 to the processor number of shared coeffs per processor
                     tNumSharedCoeffsPerProc( tProcIdPos )++;
                 }
             }
@@ -242,13 +242,13 @@ namespace moris
                 }
             }
 
-            // Temporary Mat to add external adof ids at the next spot in the matrix which will be communicated
+            // Temporary Mat to add external coeffs ids at the next spot in the matrix which will be communicated
             Matrix< DDUMat > tShredCoeffPosPerProc( tNumCommProcs, 1, 0 );
 
-            // Loop over adofs per type
+            // Loop over coeffs per type
             for ( moris::uint Ia = 0; Ia < aAllCoefIds.numel(); Ia++ )
             {
-                // Check if adof at this position is not NULL
+                // Check if coeffs at this position is not NULL
                 if ( aAllCoefIds( Ia ) != gNoID && aAllCoefOwners( Ia ) != par_rank() )
                 {
                     // Get owning processor
@@ -281,7 +281,7 @@ namespace moris
                     mDiscretizationMeshIndex,
                     tCoeffGlobaltoLocalMap );
 
-            // Loop over all Mats set dummy owned adofs
+            // Loop over all Mats set dummy owned coeffs
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
