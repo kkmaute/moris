@@ -411,6 +411,14 @@ namespace moris
 
         private:
 
+            void communicate_missing_owned_coefficients(
+                    mtk::Mesh_Pair  & aMeshPair,
+                    Matrix< IdMat > & aAllCoefIds,
+                    Matrix< IdMat > & aAllCoefOwners,
+                    Cell< uint >    & aNumCoeff,
+                    uint              aFieldIndex,
+                    uint              aDiscretizationMeshIndex );
+
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
              *

@@ -43,6 +43,9 @@ uint OptAlgGCMMA::solve(
     // Trace optimization
     Tracer tTracer( "OptimizationAlgorithm", "GCMMA", "Solve" );
 
+    // running status has to be wait when starting a solve
+    mRunning = opt::Task::wait;
+
     mCurrentOptAlgInd = aCurrentOptAlgInd;  // set index of current optimization algorithm
     mProblem          = aOptProb;           // set the member variable mProblem to aOptProb
 

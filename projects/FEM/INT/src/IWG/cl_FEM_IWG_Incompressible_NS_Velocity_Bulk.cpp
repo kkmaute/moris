@@ -74,6 +74,13 @@ namespace moris
             const std::shared_ptr< Property > & tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
+            // get the mass source property
+            const std::shared_ptr< Property > & tMassSourceProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+
+            const std::shared_ptr< Property > & tHomotopyProp     =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
@@ -91,7 +98,7 @@ namespace moris
             this->compute_residual_strong_form( tRM, tRC );
 
             // get the density value
-            real tDensity = tDensityProp->val()( 0 );
+            const real tDensity = tDensityProp->val()( 0 );
 
             // compute uj vij
             Matrix< DDRMat > tujvij;
@@ -123,9 +130,9 @@ namespace moris
 
             // compute the residual
             tRes += aWStar * (
-                    tVelocityFI->N_trans() * (
-                            tDensity * trans( tVelocityFI->gradt( 1 ) ) +
-                            tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() ) +
+                    tDensity * tVelocityFI->N_trans() * (
+                             trans( tVelocityFI->gradt( 1 ) ) +
+                             trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() ) +
                     trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
                     trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
                     trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
@@ -154,15 +161,20 @@ namespace moris
             // if permeability
             if ( tInvPermeabProp != nullptr )
             {
-                // add brinkman term to residual weak form
+                // add Brinkman term to residual weak form
                 tRes += aWStar * (
                         tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
-            // get the homotopy property
-            const std::shared_ptr< Property > & tHomotopyProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+            // if mass source (definition consistent with term in mass continuity equations)
+            if ( tMassSourceProp != nullptr )
+            {
+                // add term: rho * div(u) * u_i = mass source * u_i
+                tRes += aWStar * (
+                        tVelocityFI->N_trans() * tMassSourceProp->val()( 0 ) * tVelocityFI->val() );
+            }
 
+            // if homotopy approach
             if( tHomotopyProp )
             {
                 // compute the residual contribution
@@ -209,6 +221,13 @@ namespace moris
             const std::shared_ptr< Property > & tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
+            // get the mass source property
+            const std::shared_ptr< Property > & tMassSourceProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+
+            const std::shared_ptr< Property > & tHomotopyProp    =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
@@ -217,7 +236,7 @@ namespace moris
             const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // evaluate the density
-            real tDensity = tDensityProp->val()( 0 );
+            const real tDensity = tDensityProp->val()( 0 );
 
             // get the incompressible flow stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPSUPSPSPG =
@@ -248,7 +267,7 @@ namespace moris
             real tRC;
             this->compute_residual_strong_form( tRM, tRC );
 
-            // compute the jacobian for dof dependencies
+            // compute the Jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
@@ -281,39 +300,43 @@ namespace moris
                     Matrix< DDRMat > tujvijrM;
                     this->compute_ujvijrm( tujvijrM, tRM );
 
-                    // compute the jacobian
+                    // compute the Jacobian
                     tJac += aWStar * (
-                            tVelocityFI->N_trans() * (
-                                    tDensity * tdnNdtn +
-                                    tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
-                                    tDensity * tujvij ) +
-                            tujvijrM * tDensity * tSPSUPSPSPG->val()( 0 ) );
+                            tDensity * tVelocityFI->N_trans() * (
+                                    tdnNdtn +
+                                    trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
+                                    tujvij ) +
+                            tDensity * tujvijrM * tSPSUPSPSPG->val()( 0 ) );
 
                     // if permeability
                     if ( tInvPermeabProp != nullptr )
                     {
-                        // add brinkman term to jacobian of weak form
+                        // add Brinkman term to Jacobian of weak form
                         tJac += aWStar * (
                                 tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
                     }
 
-                    // get the homotopy property
-                    std::shared_ptr< Property > & tHomotopyProp    =
-                            mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
+                    // if mass source term
+                    if ( tMassSourceProp != nullptr )
+                    {
+                        tJac += aWStar * (
+                                 tVelocityFI->N_trans() * tMassSourceProp->val()( 0 ) * tVelocityFI->N() );
+                    }
+
                     if( tHomotopyProp )
                     {
-                        // compute the jacobian
+                        // compute the Jacobian
                         tJac += aWStar * (
                                 tDensity * tVelocityFI->N_trans() * tVelocityFI->N() / tHomotopyProp->val()( 0 ) );
                     }
                 }
 
-                // compute the jacobian strong form
+                // compute the Jacobian strong form
                 Matrix< DDRMat > tJM;
                 Matrix< DDRMat > tJC;
                 compute_jacobian_strong_form( tDofType, tJM, tJC );
 
-                // compute the jacobian contribution from strong form
+                // compute the Jacobian contribution from strong form
                 tJac += aWStar * (
                         trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tJM +
                         trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tJC );
@@ -321,7 +344,7 @@ namespace moris
                 // if property has dependency on the dof type
                 if ( tDensityProp->check_dof_dependency( tDofType ) )
                 {
-                    // compute the jacobian
+                    // compute the Jacobian
                     tJac += aWStar * (
                             tVelocityFI->N_trans() * trans( tVelocityFI->gradt( 1 ) ) +
                             tVelocityFI->N_trans() * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
@@ -332,7 +355,7 @@ namespace moris
                 // if fluid CM depends on dof type
                 if ( tIncFluidCM->check_dof_dependency( tDofType ) )
                 {
-                    // compute the jacobian
+                    // compute the Jacobian
                     tJac += aWStar * (
                             trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
                     // FIXME add dteststrainddof
@@ -341,7 +364,7 @@ namespace moris
                 // if stabilization parameter has dependency on the dof type
                 if ( tSPSUPSPSPG->check_dof_dependency( tDofType ) )
                 {
-                    // compute the jacobian
+                    // compute the Jacobian
                     tJac += aWStar * (
                             trans( tujvij ) * tDensity * tRM * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 0 ) +
                             trans( tVelocityFI->div_operator() ) * tRC * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 1 ) );
@@ -353,8 +376,19 @@ namespace moris
                     if( tInvPermeabProp->check_dof_dependency( tDofType ) )
                     {
                         tJac += aWStar * (
-                                tVelocityFI->N_trans() *
-                                tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->val() );
+                                tVelocityFI->N_trans() * tVelocityFI->val() *
+                                tInvPermeabProp->dPropdDOF( tDofType ) );
+                    }
+                }
+
+                // if mass source depends on DoF type
+                if ( tMassSourceProp != nullptr )
+                {
+                    if( tInvPermeabProp->check_dof_dependency( tDofType ) )
+                    {
+                        tJac += aWStar * (
+                                tVelocityFI->N_trans() * tVelocityFI->val() *
+                                tMassSourceProp->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -364,7 +398,7 @@ namespace moris
                     // if density property depends on dof type
                     if ( tDensityProp->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac += aWStar * (
                                 tVelocityFI->N_trans() * tGravityProp->val() *
                                 tDensityProp->dPropdDOF( tDofType ) );
@@ -373,7 +407,7 @@ namespace moris
                     // if gravity property depends on dof type
                     if ( tGravityProp->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac += aWStar * (
                                 tVelocityFI->N_trans() * tDensity *
                                 tGravityProp->dPropdDOF( tDofType ) );
@@ -391,7 +425,7 @@ namespace moris
                     // if dof is temperature
                     if( tDofType( 0 ) == MSI::Dof_Type::TEMP )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac -= aWStar * (
                                 tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                 tThermalExpProp->val() * tTempFI->N() );
@@ -400,7 +434,7 @@ namespace moris
                     // if density property depends on dof type
                     if( tDensityProp->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac -= aWStar * (
                                 tVelocityFI->N_trans() * tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
@@ -410,7 +444,7 @@ namespace moris
                     // if thermal expansion property depends on dof type
                     if( tThermalExpProp->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac -= aWStar * (
                                 tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                 ( tTempFI->val() - tRefTempProp->val() ) *
@@ -420,7 +454,7 @@ namespace moris
                     // if reference temperature property depends on dof type
                     if( tRefTempProp->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac += aWStar * (
                                 tVelocityFI->N_trans() * tDensity * tGravityProp->val() *
                                 tThermalExpProp->val() *
@@ -430,7 +464,7 @@ namespace moris
                     // if gravity property depends on dof type
                     if ( tGravityProp->check_dof_dependency( tDofType ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         tJac -= aWStar * (
                                 tVelocityFI->N_trans() * tDensity *
                                 tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
@@ -503,25 +537,29 @@ namespace moris
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
 
-            // compute the residual strong form
+            // compute the residual strong form of momentum equation
             aRM =   tDensity * trans( tVelocityFI->gradt( 1 ) ) +
                     tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() -
                     tIncFluidCM->divflux();
 
+            // compute the residual strong form of continuity equation
             aRC = tVelocityFI->div();
 
             // if mass source
             if ( tMassSourceProp != nullptr )
             {
-                // add mass source to continuity eqn residual
-                aRC += tMassSourceProp->val()( 0 ) / tDensity ;
+                // add contribution of mass source term to momentum residual
+                aRM += tMassSourceProp->val()( 0 ) * tVelocityFI->val() ;
+
+                // add mass source to continuity residual
+                aRC -= tMassSourceProp->val()( 0 ) / tDensity;
             }
 
             // if permeability
             if ( tInvPermeabProp != nullptr )
             {
-                // add brinkman term to residual strong form
-                aRM += tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
+                // add Brinkman term to residual strong form
+                aRM += tInvPermeabProp->val()( 0 ) * tVelocityFI->val();
             }
 
             // if gravity
@@ -602,11 +640,12 @@ namespace moris
                 Matrix< DDRMat > tdnNdtn;
                 this->compute_dnNdtn( tdnNdtn );
 
-                // compute the jacobian strong form
+                // compute the Jacobian strong form of momentum equation
                 aJM =   tDensity * tdnNdtn +
                         tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
                         tDensity * tujvij ;
 
+                // compute the Jacobian strong form of continuity equation
                 aJC = tVelocityFI->div_operator();
             }
             else
@@ -618,7 +657,7 @@ namespace moris
             // if density depends on dof type
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
-                // compute contribution to jacobian strong form
+                // compute contribution to Jacobian strong form
                 aJM +=  trans( tVelocityFI->gradt( 1 ) ) * tDensityProp->dPropdDOF( aDofTypes ) +
                         trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
             }
@@ -629,40 +668,50 @@ namespace moris
                 // if derivative dof type is residual dof type
                 if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    // add brinkman term to jacobian strong form
-                    aJM += tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
+                    // add brinkman term to Jacobian strong form
+                    aJM += tInvPermeabProp->val()( 0 ) * tVelocityFI->N();
                 }
 
                 // if permeability depends on dof type
                 if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add brinkman term to jacobian strong form
-                    aJM += tInvPermeabProp->dPropdDOF( aDofTypes ) * tVelocityFI->val() ;
+                    // add brinkman term to Jacobian strong form
+                    aJM += tVelocityFI->val() * tInvPermeabProp->dPropdDOF( aDofTypes );
                 }
             }
 
             // if mass source
             if ( tMassSourceProp != nullptr )
             {
+                // if derivative dof type is residual dof type
+                if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
+                {
+                    // add mass source contribution to Jacobian of momentum strong form
+                    aJM += tMassSourceProp->val()( 0 ) * tVelocityFI->N();
+                }
+
                 // if indirect DoF dependency of source term
                 if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add contribution to jacobian
-                    aJC += tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity ;
+                    // add contribution to momentum Jacobian
+                    aJM += tVelocityFI->val() * tMassSourceProp->dPropdDOF( aDofTypes );
+
+                    // add contribution to continuity Jacobian
+                    aJC -= tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity ;
                 }
 
                 // if density depends on dof type
                 if( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add contribution to jacobian
-                    aJC -= tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
+                    // add contribution to Jacobian
+                    aJC += tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
                 }
             }
 
             // if CM depends on dof type
             if( tIncFluidCM->check_dof_dependency( aDofTypes ) )
             {
-                // compute contribution to jacobian strong form
+                // compute contribution to Jacobian strong form
                 aJM -= tIncFluidCM->ddivfluxdu( aDofTypes );
             }
 
@@ -672,14 +721,14 @@ namespace moris
                 // if gravity depends on dof type
                 if( tGravityProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add gravity to jacobian strong form
+                    // add gravity to Jacobian strong form
                     aJM += tDensity * tGravityProp->dPropdDOF( aDofTypes );
                 }
 
                 // if density depends on dof type
                 if( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add contribution to jacobian
+                    // add contribution to Jacobian
                     aJM += tGravityProp->val() * tDensityProp->dPropdDOF( aDofTypes );
                 }
 
@@ -693,31 +742,29 @@ namespace moris
 
                     if( aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         aJM -= tDensity * tGravityProp->val() * tThermalExpProp->val() * tTempFI->N();
                     }
 
                     if( tThermalExpProp->check_dof_dependency( aDofTypes ) )
                     {
-                        // add contribution to jacobian
+                        // add contribution to Jacobian
                         aJM -=  tDensity * tGravityProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tThermalExpProp->dPropdDOF( aDofTypes );
                     }
 
                     if( tRefTempProp->check_dof_dependency( aDofTypes ) )
                     {
-                        // add contribution to jacobian
-                        aJM +=
-                                tDensity * tGravityProp->val() * tThermalExpProp->val() *
+                        // add contribution to Jacobian
+                        aJM +=  tDensity * tGravityProp->val() * tThermalExpProp->val() *
                                 tRefTempProp->dPropdDOF( aDofTypes );
                     }
 
                     // if gravity property has dependency on the dof type
                     if ( tGravityProp->check_dof_dependency( aDofTypes ) )
                     {
-                        // compute the jacobian
-                        aJM -=
-                                tDensity *
+                        // compute the Jacobian
+                        aJM -=  tDensity *
                                 tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
                                 * tGravityProp->dPropdDOF( aDofTypes );
                     }
@@ -726,8 +773,7 @@ namespace moris
                     if( tDensityProp->check_dof_dependency( aDofTypes ) )
                     {
                         // add density contribution to residual strong form
-                        aJM -=
-                                tGravityProp->val() *
+                        aJM -=  tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tDensityProp->dPropdDOF( aDofTypes );
                     }

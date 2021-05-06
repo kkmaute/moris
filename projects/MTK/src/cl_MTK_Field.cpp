@@ -188,7 +188,9 @@ namespace moris
                     aNodalValues.n_rows() == mNodalValues.n_rows() &&
                     aNodalValues.n_cols() == mNodalValues.n_cols(),
                     "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size: %d vs %d vs %d.\n",
-                    aNodalValues.n_rows(),mNodalValues.n_rows(),mMeshPair.get_interpolation_mesh()->get_num_nodes());
+                    aNodalValues.n_rows(),
+                    mNodalValues.n_rows(),
+                    mMeshPair.get_interpolation_mesh()->get_num_nodes());
 
             // set nodal value vector using child implementation
             this->set_nodal_value_vector( aNodalValues );
@@ -235,7 +237,9 @@ namespace moris
 
             //check whether vector has the correct size
             MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
-                    "mtk::Field::set_coefficients - coefficient vector has incorrect length.\n");
+                    "mtk::Field::set_coefficients - coefficient vector has incorrect length: %d vs %d \n",
+                    aCoefficients.n_rows(),
+                    mNumberOfCoefficients );
 
             // set coefficient vector using child implementation
             this->set_coefficient_vector(aCoefficients);

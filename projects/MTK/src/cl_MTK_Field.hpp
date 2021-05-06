@@ -79,7 +79,7 @@ namespace moris
                 //------------------------------------------------------------------------------
             protected:
                 //------------------------------------------------------------------------------
-
+public:
                 /**
                  *  @brief required implemenation for computing and storing nodal values
                  *         for current coefficients
@@ -88,7 +88,7 @@ namespace moris
                 {
                     MORIS_ERROR(false,"mtk::Field::compute_nodal_values - function not implemented.\n");
                 }
-
+protected:
                 //------------------------------------------------------------------------------
 
                 /**

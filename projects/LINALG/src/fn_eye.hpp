@@ -22,30 +22,45 @@
 namespace moris
 {
 
-/**
-  * @brief Creates an Identity Matrix
-  *
-  * @param[in] aNumRows Number of Rows.
-  * @param[in] aNumCols Number of Columns.
-  * An identity matrix is generated when aNumRows = aNumCols
-  *
-  * @return Creates and identity matrix @f$ \mathbf{I}_{n}@f$
-  * such that @f$ \mathbf{({I}_{n})}_{ij} =  \mathbf{\delta}_{ij} @f$\n
-  * Generates a matrix with the elements along the main diagonal
-  * set to one and off-diagonal elements set to zero.
-  */
+    /**
+     * @brief Writes Identity Matrix on given Matrix
+     *
+     * @param[in]  aNumRows Number of Rows.
+     * @param[in]  aNumCols Number of Columns.
+     * @param[out] aEyeMat  Identity matrix @f$ \mathbf{I}_{n}@f$
+     * such that @f$ \mathbf{({I}_{n})}_{ij} =  \mathbf{\delta}_{ij} @f$\n
+     */
 
-template< typename Matrix_Type >
-inline
-void
-eye( size_t const &              aNumRows,
-     size_t const &              aNumCols,
-     Matrix< Matrix_Type > & aEyeMat)
- {
-    eye( aNumRows, aNumCols, aEyeMat.matrix_data() );
- }
+    template< typename Matrix_Type >
+    inline
+    void
+    eye(
+            size_t const          & aNumRows,
+            size_t const          & aNumCols,
+            Matrix< Matrix_Type > & aEyeMat)
+    {
+        eye( aNumRows, aNumCols, aEyeMat.matrix_data() );
+    }
 
+    /**
+     * @brief Creates an Identity Matrix
+     *
+     * @param[in] aNumRows Number of Rows.
+     * @param[in] aNumCols Number of Columns.
+
+     * @return Identity matrix @f$ \mathbf{I}_{n}@f$
+     * such that @f$ \mathbf{({I}_{n})}_{ij} =  \mathbf{\delta}_{ij} @f$\n
+     */
+
+     inline
+     auto
+     eye(
+             size_t const          & aNumRows,
+             size_t const          & aNumCols)
+     ->decltype ( linalg_internal::eye( aNumRows, aNumCols ) )
+     {
+         return linalg_internal::eye( aNumRows, aNumCols );
+     }
 }
-
 
 #endif /* PROJECTS_LINALG_SRC_FN_EYE_HPP_ */

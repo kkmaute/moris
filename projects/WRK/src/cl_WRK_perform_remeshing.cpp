@@ -104,15 +104,15 @@ namespace moris
 
             // extract pattern from mesh on which this field id based on
             // both Lagrange and discretization order if they are not the same
-            Matrix< DDLUMat > aElementCounterPerLevelAndPattern;
-            moris::Cell< Matrix< DDLUMat > > aElementPerPattern;
+            Matrix< DDLUMat > tElementCounterPerLevelAndPattern;
+            moris::Cell< Matrix< DDLUMat > > tElementPerPattern;
 
             hmr::File tFile;
             tFile.save_refinement_pattern(
                     tSourceMesh->get_HMR_lagrange_mesh(),
                     tDiscretizationMeshIndex,
-                    aElementCounterPerLevelAndPattern,
-                    aElementPerPattern );
+                    tElementCounterPerLevelAndPattern,
+                    tElementPerPattern );
 
             // copy HMR parameters from old HMR performer
             hmr::Parameters * tParameters = aHMRPerformers( 0 )->get_parameters();
@@ -127,24 +127,36 @@ namespace moris
 
             // refine pattern 5 and 6 with given pattern
             tHMRPerformerNew->get_database()->load_refinement_pattern(
-                    aElementCounterPerLevelAndPattern,
-                    aElementPerPattern);
+                    tElementCounterPerLevelAndPattern,
+                    tElementPerPattern);
 
-            // create mesh based on pattern 5 and 6
-            hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                    tHMRPerformerNew->get_database(),
-                    tSourceLagrangeOrder,
-                    5,
-                    tDiscretizationOrder,
-                    5); // order, Lagrange pattern, bspline pattern
+            uint tNumPattern = tElementPerPattern.size();
 
-            hmr::Integration_Mesh_HMR* tOldIntegrationMesh = new hmr::Integration_Mesh_HMR(
-                    tSourceLagrangeOrder,
-                    5,
-                    tOldInterpolationMesh);
+            hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = nullptr;
+
+            if( tNumPattern == 1 )
+            {
+                // create mesh based on pattern 5 and 6
+                tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRPerformerNew->get_database(),
+                        tSourceLagrangeOrder,
+                        5,
+                        tDiscretizationOrder,
+                        5); // order, Lagrange pattern, bspline pattern
+            }
+            else
+            {
+                // create mesh based on pattern 5 and 6
+                tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRPerformerNew->get_database(),
+                        tSourceLagrangeOrder,
+                        5,
+                        tDiscretizationOrder,
+                        6); // order, Lagrange pattern, bspline pattern
+            }
 
             // Create  mesh pair
-            mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, tOldIntegrationMesh, true);
+            mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, nullptr, true);
 
             // create list of fields
             Cell< std::shared_ptr< mtk::Field > > tOldFields;
@@ -265,7 +277,7 @@ namespace moris
                     tMaxRefinementPerLevel );
 
             uint tNumPattern = tRefinementPattern.size();
-            
+
             // loop over pattern
             for( uint Ik = 0; Ik < tNumPattern; Ik++ )
             {
@@ -379,7 +391,9 @@ namespace moris
                     else
                     {
                         aTargetFields( If )->unlock_field();
-                        aTargetFields( If )->set_nodal_values( aSourceFields( If )->get_nodal_values() );
+                        //aTargetFields( If )->set_nodal_values( aSourceFields( If )->get_nodal_values() );
+                        aTargetFields( If )->set_coefficients( aSourceFields( If )->get_coefficients() );
+                        aTargetFields( If )->compute_nodal_values();
                     }
                 }
                 else

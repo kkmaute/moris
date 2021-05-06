@@ -48,14 +48,14 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            const uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
+            const uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
+            const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster =
@@ -82,30 +82,28 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
-            real tNitsche      = tSPNitsche->val()( 0 );
-            real tMasterWeight = tSPNitsche->val()( 1 );
-            real tSlaveWeight  = tSPNitsche->val()( 2 );
+            const real tNitsche      = tSPNitsche->val()( 0 );
+            const real tMasterWeight = tSPNitsche->val()( 1 );
+            const real tSlaveWeight  = tSPNitsche->val()( 2 );
 
             // evaluate average traction
-            Matrix< DDRMat > tTraction =
+            const Matrix< DDRMat > tTraction =
                     tMasterWeight * tCMMasterElasticity->traction( mNormal ) +
                     tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
 
             // evaluate temperature jump
-            Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+            const auto tJump = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
+                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
                             - tFIMaster->N_trans() * tTraction
                             + mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tJump
                             + tNitsche * tFIMaster->N_trans() * tJump );
 
             // compute slave residual
             mSet->get_residual()( 0 )(
-                    { tSlaveResStartIndex, tSlaveResStopIndex },
-                    { 0, 0 } ) += aWStar * (
+                    { tSlaveResStartIndex, tSlaveResStopIndex } ) += aWStar * (
                             + tFISlave->N_trans() * tTraction
                             + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tJump
                             - tNitsche * tFISlave->N_trans() * tJump );
@@ -126,14 +124,14 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            const uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
+            const uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
+            const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster =
@@ -160,12 +158,12 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
-            real tNitsche      = tSPNitsche->val()( 0 );
-            real tMasterWeight = tSPNitsche->val()( 1 );
-            real tSlaveWeight  = tSPNitsche->val()( 2 );
+            const real tNitsche      = tSPNitsche->val()( 0 );
+            const real tMasterWeight = tSPNitsche->val()( 1 );
+            const real tSlaveWeight  = tSPNitsche->val()( 2 );
 
             // get number of master dof dependencies
-            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // evaluate displacement jump
             Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
@@ -177,9 +175,9 @@ namespace moris
                 const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // extract sub-matrices
                 auto tJacMM = mSet->get_jacobian()(
@@ -207,8 +205,8 @@ namespace moris
                 {
                     // add contribution to jacobian
                     tJacMM += aWStar * (
-                            - tFIMaster->N_trans() * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
-                    //+ mBeta * tMasterWeight * tCMMasterElasticity->dTestTractiondDOF( tDofType, mNormal ) * tJump;
+                            - tFIMaster->N_trans() * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal )
+                            + mBeta * tMasterWeight * tCMMasterElasticity->dTestTractiondDOF( tDofType, mNormal, tJump, mResidualDofType( 0 ) ) );
 
                     tJacSM += aWStar * (
                             tFISlave->N_trans() * tMasterWeight * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
@@ -218,12 +216,12 @@ namespace moris
                 if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
                 {
                     // get the derivatives of the SPs
-                    Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 0 );
-                    Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
-                    Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
+                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 0 );
+                    const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
+                    const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
 
                     // get traction derivative
-                    Matrix< DDRMat > tTractionDer =
+                    const Matrix< DDRMat > tTractionDer =
                             tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer +
                             tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
 
@@ -245,12 +243,12 @@ namespace moris
             for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
+                const uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
+                const uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
 
                 // extract sub-matrices
                 auto tJacMS = mSet->get_jacobian()(
@@ -281,20 +279,20 @@ namespace moris
                             - tFIMaster->N_trans() * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
 
                     tJacSS += aWStar * (
-                            + tFISlave->N_trans() * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
-                    //+ mBeta * tSlaveWeight * tCMSlaveDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tJump );
+                            + tFISlave->N_trans() * tSlaveWeight * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )
+                            + mBeta * tMasterWeight * tCMSlaveElasticity->dTestTractiondDOF( tDofType, mNormal, tJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if dependency of stabilization parameters on the dof type
                 if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
                 {
                     // get the derivatives of the SPs
-                    Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 0 );
-                    Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
-                    Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
+                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 0 );
+                    const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
+                    const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
 
                     // get traction derivative
-                    Matrix< DDRMat > tTractionDer =
+                    const Matrix< DDRMat > tTractionDer =
                             tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer +
                             tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
 

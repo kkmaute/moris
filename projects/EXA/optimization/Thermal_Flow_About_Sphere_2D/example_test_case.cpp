@@ -270,7 +270,7 @@ void check_results(
     // Read constraints
     load_matrix_from_hdf5_file( tFileID, "constraints eval_1-1", tConstraints, tStatus);
 
-    for (uint tConIndex = 0; tConIndex < tConstraintsAnalytical.n_rows();++tConIndex)
+    for (uint tConIndex = 0; tConIndex < tConstraints.n_rows();++tConIndex)
     {
         real tRelConstraintDifference = std::abs( tConstraints(tConIndex) - tReferenceConstraints(aTestCaseIndex)(tConIndex) ) /
                ( std::abs( tReferenceConstraints(aTestCaseIndex)(tConIndex) ) +tDeltaEps );

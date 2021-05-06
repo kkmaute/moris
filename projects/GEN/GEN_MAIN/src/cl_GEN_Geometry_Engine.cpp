@@ -888,8 +888,9 @@ namespace moris
                 tNodeIndices(tNodeIndex) = tNodeIndex;
             }
 
+            moris::Cell< uint > tNumCoeff(tFields.size());
             // Loop over all geometries to get number of new ADVs
-            uint tOffsetID = tPrimitiveADVIds.length();
+            sint tOffsetID = tPrimitiveADVIds.length();
             for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
             {
                 // Determine if level set will be created
@@ -898,20 +899,122 @@ namespace moris
                     // Get discretization mesh index
                     uint tDiscretizationMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
 
-                    // Get owned coefficients
-                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
-                            tNodeIndices,
+                    uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc(tDiscretizationMeshIndex);
+
+                    Matrix< IdMat > tAllCoefIds(tMaxNumberOfCoefficients,1,gNoID);
+                    Matrix< IndexMat > tAllCoefIndices(tMaxNumberOfCoefficients,1,gNoIndex);
+                    Matrix< IdMat > tAllCoefOwners(tMaxNumberOfCoefficients,1,gNoID);
+
+                    for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+                    {
+                        // check whether node has an underlying discretization on this processor
+                        bool tNodeHasDiscretization = tMesh->
+                                get_mtk_vertex(tNodeIndex).has_interpolation(tDiscretizationMeshIndex);
+
+                        // process only nodes that have discretization
+                        if ( tNodeHasDiscretization )
+                        {
+                            // get indices and IDs from mtk mesh - FIXME: should return const &
+                            const Matrix< IndexMat > tCoefIndices = tMesh->get_coefficient_indices_of_node(
+                                    tNodeIndex,
+                                    tDiscretizationMeshIndex);
+
+                            const Matrix< IdMat > tCoefIds = tMesh->get_coefficient_IDs_of_node(
+                                    tNodeIndex,
+                                    tDiscretizationMeshIndex);
+
+                            const Matrix< IdMat > tCoefOwners = tMesh->get_coefficient_owners_of_node(
+                                    tNodeIndex,
+                                    tDiscretizationMeshIndex);
+
+                            // check that number of indices and ids are the same
+                            MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
+                                    "distribute_advs - numbers of coefficients and ids do not match.\n");
+
+                            // get number of coefficients for current node
+                            uint tNumCoefOfNode=tCoefIds.numel();
+
+                            for (uint tCoefIndex=0;tCoefIndex<tNumCoefOfNode;++tCoefIndex)
+                            {
+                                // get coefficient index
+                                moris_index tCurrentIndex = tCoefIndices(tCoefIndex);
+
+                                // check whether mesh coefficient has already been set
+                                if ( tAllCoefIds(tCurrentIndex) == -1 )
+                                {
+                                    // increase field coefficient count
+                                    tNumCoeff( tFieldIndex )++;
+
+                                    // populate mesh index to mesh coefficient id map
+                                    tAllCoefIds(tCurrentIndex) = tCoefIds(tCoefIndex);
+
+                                    tAllCoefOwners(tCurrentIndex) = tCoefOwners(tCoefIndex);
+                                }
+                                else
+                                {
+                                    // check for consistency
+                                    MORIS_ASSERT( tAllCoefIds(tCurrentIndex) == tCoefIds(tCoefIndex),
+                                            "distribute_advs - inconsistent index and ids.\n");
+                                }
+                            }
+                        }
+                    }
+
+                    this->communicate_missing_owned_coefficients(
+                            aMeshPair,
+                            tAllCoefIds,
+                            tAllCoefOwners,
+                            tNumCoeff,
+                            tFieldIndex,
                             tDiscretizationMeshIndex);
 
-                    // Get shared coefficients
-                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
-                            tNodeIndices,
-                            tDiscretizationMeshIndex);
+                    uint tOwnedCounter = 0;
+                    uint tSharedCounter = 0;
+
+                    for( uint Ik = 0; Ik< tAllCoefIds.numel(); Ik++ )
+                    {
+                        if( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                        {
+                            tOwnedCounter++;
+                        }
+                        else if( tAllCoefIds( Ik ) != gNoID )
+                        {
+                            tSharedCounter++;
+                        }
+                    }
+
+                    Matrix<DDUMat> tOwnedCoefficients(tOwnedCounter,1);
+                    Matrix<DDUMat> tSharedCoefficients( tSharedCounter,1);
+
+                    tOwnedCounter = 0;
+                    tSharedCounter = 0;
+
+                    for( uint Ik = 0; Ik< tAllCoefIds.numel(); Ik++ )
+                    {
+                        if( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                        {
+                            tOwnedCoefficients(tOwnedCounter++) = Ik;
+                        }
+                        else if( tAllCoefIds( Ik ) != gNoID )
+                        {
+                            tSharedCoefficients( tSharedCounter++)= Ik;
+                        }
+                    }
+
+//                    // Get owned coefficients
+//                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
+//                            tNodeIndices,
+//                            tDiscretizationMeshIndex);
+//
+//                    // Get shared coefficients
+//                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
+//                            tNodeIndices,
+//                            tDiscretizationMeshIndex);
 
                     // Sizes of ID vectors
                     uint tNumOwnedADVs = tOwnedADVIds.length();
-                    uint tNumOwnedCoefficients = tOwnedCoefficients.length();
-                    uint tNumSharedCoefficients = tSharedCoefficients.length();
+                    uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
+                    uint tNumSharedCoefficients = tSharedCoefficients.numel();
 
                     // Resize ID lists and bounds
                     tOwnedADVIds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
@@ -927,6 +1030,9 @@ namespace moris
                                 tOwnedCoefficients(tOwnedCoefficient),
                                 EntityRank::BSPLINE,
                                 tDiscretizationMeshIndex);
+
+                        MORIS_ASSERT( tADVId-tOffsetID == tAllCoefIds( tOwnedCoefficients(tOwnedCoefficient) ),"check if this is a problem");
+
                         tOwnedADVIds(tNumOwnedADVs + tOwnedCoefficient) = tADVId;
                         mLowerBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_lower_bound();
                         mUpperBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_upper_bound();;
@@ -941,6 +1047,9 @@ namespace moris
                                 tSharedCoefficients(tSharedCoefficient),
                                 EntityRank::BSPLINE,
                                 tDiscretizationMeshIndex);
+
+                        MORIS_ASSERT( tADVId-tOffsetID == tAllCoefIds( tSharedCoefficients(tSharedCoefficient) ),"check if this is a problem");
+
                         tSharedCoefficientIndices(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tSharedCoefficients(tSharedCoefficient);
                         tSharedADVIds(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tADVId;
                     }
@@ -1196,6 +1305,126 @@ namespace moris
             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 mProperties(tPropertyIndex)->reset_nodal_data();
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::communicate_missing_owned_coefficients(
+                mtk::Mesh_Pair  & aMeshPair,
+                Matrix< IdMat > & aAllCoefIds,
+                Matrix< IdMat > & aAllCoefOwners,
+                Cell< uint >    & aNumCoeff,
+                uint              aFieldIndex,
+                uint              aDiscretizationMeshIndex )
+        {
+
+            Matrix< IdMat > tCommTable = aMeshPair.get_interpolation_mesh()->get_communication_table();
+
+            // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
+            Matrix< DDSMat > tCommTableMap ( tCommTable.max() + 1, 1, -1);
+
+            moris::uint tNumCommProcs = tCommTable.numel();
+
+            // Loop over communication table to fill the communication table map
+            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
+            {
+                tCommTableMap( tCommTable( Ik ) ) = Ik;
+            }
+
+            moris::Cell< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
+
+            // Set Mat to store number of shared coeffs per processor
+            Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
+
+            // Count number of coeffs per proc which have to be communicated
+            for ( moris::uint Ib = 0; Ib < aAllCoefIds.numel(); Ib++ )
+            {
+                // Check if coeffs at this position is not NULL
+                if ( aAllCoefIds( Ib ) != gNoID && aAllCoefOwners( Ib ) != par_rank() )
+                {
+
+                    // get owning processor
+                    moris::moris_id tProcID = aAllCoefOwners( Ib );
+
+                    moris::sint tProcIdPos = tCommTableMap( tProcID );
+
+                    MORIS_ASSERT( tProcIdPos != gNoID,
+                            "communicate_missing_owned_coefficients: Map returns proc rank -1. Check communication table");
+
+                    // Add +1 to the processor number of shared coeffs per processor
+                    tNumSharedCoeffsPerProc( tProcIdPos )++;
+                }
+            }
+
+
+            // Set size of the moris::Mats in the Cell
+            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
+            {
+                if ( tNumSharedCoeffsPerProc( Ik ) != 0 )
+                {
+                    tSharedCoeffsPosGlobal( Ik ).set_size( tNumSharedCoeffsPerProc( Ik ), 1);
+                }
+            }
+
+            // Temporary Mat to add external coeffs ids at the next spot in the matrix which will be communicated
+            Matrix< DDUMat > tShredCoeffPosPerProc( tNumCommProcs, 1, 0 );
+
+            // Loop over coeffs per type
+            for ( moris::uint Ia = 0; Ia < aAllCoefIds.numel(); Ia++ )
+            {
+                // Check if coeffs at this position is not NULL
+                if ( aAllCoefIds( Ia ) != gNoID && aAllCoefOwners( Ia ) != par_rank() )
+                {
+                    // Get owning processor
+                    moris::uint tProcID = aAllCoefOwners( Ia );
+
+                    moris::sint tProcIdPos = tCommTableMap( tProcID );
+
+                    // Add owning processor id to moris::Mat
+                    tSharedCoeffsPosGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
+                            aAllCoefIds( Ia );
+
+                    tShredCoeffPosPerProc( tProcIdPos )++;
+                }
+            }
+
+            // receiving list
+            moris::Cell< Matrix< IdMat > > tMatsToReceive;
+
+            barrier();
+
+            // Communicate position of shared adofs to the owning processor
+            communicate_mats(
+                    tCommTable,
+                    tSharedCoeffsPosGlobal,
+                    tMatsToReceive );
+
+            map< moris_id, moris_index > tCoeffGlobaltoLocalMap;
+            aMeshPair.get_interpolation_mesh()->get_adof_map(
+                    aDiscretizationMeshIndex,
+                    tCoeffGlobaltoLocalMap );
+
+            // Loop over all Mats set dummy owned coeffs
+            for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
+            {
+                for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
+                {
+                    // Get owned coeff Index
+                    moris_id tID = tMatsToReceive( Ik )( Ii );
+                    moris_index tLocalCoeffInd = tCoeffGlobaltoLocalMap.find( tID );
+
+                    if ( aAllCoefIds( tLocalCoeffInd ) == gNoID )
+                    {
+                        aAllCoefIds( tLocalCoeffInd ) = tID;
+                        aAllCoefOwners( tLocalCoeffInd ) = par_rank();
+
+                        aNumCoeff( aFieldIndex )++;
+                    }
+
+                    MORIS_ASSERT( aAllCoefIds( tLocalCoeffInd ) == tID,
+                            "Field_Discrete::communicate_missing_owned_coefficients( ), coefficient IDs are nor parallel consistent");
+                }
             }
         }
 

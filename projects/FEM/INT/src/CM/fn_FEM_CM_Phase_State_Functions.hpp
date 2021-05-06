@@ -20,19 +20,90 @@ namespace moris
 {
     namespace fem
     {
-        //------------------------------------------------------------------------------
-        // derivative of phase state function
         inline
-        moris::real eval_dFdTemp(
-                moris::real aTmelt,
-                moris::real aPCconst,
-                moris::uint aPCfunc,
+        real eval_phase_state_function(
+                const real & aTmelt,
+                const real & aPCconst,
+                const uint & aPCfunc,
                 Field_Interpolator * aFieldInterpolator)
         {
             // get temperature
             real tTemp = aFieldInterpolator->val()( 0 );
 
-            moris::real tdfdT;
+            real tF;
+
+            switch ( aPCfunc )
+            {
+                // linear phase change model
+                case 1:
+                {
+                    real tTupper = aTmelt + aPCconst/2.0;
+                    real tTlower = aTmelt - aPCconst/2.0;
+
+                    if ( tTemp < tTlower)
+                    {
+                        return 0.0;
+                    }
+                    if ( tTemp > tTupper)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return (tTemp - tTlower)/(tTupper-tTlower);
+                    }
+                    break;
+                }
+
+                // cubic phase change model
+                case 2:
+                {
+                    real tTupper = aTmelt + aPCconst/2.0;
+                    real tTlower = aTmelt - aPCconst/2.0;
+
+                    if ( tTemp < tTlower)
+                    {
+                        return 0.0;
+                    }
+                    if ( tTemp > tTupper)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return ( std::pow(tTemp - tTlower,2.0) * (2*tTemp + tTlower - 3*tTupper) ) / std::pow(tTlower - tTupper, 3.0);
+                    }
+                    break;
+                }
+
+                // logistic function
+                case 3:
+                {
+                    MORIS_ERROR(false,"eval_phase_state_function - logistic function option not implemented.\n");
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR(false,"eval_phase_state_function - option not implemented.");
+                }
+            }
+
+            return tF;
+        }
+
+        //------------------------------------------------------------------------------
+        // derivative of phase state function
+        inline
+        real eval_dFdTemp(
+                const real & aTmelt,
+                const real & aPCconst,
+                const uint & aPCfunc,
+                Field_Interpolator * aFieldInterpolator)
+        {
+            // get temperature
+            real tTemp = aFieldInterpolator->val()( 0 );
+
+            real tdfdT;
 
             switch ( aPCfunc )
             {
@@ -86,26 +157,22 @@ namespace moris
                     MORIS_ERROR(false,"wrong option for phase change function.");
             }
 
-            // debug
-            //std::cout << "dfdT = " << tdfdT << "\n" << std::flush;
-            //std::cout << "Temp = " << tTemp << "\n" << std::flush;
-
             return tdfdT;
         }
 
         //------------------------------------------------------------------------------
         // 2nd derivative of phase state function wrt temperature
         inline
-        moris::real eval_d2FdTemp2(
-                moris::real aTmelt,
-                moris::real aPCconst,
-                moris::uint aPCfunc,
+        real eval_d2FdTemp2(
+                const real & aTmelt,
+                const real & aPCconst,
+                const uint & aPCfunc,
                 Field_Interpolator * aFieldInterpolator)
         {
             // get temperature
             real tTemp = aFieldInterpolator->val()( 0 );
 
-            moris::real td2fdT2;
+            real td2fdT2;
 
             switch ( aPCfunc )
             {
@@ -156,14 +223,14 @@ namespace moris
         //------------------------------------------------------------------------------
         // derivative of the phase state function wrt temperature wrt the DoFs
         inline
-        moris::Matrix<DDRMat> eval_dFdTempdDOF(
-                moris::real aTmelt,
-                moris::real aPCconst,
-                moris::uint aPCfunc,
+        Matrix<DDRMat> eval_dFdTempdDOF(
+                const real & aTmelt,
+                const real & aPCconst,
+                const uint & aPCfunc,
                 Field_Interpolator * aFieldInterpolator)
         {
             // get second derivative of phase state function
-            moris::real td2fdT2 = eval_d2FdTemp2( aTmelt, aPCconst, aPCfunc, aFieldInterpolator);
+            real td2fdT2 = eval_d2FdTemp2( aTmelt, aPCconst, aPCfunc, aFieldInterpolator);
 
             // multiply with shape functions
             return aFieldInterpolator->N() * td2fdT2;

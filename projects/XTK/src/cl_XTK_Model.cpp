@@ -3128,6 +3128,8 @@ namespace xtk
 
         moris::uint tLevel = 0;
 
+        bool tFlag = true;
+
         // iterate through
         for(moris::uint i = 0; i< tNumChildMeshes; i++)
         {
@@ -3145,11 +3147,14 @@ namespace xtk
             }
             else if (tCellLevel != tLevel)
             {
-                return false;
+                tFlag = false;
             }
         }
 
-        return all_land(true);
+        // TODO the current implementation might be a problem for small meshes,
+        // when only one single element is intersected on a proc
+
+        return all_land(tFlag);
     }
 
     void
