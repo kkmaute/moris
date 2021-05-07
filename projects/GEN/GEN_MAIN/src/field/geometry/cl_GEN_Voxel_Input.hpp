@@ -82,7 +82,7 @@ namespace moris
                  * @param aCoordinates Coordinate values
                  * @return Vector of sensitivities
                  */
-                const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
+                const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
 
                 /**
                  * Return number of voxel of different color.

@@ -63,7 +63,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_base_field_sensitivities(
+            const Matrix<DDRMat>& get_base_dfield_dadvs(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 

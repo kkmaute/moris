@@ -75,7 +75,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex);
+            const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.

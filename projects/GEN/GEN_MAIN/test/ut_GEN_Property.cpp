@@ -43,7 +43,7 @@ namespace moris
 
                     // Checks
                     CHECK(tConstantProperty->get_field_value(0, tCoordinates) == Approx(tADVs(0)));
-                    check_equal(tConstantProperty->get_field_sensitivities(0, tCoordinates), {{1.0}});
+                    check_equal(tConstantProperty->get_dfield_dadvs(0, tCoordinates), {{1.0}});
                 }
             }
         }
@@ -93,8 +93,8 @@ namespace moris
                     // Checks
                     CHECK(tScaledField->get_field_value(0, tCoordinates) ==
                             Approx(tCircle->get_field_value(0, tCoordinates) * tScale));
-                    check_equal(tScaledField->get_field_sensitivities(0, tCoordinates),
-                            Matrix<DDRMat>(tCircle->get_field_sensitivities(0, tCoordinates) * tScale));
+                    check_equal(tScaledField->get_dfield_dadvs(0, tCoordinates),
+                            Matrix<DDRMat>(tCircle->get_dfield_dadvs(0, tCoordinates) * tScale));
                     check_equal(tScaledField->get_determining_adv_ids(0, tCoordinates),
                             tCircle->get_determining_adv_ids(0, tCoordinates));
                 }
@@ -199,7 +199,7 @@ namespace moris
                     {
                         Matrix<DDRMat> tMatrix = trans(tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
                         Matrix<DDSMat> tIDs = trans(tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0));
-                        check_equal(tBSplineProperty->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
+                        check_equal(tBSplineProperty->get_dfield_dadvs(tNodeIndex, {{}}), tMatrix);
                         check_equal(tBSplineProperty->get_determining_adv_ids(tNodeIndex, {{}}), tIDs);
                     }
                 }

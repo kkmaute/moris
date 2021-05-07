@@ -24,6 +24,7 @@ namespace moris
             bool mFirstParentOnInterface;
             bool mSecondParentOnInterface;
             Matrix<DDRMat> mGlobalCoordinates;
+            Matrix<DDRMat> mParentVector;
             Matrix<DDRMat> mCoordinateSensitivities;
             Matrix<DDSMat> mCoordinateDeterminingADVIDs;
 

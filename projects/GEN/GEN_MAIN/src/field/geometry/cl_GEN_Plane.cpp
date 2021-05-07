@@ -45,9 +45,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Plane::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Plane::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
             return (this->*m_eval_sensitivity)(aCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Plane::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            aSensitivities(1) = *(mFieldVariables(2));
+            aSensitivities(2) = *(mFieldVariables(3));
         }
 
         //--------------------------------------------------------------------------------------------------------------

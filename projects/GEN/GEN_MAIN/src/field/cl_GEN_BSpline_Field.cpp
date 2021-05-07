@@ -167,7 +167,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& BSpline_Field::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& BSpline_Field::get_dfield_dadvs(uint aNodeIndex)
         {
             mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
             mSensitivities = trans(tMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index()));

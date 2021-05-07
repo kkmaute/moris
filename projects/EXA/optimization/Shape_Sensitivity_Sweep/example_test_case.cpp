@@ -15,14 +15,14 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
 
 //---------------------------------------------------------------
 
-TEST_CASE("Shape_Sensitivity_Circle_Sweep",
+TEST_CASE("Shape_Sensitivity_Sweep",
         "[moris],[example],[optimization],[sweep]")
 {
     // define command line call
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Shape_Sensitivity_Circle_Sweep.so";
+    char tString2[] = "Shape_Sensitivity_Sweep.so";
 
     char * argv[2] = {tString1,tString2};
 
@@ -49,6 +49,9 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep",
         load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus);
         REQUIRE(tObjectiveAnalytical.length() == tConstraintsAnalytical.length()); // one objective and one constraint for this problem only
 
+        print(tObjectiveAnalytical, "objective analytical");
+        print(tConstraintsAnalytical, "constraint analytical");
+
         // Read FD sensitivities and compare
         Cell<std::string> tFDTypes = {"fd_forward", "fd_backward", "fd_central"};
         for (uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++)
@@ -74,6 +77,9 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep",
                         tFDTypes(tFDIndex).c_str(),
                         tConstraintsFD(tADVIndex),
                         100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
+
+                print(tObjectiveFD, "objective FD");
+                print(tConstraintsFD, "constraint FD");
 
                 CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
                 CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));

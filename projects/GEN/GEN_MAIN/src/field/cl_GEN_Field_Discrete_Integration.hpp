@@ -48,19 +48,19 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
-             * @return Matrix of sensitivities
+             * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(
+            const Matrix<DDRMat>& get_dfield_dadvs(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node index, returns a matrix of all sensitivities.
+             * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
              *
              * @param aNodeIndex Node index
-             * @return Matrix of sensitivities
+             * @return Vector of sensitivities
              */
-            virtual const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex) = 0;
+            virtual const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex) = 0;
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
@@ -80,6 +80,32 @@ namespace moris
              * @return Determining ADV IDs at this node
              */
             virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+
+            /**
+             * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            void get_dfield_dcoordinates(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities);
+
+            /**
+             * Given a node index, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aNodeIndex Node index
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            virtual void get_dfield_dcoordinates(
+                    uint            aNodeIndex,
+                    Matrix<DDRMat>& aSensitivities)
+            {
+            };
 
             /**
              * Add a new child node for evaluation.

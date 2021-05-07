@@ -25,9 +25,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& User_Defined_Field::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& User_Defined_Field::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
-            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, mSensitivities);
+            this->get_dfield_dadvs_user_defined(aCoordinates, mFieldVariables, mSensitivities);
             return mSensitivities;
         }
 
@@ -48,15 +48,15 @@ namespace moris
             if (aSensitivityFunction == nullptr)
             {
                 // Sensitivity function was not provided
-                get_field_sensitivities_user_defined = &(User_Defined_Field::no_sensitivities);
+                get_dfield_dadvs_user_defined = &(User_Defined_Field::no_sensitivities);
             }
             else
             {
                 // Sensitivity function was provided
-                get_field_sensitivities_user_defined = aSensitivityFunction;
+                get_dfield_dadvs_user_defined = aSensitivityFunction;
 
                 // Check sensitivity function
-                this->get_field_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, mSensitivities);
+                this->get_dfield_dadvs_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, mSensitivities);
 
                 // Check for row vector
                 MORIS_ERROR(mSensitivities.n_rows() == 1,

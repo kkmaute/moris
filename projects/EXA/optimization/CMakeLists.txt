@@ -1,4 +1,4 @@
-add_subdirectory(Shape_Sensitivity_Circle_Sweep)
+add_subdirectory(Shape_Sensitivity_Sweep)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Transient)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Thermoelastic)

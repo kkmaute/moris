@@ -44,7 +44,7 @@ namespace moris
         const Matrix<DDRMat>& Child_Node::join_field_sensitivities(Field* aField)
         {
             // Initialize using first ancestor
-            mJoinedSensitivities = aField->get_field_sensitivities(
+            mJoinedSensitivities = aField->get_dfield_dadvs(
                     mAncestorNodeIndices(0),
                     mAncestorNodeCoordinates(0));
             mJoinedSensitivities = mJoinedSensitivities * mBasisValues(0);
@@ -53,7 +53,7 @@ namespace moris
             for (uint tAncestorNode = 1; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
                 // Get scaled sensitivities
-                const Matrix<DDRMat>& tAncestorSensitivities = mBasisValues(tAncestorNode) * aField->get_field_sensitivities(
+                const Matrix<DDRMat>& tAncestorSensitivities = mBasisValues(tAncestorNode) * aField->get_dfield_dadvs(
                         mAncestorNodeIndices(tAncestorNode),
                         mAncestorNodeCoordinates(tAncestorNode));
                 

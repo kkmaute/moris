@@ -39,9 +39,9 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
-             * @return Matrix of sensitivities
+             * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(
+            const Matrix<DDRMat>& get_dfield_dadvs(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
 
@@ -55,6 +55,19 @@ namespace moris
             Matrix<DDSMat> get_determining_adv_ids(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            void get_dfield_dcoordinates(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities);
 
             /**
              * Uses additional information from the given interpolation mesh to define
@@ -82,12 +95,13 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
-             * Given a node index, returns a matrix of all sensitivities.
+             * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
              *
              * @param aNodeIndex Node index
-             * @return Matrix of sensitivities
+             * @param aCoordinates Node coordinates
+             * @return Vector of sensitivities
              */
-            virtual const Matrix<DDRMat>& get_base_field_sensitivities(
+            virtual const Matrix<DDRMat>& get_base_dfield_dadvs(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
@@ -95,11 +109,27 @@ namespace moris
              * Gets the IDs of ADVs which this field depends on for evaluations.
              *
              * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
             virtual Matrix<DDSMat> get_base_determining_adv_ids(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Given a node index, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            virtual void get_base_dfield_dcoordinates(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities)
+            {
+            };
 
             /**
              * Returns the same node index, for the case if there is no mesh information to go off of.

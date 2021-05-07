@@ -7,20 +7,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Constant_Property::get_field_value(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates)
+        real Constant_Property::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return *mFieldVariables(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Constant_Property::get_field_sensitivities(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Constant_Property::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
-            mSensitivities = {{1.0}};
             return mSensitivities;
         }
 

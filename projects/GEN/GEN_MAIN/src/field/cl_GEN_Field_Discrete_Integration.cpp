@@ -33,13 +33,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Field_Discrete_Integration::get_field_sensitivities(
+        const Matrix<DDRMat>& Field_Discrete_Integration::get_dfield_dadvs(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
-                return this->get_field_sensitivities(aNodeIndex);
+                return this->get_dfield_dadvs(aNodeIndex);
             }
             else
             {
@@ -66,6 +66,27 @@ namespace moris
                              "A discrete field sensitivity was requested from a node that this field doesn't know. "
                              "Perhaps a child node was not added to this field?");
                 return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Field_Discrete_Integration::get_dfield_dcoordinates(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            if (aNodeIndex < mNumOriginalNodes)
+            {
+                this->get_dfield_dcoordinates(aNodeIndex, aSensitivities);
+            }
+            else
+            {
+                MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
+                             "A discrete field sensitivity was requested from a node that this field doesn't know. "
+                             "Perhaps a child node was not added to this field?");
+                // FIXME
+                //return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
             }
         }
 

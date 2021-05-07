@@ -115,10 +115,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Voxel_Input::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Voxel_Input::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
             MORIS_ERROR( false,
-                    "Voxel_Input::get_field_sensitivities(), Sensitivities cannot be calculated for Voxel field.");
+                    "Voxel_Input::get_dfield_dadvs(), Sensitivities cannot be calculated for Voxel field.");
             return mSensitivities;
         }
 

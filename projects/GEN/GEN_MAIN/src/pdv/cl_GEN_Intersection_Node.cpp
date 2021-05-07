@@ -52,12 +52,12 @@ namespace moris
                 tFirstParentGlobalCoordinates += tFirstParentBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
                 tSecondParentGlobalCoordinates += tSecondParentBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
             }
+            mParentVector = trans(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
 
             // Parents on interface
             real tFirstParentPhi = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex, tFirstParentGlobalCoordinates);
             real tSecondParentPhi = aInterfaceGeometry->get_field_value(aSecondParentNodeIndex, tSecondParentGlobalCoordinates);
-
-            real tParentLength = norm(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
+            real tParentLength = norm(mParentVector);
             mFirstParentOnInterface = std::abs(tFirstParentPhi) < aIsocontourTolerance or
                     0.5 * tParentLength * std::abs(1 + aLocalCoordinate) < aIntersectionTolerance;
             mSecondParentOnInterface = std::abs(tSecondParentPhi) < aIsocontourTolerance or
@@ -71,7 +71,6 @@ namespace moris
             {
                 mIsIntersected = (std::abs(mLocalCoordinate) <= 1.0);
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -86,16 +85,17 @@ namespace moris
 
             // Get sensitivity values from other ancestors
             Matrix<DDRMat> tSensitivitiesToAdd;
+            //Matrix<DDRMat> tCoordinateSensitivities(2, 1);
             for (uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
                 // Get geometry field sensitivity with respect to ADVs
-                const Matrix<DDRMat>& tFieldSensitivities = tLockedInterfaceGeometry->get_field_sensitivities(
+                const Matrix<DDRMat>& tFieldSensitivities = tLockedInterfaceGeometry->get_dfield_dadvs(
                         mAncestorNodeIndices(tAncestorNode),
                         mAncestorNodeCoordinates(tAncestorNode));
 
                 // Ancestor sensitivities
                 tSensitivitiesToAdd = 0.5 * this->get_dcoordinate_dfield_from_ancestor(tAncestorNode) *
-                        trans( mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0) ) * tFieldSensitivities;
+                        mParentVector * tFieldSensitivities;
 
                 // Join sensitivities
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
