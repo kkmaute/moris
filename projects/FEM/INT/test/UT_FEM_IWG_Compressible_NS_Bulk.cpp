@@ -24,7 +24,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Compressible_UT.cpp"
+#include "FEM_Test_Proxy/cl_FEM_Fields_for_NS_Compressible_UT.cpp"
 
 #include "fn_trans.hpp"
 #include "fn_FEM_Check.hpp"
@@ -36,12 +36,12 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive]" )
 {
     // define an epsilon environment
-    real tEpsilon = 8.0E-5;
-    real tEpsilonCubic = 8.0E-4;
+    real tEpsilon = 1.0E-5;
+    real tEpsilonCubic = 3.0E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 2.0E-3;
+    real tPerturbation = 1.0E-5;
+    real tPerturbationCubic = 2.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -53,6 +53,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
+
+    // moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    //         mtk::Interpolation_Order::LINEAR,
+    //         mtk::Interpolation_Order::LINEAR,
+    //         mtk::Interpolation_Order::LINEAR };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
@@ -76,7 +81,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
     // dynamic viscosity
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 11.9 }} } );
+    tPropViscosity->set_parameters( { {{ 1.2 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
 
     // isochoric heat capacity
@@ -86,19 +91,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
     // specific gas constant
     std::shared_ptr< fem::Property > tPropGasConstant = std::make_shared< fem::Property >();
-    tPropGasConstant->set_parameters( { {{ 2.8 }} } );
+    tPropGasConstant->set_parameters( { {{ 2.4 }} } );
     tPropGasConstant->set_val_function( tConstValFunc );
 
     // thermal conductivity
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 3.7 }} } );
+    tPropConductivity->set_parameters( { {{ 0.8 }} } );
     tPropConductivity->set_val_function( tConstValFunc );
-
-    // body force
-    std::shared_ptr< fem::Property > tPropBodyForce3D = std::make_shared< fem::Property >();
-    tPropBodyForce3D->set_val_function( tValFunc_BodyForce_3D );
-    std::shared_ptr< fem::Property > tPropBodyForce2D = std::make_shared< fem::Property >();
-    tPropBodyForce2D->set_val_function( tValFunc_BodyForce_2D );
 
     // define material model and assign properties
     fem::MM_Factory tMMFactory;
@@ -123,7 +122,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     fem::SP_Factory tSPFactory;
     std::shared_ptr< fem::Stabilization_Parameter > tSP =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    tSP->set_parameters( { {{ 1.0 }} });
+    tSP->set_parameters( { {{ 0.0 }} });
     tSP->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 
     // create a dummy fem cluster and set it to SP
@@ -175,19 +174,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
-    // loop on the space dimension  
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    // loop on the space dimension  // FIXME: only 2D for now
+    for( uint iSpaceDim = 2; iSpaceDim < 3; iSpaceDim++ )
     {
         // output for debugging
         std::cout << "-------------------------------------------------------------------\n" << std::flush;
         std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
         std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
-
-        // use correct body force for number of spatial dimensions
-        if ( iSpaceDim == 2 )
-            tIWG->set_property( tPropBodyForce2D, "BodyForce" );
-        else if ( iSpaceDim == 3 )
-            tIWG->set_property( tPropBodyForce3D, "BodyForce" );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -221,8 +214,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         tMMFluid->set_space_dim( iSpaceDim );
         tCMMasterFluid->set_space_dim( iSpaceDim );
 
-        // loop on the interpolation order      
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        // loop on the interpolation order // FIXME: cubic case missing   
+        for( uint iInterpOrder = 2; iInterpOrder < 3; iInterpOrder++ )
         {
             // tune finite differencing for cubic shape functions
             if ( iInterpOrder == 3 )
@@ -236,15 +229,15 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             std::cout << "-------------------------------------------------------------------\n" << std::flush;
             std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
-            // create an interpolation order
-            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
-
             //------------------------------------------------------------------------------
             // space and time geometry interpolators
+
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
             // create a space geometry interpolation rule
             mtk::Interpolation_Rule tGIRule( tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
-                    //mtk::Interpolation_Order::LINEAR,
                     tGIInterpolationOrder,
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
@@ -253,12 +246,31 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = {{ 0.26 }, { 0.87 }};
-            //Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.5 }};
-
-            //Matrix< DDRMat > tXHat = { { 0.0, 0.0 }, { 2.0, 0.0 }, { 2.0, 3.0 }, { 0.0, 3.0} };
+            Matrix< DDRMat > tTHat = {{ 7.9 }, { 9.3 }};
+            
             Matrix< DDRMat > tXHat;
-            fill_xhat( tXHat, iSpaceDim, iInterpOrder );
+
+            if ( iSpaceDim == 2 )
+            {
+                tXHat = { 
+                    { -0.4, -3.9 }, 
+                    {  2.4, -3.9 }, 
+                    {  2.4, -1.3 }, 
+                    { -0.4, -1.3 } };
+            }
+            else
+            {
+                tXHat = { 
+                    { -0.4, -3.9, 1.2 }, 
+                    {  2.4, -3.9, 1.2 }, 
+                    {  2.4, -1.3, 1.2 }, 
+                    { -0.4, -1.3, 1.2 },
+                    { -0.4, -3.9, 3.4 }, 
+                    {  2.4, -3.9, 3.4 }, 
+                    {  2.4, -1.3, 3.4 }, 
+                    { -0.4, -1.3, 3.4 } };
+            }
+
 
             // set the coefficients xHat, tHat
             tGI.set_coeff( tXHat, tTHat );
@@ -307,19 +319,21 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                     mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatRho;
-            fill_RhoHat( tMasterDOFHatRho, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatP;
+            fill_smooth_PHat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            tMasterDOFHatP = trans( tMasterDOFHatP );
             Matrix< DDRMat > tMasterDOFHatVel;
-            fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            fill_smooth_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
             Matrix< DDRMat > tMasterDOFHatTemp;
-            fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );                 
+            fill_smooth_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+            tMasterDOFHatTemp = trans( tMasterDOFHatTemp );                 
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
             // create the field interpolator density
             tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
+            tMasterFIs( 0 )->set_coeff( tMasterDOFHatP );
 
             // create the field interpolator velocity
             tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
@@ -404,6 +418,10 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                 // set integration point
                 tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // for debug
+                print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
+                print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------

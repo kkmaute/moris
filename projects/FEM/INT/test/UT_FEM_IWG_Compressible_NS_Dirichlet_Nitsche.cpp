@@ -231,8 +231,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
             tSelectMat( 1, 1 ) = 0.0;
 
             // weights for nitsche SP
-            Matrix< DDRMat > tOne = { { 1.0 } };
-            moris::Cell< Matrix< DDRMat > > tSPWeights( iSpaceDim + 2, tOne );
+            Matrix< DDRMat > tOnes( iSpaceDim + 2, 1, 1.0 );
+            moris::Cell< Matrix< DDRMat > > tSPWeights( 1, tOnes );
 
             // create normal for IWG
             Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
