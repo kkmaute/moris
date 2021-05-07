@@ -960,13 +960,16 @@ namespace moris
                         }
                     }
 
-                    this->communicate_missing_owned_coefficients(
-                            aMeshPair,
-                            tAllCoefIds,
-                            tAllCoefOwners,
-                            tNumCoeff,
-                            tFieldIndex,
-                            tDiscretizationMeshIndex);
+                    if(par_size() > 1)
+                    {
+                        this->communicate_missing_owned_coefficients(
+                                aMeshPair,
+                                tAllCoefIds,
+                                tAllCoefOwners,
+                                tNumCoeff,
+                                tFieldIndex,
+                                tDiscretizationMeshIndex);
+                    }
 
                     uint tOwnedCounter = 0;
                     uint tSharedCounter = 0;
@@ -1001,15 +1004,15 @@ namespace moris
                         }
                     }
 
-//                    // Get owned coefficients
-//                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
-//                            tNodeIndices,
-//                            tDiscretizationMeshIndex);
-//
-//                    // Get shared coefficients
-//                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
-//                            tNodeIndices,
-//                            tDiscretizationMeshIndex);
+                    //                    // Get owned coefficients
+                    //                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
+                    //                            tNodeIndices,
+                    //                            tDiscretizationMeshIndex);
+                    //
+                    //                    // Get shared coefficients
+                    //                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
+                    //                            tNodeIndices,
+                    //                            tDiscretizationMeshIndex);
 
                     // Sizes of ID vectors
                     uint tNumOwnedADVs = tOwnedADVIds.length();
