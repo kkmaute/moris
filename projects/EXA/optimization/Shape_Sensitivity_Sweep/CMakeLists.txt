@@ -1,6 +1,6 @@
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Sweep)
 set(EXAMPLE_FILE Shape_Sensitivity_Sweep)
-set(EXAMPLE_PROCS 1 2)
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES

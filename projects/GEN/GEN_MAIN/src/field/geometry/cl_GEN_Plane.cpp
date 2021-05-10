@@ -56,8 +56,8 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities)
         {
-            aSensitivities(1) = *(mFieldVariables(2));
-            aSensitivities(2) = *(mFieldVariables(3));
+            aSensitivities(0) = *(mFieldVariables(2));
+            aSensitivities(1) = *(mFieldVariables(3));
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -85,7 +85,6 @@ namespace moris
 
             // Get sensitivity values from other ancestors
             Matrix<DDRMat> tSensitivitiesToAdd;
-            //Matrix<DDRMat> tCoordinateSensitivities(2, 1);
             for (uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
                 // Get geometry field sensitivity with respect to ADVs
@@ -94,7 +93,7 @@ namespace moris
                         mAncestorNodeCoordinates(tAncestorNode));
 
                 // Ancestor sensitivities
-                tSensitivitiesToAdd = 0.5 * this->get_dcoordinate_dfield_from_ancestor(tAncestorNode) *
+                tSensitivitiesToAdd = 0.5 * this->get_dxi_dfield_from_ancestor(tAncestorNode) *
                         mParentVector * tFieldSensitivities;
 
                 // Join sensitivities
@@ -104,14 +103,16 @@ namespace moris
             // Add first parent sensitivities, if needed
             if (mFirstParentNode)
             {
-                tSensitivitiesToAdd = 0.5 * (1 - mLocalCoordinate) * mFirstParentNode->get_dcoordinate_dadv();
+                tSensitivitiesToAdd = 0.5 * ( Matrix<DDRMat>({{1 - mLocalCoordinate, 0}, {0, 1 - mLocalCoordinate}}) +
+                        mParentVector * this->get_dxi_dcoordinate_first_parent() ) * mFirstParentNode->get_dcoordinate_dadv();
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
             }
 
             // Add second parent sensitivities, if needed
             if (mSecondParentNode)
             {
-                tSensitivitiesToAdd = 0.5 * (1 + mLocalCoordinate) * mSecondParentNode->get_dcoordinate_dadv();
+                tSensitivitiesToAdd = 0.5 * ( Matrix<DDRMat>({{1 + mLocalCoordinate, 0}, {0, 1 + mLocalCoordinate}}) +
+                        mParentVector * this->get_dxi_dcoordinate_second_parent() ) * mSecondParentNode->get_dcoordinate_dadv();
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
             }
 
@@ -185,7 +186,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Intersection_Node::get_global_coordinates()
+        const Matrix<DDRMat>& Intersection_Node::get_global_coordinates()
         {
             return mGlobalCoordinates;
         }
