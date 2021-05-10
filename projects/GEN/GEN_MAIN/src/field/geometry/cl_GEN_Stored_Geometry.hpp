@@ -54,6 +54,17 @@ namespace moris
             Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
 
             /**
+             * Given a node index, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aNodeIndex Node index
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            void get_dfield_dcoordinates(
+                    uint            aNodeIndex,
+                    Matrix<DDRMat>& aSensitivities);
+
+            /**
              * Resets all nodal information about geometry field values.
              */
             void reset_nodal_data();

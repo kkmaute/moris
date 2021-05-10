@@ -127,9 +127,7 @@ namespace moris
             virtual void get_base_dfield_dcoordinates(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities)
-            {
-            };
+                    Matrix<DDRMat>&       aSensitivities) = 0;
 
             /**
              * Returns the same node index, for the case if there is no mesh information to go off of.

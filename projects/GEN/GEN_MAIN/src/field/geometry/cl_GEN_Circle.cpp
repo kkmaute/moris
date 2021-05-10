@@ -50,5 +50,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Circle::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for circle geometry.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

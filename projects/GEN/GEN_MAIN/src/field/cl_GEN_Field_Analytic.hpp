@@ -76,9 +76,7 @@ namespace moris
              */
             virtual void get_dfield_dcoordinates(
                     const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities)
-            {
-            };
+                    Matrix<DDRMat>&       aSensitivities) = 0;
 
         };
     }

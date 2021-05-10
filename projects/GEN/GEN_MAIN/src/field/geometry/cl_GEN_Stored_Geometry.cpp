@@ -43,6 +43,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Stored_Geometry::get_dfield_dcoordinates(
+                uint            aNodeIndex,
+                Matrix<DDRMat>& aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for stored geometry.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Stored_Geometry::reset_nodal_data()
         {
             // Reset child nodes

@@ -103,9 +103,7 @@ namespace moris
              */
             virtual void get_dfield_dcoordinates(
                     uint            aNodeIndex,
-                    Matrix<DDRMat>& aSensitivities)
-            {
-            };
+                    Matrix<DDRMat>& aSensitivities) = 0;
 
             /**
              * Add a new child node for evaluation.

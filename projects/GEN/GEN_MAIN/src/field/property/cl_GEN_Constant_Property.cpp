@@ -21,5 +21,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Constant_Property::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for constant property.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

@@ -33,6 +33,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void User_Defined_Field::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for user-defined field.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void User_Defined_Field::set_user_defined_functions(
                 Field_Function       aFieldFunction,
                 Sensitivity_Function aSensitivityFunction)

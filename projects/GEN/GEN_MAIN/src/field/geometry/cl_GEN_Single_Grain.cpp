@@ -48,5 +48,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Single_Grain::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for single grain geometry.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

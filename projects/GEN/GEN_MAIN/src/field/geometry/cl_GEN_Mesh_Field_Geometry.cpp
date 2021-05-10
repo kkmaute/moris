@@ -37,5 +37,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Mesh_Field_Geometry::get_dfield_dcoordinates(
+                uint            aNodeIndex,
+                Matrix<DDRMat>& aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for mesh field geometry.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

@@ -124,6 +124,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Voxel_Input::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for voxel input geometry.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Voxel_Input::read_voxel_data( std::string aVoxelFieldName)
         {
             // build Ascii reader
