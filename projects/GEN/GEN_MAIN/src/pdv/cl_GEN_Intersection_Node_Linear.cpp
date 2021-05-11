@@ -59,7 +59,8 @@ namespace moris
             // Sensitivities
             for (uint tCoordinateIndex = 0; tCoordinateIndex < mParentVector.length(); tCoordinateIndex++)
             {
-                aSensitivities(tCoordinateIndex) = (tPhi1 - tPhi0) / mParentVector(tCoordinateIndex);
+                aSensitivities(tCoordinateIndex) = (tPhi1 - tPhi0) /
+                        (mParentVector(tCoordinateIndex) + 1E-12 * (mParentVector(tCoordinateIndex) == 0));
             }
         }
 
