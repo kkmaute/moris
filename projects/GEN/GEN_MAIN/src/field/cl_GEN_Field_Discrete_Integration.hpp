@@ -95,17 +95,6 @@ namespace moris
                     Matrix<DDRMat>&       aSensitivities);
 
             /**
-             * Given a node index, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aNodeIndex Node index
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            virtual void get_dfield_dcoordinates(
-                    uint            aNodeIndex,
-                    Matrix<DDRMat>& aSensitivities) = 0;
-
-            /**
              * Add a new child node for evaluation.
              *
              * @param aNodeIndex Index of the child node

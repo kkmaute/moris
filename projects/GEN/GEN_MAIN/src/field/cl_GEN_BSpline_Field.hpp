@@ -87,17 +87,6 @@ namespace moris
             Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
 
             /**
-             * Given a node index, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aNodeIndex Node index
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            void get_dfield_dcoordinates(
-                    uint            aNodeIndex,
-                    Matrix<DDRMat>& aSensitivities);
-
-            /**
              * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.
              *
              * @param aOwnedADVs Full owned distributed ADV vector

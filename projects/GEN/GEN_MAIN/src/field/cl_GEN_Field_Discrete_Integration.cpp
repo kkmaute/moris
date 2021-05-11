@@ -44,7 +44,7 @@ namespace moris
             else
             {
                 MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                        "A discrete field sensitivity was requested from a node that this field doesn't know. "
+                        "A discrete field dfield_dadvs was requested from a node that this field doesn't know. "
                         "Perhaps a child node was not added to this field?");
                 return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_field_sensitivities(this);
             }
@@ -63,7 +63,7 @@ namespace moris
             else
             {
                 MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                             "A discrete field sensitivity was requested from a node that this field doesn't know. "
+                             "Determining ADV IDs were requested from a node that this discrete field doesn't know. "
                              "Perhaps a child node was not added to this field?");
                 return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
             }
@@ -76,18 +76,12 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities)
         {
-            if (aNodeIndex < mNumOriginalNodes)
-            {
-                this->get_dfield_dcoordinates(aNodeIndex, aSensitivities);
-            }
-            else
-            {
-                MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                             "A discrete field sensitivity was requested from a node that this field doesn't know. "
-                             "Perhaps a child node was not added to this field?");
-                // FIXME
-                //return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
-            }
+            MORIS_ASSERT(aNodeIndex >= mNumOriginalNodes,
+                        "Discrete field dfield_dcoordinates is only valid for intersection node indices.");
+            MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
+                         "A discrete field dfield_dcoordinates was requested from a node that this field doesn't know. "
+                         "Perhaps a child node was not added to this field?");
+            mChildNodes(aNodeIndex - mNumOriginalNodes)->get_dfield_dcoordinates(this, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------

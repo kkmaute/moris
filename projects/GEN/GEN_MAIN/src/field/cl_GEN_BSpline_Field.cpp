@@ -184,15 +184,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void BSpline_Field::get_dfield_dcoordinates(
-                uint            aNodeIndex,
-                Matrix<DDRMat>& aSensitivities)
-        {
-            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for B-spline field.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void BSpline_Field::import_advs(sol::Dist_Vector* aOwnedADVs)
         {
             // Import ADVs as usual

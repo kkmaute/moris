@@ -99,5 +99,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Child_Node::get_dfield_dcoordinates(
+                Field*          aField,
+                Matrix<DDRMat>& aSensitivities)
+        {
+            MORIS_ERROR(false, "A child node that isn't an intersection node does not know dfield_dcoordinates");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

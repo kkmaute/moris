@@ -117,19 +117,6 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node index, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Node coordinates
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            virtual void get_base_dfield_dcoordinates(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities) = 0;
-
-            /**
              * Returns the same node index, for the case if there is no mesh information to go off of.
              *
              * @return Input node index

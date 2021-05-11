@@ -36,16 +36,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Scaled_Field::get_base_dfield_dcoordinates(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities)
-        {
-            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for scaled field.");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Scaled_Field::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
         {
             MORIS_ERROR(aDependencyFields.size() == 1, "A scaled field only depends on one field.");

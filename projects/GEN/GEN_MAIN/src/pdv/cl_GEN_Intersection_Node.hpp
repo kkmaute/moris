@@ -17,6 +17,7 @@ namespace moris
             bool mIsIntersected;
             std::weak_ptr<Geometry> mInterfaceGeometry;
             real mIsocontourThreshold;
+            Matrix<DDRMat> mParentVector;
 
         private:
             std::shared_ptr<Intersection_Node> mFirstParentNode;
@@ -24,7 +25,6 @@ namespace moris
             bool mFirstParentOnInterface;
             bool mSecondParentOnInterface;
             Matrix<DDRMat> mGlobalCoordinates;
-            Matrix<DDRMat> mParentVector;
             Matrix<DDRMat> mCoordinateSensitivities;
             Matrix<DDSMat> mCoordinateDeterminingADVIDs;
 

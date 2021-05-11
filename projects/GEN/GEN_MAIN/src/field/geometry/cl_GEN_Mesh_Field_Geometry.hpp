@@ -50,17 +50,6 @@ namespace moris
              */
             const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
 
-            /**
-             * Given a node index, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aNodeIndex Node index
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            void get_dfield_dcoordinates(
-                    uint            aNodeIndex,
-                    Matrix<DDRMat>& aSensitivities);
-
         };
     }
 }

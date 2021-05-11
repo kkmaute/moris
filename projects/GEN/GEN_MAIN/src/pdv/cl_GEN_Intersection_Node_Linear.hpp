@@ -40,6 +40,17 @@ namespace moris
                     real                               aIsocontourTolerance = 0.0,
                     real                               aIntersectionTolerance = 0.0);
 
+            /**
+             * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aField Field pointer, referenced during call from field class
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            void get_dfield_dcoordinates(
+                    Field*          aField,
+                    Matrix<DDRMat>& aSensitivities);
+
         private:
 
             /**

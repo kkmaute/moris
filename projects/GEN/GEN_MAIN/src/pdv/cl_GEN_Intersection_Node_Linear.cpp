@@ -48,6 +48,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Intersection_Node_Linear::get_dfield_dcoordinates(
+                Field*          aField,
+                Matrix<DDRMat>& aSensitivities)
+        {
+            // Geometry values
+            real tPhi0 = aField->get_field_value( mAncestorNodeIndices(0), mAncestorNodeCoordinates(0) );
+            real tPhi1 = aField->get_field_value( mAncestorNodeIndices(1), mAncestorNodeCoordinates(1) );
+
+            // Sensitivities
+            for (uint tCoordinateIndex = 0; tCoordinateIndex < mParentVector.length(); tCoordinateIndex++)
+            {
+                aSensitivities(tCoordinateIndex) = (tPhi1 - tPhi0) / mParentVector(tCoordinateIndex);
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Intersection_Node_Linear::get_dxi_dfield_from_ancestor(uint aAncestorIndex)
         {
             // Locked interface geometry

@@ -50,7 +50,7 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities)
         {
-            this->get_base_dfield_dcoordinates((this->*get_node_index)(aNodeIndex), aCoordinates, aSensitivities);
+            MORIS_ERROR(false, "A discrete interpolation field does not have spatial derivatives.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
