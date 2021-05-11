@@ -319,36 +319,48 @@ namespace moris
                 }
 
                 {
-                    // create mesh for this pattern
-                    hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                            tHMRDatabase,
-                            tLagrangeOrder,
-                            tPattern,
-                            tDiscretizationOrder,
-                            tPattern);
+                    uint tCounter = 0;
+                    while( true )
+                    {
+                        // create mesh for this pattern
+                        hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                                tHMRDatabase,
+                                tLagrangeOrder,
+                                tPattern,
+                                tDiscretizationOrder,
+                                tPattern);
 
-                    mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
+                        mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
 
-                    Cell< std::shared_ptr< mtk::Field > > aTargetFields;
+                        Cell< std::shared_ptr< mtk::Field > > aTargetFields;
 
-                    this->map_fields(
-                            aSourceFields,
-                            aTargetFields,
-                            tMeshPair,
-                            tPattern,
-                            true ); //FIXME tPattern = DiscretizationMeshiondex
+                        this->map_fields(
+                                aSourceFields,
+                                aTargetFields,
+                                tMeshPair,
+                                tPattern,
+                                true ); //FIXME tPattern = DiscretizationMeshiondex
 
-                    // create refinement parameter list
-                    moris::ParameterList tRefinementParameterlist;
-                    this->create_refinement_input_list( tRefinementParameterlist, tPattern );
+                        // create refinement parameter list
+                        moris::ParameterList tRefinementParameterlist;
+                        this->create_refinement_input_list( tRefinementParameterlist, tPattern );
 
-                    // create refinement mini performer and perform refinement
-                    wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist );
-                    tRefinementMiniPerformer.perform_refinement_low_level_elements( aTargetFields, aHMRPerformer );
+                        // create refinement mini performer and perform refinement
+                        wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist );
+                        uint tRefinedElements = tRefinementMiniPerformer.perform_refinement_low_level_elements( aTargetFields, aHMRPerformer );
 
-                    tHMRDatabase->get_background_mesh()->update_database();
-                    tHMRDatabase->update_bspline_meshes();
-                    tHMRDatabase->update_lagrange_meshes();
+                        uint tSumRefEle =sum_all( tRefinedElements );
+
+                        if( tSumRefEle == 0)
+                        {
+                            break;
+                        }
+                        tHMRDatabase->get_background_mesh()->update_database();
+                        tHMRDatabase->update_bspline_meshes();
+                        tHMRDatabase->update_lagrange_meshes();
+
+                        tCounter++;
+                    }
                 }
             }
         }
