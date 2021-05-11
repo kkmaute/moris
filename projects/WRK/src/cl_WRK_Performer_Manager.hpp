@@ -52,6 +52,7 @@ namespace moris
         class Workflow_HMR_XTK;
         class Workflow_STK_XTK;
         class Workflow_STK_FEM;
+        class Remeshing_Mini_Performer;
 
         //------------------------------------------------------------------------------
 
@@ -65,6 +66,8 @@ namespace moris
                 moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
                 moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
                 moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
+
+                moris::Cell< std::shared_ptr< wrk::Remeshing_Mini_Performer > > mRemeshingMiniPerformer;
 
                 friend class wrk::Workflow;
                 friend class wrk::Workflow_HMR_XTK;

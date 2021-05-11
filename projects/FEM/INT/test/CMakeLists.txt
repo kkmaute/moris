@@ -104,6 +104,7 @@ set(TEST_SOURCES
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Compressible_UT.cpp
+    FEM_Test_Proxy/cl_FEM_Fields_for_NS_Compressible_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp
     )

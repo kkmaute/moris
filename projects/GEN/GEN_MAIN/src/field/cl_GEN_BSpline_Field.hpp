@@ -93,6 +93,9 @@ namespace moris
              */
             void import_advs(sol::Dist_Vector* aOwnedADVs);
 
+            void get_coefficient_vector();
+
+
         protected:
 
             /**

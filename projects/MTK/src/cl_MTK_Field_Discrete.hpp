@@ -123,6 +123,11 @@ namespace moris
 
                 // ----------------------------------------------------------------------------------------------
 
+            private:
+                void communicate_missing_owned_coefficients(
+                        Matrix< IdMat > & aAllCoefIds,
+                        Matrix< IdMat > & aAllCoefOwners );
+
         };
     }
 }

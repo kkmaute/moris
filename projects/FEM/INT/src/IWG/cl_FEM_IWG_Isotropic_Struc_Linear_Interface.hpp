@@ -31,7 +31,7 @@ namespace moris
             public:
 
                 // sint for symmetric/unsymmetric Nitsche
-                sint mBeta = 1.0;
+                sint mBeta = 1;
 
                 enum class IWG_Property_Type
                 {

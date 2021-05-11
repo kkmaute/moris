@@ -159,14 +159,14 @@ namespace moris
                         for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
                         {
                             // add contribution from the K-terms
-                            tM += this->G()( jDim, kDim ) * this->G()( lDim, mDim ) * 
+                            tM += this->G()( kDim, jDim ) * this->G()( lDim, mDim ) * 
                                     this->K( kDim, lDim ) * this->A0inv() *
-                                    this->K( jDim, mDim ) * this->A0inv(); 
+                                    this->K( mDim, jDim ) * this->A0inv(); 
                         }
                     }
                 }
             }
-            
+
             // return value
             return mM;
         }
@@ -262,6 +262,7 @@ namespace moris
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
+
                 // get subview for += operations
                 auto tdMdVar = mdMdY( iVar )( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
 
@@ -294,11 +295,11 @@ namespace moris
                             for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
                             {
                                 // add contribution from the K-terms
-                                tdMdVar += this->G()( jDim, kDim ) * this->G()( lDim, mDim ) * ( // tdMdVar
-                                        tdKdY( kDim )( lDim ) * this->A0inv()          * this->K( jDim, mDim ) * this->A0inv() + 
-                                        this->K( kDim, lDim ) * this->dA0invdY( iVar ) * this->K( jDim, mDim ) * this->A0inv() + 
-                                        this->K( kDim, lDim ) * this->A0inv()          * tdKdY( jDim )( mDim ) * this->A0inv() +
-                                        this->K( kDim, lDim ) * this->A0inv()          * this->K( jDim, mDim ) * this->dA0invdY( iVar ) ); 
+                                tdMdVar += this->G()( kDim, jDim ) * this->G()( lDim, mDim ) * ( // tdMdVar
+                                        tdKdY( kDim )( lDim ) * this->A0inv()          * this->K( mDim, jDim ) * this->A0inv() + 
+                                        this->K( kDim, lDim ) * this->dA0invdY( iVar ) * this->K( mDim, jDim ) * this->A0inv() + 
+                                        this->K( kDim, lDim ) * this->A0inv()          * tdKdY( mDim )( jDim ) * this->A0inv() +
+                                        this->K( kDim, lDim ) * this->A0inv()          * this->K( mDim, jDim ) * this->dA0invdY( iVar ) ); 
                             }
                         }
                     }
@@ -366,13 +367,13 @@ namespace moris
             // STEP 2: get the state variable derivatives of the inverse of M
 
             // initialize
-            moris::Cell< Matrix< DDRMat > > tdMinvdY( tNumStateVars );
+            moris::Cell< Matrix< DDRMat > > tMinusdMinvdY( tNumStateVars );
             
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
                 // compute the state var deriv
-                tdMinvdY( iVar ) = -1.0 * this->Minv() * this->dMdY( iVar ) * this->Minv();
+                tMinusdMinvdY( iVar ) = this->Minv() * this->dMdY( iVar ) * this->Minv();
             }
 
             // -------------------------------------------------
@@ -386,7 +387,7 @@ namespace moris
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
                 // solve Sylvester equation and store solutions for each variable derivative
-                sylvester( this->SqrtMinv(), this->SqrtMinv(), tdMinvdY( iVar ), tdSqrtMinvdY( iVar ) );
+                sylvester( this->SqrtMinv(), this->SqrtMinv(), tMinusdMinvdY( iVar ), tdSqrtMinvdY( iVar ) );
             }
 
             // -------------------------------------------------

@@ -38,6 +38,7 @@ namespace moris
             mPerformerManager->mXTKPerformer.resize( 1 );
             mPerformerManager->mMTKPerformer.resize( 2 );
             mPerformerManager->mMDLPerformer.resize( 1 );
+            mPerformerManager->mRemeshingMiniPerformer.resize( 1 );
 
             // load the HMR parameter list
             std::string tHMRString = "HMRParameterList";
@@ -49,6 +50,12 @@ namespace moris
             Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
             moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
             tGENParameterListFunc( tGENParameterList );
+
+            std::string tMORISString = "MORISGENERALParameterList";
+            Parameter_Function tMORISParameterListFunc =
+                    mPerformerManager->mLibrary->load_function<Parameter_Function>( tMORISString );
+            moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
+            tMORISParameterListFunc( tMORISParameterList );
 
             // create HMR performer
             mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
@@ -73,6 +80,14 @@ namespace moris
 
             // Set performer to MDL
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
+
+            if( tMORISParameterList.size() > 0 )
+            {
+                // create MTK performer - will be used for HMR mesh
+                mPerformerManager->mRemeshingMiniPerformer( 0 ) =
+                        std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ) );
+            }
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -117,18 +132,11 @@ namespace moris
             }
             else
             {
-                std::string tMORISString = "MORISGENERALParameterList";
-                Parameter_Function tMORISParameterListFunc =
-                        mPerformerManager->mLibrary->load_function<Parameter_Function>( tMORISString );
-                moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
-                tMORISParameterListFunc( tMORISParameterList );
-
-                wrk::Remeshing_Mini_Performer tRemeshingPerformer( tMORISParameterList( 0 )( 0 ) );
-                tRemeshingPerformer.perform_remeshing(
-                            mPerformerManager->mGENPerformer( 0 )->get_mtk_fields(),
-                            mPerformerManager->mHMRPerformer,
-                            mPerformerManager->mMTKPerformer,
-                            tFields);
+                mPerformerManager->mRemeshingMiniPerformer( 0 )->perform_remeshing(
+                        mPerformerManager->mGENPerformer( 0 )->get_mtk_fields(),
+                        mPerformerManager->mHMRPerformer,
+                        mPerformerManager->mMTKPerformer,
+                        tFields);
 
                 // Create new GE performer
                 std::string tGENString = "GENParameterList";

@@ -808,6 +808,11 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
+    void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    {
+
+    }
+
     /* ------------------------------------------------------------------------ */
 }
 

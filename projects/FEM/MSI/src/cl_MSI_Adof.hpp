@@ -16,9 +16,9 @@ namespace moris
         class Adof
         {
         private:
-            moris::uint mAdofId = -1;
-            moris::uint mAdofExternalId; //FIXME delete
-            moris::uint mAdofExternalInd; //external Ind. only for HMR use
+            moris::moris_id mAdofId = gNoID;
+            moris::moris_id mAdofExternalId = gNoID; //FIXME delete
+            moris::moris_index mAdofExternalInd = gNoIndex; //external Ind. only for HMR use
 
             moris::uint mOwningProcessor;
 
@@ -32,17 +32,17 @@ namespace moris
             ~Adof()
             {};
 
-            void set_adof_id( const moris::uint aAdofId )
+            void set_adof_id( const moris::moris_id aAdofId )
             {
                 mAdofId = aAdofId;
             };
 
-            void set_adof_external_id( const moris::uint aAdofExtId )   //FIXME delte
+            void set_adof_external_id( const moris::moris_id aAdofExtId )   //FIXME delte
             {
                 mAdofExternalId = aAdofExtId;
             };
 
-            void set_adof_external_ind( const moris::uint aAdofExtInd )
+            void set_adof_external_ind( const moris::moris_index aAdofExtInd )
             {
                 mAdofExternalInd = aAdofExtInd;
             };
@@ -52,17 +52,17 @@ namespace moris
                 mOwningProcessor = aOwningProcessor;
             };
 
-            moris::uint get_adof_id()
+            moris::moris_id get_adof_id()
             {
                 return mAdofId;
             };
 
-            moris::uint get_adof_external_id()
+            moris::moris_id get_adof_external_id()
             {
                 return mAdofExternalId;
             };
 
-            moris::uint get_adof_external_ind()
+            moris::moris_index get_adof_external_ind()
             {
                 return mAdofExternalInd;
             };

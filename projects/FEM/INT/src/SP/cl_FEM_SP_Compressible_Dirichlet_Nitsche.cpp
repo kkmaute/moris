@@ -99,19 +99,19 @@ namespace moris
             mPPVal.set_size( mSpaceDim + 2, 1, 0.0 );
 
             // check size of input paramters
-            MORIS_ASSERT( mParameters.size() == mSpaceDim + 2, 
+            MORIS_ASSERT( mParameters( 0 ).length() == mSpaceDim + 2, 
                     "SP_Compressible_Dirichlet_Nitsche::eval_SP() - number of input parameters incorrect, relative to number of spatial dimensions" );
 
             // compute the contribution to the first equation
             mPPVal( 0 ) = mParameters( 0 )( 0 ) * tDeltat / mElementSize;
 
             // compute contribution to the last equation
-            mPPVal( mSpaceDim + 1 ) = mParameters( mSpaceDim + 1 )( 0 ) * tPropThermConduct->val()( 0 ) / mElementSize;
+            mPPVal( mSpaceDim + 1 ) = mParameters( 0 )( mSpaceDim + 1 ) * tPropThermConduct->val()( 0 ) / mElementSize;
 
             // compute stabilization parameter value for velocity residual
             for ( uint iDim = 0; iDim < mSpaceDim; iDim++ )
             {
-                mPPVal( iDim + 1 ) = mParameters( iDim + 1 )( 0 ) * ( tPropViscosity->val()( 0 ) / mElementSize );
+                mPPVal( iDim + 1 ) = mParameters( 0 )( iDim + 1 ) * ( tPropViscosity->val()( 0 ) / mElementSize );
             }
         }
 
@@ -141,7 +141,7 @@ namespace moris
             for ( uint iDim = 0; iDim < mSpaceDim; iDim++ )
             {
                 mdPPdMasterDof( tDofIndex )( { iDim + 1, iDim + 1 }, { 0, tNumBases } ) +=
-                        mParameters( iDim + 1 )( 0 ) * tPropViscosity->dPropdDOF( aDofTypes ) / mElementSize;
+                        mParameters( 0 )( iDim + 1 ) * tPropViscosity->dPropdDOF( aDofTypes ) / mElementSize;
             }
 
             // compute stabilization parameter deriviative value for temperature residual
@@ -149,7 +149,7 @@ namespace moris
             {
                 // compute contribution from thermal conductivity
                 mdPPdMasterDof( tDofIndex )( { mSpaceDim + 1, mSpaceDim + 1 }, { 0, tNumBases } ) +=
-                        mParameters( mSpaceDim + 1 )( 0 ) * tPropThermConduct->dPropdDOF( aDofTypes ) / mElementSize;
+                        mParameters( 0 )( mSpaceDim + 1 ) * tPropThermConduct->dPropdDOF( aDofTypes ) / mElementSize;
             }
         }
 

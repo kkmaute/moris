@@ -1010,8 +1010,6 @@ namespace moris
 
         uint Pdv_Host_Manager::communicate_pdv_offsets( const moris::uint & aNumOwnedPdvs )
         {
-            MORIS_LOG_INFO( "System has a total of %-5i pdvs.", sum_all(aNumOwnedPdvs) );
-
             // Get list containing the number of owned pdvs of each processor
             Matrix< DDUMat > tNumOwnedPdvsList;
 
@@ -1553,6 +1551,8 @@ namespace moris
             }
 
             this->get_num_pdvs();
+
+            MORIS_LOG_INFO( "System has a total of %-5i pdvs.", sum_all(mNumOwnedPdvs) );
 
             if ( !(par_size() <= 1) )
             {

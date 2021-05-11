@@ -503,6 +503,11 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP" ) ;
     }
 
+    void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    {
+
+    }
+
     //------------------------------------------------------------------------------
 }
 

@@ -96,7 +96,7 @@ namespace moris
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute the jump
-            Matrix< DDRMat > tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
+            const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
 
             // compute master residual
             mSet->get_residual()( 0 )(
@@ -109,10 +109,16 @@ namespace moris
             // if upwind
             if ( tPropUpwind )
             {
+                // get the density property
+                const std::shared_ptr< Property > & tDensityProp = tCMFluid->get_property( "Density" );
+
+                // get the density value
+                const real tDensity = tDensityProp->val()( 0 );
+
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) -= aWStar * (
-                                tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() *
+                                tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() *
                                 dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
             }
 
@@ -175,7 +181,7 @@ namespace moris
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             // compute the jump
-            Matrix< DDRMat > tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
+            const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
 
             // get number of master dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -237,14 +243,21 @@ namespace moris
                 // if upwind
                 if ( tPropUpwind )
                 {
+                    // get the density property
+                    const std::shared_ptr< Property > & tDensityProp = tCMFluid->get_property( "Density" );
+
+                    // get the density value
+                    const real tDensity = tDensityProp->val()( 0 );
+
                     // if dof type is residual dof type
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N() +
-                                        tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump * ( trans( mNormal ) * tFIVelocity->N() ) );
+                                        tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * (
+                                                dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N() +
+                                                tM * tVelocityJump * ( trans( mNormal ) * tFIVelocity->N() ) ) );
                     }
 
                     // if imposed velocity depends on dof type
@@ -253,7 +266,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tPropUpwind->val()( 0 ) * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) *
+                                        tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) *
                                         tM * tPropVelocity->dPropdDOF( tDofType ));
                     }
 
@@ -264,8 +277,18 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) *
+                                        tFIVelocity->N_trans() * tDensity * dot( tFIVelocity->val(), mNormal ) *
                                         tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
+                    }
+
+                    // if density depends on dof type
+                    if ( tDensityProp->check_dof_dependency( tDofType ) )
+                    {
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        tFIVelocity->N_trans() * tPropUpwind->val()( 0 ) * dot( tFIVelocity->val(), mNormal ) *
+                                        tM * tVelocityJump * tDensityProp->dPropdDOF( tDofType ) );
                     }
                 }
             }
