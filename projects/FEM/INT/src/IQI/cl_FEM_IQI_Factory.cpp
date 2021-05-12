@@ -29,6 +29,7 @@
 #include "cl_FEM_IQI_Thermal_Energy.hpp"
 #include "cl_FEM_IQI_Stabilization.hpp"
 #include "cl_FEM_IQI_Homogenized_Constitutive.hpp"
+#include "cl_FEM_IQI_Heat_Method_Penalty.hpp"
 
 namespace moris
 {
@@ -113,6 +114,9 @@ namespace moris
 
                 case IQI_Type::HOMOGENIZED_CONSTITUTIVE:
                     return std::make_shared< IQI_Homogenized_Constitutive >();
+
+                case IQI_Type::HEAT_METHOD_PENALTY:
+                    return std::make_shared< IQI_Heat_Method_Penalty >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
