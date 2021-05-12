@@ -24,7 +24,7 @@ namespace moris
 
         private:
             Field_Function get_field_value_user_defined;
-            Sensitivity_Function get_field_sensitivities_user_defined;
+            Sensitivity_Function get_dfield_dadvs_user_defined;
 
         public:
 
@@ -81,7 +81,18 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            void get_dfield_dcoordinates(
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities);
 
             // FIXME hack! redundant function but is doing the job for now.
             void compute_nodal_values();

@@ -23,7 +23,7 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Property::get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            return mProperty->get_field_sensitivities(aNodeIndex, aCoordinates);
+            return mProperty->get_dfield_dadvs(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

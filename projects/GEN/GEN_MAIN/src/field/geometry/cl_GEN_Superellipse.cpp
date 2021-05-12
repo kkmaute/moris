@@ -61,7 +61,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Superellipse::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Superellipse::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter        = *(mFieldVariables(0));
@@ -95,6 +95,15 @@ namespace moris
             mSensitivities(7) = MORIS_REAL_MAX;
 
             return mSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Superellipse::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for superellipse geometry.");
         }
 
         //--------------------------------------------------------------------------------------------------------------

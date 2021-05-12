@@ -49,7 +49,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Intersection_Node_Bilinear::get_dcoordinate_dfield_from_ancestor(uint aAncestorIndex)
+        real Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor(uint aAncestorIndex)
         {
             // Locked interface geometry
             std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
@@ -135,6 +135,22 @@ namespace moris
                     }
                 }
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
+        {
+            MORIS_ERROR(false, "Intersections on intersections not implemented yet for bilinear case.");
+            return {{}};
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
+        {
+            MORIS_ERROR(false, "Intersections on intersections not implemented yet for bilinear case.");
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

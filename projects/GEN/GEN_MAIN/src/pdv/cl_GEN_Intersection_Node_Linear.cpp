@@ -48,7 +48,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Intersection_Node_Linear::get_dcoordinate_dfield_from_ancestor(uint aAncestorIndex)
+        void Intersection_Node_Linear::get_dfield_dcoordinates(
+                Field*          aField,
+                Matrix<DDRMat>& aSensitivities)
+        {
+            // Geometry values
+            real tPhi0 = aField->get_field_value( mAncestorNodeIndices(0), mAncestorNodeCoordinates(0) );
+            real tPhi1 = aField->get_field_value( mAncestorNodeIndices(1), mAncestorNodeCoordinates(1) );
+
+            // Sensitivities
+            for (uint tCoordinateIndex = 0; tCoordinateIndex < mParentVector.length(); tCoordinateIndex++)
+            {
+                aSensitivities(tCoordinateIndex) = (tPhi1 - tPhi0) /
+                        (mParentVector(tCoordinateIndex) + 1E-12 * (mParentVector(tCoordinateIndex) == 0));
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Intersection_Node_Linear::get_dxi_dfield_from_ancestor(uint aAncestorIndex)
         {
             // Locked interface geometry
             std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
@@ -57,9 +75,41 @@ namespace moris
             real tPhi0 = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices(0), mAncestorNodeCoordinates(0) );
             real tPhi1 = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices(1), mAncestorNodeCoordinates(1) );
 
-            // Compute sensitivity of the global coordinate with respect to the field value
+            // Compute sensitivity of the local coordinate with respect to the field value
             return 2 * ((tPhi0 - mIsocontourThreshold) * (aAncestorIndex == 1)
                       - (tPhi1 - mIsocontourThreshold) * (aAncestorIndex == 0)) / std::pow((tPhi1 - tPhi0), 2);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node_Linear::get_dxi_dcoordinate_first_parent()
+        {
+            // Locked interface geometry
+            std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+            // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
+            Matrix<DDRMat> tCoordinateSensitivities(1, 2);
+            tLockedInterfaceGeometry->get_dfield_dcoordinates(
+                    mAncestorNodeIndices(0),
+                    mAncestorNodeCoordinates(0),
+                    tCoordinateSensitivities);
+            return this->get_dxi_dfield_from_ancestor(0) * tCoordinateSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node_Linear::get_dxi_dcoordinate_second_parent()
+        {
+            // Locked interface geometry
+            std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+            // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
+            Matrix<DDRMat> tCoordinateSensitivities(1, 2);
+            tLockedInterfaceGeometry->get_dfield_dcoordinates(
+                    mAncestorNodeIndices(1),
+                    mAncestorNodeCoordinates(1),
+                    tCoordinateSensitivities);
+            return this->get_dxi_dfield_from_ancestor(1) * tCoordinateSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

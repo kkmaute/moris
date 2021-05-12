@@ -28,6 +28,7 @@ extern "C"
 //------------------------------------------------------------------------------
 namespace moris
 {
+    std::string tMeshSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
     // Constant function for properties
     void Func_Const( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -55,8 +56,7 @@ namespace moris
 
     Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
-        Matrix<DDRMat> tObjectives( 1, 1 );
-        tObjectives(0) = aCriteria( 0 ) / 2.7;
+        Matrix<DDRMat> tObjectives = {{aCriteria(0)}};
 
         return tObjectives;
     }
@@ -65,8 +65,7 @@ namespace moris
 
     Matrix<DDRMat> compute_constraints(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
-        Matrix<DDRMat> tConstraints( 1, 1 );
-        tConstraints(0) = (aCriteria( 1 ) / 1.9) - 1.0;
+        Matrix<DDRMat> tConstraints = {{aCriteria(1)}};
 
         return tConstraints;
     }
@@ -85,7 +84,7 @@ namespace moris
     Matrix<DDRMat> compute_dobjective_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
         Matrix<DDRMat> tDObjectiveDCriteria( 1, 2 );
-        tDObjectiveDCriteria( 0 ) = 1 / 2.7;
+        tDObjectiveDCriteria( 0 ) = 1;
         tDObjectiveDCriteria( 1 ) = 0;
 
         return tDObjectiveDCriteria;
@@ -106,7 +105,7 @@ namespace moris
     {
         Matrix<DDRMat> tDConstraintDCriteria( 1, 2 );
         tDConstraintDCriteria( 0 ) = 0;
-        tDConstraintDCriteria( 1 ) = 1.0 / 1.9;
+        tDConstraintDCriteria( 1 ) = 1.0;
 
         return tDConstraintDCriteria;
     }
@@ -127,8 +126,6 @@ namespace moris
         }
     }
 
-
-
     //--------------------------------------------------------------------------------------------------------------
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -138,9 +135,9 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "20,10");
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "2,1");
-        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0,0.0");
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 2");
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "2.0, 2.0");
+        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "-1.0, -1.0");
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
@@ -187,9 +184,9 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize(1);
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set("initial_advs"      , "0.45, 0.45, 0.25, 1.55, 0.55, 0.25");
-        tParameterlist( 0 )( 0 ).set("lower_bounds"      , "0.45, 0.45, 0.25, 1.55, 0.55, 0.25");
-        tParameterlist( 0 )( 0 ).set("upper_bounds"      , "0.45, 0.45, 0.25, 1.55, 0.55, 0.25");
+        tParameterlist( 0 )( 0 ).set("initial_advs"      , "0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0");
+        tParameterlist( 0 )( 0 ).set("lower_bounds"      , "0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0");
+        tParameterlist( 0 )( 0 ).set("upper_bounds"      , "0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0");
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
         tParameterlist( 0 )( 0 ).set("PDV_types"         , "");
 
@@ -197,14 +194,14 @@ namespace moris
         tParameterlist( 1 ).resize(2);
 
         tParameterlist(1)(0) = prm::create_geometry_parameter_list();
-        tParameterlist(1)(0).set("type", "circle");
-        tParameterlist(1)(0).set("field_variable_indices", "0, 1, 2");
-        tParameterlist(1)(0).set("adv_indices", "0, 1, 2");
+        tParameterlist(1)(0).set("type", "plane");
+        tParameterlist(1)(0).set("field_variable_indices", "0, 1, 2, 3");
+        tParameterlist(1)(0).set("adv_indices", "0, 1, 2, 3");
 
         tParameterlist(1)(1) = prm::create_geometry_parameter_list();
-        tParameterlist(1)(1).set("type", "circle");
-        tParameterlist(1)(1).set("field_variable_indices", "0, 1, 2");
-        tParameterlist(1)(1).set("adv_indices", "3, 4, 5");
+        tParameterlist(1)(1).set("type", "plane");
+        tParameterlist(1)(1).set("field_variable_indices", "0, 1, 2, 3");
+        tParameterlist(1)(1).set("adv_indices", "4, 5, 6, 7");
 
     }
 
@@ -258,7 +255,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPoisson");
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0");
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
-        tPropCounter++;
 
         //------------------------------------------------------------------------------
         // init CM counter
@@ -270,7 +266,6 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",        "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio");
-        tCMCounter++;
 
         //------------------------------------------------------------------------------
         // init SP counter
@@ -282,7 +277,6 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "100.0");
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungs,Material");
-        tSPCounter++;
 
         //------------------------------------------------------------------------------
         // init IWG counter
@@ -295,7 +289,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tMeshSets);
         tIWGCounter++;
 
         // create parameter list for IWG 2
@@ -307,7 +301,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropDirichletU,Dirichlet");
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheTemp,DirichletNitsche");
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_4_n_p3");
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_4_n_p0,SideSet_4_c_p0,SideSet_4_c_p0");
         tIWGCounter++;
 
         // create parameter list for IWG 3
@@ -317,8 +311,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropTraction,Traction");
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_2_n_p3");
-        tIWGCounter++;
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "");
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -331,7 +324,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY") ;
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tMeshSets);
         tIQICounter++;
 
         // create parameter list for IQI 4
@@ -340,7 +333,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso1,Elast");
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tMeshSets);
         tIQICounter++;
 
         // create parameter list for IQI 4
@@ -348,8 +341,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVolume");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ));
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropDensity,Density");
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
-        tIQICounter++;
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tMeshSets);
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
@@ -405,7 +397,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p3,HMR_dummy_c_p3" );
+        tParameterlist( 0 )( 0 ).set( "Set_Names"  , tMeshSets );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "U");
         tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL");
         tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIDisp");
@@ -423,7 +415,7 @@ namespace moris
         tParameterlist(0)(0) = moris::prm::create_opt_problem_parameter_list();
         tParameterlist(0)(0).set("is_optimization_problem", true);
         tParameterlist(0)(0).set("problem", "user_defined");
-        tParameterlist(0)(0).set("library", "Shape_Sensitivity_Circle_Sweep.so");
+        tParameterlist(0)(0).set("library", "Shape_Sensitivity_Sweep.so");
 
         tParameterlist(2)(0) = moris::prm::create_sweep_parameter_list();
         tParameterlist(2)(0).set("hdf5_path", "shape_opt_test.hdf5");
@@ -432,6 +424,10 @@ namespace moris
         tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
         tParameterlist(2)(0).set("include_bounds", false);
         tParameterlist(2)(0).set("finite_difference_type", "all");
+    }
+
+    void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    {
 
     }
 

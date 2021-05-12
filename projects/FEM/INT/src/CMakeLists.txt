@@ -210,6 +210,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Thermal_Energy.hpp  
     IQI/cl_FEM_IQI_Stabilization.hpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
+    IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -397,6 +398,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Thermal_Energy.cpp
     IQI/cl_FEM_IQI_Stabilization.cpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
+    IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     

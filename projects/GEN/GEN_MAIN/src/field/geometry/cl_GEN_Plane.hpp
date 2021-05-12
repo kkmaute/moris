@@ -99,7 +99,18 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
+            const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
+             * coordinates.
+             *
+             * @param aCoordinates Vector of coordinate values
+             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+             */
+            void get_dfield_dcoordinates(
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities);
 
         private:
 
@@ -114,12 +125,12 @@ namespace moris
             real eval_field_3d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 2D evaluation for get_field_sensitivities
+             * 2D evaluation for get_dfield_dadvs
              */
             const Matrix<DDRMat>& eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 3D evaluation for get_field_sensitivities
+             * 3D evaluation for get_dfield_dadvs
              */
             const Matrix<DDRMat>& eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates);
         };

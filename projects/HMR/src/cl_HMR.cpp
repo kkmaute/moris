@@ -1431,6 +1431,69 @@ namespace moris
                 }
             }
         }
+
+        // ----------------------------------------------------------------------------
+
+        void HMR::get_active_candidates_for_refinement(
+                Cell< hmr::Element* > & aCandidates,
+                Lagrange_Mesh_Base    * aMesh )
+        {
+            // reset candidate list
+            aCandidates.clear();
+
+            uint tPattern = aMesh->get_activation_pattern();
+
+            // make sure that input pattern is active
+            mDatabase->set_activation_pattern( tPattern );
+
+            // get pointer to background mesh
+            Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
+
+            uint tMaxLevel = tBackgroundMesh->get_max_level();
+
+            // counter for elements
+            uint tCount = 0;
+
+            // loop over all levels and determine size of Cell
+            for( uint l = 0; l <= tMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base * > tBackgroundElements;
+
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for( Background_Element_Base * tElement : tBackgroundElements )
+                {
+                    // if element  is active or refined but not padding
+                    if( tElement->is_active( tPattern ) && ! tElement->is_padding() )
+                    {
+                        // increment counter
+                        ++tCount;
+                    }
+                }
+            }
+
+            // allocate memory for output
+            aCandidates.resize( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+            // loop over all levels
+            for( uint l=0; l<=tMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base * > tBackgroundElements;
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for(  Background_Element_Base * tElement : tBackgroundElements )
+                {
+                    if( tElement->is_active( tPattern ) && ! tElement->is_padding() )
+                    {
+                        aCandidates( tCount++ ) = aMesh->get_element_by_memory_index( tElement->get_memory_index() );
+                    }
+                }
+            }
+        }
         // -----------------------------------------------------------------------------
 
         uint HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField )
@@ -1679,7 +1742,7 @@ namespace moris
         {
             uint tElementCounter = 0;
 
-            if( mParameters->use_refinement_for_low_level_elements() )
+            if( mParameters->use_refinement_for_low_level_elements() && aPattern == 0)
             {
                 // candidates for refinement
                 Cell< hmr::Element* > tCandidates;
@@ -1699,7 +1762,7 @@ namespace moris
                         aOrder );
 
                 // get candidates for surface
-                this->get_candidates_for_refinement(
+                this->get_active_candidates_for_refinement(
                         tCandidates,
                         tMesh );
 
@@ -1724,7 +1787,7 @@ namespace moris
 
 
                 // add length of list to counter
-                tElementCounter += tRefinementList.size();
+                tElementCounter = tRefinementList.size();
 
                 // flag elements in HMR
                 this->put_elements_on_refinment_queue( tRefinementList );

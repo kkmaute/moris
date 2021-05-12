@@ -116,7 +116,7 @@ namespace moris
                     return std::make_shared< IQI_Homogenized_Constitutive >();
 
                 case IQI_Type::HEAT_METHOD_PENALTY:
-                    return std::make_shared< IQI_Heat_Method_Penalty > ();
+                    return std::make_shared< IQI_Heat_Method_Penalty >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

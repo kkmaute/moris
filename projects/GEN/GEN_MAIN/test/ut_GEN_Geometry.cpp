@@ -153,12 +153,12 @@ namespace moris
                 CHECK(tCircle2->get_field_value(0, tCoordinates2) == Approx(0.0));
 
                 // Check sensitivity values
-                check_equal(tCircle1->get_field_sensitivities(0, tCoordinates0), {{0.0, 1.0, -1.0}});
-                check_equal(tCircle2->get_field_sensitivities(0, tCoordinates0), {{0.0, 1.0, -1.0}});
-                check_equal(tCircle1->get_field_sensitivities(0, tCoordinates1), {{-1.0, 0.0, -1.0}});
-                check_equal(tCircle2->get_field_sensitivities(0, tCoordinates1), {{-sqrt(2.0) / 2.0, sqrt(2.0) / 2.0, -1.0}});
-                check_equal(tCircle1->get_field_sensitivities(0, tCoordinates2), {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), -1.0}});
-                check_equal(tCircle2->get_field_sensitivities(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
+                check_equal(tCircle1->get_dfield_dadvs(0, tCoordinates0), {{0.0, 1.0, -1.0}});
+                check_equal(tCircle2->get_dfield_dadvs(0, tCoordinates0), {{0.0, 1.0, -1.0}});
+                check_equal(tCircle1->get_dfield_dadvs(0, tCoordinates1), {{-1.0, 0.0, -1.0}});
+                check_equal(tCircle2->get_dfield_dadvs(0, tCoordinates1), {{-sqrt(2.0) / 2.0, sqrt(2.0) / 2.0, -1.0}});
+                check_equal(tCircle1->get_dfield_dadvs(0, tCoordinates2), {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), -1.0}});
+                check_equal(tCircle2->get_dfield_dadvs(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
 
                 // Change ADVs and coordinates
                 tADVs = {{1.0, 1.0, 2.0, 2.0, 3.0}};
@@ -179,12 +179,12 @@ namespace moris
                 CHECK(tCircle2->get_field_value(0, tCoordinates2) == Approx(0.0));
 
                 // Check sensitivity values
-                check_equal(tCircle1->get_field_sensitivities(0, tCoordinates0), {{0.0, 1.0, -1.0}});
-                check_equal(tCircle2->get_field_sensitivities(0, tCoordinates0), {{0.0, 1.0, -1.0}});
-                check_equal(tCircle1->get_field_sensitivities(0, tCoordinates1), {{-1.0, 0.0, -1.0}});
-                check_equal(tCircle2->get_field_sensitivities(0, tCoordinates1), {{-2.0 / sqrt(5.0), 1.0 / sqrt(5.0), -1.0}});
-                check_equal(tCircle1->get_field_sensitivities(0, tCoordinates2), {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), -1.0}});
-                check_equal(tCircle2->get_field_sensitivities(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
+                check_equal(tCircle1->get_dfield_dadvs(0, tCoordinates0), {{0.0, 1.0, -1.0}});
+                check_equal(tCircle2->get_dfield_dadvs(0, tCoordinates0), {{0.0, 1.0, -1.0}});
+                check_equal(tCircle1->get_dfield_dadvs(0, tCoordinates1), {{-1.0, 0.0, -1.0}});
+                check_equal(tCircle2->get_dfield_dadvs(0, tCoordinates1), {{-2.0 / sqrt(5.0), 1.0 / sqrt(5.0), -1.0}});
+                check_equal(tCircle1->get_dfield_dadvs(0, tCoordinates2), {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), -1.0}});
+                check_equal(tCircle2->get_dfield_dadvs(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
             }
 
             // Clean up
@@ -216,15 +216,15 @@ namespace moris
             CHECK(tSuperellipse->get_field_value(0, tCoordinates2) == Approx(0.0));
 
             // Check sensitivity values
-            check_equal(tSuperellipse->get_field_sensitivities(0, tCoordinates0),
+            check_equal(tSuperellipse->get_dfield_dadvs(0, tCoordinates0),
                     {{ 7.071067811865476e-01, 3.535533905932738e-01, -7.071067811865476e-01, -3.535533905932738e-01,
                     MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX}});
 
-            check_equal(tSuperellipse->get_field_sensitivities(0, tCoordinates1),
+            check_equal(tSuperellipse->get_dfield_dadvs(0, tCoordinates1),
                     {{-0.000000000000000e+00, 5.000000000000000e-01, -0.000000000000000e+00, -2.500000000000000e-01,
                     MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX}});
 
-            check_equal(tSuperellipse->get_field_sensitivities(0, tCoordinates2),
+            check_equal(tSuperellipse->get_dfield_dadvs(0, tCoordinates2),
                     {{-1.000000000000000e+00, 0.000000000000000e+00, -1.000000000000000e+00, -0.000000000000000e+00,
                     MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX}});
 
@@ -240,15 +240,15 @@ namespace moris
             CHECK(tSuperellipse->get_field_value(0, tCoordinates2) == Approx(1.0 / 3.0));
 
             // Check sensitivity values
-            check_equal(tSuperellipse->get_field_sensitivities(0, tCoordinates0),
+            check_equal(tSuperellipse->get_dfield_dadvs(0, tCoordinates0),
                     {{0.25, 0.0, -0.25, 0.0,
                     MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX}});
 
-            check_equal(tSuperellipse->get_field_sensitivities(0, tCoordinates1),
+            check_equal(tSuperellipse->get_dfield_dadvs(0, tCoordinates1),
                     {{pow(2.0, 0.25) / 8.0, -pow(2.0, -0.75) / 3.0, -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0,
                     MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX}});
 
-            check_equal(tSuperellipse->get_field_sensitivities(0, tCoordinates2),
+            check_equal(tSuperellipse->get_dfield_dadvs(0, tCoordinates2),
                     {{0.0, -1.0 / 3.0, 0.0, -4.0 / 9.0,
                     MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX, MORIS_REAL_MAX}});
         }
@@ -278,9 +278,9 @@ namespace moris
             CHECK(tSphere->get_field_value(0, tCoordinates2) == Approx(sqrt(14.0) - 2.0));
 
             // Check sensitivity values
-            check_equal(tSphere->get_field_sensitivities(0, tCoordinates0), {{-sqrt(2.0)/ 2.0, 0.0, sqrt(2.0) / 2.0, -1.0}});
-            check_equal(tSphere->get_field_sensitivities(0, tCoordinates1), {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), 0.0, -1.0}});
-            check_equal(tSphere->get_field_sensitivities(0, tCoordinates2), {{-3.0 / sqrt(14.0), -sqrt(2.0 / 7.0), -1.0 / sqrt(14.0), -1.0}});
+            check_equal(tSphere->get_dfield_dadvs(0, tCoordinates0), {{-sqrt(2.0)/ 2.0, 0.0, sqrt(2.0) / 2.0, -1.0}});
+            check_equal(tSphere->get_dfield_dadvs(0, tCoordinates1), {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), 0.0, -1.0}});
+            check_equal(tSphere->get_dfield_dadvs(0, tCoordinates2), {{-3.0 / sqrt(14.0), -sqrt(2.0 / 7.0), -1.0 / sqrt(14.0), -1.0}});
 
             // Change ADVs and coordinates
             tADVs = {{0.0, 0.0, 1.0, 1.0}};
@@ -293,9 +293,9 @@ namespace moris
             CHECK(tSphere->get_field_value(0, tCoordinates2) == Approx(2.0));
 
             // Check sensitivity values
-            check_equal(tSphere->get_field_sensitivities(0, tCoordinates0), {{0.0, 0.0, 1.0, -1.0}});
-            check_equal(tSphere->get_field_sensitivities(0, tCoordinates1), {{-1.0 / sqrt(6.0), -1.0 / sqrt(6.0), sqrt(2.0 / 3.0), -1.0}});
-            check_equal(tSphere->get_field_sensitivities(0, tCoordinates2), {{-2.0 / 3.0, 2.0 / 3.0, -1.0 / 3.0, -1.0}});
+            check_equal(tSphere->get_dfield_dadvs(0, tCoordinates0), {{0.0, 0.0, 1.0, -1.0}});
+            check_equal(tSphere->get_dfield_dadvs(0, tCoordinates1), {{-1.0 / sqrt(6.0), -1.0 / sqrt(6.0), sqrt(2.0 / 3.0), -1.0}});
+            check_equal(tSphere->get_dfield_dadvs(0, tCoordinates2), {{-2.0 / 3.0, 2.0 / 3.0, -1.0 / 3.0, -1.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -323,12 +323,12 @@ namespace moris
             CHECK(tSuperellipsoid->get_field_value(0, tCoordinates2) == Approx(0.0));
 
             // Check sensitivity values
-            check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates0),
+            check_equal(tSuperellipsoid->get_dfield_dadvs(0, tCoordinates0),
                     {{pow(2.0, -2.0 / 3.0), pow(2.0, -5.0 / 3.0), 0.0,
                     -pow(2.0, -2.0 / 3.0), -pow(2.0, -5.0 / 3.0), 0.0, -0.0970335}});
-            check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates1),
+            check_equal(tSuperellipsoid->get_dfield_dadvs(0, tCoordinates1),
                     {{0.0, 0.5, 0.0, 0.0, -0.25, 0.0, 0.0}});
-            check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates2),
+            check_equal(tSuperellipsoid->get_dfield_dadvs(0, tCoordinates2),
                     {{-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0}});
 
             // Change ADVs and coordinates
@@ -343,12 +343,12 @@ namespace moris
             CHECK(tSuperellipsoid->get_field_value(0, tCoordinates2) == Approx(1.0 / 3.0));
 
             // Check sensitivity values
-            check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates0),
+            check_equal(tSuperellipsoid->get_dfield_dadvs(0, tCoordinates0),
                     {{0.0, 0.25, 0.0, 0.0, -0.25, 0.0, 0.0}});
-            check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates1),
+            check_equal(tSuperellipsoid->get_dfield_dadvs(0, tCoordinates1),
                     {{0.0, pow(2.0, 0.25) / 8.0, -pow(2.0, -0.75) / 3.0,
                     0.0, -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0, -0.0257572}});
-            check_equal(tSuperellipsoid->get_field_sensitivities(0, tCoordinates2),
+            check_equal(tSuperellipsoid->get_dfield_dadvs(0, tCoordinates2),
                     {{0.0, 0.0, -1.0 / 3.0, 0.0, 0.0, -4.0 / 9.0, 0.0}});
         }
 
@@ -375,8 +375,8 @@ namespace moris
             CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-1.5));
 
             // Check sensitivity values
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{1.0, 3.0}});
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, 6.0}});
+            check_equal(tUserDefinedGeometry->get_dfield_dadvs(0, tCoordinates1), {{1.0, 3.0}});
+            check_equal(tUserDefinedGeometry->get_dfield_dadvs(0, tCoordinates2), {{2.0, 6.0}});
 
             // Change ADVs and coordinates
             tADVs = {{2.0, 0.5}};
@@ -388,8 +388,8 @@ namespace moris
             CHECK(tUserDefinedGeometry->get_field_value(0, tCoordinates2) == Approx(-7.5));
 
             // Check sensitivity values
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates1), {{0.0, 12.0}});
-            check_equal(tUserDefinedGeometry->get_field_sensitivities(0, tCoordinates2), {{2.0, -12.0}});
+            check_equal(tUserDefinedGeometry->get_dfield_dadvs(0, tCoordinates1), {{0.0, 12.0}});
+            check_equal(tUserDefinedGeometry->get_dfield_dadvs(0, tCoordinates2), {{2.0, -12.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -502,7 +502,7 @@ namespace moris
                                         Matrix<DDRMat> tMatrix = trans(tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
                                         Matrix<DDSMat> tIDs = trans(tMesh->get_coefficient_IDs_of_node(tNodeIndex, 0))
                                                 + tOffset;
-                                        check_equal(tBSplineGeometry->get_field_sensitivities(tNodeIndex, {{}}), tMatrix);
+                                        check_equal(tBSplineGeometry->get_dfield_dadvs(tNodeIndex, {{}}), tMatrix);
                                         check_equal(tBSplineGeometry->get_determining_adv_ids(tNodeIndex, {{}}), tIDs);
                                     }
                                 }
@@ -578,8 +578,8 @@ namespace moris
 
                 // Check sensitivities
                 check_equal(
-                        tStoredCircle->get_field_sensitivities(tNodeIndex, {{}}),
-                        tCircle->get_field_sensitivities(tNodeIndex, tNodeCoordinates));
+                        tStoredCircle->get_dfield_dadvs(tNodeIndex, {{}}),
+                        tCircle->get_dfield_dadvs(tNodeIndex, tNodeCoordinates));
                 check_equal(
                         tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                         tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
@@ -602,8 +602,8 @@ namespace moris
 
                 // Check sensitivities
                 check_equal(
-                        tStoredCircle->get_field_sensitivities(tNodeIndex, {{}}),
-                        tCircle->get_field_sensitivities(tNodeIndex, tNodeCoordinates));
+                        tStoredCircle->get_dfield_dadvs(tNodeIndex, {{}}),
+                        tCircle->get_dfield_dadvs(tNodeIndex, tNodeCoordinates));
                 check_equal(
                         tStoredCircle->get_determining_adv_ids(tNodeIndex, {{}}),
                         tCircle->get_determining_adv_ids(tNodeIndex, tNodeCoordinates));
@@ -656,9 +656,9 @@ namespace moris
             CHECK(tMultigeometry->get_field_value(0, tCoordinates2) == Approx(0.0));
 
             // Check sensitivity values TODO determining IDs
-            check_equal(tMultigeometry->get_field_sensitivities(0, tCoordinates0), {{0.0, 1.0, -1.0}});
-            check_equal(tMultigeometry->get_field_sensitivities(0, tCoordinates1), {{-sqrt(2.0) / 2.0, sqrt(2.0) / 2.0, -1.0}});
-            check_equal(tMultigeometry->get_field_sensitivities(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
+            check_equal(tMultigeometry->get_dfield_dadvs(0, tCoordinates0), {{0.0, 1.0, -1.0}});
+            check_equal(tMultigeometry->get_dfield_dadvs(0, tCoordinates1), {{-sqrt(2.0) / 2.0, sqrt(2.0) / 2.0, -1.0}});
+            check_equal(tMultigeometry->get_dfield_dadvs(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
 
             // Change ADVs and coordinates
             tADVs(0) = 1.0;
@@ -677,9 +677,9 @@ namespace moris
             CHECK(tMultigeometry->get_field_value(0, tCoordinates2) == Approx(0.0));
 
             // Check sensitivity values
-            check_equal(tMultigeometry->get_field_sensitivities(0, tCoordinates0), {{0.0, 1.0, -1.0}});
-            check_equal(tMultigeometry->get_field_sensitivities(0, tCoordinates1), {{-2.0 / sqrt(5.0), 1.0 / sqrt(5.0), -1.0}});
-            check_equal(tMultigeometry->get_field_sensitivities(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
+            check_equal(tMultigeometry->get_dfield_dadvs(0, tCoordinates0), {{0.0, 1.0, -1.0}});
+            check_equal(tMultigeometry->get_dfield_dadvs(0, tCoordinates1), {{-2.0 / sqrt(5.0), 1.0 / sqrt(5.0), -1.0}});
+            check_equal(tMultigeometry->get_dfield_dadvs(0, tCoordinates2), {{-1.0, 0.0, -1.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------

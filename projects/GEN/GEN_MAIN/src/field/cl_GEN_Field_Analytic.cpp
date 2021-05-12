@@ -22,11 +22,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Field_Analytic::get_field_sensitivities(
+        const Matrix<DDRMat>& Field_Analytic::get_dfield_dadvs(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
-            return this->get_field_sensitivities(aCoordinates);
+            return this->get_dfield_dadvs(aCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Field_Analytic::get_dfield_dcoordinates(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            this->get_dfield_dcoordinates(aCoordinates, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------

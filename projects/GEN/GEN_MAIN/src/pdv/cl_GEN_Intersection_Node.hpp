@@ -17,6 +17,7 @@ namespace moris
             bool mIsIntersected;
             std::weak_ptr<Geometry> mInterfaceGeometry;
             real mIsocontourThreshold;
+            Matrix<DDRMat> mParentVector;
 
         private:
             std::shared_ptr<Intersection_Node> mFirstParentNode;
@@ -118,7 +119,7 @@ namespace moris
              *
              * @return Global coordinates
              */
-            Matrix<DDRMat> get_global_coordinates();
+            const Matrix<DDRMat>& get_global_coordinates();
 
             /**
              * Get the value of a coordinate of this node
@@ -183,9 +184,26 @@ namespace moris
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
              *
+             * @param aAncestorIndex Ancestor index
              * @return Local coordinate sensitivity
              */
-            virtual real get_dcoordinate_dfield_from_ancestor(uint aAncestorIndex) = 0;
+            virtual real get_dxi_dfield_from_ancestor(uint aAncestorIndex) = 0;
+
+            /**
+             * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+             * coordinate values of its first parent.
+             *
+             * @return Local coordinate sensitivity
+             */
+            virtual Matrix<DDRMat> get_dxi_dcoordinate_first_parent() = 0;
+
+            /**
+             * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+             * coordinate values of its second parent.
+             *
+             * @return Local coordinate sensitivity
+             */
+            virtual Matrix<DDRMat> get_dxi_dcoordinate_second_parent() = 0;
 
             /**
              * Function for appending to the coordinate sensitivities member variable, eliminating duplicate code

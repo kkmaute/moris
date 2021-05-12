@@ -75,7 +75,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex);
+            const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -84,7 +84,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
 
             /**
              * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.

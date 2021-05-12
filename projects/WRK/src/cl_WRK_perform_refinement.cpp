@@ -114,10 +114,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Refinement_Mini_Performer::perform_refinement_low_level_elements(
+        uint Refinement_Mini_Performer::perform_refinement_low_level_elements(
                 Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
+            uint tNumQueuedElements = 0;
+
             // create field name to index map
             moris::map< std::string, moris_index >   tFieldNameToIndexMap;
 
@@ -142,7 +144,7 @@ namespace moris
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
 
-                uint tNumQueuedElements = 0;
+
 
                 for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
                 {
@@ -163,6 +165,8 @@ namespace moris
                 aHMR->perform_refinement( tActivationPattern );
                 aHMR->update_refinement_pattern( tActivationPattern );
             }
+
+            return tNumQueuedElements;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -280,7 +284,7 @@ namespace moris
             {
                 sint tMeshIndex = tMeshIndices( Ii );
 
-                while ( true )
+                while ( false )
                 {
                     // Create mesh //FIXME
                     std::shared_ptr<hmr::Mesh> tMesh = aHMR->create_mesh( tMeshIndex );

@@ -52,12 +52,12 @@ namespace moris
                 tFirstParentGlobalCoordinates += tFirstParentBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
                 tSecondParentGlobalCoordinates += tSecondParentBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
             }
+            mParentVector = trans(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
 
             // Parents on interface
             real tFirstParentPhi = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex, tFirstParentGlobalCoordinates);
             real tSecondParentPhi = aInterfaceGeometry->get_field_value(aSecondParentNodeIndex, tSecondParentGlobalCoordinates);
-
-            real tParentLength = norm(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
+            real tParentLength = norm(mParentVector);
             mFirstParentOnInterface = std::abs(tFirstParentPhi) < aIsocontourTolerance or
                     0.5 * tParentLength * std::abs(1 + aLocalCoordinate) < aIntersectionTolerance;
             mSecondParentOnInterface = std::abs(tSecondParentPhi) < aIsocontourTolerance or
@@ -71,7 +71,6 @@ namespace moris
             {
                 mIsIntersected = (std::abs(mLocalCoordinate) <= 1.0);
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -89,13 +88,13 @@ namespace moris
             for (uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++)
             {
                 // Get geometry field sensitivity with respect to ADVs
-                const Matrix<DDRMat>& tFieldSensitivities = tLockedInterfaceGeometry->get_field_sensitivities(
+                const Matrix<DDRMat>& tFieldSensitivities = tLockedInterfaceGeometry->get_dfield_dadvs(
                         mAncestorNodeIndices(tAncestorNode),
                         mAncestorNodeCoordinates(tAncestorNode));
 
                 // Ancestor sensitivities
-                tSensitivitiesToAdd = 0.5 * this->get_dcoordinate_dfield_from_ancestor(tAncestorNode) *
-                        trans( mAncestorNodeCoordinates(1) - mAncestorNodeCoordinates(0) ) * tFieldSensitivities;
+                tSensitivitiesToAdd = 0.5 * this->get_dxi_dfield_from_ancestor(tAncestorNode) *
+                        mParentVector * tFieldSensitivities;
 
                 // Join sensitivities
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
@@ -104,14 +103,16 @@ namespace moris
             // Add first parent sensitivities, if needed
             if (mFirstParentNode)
             {
-                tSensitivitiesToAdd = 0.5 * (1 - mLocalCoordinate) * mFirstParentNode->get_dcoordinate_dadv();
+                tSensitivitiesToAdd = 0.5 * ( Matrix<DDRMat>({{1 - mLocalCoordinate, 0}, {0, 1 - mLocalCoordinate}}) +
+                        mParentVector * this->get_dxi_dcoordinate_first_parent() ) * mFirstParentNode->get_dcoordinate_dadv();
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
             }
 
             // Add second parent sensitivities, if needed
             if (mSecondParentNode)
             {
-                tSensitivitiesToAdd = 0.5 * (1 + mLocalCoordinate) * mSecondParentNode->get_dcoordinate_dadv();
+                tSensitivitiesToAdd = 0.5 * ( Matrix<DDRMat>({{1 + mLocalCoordinate, 0}, {0, 1 + mLocalCoordinate}}) +
+                        mParentVector * this->get_dxi_dcoordinate_second_parent() ) * mSecondParentNode->get_dcoordinate_dadv();
                 this->join_coordinate_sensitivities(tSensitivitiesToAdd);
             }
 
@@ -185,7 +186,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Intersection_Node::get_global_coordinates()
+        const Matrix<DDRMat>& Intersection_Node::get_global_coordinates()
         {
             return mGlobalCoordinates;
         }

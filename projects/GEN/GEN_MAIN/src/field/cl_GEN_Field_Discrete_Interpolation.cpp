@@ -27,11 +27,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Field_Discrete_Interpolation::get_field_sensitivities(
+        const Matrix<DDRMat>& Field_Discrete_Interpolation::get_dfield_dadvs(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
-            return this->get_base_field_sensitivities( (this->*get_node_index)(aNodeIndex), aCoordinates );
+            return this->get_base_dfield_dadvs( (this->*get_node_index)(aNodeIndex), aCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -41,6 +41,16 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates)
         {
             return this->get_base_determining_adv_ids( (this->*get_node_index)(aNodeIndex), aCoordinates );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Field_Discrete_Interpolation::get_dfield_dcoordinates(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "A discrete interpolation field does not have spatial derivatives.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
