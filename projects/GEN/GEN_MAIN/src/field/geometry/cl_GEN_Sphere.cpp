@@ -36,7 +36,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Sphere::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Sphere::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -54,6 +54,15 @@ namespace moris
             mSensitivities(3) = -1;
 
             return mSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Sphere::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for sphere geometry.");
         }
 
         //--------------------------------------------------------------------------------------------------------------

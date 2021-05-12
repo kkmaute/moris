@@ -38,12 +38,12 @@ namespace moris
             real get_field_value(uint aNodeIndex);
 
             /**
-             * Given a node index or coordinate, returns a matrix of all sensitivities.
+             * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
              *
              * @param aNodeIndex Node index
-             * @return Matrix of sensitivities
+             * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_field_sensitivities(uint aNodeIndex);
+            const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations.

@@ -32,7 +32,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Circle::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        const Matrix<DDRMat>& Circle::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -46,6 +46,15 @@ namespace moris
             mSensitivities(2) = -1.0;
 
             return mSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Circle::get_dfield_dcoordinates(
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
+        {
+            MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for circle geometry.");
         }
 
         //--------------------------------------------------------------------------------------------------------------

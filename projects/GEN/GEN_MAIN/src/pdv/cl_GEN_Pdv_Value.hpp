@@ -36,7 +36,7 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Coordinate values
-             * @return Matrix of sensitivities to be returned
+             * @return Vector of sensitivities to be returned
              */
             Matrix<DDRMat> get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 

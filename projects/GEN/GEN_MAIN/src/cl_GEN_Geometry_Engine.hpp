@@ -164,7 +164,7 @@ namespace moris
             /**
              * Gets the sensitivities of the criteria with respect to the advs
              *
-             * @return Matrix of sensitivities
+             * @return Vector of sensitivities
              */
             Matrix<DDRMat> get_dcriteria_dadv();
 

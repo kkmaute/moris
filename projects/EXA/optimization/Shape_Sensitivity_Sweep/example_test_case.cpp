@@ -15,14 +15,14 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
 
 //---------------------------------------------------------------
 
-TEST_CASE("Shape_Sensitivity_Circle_Sweep",
+TEST_CASE("Shape_Sensitivity_Sweep",
         "[moris],[example],[optimization],[sweep]")
 {
     // define command line call
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Shape_Sensitivity_Circle_Sweep.so";
+    char tString2[] = "Shape_Sensitivity_Sweep.so";
 
     char * argv[2] = {tString1,tString2};
 

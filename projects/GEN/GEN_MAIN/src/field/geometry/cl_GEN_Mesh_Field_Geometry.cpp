@@ -29,9 +29,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Mesh_Field_Geometry::get_field_sensitivities(uint aNodeIndex)
+        const Matrix<DDRMat>& Mesh_Field_Geometry::get_dfield_dadvs(uint aNodeIndex)
         {
-            MORIS_ERROR(false, "get_field_sensitivities function is not implemented for a mesh field geometry.");
+            MORIS_ERROR(false, "get_dfield_dadvs function is not implemented for a mesh field geometry.");
             return mSensitivities;
         }
 

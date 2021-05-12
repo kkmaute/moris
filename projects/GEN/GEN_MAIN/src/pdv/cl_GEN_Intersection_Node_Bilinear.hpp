@@ -61,7 +61,23 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            real get_dcoordinate_dfield_from_ancestor(uint aAncestorIndex);
+            real get_dxi_dfield_from_ancestor(uint aAncestorIndex);
+
+            /**
+             * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+             * coordinate values of its first parent.
+             *
+             * @return Local coordinate sensitivity
+             */
+            Matrix<DDRMat> get_dxi_dcoordinate_first_parent();
+
+            /**
+             * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+             * coordinate values of its second parent.
+             *
+             * @return Local coordinate sensitivity
+             */
+            Matrix<DDRMat> get_dxi_dcoordinate_second_parent();
 
             /**
              * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.

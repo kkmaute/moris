@@ -16,12 +16,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Scaled_Field::get_base_field_sensitivities(
+        const Matrix<DDRMat>& Scaled_Field::get_base_dfield_dadvs(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             mSensitivities = *mFieldVariables(0) *
-                    mField->get_field_sensitivities(aNodeIndex, aCoordinates);
+                    mField->get_dfield_dadvs(aNodeIndex, aCoordinates);
             return mSensitivities;
         }
 
