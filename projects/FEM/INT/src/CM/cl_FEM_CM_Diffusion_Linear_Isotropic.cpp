@@ -98,7 +98,9 @@ namespace moris
                 const Matrix< DDRMat > & tGradTheta = tFITheta->gradx( 1 );
 
                 // add eigen strain contribution
-                mFlux += mPropConductivity->val()( 0 ) * tGradTheta / norm( tGradTheta );
+                mFlux += mPropConductivity->val()( 0 ) * tGradTheta / (norm( tGradTheta ) + MORIS_REAL_EPS);
+
+
             }
         }
 

@@ -135,10 +135,12 @@ namespace moris
                     }
                 }
             }
-
-            this->communicate_missing_owned_coefficients(
-                    tAllCoefIds,
-                    tAllCoefOwners );
+            if(par_size() > 1)
+            {
+                this->communicate_missing_owned_coefficients(
+                        tAllCoefIds,
+                        tAllCoefOwners );
+            }
 
             // resize list of owned nodes
             tOwnedNodeIDs.resize(tOwnedNodeCounter,1);

@@ -148,6 +148,7 @@ namespace moris
                 PRINCIPAL_STRESS,
 
                 HOMOGENIZED_CONSTITUTIVE,
+                HEAT_METHOD_PENALTY,
 
                 END_IQI_TYPE
         };

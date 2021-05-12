@@ -960,13 +960,16 @@ namespace moris
                         }
                     }
 
-                    this->communicate_missing_owned_coefficients(
-                            aMeshPair,
-                            tAllCoefIds,
-                            tAllCoefOwners,
-                            tNumCoeff,
-                            tFieldIndex,
-                            tDiscretizationMeshIndex);
+                    if(par_size() > 1)
+                    {
+                        this->communicate_missing_owned_coefficients(
+                                aMeshPair,
+                                tAllCoefIds,
+                                tAllCoefOwners,
+                                tNumCoeff,
+                                tFieldIndex,
+                                tDiscretizationMeshIndex);
+                    }
 
                     uint tOwnedCounter = 0;
                     uint tSharedCounter = 0;

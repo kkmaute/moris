@@ -199,6 +199,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error.hpp
+    IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
     IQI/cl_FEM_IQI_J_Integral.hpp
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
@@ -384,6 +385,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error.cpp
+    IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
     IQI/cl_FEM_IQI_J_Integral.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Volume_Fraction.cpp
