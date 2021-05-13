@@ -100,6 +100,7 @@ set(HEADERS
     SP/cl_FEM_SP_SUPG_Advection.hpp
     SP/cl_FEM_SP_GGLS_Diffusion.hpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
+    SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp
     SP/cl_FEM_SP_Pressure_Ghost.hpp
     SP/cl_FEM_SP_Incompressible_Flow.hpp
     SP/cl_FEM_SP_Viscous_Ghost.hpp
@@ -151,6 +152,8 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche.hpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
@@ -279,6 +282,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_SUPG_Advection.cpp
     SP/cl_FEM_SP_GGLS_Diffusion.cpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
+    SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.cpp
     SP/cl_FEM_SP_Pressure_Ghost.cpp
     SP/cl_FEM_SP_Incompressible_Flow.cpp
     SP/cl_FEM_SP_Viscous_Ghost.cpp
@@ -331,6 +335,8 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche.cpp
+    IWG/cl_FEM_IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp

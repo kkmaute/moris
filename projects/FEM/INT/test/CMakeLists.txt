@@ -73,6 +73,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
+    UT_FEM_IWG_Incompressible_NS_SlipBoundary_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_Interface_Nitsche.cpp
     
     UT_FEM_IWG_Compressible_NS_Bulk.cpp
