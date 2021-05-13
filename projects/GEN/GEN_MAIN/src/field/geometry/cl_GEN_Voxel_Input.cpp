@@ -54,15 +54,15 @@ namespace moris
                     aCoordinates( 1 ) - mDomainOffset( 2 ) >= 0.0,
                     "Voxel_Input::get_field_value_2d() - invalid domain dimensions; check offset.\n");
 
-            moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );
+            moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );   //K
             moris::uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
-            moris::uint tK = std::floor( ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / tVoxelSizeZ );
+            moris::uint tK = std::floor( ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / tVoxelSizeZ );   //I
 
             moris::real tEpsilon = 1E-12;
 
             if( aCoordinates( 0 ) >=  mDomainDimensions( 0 ) + mDomainOffset( 0  ) -tEpsilon )
             {
-                tI = mVoxelsInX-1;
+                tI = mVoxelsInX-1;  //K
             }
             if( aCoordinates( 1 ) >=  mDomainDimensions( 1 ) + mDomainOffset( 1 ) -tEpsilon )
             {
@@ -70,7 +70,7 @@ namespace moris
             }
             if( aCoordinates( 2 ) >=  mDomainDimensions( 2 ) + mDomainOffset( 2 ) -tEpsilon )
             {
-                tK = mVoxelsInZ-1;
+                tK = mVoxelsInZ-1;   //I
             }
 
             // mVoxelField columns are ordered - VoxelIndex - GainsId - I - J - K
@@ -177,12 +177,12 @@ namespace moris
             mNumGrainInd = mVoxelField.get_column( 1 ).max();
 
             // Voxel indices start with 1
-            mVoxelsInX   = mVoxelField.get_column( 2 ).max() + 1;
+            mVoxelsInZ   = mVoxelField.get_column( 2 ).max() + 1;
             mVoxelsInY   = mVoxelField.get_column( 3 ).max() + 1;
 
             if (tNumSpaceDim == 3)
             {
-                mVoxelsInZ   = mVoxelField.get_column( 4 ).max() + 1;
+                mVoxelsInX   = mVoxelField.get_column( 4 ).max() + 1;
             }
         }
 
