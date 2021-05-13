@@ -51,7 +51,7 @@ namespace moris
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                        DIRICHLET_NITSCHE,
+                        VELOCITY_DIRICHLET_NITSCHE,
                         MAX_ENUM
                 };
 
