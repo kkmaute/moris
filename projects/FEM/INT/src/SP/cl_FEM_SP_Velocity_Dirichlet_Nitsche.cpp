@@ -101,11 +101,17 @@ namespace moris
             // get the viscosity and density property
             const std::shared_ptr< Property > & tPropViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+
             const std::shared_ptr< Property > & tPropDensity   =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
+            // check that properties are set
+            MORIS_ASSERT( tPropViscosity and tPropDensity,
+                    "SP_Velocity_Dirichlet_Nitsche::eval_SP - Viscosity and density need to be defined.\n");
+
             // compute infinity norm of u
             real tInfinityNorm = std::abs( tFIVelocity->val()( 0 ) );
+
             for( uint iDim = 0; iDim < mSpaceDim; iDim++ )
             {
                 real tAbsVelocity = std::abs( tFIVelocity->val()( iDim ) );
@@ -214,5 +220,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
