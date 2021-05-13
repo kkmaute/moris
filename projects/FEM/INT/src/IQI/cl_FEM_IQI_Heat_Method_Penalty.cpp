@@ -71,7 +71,7 @@ namespace moris
             aQI.fill(0.0);
 
             // Compute phi tilde
-            moris::real tPhiTilde = 2/(1+std::exp(-2*tFI->val()(0)/mPhiBound)) - 1 * mPhiBound;
+            moris::real tPhiTilde = (2/(1+std::exp(-2*tFI->val()(0)/mPhiBound)) - 1) * mPhiBound;
 
             // Compute alpha
             moris::real tAlpha = std::exp((-mGammaPerimReg) * std::pow(tPhiTilde / mPhiBound,2));
