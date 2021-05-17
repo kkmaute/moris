@@ -743,7 +743,7 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = tInterpolationMesh->get_HMR_database();
 
             // grab orders of meshes
-            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
+/*            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
             uint tOrder = tDiscreteField->get_discretization_order();
 
             // get order of Union Mesh
@@ -818,6 +818,7 @@ namespace moris
 
                 return;
             }
+*/
 
             //---------------------------------------------------------
 
