@@ -66,7 +66,8 @@ namespace moris
 
                 // Parameters from Markus,Coco paper
                 real mPhiBound;
-                real mGammaPerimReg;
+                real mPhiGamma;
+                real mPhiGradient;
                 real mWeightPhi1;
                 real mWeightPhi2;
                 real mWeightDelPhi1;
