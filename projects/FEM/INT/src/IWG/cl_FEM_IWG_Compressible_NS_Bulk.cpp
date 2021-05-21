@@ -134,16 +134,8 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // debug - stabilization term without Tau for testing
-                // tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->LY();
-
-                // debug - test Tau
-                uint tNumStateVars = tNumSpaceDims + 2;
-                Matrix< DDRMat > tVR( tNumStateVars, 1, 1.3 );
-                tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->Tau() * tVR;
-
                 // GLS stabilization term
-                // tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
+                tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
             }           
 
             // check for nan, infinity
@@ -229,20 +221,10 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // debug - stabilization term without Tau for testing
-                // tJac += aWStar * tSP->val()( 0 ) * ( 
-                //         this->dLdDofW( this->LY() ) + 
-                //         trans( this->LW() ) * ( this->LW() + this->dLdDofY() ) );
-
-                // debug - test Tau
-                uint tNumStateVars = tNumSpaceDims + 2;
-                Matrix< DDRMat > tVR( tNumStateVars, 1, 1.3 );
-                tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->dTaudY( tVR ) * this->W();
-
                 // GLS stabilization term
-                // tJac += aWStar * tSP->val()( 0 ) * (
-                //         trans( this->LW() ) * ( this->Tau() * this->dLdDofY() + this->dTaudY( this->LY() ) * this->W() ) +
-                //         this->dLdDofW( this->Tau() * this->LY() ) );
+                tJac += aWStar * tSP->val()( 0 ) * (
+                        trans( this->LW() ) * ( this->dTaudY( this->LY() ) * this->W() + this->Tau() * ( this->LW() + this->dLdDofY() ) ) +
+                        this->dLdDofW( this->Tau() * this->LY() ) );
             }
 
             // check for nan, infinity
