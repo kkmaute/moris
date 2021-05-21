@@ -39,13 +39,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 5.0E-3;
+    real tEpsilon = 1.0E-4;
 
     // numerical error due to finite differencing
     real tFDNumTol = 1.0e-8;
 
     // define a perturbation size
-    real tPerturbation = 1.0E-4;
+    real tPerturbation = 1.5E-2;
 
     // use absolute or relative perturbations for DoF deriv FD
     bool tUseAbsolutePerturbations = true;
@@ -129,7 +129,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     fem::SP_Factory tSPFactory;
     std::shared_ptr< fem::Stabilization_Parameter > tSP =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    tSP->set_parameters( { {{ 1000.0 }} });
+    tSP->set_parameters( { {{ 1.0 }} });
     tSP->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 
     // create a dummy fem cluster and set it to SP
