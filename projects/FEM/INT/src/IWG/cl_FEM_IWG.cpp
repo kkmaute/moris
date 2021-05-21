@@ -2453,8 +2453,17 @@ namespace moris
                 real               aWStar,
                 Matrix< DDRMat > & aJacobian,
                 Matrix< DDRMat > & aJacobianFD,
-                bool               aErrorPrint )
+                bool               aErrorPrint,
+                bool               aMaxErrorPrint,
+                moris::real        aFDtolerance,
+                bool               aUseAbsolutePerturbations )
         {
+            // check if FD tolerance is defined
+            if ( aFDtolerance < 0.0 )
+            {
+                aFDtolerance = aEpsilon;
+            }
+
             // get residual dof type index in set, start and end indices for residual dof type
             uint tNumResidualDofs     = mResidualDofType.size();
             uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -2532,6 +2541,10 @@ namespace moris
                         {
                             // compute the perturbation absolute value
                             real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                            if ( aUseAbsolutePerturbations )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
 
                             // check that perturbation is not zero
                             if( std::abs( tDeltaH ) < 1e-12 )
@@ -2597,9 +2610,11 @@ namespace moris
 
             // define a real for absolute difference
             real tAbsolute = 0.0;
+            real tMaxAbsolute = 0.0;
 
             // define a real for relative difference
             real tRelative = 0.0;
+            real tMaxRelative = 0.0;
 
             for( uint iiJac = 0; iiJac < aJacobian.n_rows(); iiJac++ )
             {
@@ -2607,15 +2622,20 @@ namespace moris
                 {
                     // get absolute difference
                     tAbsolute = std::abs( aJacobian( iiJac, jjJac ) - aJacobianFD( iiJac, jjJac ) );
+                    tMaxAbsolute = std::max( tAbsolute, tMaxAbsolute);
 
                     // get relative difference
                     tRelative = std::abs( ( aJacobianFD( iiJac, jjJac ) - aJacobian( iiJac, jjJac ) ) / aJacobianFD( iiJac, jjJac ) );
+                    if ( tAbsolute > aFDtolerance )
+                    {
+                        tMaxRelative = std::max( tRelative, tMaxRelative);
+                    }
 
                     // update check value
-                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+                    tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aFDtolerance ) || ( tRelative < aEpsilon ) );
 
                     // debug print
-                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    if( ( ( tAbsolute < aFDtolerance ) || ( tRelative < aEpsilon ) ) == false )
                     {
                         if( aErrorPrint )
                         {
@@ -2627,6 +2647,13 @@ namespace moris
                         }
                     }
                 }
+            }
+
+            // print maximum difference
+            if( aMaxErrorPrint )
+            {
+                std::cout << "Maximum absolute difference " << tMaxAbsolute << "\n" << std::flush;
+                std::cout << "Maximum relative difference " << tMaxRelative << "\n" << std::flush;
             }
 
             // return bool

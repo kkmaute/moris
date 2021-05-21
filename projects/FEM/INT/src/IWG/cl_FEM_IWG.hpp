@@ -729,7 +729,10 @@ namespace moris
                         real               aWStar,
                         Matrix< DDRMat > & aJacobians,
                         Matrix< DDRMat > & aJacobiansFD,
-                        bool               aErrorPrint = false );                        
+                        bool               aErrorPrint = false,  
+                        bool               aMaxErrorPrint = false,
+                        moris::real        aFDtolerance = -1.0,
+                        bool               aUseAbsolutePerturbations = false );                        
 
                 //------------------------------------------------------------------------------
                 /**
