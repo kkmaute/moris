@@ -38,6 +38,8 @@
 #include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
@@ -201,6 +203,18 @@ namespace moris
 
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( -1 );
+
+                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche >( 1 );
+
+                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche >( -1 );
+
+                case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche >( 1 );
+
+                case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche >( -1 );
 
                 case IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();

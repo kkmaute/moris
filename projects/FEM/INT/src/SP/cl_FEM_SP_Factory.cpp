@@ -12,6 +12,7 @@
 #include "cl_FEM_SP_Pressure_Ghost.hpp"
 #include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
 #include "cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp"
 #include "cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_Compressible_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_SUPG_Advection.hpp"
@@ -22,6 +23,7 @@
 #include "cl_FEM_SP_Penalty_Contact.hpp"
 #include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
 #include "cl_FEM_SP_Measure.hpp"
+
 
 namespace moris
 {
@@ -70,6 +72,9 @@ namespace moris
                 case fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Velocity_Dirichlet_Nitsche >();
 
+                case fem::Stabilization_Type::VELOCITY_SLIPBOUNDARY_NITSCHE :
+                    return std::make_shared< SP_Velocity_SlipBoundary_Nitsche >();
+
                 case fem::Stabilization_Type::COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Compressible_Velocity_Dirichlet_Nitsche >();
 
@@ -95,7 +100,7 @@ namespace moris
                     return std::make_shared< SP_Stab_Penalty_Contact >();
 
                 case fem::Stabilization_Type::MEASURE :
-                	return std::make_shared< SP_Measure >();
+                    return std::make_shared< SP_Measure >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

@@ -743,7 +743,7 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = tInterpolationMesh->get_HMR_database();
 
             // grab orders of meshes
-            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
+/*            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
             uint tOrder = tDiscreteField->get_discretization_order();
 
             // get order of Union Mesh
@@ -758,66 +758,67 @@ namespace moris
             {
 
             }
-//            else
-//            {
-//                // create union mesh. Bspline order will not be used
-//                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-//                        tHMRDatabase,
-//                        tOrder,
-//                        tSourcePattern,
-//                        tOrder,
-//                        tPattern); // order, Lagrange pattern, bspline order, bspline pattern
-//
-//                mtk::Mesh_Pair tMeshPairHigherOrder(tHigherOrderInterpolationMesh, nullptr, true);
-//
-//                mtk::Field_Discrete tFieldHigerOrder( tMeshPairHigherOrder, 0 );
-//
-//                //--------------------------------------------------
-//
-//                uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
-//
-//                // create union pattern
-//                tHMRDatabase->create_union_pattern(
-//                        tSourcePattern,
-//                        tSourcePattern,
-//                        tUnionPattern );
-//
-//                // create union mesh
-//                hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-//                        tHMRDatabase,
-//                        tOrder,
-//                        tUnionPattern,
-//                        tOrder,
-//                        tPattern); // order, Lagrange pattern, bspline pattern
-//
-//                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-//                hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
-//                        tOrder,
-//                        tUnionPattern,
-//                        tUnionInterpolationMesh);
-//
-//                mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh, true);
-//
-//                mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
-//
-//                tFieldUnion.unlock_field();
-//                tFieldUnion.set_coefficients( tDiscreteField->get_coefficients() );
-//
-//                // project field to union
-//                this->perform_mapping(
-//                        &tFieldUnion,
-//                        EntityRank::BSPLINE,
-//                        EntityRank::NODE);
-//
-//                //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
-//
-//                tFieldHigerOrder.unlock_field();
-//                tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
-//
-//                this->change_field_order( &tFieldHigerOrder, tDiscreteField );
-//
-//                return;
-//            }
+            else
+            {
+                // create union mesh. Bspline order will not be used
+                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tOrder,
+                        tSourcePattern,
+                        tOrder,
+                        tPattern); // order, Lagrange pattern, bspline order, bspline pattern
+
+                mtk::Mesh_Pair tMeshPairHigherOrder(tHigherOrderInterpolationMesh, nullptr, true);
+
+                mtk::Field_Discrete tFieldHigerOrder( tMeshPairHigherOrder, 0 );
+
+                //--------------------------------------------------
+
+                uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+
+                // create union pattern
+                tHMRDatabase->create_union_pattern(
+                        tSourcePattern,
+                        tSourcePattern,
+                        tUnionPattern );
+
+                // create union mesh
+                hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRDatabase,
+                        tOrder,
+                        tUnionPattern,
+                        tOrder,
+                        tPattern); // order, Lagrange pattern, bspline pattern
+
+                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                        tOrder,
+                        tUnionPattern,
+                        tUnionInterpolationMesh);
+
+                mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh, true);
+
+                mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
+
+                tFieldUnion.unlock_field();
+                tFieldUnion.set_coefficients( tDiscreteField->get_coefficients() );
+
+                // project field to union
+                this->perform_mapping(
+                        &tFieldUnion,
+                        EntityRank::BSPLINE,
+                        EntityRank::NODE);
+
+                //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
+
+                tFieldHigerOrder.unlock_field();
+                tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
+
+                this->change_field_order( &tFieldHigerOrder, tDiscreteField );
+
+                return;
+            }
+*/
 
             //---------------------------------------------------------
 

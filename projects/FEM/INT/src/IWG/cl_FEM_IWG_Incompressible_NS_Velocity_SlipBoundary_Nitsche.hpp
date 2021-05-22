@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
+ * cl_FEM_IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche.hpp
  *
- *  Created on: Mar 25, 2020
- *      Author: noel
+ *  Created on: April 29, 2021
+ *      Author: maute
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE_HPP_
-#define SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_NITSCHE_HPP_
+#define SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_NITSCHE_HPP_
 
 #include <map>
 //MRS/COR/src
@@ -24,7 +24,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche : public IWG
+        class IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche : public IWG
         {
 
                 //------------------------------------------------------------------------------
@@ -36,8 +36,8 @@ namespace moris
                 enum class IWG_Property_Type
                 {
                         DIRICHLET,
-                        SELECT,
-                        UPWIND,
+                        SLIPLENGTH,
+                        TRACTION,
                         MAX_ENUM
                 };
 
@@ -51,7 +51,7 @@ namespace moris
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                        VELOCITY_DIRICHLET_NITSCHE,
+                        VELOCITY_SPLIPLENGTH_NITSCHE,
                         MAX_ENUM
                 };
 
@@ -59,13 +59,13 @@ namespace moris
                 /*
                  *  constructor
                  */
-                IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche( sint aBeta );
+                IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche(){};
+                ~IWG_Incompressible_NS_Velocity_SlipBoundary_Nitsche(){};
 
                 //------------------------------------------------------------------------------
                 /**

@@ -244,6 +244,13 @@ namespace moris
             // update eval flag
             mdMdYEval = false;
 
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // initialize cell for storage
+            Matrix< DDRMat > tZeroMatrix( tNumStateVars, tNumStateVars, 0.0 );
+            mdMdY.assign( tNumStateVars, tZeroMatrix );
+
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
@@ -251,13 +258,6 @@ namespace moris
             // get the properties
             std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
             std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
-
-            // get number of state variables
-            uint tNumStateVars = this->num_space_dims() + 2;
-
-            // initialize cell for storage
-            Matrix< DDRMat > tZeroMatrix( tNumStateVars, tNumStateVars, 0.0 );
-            mdMdY.assign( tNumStateVars, tZeroMatrix );
 
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )

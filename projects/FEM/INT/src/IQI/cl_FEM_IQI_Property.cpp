@@ -22,7 +22,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "Property" ] = static_cast< uint >( IQI_Property_Type::PROPERTY );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Property::compute_QI( Matrix< DDRMat > & aQI )
@@ -30,8 +30,11 @@ namespace moris
             // get property index
             uint tPropertyIndex = static_cast< uint >( IQI_Property_Type::PROPERTY );
 
+            // get index of property if defined; otherwise set to 0
+            uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
+
             // evaluate the QI
-            aQI = mMasterProp( tPropertyIndex )->val();
+            aQI = mMasterProp( tPropertyIndex )->val()(tTypeIndex);
         }
 
         //------------------------------------------------------------------------------
@@ -45,8 +48,11 @@ namespace moris
             std::shared_ptr< Property > & tProperty =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
+            // get index of property if defined; otherwise set to 0
+            uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
+
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * ( tProperty->val() );
+            mSet->get_QI()( tQIIndex ) += aWStar * ( tProperty->val()(tTypeIndex) );
         }
 
         //------------------------------------------------------------------------------
@@ -77,10 +83,20 @@ namespace moris
                 // if property depends on dof type
                 if ( tProperty->check_dof_dependency( tDofType ) )
                 {
+                    // get index of property if defined; otherwise set to 0
+                    uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
+
+                    // build selection matrix
+                    uint tNumVecFieldComps = tProperty->val().numel();
+
+                    Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
+
+                    tSelect( tTypeIndex, 0 ) = 1.0;
+
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
-                            { tMasterDepStartIndex, tMasterDepStopIndex },
-                            { 0, 0 } ) += aWStar * trans( tProperty->dPropdDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                    aWStar * trans( tProperty->dPropdDOF( tDofType ) * tSelect );
                 }
             }
         }

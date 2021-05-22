@@ -39,7 +39,7 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
         }
 
         //------------------------------------------------------------------------------
@@ -93,7 +93,11 @@ namespace moris
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
+
+            // check that prescribed velocity parameter is defined
+            MORIS_ASSERT( tPropVelocity,
+                    "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_residual - Prescribed velocity not defined.\n");
 
             // compute the jump
             const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
@@ -154,7 +158,7 @@ namespace moris
             if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tFIVelocity->get_dof_type().size();
+                const uint tSpaceDim = tFIVelocity->get_dof_type().size();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -178,7 +182,7 @@ namespace moris
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
 
             // compute the jump
             const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
@@ -190,7 +194,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
