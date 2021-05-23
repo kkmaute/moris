@@ -35,6 +35,7 @@ using namespace fem;
 TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive]" )
 {
+    
     // FD configuration
     //------------------------------------------------------------------------------
 
