@@ -738,7 +738,6 @@ namespace moris
                 std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternListUniqueMat( Ik ) ) + "_Elements";
 
                 // allocate pattern
-                Matrix< DDLUMat > tBSplineElements;
                 load_matrix_from_hdf5_file( mFileID,
                         tSubsectionStr,
                         tPatternElement( Ik ),
