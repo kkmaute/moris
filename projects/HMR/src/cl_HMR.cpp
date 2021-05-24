@@ -78,6 +78,8 @@ namespace moris
         : HMR( new Parameters( aParameterList, aLibrary ) )
         {
             mDatabase->set_parameter_owning_flag();
+
+            this->load_refinement_from_file();
         }
 
         // -----------------------------------------------------------------------------
@@ -257,6 +259,17 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        void HMR::load_refinement_from_file()
+        {
+            if( not mParameters->get_restart_refinement_pattern_file().empty() )
+            {
+                // load refinement pattern from file. 2nd argument is just dummy for now.
+                mDatabase->load_pattern_from_hdf5_file( mParameters->get_restart_refinement_pattern_file(), true );
+            }
+        }
+
+        // -----------------------------------------------------------------------------
+
         bool HMR::get_mesh_name_exists( const std::string & aName ) const
         {
             return mParameters->get_mesh_name_exists( aName );
@@ -400,7 +413,7 @@ namespace moris
 
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
             +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel
