@@ -157,6 +157,8 @@ namespace moris
         {
             this->finalize();
 
+            this->output_mesh_refinement_data();
+
             const Cell< Matrix< DDUMat > > & OutputMeshIndex = mParameters->get_output_mesh();
 
             MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
@@ -194,6 +196,63 @@ namespace moris
                     mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( Ik+1 ) );
                 }
             }
+        }
+
+        // -----------------------------------------------------------------------------
+
+        void HMR::output_mesh_refinement_data()
+        {
+            // get all lagrange and bspline pattern
+            moris::Matrix< DDUMat > tLagrangePatter = mParameters->get_lagrange_patterns();
+            moris::Matrix< DDUMat > tBSplinePatter = mParameters->get_bspline_patterns();
+
+            uint tNumLagPattern = tLagrangePatter.numel();
+            uint tNumBSPattern = tBSplinePatter.numel();
+
+            // make pattern unique
+            moris::Cell< uint > tPatternList( tNumLagPattern + tNumBSPattern );
+
+            for( uint Ik = 0; Ik < tNumLagPattern; Ik ++)
+            {
+                tPatternList( Ik ) = tLagrangePatter( Ik );
+            }
+            for( uint Ik = 0; Ik < tNumBSPattern; Ik ++)
+            {
+                tPatternList( Ik + tNumLagPattern ) = tBSplinePatter( Ik );
+            }
+
+            std::sort( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
+
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
+            auto last = std::unique( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
+            auto pos  = std::distance( ( tPatternList.data() ).data(), last );
+
+            tPatternList.resize( pos );
+            uint tNumUniquePattern = tPatternList.size();
+            moris::Matrix< DDUMat >tPatternListUniqueMat( tNumUniquePattern, 1, MORIS_UINT_MAX );
+
+            // Copy unique list in Mat
+            for( uint Ik = 0; Ik < tPatternList.size(); Ik++ )
+            {
+                tPatternListUniqueMat( Ik ) = tPatternList( Ik );
+            }
+
+            // Get iteration from global clock
+            uint tOptIter = gLogger.get_opt_iteration();
+
+            hmr::File tHDF5;
+
+            // create file on disk
+            tHDF5.create(
+                    "HMR_Background_Refinement_Iter_" +
+                    std::to_string( tOptIter ) +
+                    ".hdf5" );
+
+            tHDF5.save_refinement_pattern(
+                    mDatabase->get_background_mesh(),
+                    tPatternListUniqueMat );
+
+            tHDF5.close();
         }
 
         // -----------------------------------------------------------------------------
