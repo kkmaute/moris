@@ -46,7 +46,7 @@ namespace moris
              */
             void perform();
 
-            void restart_with_remesh(
+            void reinitialize(
                     uint aI,
                     uint aOptIteration );
 
