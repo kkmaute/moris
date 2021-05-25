@@ -112,18 +112,23 @@ namespace moris
 
                 //mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
 
-                // uniform initial refinement
-                mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
+                if( not mPerformerManager->mHMRPerformer( 0 )->get_restarted_from_file() )
+                {
 
-                // HMR refined by GE
-                Refinement_Mini_Performer tRefinementPerfomer;
+                    // uniform initial refinement
+                    mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
-                // GEN interface performer 
-                std::shared_ptr<Performer> tGenPerformer = std::make_shared<wrk::Gen_Performer>(mPerformerManager->mGENPerformer( 0 ));
+                    // HMR refined by GE
+                    Refinement_Mini_Performer tRefinementPerfomer;
 
-                //mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
+                    // GEN interface performer
+                    std::shared_ptr<Performer> tGenPerformer =
+                            std::make_shared<wrk::Gen_Performer>(mPerformerManager->mGENPerformer( 0 ));
 
-                tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {tGenPerformer});
+                    //mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
+
+                    tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {tGenPerformer});
+                }
 
                 // HMR finalize
                 mPerformerManager->mHMRPerformer( 0 )->perform();
