@@ -240,7 +240,10 @@ namespace moris
             }
 
             // Get iteration from global clock
-            uint tOptIter = gLogger.get_opt_iteration();
+            uint tOptIter = gLogger.get_iteration(
+                    "OptimizationManager",
+                    LOGGER_ARBITRARY_DESCRIPTOR,
+                    LOGGER_ARBITRARY_DESCRIPTOR);
 
             hmr::File tHDF5;
 
@@ -265,6 +268,12 @@ namespace moris
             {
                 // load refinement pattern from file. 2nd argument is just dummy for now.
                 mDatabase->load_pattern_from_hdf5_file( mParameters->get_restart_refinement_pattern_file(), true );
+
+                // update database
+                mDatabase->update_bspline_meshes();
+                mDatabase->update_lagrange_meshes();
+
+                mRestartedFromFile = true;
             }
         }
 
