@@ -95,7 +95,7 @@ namespace moris
             tRes -= trans( this->W() ) * this->select_matrix() * this->Traction();
 
             // adjoint term
-            tRes -= mBeta * this->TestTraction() * this->select_matrix() * this->jump();
+            tRes -= mBeta * this->TestTraction() * this->jump();
 
             // get number of spatial dimensions
             uint tNumSpaceDims = this->num_space_dims();
@@ -115,7 +115,7 @@ namespace moris
                 }
 
                 // add contribution
-                tRes += trans( this->W() ) * tDiagSP * this->select_matrix() * this->jump();
+                tRes += trans( this->W() ) * tDiagSP * this->jump();
             }
 
             // get the upwind property
@@ -132,7 +132,7 @@ namespace moris
                 }
 
                 // add contribution
-                tRes -= tPropUpwind->val()( 0 ) * trans( this->W() ) * this->select_matrix() * tAini * this->jump();
+                tRes -= tPropUpwind->val()( 0 ) * trans( this->W() ) * tAini * this->jump();
             }
 
             // check for nan, infinity
@@ -175,8 +175,8 @@ namespace moris
             tJac -= trans( this->W() ) * this->select_matrix() * this->dTractiondDOF();
 
             // adjoint term
-            tJac -= mBeta * this->TestTraction() * this->select_matrix() * this->dJumpdDOF();
-            tJac -= mBeta * this->dTestTractiondDOF( this->select_matrix() * this->jump() );
+            tJac -= mBeta * this->TestTraction() * this->dJumpdDOF();
+            tJac -= mBeta * this->dTestTractiondDOF( this->jump() );
 
             // get number of space dimensions
             uint tNumSpaceDims = num_space_dims();
@@ -196,7 +196,7 @@ namespace moris
                 }
 
                 // add contribution
-                tJac += trans( this->W() ) * tDiagSP * this->select_matrix() * this->dJumpdDOF();
+                tJac += trans( this->W() ) * tDiagSP * this->dJumpdDOF();
 
                 // FIXME: assuming no dependency of the penalty paramter on the dof types
             }
@@ -221,7 +221,7 @@ namespace moris
                     Matrix< DDRMat > tdAdDof_Jump = tdAdY_Jump * this->W();
 
                     // add contribution
-                    tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * trans( this->W() ) * this->select_matrix() * ( 
+                    tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * trans( this->W() ) * ( 
                             this->A( iDim + 1 ) * this->dJumpdDOF() + tdAdDof_Jump );
                 }
             }
