@@ -44,6 +44,8 @@ namespace moris
                 bool mPerformRefinementCalled = false;
                 bool mUpdateRefinementCalled  = false;
 
+                bool mRestartedFromFile = false;
+
                 //! mesh which points to input pattern
                 Cell< std::shared_ptr< Mesh > > mMeshes;
                 Cell< std::shared_ptr< Mesh > > mInputMeshes;
@@ -479,6 +481,14 @@ namespace moris
                 bool get_mesh_name_exists( const std::string & aName ) const;
 
                 // -----------------------------------------------------------------------------
+
+                void load_refinement_from_file();
+
+                // -----------------------------------------------------------------------------
+
+                void output_mesh_refinement_data();
+
+                // -----------------------------------------------------------------------------
                 // Debug files
                 // -----------------------------------------------------------------------------
 
@@ -544,6 +554,11 @@ namespace moris
                 void perform_initial_refinement();
 
                 // -----------------------------------------------------------------------------
+
+                bool get_restarted_from_file()
+                {
+                    return mRestartedFromFile;
+                };
 
         private:
 

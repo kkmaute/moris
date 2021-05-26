@@ -168,13 +168,7 @@ namespace moris
                 /**
                  * @brief set restart index
                  */
-                void set_restart_index( uint aRestartIndex )
-                {
-                    mRestartIndex = aRestartIndex;
-
-                    // calculating updated max its
-                    mMaxIterations = mMaxIterationsInitial - mRestartIndex;
-                }
+                void set_restart_index( uint aRestartIndex );
 
             private:
 

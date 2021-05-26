@@ -749,9 +749,9 @@ namespace moris
             // get order of Union Mesh
             //uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tOrder );
 
-            uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            //uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             //uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            uint tPattern = 0;
+            //uint tPattern = 0;
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tOrder )

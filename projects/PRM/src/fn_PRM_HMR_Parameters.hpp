@@ -97,11 +97,14 @@ namespace moris
         //! initial refinement level
         tParameterList.insert( "initial_refinement_pattern", "0" );
 
-        //! initial refinement level
+        //! label of background mesh output file
         tParameterList.insert( "write_background_mesh", std::string("") );
 
-        //! initial refinement level
+        //! label of lagrange mesh output file
         tParameterList.insert( "write_lagrange_output_mesh", std::string("") );
+
+        //! name of restart file
+        tParameterList.insert( "restart_refinement_pattern_file", std::string("") );
 
         //! add comment by the person who implemented this
         tParameterList.insert( "max_refinement_level", -1 );

@@ -3,6 +3,10 @@
 #include "fn_OPT_create_interface.hpp"
 #include "fn_OPT_create_algorithm.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 namespace moris
 {
     namespace opt
@@ -48,6 +52,9 @@ namespace moris
 
         void Manager::perform()
         {
+            // Trace optimization
+            Tracer tTracer( "OptimizationManager", "Perform" );
+
             // initialize the problem
             mProblem->initialize();
 
@@ -56,7 +63,7 @@ namespace moris
                 // solve the optimization problem based on the algorithm cell
                 uint tOptIteration = mAlgorithms(i)->solve(i, mProblem);
 
-                this->restart_with_remesh( i, tOptIteration );
+                this->reinitialize( i, tOptIteration );
 
                 // scale the solution of the optimization problem
                 mProblem->scale_solution();
@@ -68,19 +75,19 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Manager::restart_with_remesh(
+        void Manager::reinitialize(
                 uint aI,
                 uint aOptIteration )
         {
             if( mProblem->restart_optimization())
             {
-                mProblem->initialize();
-
                 mAlgorithms( aI )->set_restart_index( aOptIteration - 1 );
+
+                mProblem->initialize();
 
                 uint tOptIteration = mAlgorithms( aI )->solve( aI, mProblem );
 
-                this->restart_with_remesh( aI, tOptIteration );
+                this->reinitialize( aI, tOptIteration );
             }
         }
 

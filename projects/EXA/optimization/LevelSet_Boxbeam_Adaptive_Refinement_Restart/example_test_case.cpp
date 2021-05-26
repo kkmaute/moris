@@ -46,8 +46,8 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2};
-    Cell<uint> tReferenceNumNodes = {10477};
-    Cell<uint> tReferenceNumElems = {8178};
+    Cell<uint> tReferenceNumNodes = {13103};
+    Cell<uint> tReferenceNumElems = {10441};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -69,14 +69,40 @@ void check_results(
 
 //---------------------------------------------------------------
 
-TEST_CASE("Leveset Boxbeam Adaptive Refinement",
-        "[moris],[example],[optimization],[levelset_boxbeam_adaptive_refinement]")
+TEST_CASE("Leveset Boxbeam Create File",
+        "[moris],[example],[optimization],[levelset_boxbeam_create_file]")
 {
     // define command line call
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Adaptive_Refinement.so";
+    char tString2[] = "Levelset_Boxbeam_Create_File.so";
+
+    char * argv[2] = {tString1,tString2};
+
+    // call to performance manager main interface
+    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // catch test statements should follow
+    REQUIRE( tRet ==  0 );
+
+    // set test case index
+    uint tTestCaseIndex = 1;
+
+    // perform check for Test Case 0
+    //check_results("Levelset_Boxbeam_Adaptive_Refinement.exo.e-s.0015",tTestCaseIndex);
+}
+
+//---------------------------------------------------------------
+
+TEST_CASE("Leveset Boxbeam Restart",
+        "[moris],[example],[optimization],[levelset_boxbeam_restart]")
+{
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "Levelset_Boxbeam_Restart.so";
 
     char * argv[2] = {tString1,tString2};
 
@@ -90,7 +116,7 @@ TEST_CASE("Leveset Boxbeam Adaptive Refinement",
     uint tTestCaseIndex = 0;
 
     // perform check for Test Case 0
-    check_results("Levelset_Boxbeam_Adaptive_Refinement.exo.e-s.0015",tTestCaseIndex);
+    check_results("Levelset_Boxbeam_Restart.exo.e-s.0015",tTestCaseIndex);
 }
 
 

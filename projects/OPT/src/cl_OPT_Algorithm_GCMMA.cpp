@@ -81,6 +81,8 @@ uint OptAlgGCMMA::solve(
 
     uint tOptIter = gLogger.get_opt_iteration();
 
+    gLogger.set_iteration( "OptimizationManager", LOGGER_NON_SPECIFIC_ENTITY_TYPE, "Perform", tOptIter );
+
     return tOptIter;
 }
 
