@@ -29,7 +29,7 @@ void check_results(
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
-    if (true)
+    if (false)
     {
         std::cout << "Test case index: " << aTestCaseIndex << std::endl;
 
@@ -87,7 +87,7 @@ TEST_CASE("Leveset Boxbeam Adaptive Refinement",
     REQUIRE( tRet ==  0 );
 
     // set test case index
-    uint tTestCaseIndex = 1;
+    uint tTestCaseIndex = 0;
 
     // perform check for Test Case 0
     check_results("Levelset_Boxbeam_Adaptive_Refinement.exo.e-s.0015",tTestCaseIndex);

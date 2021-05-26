@@ -50,7 +50,7 @@ namespace moris
     real tWallThickness = 0.05;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "45,15,15"    : "60,20";
+    std::string tNumElementsPerDir = tIs3D ? "45,15,15"    : "30,10";
     std::string tDimensions        = tIs3D ? "3,1,1"       : "3,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
     std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
@@ -94,7 +94,7 @@ namespace moris
 
     real tMMAPenalty  = 5.0;
     real tMMAStepSize = 0.05;
-    int  tMMAMaxIter  = 12;
+    int  tMMAMaxIter  = 14;
 
     real tBsplineLimit  = tHoleRadius;
 
@@ -515,14 +515,14 @@ namespace moris
         tParameterlist(0)(0).set("is_optimization_problem", tIsOpt);
         tParameterlist(0)(0).set("problem", "user_defined");
         tParameterlist(0)(0).set( "library", tLibraryName );
-        tParameterlist(0)(0).set( "restart_file", "ADV_Alg_0_Iter_9.hdf5" );
+        tParameterlist(0)(0).set( "restart_file", "ADV_Alg_0_Iter_11.hdf5" );
         tParameterlist(0)(0).set( "reinitialize_interface_iter", 50 );
 
         tParameterlist(2)(0) = moris::prm::create_gcmma_parameter_list();
         tParameterlist(2)(0).set("step_size", tMMAStepSize);
         tParameterlist(2)(0).set("penalty"  , tMMAPenalty );
         tParameterlist(2)(0).set("max_its"  , tMMAMaxIter );   // Maximum number of iterations
-        tParameterlist(2)(0).set("restart_index", 9);
+        tParameterlist(2)(0).set("restart_index", 11);
 
     }
 
@@ -565,7 +565,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", true );
 
-        tParameterlist( 0 )( 0 ).set( "restart_refinement_pattern_file", "HMR_Background_Refinement_Iter_8.hdf5" );
+        tParameterlist( 0 )( 0 ).set( "restart_refinement_pattern_file", "HMR_Background_Refinement_Iter_10.hdf5" );
 
     }
 

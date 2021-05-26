@@ -50,7 +50,7 @@ namespace moris
     real tWallThickness = 0.05;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "45,15,15"    : "60,20";
+    std::string tNumElementsPerDir = tIs3D ? "45,15,15"    : "30,10";
     std::string tDimensions        = tIs3D ? "3,1,1"       : "3,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
     std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
@@ -58,11 +58,11 @@ namespace moris
     int tDispOrder           = 1;
 
     // Hole Seeding parameters
-    sint tNumHolesY = 3;
+    sint tNumHolesY = 2;
     sint tNumHolesZ = 1*tNumHolesY;
-    sint tNumHolesX = 2*tNumHolesY+1;
+    sint tNumHolesX = tNumHolesY+1;
 
-    real tHoleRadius   = tIs3D ? 0.2771/tNumHolesY : 0.2771/tNumHolesY;
+    real tHoleRadius   = tIs3D ? 0.4771/tNumHolesY : 0.4771/tNumHolesY;
     real tHoleExponent = 6.0;
     real tHoleScaling  = 1.0;
 
@@ -94,7 +94,7 @@ namespace moris
 
     real tMMAPenalty  = 5.0;
     real tMMAStepSize = 0.05;
-    int  tMMAMaxIter  = 9;
+    int  tMMAMaxIter  = 12;
 
     real tBsplineLimit  = tHoleRadius;
 
