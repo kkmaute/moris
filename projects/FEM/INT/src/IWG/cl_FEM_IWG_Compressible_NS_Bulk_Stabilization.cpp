@@ -435,13 +435,16 @@ namespace moris
             // set the eval flag
             mLYEval = false;  
 
-            // evaluate LY
+            // initialize LY with A0 term
             mLY = this->A( 0 ) * this->dYdt();
 
             // get subview for += operations
             auto tLY = mLY( { 0, mLY.n_rows() - 1 }, { 0, mLY.n_cols() - 1 } );
 
-            // 
+            // add contribution due to body loads
+            tLY += this->C() * this->Y();
+
+            // loop over A and K matrices
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 tLY += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dYdx( iDim ); 
@@ -499,6 +502,9 @@ namespace moris
             // get subview of matrix for += operations
             auto tdLdDofY = mdLdDofY( { 0, mdLdDofY.n_rows() - 1 }, { 0, mdLdDofY.n_cols() - 1 } );
 
+            // add contribution due to body loads
+            tdLdDofY += this->dCdY_VR( this->Y() ) * this->W();
+
             // go over all Aj*Y,j and Kij,i*Y,j and Kij*Y,ij terms and add up
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
@@ -544,13 +550,16 @@ namespace moris
             // set the eval flag
             mLWEval = false;  
 
-            // evaluate LY
+            // initialize LW with A0 term
             mLW = this->A( 0 ) * this->dWdt();
 
             // get subview for += operations
             auto tLW = mLW( { 0, mLW.n_rows() - 1 }, { 0, mLW.n_cols() - 1 } );
 
-            // 
+            // add contribution due to body loads
+            tLW += this->C() * this->W();
+
+            // loop over A- and K-matrices
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 tLW += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dWdx( iDim ); 
@@ -598,6 +607,9 @@ namespace moris
 
             // get subview of matrix for += operations
             auto tdLdDofW = mdLdDofW( { 0, mdLdDofW.n_rows() - 1 }, { 0, mdLdDofW.n_cols() - 1 } );
+
+            // add contribution due to body loads // FIXME: dCdY_VR can only be applied because C is symmetric, dCdY_VL is needed
+            tdLdDofW += trans( this->W() ) * this->dCdY_VR( aVL ) * this->W();
 
             // go over all VL*Aj and VL*Kij,i and VL*Kij terms and add up
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
