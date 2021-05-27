@@ -140,11 +140,15 @@ namespace moris
             Matrix< DDRMat > tIdentity;
             eye( tNumStateVars, tNumStateVars, tIdentity );
 
-            // initialize M
+            // initialize M with time scaling term
             mM = tdTaudt * tdTaudt * tIdentity;
 
             // get subview of mM for += operatorions
             auto tM = mM( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
+
+            // add body force term to M
+            Matrix< DDRMat > tC = this->C() * this->A0inv();
+            tM += tC * tC;
 
             // add loop over A and K terms
             for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
@@ -262,9 +266,13 @@ namespace moris
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
-
                 // get subview for += operations
                 auto tdMdVar = mdMdY( iVar )( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
+
+                // add body force term to M
+                Matrix< DDRMat > tdCdY = this->dCdY(iVar) * this->A0inv() + this->C() * this->dA0invdY( iVar );
+                Matrix< DDRMat > tC    = this->C() * this->A0inv();
+                tdMdVar += tdCdY * tC + tC * tdCdY;
 
                 // get the variable derivs for the K matrices
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
