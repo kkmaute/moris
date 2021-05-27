@@ -46,7 +46,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     real tFDNumTol = 1.0e-8;
 
     // define a perturbation size
-    real tPerturbation = 1.5E-2;
+    real tPerturbation = 1.3E-2;
 
     // use absolute or relative perturbations for DoF deriv FD
     bool tUseAbsolutePerturbations = true;
@@ -107,6 +107,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tPropConductivity->set_parameters( { {{ 0.8 }} } );
     tPropConductivity->set_val_function( tConstValFunc );
 
+    // Body heat load
+    std::shared_ptr< fem::Property > tPropBodyHeatLoad = std::make_shared< fem::Property >();
+    tPropBodyHeatLoad->set_parameters( { {{ 1.3 }} } );
+    tPropBodyHeatLoad->set_val_function( tConstValFunc );
+
     // define material model and assign properties
     fem::MM_Factory tMMFactory;
 
@@ -147,6 +152,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
     tIWG->set_property( tPropConductivity, "ThermalConductivity" );
+    tIWG->set_property( tPropBodyHeatLoad, "BodyHeatLoad" );
     tIWG->set_material_model( tMMFluid, "FluidMM" );
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
@@ -445,7 +451,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                         1.0,
                         tJacobianTest,
                         tJacobianFD,
-                        false,     // print entry wise differences
+                        true,     // print entry wise differences
                         true,      // print maximum differences
                         tFDNumTol, // define absolute numerical error caused by FD
                         tUseAbsolutePerturbations );
