@@ -39,6 +39,10 @@ namespace moris
             mdWdxEval = true;
             md2Wdx2Eval = true;
 
+            mWtransEval = true;
+            mdWtransdtEval = true;
+            mdWtransdxEval = true;
+
             mAEval = true;
             mKEval = true;
             mKijiEval = true;
@@ -387,6 +391,28 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::W_trans()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mWtransEval )
+            {      
+                return mWtrans;
+            } 
+            mWtransEval = false;  
+
+            // check residual DoF types
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+                    "IWG_Compressible_NS_Bulk::W() - check for residual DoF types failed." );
+
+            // evaluate transpose
+            mWtrans = trans( this->W() );
+
+            // return value
+            return mWtrans;
+        }
+
+        //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & IWG_Compressible_NS_Base::dWdt()
         {
@@ -422,6 +448,28 @@ namespace moris
 
             // return value
             return mdWdt;
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dWdt_trans()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mdWtransdtEval )
+            {      
+                return mdWtransdt;
+            } 
+            mdWtransdtEval = false;  
+
+            // check residual DoF types
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+                    "IWG_Compressible_NS_Bulk::W() - check for residual DoF types failed." );
+
+            // evaluate transpose
+            mdWtransdt = trans( this->dWdt() );
+
+            // return value
+            return mdWtransdt;
         }
 
         //------------------------------------------------------------------------------
@@ -464,6 +512,34 @@ namespace moris
 
             // return value
             return mdWdx( aSpatialDirection );
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dWdx_trans( const uint aSpatialDirection )
+        {
+            // check if the variable vectors have already been assembled
+            if( !mdWtransdxEval )
+            {      
+                return mdWtransdx( aSpatialDirection );
+            } 
+            mdWtransdxEval = false;  
+
+            // check residual DoF types
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+                    "IWG_Compressible_NS_Bulk::W() - check for residual DoF types failed." );
+
+            // initialize cell
+            mdWtransdx.resize( this->num_space_dims() );
+
+            // evaluate transpose
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                mdWtransdx( iDim ) = trans( this->dWdx( iDim ) );
+            }
+
+            // return value
+            return mdWtransdx( aSpatialDirection );
         }
 
         //------------------------------------------------------------------------------

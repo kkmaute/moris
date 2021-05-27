@@ -78,6 +78,10 @@ namespace moris
                 bool mdWdxEval = true;
                 bool md2Wdx2Eval = true;
 
+                bool mWtransEval = true;
+                bool mdWtransdtEval = true;
+                bool mdWtransdxEval = true;
+
                 // evaluation flags for flux matrices
                 bool mAEval = true;
                 bool mKEval = true;
@@ -98,6 +102,10 @@ namespace moris
                 Matrix< DDRMat > mdWdt;
                 moris::Cell< Matrix< DDRMat > > mdWdx;
                 moris::Cell< Matrix< DDRMat > > md2Wdx2;
+
+                Matrix< DDRMat > mWtrans;
+                Matrix< DDRMat > mdWtransdt;
+                moris::Cell< Matrix< DDRMat > > mdWtransdx;
 
                 // cells of matrices containing the flux matrices 
                 moris::Cell< Matrix< DDRMat > > mA;
@@ -270,6 +278,7 @@ namespace moris
                  * @param[ out ] W  Matrix of test functions
                  */
                 const Matrix< DDRMat > & W();
+                const Matrix< DDRMat > & W_trans();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -277,6 +286,7 @@ namespace moris
                  * @param[ out ] dWdt  time rate of change of test functions
                  */
                 const Matrix< DDRMat > & dWdt();
+                const Matrix< DDRMat > & dWdt_trans();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -285,6 +295,7 @@ namespace moris
                  * @param[ out ] dWdx              spatial derivative of the test functions
                  */
                 const Matrix< DDRMat > & dWdx( const uint aSpatialDirection );
+                const Matrix< DDRMat > & dWdx_trans( const uint aSpatialDirection );
 
                 //------------------------------------------------------------------------------
                 /**

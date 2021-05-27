@@ -603,13 +603,13 @@ namespace moris
             eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
 
             // compute A(0) term
-            mdLdDofW = trans( this->dWdt() ) * tVLdAjdY( 0 ) * this->W();
+            mdLdDofW = this->dWdt_trans() * tVLdAjdY( 0 ) * this->W();
 
             // get subview of matrix for += operations
             auto tdLdDofW = mdLdDofW( { 0, mdLdDofW.n_rows() - 1 }, { 0, mdLdDofW.n_cols() - 1 } );
 
             // add contribution due to body loads // FIXME: dCdY_VR can only be applied because C is symmetric, dCdY_VL is needed
-            tdLdDofW += trans( this->W() ) * this->dCdY_VR( aVL ) * this->W();
+            tdLdDofW += this->W_trans() * this->dCdY_VR( aVL ) * this->W();
 
             // go over all VL*Aj and VL*Kij,i and VL*Kij terms and add up
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
@@ -618,18 +618,18 @@ namespace moris
                 eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
 
                 // add contributions from A-matrices
-                tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();
+                tdLdDofW += this->dWdx_trans( iDim ) * tVLdAjdY( iDim + 1 )  * this->W();
 
                 // get VL * dKij,i/dY
                 eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, tVLdKijidY( iDim ) );
 
                 // add contributions from Kij,i-matrices
-                // tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( 0 ) * this->W();
+                // tdLdDofW -= this->dWdx_trans( iDim ) * tVLdKijidY( iDim )( 0 ) * this->W();
 
                 for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
                 {
                     // add contributions from Kij,i-matrices
-                    tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( jDim + 1 ) * this->dWdx( jDim );
+                    tdLdDofW -= this->dWdx_trans( iDim ) * tVLdKijidY( iDim )( jDim + 1 ) * this->dWdx( jDim );
 
                     // get VL * dKij/dY
                     eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, jDim, tVLdKijdY( iDim )( jDim ) );

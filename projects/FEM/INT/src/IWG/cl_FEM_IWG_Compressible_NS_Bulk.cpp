@@ -109,13 +109,13 @@ namespace moris
             auto tRes = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
 
             // A0 matrix contribution
-            tRes += aWStar * trans( this->W() ) * this->A( 0 ) * this->dYdt();
+            tRes += aWStar * this->W_trans() * this->A( 0 ) * this->dYdt();
 
             // loop over A-Matrices
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
             {
                 // compute residual
-                tRes += aWStar * trans( this->W() ) * this->A( iA ) * this->dYdx( iA - 1 );
+                tRes += aWStar * this->W_trans() * this->A( iA ) * this->dYdx( iA - 1 );
             }
 
             // loop over K-matrices
@@ -124,12 +124,12 @@ namespace moris
                 for ( uint jDim = 0; jDim < tNumSpaceDims; jDim++ )
                 {
                     // compute residual
-                    tRes += aWStar * trans( this->dWdx( iDim ) ) * this->K( iDim, jDim ) * this->dYdx( jDim );
+                    tRes += aWStar * this->dWdx_trans( iDim ) * this->K( iDim, jDim ) * this->dYdx( jDim );
                 }
             }
 
             // contribution from body loads
-            tRes += aWStar * trans( this->W() ) * this->C() * this->Y();
+            tRes += aWStar * this->W_trans() * this->C() * this->Y();
 
             // get the Stabilization Parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
@@ -187,7 +187,7 @@ namespace moris
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
             eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
-            tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
+            tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
 
             // loop over contributions from A-matrices
             for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
@@ -196,7 +196,7 @@ namespace moris
                 eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAdY );
 
                 // add contribution
-                tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );
+                tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );
 
             }
 
@@ -214,12 +214,12 @@ namespace moris
                     eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( jDim ), iDim, jDim, dKdY );
                                 
                     // add contributions from K-matrices
-                    tJac += aWStar * trans( this->dWdx( iDim ) ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
+                    tJac += aWStar * this->dWdx_trans( iDim ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
                 }
             }
 
             // contribution from body loads
-            tJac += aWStar * trans( this->W() ) * ( this->C() + this->dCdY_VR( this->Y() ) ) * this->W();
+            tJac += aWStar * this->W_trans() * ( this->C() + this->dCdY_VR( this->Y() ) ) * this->W();
 
             // get the Stabilization Parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
