@@ -128,6 +128,9 @@ namespace moris
                 }
             }
 
+            // contribution from body loads
+            tRes -= aWStar * trans( this->W() ) * this->C() * this->Y();
+
             // get the Stabilization Parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
 
@@ -214,6 +217,9 @@ namespace moris
                     tJac += aWStar * trans( this->dWdx( iDim ) ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
                 }
             }
+
+            // contribution from body loads
+            tJac -= aWStar * trans( this->W() ) * ( this->C() + this->dCdY_VR( this->Y() ) ) * this->W();
 
             // get the Stabilization Parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );

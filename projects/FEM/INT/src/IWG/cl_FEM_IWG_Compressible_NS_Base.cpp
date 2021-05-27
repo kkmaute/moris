@@ -43,6 +43,9 @@ namespace moris
             mKEval = true;
             mKijiEval = true;
 
+            mCEval = true;
+            mdCdYEval = true;
+
             // reset flags for child
             this->reset_child_eval_flags();
         }
@@ -594,6 +597,121 @@ namespace moris
             return mKiji( aJ );
         } 
 
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::C()
+        {
+            // check if matrix is already evaluated
+            if ( !mCEval )
+            {
+                return mC;
+            }
+
+            // set the eval flag
+            mCEval = false;  
+
+            // get the body heat load
+            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            real tQ = 0.0;
+            if ( tPropBodyHeatLoad != nullptr )
+            {
+                tQ = tPropBodyHeatLoad->val()( 0 );
+            }
+            
+            // FIXME: body force not considered yet
+            // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) ); 
+
+            // get the material model
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // define coefficient matrix
+            mC.set_size( tNumStateVars, tNumStateVars, 0.0 );
+            mC( tNumStateVars - 1, tNumStateVars - 1 ) = tQ / tMM->temperature()( 0 ); 
+
+            // return coefficient matrix
+            return mC;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY_VR( const Matrix< DDRMat > aVR )
+        {
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // check input vector
+            MORIS_ASSERT( aVR.length() == tNumStateVars, 
+                    "IWG_Compressible_NS_Base::dCdY_VR() - pre-multiplication vector of incorrect size." );
+
+            // get the body heat load
+            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            real tQ = 0.0;
+            if ( tPropBodyHeatLoad != nullptr )
+            {
+                tQ = tPropBodyHeatLoad->val()( 0 );
+            }
+            
+            // FIXME: body force not considered yet
+            // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) ); 
+
+            // get the material model temperature
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            real tTemp = tMM->temperature()( 0 );
+
+            // get last entry of Vr 
+            mdCdYVR.set_size( tNumStateVars, tNumStateVars, 0.0 );
+            mdCdYVR( tNumStateVars - 1, tNumStateVars - 1 ) = -1.0 * aVR( tNumStateVars - 1 ) * tQ / tTemp / tTemp;
+
+            // return 
+            return mdCdYVR;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY( const uint aYind )
+        {
+            // check that index are not out of bounds
+            MORIS_ASSERT( ( aYind >= 0 ) and ( aYind < this->num_space_dims() + 2 ), 
+                    "IWG_Compressible_NS_Base::dCdY() - state variable index out of bounds." );
+
+            // check if matrix is already evaluated
+            if ( !mdCdYEval )
+            {
+                return mdCdY( aYind );
+            }
+
+            // set the eval flag
+            mdCdYEval = false;  
+
+            // get the body heat load
+            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            real tQ = 0.0;
+            if ( tPropBodyHeatLoad != nullptr )
+            {
+                tQ = tPropBodyHeatLoad->val()( 0 );
+            }
+            
+            // FIXME: body force not considered yet
+            // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) ); 
+
+            // get the material model temperature
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            real tTemp = tMM->temperature()( 0 );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // define coefficient matrix
+            Matrix< DDRMat > tZeroMat( tNumStateVars, tNumStateVars, 0.0 );
+            mdCdY.resize( tNumStateVars, tZeroMat );
+            mdCdY( tNumStateVars - 1 )( tNumStateVars - 1, tNumStateVars - 1 ) = -1.0 * tQ / tTemp / tTemp; 
+
+            // return coefficient matrix state var derivative
+            return mdCdY( aYind );
+        }
 
         //------------------------------------------------------------------------------
 
