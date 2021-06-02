@@ -179,6 +179,8 @@ namespace moris
             // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
 
+            //this->save_coeffs_to_hdf5_file("TMatrixData.hdf5",0);
+
             if( OutputMeshIndex.size() == 2 )
             {
                 for( uint Ik = 0; Ik < OutputMeshIndex( 1 ).numel(); Ik++ )
