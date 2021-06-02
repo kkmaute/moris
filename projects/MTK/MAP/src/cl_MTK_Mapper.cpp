@@ -198,10 +198,10 @@ namespace moris
             tDiscreteFieldTarget->unlock_field();
             tDiscreteFieldTarget->set_coefficients( tFieldUnion.get_coefficients() );
 
-            this->perform_mapping(
-                    tDiscreteFieldTarget,
-                    EntityRank::BSPLINE,
-                    EntityRank::NODE);
+//            this->perform_mapping(
+//                    tDiscreteFieldTarget,
+//                    EntityRank::BSPLINE,
+//                    EntityRank::NODE);
         }
 
         //------------------------------------------------------------------------------

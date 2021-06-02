@@ -1,7 +1,7 @@
 set(EXAMPLE_MAIN Main_Levelset_Boxbeam_Adaptive_Refinement)
 #set(EXAMPLE_FILE Levelset_Boxbeam Levelset_Boxbeam_Lin_Quad_LevelSet)
-set(EXAMPLE_FILE Levelset_Boxbeam_Adaptive_Refinement )
-set(EXAMPLE_PROCS 1)
+set(EXAMPLE_FILES Levelset_Boxbeam_Adaptive_Refinement Levelset_Boxbeam_Adaptive_Refinement_Quadratic )
+set(EXAMPLE_PROCS 1 4)
 
 # List source files
 set(EXAMPLE_SOURCES
@@ -82,7 +82,10 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+# create dynamically linked .so files
+foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+endforeach()
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
