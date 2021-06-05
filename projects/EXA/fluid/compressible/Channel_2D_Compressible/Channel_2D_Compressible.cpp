@@ -614,14 +614,14 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         {
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
                                                                                           "PropSelectY,SelectVelocity;"
-                                                                                          //"PropUpwind,Upwind;"
+                                                                                          //"PropUpwind,PressureUpwind;"
                                                                                           "PropViscosity,DynamicViscosity;"
                                                                                           "PropConductivity,ThermalConductivity" );
         }
         else
         {
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
-                                                                                          //"PropUpwind,Upwind;"
+                                                                                          //"PropUpwind,PressureUpwind;"
                                                                                           "PropViscosity,DynamicViscosity;"
                                                                                           "PropConductivity,ThermalConductivity" );
         }

@@ -68,7 +68,7 @@ namespace moris
                     PRESCRIBED_VELOCITY,
                     SELECT_VELOCITY,
                     PRESCRIBED_DOF_3,
-                    UPWIND,
+                    PRESSUREUPWIND,
                     MAX_ENUM
                 };
 

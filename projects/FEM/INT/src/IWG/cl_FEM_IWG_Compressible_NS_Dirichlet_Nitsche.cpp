@@ -31,7 +31,7 @@ namespace moris
             mPropertyMap[ "PrescribedVelocity" ]  = static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY );
             mPropertyMap[ "SelectVelocity" ]      = static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY );
             mPropertyMap[ "PrescribedDof3" ]      = static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 );
-            mPropertyMap[ "Upwind" ]              = static_cast< uint >( IWG_Property_Type::UPWIND );
+            mPropertyMap[ "PressureUpwind" ]      = static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND );
             mPropertyMap[ "DynamicViscosity" ]    = static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY );
             mPropertyMap[ "ThermalConductivity" ] = static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY );
 
@@ -119,20 +119,34 @@ namespace moris
             }
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
-                // add A-matrices
-                Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
-                if ( tNumSpaceDims == 3 )
-                {
-                    tAini = tAini + this->A( 3 ) * mNormal( 2 );
-                }
+                // // add A-matrices
+                // Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
+                // if ( tNumSpaceDims == 3 )
+                // {
+                //     tAini = tAini + this->A( 3 ) * mNormal( 2 );
+                // }
+                //
+                // // add contribution
+                // tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tAini * this->jump();
+
+                // construct upwind pressure operator // FIXME: this needs to be done more neatly
+                // initialize operator
+                Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+                
+                // place normal such that it gets multiplied with the pressure difference in the velocity residual
+                tUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
+                
+                // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
+                Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
+                tUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
 
                 // add contribution
-                tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tAini * this->jump();
+                tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tUpwindOperator * this->jump();
             }
 
             // check for nan, infinity
@@ -206,24 +220,43 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
                 for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
                 {
-                    // get dA/dY * Jump
-                    Matrix< DDRMat > tdAdY_Jump;
-                    eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->jump(), iDim + 1, tdAdY_Jump );
-
-                    // get dA/dDof * Jump
-                    Matrix< DDRMat > tdAdDof_Jump = tdAdY_Jump * this->W();
-
-                    // add contribution
-                    tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * this->W_trans() * ( 
-                            this->A( iDim + 1 ) * this->dJumpdDOF() + tdAdDof_Jump );
+                    // // get dA/dY * Jump
+                    // Matrix< DDRMat > tdAdY_Jump;
+                    // eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->jump(), iDim + 1, tdAdY_Jump );
+                    //
+                    // // get dA/dDof * Jump
+                    // Matrix< DDRMat > tdAdDof_Jump = tdAdY_Jump * this->W();
+                    //
+                    // // add contribution
+                    // tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * this->W_trans() * ( 
+                    //         this->A( iDim + 1 ) * this->dJumpdDOF() + tdAdDof_Jump );
                 }
+
+                // construct upwind pressure operator // FIXME: this needs to be done more neatly
+                // initialize operator
+                Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+                
+                // place normal such that it gets multiplied with the pressure difference in the velocity residual
+                tUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
+                
+                // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
+                Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
+                tUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
+
+                // construct the dof derivative of the pressure upwind operator
+                // initialize operator
+                Matrix< DDRMat > tdUpwindOperatordY( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+                tdUpwindOperatordY( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 1, tNumSpaceDims } ) = trans( mNormal );
+
+                // add contribution
+                tJac -= tPropUpwind->val()( 0 ) * this->W_trans() * ( tUpwindOperator * this->dJumpdDOF() + this->jump()( 0 ) * tdUpwindOperatordY * this->W() );
             }
 
             // check for nan, infinity
