@@ -705,7 +705,7 @@ namespace moris
 
             // define coefficient matrix
             mC.set_size( tNumStateVars, tNumStateVars, 0.0 );
-            mC( tNumStateVars - 1, tNumStateVars - 1 ) = tQ / tMM->temperature()( 0 ); 
+            mC( tNumStateVars - 1, tNumStateVars - 1 ) = -1.0 * tQ / tMM->temperature()( 0 ); 
 
             // return coefficient matrix
             return mC;
@@ -739,7 +739,7 @@ namespace moris
 
             // get last entry of Vr 
             mdCdYVR.set_size( tNumStateVars, tNumStateVars, 0.0 );
-            mdCdYVR( tNumStateVars - 1, tNumStateVars - 1 ) = -1.0 * aVR( tNumStateVars - 1 ) * tQ / tTemp / tTemp;
+            mdCdYVR( tNumStateVars - 1, tNumStateVars - 1 ) = aVR( tNumStateVars - 1 ) * tQ / tTemp / tTemp;
 
             // return 
             return mdCdYVR;
@@ -783,7 +783,7 @@ namespace moris
             // define coefficient matrix
             Matrix< DDRMat > tZeroMat( tNumStateVars, tNumStateVars, 0.0 );
             mdCdY.resize( tNumStateVars, tZeroMat );
-            mdCdY( tNumStateVars - 1 )( tNumStateVars - 1, tNumStateVars - 1 ) = -1.0 * tQ / tTemp / tTemp; 
+            mdCdY( tNumStateVars - 1 )( tNumStateVars - 1, tNumStateVars - 1 ) = tQ / tTemp / tTemp; 
 
             // return coefficient matrix state var derivative
             return mdCdY( aYind );
