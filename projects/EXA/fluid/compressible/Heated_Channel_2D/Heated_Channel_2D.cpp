@@ -29,14 +29,13 @@ extern "C"
 namespace moris
 {
     // problem size
-    moris::real tChannelLength = 100; // in meters
-    moris::real tChannelHeight = 2.0;  // in meters
-    bool tAllowSlip = false;
+    moris::real tChannelLength = 100.0; // in meters
+    moris::real tChannelHeight = 1.0;   // in meters
 
     // mesh
-    moris::uint tIpOrder = 2;    // polynomial order for interpolation
+    moris::uint tIpOrder = 2;     // polynomial order for interpolation
     moris::uint tNumXElems = 100; // number of elements in x-direction
-    moris::uint tNumYElems = 40; // number of elements in y-direction
+    moris::uint tNumYElems = 1;   // number of elements in y-direction
 
     // Material Parameters
     moris::real tViscosity    = 1.716e-5; /* Dynamic Viscosity mu () */
@@ -74,18 +73,20 @@ namespace moris
     int tNumTimeSteps = 30; // number of elements in time dimension
     moris::real tTimeStepSize = 200.0 * tChannelLength / (real) tNumXElems / tCs / 2.0;
     moris::real tTimeFrame = (real) tNumTimeSteps * tTimeStepSize;  // resulting duration
+    moris::real tTCWeight = tTimePenalty / tTimeStepSize;
 
     // Newton configuration
     moris::real tNewtonRelaxation = 1.0;
     moris::real tNewtonTolerance = 1.0e-5;
-    int tMaxNewtonSteps = 20;
+    int tMaxNewtonSteps = 10;
 
     // stabilization
     bool tHaveGLS = false;
 
     // BC configuration
-    bool tUseUpwindForPressureBC = false;
+    bool tUseUpwindForPressureBC = true;
     bool tHaveFixedEnds = false; // close off ends of channel, impose zero velocity
+    bool tHaveTopBottomBCs = false;
 
     //------------------------------------------------------------------------------
 
@@ -119,11 +120,27 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
+        // get element size in x-direction
+        real tHx = tChannelLength / tNumXElems;
+
         // get x-coordinate
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 
-        // get Q(x)
-        real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
+        // get element number in x-direction
+        real tElemNumber = std::floor( tX / tHx ); 
+
+        // get element left and right node positions
+        real tLeftNodePos = tElemNumber * tHx;
+        real tRightNodePos = ( tElemNumber + 1.0 ) * tHx;
+
+        // compute heat loads at left and right nodes
+        real tQl = std::exp( -1.0 * tQfac * std::pow( 2.0 *  tLeftNodePos / tChannelLength - 1.0, 2.0 ) );
+        real tQr = std::exp( -1.0 * tQfac * std::pow( 2.0 * tRightNodePos / tChannelLength - 1.0, 2.0 ) );
+
+        // compute linear interpolation
+        real tAlpha = ( ( tX - tLeftNodePos ) / ( tRightNodePos - tLeftNodePos ) );
+        real tQ = tQl + tAlpha * ( tQr - tQl );
+        //real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
 
         // return value
         aPropMatrix = tQ * aParameters( 0 );
@@ -231,6 +248,10 @@ namespace moris
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
+// print values
+std::cout << "Time step size: " << tTimeStepSize << " \n" << std::flush;
+std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
+
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
 
@@ -417,13 +438,13 @@ namespace moris
         // time continuity weights        
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropWeightCurrent" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string( tTimePenalty ) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string( tTCWeight ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropWeightPrevious" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string( tTimePenalty ) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string( tTCWeight ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
@@ -550,20 +571,23 @@ namespace moris
         // tIWGCounter++;
 
         // Nitsche IWG for top and bottom
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheSides" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,3" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
-                                                                                      "PropViscosity,DynamicViscosity;"
-                                                                                      "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
-        tIWGCounter++;
+        if ( tHaveTopBottomBCs )
+        {
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheSides" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,3" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
+                                                                                          "PropViscosity,DynamicViscosity;"
+                                                                                          "PropConductivity,ThermalConductivity" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
+            tIWGCounter++;
+        }
 
         // Nitsche IWGs for Outlets
         if ( tHaveFixedEnds )
@@ -576,7 +600,7 @@ namespace moris
 
             if( tUseUpwindForPressureBC )
             {
-                tPropertyString = tPropertyString + ";PropUpwind,Upwind";
+                tPropertyString = tPropertyString + ";PropUpwind,PressureUpwind";
             }
         }
 
@@ -692,6 +716,14 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_properties",      "PropReynoldsNumber,Property");
         tIQICounter++;
 
+        // heat load distribution
+        tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",               "IQIHeatLoad" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",      "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",               (uint) fem::IQI_Type::PROPERTY );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "master_properties",      "PropHeatLoad,Property");
+        tIQICounter++;
+
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( tFEMIndex ).resize( 1 );
@@ -731,9 +763,10 @@ namespace moris
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , "P;VX,VY;TEMP" );
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P," + ios::stringify( tInitialPressure ) + 
-                                                                ";VX,0.00001;VY,0.00001;TEMP," + ios::stringify( tInitialTemperature ) );
+                                                                ";VX,0.0;VY,0.0;TEMP," + ios::stringify( tInitialTemperature ) );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "P,2;VX,2;VY,2;TEMP,2" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }
@@ -759,9 +792,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"     , std::pair< std::string, std::string >( "./", "Heated_Channel_2D.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"     , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"     , sFluid );
-        tParameterlist( 0 )( 0 ).set( "Field_Names"   , "P,VX,VY,TEMP,Ma,Re" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type"    , "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names"     , "IQIBulkP,IQIBulkVX,IQIBulkVY,IQIBulkTEMP,IQIMachNumber,IQIReynoldsNumber" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Names"   , "P,VX,VY,TEMP,Ma,Re,Q" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type"    , "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"     , "IQIBulkP,IQIBulkVX,IQIBulkVY,IQIBulkTEMP,IQIMachNumber,IQIReynoldsNumber,IQIHeatLoad" ) ;
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
         tParameterlist( 0 )( 0 ).set( "Time_Offset"   , 10.0 );
     }
