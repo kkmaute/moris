@@ -640,12 +640,12 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletU,PrescribedVelocity;"
         //                                                                               "PropInletTemperature,PrescribedDof3;"
-        //                                                                               "PropUpwind,Upwind;"
+        //                                                                               "PropUpwind,PressureUpwind;"
         //                                                                               "PropViscosity,DynamicViscosity;"
         //                                                                               "PropConductivity,ThermalConductivity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;" 
                                                                                       "PropInletTemperature,PrescribedDof3;"
-                                                                                      "PropUpwind,Upwind;"
+                                                                                      "PropUpwind,PressureUpwind;"
                                                                                       "PropViscosity,DynamicViscosity;"
                                                                                       "PropConductivity,ThermalConductivity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
@@ -662,7 +662,7 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropOutletPressure,PrescribedDof1;"
-                                                                                      "PropUpwind,Upwind;"
+                                                                                      "PropUpwind,PressureUpwind;"
                                                                                       "PropViscosity,DynamicViscosity;"
                                                                                       "PropConductivity,ThermalConductivity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
