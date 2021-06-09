@@ -757,7 +757,7 @@ namespace xtk
                         tBasisIndex = mBackgroundMeshPtr->get_mesh_data().get_loc_entity_ind_from_entity_glb_id(
                                 tBasisId,
                                 mBasisRank,
-                                mMeshIndices(aEnrichmentDataIndex));
+                                aEnrichmentDataIndex);
                     }
 
                     moris_id tSubphaseId = tReceivedSubphaseId(i)(j);

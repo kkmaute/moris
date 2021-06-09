@@ -613,7 +613,7 @@ namespace xtk
                 Interpolation_Vertex_Unzipped* tVertex = tEnrInterpMesh.get_unzipped_vertex_pointer(tVertexIndex);
 
                 // get the vertex interpolation
-                Vertex_Enrichment* tVertexInterp = tVertex->get_xtk_interpolation(0);
+                Vertex_Enrichment* tVertexInterp = tVertex->get_xtk_interpolation(aMeshIndex);
 
                 MORIS_ASSERT(tVertexInterp->get_base_vertex_interpolation() != nullptr,"Owning proc has a nullptr for the vertex interpolation.");
 
@@ -750,21 +750,21 @@ namespace xtk
                         moris_id tId = tExtractedTMatrixIds(iV)(iBs);
 
                         // add this basis to the mesh if it doesnt exists on the current partition
-                        if(!tEnrInterpMesh.basis_exists_on_partition(tEnrInterpMesh.mMeshIndices(0),tId))
+                        if(!tEnrInterpMesh.basis_exists_on_partition(aMeshIndex,tId))
                         {
                             MORIS_ASSERT(tExtractedTBasisOwners(iV)(iBs) != par_rank(),"Owned basis should already exist on partition.");
 
-                            tEnrInterpMesh.add_basis_function(tEnrInterpMesh.mMeshIndices(0),tId,
+                            tEnrInterpMesh.add_basis_function(aMeshIndex,tId,
                                     tExtractedTBasisOwners(iV)(iBs),
                                     aNotOwnedEnrichedCellBulkPhaseToProcs(iP)(iV));
                         }
 
-                        tBasisIndices(iBs) = tEnrInterpMesh.get_enr_basis_index_from_enr_basis_id(tEnrInterpMesh.mMeshIndices(0),tId);
+                        tBasisIndices(iBs) = tEnrInterpMesh.get_enr_basis_index_from_enr_basis_id(aMeshIndex,tId);
 
                         moris_id tBasisOwner = tExtractedTBasisOwners(iV)(iBs);
 
-                        MORIS_ASSERT(tEnrInterpMesh.get_basis_owner(tBasisIndices(iBs),tEnrInterpMesh.mMeshIndices(0)) == tBasisOwner,"Ownership discrepency.");
-                        MORIS_ASSERT(tEnrInterpMesh.get_basis_bulk_phase(tBasisIndices(iBs),tEnrInterpMesh.mMeshIndices(0)) == aNotOwnedEnrichedCellBulkPhaseToProcs(iP)(iV),"Bulkphase discrepency.");
+                        MORIS_ASSERT(tEnrInterpMesh.get_basis_owner(tBasisIndices(iBs),aMeshIndex) == tBasisOwner,"Ownership discrepency.");
+                        MORIS_ASSERT(tEnrInterpMesh.get_basis_bulk_phase(tBasisIndices(iBs),aMeshIndex) == aNotOwnedEnrichedCellBulkPhaseToProcs(iP)(iV),"Bulkphase discrepency.");
 
                         // if the basis has an owning proc that is not in the comm table, add it to the comm table
                         if(tProcRankToIndexInData.find(tBasisOwner) == tProcRankToIndexInData.end() && tBasisOwner != par_rank())
