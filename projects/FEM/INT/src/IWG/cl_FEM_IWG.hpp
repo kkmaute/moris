@@ -156,7 +156,8 @@ namespace moris
                 void ( IWG:: * m_compute_jacobian_FD )(
                         real               aWStar,
                         real               aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType ) = nullptr;
+                        fem::FDScheme_Type aFDSchemeType,
+                        bool               aUseAbsolutePerturbations ) = nullptr;
                 void ( IWG:: * m_compute_dRdp_FD_material )(
                         real               aWStar,
                         real               aPerturbation,
@@ -672,21 +673,24 @@ namespace moris
                 void compute_jacobian_FD(
                         real               aWStar,
                         real               aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5 )
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5,
+                        bool               aUseAbsolutePerturbations = false )
                 {
                     // compute jacobian by FD
-                    ( this->*m_compute_jacobian_FD )( aWStar, aPerturbation, aFDSchemeType );
+                    ( this->*m_compute_jacobian_FD )( aWStar, aPerturbation, aFDSchemeType, aUseAbsolutePerturbations );
                 }
 
                 void select_jacobian_FD(
                         real               aWStar,
                         real               aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType );
+                        fem::FDScheme_Type aFDSchemeType,
+                        bool               aUseAbsolutePerturbations );
 
                 void select_jacobian_FD_double(
                         real               aWStar,
                         real               aPerturbation,
-                        fem::FDScheme_Type aFDSchemeType );
+                        fem::FDScheme_Type aFDSchemeType,
+                        bool               aUseAbsolutePerturbations );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -711,7 +715,8 @@ namespace moris
                         real               aWStar,
                         Matrix< DDRMat > & aJacobians,
                         Matrix< DDRMat > & aJacobiansFD,
-                        bool               aErrorPrint = false );
+                        bool               aErrorPrint = false,
+                        bool               aUseAbsolutePerturbations = false );
 
                 //------------------------------------------------------------------------------
                 /**
