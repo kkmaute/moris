@@ -21,8 +21,16 @@ namespace moris
                 moris::Matrix< moris::DDRMat > & aMatrixCheck,
                 moris::Matrix< moris::DDRMat > & aMatrixRef,
                 moris::real                      aEpsilon,
-                bool                             aShowDifferences = true )
+                bool                             aShowDifferences = true,
+                bool                             aShowMaxDifferences = false,
+                moris::real                      aFDtolerance = -1.0 )
         {
+            // check if FD tolerance is defined
+            if ( aFDtolerance < 0.0 )
+            {
+                aFDtolerance = aEpsilon;
+            }
+
             // check that matrices to compare have same size
             MORIS_ERROR(
                     ( aMatrixCheck.n_rows() == aMatrixRef.n_rows() ) &&
@@ -36,9 +44,11 @@ namespace moris
 
             // define a real for absolute difference
             moris::real tAbsolute = 0.0;
+            moris::real tAbsoluteMax = 0.0;
 
             // define a real for relative difference
             moris::real tRelative = 0.0;
+            moris::real tRelativeMax = 0.0;
 
             for( uint ii = 0; ii < aMatrixCheck.n_rows(); ii++ )
             {
@@ -46,15 +56,20 @@ namespace moris
                 {
                     // get absolute difference
                     tAbsolute = std::abs( aMatrixCheck( ii, jj ) - aMatrixRef( ii, jj ) );
+                    tAbsoluteMax = std::max( tAbsoluteMax, tAbsolute );
 
                     // get relative difference
                     tRelative = std::abs( ( aMatrixRef( ii, jj ) - aMatrixCheck( ii, jj ) ) / aMatrixRef( ii, jj ) );
+                    if ( tAbsolute > aFDtolerance )
+                    {
+                        tRelativeMax = std::max( tRelativeMax, tRelative );
+                    }
 
                     // update check value
-                    tCheckBool = tCheckBool and ( ( tAbsolute < aEpsilon ) or ( tRelative < aEpsilon ) );
+                    tCheckBool = tCheckBool and ( ( tAbsolute < aFDtolerance ) or ( tRelative < aEpsilon ) );
 
                     // for debug
-                    if ( ( tAbsolute > aEpsilon ) and ( tRelative > aEpsilon ) and aShowDifferences )
+                    if ( ( tAbsolute > aFDtolerance ) and ( tRelative > aEpsilon ) and aShowDifferences )
                     {
                         std::cout<<"ii "<<ii<<" - jj "<<jj<<"\n"<<std::flush;
                         std::cout<<"aMatrixCheck( ii, jj ) "<<aMatrixCheck( ii, jj )<<"\n"<<std::flush;
@@ -63,6 +78,12 @@ namespace moris
                         std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
                     }
                 }
+            }
+
+            if ( aShowMaxDifferences )
+            {
+                std::cout << "Max absolute difference: " << tAbsoluteMax << " \n" << std::flush;
+                std::cout << "Max relative difference: " << tRelativeMax << " \n" << std::flush;
             }
 
             return tCheckBool;

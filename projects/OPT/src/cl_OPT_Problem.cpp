@@ -318,6 +318,8 @@ namespace moris
             mADVs        = tRestartADVs;
             mUpperBounds = tRestartUpperBounds;
             mLowerBounds = tRestartLowerBounds;
+
+            mRestartFile = "";
         }
     }
 }

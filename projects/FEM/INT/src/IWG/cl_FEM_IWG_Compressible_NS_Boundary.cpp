@@ -72,7 +72,7 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) -= aWStar * (
-                    trans( this->W() ) * this->Traction() );
+                    this->W_trans() * this->Traction() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -111,7 +111,7 @@ namespace moris
             auto tJac = mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );  
 
             // compute jacobian
-            tJac -= aWStar * ( trans( this->W() ) * this->dTractiondDOF() );
+            tJac -= aWStar * ( this->W_trans() * this->dTractiondDOF() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,

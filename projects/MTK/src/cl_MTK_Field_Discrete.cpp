@@ -188,6 +188,9 @@ namespace moris
 
             mOwnedNodalValues  = tDistributedFactory.create_vector(tOwnedNodeMap,  1, false, true);
             mSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap, 1, false, true);
+
+            mOwnedNodalValues->vec_put_scalar(0.0);
+            mSharedNodalValues->vec_put_scalar(0.0);
         }
 
         // ----------------------------------------------------------------------------------------------

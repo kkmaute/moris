@@ -198,10 +198,10 @@ namespace moris
             tDiscreteFieldTarget->unlock_field();
             tDiscreteFieldTarget->set_coefficients( tFieldUnion.get_coefficients() );
 
-            this->perform_mapping(
-                    tDiscreteFieldTarget,
-                    EntityRank::BSPLINE,
-                    EntityRank::NODE);
+//            this->perform_mapping(
+//                    tDiscreteFieldTarget,
+//                    EntityRank::BSPLINE,
+//                    EntityRank::NODE);
         }
 
         //------------------------------------------------------------------------------
@@ -743,15 +743,15 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = tInterpolationMesh->get_HMR_database();
 
             // grab orders of meshes
-            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
+/*            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
             uint tOrder = tDiscreteField->get_discretization_order();
 
             // get order of Union Mesh
             //uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tOrder );
 
-            uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            //uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             //uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            uint tPattern = 0;
+            //uint tPattern = 0;
 
             // map source Lagrange field to target Lagrange field
             if( tSourceLagrangeOrder >= tOrder )
@@ -818,6 +818,7 @@ namespace moris
 
                 return;
             }
+*/
 
             //---------------------------------------------------------
 

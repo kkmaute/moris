@@ -1,7 +1,7 @@
-set(EXAMPLE_MAIN Main_Levelset_Boxbeam_Adaptive_Refinement)
+set(EXAMPLE_MAIN Main_Levelset_Boxbeam_Adaptive_Refinement_Restart)
 #set(EXAMPLE_FILE Levelset_Boxbeam Levelset_Boxbeam_Lin_Quad_LevelSet)
-set(EXAMPLE_FILES Levelset_Boxbeam_Adaptive_Refinement Levelset_Boxbeam_Adaptive_Refinement_Quadratic )
-set(EXAMPLE_PROCS 1 4)
+set(EXAMPLE_FILES Levelset_Boxbeam_Create_File Levelset_Boxbeam_Restart )
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES
@@ -90,7 +90,7 @@ endforeach()
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME Levelset_Boxbeam_Adaptive_Refinement-${PROCS}-procs
+        add_test(NAME Levelset_Boxbeam_Adaptive_Refinement_Restart-${PROCS}-procs
         COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()

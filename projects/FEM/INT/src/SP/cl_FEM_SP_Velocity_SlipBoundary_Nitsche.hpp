@@ -1,12 +1,12 @@
 /*
- * cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
+ * cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp
  *
  *  Created on: Mar 25, 2020
  *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_VELOCITY_DIRICHLET_NITSCHE_HPP_
-#define SRC_FEM_CL_FEM_SP_VELOCITY_DIRICHLET_NITSCHE_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_VELOCITY_SLIPBOUNDARY_NITSCHE_HPP_
+#define SRC_FEM_CL_FEM_SP_VELOCITY_SLIPBOUNDARY_NITSCHE_HPP_
 
 #include <map>
 //MRS/CON/src
@@ -27,16 +27,21 @@ namespace moris
     {
         //------------------------------------------------------------------------------
         /*
-         * Stabilization parameter for Dirichlet BC on velocity for fluid problem
+         * Stabilization parameter for SlipBoundary BC on velocity for fluid problem
          * applied with Nitsche's formulation
          *
-         * gamma_N = alpha_N * ( viscosity / h
+         * normal direction:
+         *            gamma_n = alpha_N * ( viscosity / h
          *                     + density * norm_inf( u ) / 6.0
-         *                     + density * h / (12 alpha_time Delta_time )
+         *                     + density * h / (12 alpha_time Delta_t )
          *
          * from Schott et al. (2015)
+         *
+         * tangential direction:
+         *             gamma_t1 = alpha_tgang/(alpha_tang*sliplength+h)
+         *             gamma_t2 = h/( alpha_tang*sliplength+h )
          */
-        class SP_Velocity_Dirichlet_Nitsche : public Stabilization_Parameter
+        class SP_Velocity_SlipBoundary_Nitsche : public Stabilization_Parameter
         {
 
                 //------------------------------------------------------------------------------
@@ -55,14 +60,16 @@ namespace moris
                 // property type for the SP
                 enum class Property_Type
                 {
-                    VISCOSITY,  // fluid viscosity
-                    DENSITY,    // fluid density
-                    MAX_ENUM
+                        VISCOSITY,  // fluid viscosity
+                        DENSITY,    // fluid density
+                        SLIPLENGTH, // slip length
+                        MAX_ENUM
                 };
 
                 /*
-                 * Rem: mParameters( 0 )      - alpha_N
-                 *      mParameters( 1 )( 0 ) - alpha_time
+                 * Rem: mParameters( 0 )(0) - alpha_n
+                 *      mParameters( 1 )(0) - alpha_time
+                 *      mParameters( 2 )(0) - alpha_tang
                  */
 
             public:
@@ -70,13 +77,13 @@ namespace moris
                 /*
                  * constructor
                  */
-                SP_Velocity_Dirichlet_Nitsche();
+                SP_Velocity_SlipBoundary_Nitsche();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~SP_Velocity_Dirichlet_Nitsche(){};
+                ~SP_Velocity_SlipBoundary_Nitsche(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -117,7 +124,11 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter value
+                 * evaluate the stabilization parameter values
+                 *
+                 * mPPVal(0) : gamma_n  -  normal direction
+                 * mPPVal(1) : gamma_t1 -  tangential direction
+                 * mPPVal(2) : gamma_t2 -  tangential direction
                  */
                 void eval_SP();
 
@@ -135,7 +146,7 @@ namespace moris
                  */
                 void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::eval_dSPdMasterDV - not implemented." );
+                    MORIS_ERROR( false, "SP_Velocity_SlipBoundary_Nitsche::eval_dSPdMasterDV - not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
@@ -144,4 +155,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_VELOCITY_DIRICHLET_NITSCHE_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_VELOCITY_SLIPBOUNDARY_NITSCHE_HPP_ */

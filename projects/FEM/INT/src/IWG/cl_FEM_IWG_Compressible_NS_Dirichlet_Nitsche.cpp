@@ -31,7 +31,7 @@ namespace moris
             mPropertyMap[ "PrescribedVelocity" ]  = static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY );
             mPropertyMap[ "SelectVelocity" ]      = static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY );
             mPropertyMap[ "PrescribedDof3" ]      = static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 );
-            mPropertyMap[ "Upwind" ]              = static_cast< uint >( IWG_Property_Type::UPWIND );
+            mPropertyMap[ "PressureUpwind" ]      = static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND );
             mPropertyMap[ "DynamicViscosity" ]    = static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY );
             mPropertyMap[ "ThermalConductivity" ] = static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY );
 
@@ -92,10 +92,10 @@ namespace moris
             auto tRes  = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
 
             // Boundary terms from Ibp
-            tRes -= trans( this->W() ) * this->select_matrix() * this->Traction();
+            tRes -= this->W_trans() * this->select_matrix() * this->Traction();
 
             // adjoint term
-            tRes -= mBeta * this->TestTraction() * this->select_matrix() * this->jump();
+            tRes -= mBeta * this->TestTraction() * this->jump();
 
             // get number of spatial dimensions
             uint tNumSpaceDims = this->num_space_dims();
@@ -115,24 +115,38 @@ namespace moris
                 }
 
                 // add contribution
-                tRes += trans( this->W() ) * tDiagSP * this->select_matrix() * this->jump();
+                tRes += this->W_trans() * tDiagSP * this->jump();
             }
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
-                // add A-matrices
-                Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
-                if ( tNumSpaceDims == 3 )
-                {
-                    tAini = tAini + this->A( 3 ) * mNormal( 2 );
-                }
+                // // add A-matrices
+                // Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
+                // if ( tNumSpaceDims == 3 )
+                // {
+                //     tAini = tAini + this->A( 3 ) * mNormal( 2 );
+                // }
+                //
+                // // add contribution
+                // tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tAini * this->jump();
+
+                // construct upwind pressure operator // FIXME: this needs to be done more neatly
+                // initialize operator
+                Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+                
+                // place normal such that it gets multiplied with the pressure difference in the velocity residual
+                tUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
+                
+                // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
+                Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
+                tUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
 
                 // add contribution
-                tRes -= tPropUpwind->val()( 0 ) * trans( this->W() ) * this->select_matrix() * tAini * this->jump();
+                tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tUpwindOperator * this->jump();
             }
 
             // check for nan, infinity
@@ -172,11 +186,11 @@ namespace moris
             auto tJac  = mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
 
             // Boundary terms from Ibp
-            tJac -= trans( this->W() ) * this->select_matrix() * this->dTractiondDOF();
+            tJac -= this->W_trans() * this->select_matrix() * this->dTractiondDOF();
 
             // adjoint term
-            tJac -= mBeta * this->TestTraction() * this->select_matrix() * this->dJumpdDOF();
-            tJac -= mBeta * this->dTestTractiondDOF( this->select_matrix() * this->jump() );
+            tJac -= mBeta * this->TestTraction() * this->dJumpdDOF();
+            tJac -= mBeta * this->dTestTractiondDOF( this->jump() );
 
             // get number of space dimensions
             uint tNumSpaceDims = num_space_dims();
@@ -196,7 +210,7 @@ namespace moris
                 }
 
                 // add contribution
-                tJac += trans( this->W() ) * tDiagSP * this->select_matrix() * this->dJumpdDOF();
+                tJac += this->W_trans() * tDiagSP * this->dJumpdDOF();
 
                 // FIXME: assuming no dependency of the penalty paramter on the dof types
             }
@@ -206,24 +220,43 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
                 for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
                 {
-                    // get dA/dY * Jump
-                    Matrix< DDRMat > tdAdY_Jump;
-                    eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->jump(), iDim + 1, tdAdY_Jump );
-
-                    // get dA/dDof * Jump
-                    Matrix< DDRMat > tdAdDof_Jump = tdAdY_Jump * this->W();
-
-                    // add contribution
-                    tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * trans( this->W() ) * this->select_matrix() * ( 
-                            this->A( iDim + 1 ) * this->dJumpdDOF() + tdAdDof_Jump );
+                    // // get dA/dY * Jump
+                    // Matrix< DDRMat > tdAdY_Jump;
+                    // eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->jump(), iDim + 1, tdAdY_Jump );
+                    //
+                    // // get dA/dDof * Jump
+                    // Matrix< DDRMat > tdAdDof_Jump = tdAdY_Jump * this->W();
+                    //
+                    // // add contribution
+                    // tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * this->W_trans() * ( 
+                    //         this->A( iDim + 1 ) * this->dJumpdDOF() + tdAdDof_Jump );
                 }
+
+                // construct upwind pressure operator // FIXME: this needs to be done more neatly
+                // initialize operator
+                Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+                
+                // place normal such that it gets multiplied with the pressure difference in the velocity residual
+                tUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
+                
+                // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
+                Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
+                tUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
+
+                // construct the dof derivative of the pressure upwind operator
+                // initialize operator
+                Matrix< DDRMat > tdUpwindOperatordY( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+                tdUpwindOperatordY( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 1, tNumSpaceDims } ) = trans( mNormal );
+
+                // add contribution
+                tJac -= tPropUpwind->val()( 0 ) * this->W_trans() * ( tUpwindOperator * this->dJumpdDOF() + this->jump()( 0 ) * tdUpwindOperatordY * this->W() );
             }
 
             // check for nan, infinity

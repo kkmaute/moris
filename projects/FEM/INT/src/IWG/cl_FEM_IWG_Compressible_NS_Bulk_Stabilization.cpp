@@ -140,11 +140,15 @@ namespace moris
             Matrix< DDRMat > tIdentity;
             eye( tNumStateVars, tNumStateVars, tIdentity );
 
-            // initialize M
+            // initialize M with time scaling term
             mM = tdTaudt * tdTaudt * tIdentity;
 
             // get subview of mM for += operatorions
             auto tM = mM( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
+
+            // add body force term to M
+            Matrix< DDRMat > tC = this->C() * this->A0inv();
+            tM += tC * tC;
 
             // add loop over A and K terms
             for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
@@ -244,6 +248,13 @@ namespace moris
             // update eval flag
             mdMdYEval = false;
 
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // initialize cell for storage
+            Matrix< DDRMat > tZeroMatrix( tNumStateVars, tNumStateVars, 0.0 );
+            mdMdY.assign( tNumStateVars, tZeroMatrix );
+
             // get the material and constitutive models
             std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
             std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
@@ -252,19 +263,16 @@ namespace moris
             std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
             std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
-            // get number of state variables
-            uint tNumStateVars = this->num_space_dims() + 2;
-
-            // initialize cell for storage
-            Matrix< DDRMat > tZeroMatrix( tNumStateVars, tNumStateVars, 0.0 );
-            mdMdY.assign( tNumStateVars, tZeroMatrix );
-
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
             {
-
                 // get subview for += operations
                 auto tdMdVar = mdMdY( iVar )( { 0, tNumStateVars - 1 }, { 0, tNumStateVars - 1 } );
+
+                // add body force term to M
+                Matrix< DDRMat > tdCdY = this->dCdY(iVar) * this->A0inv() + this->C() * this->dA0invdY( iVar );
+                Matrix< DDRMat > tC    = this->C() * this->A0inv();
+                tdMdVar += tdCdY * tC + tC * tdCdY;
 
                 // get the variable derivs for the K matrices
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
@@ -427,13 +435,16 @@ namespace moris
             // set the eval flag
             mLYEval = false;  
 
-            // evaluate LY
+            // initialize LY with A0 term
             mLY = this->A( 0 ) * this->dYdt();
 
             // get subview for += operations
             auto tLY = mLY( { 0, mLY.n_rows() - 1 }, { 0, mLY.n_cols() - 1 } );
 
-            // 
+            // add contribution due to body loads
+            tLY += this->C() * this->Y();
+
+            // loop over A and K matrices
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 tLY += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dYdx( iDim ); 
@@ -491,6 +502,9 @@ namespace moris
             // get subview of matrix for += operations
             auto tdLdDofY = mdLdDofY( { 0, mdLdDofY.n_rows() - 1 }, { 0, mdLdDofY.n_cols() - 1 } );
 
+            // add contribution due to body loads
+            tdLdDofY += this->dCdY_VR( this->Y() ) * this->W();
+
             // go over all Aj*Y,j and Kij,i*Y,j and Kij*Y,ij terms and add up
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
@@ -536,13 +550,16 @@ namespace moris
             // set the eval flag
             mLWEval = false;  
 
-            // evaluate LY
+            // initialize LW with A0 term
             mLW = this->A( 0 ) * this->dWdt();
 
             // get subview for += operations
             auto tLW = mLW( { 0, mLW.n_rows() - 1 }, { 0, mLW.n_cols() - 1 } );
 
-            // 
+            // add contribution due to body loads
+            tLW += this->C() * this->W();
+
+            // loop over A- and K-matrices
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
             {
                 tLW += ( this->A( iDim + 1 ) - this->Kiji( iDim ) ) * this->dWdx( iDim ); 
@@ -586,10 +603,13 @@ namespace moris
             eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, 0, tVLdAjdY( 0 ) );
 
             // compute A(0) term
-            mdLdDofW = trans( this->dWdt() ) * tVLdAjdY( 0 ) * this->W();
+            mdLdDofW = this->dWdt_trans() * tVLdAjdY( 0 ) * this->W();
 
             // get subview of matrix for += operations
             auto tdLdDofW = mdLdDofW( { 0, mdLdDofW.n_rows() - 1 }, { 0, mdLdDofW.n_cols() - 1 } );
+
+            // add contribution due to body loads // FIXME: dCdY_VR can only be applied because C is symmetric, dCdY_VL is needed
+            tdLdDofW += this->W_trans() * this->dCdY_VR( aVL ) * this->W();
 
             // go over all VL*Aj and VL*Kij,i and VL*Kij terms and add up
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
@@ -598,18 +618,18 @@ namespace moris
                 eval_VL_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, aVL, iDim + 1, tVLdAjdY( iDim + 1 ) );
 
                 // add contributions from A-matrices
-                tdLdDofW += trans( this->dWdx( iDim ) ) * tVLdAjdY( iDim + 1 )  * this->W();
+                tdLdDofW += this->dWdx_trans( iDim ) * tVLdAjdY( iDim + 1 )  * this->W();
 
                 // get VL * dKij,i/dY
                 eval_VL_dKijidY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, tVLdKijidY( iDim ) );
 
                 // add contributions from Kij,i-matrices
-                // tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( 0 ) * this->W();
+                // tdLdDofW -= this->dWdx_trans( iDim ) * tVLdKijidY( iDim )( 0 ) * this->W();
 
                 for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
                 {
                     // add contributions from Kij,i-matrices
-                    tdLdDofW -= trans( this->dWdx( iDim ) ) * tVLdKijidY( iDim )( jDim + 1 ) * this->dWdx( jDim );
+                    tdLdDofW -= this->dWdx_trans( iDim ) * tVLdKijidY( iDim )( jDim + 1 ) * this->dWdx( jDim );
 
                     // get VL * dKij/dY
                     eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, jDim, tVLdKijdY( iDim )( jDim ) );

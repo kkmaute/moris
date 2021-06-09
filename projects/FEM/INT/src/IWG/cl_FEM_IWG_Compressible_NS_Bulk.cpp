@@ -17,6 +17,8 @@
 // debug - output to hdf5
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
+#include "fn_FEM_Check.hpp"
+#include "fn_sqrtmat.hpp"
 
 namespace moris
 {
@@ -71,9 +73,10 @@ namespace moris
 
             mMEval = true;
             mMinvEval = true;
+            mSqrtMinvEval = true;
             mdMdYEval = true;
 
-            mTauEval = true;
+            mTauEval = true; 
         }
 
         //------------------------------------------------------------------------------
@@ -106,13 +109,13 @@ namespace moris
             auto tRes = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
 
             // A0 matrix contribution
-            tRes += aWStar * trans( this->W() ) * this->A( 0 ) * this->dYdt();
+            tRes += aWStar * this->W_trans() * this->A( 0 ) * this->dYdt();
 
             // loop over A-Matrices
             for ( uint iA = 1; iA < tNumSpaceDims + 1; iA++ )
             {
                 // compute residual
-                tRes += aWStar * trans( this->W() ) * this->A( iA ) * this->dYdx( iA - 1 );
+                tRes += aWStar * this->W_trans() * this->A( iA ) * this->dYdx( iA - 1 );
             }
 
             // loop over K-matrices
@@ -121,9 +124,12 @@ namespace moris
                 for ( uint jDim = 0; jDim < tNumSpaceDims; jDim++ )
                 {
                     // compute residual
-                    tRes += aWStar * trans( this->dWdx( iDim ) ) * this->K( iDim, jDim ) * this->dYdx( jDim );
+                    tRes += aWStar * this->dWdx_trans( iDim ) * this->K( iDim, jDim ) * this->dYdx( jDim );
                 }
             }
+
+            // contribution from body loads
+            tRes += aWStar * this->W_trans() * this->C() * this->Y();
 
             // get the Stabilization Parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
@@ -131,22 +137,6 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // stabilization term for testing
-                //tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->LY();
-
-                // debug - stabilization term without Tau for testing
-                // tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->LY();
-
-                // debug - test M
-                // uint tNumStateVars = tNumSpaceDims + 2;
-                // Matrix< DDRMat > tVR( tNumStateVars, 1, 1.3 );
-                // tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->M() * tVR;
-
-                // debug - test Tau
-                // uint tNumStateVars = tNumSpaceDims + 2;
-                // Matrix< DDRMat > tVR( tNumStateVars, 1, 1.3 );
-                // tRes += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->Tau() * tVR;
-
                 // GLS stabilization term
                 tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
             }           
@@ -197,7 +187,7 @@ namespace moris
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
             eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
-            tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
+            tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
 
             // loop over contributions from A-matrices
             for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
@@ -206,7 +196,7 @@ namespace moris
                 eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAdY );
 
                 // add contribution
-                tJac += aWStar * trans( this->W() ) * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );
+                tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );
 
             }
 
@@ -224,9 +214,12 @@ namespace moris
                     eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( jDim ), iDim, jDim, dKdY );
                                 
                     // add contributions from K-matrices
-                    tJac += aWStar * trans( this->dWdx( iDim ) ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
+                    tJac += aWStar * this->dWdx_trans( iDim ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
                 }
             }
+
+            // contribution from body loads
+            tJac += aWStar * this->W_trans() * ( this->C() + this->dCdY_VR( this->Y() ) ) * this->W();
 
             // get the Stabilization Parameter
             const std::shared_ptr< Stabilization_Parameter > & tSP = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GLS ) );
@@ -234,32 +227,9 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // debug - stabilization term for testing
-                // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * ( this->LW() + this->dLdDofY() );
-
-                // debug - stabilization term without Tau for testing
-                // tJac += aWStar * tSP->val()( 0 ) * ( 
-                //         this->dLdDofW( this->LY() ) + 
-                //         trans( this->LW() ) * ( this->LW() + this->dLdDofY() ) );
-
-                // debug - test M
-                // uint tNumStateVars = tNumSpaceDims + 2;
-                // Matrix< DDRMat > tVR( tNumStateVars, 1, 1.3 );
-                // Matrix< DDRMat > tdMVRdY( tNumStateVars, tNumStateVars, 0.0 );
-                // for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
-                // {
-                //     tdMVRdY( { 0, tNumStateVars - 1 }, { iVar, iVar } ) = this->dMdY( iVar ) * tVR;
-                // }
-                // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * tdMVRdY * this->W();
-
-                // debug - test Tau
-                // uint tNumStateVars = tNumSpaceDims + 2;
-                // Matrix< DDRMat > tVR( tNumStateVars, 1, 1.3 );
-                // tJac += aWStar * tSP->val()( 0 ) * trans( this->W() ) * this->dTaudY( tVR ) * this->W();
-
                 // GLS stabilization term
                 tJac += aWStar * tSP->val()( 0 ) * (
-                        trans( this->LW() ) * ( this->Tau() * this->dLdDofY() + this->dTaudY( this->LY() ) * this->W() ) +
+                        trans( this->LW() ) * ( this->dTaudY( this->LY() ) * this->W() + this->Tau() * ( this->LW() + this->dLdDofY() ) ) +
                         this->dLdDofW( this->Tau() * this->LY() ) );
             }
 
@@ -292,6 +262,118 @@ namespace moris
             MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::compute_dRdp - Not implemented." );
         }
         
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > IWG_Compressible_NS_Bulk::dSqrtMinvdu_FD( const uint aColInd, const real aPerturbation )
+        {
+            // get residual dof type index in set, start and end indices for residual dof type
+            uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // get number of master and slave rows
+            uint tNumRows = tNumStateVars;
+
+            // get number of cols for jacobian
+            uint tNumCols = tNumStateVars * this->num_bases();;
+
+            // set size for FD jacobian
+            Matrix< DDRMat > tFDdMdu(tNumRows, tNumCols, 0.0 );
+
+            // compute jacobian by FD
+            // this->compute_jacobian_FD( aWStar, aPerturbation );
+            {
+                // get the FD scheme info
+                moris::Cell< moris::Cell< real > > tFDScheme;
+                fd_scheme( fem::FDScheme_Type::POINT_5, tFDScheme );
+                uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                // get master number of dof types
+                uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
+
+                // loop over the IWG dof types
+                for( uint iFI = 0; iFI < tMasterNumDofTypes; iFI++ )
+                {
+                    // init dof counter
+                    uint tDofCounter = 0;
+
+                    // get the dof type
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );                                 
+
+                    // get the index for the dof type
+                    sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                    uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterFirstDofIndex )( tMasterDepDofIndex, 0 );
+
+                    // get field interpolator for dependency dof type
+                    Field_Interpolator * tFI =
+                            mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+
+                    // get number of master FI bases and fields
+                    uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+                    uint tDerNumFields = tFI->get_number_of_fields();
+
+                    // coefficients for dof type wrt which derivative is computed
+                    Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+                    // loop over the coefficient column
+                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                    {
+                        // loop over the coefficient row
+                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
+                        {
+                            // compute the perturbation absolute value
+                            real tDeltaH = aPerturbation ;//* tCoeff( iCoeffRow, iCoeffCol );
+
+                            // check that perturbation is not zero
+                            if( std::abs( tDeltaH ) < 1e-12 )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
+
+                            // set starting point for FD
+                            uint tStartPoint = 0;
+
+                            // loop over the points for FD
+                            for( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                            {
+                                // reset the perturbed coefficients
+                                Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                                // perturb the coefficient
+                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                                // set the perturbed coefficients to FI
+                                tFI->set_coeff( tCoeffPert );
+                                tFI->reset_eval_flags(); // not useful
+
+                                // reset properties, CM and SP for IWG
+                                this->reset_eval_flags();
+
+                                // index of dof being FDed
+                                uint tDofIndex = tMasterDepStartIndex + tDofCounter;
+
+                                // evaluate column of M, Minv, or sqrtMinv
+                                Matrix< DDRMat > Mcol = this->SqrtMinv()( { 0, tNumStateVars - 1 }, { aColInd, aColInd } );
+
+                                // assemble the Jacobian
+                                tFDdMdu( { 0, tNumStateVars - 1 }, {tDofIndex, tDofIndex } ) +=
+                                                tFDScheme( 1 )( iPoint ) *
+                                                Mcol / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
+                            // update dof counter
+                            tDofCounter++;
+                        }
+                    }
+                    // reset the coefficients values
+                    tFI->set_coeff( tCoeff );
+                }
+            }
+
+            // return
+            return tFDdMdu;
+        }
+
         //------------------------------------------------------------------------------
 
     } /* namespace fem */

@@ -234,6 +234,14 @@ namespace moris
                 const Matrix< DDRMat > & dTaudY( const Matrix< DDRMat > aVR );
 
                 //------------------------------------------------------------------------------
+                /**
+                 * get the deriv of sqrt( inv ( M ) ) operator wrt to the DoFs for debugging purposes
+                 * @param[ in ]  aColInd  index of column of sqrt( inv ( M ) ) to be finite difference checked
+                 * @param[ out ] aPerturbation  absolute perturbation size of DoFs for FD
+                 */
+                Matrix< DDRMat > dSqrtMinvdu_FD( const uint aColInd, const real aPerturbation );
+
+                //------------------------------------------------------------------------------
 
         };
         //------------------------------------------------------------------------------

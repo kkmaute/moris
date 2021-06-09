@@ -46,7 +46,7 @@ namespace moris
                 MSI::Dof_Type mLastDof    = MSI::Dof_Type::TEMP;
                 uint mFirstDofIndex   = 0;
                 uint mVectorDofIndex  = 1;
-                uint mLastDofINdex    = 2;
+                uint mLastDofIndex    = 2;
 
                 // List of accepted variable sets
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mConservativeVars = { 
@@ -78,10 +78,18 @@ namespace moris
                 bool mdWdxEval = true;
                 bool md2Wdx2Eval = true;
 
+                bool mWtransEval = true;
+                bool mdWtransdtEval = true;
+                bool mdWtransdxEval = true;
+
                 // evaluation flags for flux matrices
                 bool mAEval = true;
                 bool mKEval = true;
                 bool mKijiEval = true;
+                
+                // evaluation flags for the body load coefficient matrix
+                bool mCEval = true;
+                bool mdCdYEval = true;
 
                 // vectors and matrices containing field variables and their spatial derivatives
                 Matrix< DDRMat > mY;
@@ -95,10 +103,19 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mdWdx;
                 moris::Cell< Matrix< DDRMat > > md2Wdx2;
 
+                Matrix< DDRMat > mWtrans;
+                Matrix< DDRMat > mdWtransdt;
+                moris::Cell< Matrix< DDRMat > > mdWtransdx;
+
                 // cells of matrices containing the flux matrices 
                 moris::Cell< Matrix< DDRMat > > mA;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
-                moris::Cell< Matrix< DDRMat > > mKiji;    
+                moris::Cell< Matrix< DDRMat > > mKiji;   
+                
+                // storage vars for the body load coefficient matrix
+                Matrix< DDRMat > mC; 
+                Matrix< DDRMat > mdCdYVR; 
+                moris::Cell< Matrix< DDRMat > > mdCdY;
 
                 //------------------------------------------------------------------------------
 
@@ -261,6 +278,7 @@ namespace moris
                  * @param[ out ] W  Matrix of test functions
                  */
                 const Matrix< DDRMat > & W();
+                const Matrix< DDRMat > & W_trans();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -268,6 +286,7 @@ namespace moris
                  * @param[ out ] dWdt  time rate of change of test functions
                  */
                 const Matrix< DDRMat > & dWdt();
+                const Matrix< DDRMat > & dWdt_trans();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -276,6 +295,7 @@ namespace moris
                  * @param[ out ] dWdx              spatial derivative of the test functions
                  */
                 const Matrix< DDRMat > & dWdx( const uint aSpatialDirection );
+                const Matrix< DDRMat > & dWdx_trans( const uint aSpatialDirection );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -311,6 +331,30 @@ namespace moris
                  * @param[ out ] Kij_i spatial derivatives of the K flux matrices
                  */
                 const Matrix< DDRMat > & Kiji ( const uint aJ );   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the coefficient matrix for the body loads
+                 * @param[ out ] mC coefficient matrix
+                 */
+                const Matrix< DDRMat > & C();   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the state variable derivative of the coefficient matrix for the body loads
+                 * pre multiplied with a vector from the right 
+                 * @param[ in ]  aVR      vector for pre-multiplication
+                 * @param[ out ] mdCdYVR  coefficient matrix
+                 */
+                const Matrix< DDRMat > & dCdY_VR( const Matrix< DDRMat > aVR );   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the state variable derivative of the coefficient matrix for the body loads
+                 * @param[ in ]  aYind  state variable index
+                 * @param[ out ] mC     coefficient matrix
+                 */
+                const Matrix< DDRMat > & dCdY( const uint aYind );   
 
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------

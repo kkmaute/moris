@@ -36,16 +36,17 @@ namespace moris
             {
 
                 // check for proper size of constant function parameters
-                MORIS_ERROR( mParameters.size() == 6 ,
-                        "IQI_Heat_Method_Penalty::initialize - Needs 6 constant parameters." );
+                MORIS_ERROR( mParameters.size() == 7 ,
+                        "IQI_Heat_Method_Penalty::initialize - Needs 7 constant parameters." );
 
                 // get weights for L2 and H1 semi-norm contributions
                 mPhiBound       = mParameters( 0 )( 0 );
-                mGammaPerimReg  = mParameters( 1 )( 0 );
-                mWeightPhi1     = mParameters( 2 )( 0 );
-                mWeightPhi2     = mParameters( 3 )( 0 );
-                mWeightDelPhi1  = mParameters( 4 )( 0 );
-                mWeightDelPhi2  = mParameters( 5 )( 0 );
+                mPhiGradient    = mParameters( 1 )( 0 );
+                mPhiGamma       = mParameters( 2 )( 0 );
+                mWeightPhi1     = mParameters( 3 )( 0 );
+                mWeightPhi2     = mParameters( 4 )( 0 );
+                mWeightDelPhi1  = mParameters( 5 )( 0 );
+                mWeightDelPhi2  = mParameters( 6 )( 0 );
 
                 // check mQuantityDofType is defined
                 MORIS_ERROR( mQuantityDofType.size() > 0,
@@ -71,14 +72,14 @@ namespace moris
             aQI.fill(0.0);
 
             // Compute phi tilde
-            moris::real tPhiTilde = (2/(1+std::exp(-2*tFI->val()(0)/mPhiBound)) - 1 ) * mPhiBound;
+            moris::real tPhiTilde = (2.0/(1.0+std::exp(-2.0*mPhiGradient*tFI->val()(0)/mPhiBound)) - 1.0) * mPhiBound;
 
             // Compute alpha
-            moris::real tAlpha = std::exp((-mGammaPerimReg) * std::pow(tPhiTilde / mPhiBound,2));
+            moris::real tAlpha = std::exp(-mPhiGamma * std::pow(tPhiTilde / mPhiBound,2));
 
             // Compute weights
-            moris::real tWPhi    = mWeightPhi1 * tAlpha + mWeightPhi2 * (1-tAlpha);
-            moris::real tWDelPhi = mWeightDelPhi1 * tAlpha + mWeightDelPhi2 * (1-tAlpha);
+            moris::real tWPhi    = mWeightPhi1    * tAlpha + mWeightPhi2    * (1.0 - tAlpha);
+            moris::real tWDelPhi = mWeightDelPhi1 * tAlpha + mWeightDelPhi2 * (1.0 - tAlpha);
 
 
             const std::shared_ptr< Property > & tPropL2Value =
@@ -89,7 +90,6 @@ namespace moris
 
             // compute L2 error
             aQI += tWPhi * trans( tL2error ) * tL2error;
-
 
             const std::shared_ptr< Property > & tPropH1SValue =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );

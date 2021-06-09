@@ -78,6 +78,8 @@ namespace moris
         : HMR( new Parameters( aParameterList, aLibrary ) )
         {
             mDatabase->set_parameter_owning_flag();
+
+            this->load_refinement_from_file();
         }
 
         // -----------------------------------------------------------------------------
@@ -157,6 +159,8 @@ namespace moris
         {
             this->finalize();
 
+            this->output_mesh_refinement_data();
+
             const Cell< Matrix< DDUMat > > & OutputMeshIndex = mParameters->get_output_mesh();
 
             MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1, " HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!");
@@ -174,6 +178,8 @@ namespace moris
 
             // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
+
+            //this->save_coeffs_to_hdf5_file("TMatrixData.hdf5",0);
 
             if( OutputMeshIndex.size() == 2 )
             {
@@ -193,6 +199,83 @@ namespace moris
                     // register HMR interpolation and integration meshes
                     mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( Ik+1 ) );
                 }
+            }
+        }
+
+        // -----------------------------------------------------------------------------
+
+        void HMR::output_mesh_refinement_data()
+        {
+            // get all lagrange and bspline pattern
+            moris::Matrix< DDUMat > tLagrangePatter = mParameters->get_lagrange_patterns();
+            moris::Matrix< DDUMat > tBSplinePatter = mParameters->get_bspline_patterns();
+
+            uint tNumLagPattern = tLagrangePatter.numel();
+            uint tNumBSPattern = tBSplinePatter.numel();
+
+            // make pattern unique
+            moris::Cell< uint > tPatternList( tNumLagPattern + tNumBSPattern );
+
+            for( uint Ik = 0; Ik < tNumLagPattern; Ik ++)
+            {
+                tPatternList( Ik ) = tLagrangePatter( Ik );
+            }
+            for( uint Ik = 0; Ik < tNumBSPattern; Ik ++)
+            {
+                tPatternList( Ik + tNumLagPattern ) = tBSplinePatter( Ik );
+            }
+
+            std::sort( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
+
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
+            auto last = std::unique( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
+            auto pos  = std::distance( ( tPatternList.data() ).data(), last );
+
+            tPatternList.resize( pos );
+            uint tNumUniquePattern = tPatternList.size();
+            moris::Matrix< DDUMat >tPatternListUniqueMat( tNumUniquePattern, 1, MORIS_UINT_MAX );
+
+            // Copy unique list in Mat
+            for( uint Ik = 0; Ik < tPatternList.size(); Ik++ )
+            {
+                tPatternListUniqueMat( Ik ) = tPatternList( Ik );
+            }
+
+            // Get iteration from global clock
+            uint tOptIter = gLogger.get_iteration(
+                    "OptimizationManager",
+                    LOGGER_ARBITRARY_DESCRIPTOR,
+                    LOGGER_ARBITRARY_DESCRIPTOR);
+
+            hmr::File tHDF5;
+
+            // create file on disk
+            tHDF5.create(
+                    "HMR_Background_Refinement_Iter_" +
+                    std::to_string( tOptIter ) +
+                    ".hdf5" );
+
+            tHDF5.save_refinement_pattern(
+                    mDatabase->get_background_mesh(),
+                    tPatternListUniqueMat );
+
+            tHDF5.close();
+        }
+
+        // -----------------------------------------------------------------------------
+
+        void HMR::load_refinement_from_file()
+        {
+            if( not mParameters->get_restart_refinement_pattern_file().empty() )
+            {
+                // load refinement pattern from file. 2nd argument is just dummy for now.
+                mDatabase->load_pattern_from_hdf5_file( mParameters->get_restart_refinement_pattern_file(), true );
+
+                // update database
+                mDatabase->update_bspline_meshes();
+                mDatabase->update_lagrange_meshes();
+
+                mRestartedFromFile = true;
             }
         }
 
@@ -341,7 +424,7 @@ namespace moris
 
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
             +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel

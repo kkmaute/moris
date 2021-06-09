@@ -180,10 +180,11 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
             }
             case 1 :
             { 
+                tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
                 tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
                 tIWG->set_property( tPropVelSelect, "SelectVelocity" );
-                tIWG->set_property( tPropPrescTemp, "PrescribedDof3" );
-                tIWG->set_property( tPropUpwind,    "Upwind" );
+                //tIWG->set_property( tPropPrescTemp, "PrescribedDof3" );
+                tIWG->set_property( tPropUpwind,    "PressureUpwind" );
                 break;
             }
             default:

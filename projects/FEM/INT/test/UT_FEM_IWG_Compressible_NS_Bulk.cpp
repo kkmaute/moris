@@ -35,13 +35,21 @@ using namespace fem;
 TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive]" )
 {
-    // define an epsilon environment
-    real tEpsilon = 1.0E-5;
-    real tEpsilonCubic = 3.0E-5;
+    
+    // FD configuration
+    //------------------------------------------------------------------------------
 
-    // define a perturbation relative size
-    real tPerturbation = 1.0E-5;
-    real tPerturbationCubic = 2.0E-4;
+    // define an epsilon environment
+    real tEpsilon = 1.0E-4;
+
+    // numerical error due to finite differencing
+    real tFDNumTol = 1.0e-8;
+
+    // define a perturbation size
+    real tPerturbation = 1.3E-2;
+
+    // use absolute or relative perturbations for DoF deriv FD
+    bool tUseAbsolutePerturbations = true;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -99,6 +107,11 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tPropConductivity->set_parameters( { {{ 0.8 }} } );
     tPropConductivity->set_val_function( tConstValFunc );
 
+    // Body heat load
+    std::shared_ptr< fem::Property > tPropBodyHeatLoad = std::make_shared< fem::Property >();
+    tPropBodyHeatLoad->set_parameters( { {{ 1.3 }} } );
+    tPropBodyHeatLoad->set_val_function( tConstValFunc );
+
     // define material model and assign properties
     fem::MM_Factory tMMFactory;
 
@@ -122,7 +135,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     fem::SP_Factory tSPFactory;
     std::shared_ptr< fem::Stabilization_Parameter > tSP =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    tSP->set_parameters( { {{ 0.0 }} });
+    tSP->set_parameters( { {{ 1.0 }} });
     tSP->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 
     // create a dummy fem cluster and set it to SP
@@ -139,6 +152,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
     tIWG->set_property( tPropConductivity, "ThermalConductivity" );
+    tIWG->set_property( tPropBodyHeatLoad, "BodyHeatLoad" );
     tIWG->set_material_model( tMMFluid, "FluidMM" );
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
@@ -214,16 +228,9 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         tMMFluid->set_space_dim( iSpaceDim );
         tCMMasterFluid->set_space_dim( iSpaceDim );
 
-        // loop on the interpolation order // FIXME: cubic case missing   
-        for( uint iInterpOrder = 2; iInterpOrder < 3; iInterpOrder++ )
+        // loop on the interpolation order //FIXME: ingnore cubic case for now 
+        for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
-            // tune finite differencing for cubic shape functions
-            if ( iInterpOrder == 3 )
-            {
-                tEpsilon = tEpsilonCubic;
-                tPerturbation = tPerturbationCubic;
-            }
-
             // output for debugging
             std::cout << "-------------------------------------------------------------------\n" << std::flush;
             std::cout << "-------------------------------------------------------------------\n" << std::flush;
@@ -420,8 +427,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
                 // for debug
-                print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
-                print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
+                // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
+                // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -444,8 +451,10 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                         1.0,
                         tJacobianTest,
                         tJacobianFD,
-                        true );
-                        //false );
+                        true,     // print entry wise differences
+                        true,      // print maximum differences
+                        tFDNumTol, // define absolute numerical error caused by FD
+                        tUseAbsolutePerturbations );
 
                 // print for debug
                 if( !tCheckJacobian )

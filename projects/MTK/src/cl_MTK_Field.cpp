@@ -37,7 +37,7 @@ namespace moris
             mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // size matrix of nodal values
-            mNodalValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields);
+            mNodalValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields, MORIS_REAL_MAX);
         }
 
         //------------------------------------------------------------------------------

@@ -468,6 +468,94 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void File::save_refinement_pattern( Background_Mesh_Base          * aBackgroundMesh,
+                                            const moris::Matrix< DDUMat > & tPatternToSave  )
+        {
+            // step 1: count how many elements need are refined on each level
+            uint tMaxLevel = aBackgroundMesh->get_max_level();
+
+            uint tNumPattern = tPatternToSave.numel();
+
+            save_matrix_to_hdf5_file( mFileID,
+                    "PatternInd",
+                    tPatternToSave,
+                    mStatus );
+
+            // element counter
+            Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, tNumPattern, 0 );
+
+            // collect all elements that are flagged for refinement
+            for( uint l = 0; l < tMaxLevel; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // loop over all elements
+                for( auto tElement : tElements )
+                {
+                    for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+                    {
+                        // test if B-Spline Element is refined
+                        if( tElement->is_refined( tPatternToSave( Ik ) ) )
+                        {
+                            // increment counter
+                            ++tElementCounter ( l, Ik );
+                        }
+                    }
+                }
+            }
+
+            moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumPattern );
+            moris::Cell< hsize_t > tElementPerPatternCount( tNumPattern, 0 );
+
+            for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+            {
+                tPatternElement( Ik ).set_size( sum( tElementCounter.get_column( Ik ) ) , 1 );
+            }
+
+            for( uint l = 0; l < tMaxLevel; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // loop over all elements
+                for( Background_Element_Base * tElement : tElements )
+                {
+                    for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+                    {
+                        // test if element is refined
+                        if( tElement->is_refined( tPatternToSave( Ik ) ) )
+                        {
+                            tPatternElement( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
+                        }
+                    }
+                }
+            }
+
+            save_matrix_to_hdf5_file( mFileID,
+                    "ElementCounter",
+                    tElementCounter,
+                    mStatus );
+
+            for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+            {
+                std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternToSave( Ik ) ) + "_Elements";
+
+                save_matrix_to_hdf5_file( mFileID,
+                        tSubsectionStr,
+                        tPatternElement( Ik ),
+                        mStatus );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void File::save_refinement_pattern(
                 Lagrange_Mesh_Base               * aLagrangeMesh,
                 const uint                         aDiscretizationMeshIndex,
@@ -650,7 +738,6 @@ namespace moris
                 std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternListUniqueMat( Ik ) ) + "_Elements";
 
                 // allocate pattern
-                Matrix< DDLUMat > tBSplineElements;
                 load_matrix_from_hdf5_file( mFileID,
                         tSubsectionStr,
                         tPatternElement( Ik ),

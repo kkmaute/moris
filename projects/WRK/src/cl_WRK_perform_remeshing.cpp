@@ -399,6 +399,7 @@ namespace moris
                         // create mapper and map input field to new field
                         mtk::Mapper tMapper;
                         tMapper.map_input_field_to_output_field( aSourceFields( If ).get(), aTargetFields( If ).get() );
+                        aTargetFields( If )->compute_nodal_values();
                     }
                     else
                     {

@@ -518,5 +518,15 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
+        void Algorithm::set_restart_index( uint aRestartIndex )
+        {
+            mRestartIndex = aRestartIndex;
+
+            // calculating updated max its
+            mMaxIterations = mMaxIterationsInitial - mRestartIndex;
+        }
+
+        // -------------------------------------------------------------------------------------------------------------
+
     }
 }

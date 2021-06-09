@@ -39,9 +39,16 @@ namespace moris
             mdWdxEval = true;
             md2Wdx2Eval = true;
 
+            mWtransEval = true;
+            mdWtransdtEval = true;
+            mdWtransdxEval = true;
+
             mAEval = true;
             mKEval = true;
             mKijiEval = true;
+
+            mCEval = true;
+            mdCdYEval = true;
 
             // reset flags for child
             this->reset_child_eval_flags();
@@ -384,6 +391,28 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::W_trans()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mWtransEval )
+            {      
+                return mWtrans;
+            } 
+            mWtransEval = false;  
+
+            // check residual DoF types
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+                    "IWG_Compressible_NS_Bulk::W() - check for residual DoF types failed." );
+
+            // evaluate transpose
+            mWtrans = trans( this->W() );
+
+            // return value
+            return mWtrans;
+        }
+
+        //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & IWG_Compressible_NS_Base::dWdt()
         {
@@ -419,6 +448,28 @@ namespace moris
 
             // return value
             return mdWdt;
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dWdt_trans()
+        {
+            // check if the variable vectors have already been assembled
+            if( !mdWtransdtEval )
+            {      
+                return mdWtransdt;
+            } 
+            mdWtransdtEval = false;  
+
+            // check residual DoF types
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+                    "IWG_Compressible_NS_Bulk::W() - check for residual DoF types failed." );
+
+            // evaluate transpose
+            mdWtransdt = trans( this->dWdt() );
+
+            // return value
+            return mdWtransdt;
         }
 
         //------------------------------------------------------------------------------
@@ -461,6 +512,34 @@ namespace moris
 
             // return value
             return mdWdx( aSpatialDirection );
+        }
+
+        //------------------------------------------------------------------------------
+        
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dWdx_trans( const uint aSpatialDirection )
+        {
+            // check if the variable vectors have already been assembled
+            if( !mdWtransdxEval )
+            {      
+                return mdWtransdx( aSpatialDirection );
+            } 
+            mdWtransdxEval = false;  
+
+            // check residual DoF types
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+                    "IWG_Compressible_NS_Bulk::W() - check for residual DoF types failed." );
+
+            // initialize cell
+            mdWtransdx.resize( this->num_space_dims() );
+
+            // evaluate transpose
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                mdWtransdx( iDim ) = trans( this->dWdx( iDim ) );
+            }
+
+            // return value
+            return mdWtransdx( aSpatialDirection );
         }
 
         //------------------------------------------------------------------------------
@@ -594,6 +673,121 @@ namespace moris
             return mKiji( aJ );
         } 
 
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::C()
+        {
+            // check if matrix is already evaluated
+            if ( !mCEval )
+            {
+                return mC;
+            }
+
+            // set the eval flag
+            mCEval = false;  
+
+            // get the body heat load
+            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            real tQ = 0.0;
+            if ( tPropBodyHeatLoad != nullptr )
+            {
+                tQ = tPropBodyHeatLoad->val()( 0 );
+            }
+            
+            // FIXME: body force not considered yet
+            // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) ); 
+
+            // get the material model
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // define coefficient matrix
+            mC.set_size( tNumStateVars, tNumStateVars, 0.0 );
+            mC( tNumStateVars - 1, tNumStateVars - 1 ) = -1.0 * tQ / tMM->temperature()( 0 ); 
+
+            // return coefficient matrix
+            return mC;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY_VR( const Matrix< DDRMat > aVR )
+        {
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // check input vector
+            MORIS_ASSERT( aVR.length() == tNumStateVars, 
+                    "IWG_Compressible_NS_Base::dCdY_VR() - pre-multiplication vector of incorrect size." );
+
+            // get the body heat load
+            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            real tQ = 0.0;
+            if ( tPropBodyHeatLoad != nullptr )
+            {
+                tQ = tPropBodyHeatLoad->val()( 0 );
+            }
+            
+            // FIXME: body force not considered yet
+            // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) ); 
+
+            // get the material model temperature
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            real tTemp = tMM->temperature()( 0 );
+
+            // get last entry of Vr 
+            mdCdYVR.set_size( tNumStateVars, tNumStateVars, 0.0 );
+            mdCdYVR( tNumStateVars - 1, tNumStateVars - 1 ) = aVR( tNumStateVars - 1 ) * tQ / tTemp / tTemp;
+
+            // return 
+            return mdCdYVR;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY( const uint aYind )
+        {
+            // check that index are not out of bounds
+            MORIS_ASSERT( ( aYind >= 0 ) and ( aYind < this->num_space_dims() + 2 ), 
+                    "IWG_Compressible_NS_Base::dCdY() - state variable index out of bounds." );
+
+            // check if matrix is already evaluated
+            if ( !mdCdYEval )
+            {
+                return mdCdY( aYind );
+            }
+
+            // set the eval flag
+            mdCdYEval = false;  
+
+            // get the body heat load
+            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            real tQ = 0.0;
+            if ( tPropBodyHeatLoad != nullptr )
+            {
+                tQ = tPropBodyHeatLoad->val()( 0 );
+            }
+            
+            // FIXME: body force not considered yet
+            // std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) ); 
+
+            // get the material model temperature
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            real tTemp = tMM->temperature()( 0 );
+
+            // get number of state variables
+            uint tNumStateVars = this->num_space_dims() + 2;
+
+            // define coefficient matrix
+            Matrix< DDRMat > tZeroMat( tNumStateVars, tNumStateVars, 0.0 );
+            mdCdY.resize( tNumStateVars, tZeroMat );
+            mdCdY( tNumStateVars - 1 )( tNumStateVars - 1, tNumStateVars - 1 ) = tQ / tTemp / tTemp; 
+
+            // return coefficient matrix state var derivative
+            return mdCdY( aYind );
+        }
 
         //------------------------------------------------------------------------------
 

@@ -95,6 +95,12 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void save_refinement_pattern(
+                    Background_Mesh_Base          * aBackgroundMesh,
+                    const moris::Matrix< DDUMat > & tPatternToSave );
+
+            //-------------------------------------------------------------------------------
+
+            void save_refinement_pattern(
                     Lagrange_Mesh_Base * aLagrangeMesh,
                     const uint aDiscretizationMeshIndex,
                     Matrix< DDLUMat > & aElementCounterPerLevelAndPattern,

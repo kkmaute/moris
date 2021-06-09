@@ -1,11 +1,10 @@
-set(EXAMPLE_MAIN Main_Levelset_Boxbeam_Adaptive_Refinement)
-#set(EXAMPLE_FILE Levelset_Boxbeam Levelset_Boxbeam_Lin_Quad_LevelSet)
-set(EXAMPLE_FILES Levelset_Boxbeam_Adaptive_Refinement Levelset_Boxbeam_Adaptive_Refinement_Quadratic )
-set(EXAMPLE_PROCS 1 4)
+set(EXAMPLE_MAIN Main_Heated_Channel_2D)
+set(EXAMPLE_FILE Heated_Channel_2D)
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES
-    ../../src/example_main.cpp
+    ../../../src/example_main.cpp
     example_test_case.cpp
 )
 
@@ -73,7 +72,7 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/COM/src 
     ${MORIS_PACKAGE_DIR}/MTK/src
     ${MORIS_PACKAGE_DIR}/HMR/src
-    ${MORIS_PACKAGE_DIR}/XTK/src    
+    ${MORIS_PACKAGE_DIR}/XTK/src   
     ${MORIS_PACKAGE_DIR}/PRM/src 
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
@@ -82,16 +81,13 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-# create dynamically linked .so files
-foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
-    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
-endforeach()
+dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-    foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME Levelset_Boxbeam_Adaptive_Refinement-${PROCS}-procs
-        COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
-        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endforeach()
+     foreach(PROCS ${EXAMPLE_PROCS})
+        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs
+                 WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>)
+     endforeach()
 endif()
