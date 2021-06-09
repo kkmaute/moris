@@ -150,8 +150,6 @@ namespace moris
                 HOMOGENIZED_CONSTITUTIVE,
                 HEAT_METHOD_PENALTY,
 
-                HEAT_METHOD_PENALTY,
-
                 END_IQI_TYPE
         };
 

@@ -11,7 +11,6 @@
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
-#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -99,16 +98,19 @@ namespace moris
                     tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
 
             // compute projection of traction onto normal
-            const real tIfcPressure = dot( tTraction, mNormal );
+            // const real tIfcPressure = dot( tTraction, mNormal );
+
+            const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // check for contact pressure (tIfcPressure < 0 )
-            if ( tIfcPressure <= 0.0 )
+            // if ( tIfcPressure <= 0.0 )
+            if ( dot(tJump,mNormal) >= 0.0 )
             {
                 // normal projection operator
                 const  Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
 
                 // compute the jump
-                const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+                // const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
                 // compute master residual
                 mSet->get_residual()( 0 )(
@@ -187,16 +189,19 @@ namespace moris
                     tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
 
             // compute projection of traction onto normal
-            real tIfcPressure = dot( tTraction, mNormal );
+            // real tIfcPressure = dot( tTraction, mNormal );
+
+            const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // check for contact pressure (tIfcPressure < 0 )
-            if ( tIfcPressure <= 0.0 )
+            // if ( tIfcPressure <= 0.0 )
+            if ( dot( tJump, mNormal) >= 0.0 )
             {
                 // normal projection operator
                 const Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
 
                 // compute the jump
-                const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+                // const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
                 // get number of master dof dependencies
                 const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
