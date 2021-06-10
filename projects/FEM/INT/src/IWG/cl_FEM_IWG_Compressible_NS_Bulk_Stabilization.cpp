@@ -576,6 +576,40 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::GLSTestFunc()
+        {
+            // check if LY already been evaluated
+            if ( !mGLSTestFuncEval )
+            {
+                return mGLSTestFunc;
+            }
+
+            // set the eval flag
+            mGLSTestFuncEval = false;  
+
+            // initialize LW with A0 term
+            mGLSTestFunc = this->dWdt_trans() * this->A( 0 );
+
+            // get subview for += operations
+            auto tGLSTF = mGLSTestFunc( { 0, mGLSTestFunc.n_rows() - 1 }, { 0, mGLSTestFunc.n_cols() - 1 } );
+
+            // loop over A- and K-matrices
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                tGLSTF += this->dWdx_trans( iDim ) * ( this->A( iDim + 1 ) - this->Kiji( iDim ) ); 
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    tGLSTF -= trans( this->d2Wdx2( iDim, jDim ) ) * this->K( iDim, jDim );
+                }
+            }
+
+            // return value
+            return mGLSTestFunc;
+        }
+
+        //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dLdDofW( const Matrix< DDRMat > & aVL )
         {
             // get the material and constitutive models
@@ -641,6 +675,72 @@ namespace moris
 
             // return value
             return mdLdDofW;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Bulk::dGLSTestFuncdDof( const Matrix< DDRMat > & aVR )
+        {
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+
+            // get the properties
+            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+
+            // initialize cell containing A-matrices pre-multiplied with VR
+            moris::Cell< Matrix< DDRMat > > tdAjdYVR( this->num_space_dims() + 1 );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with VR
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijidYVR( this->num_space_dims() );
+
+            // initialize cell containing Kij,i-matrices pre-multiplied with VL
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijdYVR( this->num_space_dims() );
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++)
+            {
+                tdKijdYVR( iDim ).resize( this->num_space_dims() );
+            }
+
+            // get dA0/dY * VR
+            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, aVR, 0, tdAjdYVR( 0 ) );
+
+            // compute A(0) term
+            mdGLSTestFuncdDof = this->dWdt_trans() * tdAjdYVR( 0 ) * this->W();
+
+            // get subview of matrix for += operations
+            auto tdGLSTFdDof = mdGLSTestFuncdDof( { 0, mdGLSTestFuncdDof.n_rows() - 1 }, { 0, mdGLSTestFuncdDof.n_cols() - 1 } );
+
+            // go over all Aj*VR and Kij,i*VR and Kij*VR terms and add up
+            for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++ )
+            {
+                // get dAj/dY * VR
+                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, aVR, iDim + 1, tdAjdYVR( iDim + 1 ) );
+
+                // add contributions from A-matrices
+                tdGLSTFdDof += this->dWdx_trans( iDim ) * tdAjdYVR( iDim + 1 )  * this->W();
+
+                // get dKij,i/dY * VR
+                eval_dKijidY_VR( tPropMu, tPropKappa, mMasterFIManager, aVR, iDim, tdKijidYVR( iDim ) );
+
+                // add contributions from Kij,i-matrices
+                // tdGLSTFdDof -= this->dWdx_trans( iDim ) * tdKijidYVR( iDim )( 0 ) * this->W();
+
+                for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
+                {
+                    // add contributions from Kij,i-matrices
+                    tdGLSTFdDof -= this->dWdx_trans( iDim ) * tdKijidYVR( iDim )( jDim + 1 ) * this->dWdx( jDim );
+
+                    // get dKij/dY * VR
+                    eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, aVR, iDim, jDim, tdKijdYVR( iDim )( jDim ) );
+
+                    // add contributions from K-matrices
+                    tdGLSTFdDof -= trans( this->d2Wdx2( iDim, jDim ) ) * tdKijdYVR( iDim )( jDim ) * this->W();
+                }
+            }
+
+            // return value
+            return mdGLSTestFuncdDof;
         }
 
         //------------------------------------------------------------------------------

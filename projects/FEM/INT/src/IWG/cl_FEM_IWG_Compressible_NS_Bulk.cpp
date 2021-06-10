@@ -66,6 +66,8 @@ namespace moris
             mLWEval = true;
             mLDofYEval = true;
 
+            mGLSTestFuncEval = true;
+
             mA0invEval = true;
             mdA0invdYEval = true;
 
@@ -137,6 +139,9 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
+                // // debug
+                // tRes += aWStar * tSP->val()( 0 ) * this->GLSTestFunc() * this->Y();
+
                 // GLS stabilization term
                 tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
             }           
@@ -227,6 +232,9 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
+                // // debug
+                // tJac += aWStar * tSP->val()( 0 ) * ( this->dGLSTestFuncdDof( this->Y() ) + this->GLSTestFunc() * this->W() );
+
                 // GLS stabilization term
                 tJac += aWStar * tSP->val()( 0 ) * (
                         trans( this->LW() ) * ( this->dTaudY( this->LY() ) * this->W() + this->Tau() * ( this->LW() + this->dLdDofY() ) ) +

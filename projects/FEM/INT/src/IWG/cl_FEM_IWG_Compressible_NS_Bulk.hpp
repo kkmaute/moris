@@ -36,6 +36,7 @@ namespace moris
                 bool mLYEval = true;
                 bool mLWEval = true;
                 bool mLDofYEval = true;
+                bool mGLSTestFuncEval = true;
 
                 // evaluation flag for the variable mapping operator
                 bool mA0invEval = true;
@@ -58,6 +59,8 @@ namespace moris
                 Matrix< DDRMat > mdLdDofY;
                 Matrix< DDRMat > mLW;
                 Matrix< DDRMat > mdLdDofW;
+                Matrix< DDRMat > mGLSTestFunc;
+                Matrix< DDRMat > mdGLSTestFuncdDof;
 
                 // storage for the variable mapping operator
                 Matrix< DDRMat > mA0inv;
@@ -168,6 +171,23 @@ namespace moris
                  * @param[ out ] mdLdDofW  dof deriv of L-operator applied to W-matrix
                  */
                 const Matrix< DDRMat > & dLdDofW( const Matrix< DDRMat > & aVL );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the transpose of the L-operator (Navier-Stokes-Operator) 
+                 * applied to the test functions (matrix W)
+                 * @param[ out ] mGLSTestFunc  transpose of ( the transpose of the L-operator applied to the W-matrix )
+                 */
+                const Matrix< DDRMat > & GLSTestFunc();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
+                 * applied to the test functions (matrix W)
+                 * @param[ in ]  aVR                pre-multiplication vector applied from the right
+                 * @param[ out ] mdGLSTestFuncdDof  dof deriv of transpose of ( the transpose of the L-operator applied to the W-matrix )
+                 */
+                const Matrix< DDRMat > & dGLSTestFuncdDof( const Matrix< DDRMat > & aVR );
 
                 //------------------------------------------------------------------------------
                 /**

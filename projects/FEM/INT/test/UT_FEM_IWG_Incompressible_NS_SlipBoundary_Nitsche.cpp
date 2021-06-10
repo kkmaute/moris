@@ -422,7 +422,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
     real tEpsilon = 1.0E-6;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-5;
+    real tPerturbation = 5.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -780,6 +780,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
                         1.0,
                         tJacobian,
                         tJacobianFD,
+                        true,
                         true );
 
                 // print for debug

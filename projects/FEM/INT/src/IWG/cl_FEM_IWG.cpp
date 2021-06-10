@@ -1943,7 +1943,8 @@ namespace moris
         void IWG::select_jacobian_FD(
                 real                aWStar,
                 real                aPerturbation,
-                fem::FDScheme_Type  aFDSchemeType )
+                fem::FDScheme_Type  aFDSchemeType,
+                bool                aUseAbsolutePerturbations )
         {
             // storage residual value
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
@@ -2000,7 +2001,11 @@ namespace moris
                     for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
                     {
                         // compute the perturbation absolute value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        real tDeltaH = aPerturbation;
+                        if ( !aUseAbsolutePerturbations )
+                        {
+                            tDeltaH = tDeltaH * tCoeff( iCoeffRow, iCoeffCol );
+                        }
 
                         // check that perturbation is not zero
                         if( std::abs( tDeltaH ) < 1e-12 )
@@ -2073,7 +2078,8 @@ namespace moris
         void IWG::select_jacobian_FD_double(
                 real                aWStar,
                 real                aPerturbation,
-                fem::FDScheme_Type  aFDSchemeType )
+                fem::FDScheme_Type  aFDSchemeType,
+                bool                aUseAbsolutePerturbations )
         {
             // storage residual value
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
@@ -2139,7 +2145,11 @@ namespace moris
                     for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
                     {
                         // compute the perturbation absolute value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        real tDeltaH = aPerturbation;
+                        if ( !aUseAbsolutePerturbations )
+                        {
+                            tDeltaH = tDeltaH * tCoeff( iCoeffRow, iCoeffCol );
+                        }
 
                         // check that perturbation is not zero
                         if( std::abs( tDeltaH ) < 1e-12 )
@@ -2251,7 +2261,11 @@ namespace moris
                     for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
                     {
                         // compute the perturbation absolute value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        real tDeltaH = aPerturbation;
+                        if ( !aUseAbsolutePerturbations )
+                        {
+                            tDeltaH = tDeltaH * tCoeff( iCoeffRow, iCoeffCol );
+                        }
 
                         // check that perturbation is not zero
                         if( std::abs( tDeltaH ) < 1e-12 )
@@ -2341,7 +2355,8 @@ namespace moris
                 real               aWStar,
                 Matrix< DDRMat > & aJacobian,
                 Matrix< DDRMat > & aJacobianFD,
-                bool               aErrorPrint )
+                bool               aErrorPrint,
+                bool               aUseAbsolutePerturbations )
         {
             // get residual dof type index in set, start and end indices for residual dof type
             uint tMasterDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -2386,7 +2401,7 @@ namespace moris
             mSet->get_jacobian().fill( 0.0 );
 
             // compute jacobian by FD
-            this->compute_jacobian_FD( aWStar, aPerturbation );
+            this->compute_jacobian_FD( aWStar, aPerturbation, fem::FDScheme_Type::POINT_5, aUseAbsolutePerturbations );
 
             // get the computed jacobian
             aJacobianFD( { 0, tMasterNumRows - 1 }, { 0, tNumCols - 1 } ) =
