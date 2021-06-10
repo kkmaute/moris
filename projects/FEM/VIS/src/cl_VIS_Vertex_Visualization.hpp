@@ -71,7 +71,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the domain wide id of this vertex
+             * returns the vis mesh domain wide id of this vertex
              */
             moris_id get_id() const
             {
@@ -82,11 +82,32 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the domain wide id of this vertex
+             * returns the vis mesh domain wide id of this vertex
              */
             moris_index get_index() const
             {
                 return mVertexInd;
+            }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * returns the id used in the integration mesh
+             */
+            moris_id get_integration_id() const
+            {
+                return mIntergrationVertex->get_id();
+            }
+
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * returns the index used in the integration mesh
+             */
+            moris_index get_integration_index() const
+            {
+                return mIntergrationVertex->get_index();
             }
 
 //------------------------------------------------------------------------------

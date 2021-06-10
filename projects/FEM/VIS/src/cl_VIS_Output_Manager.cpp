@@ -326,8 +326,8 @@ namespace moris
             moris::Cell<std::string> tNodalFieldNames( 2 + mOutputData( aVisMeshIndex ).mFieldNames.size() );
 
             // set standard field names
-            tNodalFieldNames( 0 ) = "Mesh_Id";
-            tNodalFieldNames( 1 ) = "Mesh_Index";
+            tNodalFieldNames( 0 ) = "Node_Id";
+            tNodalFieldNames( 1 ) = "Node_Index";
 
             uint tCounter = 2;
 
@@ -511,6 +511,39 @@ namespace moris
                 mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name() , "Mesh_Index", tIdIndex( 1 ) );
                 mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name() , "Proc_Index", tIdIndex( 2 ) );
             }
+
+            // getting the vertices on the vis mesh
+            moris::Cell< moris::mtk::Vertex const * > tVertices = mVisMesh( aVisMeshIndex )->get_all_vertices();
+
+            // get number of verts
+            uint tNumVerts = tVertices.size();
+
+            // create cell of index, id field, and proc indices
+            moris::Cell< Matrix< DDRMat > > tVertIdIndex( 2 );
+            tVertIdIndex( 0 ).set_size( tNumVerts, 1 );
+            tVertIdIndex( 1 ).set_size( tNumVerts, 1 );
+
+            for ( uint iVert = 0; iVert < tNumVerts; iVert++ )
+            {
+                // get the vis index
+                moris_index tIndex = tVertices( iVert )->get_index();
+
+                // get the moris ID
+                moris_id tVertId =
+                        reinterpret_cast< const vis::Vertex_Visualization* >( tVertices( iVert ) )->get_integration_id();
+
+                // get the moris index
+                moris_index tVertIndex =
+                        reinterpret_cast< const vis::Vertex_Visualization* >( tVertices( iVert ) )->get_integration_index();
+
+                // assign moris ID and index
+                tVertIdIndex( 0 )( tIndex ) = tVertId;
+                tVertIdIndex( 1 )( tIndex ) = tVertIndex;
+            }
+
+            // write the moris vertex ids and indices
+            mWriter( aVisMeshIndex )->write_nodal_field( "Node_Id",    tVertIdIndex( 0 ) );
+            mWriter( aVisMeshIndex )->write_nodal_field( "Node_Index", tVertIdIndex( 1 ) );
         }
 
         //-----------------------------------------------------------------------------------------------------------
