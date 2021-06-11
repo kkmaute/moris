@@ -338,7 +338,6 @@ namespace moris
                     return  mBSplineMeshes( aMeshIndex )->get_activation_pattern() ;
                 }
 
-
                 // ----------------------------------------------------------------------------
 
                 /**
@@ -419,8 +418,16 @@ namespace moris
                  */
                 luint get_number_of_bsplines_on_proc( const uint & aMeshIndex ) const                       //FIXME
                 {
-                    //                return mBSplineMeshes( aMeshIndex )->get_number_of_active_basis_on_proc();
-                    return mBSplineMeshes( aMeshIndex )->get_number_of_indexed_basis();
+                    // check that the requested BSpline-Mesh exists
+                    if ( mBSplineMeshes( aMeshIndex ) == nullptr )
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        // return mBSplineMeshes( aMeshIndex )->get_number_of_active_basis_on_proc();
+                        return mBSplineMeshes( aMeshIndex )->get_number_of_indexed_basis();
+                    }
                 }
 
                 // ----------------------------------------------------------------------------
@@ -428,6 +435,10 @@ namespace moris
                 Basis * get_bspline( const uint aMeshIndex,
                         const uint & aBasisIndex )                      //FIXME
                 {
+                    // check that the requested BSpline-Mesh exists
+                    MORIS_ASSERT( mBSplineMeshes( aMeshIndex ) != nullptr, 
+                            "Lagrange_Mesh_Base::get_bspline() - no B-Spline mesh paired with requested mesh index" );
+
                     //                return mBSplineMeshes( aMeshIndex )->get_active_basis( aBasisIndex );
                     return mBSplineMeshes( aMeshIndex )->get_basis_by_index( aBasisIndex );
                 }
@@ -530,7 +541,6 @@ namespace moris
                     return mMaxNodeDomainIndex;
                 }
 
-
                 // ----------------------------------------------------------------------------
 
                 /**
@@ -555,6 +565,7 @@ namespace moris
                         }
                     }
                 }
+
                 // ----------------------------------------------------------------------------
 
                 bool get_bspline_mesh_is_trivial_interpolation( const uint aMeshIndex )
@@ -578,6 +589,7 @@ namespace moris
                 {
                     return mBSplineMeshes( aMeshIndex );
                 }
+
                 // ----------------------------------------------------------------------------
 
                 /**
@@ -873,7 +885,6 @@ namespace moris
                         const uint    & aChildIndex );
 
 
-
                 // ----------------------------------------------------------------------------
 
                 /**
@@ -895,7 +906,6 @@ namespace moris
                 // ----------------------------------------------------------------------------
 
                 void delete_edges();
-
 
                 // ----------------------------------------------------------------------------
             private:
