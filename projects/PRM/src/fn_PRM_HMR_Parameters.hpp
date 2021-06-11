@@ -119,7 +119,7 @@ namespace moris
         tParameterList.insert( "refinement_function_names", "" );
 
         //! Expert functionality. This function is only for developers. It is not tested in all use cases and will not work in all use cases. T
-        //! When using this function the user has to now the limitations and unexpected behaviors
+        //! When using this function the user has to know the limitations and unexpected behaviors
         tParameterList.insert( "use_refine_low_level_elements", false );
 
 

@@ -40,7 +40,7 @@ namespace moris
                 aBackgroundMesh,
                 aOrder,
                 aActivationPattern ),
-                mBSplineMeshes( aBSplineMeshes )
+                mBSplineMeshes( aBSplineMeshes ) // initialize member cell of associated B-Spline meshes by copying aBSplineMeshes into it
         {
             mNumBSplineMeshes = mBSplineMeshes.size();
 
@@ -1454,10 +1454,13 @@ namespace moris
                 this->get_element( e )->allocate_twin_container( tNumberOfTwins );
             }
 
+            // loop over list of entries of lagrange_to_bspline map set by user
             for( uint k = 1; k < tNumberOfTwins; ++k )
             {
+                // check if a B-Spline mesh has been assigned to current Lagrange mesh ...
                 if( mBSplineMeshes( k ) != NULL )
                 {
+                    // ... if so, match twins for all elements in B-Sp. and Lag. meshes
                     for( uint e=0; e<tNumberOfElements; ++e )
                     {
                         this->get_element( e )->set_twin( k, mBSplineMeshes( k )->get_element( e ) );
@@ -1472,7 +1475,6 @@ namespace moris
         {
             // start timer
             tic tTimer;
-
 
             // modify filename
             std::string tFilePath = parallelize_path( aFilePath );

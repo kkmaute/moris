@@ -310,6 +310,7 @@ namespace moris
             // assign memory for B-Spline meshes
             mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
 
+            // create all B-Spline meshes requested
             for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
             {
                 mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
@@ -320,17 +321,23 @@ namespace moris
                 mBSplineMeshes( k )->set_index( k );
             }
 
-            // create Lagrange meshes
+            // get number of Lagrange meshes to be created
             uint tNumberOfLagrangeMeshes = mParameters->get_number_of_lagrange_meshes();
 
             // assign memory for Lagrange meshes
             mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
 
+            // create all Lagrange meshes requested
             for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
             {
+                // get B-Spline index corresponding to current Lagrange mesh
                 Matrix< DDSMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( k );
 
+                // create a cell containing B-Spline meshes associated with current Lagrange mesh 
                 Cell< BSpline_Mesh_Base * > tBsplineMeshes( tBsplineMeshIndices.numel() );
+
+                // pick out B-Spline meshes associated with current Lagrange mesh from HMR-global 
+                // list of B-Spline meshes and fill container with them
                 for( uint Ik=0; Ik<tBsplineMeshIndices.numel(); ++Ik )
                 {
                     // assign existing b-spline mesh to list of b-spline meshes
@@ -344,6 +351,7 @@ namespace moris
                     }
                 }
 
+                // create Lagrange mesh with links to all B-spline meshes associated to them
                 mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
                         mParameters,
                         mBackgroundMesh,
