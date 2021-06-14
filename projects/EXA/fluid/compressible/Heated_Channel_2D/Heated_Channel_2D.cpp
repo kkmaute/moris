@@ -70,14 +70,14 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // transient configuration
-    int tNumTimeSteps = 30; // number of elements in time dimension
-    moris::real tTimeStepSize = 200.0 * tChannelLength / (real) tNumXElems / tCs / 2.0;
+    int tNumTimeSteps = 10; // number of elements in time dimension
+    moris::real tTimeStepSize = 20.0 * tChannelLength / (real) tNumXElems / tCs / 2.0;
     moris::real tTimeFrame = (real) tNumTimeSteps * tTimeStepSize;  // resulting duration
     moris::real tTCWeight = tTimePenalty / tTimeStepSize;
 
     // Newton configuration
     moris::real tNewtonRelaxation = 1.0;
-    moris::real tNewtonTolerance = 1.0e-5;
+    moris::real tNewtonTolerance = 1.0e-6;
     int tMaxNewtonSteps = 10;
 
     // stabilization
@@ -435,6 +435,12 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
+        // select matrix for y-direction
+        tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
+        tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropSelectY");
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "0.0,0.0;0.0,1.0");
+        tPropCounter++;
+
         // time continuity weights        
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropWeightCurrent" );
@@ -520,7 +526,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
                                                                             "PropConductivity,ThermalConductivity" );
         tSPCounter++;
 
-        // create DUMMY SP for GLS
+        // create DUMMY SP for GLS (simply has value 1.0 everywhere)
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      "DummySP" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "PhaseFluid" );
@@ -581,6 +587,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
+                                                                                          "PropSelectY,SelectVelocity;"
                                                                                           "PropViscosity,DynamicViscosity;"
                                                                                           "PropConductivity,ThermalConductivity" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );

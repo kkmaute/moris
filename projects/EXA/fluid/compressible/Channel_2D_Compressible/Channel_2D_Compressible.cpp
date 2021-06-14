@@ -475,7 +475,7 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
-        // select matrix for 
+        // select matrix for y-direction
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropSelectY");
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "0.0,0.0;0.0,1.0");
