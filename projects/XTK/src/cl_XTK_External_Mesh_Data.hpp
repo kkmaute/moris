@@ -197,12 +197,7 @@ namespace xtk
                 //        moris::moris_id tFirstEdge = aMeshData->get_max_entity_id(EntityRank::EDGE);
                 //        moris::moris_id tFirstFace = aMeshData->get_max_entity_id(EntityRank::FACE);
                 moris::moris_id tFirstElem = aMeshData->get_max_entity_id(EntityRank::ELEMENT)+1;
-                moris::moris_id tFirstBspline = 0;
-                if(aMeshData->get_mesh_type() == MeshType::HMR)
-                {
-                    tFirstBspline = aMeshData->get_max_entity_id(EntityRank::BSPLINE);
-                }
-
+                
                 if(tProcessorRank == 0)
                 {
                     // Processor 1 (rank 0) is responsible for first available Ids
@@ -210,11 +205,6 @@ namespace xtk
                     mFirstAvailableIds(1) = MORIS_ID_MAX;
                     mFirstAvailableIds(2) = MORIS_ID_MAX;
                     mFirstAvailableIds(3) = tFirstElem;
-
-                    if(aMeshData->get_mesh_type() == MeshType::HMR)
-                    {
-                        mFirstAvailableIds(4) = tFirstBspline+1;
-                    }
                 }
 
                 mFirstExtEntityInds(0) = aMeshData->get_num_entities(moris::EntityRank::NODE);
