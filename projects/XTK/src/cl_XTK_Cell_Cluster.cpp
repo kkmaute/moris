@@ -142,6 +142,13 @@ namespace xtk
     }
 
     //----------------------------------------------------------------
+
+    Matrix< IndexMat > Cell_Cluster::get_hanging_nodes(  ) const
+    {
+        return mChildMesh->get_hanging_nodes(  );
+    }
+
+    //----------------------------------------------------------------
  
     size_t
     Cell_Cluster::capacity()
