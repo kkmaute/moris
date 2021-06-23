@@ -389,6 +389,12 @@ namespace moris
 
                     return tPrimaryVertexInd;
                 }
+
+                virtual
+                Matrix< IndexMat > get_hanging_nodes(  ) const
+                {
+                    return Matrix< IndexMat >( 0,0 );
+                };
         };
     }
 }
