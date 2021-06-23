@@ -294,6 +294,26 @@ namespace moris
                 void
                 add_double_sided_cluster(mtk::Double_Side_Cluster* );
 
+                // ----------------------------------------------------------------------------
+
+                /*!
+                 * Save MPC tp hdf5
+                 */
+                void
+                save_MPC_to_hdf5();
+
+                void
+                create_MPC_maps(
+                        Matrix< IdMat > & tBSToIPMap,
+                        Matrix< IdMat > & tIPToIGMap);
+
+                void
+                build_hanging_node_MPC(
+                        moris::Cell< Matrix< IdMat > > & tBSToIPIds,
+                        moris::Cell< Matrix< DDRMat > > & tBSToIPWeights,
+                        const Matrix< IdMat > & tBSToIPMap,
+                        const Matrix< IdMat > & tIPToIGMap);
+
             protected:
 
                 void collect_all_sets( bool aSetShape = true );

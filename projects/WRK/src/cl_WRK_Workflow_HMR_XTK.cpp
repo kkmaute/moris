@@ -2,6 +2,7 @@
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "cl_HMR.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
@@ -200,6 +201,13 @@ namespace moris
             mPerformerManager->mGENPerformer( 0 )->output_fields(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
+//             mtk::Mesh_Checker tMeshCheckerHMR(
+//                     0,
+//                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0),
+//                     mPerformerManager->mMTKPerformer( 0 )->get_integration_mesh(0));
+//             tMeshCheckerHMR.perform();
+//             tMeshCheckerHMR.print_diagnostics();
+
             // XTK perform - decompose - enrich - ghost - multigrid
             bool tFlag = mPerformerManager->mXTKPerformer( 0 )->perform();
 
@@ -215,6 +223,15 @@ namespace moris
 
                 return tMat;
             }
+
+//            mtk::Mesh_Checker tMeshCheckerXTK(
+//                    0,
+//                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
+//                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh());
+//            tMeshCheckerXTK.perform();
+//            tMeshCheckerXTK.print_diagnostics();
+
+            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
