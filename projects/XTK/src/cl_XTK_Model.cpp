@@ -255,6 +255,11 @@ namespace xtk
             }
         }
 
+        if(mParameterList.get<bool>("identify_hanging_nodes"))
+        {
+            this->perform_hanging_node_identification();
+        }
+
         if(mParameterList.get<bool>("ghost_stab"))
         {
             this->construct_face_oriented_ghost_penalization_cells();
@@ -3976,6 +3981,47 @@ namespace xtk
 
         // Change the enrichment flag
         mEnriched = true;
+    }
+
+    void Model::perform_hanging_node_identification()
+    {
+        Tracer tTracer( "XTK", "Identify hanging nodes" );
+
+        MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to identifying hanging nodes");
+
+        MORIS_ERROR(mEnriched,"Mesh needs to be enriched prior to identifying hanging nodes");
+
+        // get the interpolation mesh
+        moris::mtk::Interpolation_Mesh & tInterpMesh = mBackgroundMesh.get_mesh_data();
+
+        // iterate through child meshes
+        for(moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++)
+        {
+            // active child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(iCM);
+
+            // get the neighbors
+            Matrix<IndexMat> tElementNeighors = tInterpMesh.
+                    get_elements_connected_to_element_and_face_ind_loc_inds(tChildMesh.get_parent_element_index() );
+
+            moris::Cell< moris_index > tTransitionFacets;
+
+            // iterate through neighbor
+            for(moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++)
+            {
+                moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
+
+                moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
+
+                if( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT )  )
+                {
+                    tTransitionFacets.push_back( tSharedFaceIndex );
+                }
+            }
+
+            tChildMesh.identify_hanging_nodes( tTransitionFacets );
+
+        }
     }
 
     void

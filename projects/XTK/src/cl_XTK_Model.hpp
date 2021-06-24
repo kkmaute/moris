@@ -267,6 +267,10 @@ namespace xtk
                     Matrix<IndexMat> const & aMeshIndex);
 
             // ----------------------------------------------------------------------------------
+
+            void perform_hanging_node_identification();
+
+            // ----------------------------------------------------------------------------------
             /*!
              * @brief Probes and prints the information about a background cell
              */

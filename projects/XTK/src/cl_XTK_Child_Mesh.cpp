@@ -3924,6 +3924,36 @@ namespace xtk
 
     }
     // ---------------------------------------------------------------------------------
+
+    void Child_Mesh::identify_hanging_nodes( const moris::Cell< moris_index > & aTransitionFacetIndices )
+    {
+        moris::Cell< moris_index> tHangingNodeIndices;
+
+        for( uint Ik = 0; Ik < aTransitionFacetIndices.size(); Ik ++ )
+        {
+            moris_index tFacetIndex = aTransitionFacetIndices( Ik );
+
+            for( uint Ii = 0; Ii < mNodeInds.numel(); Ii++ )
+            {
+                if( (this->get_entity_parent_entity_rank( EntityRank::NODE, Ii ) == (moris_index) this->get_facet_rank() ) &&
+                    ( this->get_entity_parent_entity_proc_ind( EntityRank::NODE, Ii ) == tFacetIndex ) )
+                {
+                    tHangingNodeIndices.push_back( mNodeInds( Ii ) );
+
+                    break;
+                }
+
+            }
+        }
+
+        mHangingNodes.set_size( tHangingNodeIndices.size(), 1 );
+
+        for( uint Ii = 0; Ii < tHangingNodeIndices.size(); Ii++ )
+        {
+            mHangingNodes( Ii ) = tHangingNodeIndices( Ii );
+        }
+    }
+
     // ---------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------

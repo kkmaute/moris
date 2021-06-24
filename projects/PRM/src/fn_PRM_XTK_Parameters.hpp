@@ -106,6 +106,8 @@ namespace moris
         //Periodic environment sidesets
         tParameterList.insert( "periodic_side_set_pair", "");
 
+        tParameterList.insert( "identify_hanging_nodes", false);
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------

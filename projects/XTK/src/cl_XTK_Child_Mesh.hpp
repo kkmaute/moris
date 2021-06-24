@@ -883,10 +883,19 @@ public:
     mark_as_hmr_child_mesh(){ mHMR = true; };
 
     // ----------------------------------------------------------------------------------
+
+    void identify_hanging_nodes( const moris::Cell< moris_index > & aTransitionFacetIndices );
+
+    // ----------------------------------------------------------------------------------
+
+    Matrix< IndexMat > get_hanging_nodes() const { return mHangingNodes; };
+
+    // ----------------------------------------------------------------------------------
     // Memory Printing / Computing
     // ----------------------------------------------------------------------------------
     moris::Memory_Map
     get_memory_usage();
+
 
 private:
     // Parent element index
@@ -980,6 +989,8 @@ private:
     Cell<Cell< moris_index >>       mDoubleSideSetSubphaseInds;
     Cell<Cell<Cell< moris_index >>> mDoubleSideSetCellPairs;
     Cell<Cell<Cell< moris_index >>> mDoubleSideSetFacetPairs;
+
+    Matrix< IndexMat >              mHangingNodes;
 
     // Unzipping information
     bool mUnzippingFlag = false;
