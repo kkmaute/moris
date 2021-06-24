@@ -18,7 +18,9 @@
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
 #include "fn_FEM_Check.hpp"
+
 #include "fn_sqrtmat.hpp"
+//#include "../test/FEM_Test_Proxy/fn_FEM_Convert_Dimensions.cpp"
 
 namespace moris
 {
@@ -139,12 +141,9 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // // debug
-                // tRes += aWStar * tSP->val()( 0 ) * this->GLSTestFunc() * this->Y();
-
                 // GLS stabilization term
-                tRes += aWStar * tSP->val()( 0 ) * trans( this->LW() ) * this->Tau() * this->LY();
-            }           
+                tRes += aWStar * tSP->val()( 0 ) * this->GLSTestFunc() * this->Tau() * this->LY();
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -232,13 +231,10 @@ namespace moris
             // add contribution of stabilization term if stabilization parameter has been set
             if ( tSP != nullptr )
             {
-                // // debug
-                // tJac += aWStar * tSP->val()( 0 ) * ( this->dGLSTestFuncdDof( this->Y() ) + this->GLSTestFunc() * this->W() );
-
                 // GLS stabilization term
                 tJac += aWStar * tSP->val()( 0 ) * (
-                        trans( this->LW() ) * ( this->dTaudY( this->LY() ) * this->W() + this->Tau() * ( this->LW() + this->dLdDofY() ) ) +
-                        this->dLdDofW( this->Tau() * this->LY() ) );
+                        this->GLSTestFunc() * ( this->dTaudY( this->LY() ) * this->W() + this->Tau() * ( this->LW() + this->dLdDofY() ) ) +
+                        this->dGLSTestFuncdDof( this->Tau() * this->LY() ) );
             }
 
             // check for nan, infinity
