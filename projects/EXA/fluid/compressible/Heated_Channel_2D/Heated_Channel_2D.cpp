@@ -77,7 +77,7 @@ namespace moris
 
     // Newton configuration
     moris::real tNewtonRelaxation = 1.0;
-    moris::real tNewtonTolerance = 1.0e-6;
+    moris::real tNewtonTolerance = 1.0e-10;
     int tMaxNewtonSteps = 10;
 
     // stabilization
@@ -92,7 +92,7 @@ namespace moris
 
     // convert Nitsche penalty to string
     std::string sNitscheGammas = 
-            ios::stringify( tNitscheGammaP  ) + ";" +
+            ios::stringify( 0.0  ) + ";" +
             ios::stringify( tNitscheGammaVX ) + ";" +
             ios::stringify( tNitscheGammaVY ) + ";" +
             ios::stringify( tNitscheGammaT  );
@@ -130,8 +130,8 @@ namespace moris
         real tElemNumber = std::floor( tX / tHx ); 
 
         // get element left and right node positions
-        real tLeftNodePos = tElemNumber * tHx;
-        real tRightNodePos = ( tElemNumber + 1.0 ) * tHx;
+        real tLeftNodePos = ( tElemNumber - 1.0 ) * tHx;
+        real tRightNodePos = tElemNumber * tHx;
 
         // compute heat loads at left and right nodes
         real tQl = std::exp( -1.0 * tQfac * std::pow( 2.0 *  tLeftNodePos / tChannelLength - 1.0, 2.0 ) );
