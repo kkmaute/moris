@@ -30,7 +30,7 @@ namespace moris
             // get temperature
             real tTemp = aFieldInterpolator->val()( 0 );
 
-            real tF;
+            real tF=0.0;
 
             switch ( aPCfunc )
             {
@@ -82,6 +82,8 @@ namespace moris
                     MORIS_ERROR(false,"eval_phase_state_function - logistic function option not implemented.\n");
                     break;
                 }
+
+                // default - error
                 default:
                 {
                     MORIS_ERROR(false,"eval_phase_state_function - option not implemented.");
