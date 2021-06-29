@@ -2510,7 +2510,7 @@ namespace moris
                     "Constitutive_Model::ddivfluxdu - no dependency in this dof type." );
 
             // get the dof index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+            const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative of the divergence of the flux was not evaluated
             if( mddivfluxduEval( tDofIndex ) )
