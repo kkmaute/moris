@@ -43,6 +43,7 @@ namespace moris
                 enum class Property_Type
                 {
                     CONDUCTIVITY,
+                    SOURCE,
                     MAX_ENUM
                 };
 
