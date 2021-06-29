@@ -137,7 +137,8 @@ namespace moris
                 TURBULENT_KINEMATIC_VISCOSITY,
                 TOTAL_PRESSURE,
                 MASS_FLOW,
-                THERMAL_ENERGY,
+                THERMAL_ENERGY_CONVECTIVE_FLUX,
+                THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
                 MAX_STRESS,
                 MAX_NORMAL_STRESS,
