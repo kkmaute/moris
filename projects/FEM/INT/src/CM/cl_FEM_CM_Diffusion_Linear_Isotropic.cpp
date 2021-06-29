@@ -12,7 +12,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         CM_Diffusion_Linear_Isotropic::CM_Diffusion_Linear_Isotropic()
@@ -36,7 +35,7 @@ namespace moris
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
 
-            // loop over the provided dof type
+            // loop over the provided dof types
             for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
             {
                 // get dof type string
@@ -97,10 +96,32 @@ namespace moris
                 // compute normalized gradient of theta
                 const Matrix< DDRMat > & tGradTheta = tFITheta->gradx( 1 );
 
+                // compute norm of spatial gradient of theta
+                const real tNorm = norm( tGradTheta );
+
                 // add eigen strain contribution
-                mFlux += mPropConductivity->val()( 0 ) * tGradTheta / (norm( tGradTheta ) + MORIS_REAL_EPS);
+                if ( tNorm > MORIS_REAL_EPS )
+                {
+                    mFlux += mPropConductivity->val()( 0 ) * tGradTheta / tNorm;
+                }
+            }
+        }
 
+        //------------------------------------------------------------------------------
 
+        void CM_Diffusion_Linear_Isotropic::eval_Energy()
+        {
+            // if density and heat capacity properties are set
+            if ( mPropDensity != nullptr && mPropHeatCapacity != nullptr )
+            {
+                // compute enthalpy
+                mEnergy = mPropDensity->val()( 0 ) * mPropHeatCapacity->val()( 0 ) *
+                        mFIManager->get_field_interpolators_for_type( mTempDof )->val();
+            }
+            else
+            {
+                // if no capacity or density is given, set Energy to zero
+                mEnergy = 0.0 ;
             }
         }
 
@@ -328,16 +349,79 @@ namespace moris
                 const Matrix< DDRMat > & tBTheta    = tFITheta->dnNdxn( 1 );
                 const Matrix< DDRMat > & tGradTheta = tFITheta->gradx( 1 );
 
+                // compute norm of spatial gradient of theta
                 real tNorm = norm( tGradTheta );
 
-                Matrix< DDRMat > tNormGradTheta = tGradTheta / tNorm;
-                Matrix< DDRMat > tNormBTheta    = tBTheta / tNorm;
+                // add eigen strain contribution
+                if ( tNorm > MORIS_REAL_EPS )
+                {
+                    Matrix< DDRMat > tNormGradTheta = tGradTheta / tNorm;
+                    Matrix< DDRMat > tNormBTheta    = tBTheta / tNorm;
 
-                // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ) +=
-                        mPropConductivity->val()( 0 ) *  ( tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
+                    // compute derivative with direct dependency
+                    mdFluxdDof( tDofIndex ) +=
+                            mPropConductivity->val()( 0 ) *  ( tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
+                }
             }
         }
+        //------------------------------------------------------------------------------
+
+         void CM_Diffusion_Linear_Isotropic::eval_dEnergydDOF(
+                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
+         {
+             // get the dof type as a uint
+             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+             // get the dof type index
+             uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+             // get the corresponding FI
+             Field_Interpolator * tFIDer =
+                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+             // initialize the matrix
+             mEnergyDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+
+             // check if density and heat capacity are set
+             if ( mPropDensity == nullptr || mPropHeatCapacity == nullptr)
+             {
+                 return;
+             }
+
+             // get the temperature FI
+             Field_Interpolator * tFITemp =
+                     mFIManager->get_field_interpolators_for_type( mTempDof );
+
+             // if the dof type is temperature
+             if( aDofTypes( 0 ) == mTempDof )
+             {
+                 // compute derivative with direct dependency
+                 mEnergyDof( tDofIndex ) +=
+                         mPropDensity->val()( 0 ) *
+                         mPropHeatCapacity->val()( 0 ) *
+                         tFITemp->N();
+             }
+
+             // if density property depends on the dof type
+             if ( mPropDensity->check_dof_dependency( aDofTypes ) )
+             {
+                 // compute derivative with indirect dependency through properties
+                 mEnergyDof( tDofIndex ) +=
+                         mPropHeatCapacity->val()( 0 ) *
+                         tFITemp->val() *
+                         mPropDensity->dPropdDOF( aDofTypes );
+             }
+
+             // if heat capacity depends on the dof type
+             if ( mPropHeatCapacity->check_dof_dependency( aDofTypes ) )
+             {
+                 // compute derivative with indirect dependency through properties
+                 mEnergyDof( tDofIndex ) +=
+                         mPropDensity->val()( 0 ) *
+                         tFITemp->val() *
+                         mPropHeatCapacity->dPropdDOF( aDofTypes );
+             }
+         }
 
         //------------------------------------------------------------------------------
 
