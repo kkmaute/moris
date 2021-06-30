@@ -82,23 +82,21 @@ namespace moris
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual() - Only pressure or density primitive variables supported for now."
                     " See error message above for specifics." );
 
-            // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
+            // get number of space dimensions
+            uint tNumSpaceDims = this->num_space_dims();
 
-            // get matrix subviews for different residuals - FIXME: assuming three different Residual DoF-Types, primitive vars
-            auto tRes  = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
+            // get total number of DoFs on Comp Flow Element
+            uint tNumTotalBases = ( tNumSpaceDims + 2 ) * this->num_bases();
+
+            // construct temporary Vector for residual
+            Matrix< DDRMat > tTempRes( tNumTotalBases, 1, 0.0 );
+            auto tRes = tTempRes( { 0, tNumTotalBases - 1 }, { 0, 0 } );
 
             // Boundary terms from Ibp
             tRes -= this->W_trans() * this->select_matrix() * this->Traction();
 
             // adjoint term
             tRes -= mBeta * this->TestTraction() * this->jump();
-
-            // get number of spatial dimensions
-            uint tNumSpaceDims = this->num_space_dims();
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
@@ -124,16 +122,6 @@ namespace moris
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
-                // // add A-matrices
-                // Matrix< DDRMat > tAini = this->A( 1 ) * mNormal( 0 ) + this->A( 2 ) * mNormal( 1 );
-                // if ( tNumSpaceDims == 3 )
-                // {
-                //     tAini = tAini + this->A( 3 ) * mNormal( 2 );
-                // }
-                //
-                // // add contribution
-                // tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tAini * this->jump();
-
                 // construct upwind pressure operator // FIXME: this needs to be done more neatly
                 // initialize operator
                 Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
@@ -148,6 +136,9 @@ namespace moris
                 // add contribution
                 tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tUpwindOperator * this->jump();
             }
+
+            // assemble into set residual
+            this->assemble_residual( tTempRes );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -166,24 +157,19 @@ namespace moris
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
-            // get residual dof indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
-
             // check DoF dependencies
             MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Set of DoF dependencies not suppported. See error message above." );
 
-            // get the indices for assembly - dependent dof types
-            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDep1StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofFirstDepIndex, 0 );
-            uint tMasterDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofThirdDepIndex, 1 );      
+            // get number of space dimensions
+            uint tNumSpaceDims = this->num_space_dims();
 
-            // get matrix subview for jacobian - FIXME: assuming three different Residual DoF-Types, primitive vars
-            auto tJac  = mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );
+            // get total number of DoFs on Comp Flow Element
+            uint tNumTotalBases = ( tNumSpaceDims + 2 ) * this->num_bases();
+
+            // construct temporary Matrix for elemental Jacobian in standardized format
+            Matrix< DDRMat > tTempJac( tNumTotalBases, tNumTotalBases, 0.0 );
+            auto tJac = tTempJac( { 0, tNumTotalBases - 1 }, { 0, tNumTotalBases - 1 } );
 
             // Boundary terms from Ibp
             tJac -= this->W_trans() * this->select_matrix() * this->dTractiondDOF();
@@ -191,9 +177,6 @@ namespace moris
             // adjoint term
             tJac -= mBeta * this->TestTraction() * this->dJumpdDOF();
             tJac -= mBeta * this->dTestTractiondDOF( this->jump() );
-
-            // get number of space dimensions
-            uint tNumSpaceDims = num_space_dims();
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
@@ -225,20 +208,6 @@ namespace moris
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
-                for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
-                {
-                    // // get dA/dY * Jump
-                    // Matrix< DDRMat > tdAdY_Jump;
-                    // eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->jump(), iDim + 1, tdAdY_Jump );
-                    //
-                    // // get dA/dDof * Jump
-                    // Matrix< DDRMat > tdAdDof_Jump = tdAdY_Jump * this->W();
-                    //
-                    // // add contribution
-                    // tJac -= tPropUpwind->val()( 0 ) * mNormal( iDim ) * this->W_trans() * ( 
-                    //         this->A( iDim + 1 ) * this->dJumpdDOF() + tdAdDof_Jump );
-                }
-
                 // construct upwind pressure operator // FIXME: this needs to be done more neatly
                 // initialize operator
                 Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
@@ -258,6 +227,9 @@ namespace moris
                 // add contribution
                 tJac -= tPropUpwind->val()( 0 ) * this->W_trans() * ( tUpwindOperator * this->dJumpdDOF() + this->jump()( 0 ) * tdUpwindOperatordY * this->W() );
             }
+
+            // assemble jacobian into set jacobian
+            this->assemble_jacobian( tTempJac );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,

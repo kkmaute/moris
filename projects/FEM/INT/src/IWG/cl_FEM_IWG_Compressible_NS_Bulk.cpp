@@ -95,22 +95,15 @@ namespace moris
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
-
-            // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
-
             // get number of space dimensions
             uint tNumSpaceDims = this->num_space_dims();
 
-            // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            // get total number of DoFs on Comp Flow Element
+            uint tNumTotalBases = ( tNumSpaceDims + 2 ) * this->num_bases();
 
-            // get subview for complete residual
-            auto tRes = mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } );
+            // construct temporary Vector for residual
+            Matrix< DDRMat > tTempRes( tNumTotalBases, 1, 0.0 );
+            auto tRes = tTempRes( { 0, tNumTotalBases - 1 }, { 0, 0 } );
 
             // A0 matrix contribution
             tRes += aWStar * this->W_trans() * this->A( 0 ) * this->dYdt();
@@ -145,6 +138,9 @@ namespace moris
                 tRes += aWStar * tSP->val()( 0 ) * this->GLSTestFunc() * this->Tau() * this->LY();
             }
 
+            // assemble into set residual
+            this->assemble_residual( tTempRes );
+
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Compressible_NS_Bulk::compute_residual - Residual contains NAN or INF, exiting!");                                 
@@ -162,31 +158,23 @@ namespace moris
             MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
-            // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
-
-            // get number of space dimensions
-            uint tNumSpaceDims = this->num_space_dims();                   
-
-            // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
-
             // check DoF dependencies
             MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
-            // get the indeces for assembly
-            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDep1StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofFirstDepIndex, 0 );
-            uint tMasterDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofThirdDepIndex, 1 );                
+            // get number of space dimensions
+            uint tNumSpaceDims = this->num_space_dims();
 
-            // get subview of jacobian for += operations   
-            auto tJac = mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );  
+            // get total number of DoFs on Comp Flow Element
+            uint tNumTotalBases = ( tNumSpaceDims + 2 ) * this->num_bases();
+
+            // construct temporary Matrix for elemental Jacobian in standardized format
+            Matrix< DDRMat > tTempJac( tNumTotalBases, tNumTotalBases, 0.0 );
+            auto tJac = tTempJac( { 0, tNumTotalBases - 1 }, { 0, tNumTotalBases - 1 } );
+
+            // get the material and constitutive models
+            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
@@ -236,6 +224,9 @@ namespace moris
                         this->GLSTestFunc() * ( this->dTaudY( this->LY() ) * this->W() + this->Tau() * ( this->LW() + this->dLdDofY() ) ) +
                         this->dGLSTestFuncdDof( this->Tau() * this->LY() ) );
             }
+
+            // assemble jacobian into set jacobian
+            this->assemble_jacobian( tTempJac );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
