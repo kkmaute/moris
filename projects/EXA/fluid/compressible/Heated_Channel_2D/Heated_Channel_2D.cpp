@@ -55,7 +55,7 @@ namespace moris
     moris::real tInitialPressure     = tGasConstant * tInitialDensity * tInitialTemperature;  /* Initial pressure */
 
     // Nitsche Penalty for Dirichlet BCs
-    moris::real tNitscheGammaP    = 100.0;  /* Penalty for pressure Dirichlet BCs */
+    moris::real tNitscheGammaP    = 0.0;    /* Penalty for pressure Dirichlet BCs */
     moris::real tNitscheGammaVX   = 100.0;  /* Penalty for x-vel Dirichlet BCs */
     moris::real tNitscheGammaVY   = 100.0;  /* Penalty for y-vel Dirichlet BCs */
     moris::real tNitscheGammaT    = 100.0;  /* Penalty for temperature Dirichlet BCs */
@@ -71,13 +71,13 @@ namespace moris
 
     // transient configuration
     int tNumTimeSteps = 10; // number of elements in time dimension
-    moris::real tTimeStepSize = 20.0 * tChannelLength / (real) tNumXElems / tCs / 2.0;
+    moris::real tTimeStepSize = 20.0 * tChannelLength / 100.0 / tCs / 2.0;
     moris::real tTimeFrame = (real) tNumTimeSteps * tTimeStepSize;  // resulting duration
     moris::real tTCWeight = tTimePenalty / tTimeStepSize;
 
     // Newton configuration
     moris::real tNewtonRelaxation = 1.0;
-    moris::real tNewtonTolerance = 1.0e-10;
+    moris::real tNewtonTolerance = 1.0e-9;
     int tMaxNewtonSteps = 10;
 
     // stabilization
@@ -88,11 +88,26 @@ namespace moris
     bool tHaveFixedEnds = false; // close off ends of channel, impose zero velocity
     bool tHaveTopBottomBCs = false;
 
+    // switch for time continuity  - for debugging
+    bool tHaveTimeContinuity = true;
+
+    // switch for bulk contribution  - for debugging
+    bool tHaveBulk = true;
+
+    // write jacobian to file - for debugging
+    bool tWriteJacToMatlab = false;
+
+    // order DoFs in global system by host - for debugging
+    bool tOrderAdofsByHost = false;
+
+    // use only Lagrange shape functions (and not B-Splines)
+    bool tUseLagrange = true;
+
     //------------------------------------------------------------------------------
 
     // convert Nitsche penalty to string
     std::string sNitscheGammas = 
-            ios::stringify( 0.0  ) + ";" +
+            ios::stringify( tNitscheGammaP ) + ";" +
             ios::stringify( tNitscheGammaVX ) + ";" +
             ios::stringify( tNitscheGammaVY ) + ";" +
             ios::stringify( tNitscheGammaT  );
@@ -267,6 +282,10 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", "0" );
         tParameterlist( 0 )( 0 ).set( "bspline_orders",   ios::stringify( tIpOrder ) );
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  "0" );
+        if ( tUseLagrange )
+        {
+            tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "-1") ;
+        }
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
@@ -542,22 +561,25 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         // init IWG counter
         uint tIWGCounter = 0;
 
-        // bulk IWG
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropViscosity,DynamicViscosity;"
-                                                                                      "PropConductivity,ThermalConductivity;"
-                                                                                      "PropHeatLoad,BodyHeatLoad" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        if ( tHaveGLS )
+        if ( tHaveBulk )
         {
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "DummySP,GLS" );
+            // bulk IWG
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGBulk" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BULK );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropViscosity,DynamicViscosity;"
+                                                                                        "PropConductivity,ThermalConductivity;"
+                                                                                        "PropHeatLoad,BodyHeatLoad" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            if ( tHaveGLS )
+            {
+                tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "DummySP,GLS" );
+            }
+            tIWGCounter++;
         }
-        tIWGCounter++;
 
         // Boundary IWG for top and bottom
         // Boundary IWG inlet
@@ -625,47 +647,50 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
         tIWGCounter++;
 
-        // Time continuity for Pressure
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityPressure" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-                                                                                      "PropWeightPrevious,WeightPrevious;"
-                                                                                      "PropInitialPressure,InitialCondition" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
-        tIWGCounter++;
+        if ( tHaveTimeContinuity )
+        {
+            // Time continuity for Pressure
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityPressure" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
+                                                                                          "PropWeightPrevious,WeightPrevious;"
+                                                                                          "PropInitialPressure,InitialCondition" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
+            tIWGCounter++;
 
-        // Time continuity for Velocity
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityVelocity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "VX,VY" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-                                                                                      "PropWeightPrevious,WeightPrevious;"
-                                                                                      "PropInitialVelocity,InitialCondition" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
-        tIWGCounter++;
+            // Time continuity for Velocity
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityVelocity" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "VX,VY" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
+                                                                                          "PropWeightPrevious,WeightPrevious;"
+                                                                                          "PropInitialVelocity,InitialCondition" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
+            tIWGCounter++;
 
-        // Time continuity for Temperature
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-                                                                                      "PropWeightPrevious,WeightPrevious;"
-                                                                                      "PropInitialTemperature,InitialCondition" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
-        tIWGCounter++;
+            // Time continuity for Temperature
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
+                                                                                          "PropWeightPrevious,WeightPrevious;"
+                                                                                          "PropInitialTemperature,InitialCondition" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
+            tIWGCounter++;
+        }
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
@@ -776,6 +801,10 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "P,2;VX,2;VY,2;TEMP,2" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        if ( tWriteJacToMatlab )
+        {
+            tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Matlab_2e.dat" );
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -786,6 +815,8 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 )( 0 ).set( "order_adofs_by_host", tOrderAdofsByHost );
+
     }
 
     //------------------------------------------------------------------------------
