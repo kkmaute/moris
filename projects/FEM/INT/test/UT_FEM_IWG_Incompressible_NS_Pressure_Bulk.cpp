@@ -490,6 +490,19 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
     //tPropRefTemp->set_val_function( tTEMPFIValFunc );
     //tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropMassSource = std::make_shared< fem::Property >();
+    tPropMassSource->set_parameters( { {{ 3.5 }} } );
+    tPropMassSource->set_val_function( tConstValFunc );
+    //tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
+    //tPropMassSource->set_val_function( tTEMPFIValFunc );
+    //tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+
+    std::shared_ptr< fem::Property > tPropBodyLoad = std::make_shared< fem::Property >();
+    tPropBodyLoad->set_val_function( tConstValFunc );
+    //tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
+    //tPropMassSource->set_val_function( tTEMPFIValFunc );
+    //tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
@@ -522,11 +535,14 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
     tIWG->set_residual_dof_type( tPDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropGravity, "Gravity" );
-    tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
-    tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
+    tIWG->set_property( tPropGravity,        "Gravity" );
+    tIWG->set_property( tPropThermalExp,     "ThermalExpansion" );
+    tIWG->set_property( tPropRefTemp,        "ReferenceTemp" );
+    tIWG->set_property( tPropMassSource,     "MassSource" );
+    tIWG->set_property( tPropBodyLoad,       "Load" );
+
     tIWG->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
-    tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
+    tIWG->set_stabilization_parameter( tSPIncFlow,     "IncompressibleFlow" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -562,6 +578,9 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
         {
             case 2 :
             {
+                // set momentum source term
+                tPropBodyLoad->set_parameters( { { { 0.5 },{ 0.35 } } } );
+
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
@@ -581,6 +600,9 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
             }
             case 3 :
             {
+                // set momentum source term
+                tPropBodyLoad->set_parameters( { { { 0.5 },{ 0.35 },{ 0.42 } } } );
+
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
